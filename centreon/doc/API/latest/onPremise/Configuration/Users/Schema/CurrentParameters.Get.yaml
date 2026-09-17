@@ -26,8 +26,9 @@ properties:
     example: Europe/Paris
 
   locale:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: Locale of the current user
     example: en_US
 
@@ -46,6 +47,11 @@ properties:
     description: Indicates if user wants to use deprecated monitoring pages
     example: false
 
+  use_deprecated_custom_views:
+    type: boolean
+    description: Indicates if user wants to use deprecated custom views
+    example: false
+
   theme:
     type: string
     description: Selected theme of the current user
@@ -58,14 +64,16 @@ properties:
     default: compact
 
   default_page:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: Default page for the current user
     example: '/main.php?p=60901'
 
   dashboard:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       global_user_role:
         type: string

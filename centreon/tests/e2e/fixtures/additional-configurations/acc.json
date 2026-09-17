@@ -1,0 +1,22 @@
+{
+    "default": {
+        "name": "Connector-001",
+        "type": "VMWare 6/7",
+        "pollers": ["Central"],
+        "user": "admin",
+        "password": "Abcde!2021",
+        "vCenternames": ["vCenter-001"],
+        "url": "https://10.0.0.0/sdk",
+        "port": "5700"
+    },
+    "updated": {
+         "name": "Connector-002",
+        "type": "VMWare 6/7",
+        "pollers": ["Poller-1"],
+        "user": "admin-updated",
+        "password": "Abcde!202",
+        "vCenternames": ["vCenter-00"],
+        "url": "https://10.0.1.3/sdk",
+        "port": "6900"
+    }
+}

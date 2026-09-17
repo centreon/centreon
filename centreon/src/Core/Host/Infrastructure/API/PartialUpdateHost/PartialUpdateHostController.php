@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ final class PartialUpdateHostController extends AbstractController
         PartialUpdateHost $useCase,
         DefaultPresenter $presenter,
         bool $isCloudPlatform,
-        int $hostId
+        int $hostId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
@@ -127,7 +127,7 @@ final class PartialUpdateHostController extends AbstractController
          *     categories?: int[],
          *     groups?: int[],
          *     templates?: int[],
-         *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+         *     macros?: array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
          *     add_inherited_contact_group?: bool,
          *     add_inherited_contact?: bool,
          *     is_activated?: bool

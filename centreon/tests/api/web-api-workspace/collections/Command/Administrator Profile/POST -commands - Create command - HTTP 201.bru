@@ -1,0 +1,44 @@
+meta {
+  name: POST /commands - Create command - HTTP 201
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{CommandNameAdmin}}",
+    "type": "{{CommandType}}",
+    "command_line": "{{CommandLine}}",
+    "is_shell_enabled": true
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The command has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("CommandId", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("CommandNameAdmin"),
+      "type": bru.getEnvVar("CommandType"),
+      "command_line": bru.getEnvVar("CommandLine"),
+      "is_shell_enabled": true,
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,11 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Monitoring\Timeline;
 
-use Centreon\Domain\Monitoring\Timeline\TimelineContact;
 use Centreon\Domain\Monitoring\ResourceStatus;
 use DateTime;
 
@@ -32,49 +32,31 @@ use DateTime;
  */
 class TimelineEvent
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $type;
 
-    /**
-     * @var DateTime|null
-     */
+    /** @var DateTime|null */
     private $date;
 
-    /**
-     * @var DateTime|null
-     */
+    /** @var DateTime|null */
     private $startDate;
 
-    /**
-     * @var DateTime|null
-     */
+    /** @var DateTime|null */
     private $endDate;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $content;
 
-    /**
-     * @var TimelineContact|null
-     */
+    /** @var TimelineContact|null */
     private $contact;
 
-    /**
-     * @var ResourceStatus|null
-     */
+    /** @var ResourceStatus|null */
     private $status;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $tries;
 
     /**
@@ -92,6 +74,7 @@ class TimelineEvent
     public function setId(?int $id): TimelineEvent
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -110,6 +93,7 @@ class TimelineEvent
     public function setType(?string $type): TimelineEvent
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -128,6 +112,7 @@ class TimelineEvent
     public function setDate(?DateTime $date): TimelineEvent
     {
         $this->date = $date;
+
         return $this;
     }
 
@@ -146,6 +131,7 @@ class TimelineEvent
     public function setStartDate(?DateTime $startDate): TimelineEvent
     {
         $this->startDate = $startDate;
+
         return $this;
     }
 
@@ -164,6 +150,7 @@ class TimelineEvent
     public function setEndDate(?DateTime $endDate): TimelineEvent
     {
         $this->endDate = $endDate;
+
         return $this;
     }
 
@@ -182,6 +169,7 @@ class TimelineEvent
     public function setContent(?string $content): TimelineEvent
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -200,6 +188,7 @@ class TimelineEvent
     public function setContact(?TimelineContact $contact): TimelineEvent
     {
         $this->contact = $contact;
+
         return $this;
     }
 
@@ -218,6 +207,7 @@ class TimelineEvent
     public function setStatus(?ResourceStatus $status): TimelineEvent
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -236,6 +226,7 @@ class TimelineEvent
     public function setTries(?int $tries): TimelineEvent
     {
         $this->tries = $tries;
+
         return $this;
     }
 }

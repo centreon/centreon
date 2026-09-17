@@ -1,17 +1,15 @@
-import { useLayoutEffect } from 'react';
+import { getData, useLocale, useRequest } from '@centreon/ui';
 
 import i18next, { i18n, Resource, ResourceLanguage } from 'i18next';
-import { useAtomValue } from 'jotai';
 import { mergeAll, pipe, reduce, toPairs } from 'ramda';
+import { useLayoutEffect } from 'react';
 import { initReactI18next } from 'react-i18next';
-
-import { getData, useRequest } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import {
   externalTranslationEndpoint,
   internalTranslationEndpoint
 } from '../App/endpoint';
+import { getBrowserLocale } from './utils';
 
 interface UseInitializeTranslationState {
   getBrowserLocale: () => string;
@@ -24,12 +22,12 @@ interface UseInitializeTranslationState {
 const useInitializeTranslation = (): UseInitializeTranslationState => {
   const { sendRequest: getTranslations } = useRequest<ResourceLanguage>({
     httpCodesBypassErrorSnackbar: [500],
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ResourceLanguage>
   });
 
-  const { locale } = useAtomValue(userAtom);
-
-  const getBrowserLocale = (): string => navigator.language.slice(0, 2);
+  const locale = useLocale();
 
   const initializeI18n = (retrievedTranslations?: ResourceLanguage): void => {
     i18next.use(initReactI18next).init({
@@ -38,7 +36,7 @@ const useInitializeTranslation = (): UseInitializeTranslationState => {
       lng: locale?.substring(0, 2) || getBrowserLocale(),
       nsSeparator: false,
       resources: pipe(
-        toPairs as (t) => Array<[string, ResourceLanguage]>,
+        toPairs as (t: unknown) => Array<[string, ResourceLanguage]>,
         reduce(
           (acc, [language, values]) =>
             mergeAll([acc, { [language]: { translation: values } }]),

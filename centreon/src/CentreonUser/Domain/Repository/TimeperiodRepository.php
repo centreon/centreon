@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
-                && [] !== $filters['ids']
+                && $filters['ids'] !== []
             ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $x => $id) {
@@ -105,7 +105,15 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
         }
 
         if (! empty($ordering['field'])) {
-            $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $ordering['order'];
+            // ORDER BY column and direction cannot be bound as parameters, so they
+            // must be validated against a fixed allowlist to prevent SQL injection.
+            $allowedFields = ['tp_id', 'tp_name', 'tp_alias'];
+            $field = (string) $ordering['field'];
+
+            if (in_array($field, $allowedFields, true)) {
+                $order = mb_strtoupper((string) ($ordering['order'] ?? 'ASC')) === 'DESC' ? 'DESC' : 'ASC';
+                $sql .= ' ORDER BY `' . $field . '` ' . $order;
+            }
         }
 
         if ($limit !== null) {

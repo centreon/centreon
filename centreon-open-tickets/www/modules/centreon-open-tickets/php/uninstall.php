@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,4 @@
  *
  */
 
-@unlink(__DIR__ . '/../routes/CentreonOpenTickets.yaml');
-touch(__DIR__ . '/../routes/CentreonOpenTickets.yaml');
-require 'clear_cache.php';
+require __DIR__ . '/clear_cache.php';

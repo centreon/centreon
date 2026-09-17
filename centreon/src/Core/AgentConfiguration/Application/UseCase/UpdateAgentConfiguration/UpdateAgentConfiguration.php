@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,11 +55,13 @@ final class UpdateAgentConfiguration
         private readonly Validator $validator,
         private readonly RepositoryManagerInterface $repositoryManager,
         private readonly ContactInterface $user,
-    ) {}
+        private readonly bool $isCloudPlatform,
+    ) {
+    }
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -69,7 +71,6 @@ final class UpdateAgentConfiguration
                         'user_id' => $this->user->getId(),
                         'ac_id' => $request->id,
                         'ac_name' => $request->name,
-                        'ac_type' => $request->type,
                     ],
                 );
                 $presenter->setResponseStatus(
@@ -77,6 +78,22 @@ final class UpdateAgentConfiguration
                 );
 
                 return;
+            }
+
+            if ($this->isCloudPlatform && ! $this->user->isAdmin()) {
+                $linkedPollerIds = array_map(
+                    static fn (Poller $poller): int => $poller->id,
+                    $this->readAcRepository->findPollersByAcId($request->id)
+                );
+
+                $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);
+                if ($centralPoller !== null) {
+                    $presenter->setResponseStatus(
+                        new ForbiddenResponse(AgentConfigurationException::accessNotAllowed())
+                    );
+
+                    return;
+                }
             }
 
             if (null === $agentConfiguration = $this->getAgentConfiguration($request->id)) {
@@ -107,7 +124,6 @@ final class UpdateAgentConfiguration
                 'user_id' => $this->user->getId(),
                 'ac_id' => $request->id,
                 'ac_name' => $request->name,
-                'ac_type' => $request->type,
                 'exception' => [
                     'type' => $ex::class,
                     'message' => $ex->getMessage(),
@@ -122,7 +138,6 @@ final class UpdateAgentConfiguration
                 'user_id' => $this->user->getId(),
                 'ac_id' => $request->id,
                 'ac_name' => $request->name,
-                'ac_type' => $request->type,
                 'exception' => [
                     'type' => $ex::class,
                     'message' => $ex->getMessage(),
@@ -157,13 +172,13 @@ final class UpdateAgentConfiguration
 
         if (! $this->user->isAdmin()) {
             $pollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($agentConfiguration->getId())
             );
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
-            if ([] !== array_diff($pollerIds, $validPollerIds)) {
+            if (array_diff($pollerIds, $validPollerIds) !== []) {
                 return null;
             }
         }

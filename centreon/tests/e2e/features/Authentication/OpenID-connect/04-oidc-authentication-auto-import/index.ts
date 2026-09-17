@@ -1,11 +1,13 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { configureOpenIDConnect } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
 } from '../../../../commons';
+import { configureOpenIdConnect } from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
@@ -16,31 +18,31 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/openid'
+    url: `${INTERCEPTORS.api.authentication_provider}/openid`
   }).as('getOIDCProvider');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/openid'
+    url: `${INTERCEPTORS.api.authentication_provider}/openid`
   }).as('updateOIDCProvider');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentification');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/contacts/templates?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+    url: `${INTERCEPTORS.api.contacts_templates}?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D`
   }).as('getListContactTemplates');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+    url: `${INTERCEPTORS.api.access_groups}?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D`
   }).as('getListAccessGroup');
 });
 
@@ -49,10 +51,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -67,15 +66,15 @@ When(
       tag: 'input'
     }).check();
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
 
     // Auto import users section
-    cy.getByLabel({ label: 'Auto import users' }).click();
+    cy.get('[data-testid="Auto import users-header"]').click();
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
-    }).type('{selectall}{backspace}contact_template');
+    }).type('{selectall}{backspace}openid_contact_template');
     cy.wait('@getListContactTemplates')
       .get('div[role="presentation"] ul li')
       .eq(-1)
@@ -83,7 +82,7 @@ When(
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
-    }).should('have.value', 'contact_template');
+    }).should('have.value', 'openid_contact_template');
     cy.getByLabel({
       label: 'Email attribute path',
       tag: 'input'
@@ -119,7 +118,7 @@ Then(
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');
 
-    cy.logout();
+    cy.logoutViaAPI();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
@@ -147,7 +146,7 @@ Then(
           );
           cy.getByTestId({ tag: 'select', testId: 'contact_template_id' })
             .find(':selected')
-            .contains('contact_template');
+            .contains('openid_contact_template');
         });
     });
   }

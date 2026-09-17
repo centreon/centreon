@@ -1,8 +1,7 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
-
 import WidgetTiles from './Tiles';
 import { labelDisplayUpTo, labelTiles } from './translatedLabels';
 

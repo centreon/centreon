@@ -1,9 +1,11 @@
-import { Provider, createStore } from 'jotai';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
 import { replace } from 'ramda';
 import { BrowserRouter } from 'react-router';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-
+import { userEndpoint } from '../api/endpoint';
 import {
   loginEndpoint,
   loginPageCustomisationEndpoint
@@ -13,9 +15,6 @@ import {
   labelCentreonWallpaper,
   labelPoweredByCentreon
 } from '../Login/translatedLabels';
-import { userEndpoint } from '../api/endpoint';
-
-import { platformVersionsAtom } from '@centreon/ui-context';
 import ResetPassword from '.';
 import {
   PasswordResetInformations,

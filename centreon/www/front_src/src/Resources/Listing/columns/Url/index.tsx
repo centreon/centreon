@@ -1,9 +1,9 @@
-import { isEmpty, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Avatar, Tooltip } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
+
+import { isEmpty, isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import IconColumn from '../IconColumn';
 
@@ -63,11 +63,11 @@ const UrlColumn = ({
           ariaLabel={title}
           className={classes.button}
           data-testid={title || endpoint}
-          size="large"
-          title={title || endpoint}
           onClick={(): null => {
             return null;
           }}
+          size="large"
+          title={title || endpoint}
         >
           {icon}
         </IconButton>

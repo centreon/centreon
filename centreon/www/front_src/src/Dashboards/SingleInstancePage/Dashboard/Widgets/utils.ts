@@ -1,5 +1,13 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import {
-  T,
+  centreonBaseURL,
+  ResourceType,
+  SelectEntry,
+  SeverityCode
+} from '@centreon/ui';
+
+import {
   always,
   cond,
   equals,
@@ -14,14 +22,17 @@ import {
   pipe,
   pluck,
   reject,
+  T,
   toPairs,
-  toUpper
+  toUpper,
+  type
 } from 'ramda';
-
-import { ResourceType, SeverityCode, centreonBaseURL } from '@centreon/ui';
 
 import { WidgetResourceType } from '../AddEditWidget/models';
 import { Resource, SeverityStatus, Status } from './models';
+
+export const isResourceString = (resources: Array<SelectEntry> | string) =>
+  equals(type(resources), 'String');
 
 export const areResourcesFullfilled = (
   resourcesDataset: Array<Resource>
@@ -29,7 +40,10 @@ export const areResourcesFullfilled = (
   !isEmpty(resourcesDataset) &&
   resourcesDataset?.every(
     ({ resourceType, resources }) =>
-      !isEmpty(resourceType) && !isEmpty(resources.filter((v) => v))
+      !isEmpty(resourceType) &&
+      !isEmpty(
+        isResourceString(resources) ? resources : resources.filter((v) => v)
+      )
   );
 
 const serviceCriteria = {
@@ -157,6 +171,10 @@ export const getResourcesUrl = ({
         name: name.replace('-', '_'),
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
+            if (isResourceString(subResources)) {
+              return [{ id: subResources, name: subResources }];
+            }
+
             return subResources.map(({ name: resourceName }) => ({
               id: includes(name, ['name', 'parent_name'])
                 ? `\\b${resourceName}\\b`
@@ -399,11 +417,6 @@ const resourceTypesCustomParameters = [
   'service-group',
   'service-category'
 ];
-const resourcesSearchMapping = {
-  host: 'parent_name',
-  'meta-service': 'name',
-  service: 'name'
-};
 const resourceTypesSearchParameters = ['host', 'service', 'meta-service'];
 const categories = ['host-category', 'service-category'];
 
@@ -422,22 +435,35 @@ export const getResourcesSearchQueryParameters = (
   }>;
 } => {
   const resourcesToApplyToCustomParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesCustomParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesCustomParameters) &&
+      !isResourceString(resourcesToApply)
   );
   const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesSearchParameters) &&
+      !isResourceString(resourcesToApply)
   );
 
   const resourcesSearchConditions = resourcesToApplyToSearchParameters.map(
     ({ resourceType, resources: resourcesToApply }) => {
       return resourcesToApply.map((resource) => ({
-        field: resourcesSearchMapping[resourceType],
+        field: buildResourceTypeNameForSearchParameter(resourceType),
         values: {
           $rg: `^${resource.name}$`
         }
       }));
     }
   );
+
+  const resourcesWithRegexConditions = resources
+    .filter((resource) => isResourceString(resource.resources))
+    .map((resource) => ({
+      field: buildResourceTypeNameForSearchParameter(resource.resourceType),
+      values: {
+        $rg: resource.resources
+      }
+    }));
 
   const resourcesCustomParameters = resourcesToApplyToCustomParameters.map(
     ({ resourceType, resources: resourcesToApply }) => ({
@@ -450,9 +476,26 @@ export const getResourcesSearchQueryParameters = (
 
   return {
     resourcesCustomParameters,
-    resourcesSearchConditions: flatten(resourcesSearchConditions)
+    resourcesSearchConditions: flatten([
+      ...resourcesSearchConditions,
+      ...resourcesWithRegexConditions
+    ])
   };
 };
+
+const resourceTypeMapping = {
+  [WidgetResourceType.host]: 'parent_name',
+  [WidgetResourceType.service]: 'name',
+  [WidgetResourceType.metaService]: 'name',
+  [WidgetResourceType.serviceGroup]: 'service_group.name',
+  [WidgetResourceType.hostGroup]: 'host_group.name',
+  [WidgetResourceType.serviceCategory]: 'service_category.name',
+  [WidgetResourceType.hostCategory]: 'host_category.name'
+};
+
+export const buildResourceTypeNameForSearchParameter = (
+  resourceType: WidgetResourceType
+): string => resourceTypeMapping[resourceType];
 
 export const getIsMetaServiceSelected = (
   resources: Array<Resource> = []

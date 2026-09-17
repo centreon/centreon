@@ -3,7 +3,6 @@
     "title": "Update a poller/agent configuration",
     "type": "object",
     "required": [
-        "type",
         "name",
         "poller_ids",
         "configuration"
@@ -24,7 +23,8 @@
             "type": "string",
             "enum": [
                 "secure",
-                "no-tls"
+                "no-tls",
+                "insecure"
             ],
             "default": "secure"
         },

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -43,7 +44,8 @@ use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 
 final class DeleteHostTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
@@ -51,6 +53,7 @@ final class DeleteHostTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -94,7 +97,7 @@ final class DeleteHostTemplate
                 return;
             }
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveHostTemplateUuidFromVault($hostTemplate);
                 if ($this->uuid !== null) {
                     $this->writeVaultRepository->delete($this->uuid);
@@ -119,7 +122,7 @@ final class DeleteHostTemplate
     private function retrieveHostTemplateUuidFromVault(HostTemplate $hostTemplate): void
     {
         $this->uuid = $this->getUuidFromPath($hostTemplate->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($hostTemplate->getId());
             foreach ($macros as $macro) {
                 if (

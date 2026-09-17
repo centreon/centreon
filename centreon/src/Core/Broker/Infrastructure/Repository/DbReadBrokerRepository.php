@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ namespace Core\Broker\Infrastructure\Repository;
 
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Broker\Application\Repository\ReadBrokerRepositoryInterface;
-use Core\Broker\Domain\Model\Broker;
 use Core\Broker\Domain\Model\Type;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
@@ -59,6 +58,6 @@ class DbReadBrokerRepository extends AbstractRepositoryRDB implements ReadBroker
         $statement->bindValue(':brokerId', $id, \PDO::PARAM_INT);
         $statement->execute();
 
-       return (bool) $statement->fetchColumn();
+        return (bool) $statement->fetchColumn();
     }
 }

@@ -26,8 +26,8 @@ export interface ChildrenProps<TData> {
     height: number;
     width: number;
   };
-  onMouseDown: (e) => void;
-  onMouseUp: (callback) => (e) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseUp: (callback: () => void) => (e: React.MouseEvent) => void;
 }
 
 export interface TreeProps<TData> {

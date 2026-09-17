@@ -1,10 +1,9 @@
-import { ReactNode } from 'react';
+import { alpha } from '@mui/material';
 
 import { Scale } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { difference, isNil, max, min } from 'ramda';
-
-import { alpha } from '@mui/material';
+import { ReactNode } from 'react';
 
 import { Line, TimeValue } from '../models';
 import {
@@ -17,7 +16,6 @@ import {
   getUnits,
   getYScale
 } from '../timeSeries';
-
 import RegularAnchorPoint from './AnchorPoint/RegularAnchorPoint';
 import RegularLine from './RegularLine';
 import StackedLines from './StackedLines';

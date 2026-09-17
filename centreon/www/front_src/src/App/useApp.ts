@@ -1,16 +1,12 @@
-import { useEffect, useRef } from 'react';
-
-import { useAtom, useSetAtom } from 'jotai';
-import { path, equals, not, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import type { Actions } from '@centreon/ui';
-import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
+import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
   platformVersionsAtom,
   refreshIntervalAtom,
@@ -18,12 +14,17 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, not, path, pathEq } from 'ramda';
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router';
+
+import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
-import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-
 import {
   aclEndpoint,
   parametersEndpoint,
@@ -70,7 +71,7 @@ const useApp = (): UseAppState => {
   });
 
   const { sendRequest: logoutRequest } = useRequest({
-    request: postData
+    request: getData
   });
 
   const { sendRequest: getCustomPlatformRequest } =
@@ -88,9 +89,11 @@ const useApp = (): UseAppState => {
   const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
-
   const setPlaformName = useSetAtom(platformNameAtom);
   const setUserPermissions = useSetAtom(userPermissionsAtom);
+  const setIsResourceStatusFullSearchEnabled = useSetAtom(
+    isResourceStatusFullSearchEnabledAtom
+  );
 
   const { getNavigation } = useNavigation();
 
@@ -145,6 +148,9 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
+        setIsResourceStatusFullSearchEnabled(
+          retrievedParameters.is_resource_status_full_search_enabled
+        );
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {

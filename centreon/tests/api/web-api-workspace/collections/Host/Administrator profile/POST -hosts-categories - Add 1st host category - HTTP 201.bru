@@ -1,0 +1,47 @@
+meta {
+  name: POST /hosts/categories - Add 1st host category - HTTP 201
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+headers {
+  centreon-auth-token: {{token}}
+}
+
+body:json {
+  {
+    "name": "{{HostCategory1Name}}",
+    "alias": "{{HostCategory1Alias}}",
+    "is_activated": true,
+    "comment": "Created by Admin"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Response schema is valid", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.is.a("string");
+    expect(body).to.have.property("alias").that.is.an("string");
+    expect(body).to.have.property("is_activated").that.is.an("boolean");
+    expect(body).to.have.property("comment").that.is.an("string");
+    
+    bru.setEnvVar("HostCategory1Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

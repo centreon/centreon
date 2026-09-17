@@ -1,17 +1,18 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import { Contact, Token, columns, durationMap } from '../common';
+import { Contact, columns, durationMap, Token } from '../common';
 
 beforeEach(() => {
   cy.startContainers();
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*desc*'
+    url: `${INTERCEPTORS.api.administration_tokens}?*desc*`
   }).as('getDescendingOrderedTokens');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {
@@ -27,25 +28,27 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Login succeeded')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
 });
 
-Given('API tokens with predefined details are created', () => {
+Given('Authentication tokens with predefined details are created', () => {
   cy.fixture('api-token/tokens.json').then((tokens: Record<string, Token>) => {
     Object.values(tokens).forEach((token) => {
       const today = new Date();
       const expirationDate = new Date(today);
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
-      const expirationDateISOString = expirationDate.toISOString();
+      // Get the ISO string without milliseconds
+      const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        expiration_date: expirationDateISOString,
+        expiration_date: expirationDateIsoString,
         name: token.name,
+        type: token.type,
         user_id: token.userId
       };
       cy.request({
@@ -62,7 +65,7 @@ Given('API tokens with predefined details are created', () => {
   });
 });
 
-Given('I am on the API tokens page', () => {
+Given('I am on the Authentication tokens page', () => {
   cy.visitApiTokens();
 });
 

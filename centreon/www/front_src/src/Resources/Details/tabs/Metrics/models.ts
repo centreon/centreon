@@ -5,7 +5,7 @@ import { Resource } from '../../../models';
 export interface MetaServiceMetric {
   id: number;
   name: string;
-  resource: Resource;
+  resource: Omit<Resource, 'uuid'>;
   unit: string;
   value: number;
 }

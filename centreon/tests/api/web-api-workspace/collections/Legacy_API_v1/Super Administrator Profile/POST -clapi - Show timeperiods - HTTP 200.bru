@@ -1,0 +1,39 @@
+meta {
+  name: POST clapi show timeperiods - HTTP 200
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "show",
+    "object": "TP"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("CLAPI show lists the timeperiod added previously", function () {
+    const body = res.getBody();
+    expect(body).to.not.be.undefined;
+    expect(JSON.stringify(body)).to.include("BrunoClapiTimeperiod");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

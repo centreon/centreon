@@ -1,9 +1,9 @@
-import { ReactElement } from 'react';
-
 import {
   Avatar as MuiAvatar,
   ListItemAvatar as MuiListItemAvatar
 } from '@mui/material';
+
+import type { ReactElement } from 'react';
 
 import { useStyles } from './ListItem.styles';
 

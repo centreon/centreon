@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Media\Model;
@@ -35,24 +36,16 @@ class Image
     public const MAX_PATH_LENGTH = 255;
     public const MAX_COMMENTS_LENGTH = 65535;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $path;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $comment;
 
     /**
@@ -70,6 +63,7 @@ class Image
     public function setId(?int $id): Image
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -83,13 +77,14 @@ class Image
 
     /**
      * @param string $name
-     * @return Image
      * @throws \Assert\AssertionFailedException
+     * @return Image
      */
     public function setName(string $name): Image
     {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'Image::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -103,13 +98,14 @@ class Image
 
     /**
      * @param string $path
-     * @return Image
      * @throws \Assert\AssertionFailedException
+     * @return Image
      */
     public function setPath(string $path): Image
     {
         Assertion::maxLength($path, self::MAX_PATH_LENGTH, 'Image::path');
         $this->path = $path;
+
         return $this;
     }
 
@@ -123,8 +119,8 @@ class Image
 
     /**
      * @param string|null $comment
-     * @return Image
      * @throws \Assert\AssertionFailedException
+     * @return Image
      */
     public function setComment(?string $comment): Image
     {
@@ -132,6 +128,7 @@ class Image
             Assertion::maxLength($comment, self::MAX_COMMENTS_LENGTH, 'Image::comment');
         }
         $this->comment = $comment;
+
         return $this;
     }
 }

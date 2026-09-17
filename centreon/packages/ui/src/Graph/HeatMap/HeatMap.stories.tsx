@@ -1,11 +1,10 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box, Typography } from '@mui/material';
 
-import heatMapData from './HeatMapData.json';
+import type { Meta, StoryObj } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
 
 import { HeatMap } from '.';
+import heatMapData from './HeatMapData.json';
 
 interface Data {
   counter: number;

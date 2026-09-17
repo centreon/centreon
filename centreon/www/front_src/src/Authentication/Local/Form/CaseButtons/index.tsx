@@ -1,9 +1,3 @@
-import { useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Button,
   ButtonProps,
@@ -13,6 +7,11 @@ import {
 } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import StrengthProgress from '../../StrengthProgress';
 import {
@@ -31,7 +30,6 @@ import {
   labelWeak
 } from '../../translatedLabels';
 import { getFields } from '../utils';
-
 import LabelWithTooltip from './LabelWithTooltip';
 
 const activeButtonProps = {
@@ -110,9 +108,9 @@ const CaseButtons = (): JSX.Element => {
             color="primary"
             data-testid={labelPasswordMustContainLowerCase}
             id={labelPasswordMustContainLowerCase?.replace(/ /g, '')}
+            onClick={selectCase(hasLowerCaseName)}
             size="small"
             variant="outlined"
-            onClick={selectCase(hasLowerCaseName)}
             {...(hasLowerCase && activeButtonProps)}
           >
             <LabelWithTooltip
@@ -126,9 +124,9 @@ const CaseButtons = (): JSX.Element => {
             color="primary"
             data-testid={labelPasswordMustContainUpperCase}
             id={labelPasswordMustContainUpperCase?.replace(/ /g, '')}
+            onClick={selectCase(hasUpperCaseName)}
             size="small"
             variant="outlined"
-            onClick={selectCase(hasUpperCaseName)}
             {...(hasUpperCase && activeButtonProps)}
           >
             <LabelWithTooltip
@@ -142,9 +140,9 @@ const CaseButtons = (): JSX.Element => {
             color="primary"
             data-testid={labelPasswordMustContainNumbers}
             id={labelPasswordMustContainNumbers?.replace(/ /g, '')}
+            onClick={selectCase(hasNumberName)}
             size="small"
             variant="outlined"
-            onClick={selectCase(hasNumberName)}
             {...(hasNumber && activeButtonProps)}
           >
             <LabelWithTooltip
@@ -158,9 +156,9 @@ const CaseButtons = (): JSX.Element => {
             color="primary"
             data-testid={labelPasswordMustContainSpecialCharacters}
             id={labelPasswordMustContainSpecialCharacters.replace(/ /g, '')}
+            onClick={selectCase(hasSpecialCharacterName)}
             size="small"
             variant="outlined"
-            onClick={selectCase(hasSpecialCharacterName)}
             {...(hasSpecialCharacter && activeButtonProps)}
           >
             <LabelWithTooltip

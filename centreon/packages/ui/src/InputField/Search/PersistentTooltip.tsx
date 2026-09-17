@@ -1,11 +1,10 @@
-import { ReactElement, useState } from 'react';
-
-import { T, cond, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import IconHelp from '@mui/icons-material/HelpOutline';
 import IconClose from '@mui/icons-material/HighlightOff';
 import { IconButton, Tooltip } from '@mui/material';
+
+import { isNil } from 'ramda';
+import { type ReactElement, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   buttonClose: {
@@ -42,10 +41,11 @@ const PersistentTooltip = ({
   const [open, setOpen] = useState(openTooltip || false);
 
   const toggleTooltip = (): void => {
-    cond([
-      [isNil, (): void => setOpen(!open)],
-      [T, (): void => toggleTooltipProp?.()]
-    ])(openTooltip);
+    if (isNil(openTooltip)) {
+      setOpen(!open);
+    } else {
+      toggleTooltipProp?.();
+    }
   };
 
   const closeTooltip = (): void => {
@@ -62,8 +62,8 @@ const PersistentTooltip = ({
     <div style={{ position: 'relative' }}>
       <IconButton
         className={classes.buttonClose}
-        size="small"
         onClick={closeTooltip}
+        size="small"
       >
         <IconClose fontSize="small" />
       </IconButton>
@@ -79,8 +79,8 @@ const PersistentTooltip = ({
     >
       <IconButton
         aria-label={labelSearchHelp}
-        size="small"
         onClick={toggleTooltip}
+        size="small"
       >
         <IconHelp />
       </IconButton>

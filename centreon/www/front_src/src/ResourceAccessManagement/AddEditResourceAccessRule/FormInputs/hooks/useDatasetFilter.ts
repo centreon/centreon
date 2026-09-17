@@ -1,12 +1,13 @@
-import { ChangeEvent, useMemo } from 'react';
+import {
+  buildListingEndpoint,
+  type QueryParameter,
+  type SelectEntry
+} from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtom, useAtomValue } from 'jotai';
 import {
-  path,
-  T,
-  always,
-  cond,
   equals,
   flatten,
   has,
@@ -14,25 +15,25 @@ import {
   isEmpty,
   isNil,
   last,
+  path,
   pluck,
   propEq,
   reject
 } from 'ramda';
-
-import {
-  QueryParameter,
-  SelectEntry,
-  buildListingEndpoint
-} from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
+import { type ChangeEvent, useMemo } from 'react';
 
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
-import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
+import {
+  type Dataset,
+  type ResourceAccessRule,
+  ResourceTypeEnum
+} from '../../../models';
 import {
   labelAllBusinessViewsSelected,
   labelAllHostGroupsSelected,
   labelAllHostsSelected,
+  labelAllImageFoldersSelected,
   labelAllResources,
   labelAllResourcesSelected,
   labelAllServiceGroupsSelected,
@@ -40,6 +41,7 @@ import {
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelImageFolder,
   labelMetaService,
   labelPleaseSelectAResource,
   labelSelectResource,
@@ -50,23 +52,33 @@ import {
 
 type UseDatasetFilterState = {
   addResource: () => void;
-  changeResource: (index: number) => (_, resource: SelectEntry) => void;
+  changeResource: (
+    index: number
+  ) => (_: unknown, resource: SelectEntry) => void;
   changeResourceType: (
     index: number
   ) => (e: ChangeEvent<HTMLInputElement>) => void;
   changeResources: (
     index: number
-  ) => (_, resources: Array<SelectEntry>) => void;
+  ) => (_: unknown, resources: Array<SelectEntry>) => void;
   deleteButtonHidden: boolean;
   deleteResource: (index: number) => () => void;
-  deleteResourceItem: ({ index, option, resources }) => void;
+  deleteResourceItem: ({
+    index,
+    option,
+    resources
+  }: {
+    index: number;
+    option: SelectEntry;
+    resources: Array<SelectEntry>;
+  }) => void;
   displayAllOfResourceTypeCheckbox: (resourceType: ResourceTypeEnum) => boolean;
   error: string | null;
   getLabelForSelectedResources: (index: number) => string;
   getResourceBaseEndpoint: (
     index: number,
     resourceType: ResourceTypeEnum
-  ) => (parameters) => string;
+  ) => (parameters: Record<string, unknown>) => string;
   getResourceTypeOptions: (index: number) => Array<SelectEntry>;
   getSearchField: (resourceType: ResourceTypeEnum) => string;
   lowestResourceTypeReached: () => boolean;
@@ -82,6 +94,11 @@ const resourceTypeOptions = [
     availableResourceTypeOptions: [],
     id: ResourceTypeEnum.BusinessView,
     name: labelBusinessView
+  },
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.ImageFolder,
+    name: labelImageFolder
   },
   {
     availableResourceTypeOptions: [
@@ -150,7 +167,8 @@ export const resourceTypeBaseEndpoints = {
   [ResourceTypeEnum.MetaService]: '/configuration/metaservices',
   [ResourceTypeEnum.Service]: '/configuration/services',
   [ResourceTypeEnum.ServiceCategory]: '/configuration/services/categories',
-  [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups'
+  [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups',
+  [ResourceTypeEnum.ImageFolder]: '/configuration/media/folders'
 };
 
 const searchParametersBySelectedResourceType = {
@@ -189,7 +207,8 @@ const labelsForSelectedResources = {
   [ResourceTypeEnum.Host]: labelAllHostsSelected,
   [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
   [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected,
-  [ResourceTypeEnum.BusinessView]: labelAllBusinessViewsSelected
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViewsSelected,
+  [ResourceTypeEnum.ImageFolder]: labelAllImageFoldersSelected
 };
 
 const useDatasetFilter = (
@@ -223,6 +242,7 @@ const useDatasetFilter = (
   const lowestResourceTypeReached = (): boolean =>
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService) ||
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.ImageFolder) ||
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.BusinessView);
 
   const getResourceTypeOptions = (index: number): Array<SelectEntry> => {
@@ -282,11 +302,14 @@ const useDatasetFilter = (
     equals(resourceType, ResourceTypeEnum.HostGroup) ||
     equals(resourceType, ResourceTypeEnum.Host) ||
     equals(resourceType, ResourceTypeEnum.ServiceGroup) ||
+    equals(resourceType, ResourceTypeEnum.ImageFolder) ||
     equals(resourceType, ResourceTypeEnum.BusinessView);
 
   const getLabelForSelectedResources = (index: number): string => {
     if (datasetFilter[index]?.allOfResourceType) {
-      return labelsForSelectedResources[datasetFilter[index].resourceType];
+      return (labelsForSelectedResources as Record<ResourceTypeEnum, string>)[
+        datasetFilter[index].resourceType
+      ];
     }
 
     if (equals(datasetFilter[index].resourceType, ResourceTypeEnum.All)) {
@@ -301,8 +324,8 @@ const useDatasetFilter = (
       ...(datasetFilter || []),
       {
         allOfResourceType: false,
-        resourceType: ResourceTypeEnum.Empty,
-        resources: []
+        resources: [],
+        resourceType: ResourceTypeEnum.Empty
       }
     ]);
 
@@ -324,35 +347,38 @@ const useDatasetFilter = (
     );
   };
 
-  const changeResource = (index: number) => (_, resource: SelectEntry) => {
-    setFieldValue(
-      `datasetFilters.${datasetFilterIndex}.${index}.resources`,
-      resource
-    );
-    setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
-    setSelectedDatasetFiltes(
-      selectedDatasetFilters.map((datasets, indexFilter) => {
-        if (equals(indexFilter, datasetFilterIndex)) {
-          return selectedDatasetFilters[indexFilter].map((dataset, i) => {
-            if (equals(i, index)) {
-              return {
-                allOfResourceType: false,
-                ids: [...dataset.ids, resource.id as number],
-                type: dataset.type
-              };
-            }
+  const changeResource =
+    (index: number) =>
+    (_: unknown, resource: SelectEntry): void => {
+      setFieldValue(
+        `datasetFilters.${datasetFilterIndex}.${index}.resources`,
+        resource
+      );
+      setFieldTouched(`datasetFilters.${datasetFilterIndex}`, true, false);
+      setSelectedDatasetFiltes(
+        selectedDatasetFilters.map((datasets, indexFilter) => {
+          if (equals(indexFilter, datasetFilterIndex)) {
+            return selectedDatasetFilters[indexFilter].map((dataset, i) => {
+              if (equals(i, index)) {
+                return {
+                  allOfResourceType: false,
+                  ids: [...dataset.ids, resource.id as number],
+                  type: dataset.type
+                };
+              }
 
-            return dataset;
-          });
-        }
+              return dataset;
+            });
+          }
 
-        return datasets;
-      })
-    );
-  };
+          return datasets;
+        })
+      );
+    };
 
   const changeResources =
-    (index: number) => (_, resources: Array<SelectEntry>) => {
+    (index: number) =>
+    (_: unknown, resources: Array<SelectEntry>): void => {
       setFieldValue(
         `datasetFilters.${datasetFilterIndex}.${index}.resources`,
         resources
@@ -392,8 +418,8 @@ const useDatasetFilter = (
             if (equals(i, index)) {
               return {
                 allOfResourceType: false,
-                resourceType: e.target.value,
-                resources: []
+                resources: [],
+                resourceType: e.target.value
               };
             }
 
@@ -452,7 +478,15 @@ const useDatasetFilter = (
     );
   };
 
-  const deleteResourceItem = ({ index, option, resources }): void => {
+  const deleteResourceItem = ({
+    index,
+    option,
+    resources
+  }: {
+    index: number;
+    option: SelectEntry;
+    resources: Array<SelectEntry>;
+  }): void => {
     const newResource = reject(propEq(option.id, 'id'), resources);
 
     setFieldValue(
@@ -489,10 +523,14 @@ const useDatasetFilter = (
       return undefined;
     }
 
-    const searchParameter =
-      searchParametersBySelectedResourceType[
-        selectedDatasetFilters[datasetFilterIndex][index].type
-      ][last(subSlice)?.type];
+    const searchParameter = (
+      searchParametersBySelectedResourceType as Record<
+        ResourceTypeEnum,
+        Record<ResourceTypeEnum, string>
+      >
+    )[selectedDatasetFilters[datasetFilterIndex][index].type][
+      last(subSlice)?.type as ResourceTypeEnum
+    ];
 
     return [
       {
@@ -508,11 +546,11 @@ const useDatasetFilter = (
 
   const getResourceBaseEndpoint =
     (index: number, resourceType: ResourceTypeEnum) =>
-    (parameters): string => {
+    (parameters: Record<string, unknown>): string => {
       return buildListingEndpoint({
         baseEndpoint: equals(resourceType, ResourceTypeEnum.BusinessView)
           ? `${baseEndpoint}/bam${resourceTypeBaseEndpoints[ResourceTypeEnum.BusinessView]}`
-          : `${baseEndpoint}${resourceTypeBaseEndpoints[resourceType]}`,
+          : `${baseEndpoint}${(resourceTypeBaseEndpoints as Record<ResourceTypeEnum, string>)[resourceType]}`,
         customQueryParameters: buildSearchParameters(index),
         parameters: {
           ...parameters,
@@ -521,17 +559,13 @@ const useDatasetFilter = (
       });
     };
 
-  const getSearchField = (resourceType: ResourceTypeEnum): string =>
-    cond([
-      [equals('host'), always('host.name')],
-      [T, always('name')]
-    ])(resourceType);
+  const getSearchField = (): string => 'name';
 
   return {
     addResource,
     changeResource,
-    changeResourceType,
     changeResources,
+    changeResourceType,
     deleteButtonHidden,
     deleteResource,
     deleteResourceItem,

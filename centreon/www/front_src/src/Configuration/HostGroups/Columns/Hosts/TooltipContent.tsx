@@ -1,6 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box, Typography, useTheme } from '@mui/material';
+
+import { centreonBaseURL, Pagination } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDisabledHosts,
@@ -8,8 +10,6 @@ import {
   labelNoDisabledHosts,
   labelNoEnabledHosts
 } from '../../translatedLabels';
-
-import { Pagination, centreonBaseURL } from '@centreon/ui';
 import { useTooltipStyles } from './HostsCount.styles';
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
   hostGroupName: string;
 }
 
-const goToUrl = ({ id }): void => {
+const goToUrl = ({ id }: { id: number | string }): void => {
   const url = `/main.php?p=60101&o=c&host_id=${id}`;
 
   window?.open(`${centreonBaseURL}${url}`, '_blank,noopener,noreferrer');
@@ -42,7 +42,7 @@ const TooltipContent = ({ enabled, hostGroupName }: Props): JSX.Element => {
     {
       field: 'is_activated',
       values: {
-        $eq: enabled
+        $eq: String(enabled)
       }
     }
   ];

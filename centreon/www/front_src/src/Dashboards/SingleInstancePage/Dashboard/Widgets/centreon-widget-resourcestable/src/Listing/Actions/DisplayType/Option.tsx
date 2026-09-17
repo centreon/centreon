@@ -1,9 +1,8 @@
 import { IconButton } from '@centreon/ui';
 
 import { DisplayType } from '../../models';
-
-import Icon from './Icons';
 import { useStyles } from './displayType.styles';
+import Icon from './Icons';
 
 interface Props {
   changeDisplayType: () => void;
@@ -27,11 +26,11 @@ const Option = ({
       ariaLabel={title}
       className={classes.iconButton}
       disabled={disabled}
+      onClick={changeDisplayType}
       title={title}
       tooltipClassName={classes.tooltipClassName}
-      onClick={changeDisplayType}
     >
-      <Icon displayType={option} isActive={isActive} disabled={disabled} />
+      <Icon disabled={disabled} displayType={option} isActive={isActive} />
     </IconButton>
   );
 };

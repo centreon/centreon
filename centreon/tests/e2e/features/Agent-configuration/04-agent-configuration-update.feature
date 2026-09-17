@@ -4,7 +4,7 @@ Feature: Update an Agent Configuration
   I want to visit the Agents Configuration page
   To update the agent configuration
 
-  @TEST_MON-151999
+  @MON-151999
   Scenario: Update an agent configuration
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration

@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add webpage widget - HTTP 204
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-webpage",
+        "widget_type": "/widgets/webpage",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{},\"options\":{\"url\":\"https://docs.centreon.com/fr/\",\"refreshInterval\":\"default\"}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Webpage widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

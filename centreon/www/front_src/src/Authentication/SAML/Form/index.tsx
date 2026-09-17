@@ -1,11 +1,12 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
 import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import FormButtons from '../../FormButtons';
+import { useQueryClient } from '@tanstack/react-query';
+import type { FormikHelpers } from 'formik';
+import { useTranslation } from 'react-i18next';
+
 import { adaptSAMLConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import FormButtons from '../../FormButtons';
 import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { SAMLConfiguration } from '../models';
@@ -14,7 +15,6 @@ import {
   labelSAMLConfigurationSaved
 } from '../translatedLabels';
 import useValidationSchema from '../useValidationSchema';
-
 import { inputs } from './inputs';
 
 interface Props {
@@ -43,7 +43,7 @@ const SAMLForm = ({
 
   const submit = (
     formikValues: SAMLConfiguration,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<SAMLConfiguration>
   ): Promise<void> =>
     mutateAsync({
       payload: adaptSAMLConfigurationToAPI(formikValues)
@@ -57,11 +57,11 @@ const SAMLForm = ({
 
   return (
     <Form<SAMLConfiguration>
-      isCollapsible
       Buttons={FormButtons}
       groups={groups}
       initialValues={initialValues}
       inputs={inputs}
+      isCollapsible
       isLoading={isLoading}
       submit={submit}
       validationSchema={validationSchema}

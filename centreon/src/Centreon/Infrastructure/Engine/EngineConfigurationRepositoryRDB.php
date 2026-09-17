@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Engine;
@@ -37,9 +38,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements EngineConfigurationRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db)
@@ -115,6 +114,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setMonitoringServerId((int) $records['nagios_server_id'])
                 ->setNotificationsEnabledOption((int) $records['enable_notifications']);
         }
+
         return null;
     }
 
@@ -142,6 +142,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setIllegalObjectNameCharacters($records['illegal_object_name_chars'])
                 ->setMonitoringServerId((int) $records['nagios_server_id']);
         }
+
         return null;
     }
 
@@ -167,6 +168,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setIllegalObjectNameCharacters($records['illegal_object_name_chars'])
                 ->setMonitoringServerId((int) $records['nagios_server_id']);
         }
+
         return null;
     }
 }

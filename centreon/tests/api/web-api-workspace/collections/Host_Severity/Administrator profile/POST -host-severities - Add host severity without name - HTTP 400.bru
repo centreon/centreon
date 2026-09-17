@@ -1,0 +1,35 @@
+meta {
+  name: POST /host-severities - Add host severity without name - HTTP 400
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "alias": "Missing name alias",
+    "level": 3,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host severity has not been created, because the name is mandatory.", function () {
+    const body = res.getBody();
+    expect(body.message).to.eql("[name] The property name is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

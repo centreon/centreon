@@ -1,9 +1,3 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { T, always, cond, equals } from 'ramda';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   additionalResourcesAtom,
@@ -11,17 +5,22 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import Widget from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { always, cond, equals, T } from 'ramda';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import { getPublicWidgetEndpoint } from '../../../utils';
-import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { Data, PanelOptions } from '../StatusGridStandard/models';
+import Widget from '..';
 import {
   baIndicatorsEndpoint,
   businessActivitiesEndpoint,
   getBAEndpoint,
   getBooleanRuleEndpoint
 } from '../api/endpoints';
-
+import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
+import { Data, PanelOptions } from '../StatusGridStandard/models';
 import {
   baCondensedOptions,
   baOptions,
@@ -66,7 +65,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba1]').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
     }
   },
@@ -80,7 +79,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba1').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -106,7 +105,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba1').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -132,7 +131,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba4]').should(
         'have.css',
         'color',
-        'rgb(255, 102, 102)'
+        'rgb(255, 110, 110)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -163,7 +162,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba5]').should(
         'have.css',
         'color',
-        'rgb(255, 102, 102)'
+        'rgb(255, 110, 110)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -372,7 +371,7 @@ describe('Business activities', () => {
     cy.get('[data-status="ok"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+      .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
     cy.contains('ba2').should('be.visible');
     cy.get('[data-status="pending"]').should('be.visible');
@@ -427,7 +426,7 @@ describe('Indicators', () => {
     cy.get('[data-status="ok"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+      .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
     cy.contains('Memory').should('be.visible');
     cy.get('[data-status="unknown"]').should('be.visible');
@@ -446,7 +445,7 @@ describe('Indicators', () => {
     cy.get('[data-resourceName="boolean 1"]').should(
       'have.css',
       'color',
-      'rgb(136, 185, 34)'
+      'rgb(159, 199, 78)'
     );
 
     cy.contains('Parent: ba1');

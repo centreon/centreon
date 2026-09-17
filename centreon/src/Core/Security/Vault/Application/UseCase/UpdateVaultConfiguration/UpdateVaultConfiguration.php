@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Assert\InvalidArgumentException;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -42,6 +41,7 @@ use Core\Security\Vault\Application\Repository\{
     WriteVaultConfigurationRepositoryInterface
 };
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class UpdateVaultConfiguration
 {
@@ -59,7 +59,7 @@ final class UpdateVaultConfiguration
         private readonly WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
         private readonly NewVaultConfigurationFactory $newVaultConfigurationFactory,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -69,7 +69,7 @@ final class UpdateVaultConfiguration
      */
     public function __invoke(
         PresenterInterface $presenter,
-        UpdateVaultConfigurationRequest $request
+        UpdateVaultConfigurationRequest $request,
     ): void {
         try {
             if (! $this->user->isAdmin()) {
@@ -145,7 +145,7 @@ final class UpdateVaultConfiguration
      */
     private function updateVaultConfiguration(
         UpdateVaultConfigurationRequest $request,
-        VaultConfiguration $vaultConfiguration
+        VaultConfiguration $vaultConfiguration,
     ): void {
         $vaultConfiguration->setAddress($request->address);
         $vaultConfiguration->setPort($request->port);

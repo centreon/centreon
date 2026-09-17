@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
@@ -49,8 +50,9 @@ beforeEach(function (): void {
         $this->readResourceAccessRepository = $this->createMock(ReadResourceAccessRepositoryInterface::class),
         $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
         $this->readContactGroupRepository = $this->createMock(ReadContactGroupRepositoryInterface::class),
-         false,
+        false,
         $this->user = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->useCaseSaas = new GetHostGroup(
@@ -62,6 +64,7 @@ beforeEach(function (): void {
         $this->readContactGroupRepository,
         true,
         $this->user,
+        $this->adminResolver
     );
 
     $this->hostGroup = new HostGroup(
@@ -97,7 +100,7 @@ beforeEach(function (): void {
 it(
     'should present an ErrorResponse when an exception is thrown',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -122,7 +125,7 @@ it(
 it(
     'should present a NotFoundResponse when no host group is found',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -141,7 +144,7 @@ it(
 it(
     'should present a GetHostGroupResponse as admin (OnPrem)',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -166,7 +169,7 @@ it(
 it(
     'should present a GetHostGroupResponse as non-admin user (OnPrem)',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);
@@ -197,7 +200,7 @@ it(
 it(
     'should present a GetHostGroupResponse as non-admin user (Saas)',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);

@@ -1,5 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import severities from '../../../fixtures/services/severity.json';
 
@@ -7,11 +8,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -25,7 +26,7 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Add" a service severity', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.enabled_severity,
     'centreon/api/latest/configuration/services/severities'
   );
@@ -34,11 +35,7 @@ When('an apiV2 call is made to "Add" a service severity', () => {
 Then(
   'a new service severity is displayed on the service severities page',
   () => {
-    cy.navigateTo({
-      page: 'Categories',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(PAGES.configuration.servicesCategoriesLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -53,10 +50,7 @@ Then(
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -70,7 +64,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -115,7 +109,7 @@ Then(
 );
 
 Given('a service severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.enabled_severity,
     '/centreon/api/latest/configuration/services/severities'
   );
@@ -124,7 +118,7 @@ Given('a service severity is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Delete" the configured service severity',
   () => {
-    cy.deleteSubjectViaAPIv2(
+    cy.deleteSubjectViaApiV2(
       '/centreon/api/latest/configuration/services/severities/5'
     );
   }
@@ -133,10 +127,7 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Log',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -150,14 +141,14 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
 When(
   'an apiV2 call is made to "Update" the parameters of the configured severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.changed_severity,
       '/centreon/api/latest/configuration/services/severities/5'
     );
@@ -167,10 +158,7 @@ When(
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -184,7 +172,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -227,7 +215,7 @@ Then(
 );
 
 Given('an enabled service severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.enabled_severity,
     '/centreon/api/latest/configuration/services/severities'
   );
@@ -236,7 +224,7 @@ Given('an enabled service severity is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Disable" the configured service severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.disabled_severity,
       '/centreon/api/latest/configuration/services/severities/5'
     );
@@ -246,10 +234,7 @@ When(
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -263,12 +248,12 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
 Given('a disabled service severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.disabled_severity,
     '/centreon/api/latest/configuration/services/severities'
   );
@@ -277,7 +262,7 @@ Given('a disabled service severity is configured via APIv2', () => {
 When(
   'an apiV2 call is made to "Enable" the configured service severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.enabled_severity,
       '/centreon/api/latest/configuration/services/severities/5'
     );
@@ -287,10 +272,7 @@ When(
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -304,6 +286,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );

@@ -1,0 +1,26 @@
+meta {
+  name: GET /monitoring-servers - Generate configuration - HTTP 204
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/monitoring-servers/generate
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The configuration has been successfully generated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

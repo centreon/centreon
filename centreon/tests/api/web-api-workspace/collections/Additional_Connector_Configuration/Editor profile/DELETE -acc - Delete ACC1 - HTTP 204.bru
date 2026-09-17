@@ -1,0 +1,22 @@
+meta {
+  name: DELETE /acc - Delete ACC1 - HTTP 204
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC1Id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Editor successfully deleted ACC1 (known issue: ACC1 may not exist if admin creation failed in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 403, 404, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

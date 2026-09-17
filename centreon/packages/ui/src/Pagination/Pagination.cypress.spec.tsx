@@ -1,6 +1,6 @@
-import { labelNextPage, labelPreviousPage } from '../Listing/translatedLabels';
 import TestQueryProvider from '../api/TestQueryProvider';
 import { Method } from '../api/useMutationQuery';
+import { labelNextPage, labelPreviousPage } from '../Listing/translatedLabels';
 import Pagination from './Pagination';
 import { generateItems } from './utils';
 
@@ -11,18 +11,21 @@ const totalPages = Math.ceil(defaultTotalItems / itemsPerPage);
 const initialize = ({
   total = defaultTotalItems,
   currentPage = 1
-}: { total?: number; currentPage?: number }) => {
+}: {
+  total?: number;
+  currentPage?: number;
+}) => {
   cy.interceptAPIRequest({
     alias: 'list',
     method: Method.GET,
     path: '**/listing**',
     response: {
-      result: generateItems(itemsPerPage),
       meta: {
+        limit: itemsPerPage,
         page: currentPage,
-        total,
-        limit: itemsPerPage
-      }
+        total
+      },
+      result: generateItems(itemsPerPage)
     }
   });
 
@@ -30,17 +33,17 @@ const initialize = ({
     Component: (
       <div
         style={{
-          width: '100%',
-          height: '100vh',
+          alignItems: 'center',
           display: 'flex',
+          height: '100vh',
           justifyContent: 'center',
-          alignItems: 'center'
+          width: '100%'
         }}
       >
         <div
           style={{
-            height: '176px',
-            boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)'
+            boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+            height: '176px'
           }}
         >
           <TestQueryProvider>

@@ -1,38 +1,26 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 
 if (! isset($oreon)) {
     exit();
@@ -97,11 +85,9 @@ function getListServiceForPool($poolId)
 
         return $listServices;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error fetching list of services for pool ID: {$poolId}",
-            customContext: ['poolId' => $poolId],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error fetching list of services for pool ID: {$poolId}",
+            ['poolId' => $poolId, 'exception' => $e]
         );
 
         throw $e;
@@ -147,11 +133,9 @@ function hostPoolPrefixUsed($hostId, $poolPrefix, $poolId = null)
 
         return $row['nb'] > 0;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error checking if host {$hostId} is already used with prefix '{$poolPrefix}'",
-            customContext: ['hostId' => $hostId, 'poolPrefix' => $poolPrefix, 'poolId' => $poolId],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error checking if host {$hostId} is already used with prefix '{$poolPrefix}'",
+            ['hostId' => $hostId, 'poolPrefix' => $poolPrefix, 'poolId' => $poolId, 'exception' => $e]
         );
 
         throw $e;
@@ -196,7 +180,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
 
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -207,7 +191,7 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -215,11 +199,9 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
             }
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error enabling pool(s) in DB',
-            customContext: ['pool_id' => $pool_id, 'pool_arr' => $pool_arr],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error enabling pool(s) in DB',
+            ['pool_id' => $pool_id, 'pool_arr' => $pool_arr, 'exception' => $e]
         );
 
         throw $e;
@@ -264,7 +246,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             // Update services in Centreon configuration
             $listServices = getListServiceForPool($id);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -275,7 +257,7 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -283,11 +265,9 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             }
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error disabling pool(s) in DB',
-            customContext: ['pool_id' => $pool_id, 'pool_arr' => $pool_arr],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error disabling pool(s) in DB',
+            ['pool_id' => $pool_id, 'pool_arr' => $pool_arr, 'exception' => $e]
         );
 
         throw $e;
@@ -308,7 +288,7 @@ function deletePoolInDB($pools = [])
             // Delete services in Centreon configuration
             $listServices = getListServiceForPool($key);
             if (! empty($listServices)) {
-                $bindPlaceholders = array_map(fn(int $index) => ':service_id_' . $index, array_keys($listServices));
+                $bindPlaceholders = array_map(fn (int $index) => ':service_id_' . $index, array_keys($listServices));
                 $bindPlaceholdersAsString = implode(', ', $bindPlaceholders);
                 $query = sprintf(
                     <<<'SQL'
@@ -318,7 +298,7 @@ function deletePoolInDB($pools = [])
                     $bindPlaceholdersAsString
                 );
 
-                $bindValues = array_map(fn(int $serviceId) => [$serviceId, \PDO::PARAM_INT], $listServices);
+                $bindValues = array_map(fn (int $serviceId) => [$serviceId, PDO::PARAM_INT], $listServices);
                 $bindParams = array_combine($bindPlaceholders, $bindValues);
                 $statement = $pearDB->prepareQuery($query);
                 $pearDB->executePreparedQuery($statement, $bindParams, true);
@@ -335,11 +315,9 @@ function deletePoolInDB($pools = [])
             $pearDB->closeQuery($statement);
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error deleting pool(s) in DB',
-            customContext: ['pools' => $pools],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error deleting pool(s) in DB',
+            ['pools' => $pools, 'exception' => $e]
         );
 
         throw $e;
@@ -404,11 +382,9 @@ function testPoolExistence($pool_name)
 
         return ($row['nb'] > 0) ? 1 : 0;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error checking pool existence for pool name: {$pool_name}",
-            customContext: ['pool_name' => $pool_name],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error checking pool existence for pool name: {$pool_name}",
+            ['pool_name' => $pool_name, 'exception' => $e]
         );
 
         throw $e;
@@ -442,25 +418,26 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                 unset($row['pool_id']);
 
                 $fields = [
-                    'pool_name' => \PDO::PARAM_STR,
-                    'pool_host_id' => \PDO::PARAM_INT,
-                    'pool_description' => \PDO::PARAM_STR,
-                    'pool_number' => \PDO::PARAM_INT,
-                    'pool_prefix' => \PDO::PARAM_STR,
-                    'pool_cmd_id' => \PDO::PARAM_INT,
-                    'pool_args' => \PDO::PARAM_STR,
-                    'pool_activate' => \PDO::PARAM_STR,
-                    'pool_service_template_id' => \PDO::PARAM_INT,
+                    'pool_name' => PDO::PARAM_STR,
+                    'pool_host_id' => PDO::PARAM_INT,
+                    'pool_description' => PDO::PARAM_STR,
+                    'pool_number' => PDO::PARAM_INT,
+                    'pool_prefix' => PDO::PARAM_STR,
+                    'pool_cmd_id' => PDO::PARAM_INT,
+                    'pool_args' => PDO::PARAM_STR,
+                    'pool_activate' => PDO::PARAM_STR,
+                    'pool_service_template_id' => PDO::PARAM_INT,
                 ];
 
-                for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+                $dupCount = (int) ($nbrDup[$key] ?? 0);
+                for ($i = 1; $i <= $dupCount; $i++) {
                     $parameters = [];
                     $row['pool_name'] = isset($row['pool_name']) ? $row['pool_name'] . '_' . $i : null;
                     $row['pool_host_id'] = null;
                     $row['pool_activate'] = '0';
 
                     foreach ($fields as $field => $type) {
-                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? \PDO::PARAM_NULL : $type];
+                        $parameters[":{$field}"] = [$row[$field], $row[$field] === null ? PDO::PARAM_NULL : $type];
                     }
 
                     if (! testPoolExistence($row['pool_name'])) {
@@ -491,20 +468,14 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                         );
                         $pearDB->executePreparedQuery($statement, $parameters, true);
                         $pearDB->closeQuery($statement);
-
-                        $statement = $pearDB->executeQuery('SELECT MAX(pool_id) FROM `mod_dsm_pool`');
-                        $cmd_id = $pearDB->fetch($statement);
-                        $pearDB->closeQuery($statement);
                     }
                 }
             }
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error duplicating pools with pool IDs: ' . implode(', ', array_keys($pool)),
-            customContext: ['pool' => $pool, 'nbrDup' => $nbrDup],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error duplicating pools with pool IDs: ' . implode(', ', array_keys($pool)),
+            ['pool' => $pool, 'nbrDup' => $nbrDup, 'exception' => $e]
         );
 
         throw $e;
@@ -588,37 +559,27 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                 ], true);
                 $pearDB->closeQuery($statementInsert);
 
-                $statementMax = $pearDB->prepareQuery(
-                    <<<'SQL'
-                            SELECT MAX(service_id)
-                            FROM service
-                            WHERE service_description = :service_description
-                                AND service_activate = '1'
-                                AND service_register = '1'
-                        SQL
-                );
-                $pearDB->executePreparedQuery($statementMax, [':service_description' => [$prefix . $suffix, PDO::PARAM_STR]], true);
-                $service = $pearDB->fetch($statementMax);
-                $service_id = $service['MAX(service_id)'];
-                $pearDB->closeQuery($statementMax);
+                $service_id = (int) $pearDB->lastInsertId();
 
-                if ($service_id != 0) {
-                    $statementInsertHostRelation = $pearDB->prepareQuery(
-                        'INSERT INTO host_service_relation (service_service_id, host_host_id)
-                        VALUES (:service_id, :host_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertHostRelation, [
-                        ':service_id' => [$service_id, PDO::PARAM_INT],
-                        ':host_id' => [$host_id, PDO::PARAM_INT],
-                    ], true);
-                    $pearDB->closeQuery($statementInsertHostRelation);
-
-                    $statementInsertExtended = $pearDB->prepareQuery(
-                        'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
-                    $pearDB->closeQuery($statementInsertExtended);
+                if ($service_id === 0) {
+                    throw new RuntimeException('Failed to retrieve last insert ID for service');
                 }
+
+                $statementInsertHostRelation = $pearDB->prepareQuery(
+                    'INSERT INTO host_service_relation (service_service_id, host_host_id)
+                    VALUES (:service_id, :host_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                    ':service_id' => [$service_id, PDO::PARAM_INT],
+                    ':host_id' => [$host_id, PDO::PARAM_INT],
+                ], true);
+                $pearDB->closeQuery($statementInsertHostRelation);
+
+                $statementInsertExtended = $pearDB->prepareQuery(
+                    'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
+                $pearDB->closeQuery($statementInsertExtended);
             }
         } elseif ($currentNumber <= $number) {
             for ($i = 1; $data = $pearDB->fetch($statement); $i++) {
@@ -696,36 +657,27 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                 ], true);
                 $pearDB->closeQuery($statementInsert);
 
-                $statementMax = $pearDB->prepareQuery(
-                    <<<'SQL'
-                            SELECT MAX(service_id) FROM service
-                            WHERE service_description = :service_description
-                                AND service_activate = '1'
-                                AND service_register = '1'
-                        SQL
-                );
-                $pearDB->executePreparedQuery($statementMax, [':service_description' => [$prefix . $suffix, PDO::PARAM_STR]], true);
-                $service = $pearDB->fetch($statementMax);
-                $service_id = $service['MAX(service_id)'];
-                $pearDB->closeQuery($statementMax);
+                $service_id = (int) $pearDB->lastInsertId();
 
-                if ($service_id != 0) {
-                    $statementInsertHostRelation = $pearDB->prepareQuery(
-                        'INSERT INTO host_service_relation (service_service_id, host_host_id)
-                        VALUES (:service_id, :host_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertHostRelation, [
-                        ':service_id' => [$service_id, PDO::PARAM_INT],
-                        ':host_id' => [$host_id, PDO::PARAM_INT],
-                    ], true);
-                    $pearDB->closeQuery($statementInsertHostRelation);
-
-                    $statementInsertExtended = $pearDB->prepareQuery(
-                        'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
-                    $pearDB->closeQuery($statementInsertExtended);
+                if ($service_id === 0) {
+                    throw new RuntimeException('Failed to retrieve last insert ID for service');
                 }
+
+                $statementInsertHostRelation = $pearDB->prepareQuery(
+                    'INSERT INTO host_service_relation (service_service_id, host_host_id)
+                    VALUES (:service_id, :host_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                    ':service_id' => [$service_id, PDO::PARAM_INT],
+                    ':host_id' => [$host_id, PDO::PARAM_INT],
+                ], true);
+                $pearDB->closeQuery($statementInsertHostRelation);
+
+                $statementInsertExtended = $pearDB->prepareQuery(
+                    'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
+                $pearDB->closeQuery($statementInsertExtended);
                 $i++;
             }
         } elseif ($currentNumber > $number) {
@@ -740,10 +692,9 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
 
         $pearDB->closeQuery($statement);
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error generating services for pool with prefix: {$prefix}",
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error generating services for pool with prefix: {$prefix}",
+            [
                 'prefix' => $prefix,
                 'number' => $number,
                 'host_id' => $host_id,
@@ -751,8 +702,8 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                 'cmd' => $cmd,
                 'args' => $args,
                 'oldPrefix' => $oldPrefix,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -830,34 +781,35 @@ function insertPool($ret = [])
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $value = $field === 'pool_activate' ? $ret[$field][$field] : $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
         $pearDB->executePreparedQuery($statement, $parameters, true);
         $pearDB->closeQuery($statement);
 
-        $statementMax = $pearDB->executeQuery('SELECT MAX(pool_id) FROM mod_dsm_pool');
-        $pool_id = $pearDB->fetch($statementMax);
-        $pearDB->closeQuery($statementMax);
+        $pool_id = (int) $pearDB->lastInsertId();
 
-        if ($ret['pool_activate']['pool_activate'] == 1) {
-            enablePoolInDB($pool_id['MAX(pool_id)']);
-        } else {
-            disablePoolInDB($pool_id['MAX(pool_id)']);
+        if ($pool_id === 0) {
+            throw new RuntimeException('Failed to retrieve last insert ID for pool');
         }
 
-        return $pool_id['MAX(pool_id)'];
+        if ($ret['pool_activate']['pool_activate'] == 1) {
+            enablePoolInDB($pool_id);
+        } else {
+            disablePoolInDB($pool_id);
+        }
+
+        return $pool_id;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error inserting pool with name: ' . ($ret['pool_name'] ?? 'N/A'),
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error inserting pool with name: ' . ($ret['pool_name'] ?? 'N/A'),
+            [
                 'pool_name' => $ret['pool_name'] ?? null,
                 'pool_host_id' => $ret['pool_host_id'] ?? null,
                 'pool_prefix' => $ret['pool_prefix'] ?? null,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -924,7 +876,7 @@ function updatePool($pool_id = null)
 
         $parameters = [];
         foreach ($fields as $field => $type) {
-            $field === 'pool_activate' ? $value = $ret[$field][$field] : $value = $ret[$field] ?? null;
+            $value = $field === 'pool_activate' ? $ret[$field][$field] : $ret[$field] ?? null;
             $parameters[":{$field}"] = [$value, $value !== null ? $type : PDO::PARAM_NULL];
         }
 
@@ -951,16 +903,15 @@ function updatePool($pool_id = null)
 
         return true;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error updating pool with ID: ' . ($pool_id ?? 'N/A'),
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error updating pool with ID: ' . ($pool_id ?? 'N/A'),
+            [
                 'pool_id' => $pool_id,
                 'pool_name' => $ret['pool_name'] ?? null,
                 'pool_prefix' => $ret['pool_prefix'] ?? null,
                 'pool_activate' => $ret['pool_activate'] ?? null,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -982,6 +933,8 @@ function updatePoolContactGroup($pool_id = null, $ret = [])
             return;
         }
 
+        $pearDB->beginTransaction();
+
         $statement = $pearDB->prepareQuery('DELETE FROM mod_dsm_cg_relation WHERE pool_id = :pool_id');
         $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
         $pearDB->closeQuery($statement);
@@ -998,15 +951,20 @@ function updatePoolContactGroup($pool_id = null, $ret = [])
             ], true);
             $pearDB->closeQuery($statement);
         }
+
+        $pearDB->commit();
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error updating contact groups for pool with ID: ' . ($pool_id ?? 'N/A'),
-            customContext: [
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error updating contact groups for pool with ID: ' . ($pool_id ?? 'N/A'),
+            [
                 'pool_id' => $pool_id,
                 'contact_groups' => $ret,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -1028,6 +986,8 @@ function updatePoolContact($pool_id = null, $ret = [])
             return;
         }
 
+        $pearDB->beginTransaction();
+
         $statement = $pearDB->prepareQuery('DELETE FROM mod_dsm_cct_relation WHERE pool_id = :pool_id');
         $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
         $pearDB->closeQuery($statement);
@@ -1044,15 +1004,20 @@ function updatePoolContact($pool_id = null, $ret = [])
             ], true);
             $pearDB->closeQuery($statement);
         }
+
+        $pearDB->commit();
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error updating contacts for pool with ID: ' . ($pool_id ?? 'N/A'),
-            customContext: [
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error updating contacts for pool with ID: ' . ($pool_id ?? 'N/A'),
+            [
                 'pool_id' => $pool_id,
                 'contacts' => $ret,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;

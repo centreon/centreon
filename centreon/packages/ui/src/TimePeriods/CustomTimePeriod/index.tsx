@@ -1,14 +1,12 @@
-import { MouseEvent, useState } from 'react';
+import { useDebounce } from '@centreon/ui';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-
-import { useDebounce } from '@centreon/ui';
+import { type MouseEvent, useState } from 'react';
 
 import {
   changeCustomTimePeriodDerivedAtom,
   customTimePeriodAtom
 } from '../timePeriodsAtoms';
-
 import CompactCustomTimePeriod from './CompactCustomTimePeriod';
 import PopoverCustomTimePeriod from './PopoverCustomTimePeriod';
 
@@ -27,8 +25,13 @@ const CustomTimePeriod = ({
   const changeCustomTimePeriod = useSetAtom(changeCustomTimePeriodDerivedAtom);
 
   const debouncedChangeDate = useDebounce({
-    functionToDebounce: ({ property, date }): void =>
-      changeCustomTimePeriod({ date, property }),
+    functionToDebounce: (...args: Array<unknown>): void => {
+      const { property, date } = args[0] as {
+        property: string;
+        date: Date;
+      };
+      changeCustomTimePeriod({ date, property });
+    },
     wait: 500
   });
 

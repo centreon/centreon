@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,12 +22,11 @@
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 22.04.13: ';
 $errorMessage = '';
 
-$updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
-{
+$updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void {
     $customConfigurationJson = $pearDB->query(
         <<<'SQL'
             SELECT custom_configuration
@@ -43,13 +42,13 @@ $updateOpenIdCustomConfiguration = function (CentreonDB $pearDB): void
         $updatedCustomConfigurationEncoded = json_encode($customConfiguration);
 
         $statement = $pearDB->prepare(
-            <<<SQL
+            <<<'SQL'
                 UPDATE provider_configuration
                     SET custom_configuration = :encodedConfiguration
                 WHERE name = 'openid'
                 SQL
         );
-        $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, \PDO::PARAM_STR);
+        $statement->bindValue(':encodedConfiguration', $updatedCustomConfigurationEncoded, PDO::PARAM_STR);
         $statement->execute();
     }
 };
@@ -63,7 +62,7 @@ try {
     $updateOpenIdCustomConfiguration($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -76,5 +75,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

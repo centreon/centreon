@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@
 
 namespace CentreonRemote\Infrastructure\Service;
 
+use App\Kernel;
 use Centreon;
+use Centreon\Infrastructure\Service\VmwareConfigurationService;
 use Centreon\ServiceProvider;
 use CentreonBroker;
 use CentreonContactgroup;
 use CentreonDB;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Exception;
 use Generate;
 use Pimple\Container;
@@ -117,7 +120,13 @@ class PollerInteractionService
     {
         $centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
 
-        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
+        $centCorePipe = defined('_CENTREON_VARLIB_')
+            ? _CENTREON_VARLIB_ . '/centcore.cmd'
+            : '/var/lib/centreon/centcore.cmd';
+
+        $vmwareConfigurationService = Kernel::createForWeb()
+            ->getContainer()
+            ->get(VmwareConfigurationService::class);
 
         $tabServer = [];
         $tabs = $this->centreon->user->access->getPollerAclConf([
@@ -139,21 +148,20 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,cfg,sql}', GLOB_BRACE);
+                $written = file_put_contents(
+                    $centCorePipe,
+                    'SENDCFGFILE:' . (int) $host['id'] . "\n",
+                    FILE_APPEND | LOCK_EX
+                );
 
-                passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
-
-                if ($return) {
+                if ($written === false) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
                 }
 
-                if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> {$centCorePipe}", $return);
-
-                    if ($return) {
-                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                    }
-                }
+                $vmwareConfigurationService->restartIfConfigurationChanged(
+                    (int) $host['id'],
+                    isset($host['localhost']) && $host['localhost'] == 1
+                );
             }
         }
     }
@@ -167,7 +175,9 @@ class PollerInteractionService
     {
         $tabServers = [];
 
-        $centCorePipe = defined('_CENTREON_VARLIB_') ? _CENTREON_VARLIB_ . '/centcore.cmd' : '/var/lib/centreon/centcore.cmd';
+        $centCorePipe = defined('_CENTREON_VARLIB_')
+            ? _CENTREON_VARLIB_ . '/centcore.cmd'
+            : '/var/lib/centreon/centcore.cmd';
 
         $tabs = $this->centreon->user->access->getPollerAclConf([
             'fields' => ['name', 'id', 'localhost', 'engine_restart_command'],
@@ -191,17 +201,22 @@ class PollerInteractionService
         }
 
         foreach ($tabServers as $poller) {
-            if (isset($poller['localhost']) && $poller['localhost'] == 1) {
-                shell_exec("sudo {$poller['engine_restart_command']}");
-            } elseif ($fh = @fopen($centCorePipe, 'a+')) {
-                fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
-                fclose($fh);
+            if (isset($poller['localhost']) && (int) $poller['localhost'] === 1) {
+                $this->restartEngine($poller['engine_restart_command']);
             } else {
-                throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                $written = file_put_contents(
+                    $centCorePipe,
+                    'RESTART:' . (int) $poller['id'] . "\n",
+                    FILE_APPEND | LOCK_EX
+                );
+
+                if ($written === false) {
+                    throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
+                }
             }
 
-            $restartTimeQuery = "UPDATE `nagios_server` 
-                SET `last_restart` = '" . time() . "' 
+            $restartTimeQuery = "UPDATE `nagios_server`
+                SET `last_restart` = '" . time() . "'
                 WHERE `id` = '{$poller['id']}'";
             $this->db->query($restartTimeQuery);
         }
@@ -215,6 +230,25 @@ class PollerInteractionService
                     include $fileName;
                 }
             }
+        }
+    }
+
+    /**
+     * @param string|null $engineRestartCommand
+     *
+     * @throws Exception
+     * @return void
+     */
+    private function restartEngine(?string $engineRestartCommand): void
+    {
+        if (! empty($engineRestartCommand)) {
+            if (preg_match(MonitoringServer::VALID_COMMAND_RESTART_REGEX, $engineRestartCommand) !== 1) {
+                throw new Exception(_(
+                    'Engine restart command does not match the expected format.'
+                    . ' Please check the monitoring server configuration.'
+                ));
+            }
+            shell_exec(escapeshellcmd('sudo -n -- ' . $engineRestartCommand));
         }
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ final class BoolToEnumNormalizer implements NormalizerInterface
             true, 1, '1', 'true', 'TRUE', $this->trueEnum => $this->trueEnum,
             false, 0, '0', 'false', 'FALSE', $this->falseEnum => $this->falseEnum,
             null => $this->nullable ? null : throw $this->newTypeError($valueToNormalize),
-            default => throw $this->newTypeError($valueToNormalize)
+            default => throw $this->newTypeError($valueToNormalize),
         };
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-interface ReadMonitoringServerRepositoryInterface {
+interface ReadMonitoringServerRepositoryInterface
+{
     /**
      * Determine if a monitoring server exists by its ID.
      *
      * @param int $monitoringServerId
-     *
-     * @throws \Throwable
      *
      * @return bool
      */
@@ -44,8 +44,6 @@ interface ReadMonitoringServerRepositoryInterface {
      * @param int $monitoringServerId
      * @param AccessGroup[] $accessGroups
      *
-     * @throws \Throwable
-     *
      * @return bool
      */
     public function existsByAccessGroups(int $monitoringServerId, array $accessGroups): bool;
@@ -55,8 +53,6 @@ interface ReadMonitoringServerRepositoryInterface {
      * Return the ids found.
      *
      * @param int[] $monitoringServerIds
-     *
-     * @throws \Throwable
      *
      * @return int[]
      */
@@ -69,8 +65,6 @@ interface ReadMonitoringServerRepositoryInterface {
      * @param int[] $monitoringServerIds
      * @param AccessGroup[] $accessGroups
      *
-     * @throws \Throwable
-     *
      * @return int[]
      */
     public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array;
@@ -79,8 +73,6 @@ interface ReadMonitoringServerRepositoryInterface {
      * Get a monitoring server by its associated host ID.
      *
      * @param int $hostId
-     *
-     * @throws \Throwable
      *
      * @return MonitoringServer|null
      */
@@ -91,8 +83,6 @@ interface ReadMonitoringServerRepositoryInterface {
      *
      * @param int[] $ids
      *
-     * @throws \Throwable
-     *
      * @return MonitoringServer[]
      */
     public function findByIds(array $ids): array;
@@ -102,9 +92,42 @@ interface ReadMonitoringServerRepositoryInterface {
      *
      * @param int[] $hostIds
      *
-     * @throws \Throwable
-     *
      * @return int[] The list of distinct server IDs
      */
     public function findByHostsIds(array $hostIds): array;
+
+    /**
+     * Gets a monitoring server if it is a central server from the list of IDs.
+     *
+     * @param int[] $ids
+     *
+     * @return MonitoringServer|null
+     */
+    public function findCentralByIds(array $ids): ?MonitoringServer;
+
+    /**
+     * Find all the Monitoring Servers.
+     *
+     * @return MonitoringServer[]
+     */
+    public function findAll(): array;
+
+    /**
+     * Get a monitoring server.
+     *
+     * @param int $monitoringServerId
+     *
+     * @throws EntityNotFoundException when no Monitoring server are found
+     * @return MonitoringServer
+     */
+    public function get(int $monitoringServerId): MonitoringServer;
+
+    /**
+     * Check if the monitoring server is ready for encryption.
+     *
+     * @param int $monitoringServerId
+     *
+     * @return bool
+     */
+    public function isEncryptionReady(int $monitoringServerId): bool;
 }

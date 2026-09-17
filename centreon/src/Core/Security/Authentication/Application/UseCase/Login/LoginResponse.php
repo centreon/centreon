@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace Core\Security\Authentication\Application\UseCase\Login;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Exception;
 
-final class LoginResponse implements ResponseStatusInterface
+final readonly class LoginResponse implements ResponseStatusInterface
 {
     /**
      * @param string $redirectUri
@@ -34,9 +34,9 @@ final class LoginResponse implements ResponseStatusInterface
      * @param Exception|null $exception
      */
     public function __construct(
-        private readonly string $redirectUri,
-        private readonly bool $redirectIsReact,
-        private readonly ?Exception $exception = null
+        private string $redirectUri,
+        private bool $redirectIsReact,
+        private ?Exception $exception = null,
     ) {
     }
 

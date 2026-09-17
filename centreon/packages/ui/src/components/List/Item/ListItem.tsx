@@ -1,6 +1,11 @@
-import { ForwardedRef, ReactElement, ReactNode, forwardRef } from 'react';
+import { type ListItemProps, ListItem as MuiListItem } from '@mui/material';
 
-import { ListItemProps, ListItem as MuiListItem } from '@mui/material';
+import {
+  type ForwardedRef,
+  forwardRef,
+  type ReactElement,
+  type ReactNode
+} from 'react';
 
 import { useStyles } from './ListItem.styles';
 
@@ -19,8 +24,8 @@ export const ListItem = forwardRef(
 
     return (
       <MuiListItem
-        disableGutters
         className={cx(classes.listItem, className)}
+        disableGutters
         ref={ref}
         secondaryAction={
           action && <div className={classes.secondary}>{action}</div>

@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
-
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, not } from 'ramda';
+import { useEffect } from 'react';
 
 import { appliedTabAtom, tabAtom } from './tabAtoms';
 

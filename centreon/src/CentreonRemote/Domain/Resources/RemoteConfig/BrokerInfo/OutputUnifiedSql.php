@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ class OutputUnifiedSql
     /**
      * Get template configuration.
      *
-     * @todo move it as yml
-     *
+     * @param string $dbHost
      * @param string|null $dbUser the database user
      * @param string|null $dbPassword the database password
      *
      * @return array<int, string[]> the configuration template
+     * @todo move it as yml
      */
-    public static function getConfiguration($dbUser, $dbPassword): array
+    public static function getConfiguration(string $dbHost, ?string $dbUser, ?string $dbPassword): array
     {
         return [
             [
@@ -69,7 +69,7 @@ class OutputUnifiedSql
             ],
             [
                 'config_key' => 'db_host',
-                'config_value' => 'localhost',
+                'config_value' => $dbHost,
                 'config_group' => 'output',
                 'config_group_id' => '0',
                 'grp_level' => '0',

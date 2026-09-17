@@ -5,7 +5,7 @@ import {
   panelWidthStorageAtom,
   selectedResourcesDetailsAtom
 } from '../../Details/detailsAtoms';
-import { Type, mediumWidth, smallWidth } from '../model';
+import { mediumWidth, smallWidth, Type } from '../model';
 
 interface UseMediaQueryListing {
   applyBreakPoint: boolean;

@@ -1,7 +1,6 @@
+import SearchInput from '.';
 import PersistentTooltip from './PersistentTooltip';
 import RegexpHelpTooltip from './RegexpHelpTooltip';
-
-import SearchInput from '.';
 
 export default { title: 'InputField/Search' };
 

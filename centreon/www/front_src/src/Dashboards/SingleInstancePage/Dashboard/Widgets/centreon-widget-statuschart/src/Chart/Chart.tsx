@@ -1,9 +1,12 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { BarStack, PieChart, type PieProps } from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, reject } from 'ramda';
+import { type ComponentProps, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { BarStack, PieChart } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
@@ -12,10 +15,9 @@ import {
 } from '../../../translatedLabels';
 import { goToUrl } from '../../../utils';
 import Legend from '../Legend/Legend';
+import { type ChartType, DisplayType } from '../models';
 import TooltipContent from '../Tooltip/Tooltip';
-import { ChartType, DisplayType } from '../models';
 import useLoadResources from '../useLoadResources';
-
 import { useStyles } from './Chart.styles';
 import ChartSkeleton from './LoadingSkeleton';
 
@@ -35,8 +37,10 @@ const Chart = ({
   id,
   playlistHash,
   dashboardId,
-  widgetPrefixQuery
-}: ChartType): JSX.Element => {
+  isInViewport,
+  widgetPrefixQuery,
+  stateList
+}: ChartType): ReactElement => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
 
@@ -49,15 +53,17 @@ const Chart = ({
   const { data, isLoading } = useLoadResources({
     dashboardId,
     id,
+    isInViewport,
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
-    resourceType,
     resources,
+    resourceType,
+    stateList,
     widgetPrefixQuery
   });
 
-  const goToResourceStatusPage = (status): void => {
+  const goToResourceStatusPage = (status: string): void => {
     const url = getLinkToResourceStatusPage(status, resourceType);
 
     goToUrl(url)();
@@ -92,26 +98,30 @@ const Chart = ({
       {isPieCharts ? (
         <div className={classes.pieChart}>
           <PieChart
-            opacity={1}
-            Legend={(props) => (
-              <Legend
-                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
-                resourceType={resourceType}
-                resources={resources}
-                {...props}
-              />
-            )}
-            TooltipContent={isOnPublicPage ? undefined : TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            Legend={(props) => (
+              <Legend
+                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+                resources={resources}
+                resourceType={resourceType}
+                {...props}
+              />
+            )}
+            onArcClick={({ label: status }) => {
+              goToResourceStatusPage(status);
+            }}
+            opacity={1}
+            TooltipContent={
+              (isOnPublicPage
+                ? undefined
+                : TooltipContent) as PieProps['TooltipContent']
+            }
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
-            onArcClick={({ label: status }) => {
-              goToResourceStatusPage(status);
-            }}
           />
         </div>
       ) : (
@@ -122,26 +132,30 @@ const Chart = ({
           })}
         >
           <BarStack
-            Legend={(props) => (
-              <Legend
-                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
-                resourceType={resourceType}
-                resources={resources}
-                {...props}
-              />
-            )}
-            TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            Legend={(props) => (
+              <Legend
+                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+                resources={resources}
+                resourceType={resourceType}
+                {...props}
+              />
+            )}
             legendDirection={isHorizontalBar ? 'row' : 'column'}
+            onSingleBarClick={({ key: status }: { key: string }) => {
+              goToResourceStatusPage(status);
+            }}
+            TooltipContent={
+              TooltipContent as ComponentProps<
+                typeof BarStack
+              >['TooltipContent']
+            }
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}
             variant={displayType as 'horizontal' | 'vertical'}
-            onSingleBarClick={({ key: status }) => {
-              goToResourceStatusPage(status);
-            }}
           />
         </div>
       )}

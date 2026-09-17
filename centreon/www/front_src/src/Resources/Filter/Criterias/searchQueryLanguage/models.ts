@@ -4,8 +4,8 @@ import {
   CriteriaById,
   CriteriaNames,
   selectableResourceTypes,
-  selectableStateTypes,
   selectableStates,
+  selectableStateTypes,
   selectableStatuses
 } from '../models';
 
@@ -64,6 +64,13 @@ export const searchableFields = [
   'information'
 ];
 
+export const searchableFieldsForPerformance = [
+  'h.name',
+  'h.alias',
+  'h.address',
+  's.description'
+];
+
 const statusNameToQueryLanguageName = selectableStatuses
   .map(prop('id'))
   .reduce((previous, current) => {
@@ -100,7 +107,12 @@ export const dynamicCriteriaValuesByName = [
 export const getSelectableCriteriasByName = (
   name: string
 ): Array<{ id: string; name: string }> => {
-  return staticCriteriaValuesByName[name];
+  return (
+    staticCriteriaValuesByName as Record<
+      string,
+      Array<{ id: string; name: string }>
+    >
+  )[name];
 };
 
 export const staticCriteriaNames = Object.keys(staticCriteriaValuesByName);

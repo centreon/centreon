@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
+import { type Theme, Typography } from '@mui/material';
 
+import type { ReactElement } from 'react';
 import { makeStyles } from 'tss-react/mui';
-
-import { Theme, Typography } from '@mui/material';
 
 import Dialog from '.';
 
@@ -33,9 +32,9 @@ interface Props {
 }
 const Story = ({ children, ...props }: Props): JSX.Element => (
   <Dialog
-    open
     onCancel={(): void => undefined}
     onConfirm={(): void => undefined}
+    open
     {...props}
   >
     {children}
@@ -65,7 +64,6 @@ const CustomDialog = (): JSX.Element => {
 
   return (
     <Dialog
-      open
       className={classes.root}
       dialogActionsClassName={classes.actions}
       dialogContentClassName={classes.content}
@@ -73,6 +71,7 @@ const CustomDialog = (): JSX.Element => {
       dialogTitleClassName={classes.title}
       onCancel={(): void => undefined}
       onConfirm={(): void => undefined}
+      open
     >
       Custom dialog
     </Dialog>

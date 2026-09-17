@@ -27,9 +27,11 @@ CENTREON   ALL = NOPASSWD: /bin/systemctl start cbd-sql
 CENTREON   ALL = NOPASSWD: /bin/systemctl stop cbd-sql
 CENTREON   ALL = NOPASSWD: /bin/systemctl restart cbd-sql
 CENTREON   ALL = NOPASSWD: /bin/systemctl reload cbd-sql
+CENTREON   ALL = NOPASSWD: /bin/systemctl reload cbd-sql cbd
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl start cbd-sql
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl stop cbd-sql
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl restart cbd-sql
 CENTREON   ALL = NOPASSWD: /usr/bin/systemctl reload cbd-sql
+CENTREON   ALL = NOPASSWD: /usr/bin/systemctl reload cbd-sql cbd
 
 ## END: CENTREON SUDO

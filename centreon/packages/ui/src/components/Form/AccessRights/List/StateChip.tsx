@@ -1,7 +1,6 @@
 import { Chip } from '@mui/material';
 
-import { ItemState } from '../models';
-
+import type { ItemState } from '../models';
 import { useListStyles } from './List.styles';
 
 interface Props {
@@ -13,7 +12,7 @@ const StateChip = ({ label, state }: Props): JSX.Element => {
   const { classes, cx } = useListStyles();
 
   return (
-    <div className={cx(classes.state)}>
+    <div className={cx((classes as Record<string, string>).state)}>
       <Chip
         className={classes.stateChip}
         data-state={state}

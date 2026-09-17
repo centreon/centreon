@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,12 @@ final class FindResourcesResponse
     /**
      * @param ResourceResponseDto[] $resources
      * @param array<string, array<mixed, mixed>> $extraData
+     * @param bool $isCountApproximate
      */
     public function __construct(
         public array $resources = [],
-        public array $extraData = []
+        public array $extraData = [],
+        public bool $isCountApproximate = false,
     ) {
     }
 }
-

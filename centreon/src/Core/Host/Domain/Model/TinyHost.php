@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
@@ -49,7 +49,6 @@ class TinyHost implements Comparable, Identifiable
         Assertion::notEmptyString($this->name, 'Host::name');
         if ($this->alias !== null) {
             $this->alias = trim($this->alias);
-            Assertion::notEmptyString($this->alias, 'Host::alias');
         }
         Assertion::positiveInt($this->id, 'Host::monitoringServerId');
     }

@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
@@ -19,15 +21,15 @@ after(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-creator',
@@ -121,7 +123,7 @@ Then('the newly created dashboard has the required only dashboard data', () => {
 Given(
   'a user with dashboard edition rights on the dashboard creation form',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visit(PAGES.monitoring.dashboards);
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
   }
 );
@@ -209,7 +211,7 @@ Given(
 
 When('the dashboard administrator user starts to edit the dashboard', () => {
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
-  cy.waitForElementToBeVisible('[data-testid="edit_dashboard"]')
+  cy.waitForElementToBeVisible('[data-testid="edit_dashboard"]');
   cy.getByTestId({ testId: 'edit_dashboard' }).click();
   cy.location('search').should('include', 'edit=true');
   cy.get('button[type=button]').contains('Add a widget').should('exist');
@@ -217,7 +219,7 @@ When('the dashboard administrator user starts to edit the dashboard', () => {
 
 Then("creates a new dashboard on the previous dashboard's edition page", () => {
   cy.get('button[type=button]').contains('Add a widget').should('be.visible');
-  cy.getByTestId({ testId: 'MenuIcon' }).click();
+  cy.getByTestId({ testId: 'quickaccess' }).click();
   cy.contains('Create a dashboard').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(dashboards.default.name);
   cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(

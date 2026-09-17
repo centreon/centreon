@@ -1,7 +1,11 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
 const services = {
@@ -36,27 +40,27 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
+    url: `${INTERCEPTORS.api.hosts_configuration}/groups?page=1&limit=*`
   }).as('getGroups');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts?page=1*'
+    url: `${INTERCEPTORS.api.hosts_configuration}?page=1*`
   }).as('getHosts');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups/*'
+    url: `${INTERCEPTORS.api.hosts_configuration}/groups/*`
   }).as('getGroupDetails');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/icons?page=*'
+    url: `${INTERCEPTORS.api.icons_configuration}?page=*`
   }).as('getIcons');
 });
 
@@ -116,7 +120,7 @@ When('a host group is configured', () => {
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
         .invoke('text')
         .then((text) => {
-          if (text != '2') {
+          if (text !== '2') {
             cy.exportConfig();
           }
 
@@ -128,15 +132,11 @@ When('a host group is configured', () => {
 });
 
 When('the user changes some properties of the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.contains('p', hostGroups.default.name).eq(0).click();
   cy.wait('@getGroupDetails');
-  cy.contains('p', 'Modify a host group').should('be.visible');
+  cy.contains('Modify a host group').should('be.visible');
   // Update Name field
   cy.getByTestId({ testId: 'Name' })
     .eq(1)
@@ -152,12 +152,13 @@ When('the user changes some properties of the configured host group', () => {
   cy.wait('@getHosts');
   cy.contains('Centreon-Server').click();
   // Update geo coordinates for MAP
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
     .clear()
     .type(hostGroups.forTest.geo_coords);
   // Update icon
-  cy.getByTestId({ testId: 'ArrowDropDownIcon' }).eq(2).click();
+  cy.getByLabel({ label: 'Open' }).eq(1).click();
   cy.wait('@getIcons');
   cy.contains('p', 'centreon').click();
   // Update Comment field
@@ -184,9 +185,10 @@ Then('these properties are updated', () => {
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
   cy.contains('span', 'Centreon-Server').should('be.visible');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forTest.geo_coords);
+    .should('have.value', hostGroups.forTest.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
@@ -195,14 +197,18 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured host group', () => {
-  cy.updateHostGroupViaApi(hostGroups.forDuplicate, hostGroups.default.name);
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.updateHostGroupViaApi(
+    {
+      ...hostGroups.forDuplicate,
+      geoCoords: hostGroups.forDuplicate.geo_coords,
+      iconId: hostGroups.forDuplicate.icon_id,
+      isActivated: hostGroups.forDuplicate.is_activated
+    },
+    hostGroups.default.name
+  );
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
-  cy.getByTestId({ testId: 'ContentCopyOutlinedIcon' }).eq(1).click();
+  cy.getByLabel({ label: 'Duplicate' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Duplicate"]').click();
   cy.wait('@getGroups');
 });
@@ -218,9 +224,10 @@ Then('a new host group is created with identical properties', () => {
     .should('have.value', hostGroups.forDuplicate.alias);
   // check values of hosts members
   cy.contains('span', 'host2').should('be.visible');
+  cy.contains('Modify a host group').click();
   cy.getByTestId({ testId: 'Geographic coordinates for MAP' })
     .eq(1)
-    .should('have.value', hostGroups.forDuplicate.geo_coords);
+    .should('have.value', hostGroups.forDuplicate.geo_coords_after_truncate);
   // Check value of the icon
   cy.get('img[alt="logo-centreon-colors.png"]').should('be.visible');
   cy.getByTestId({ testId: 'Comments' })
@@ -229,13 +236,9 @@ Then('a new host group is created with identical properties', () => {
 });
 
 When('the user deletes the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
-  cy.getByTestId({ testId: 'DeleteOutlineIcon' }).eq(1).click();
+  cy.getByLabel({ label: 'Delete' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Delete"]').click();
   cy.wait('@getGroups');
   cy.exportConfig();

@@ -1,0 +1,2 @@
+imports:
+    - {resource: ../../config.new/packages/doctrine.yaml}

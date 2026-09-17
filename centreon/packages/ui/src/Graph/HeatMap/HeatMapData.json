@@ -1,137 +1,137 @@
 [
   {
-    "id": "Orbaxter",
     "backgroundColor": "#88B922",
     "data": {
+      "counter": 53,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 53
-    }
+      "service": "Service Counter"
+    },
+    "id": "Orbaxter"
   },
   {
-    "id": "Interfind",
     "backgroundColor": "#88B922",
     "data": {
+      "counter": 779,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 779
-    }
+      "service": "Service Counter"
+    },
+    "id": "Interfind"
   },
   {
-    "id": "Ecratic",
     "backgroundColor": "#E3E3E3",
     "data": {
+      "counter": 504,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 504
-    }
+      "service": "Service Counter"
+    },
+    "id": "Ecratic"
   },
   {
-    "id": "Earthwax",
     "backgroundColor": "#88B922",
     "data": {
+      "counter": 374,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 374
-    }
+      "service": "Service Counter"
+    },
+    "id": "Earthwax"
   },
   {
-    "id": "Cytrak",
     "backgroundColor": "#FF6666",
     "data": {
+      "counter": 957,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 957
-    }
+      "service": "Service Counter"
+    },
+    "id": "Cytrak"
   },
   {
-    "id": "Exiand",
     "backgroundColor": "#1EBEB3",
     "data": {
+      "counter": 281,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 281
-    }
+      "service": "Service Counter"
+    },
+    "id": "Exiand"
   },
   {
-    "id": "Ginkogene",
     "backgroundColor": "#FF6666",
     "data": {
+      "counter": 472,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 472
-    }
+      "service": "Service Counter"
+    },
+    "id": "Ginkogene"
   },
   {
-    "id": "Quailcom",
     "backgroundColor": "#88B922",
     "data": {
+      "counter": 770,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 770
-    }
+      "service": "Service Counter"
+    },
+    "id": "Quailcom"
   },
   {
-    "id": "Cormoran",
     "backgroundColor": "#FF6666",
     "data": {
+      "counter": 908,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 908
-    }
+      "service": "Service Counter"
+    },
+    "id": "Cormoran"
   },
   {
-    "id": "Emergent",
     "backgroundColor": "#1EBEB3",
     "data": {
+      "counter": 969,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 969
-    }
+      "service": "Service Counter"
+    },
+    "id": "Emergent"
   },
   {
-    "id": "Limozen",
     "backgroundColor": "#E3E3E3",
     "data": {
+      "counter": 33,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 33
-    }
+      "service": "Service Counter"
+    },
+    "id": "Limozen"
   },
   {
-    "id": "Gogol",
     "backgroundColor": "#1EBEB3",
     "data": {
+      "counter": 870,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 870
-    }
+      "service": "Service Counter"
+    },
+    "id": "Gogol"
   },
   {
-    "id": "Luxuria",
     "backgroundColor": "#FD9B27",
     "data": {
+      "counter": 270,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 270
-    }
+      "service": "Service Counter"
+    },
+    "id": "Luxuria"
   },
   {
-    "id": "Fossiel",
     "backgroundColor": "#1EBEB3",
     "data": {
+      "counter": 955,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 955
-    }
+      "service": "Service Counter"
+    },
+    "id": "Fossiel"
   },
   {
-    "id": "Hawkster",
     "backgroundColor": "#88B922",
     "data": {
+      "counter": 28,
       "host": "Server",
-      "service": "Service Counter",
-      "counter": 28
-    }
+      "service": "Service Counter"
+    },
+    "id": "Hawkster"
   }
 ]

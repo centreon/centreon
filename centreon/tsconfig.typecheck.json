@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "./tsconfig.json",
+    "./packages/js-config/tsconfig/typecheck.json"
+  ],
+  "compilerOptions": {
+    "types": ["react"]
+  },
+  "include": [
+    "./types",
+    "./www/front_src/src"
+  ],
+  "exclude": [
+    "./node_modules",
+    "./cypress",
+    "./www/front_src/src/**/*.cypress.spec.tsx",
+    "./www/front_src/src/**/Specs/**",
+    "./www/front_src/src/**/specs/**",
+    "./www/front_src/src/**/testsUtils.*"
+  ]
+}

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,15 @@ final class FindFavoriteDashboardsResponse implements ListingResponseInterface
      * @param DashboardResponseDto[] $dashboards
      */
     public function __construct(
-        public array $dashboards
+        public array $dashboards,
     ) {
     }
 
     /**
      * @inheritDoc
      */
-    public function getData(): mixed {
+    public function getData(): mixed
+    {
         return $this->dashboards;
     }
 }

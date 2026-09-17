@@ -1,10 +1,9 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { useTheme } from '@mui/material';
 
-import BaseRectSkeleton from './BaseSkeleton';
+import { makeStyles } from 'tss-react/mui';
 
-import { PageSkeletonProps } from '.';
+import type { PageSkeletonProps } from '.';
+import BaseRectSkeleton from './BaseSkeleton';
 
 const numberOfActionButtons = 2;
 const filterHeight = 6;

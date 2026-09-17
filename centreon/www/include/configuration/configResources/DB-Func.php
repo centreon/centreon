@@ -1,38 +1,25 @@
-<?php declare(strict_types=1);
+<?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+declare(strict_types=1);
 
 if (! isset($centreon)) {
     exit();
@@ -41,12 +28,14 @@ if (! isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use App\Kernel;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  * Indicates if the resource name has already been used.
  *
@@ -67,6 +56,9 @@ function testExistence($name = null, $instanceId = null)
     if (isset($form)) {
         $id = (int) $form->getSubmitValue('resource_id');
         $instanceIds = $form->getSubmitValue('instance_id');
+        if (! is_array($instanceIds)) {
+            return true;
+        }
         $instanceIds = filter_var_array(
             $instanceIds,
             FILTER_VALIDATE_INT
@@ -80,13 +72,20 @@ function testExistence($name = null, $instanceId = null)
     if ($instanceIds === []) {
         return true;
     }
+    $instancePlaceholders = [];
+    foreach (array_values($instanceIds) as $i => $instId) {
+        $instancePlaceholders[] = ':instanceId' . $i;
+    }
     $prepare = $pearDB->prepare(
         'SELECT cr.resource_name, crir.resource_id, crir.instance_id '
         . 'FROM cfg_resource cr, cfg_resource_instance_relations crir '
         . 'WHERE cr.resource_id = crir.resource_id '
-        . 'AND crir.instance_id IN (' . implode(',', $instanceIds) . ') '
+        . 'AND crir.instance_id IN (' . implode(', ', $instancePlaceholders) . ') '
         . 'AND cr.resource_name = :resource_name'
     );
+    foreach (array_values($instanceIds) as $i => $instId) {
+        $prepare->bindValue(':instanceId' . $i, (int) $instId, PDO::PARAM_INT);
+    }
     $prepare->bindValue(':resource_name', $name, PDO::PARAM_STR);
     $prepare->execute();
     $total = $prepare->rowCount();
@@ -99,9 +98,9 @@ function testExistence($name = null, $instanceId = null)
     }
 
     return ! ($total >= 1 && $result['resource_id'] !== $id);
-        /**
-         * In case of duplicate.
-         */
+    /**
+     * In case of duplicate.
+     */
 }
 
 /**
@@ -115,20 +114,21 @@ function deleteResourceInDB($resourceIds = []): void
 {
     global $pearDB;
 
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM cfg_resource WHERE resource_id = :resourceId'
+    );
+    $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource WHERE resource_id = :resourceId');
+
     foreach (array_keys($resourceIds) as $currentResourceId) {
         if (is_int($currentResourceId)) {
-            $statement = $pearDB->prepare(
-                'SELECT *FROM cfg_resource WHERE resource_id = :resourceId'
-            );
-            $statement->bindValue(':resourceId', $currentResourceId);
-            $statement->execute();
+            $selectStmt->bindValue(':resourceId', $currentResourceId, PDO::PARAM_INT);
+            $selectStmt->execute();
 
-            if (false !== $data = $statement->fetch()) {
+            if (false !== $data = $selectStmt->fetch()) {
                 deleteFromVault($data);
 
-                $pearDB->query(
-                    "DELETE FROM cfg_resource WHERE resource_id = {$currentResourceId}"
-                );
+                $deleteStmt->bindValue(':resourceId', $currentResourceId, PDO::PARAM_INT);
+                $deleteStmt->execute();
             }
         }
     }
@@ -146,10 +146,11 @@ function enableResourceInDB($resourceId): void
     global $pearDB;
 
     if (is_int($resourceId)) {
-        $pearDB->query(
-            "UPDATE cfg_resource SET resource_activate = '1' "
-            . "WHERE resource_id = {$resourceId}"
+        $statement = $pearDB->prepare(
+            "UPDATE cfg_resource SET resource_activate = '1' WHERE resource_id = :resourceId"
         );
+        $statement->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -164,10 +165,11 @@ function disableResourceInDB($resourceId): void
 {
     global $pearDB;
     if (is_int($resourceId)) {
-        $pearDB->query(
-            "UPDATE cfg_resource SET resource_activate = '0' "
-            . "WHERE resource_id = {$resourceId}"
+        $statement = $pearDB->prepare(
+            "UPDATE cfg_resource SET resource_activate = '0' WHERE resource_id = :resourceId"
         );
+        $statement->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 /**
@@ -184,7 +186,9 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
-            $dbResult = $pearDB->query("SELECT * FROM cfg_resource WHERE resource_id = {$resourceId} LIMIT 1");
+            $selectStmt = $pearDB->prepare('SELECT * FROM cfg_resource WHERE resource_id = :resourceId LIMIT 1');
+            $selectStmt->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+            $selectStmt->execute();
             /**
              * @var array{
              *  resource_id:int,
@@ -195,7 +199,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
              *  is_password:int
              * } $resourceConfiguration
              */
-            $resourceConfiguration = $dbResult->fetch();
+            $resourceConfiguration = $selectStmt->fetch();
 
             for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
@@ -231,12 +235,15 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     $statement->execute();
 
                     $lastId = $pearDB->lastInsertId();
-                    $pearDB->query(
-                        'INSERT INTO cfg_resource_instance_relations ('
-                        . "SELECT {$lastId}, instance_id "
+                    $relStmt = $pearDB->prepare(
+                        'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
+                        . 'SELECT :newId, instance_id '
                         . 'FROM cfg_resource_instance_relations '
-                        . "WHERE resource_id = {$resourceId})"
+                        . 'WHERE resource_id = :oldId'
                     );
+                    $relStmt->bindValue(':newId', (int) $lastId, PDO::PARAM_INT);
+                    $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
+                    $relStmt->execute();
                 }
             }
         }
@@ -286,7 +293,7 @@ function updateResource(int $resourceId, array $submitedValues): void
             $submitedValues['resource_line'] = $vaultPath ?? $submitedValues['resource_line'];
         } else {
             $oldResourceStatement = $pearDB->prepareQuery(
-                <<<SQL
+                <<<'SQL'
                     SELECT resource_name, resource_line
                     FROM cfg_resource
                     WHERE resource_id = :resource_id
@@ -320,19 +327,19 @@ function updateResource(int $resourceId, array $submitedValues): void
 
     $prepare->bindValue(
         ':resource_name',
-        $pearDB->escape($submitedValues['resource_name']),
+        $submitedValues['resource_name'],
         PDO::PARAM_STR
     );
 
     $prepare->bindValue(
         ':resource_line',
-        $pearDB->escape($submitedValues['resource_line']),
+        $submitedValues['resource_line'],
         PDO::PARAM_STR
     );
 
     $prepare->bindValue(
         ':resource_comment',
-        $pearDB->escape($submitedValues['resource_comment']),
+        $submitedValues['resource_comment'],
         PDO::PARAM_STR
     );
 
@@ -404,7 +411,7 @@ function insertResource($ret = [])
     $isActivated = isset($ret['resource_activate']['resource_activate'])
         && (bool) (int) $ret['resource_activate']['resource_activate'];
     $statement->bindValue(':is_activated', (string) (int) $isActivated);
-    $statement->bindValue('is_password', (int) $ret['is_password'], PDO::PARAM_INT);
+    $statement->bindValue(':is_password', (int) $ret['is_password'], PDO::PARAM_INT);
     $statement->execute();
 
     $dbResult = $pearDB->query('SELECT MAX(resource_id) FROM cfg_resource');
@@ -427,7 +434,10 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
 {
     if (is_numeric($resourceId)) {
         global $pearDB;
-        $pearDB->query('DELETE FROM cfg_resource_instance_relations WHERE resource_id = ' . (int) $resourceId);
+
+        $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource_instance_relations WHERE resource_id = :resourceId');
+        $deleteStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+        $deleteStmt->execute();
 
         if (! is_null($instanceId)) {
             $instances = [$instanceId];
@@ -436,19 +446,23 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
             $instances = CentreonUtils::mergeWithInitialValues($form, 'instance_id');
         }
 
-        $subQuery = '';
-        foreach ($instances as $instanceId) {
-            if (is_numeric($instanceId)) {
-                if (! empty($subQuery)) {
-                    $subQuery .= ', ';
-                }
-                $subQuery .= '(' . (int) $resourceId . ', ' . (int) $instanceId . ')';
+        $validInstances = array_filter($instances, 'is_numeric');
+        if ($validInstances !== []) {
+            $placeholders = [];
+            $bindValues = [];
+            foreach (array_values($validInstances) as $i => $instId) {
+                $placeholders[] = '(:resourceId' . $i . ', :instanceId' . $i . ')';
+                $bindValues[':resourceId' . $i] = [(int) $resourceId, PDO::PARAM_INT];
+                $bindValues[':instanceId' . $i] = [(int) $instId, PDO::PARAM_INT];
             }
-        }
-        if (! empty($subQuery)) {
-            $pearDB->query(
-                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES ' . $subQuery
+            $stmt = $pearDB->prepare(
+                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES '
+                . implode(', ', $placeholders)
             );
+            foreach ($bindValues as $param => [$value, $type]) {
+                $stmt->bindValue($param, $value, $type);
+            }
+            $stmt->execute();
         }
     }
 }
@@ -458,14 +472,15 @@ function getLinkedPollerList($resource_id)
     global $pearDB;
 
     $str = '';
-    $query = 'SELECT ns.name, ns.id FROM cfg_resource_instance_relations nsr, cfg_resource r, nagios_server ns '
-        . "WHERE nsr.resource_id = r.resource_id AND nsr.instance_id = ns.id AND nsr.resource_id = '"
-        . $resource_id . "'";
-    $dbResult = $pearDB->query($query);
-    while ($data = $dbResult->fetch()) {
+    $statement = $pearDB->prepare(
+        'SELECT ns.name, ns.id FROM cfg_resource_instance_relations nsr, cfg_resource r, nagios_server ns '
+        . 'WHERE nsr.resource_id = r.resource_id AND nsr.instance_id = ns.id AND nsr.resource_id = :resource_id'
+    );
+    $statement->bindValue(':resource_id', (int) $resource_id, PDO::PARAM_INT);
+    $statement->execute();
+    while ($data = $statement->fetch()) {
         $str .= "<a href='main.php?p=60901&o=c&server_id=" . $data['id'] . "'>" . HtmlSanitizer::createFromString($data['name'])->sanitize()->getString() . '</a> ';
     }
-    unset($dbResult);
 
     return $str;
 }
@@ -480,13 +495,10 @@ function getFromVault(string $vaultPath): array
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+    if ($vaultEligibilityService->shouldUseVault()) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         try {
             return $readVaultRepository->findFromPath($vaultPath);
@@ -499,21 +511,19 @@ function getFromVault(string $vaultPath): array
     return [];
 }
 
-function saveInVault(string $key, string $value): ?string {
+function saveInVault(string $key, string $value): ?string
+{
     global $pearDB;
 
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
-    if ($vaultConfiguration !== null) {
-        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+    if ($vaultEligibilityService->shouldUseVault()) {
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-        /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
         try {
@@ -536,28 +546,25 @@ function saveInVault(string $key, string $value): ?string {
 /**
  * @param array{resource_line:string,resource_name:string} $data
  */
-function deleteFromVault(array $data): void {
+function deleteFromVault(array $data): void
+{
     if (str_starts_with($data['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
         $uuid = preg_match(
-                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                $data['resource_line'],
-                $matches
-            )
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $data['resource_line'],
+            $matches
+        )
             && isset($matches[2]) ? $matches[2] : null;
 
         $kernel = Kernel::createForWeb();
         /** @var Logger $logger */
         $logger = $kernel->getContainer()->get(Logger::class);
-        /** @var ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository */
-        $readVaultConfigurationRepository = $kernel->getContainer()->get(
-            ReadVaultConfigurationRepositoryInterface::class
-        );
-
-        $vaultConfiguration = $readVaultConfigurationRepository->find();
-        if ($vaultConfiguration !== null) {
-            /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        /** @var VaultEligibilityService $vaultEligibilityService */
+        $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+        if ($vaultEligibilityService->shouldUseVault()) {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-            /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
             try {
@@ -574,4 +581,9 @@ function deleteFromVault(array $data): void {
             }
         }
     }
+}
+
+function validateName(string $name): bool
+{
+    return (bool) preg_match(GlobalMacroName::NAMING_VALIDATION_REGEX, $name);
 }

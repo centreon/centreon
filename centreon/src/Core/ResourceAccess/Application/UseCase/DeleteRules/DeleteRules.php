@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ final class DeleteRules
         private readonly ContactInterface $user,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -162,7 +162,7 @@ final class DeleteRules
      */
     private function createResponseStatusDto(
         int $ruleId,
-        ResponseStatusInterface $statusResponse
+        ResponseStatusInterface $statusResponse,
     ): DeleteRulesStatusResponse {
         $dto = new DeleteRulesStatusResponse();
         $dto->id = $ruleId;

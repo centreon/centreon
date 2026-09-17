@@ -1,8 +1,7 @@
 import { atom } from 'jotai';
 
+import type { Acl } from '.';
 import { defaultAcl } from './defaults';
-
-import { Acl } from '.';
 
 const aclAtom = atom<Acl>(defaultAcl);
 

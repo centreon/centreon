@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -123,8 +123,8 @@ it(
 it(
     'should throw an exception if the given extra periods are not of the right type',
     function (): void {
-        $tp = new NewTimePeriod('fake_name', 'fake_alias');
-        $tp->setExtraTimePeriods([
+        $newTimePeriod = new NewTimePeriod('fake_name', 'fake_alias');
+        $newTimePeriod->setExtraTimePeriods([
             new \stdClass(),
         ]);
     }
@@ -135,8 +135,8 @@ it(
 it(
     'should throw an exception if the given templates are not of the right type',
     function (): void {
-        $tp = new NewTimePeriod('fake_name', 'fake_alias');
-        $tp->setTemplates([
+        $newTimePeriod = new NewTimePeriod('fake_name', 'fake_alias');
+        $newTimePeriod->setTemplates([
             new \stdClass(),
         ]);
     }
@@ -147,8 +147,8 @@ it(
 it(
     'should throw an exception if the given days are not of the right type',
     function (): void {
-        $tp = new NewTimePeriod('fake_name', 'fake_alias');
-        $tp->setDays([
+        $newTimePeriod = new NewTimePeriod('fake_name', 'fake_alias');
+        $newTimePeriod->setDays([
             new \stdClass(),
         ]);
     }
@@ -161,22 +161,22 @@ it(
     function (): void {
         $name = ' fake_name ';
         $alias = ' fake_alias ';
-        $tp = new NewTimePeriod($name, $alias);
-        expect($tp->getName())->toBe(trim($name));
-        expect($tp->getAlias())->toBe(trim($alias));
+        $newTimePeriod = new NewTimePeriod($name, $alias);
+        expect($newTimePeriod->getName())->toBe(trim($name));
+        expect($newTimePeriod->getAlias())->toBe(trim($alias));
 
         $timeRange = new TimeRange('00:00-01:00');
 
         $extra = [new NewExtraTimePeriod('monday 1', $timeRange)];
-        $tp->setExtraTimePeriods($extra);
-        expect($tp->getExtraTimePeriods())->toBe($extra);
+        $newTimePeriod->setExtraTimePeriods($extra);
+        expect($newTimePeriod->getExtraTimePeriods())->toBe($extra);
 
         $templates = [1];
-        $tp->setTemplates($templates);
-        expect($tp->getTemplates())->toBe($templates);
+        $newTimePeriod->setTemplates($templates);
+        expect($newTimePeriod->getTemplates())->toBe($templates);
 
         $days = [new Day(1, $timeRange)];
-        $tp->setDays($days);
-        expect($tp->getDays())->toBe($days);
+        $newTimePeriod->setDays($days);
+        expect($newTimePeriod->getDays())->toBe($days);
     }
 );

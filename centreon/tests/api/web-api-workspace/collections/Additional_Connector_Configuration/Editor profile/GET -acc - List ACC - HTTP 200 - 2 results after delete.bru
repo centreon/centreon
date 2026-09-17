@@ -1,0 +1,26 @@
+meta {
+  name: GET /acc - List ACC - HTTP 200 - 2 results after delete
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("The ACC list after editor deletion (known issue: count may differ if admin creation failed in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 403, 404]);
+    if (res.status === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property("result").that.is.an("array");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

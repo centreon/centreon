@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { append, equals, last, remove, type, update } from 'ramda';
+
 import { Method } from '.';
 
 interface GetOptimisticMutationListingProps<T, TMeta> {
   method: Method;
-  payload: T;
-  _meta: TMeta;
+  payload: T | undefined;
+  _meta: TMeta | undefined;
 }
 
 export interface OptimisticListing {
@@ -38,7 +39,7 @@ export const useOptimisticMutation = <T, TMeta>({
       ? optimisticListing?.queryKey
       : [optimisticListing?.queryKey];
 
-    return listingQueryKey;
+    return listingQueryKey as Array<string>;
   };
 
   const getPreviousListing = (): unknown => {
@@ -61,9 +62,12 @@ export const useOptimisticMutation = <T, TMeta>({
     const listingQueryKey = getListingQueryKey();
 
     const updatedPayload =
-      payload && 'id' in payload
+      payload && 'id' in (payload as Record<string, unknown>)
         ? payload
-        : { ...payload, id: (optimisticListing?.total ?? 0) + 1 };
+        : {
+            ...(payload as Record<string, unknown>),
+            id: (optimisticListing?.total ?? 0) + 1
+          };
 
     const hasOnlyOnePage =
       (optimisticListing?.total || 0) <= (optimisticListing?.limit || 0);
@@ -73,19 +77,22 @@ export const useOptimisticMutation = <T, TMeta>({
       queryClient.getQueriesData({
         queryKey: listingQueryKey
       })
-    )?.[1];
+    )?.[1] as { result: Array<Record<string, unknown>> } | undefined;
 
     if (equals(Method.POST, method) && !isFormDataPayload && hasOnlyOnePage) {
-      const newItems = append(updatedPayload, items.result);
+      const newItems = append(
+        updatedPayload as Record<string, unknown>,
+        items?.result ?? []
+      );
 
       return { ...items, result: newItems };
     }
 
     if (equals(Method.DELETE, method) && hasOnlyOnePage) {
-      const itemIndex = items.result.findIndex(({ id }) =>
-        equals(id, _meta.id)
+      const itemIndex = items?.result.findIndex(({ id }) =>
+        equals(id, (_meta as Record<string, unknown>)?.id)
       );
-      const newItems = remove(itemIndex, 1, items.result);
+      const newItems = remove(itemIndex ?? 0, 1, items?.result ?? []);
 
       return { ...items, result: newItems };
     }
@@ -96,24 +103,36 @@ export const useOptimisticMutation = <T, TMeta>({
         (equals(Method.POST, method) && isFormDataPayload)) &&
       hasOnlyOnePage
     ) {
-      const itemIndex = items.result.findIndex(({ id }) =>
-        equals(id, _meta.id)
+      const itemIndex = items?.result.findIndex(({ id }) =>
+        equals(id, (_meta as Record<string, unknown>)?.id)
       );
-      const item = items.result.find(({ id }) => equals(id, _meta.id));
+      const item = items?.result.find(({ id }) =>
+        equals(id, (_meta as Record<string, unknown>)?.id)
+      );
       const updatedItem = equals(Method.PUT, method)
         ? updatedPayload
         : {
             ...item,
             ...(isFormDataPayload
-              ? Object.fromEntries(updatedPayload.entries())
+              ? (
+                  Object as unknown as {
+                    fromEntries: (
+                      entries: IterableIterator<[string, FormDataEntryValue]>
+                    ) => Record<string, unknown>;
+                  }
+                ).fromEntries((updatedPayload as unknown as FormData).entries())
               : updatedPayload)
           };
-      const newItems = update(itemIndex, updatedItem, items.result);
+      const newItems = update(
+        itemIndex ?? 0,
+        updatedItem as Record<string, unknown>,
+        items?.result ?? []
+      );
 
       return { ...items, result: newItems };
     }
 
-    return items;
+    return items as object;
   };
-  return { getOptimisticMutationItems, getListingQueryKey, getPreviousListing };
+  return { getListingQueryKey, getOptimisticMutationItems, getPreviousListing };
 };

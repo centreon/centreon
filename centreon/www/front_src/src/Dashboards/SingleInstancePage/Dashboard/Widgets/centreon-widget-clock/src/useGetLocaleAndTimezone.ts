@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useLocale } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
-
-import { userAtom } from '@centreon/ui-context';
+import { useMemo } from 'react';
 
 import { PanelOptions } from './models';
 
@@ -14,13 +14,14 @@ export const useGetLocaleAndTimezone = ({
   timezone: string;
 } => {
   const user = useAtomValue(userAtom);
+  const userLocale = useLocale();
 
   const timezoneToUse = useMemo(
     () => (timezone?.id ?? user.timezone) as string,
     [user.timezone, timezone]
   );
   const localeToUse = useMemo(
-    () => (locale?.id ?? user.locale.replace('_', '-')) as string,
+    () => (locale?.id ?? userLocale.replace('_', '-')) as string,
     [user.locale, locale]
   );
 

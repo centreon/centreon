@@ -1,10 +1,13 @@
-import { Button, Modal } from '@centreon/ui/components';
 import SaveIcon from '@mui/icons-material/Save';
 import { CircularProgress } from '@mui/material';
+
+import { Button, Modal } from '@centreon/ui/components';
+
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { canMigrateAtom } from '../atoms';
 import {
   labelCancel,
@@ -58,46 +61,46 @@ const Buttons = (): JSX.Element => {
   return (
     <div className={classes.buttons}>
       <Button
-        variant="ghost"
         disabled={!canMigrate}
         onClick={openMigrationModal}
+        variant="ghost"
       >
         {t(labelMigrate)}
       </Button>
       <div>
         {isSubmitting && <CircularProgress size={24} />}
         <Button
-          variant="ghost"
-          onClick={openResetModal}
           disabled={isResetDisabled}
+          onClick={openResetModal}
+          variant="ghost"
         >
           {t(labelReset)}
         </Button>
         <Button
           disabled={isSubmitDisabled}
-          iconVariant="start"
           icon={<SaveIcon />}
+          iconVariant="start"
           onClick={submitForm}
         >
           {t(labelSave)}
         </Button>
       </div>
 
-      <Modal open={isResetModalOpen} onClose={closeResetModal}>
+      <Modal onClose={closeResetModal} open={isResetModalOpen}>
         <Modal.Header>{t(labelResetConfiguration)}</Modal.Header>
         <Modal.Body>{t(labelFormWillBeCleared)}</Modal.Body>
         <Modal.Actions
-          onCancel={closeResetModal}
-          onConfirm={closeAndReset}
           labels={{
             cancel: t(labelCancel),
             confirm: t(labelReset)
           }}
+          onCancel={closeResetModal}
+          onConfirm={closeAndReset}
         />
       </Modal>
       <MigrationModal
-        isOpen={isMigrationModalOpen}
         close={closeMigrationModal}
+        isOpen={isMigrationModalOpen}
       />
     </div>
   );

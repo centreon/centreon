@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,12 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-$extractErrorMessage = function (BufferedOutput $output): ?string
-{
+$extractErrorMessage = function (BufferedOutput $output): ?string {
     $rawMessage = $output->fetch();
     $messages = explode("\n", $rawMessage);
     $filteredMessages = [];
     foreach ($messages as $rawMessage) {
-        if (!empty(trim($rawMessage))) {
+        if (! empty(trim($rawMessage))) {
             $filteredMessages[] = $rawMessage;
         }
     }
@@ -39,12 +38,14 @@ $extractErrorMessage = function (BufferedOutput $output): ?string
         if (str_starts_with(strtolower($filteredMessages[0]), 'in')) {
             array_shift($filteredMessages);
         }
+
         return implode('<br/>', $filteredMessages);
     }
+
     return null;
 };
 
-if (!class_exists(Application::class)) {
+if (! class_exists(Application::class)) {
     throw new RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
 }
 
@@ -58,7 +59,6 @@ $consoleOutput->setVerbosity(OutputInterface::VERBOSITY_QUIET | OutputInterface:
 $input = new ArgvInput(['', 'cache:clear']);
 
 $code = $application->run($input, $consoleOutput);
-if (!is_null($message = $extractErrorMessage($consoleOutput))) {
-    throw new \Exception($message);
+if (! is_null($message = $extractErrorMessage($consoleOutput))) {
+    throw new Exception($message);
 }
-

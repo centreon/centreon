@@ -1,7 +1,7 @@
+import { Button, CircularProgress } from '@mui/material';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Button, CircularProgress } from '@mui/material';
 
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import { WizardButtonsTypes } from '../models';
@@ -32,7 +32,7 @@ const WizardButtons = ({
 
   return (
     <div className={classes.formButton}>
-      <Button size="small" onClick={goToPreviousStep}>
+      <Button onClick={goToPreviousStep} size="small">
         {t(labelPrevious)}
       </Button>
       <Button

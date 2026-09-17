@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,12 +34,13 @@ use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
- * Trait
+ * Trait.
  *
  * @class   ConnectionTrait
- * @package Adaptation\Database\Connection\Trait
  */
 trait ConnectionTrait
 {
@@ -47,7 +48,6 @@ trait ConnectionTrait
      * To create an instance of the query builder.
      *
      * @throws QueryBuilderException
-     * @return QueryBuilderInterface
      */
     public function createQueryBuilder(): QueryBuilderInterface
     {
@@ -58,23 +58,18 @@ trait ConnectionTrait
      * To create an instance of the expression builder.
      *
      * @throws ExpressionBuilderException
-     * @return ExpressionBuilderInterface
      */
     public function createExpressionBuilder(): ExpressionBuilderInterface
     {
         return DbalExpressionBuilderAdapter::createFromConnectionConfig($this->connectionConfig);
     }
 
-    /**
-     * @return ConnectionConfig
-     */
     abstract public function getConnectionConfig(): ConnectionConfig;
 
     /**
      * Return the database name if it exists.
      *
      * @throws ConnectionException
-     * @return string|null
      */
     public function getDatabaseName(): ?string
     {
@@ -93,7 +88,6 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- CUD METHODS -----------------------------------------
-
     /**
      * To execute all queries except the queries getting results (SELECT).
      *
@@ -106,11 +100,7 @@ trait ConnectionTrait
      *  - Session control statements: ALTER SESSION, SET, DECLARE, etc.
      *  - Other statements that don't yield a row set.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->executeStatement('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -123,11 +113,7 @@ trait ConnectionTrait
      *
      * Could be only used for INSERT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->insert('INSERT INTO table (id, name) VALUES (:id, :name)', $queryParameters);
@@ -136,9 +122,11 @@ trait ConnectionTrait
     public function insert(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            if (! str_starts_with($query, 'INSERT INTO ')
-                && ! str_starts_with($query, 'insert into ')
-            ) {
+            // Clean up the query string
+            $query = mb_ltrim($query);
+
+            // Check if the query starts with a valid SQL command
+            if (preg_match('/^(INSERT INTO|WITH)\b/i', $query) !== 1) {
                 throw ConnectionException::insertQueryBadFormat($query);
             }
 
@@ -153,12 +141,9 @@ trait ConnectionTrait
      *
      * Could be only used for several INSERT.
      *
-     * @param string $tableName
      * @param array<string> $columns
-     * @param BatchInsertParameters $batchInsertParameters
      *
      * @throws ConnectionException
-     * @return int
      *
      * @example $batchInsertParameters = BatchInsertParameters::create([
      *              QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]),
@@ -173,8 +158,18 @@ trait ConnectionTrait
             if (empty($tableName)) {
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
-            if (empty($columns)) {
+            $bareTableName = str_replace('`', '', $tableName);
+            if (preg_match('/^[\w$][\w$-]*(\.[\w$][\w$-]*)?$/', $bareTableName) !== 1) {
+                throw ConnectionException::batchInsertQueryBadUsage("Invalid table name: {$tableName}");
+            }
+            if ($columns === []) {
                 throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
+            }
+            foreach ($columns as $column) {
+                $bareColumn = str_replace('`', '', $column);
+                if (preg_match('/^[\w$][\w$-]*$/', $bareColumn) !== 1) {
+                    throw ConnectionException::batchInsertQueryBadUsage("Invalid column name: {$column}");
+                }
             }
             if ($batchInsertParameters->isEmpty()) {
                 throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
@@ -204,9 +199,7 @@ trait ConnectionTrait
                     throw ConnectionException::batchInsertQueryBadUsage('Query parameters must not be empty');
                 }
                 if (count($columns) !== $queryParameters->length()) {
-                    throw ConnectionException::batchInsertQueryBadUsage(
-                        'Columns and query parameters must have the same length'
-                    );
+                    throw ConnectionException::batchInsertQueryBadUsage('Columns and query parameters must have the same length');
                 }
 
                 $valuesInsertItem = '';
@@ -227,26 +220,18 @@ trait ConnectionTrait
                 }
 
                 $valuesInsert[] = "({$valuesInsertItem})";
-                $indexQueryParameterToInsert++;
+                ++$indexQueryParameterToInsert;
             }
 
             if (count($valuesInsert) === $queryParametersToInsert->length()) {
-                throw ConnectionException::batchInsertQueryBadUsage(
-                    'Error while building the final query : values block and query parameters have not the same length'
-                );
+                throw ConnectionException::batchInsertQueryBadUsage('Error while building the final query : values block and query parameters have not the same length');
             }
 
             $query .= implode(', ', $valuesInsert);
 
             return $this->executeStatement($query, $queryParametersToInsert);
         } catch (\Throwable $exception) {
-            throw ConnectionException::batchInsertQueryFailed(
-                previous: $exception,
-                tableName: $tableName,
-                columns: $columns,
-                batchInsertParameters: $batchInsertParameters,
-                query: $query ?? ''
-            );
+            throw ConnectionException::batchInsertQueryFailed(previous: $exception, tableName: $tableName, columns: $columns, batchInsertParameters: $batchInsertParameters, query: $query ?? '');
         }
     }
 
@@ -255,11 +240,7 @@ trait ConnectionTrait
      *
      * Could be only used for UPDATE.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1), QueryParameter::string('name', 'John')]);
      *          $nbAffectedRows = $db->update('UPDATE table SET name = :name WHERE id = :id', $queryParameters);
@@ -268,9 +249,11 @@ trait ConnectionTrait
     public function update(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            if (! str_starts_with($query, 'UPDATE ')
-                && ! str_starts_with($query, 'update ')
-            ) {
+            // Clean up the query string
+            $query = mb_ltrim($query);
+
+            // Check if the query starts with a valid SQL command
+            if (preg_match('/^(UPDATE|WITH)\b/i', $query) !== 1) {
                 throw ConnectionException::updateQueryBadFormat($query);
             }
 
@@ -285,11 +268,7 @@ trait ConnectionTrait
      *
      * Could be only used for DELETE.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
-     * @return int
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::int('id', 1)]);
      *          $nbAffectedRows = $db->delete('DELETE FROM table WHERE id = :id', $queryParameters);
@@ -298,9 +277,11 @@ trait ConnectionTrait
     public function delete(string $query, ?QueryParameters $queryParameters = null): int
     {
         try {
-            if (! str_starts_with($query, 'DELETE ')
-                && ! str_starts_with($query, 'delete ')
-            ) {
+            // Clean up the query string
+            $query = mb_ltrim($query);
+
+            // Check if the query starts with a valid SQL command
+            if (preg_match('/^(DELETE|WITH)\b/i', $query) !== 1) {
                 throw ConnectionException::deleteQueryBadFormat($query);
             }
 
@@ -311,16 +292,13 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- FETCH METHODS -----------------------------------------
-
     /**
      * Prepares and executes an SQL query and returns the result as an array of the first column values.
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return list<mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -334,10 +312,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -353,10 +329,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return array<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -378,16 +352,13 @@ trait ConnectionTrait
     }
 
     // ----------------------------------------- ITERATE METHODS -----------------------------------------
-
     /**
      * Prepares and executes an SQL query and returns the result as an iterator over rows represented as numeric arrays.
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,list<mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -405,10 +376,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<int,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -426,10 +395,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,mixed>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -445,10 +412,7 @@ trait ConnectionTrait
             $this->validateSelectQuery($query);
             foreach ($this->iterateNumeric($query, $queryParameters) as $row) {
                 if (count($row) < 2) {
-                    throw ConnectionException::iterateKeyValueQueryBadFormat(
-                        'The query must return at least two columns',
-                        $query
-                    );
+                    throw ConnectionException::iterateKeyValueQueryBadFormat('The query must return at least two columns', $query);
                 }
                 [$key, $value] = $row;
 
@@ -466,10 +430,8 @@ trait ConnectionTrait
      *
      * Could be only used with SELECT.
      *
-     * @param string $query
-     * @param QueryParameters|null $queryParameters
-     *
      * @throws ConnectionException
+     *
      * @return \Traversable<mixed,array<string,mixed>>
      *
      * @example $queryParameters = QueryParameters::create([QueryParameter::bool('active', true)]);
@@ -492,37 +454,79 @@ trait ConnectionTrait
         }
     }
 
-    // ----------------------------------------- PROTECTED METHODS -----------------------------------------
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
 
     /**
-     * @param string $message
-     * @param array $customContext
-     * @param string $query
-     * @param \Throwable|null $previous
+     * Check if a column exists in a table.
      *
-     * @return void
+     * @throws ConnectionException
      */
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool
+    {
+        if (empty($dbName)) {
+            throw ConnectionException::columnExistsFailed('Database name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($tableName)) {
+            throw ConnectionException::columnExistsFailed('Table name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($columnName)) {
+            throw ConnectionException::columnExistsFailed('Column name must not be empty', $tableName, $columnName);
+        }
+
+        $query = <<<'SQL'
+            SELECT COUNT(*) FROM information_schema.COLUMNS
+            WHERE TABLE_NAME = :tableName
+              AND COLUMN_NAME = :columnName
+              AND TABLE_SCHEMA = :dbName
+            SQL;
+
+        try {
+            $queryParameters = QueryParameters::create([
+                QueryParameter::string('tableName', $tableName),
+                QueryParameter::string('columnName', $columnName),
+                QueryParameter::string('dbName', $dbName),
+            ]);
+
+            $entry = $this->fetchOne($query, $queryParameters);
+
+            return is_numeric($entry) && (int) $entry > 0;
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw ConnectionException::columnExistsFailed(
+                message: 'Failed to query column existence',
+                tableName: $tableName,
+                columnName: $columnName,
+                previous: $exception
+            );
+        }
+    }
+
+    // ----------------------------------------- PROTECTED METHODS -----------------------------------------
+
     abstract protected function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
 
     /**
-     * @param string $query
-     *
      * @throws ConnectionException
-     * @return void
      */
     private function validateSelectQuery(string $query): void
     {
         if (empty($query)) {
             throw ConnectionException::notEmptyQuery();
         }
-        if (! str_starts_with($query, 'SELECT') && ! str_starts_with($query, 'select')) {
+
+        // Clean up the query string
+        $query = mb_ltrim($query);
+
+        // Check if the query starts with a valid SQL command
+        if (preg_match('/^\(*\s*(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }

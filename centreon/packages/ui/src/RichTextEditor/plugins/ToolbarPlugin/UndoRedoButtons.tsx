@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import RedoIcon from '@mui/icons-material/Redo';
+import UndoIcon from '@mui/icons-material/Undo';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
@@ -8,14 +9,11 @@ import {
   REDO_COMMAND,
   UNDO_COMMAND
 } from 'lexical';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import RedoIcon from '@mui/icons-material/Redo';
-import UndoIcon from '@mui/icons-material/Undo';
 
 import { IconButton } from '../../..';
 import { labelRedo, labelUndo } from '../../translatedLabels';
-
 import { useStyles } from './ToolbarPlugin.styles';
 
 const LowPriority = 1;
@@ -55,7 +53,7 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
         LowPriority
       )
     );
-  }, []);
+  }, [editor.registerCommand]);
 
   const undo = (): void => {
     editor.dispatchCommand(UNDO_COMMAND, undefined);
@@ -74,9 +72,9 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
         ariaLabel={translatedUndo}
         className={classes.button}
         disabled={!canUndo || disabled}
+        onClick={undo}
         title={translatedUndo}
         tooltipPlacement="top"
-        onClick={undo}
       >
         <UndoIcon />
       </IconButton>
@@ -84,9 +82,9 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
         ariaLabel={translatedRedo}
         className={classes.button}
         disabled={!canRedo || disabled}
+        onClick={redo}
         title={translatedRedo}
         tooltipPlacement="top"
-        onClick={redo}
       >
         <RedoIcon />
       </IconButton>

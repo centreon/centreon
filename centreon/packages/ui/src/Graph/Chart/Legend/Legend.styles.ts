@@ -1,7 +1,5 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { equals, lt } from 'ramda';
-import { margin } from '../common';
 import type { LegendModel } from '../models';
 
 interface MakeStylesProps {
@@ -14,20 +12,8 @@ export const legendWidth = 21;
 const legendItemHeight = 5.25;
 const legendItemHeightCompact = 2;
 
-const getLegendMaxHeight = ({ placement, height }) => {
-  if (!equals(placement, 'bottom')) {
-    return height || 0;
-  }
-
-  if (lt(height || 0, 220)) {
-    return 40;
-  }
-
-  return 90;
-};
-
 export const useStyles = makeStyles<MakeStylesProps>()(
-  (theme, { limitLegendRows, placement, height = 0 }) => ({
+  (theme, { limitLegendRows }) => ({
     highlight: {
       color: theme.typography.body1.color
     },
@@ -53,21 +39,6 @@ export const useStyles = makeStyles<MakeStylesProps>()(
       gridTemplateColumns: `repeat(auto-fit, minmax(${theme.spacing(legendWidth)}, 1fr))`,
       rowGap: theme.spacing(1),
       width: '100%'
-    },
-    legend: {
-      '&[data-display-side="false"]': {
-        marginLeft: margin.left,
-        marginRight: margin.right
-      },
-      '&[data-display-side="true"]': {
-        height: '100%',
-        marginTop: `${margin.top / 2}px`
-      },
-      maxHeight: limitLegendRows
-        ? theme.spacing(legendItemHeight * 2 + 1)
-        : getLegendMaxHeight({ placement, height }),
-      overflowY: 'auto',
-      overflowX: 'hidden'
     },
     minMaxAvgContainer: {
       columnGap: theme.spacing(0.5),

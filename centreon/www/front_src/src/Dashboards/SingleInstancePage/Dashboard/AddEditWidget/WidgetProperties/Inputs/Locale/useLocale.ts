@@ -1,15 +1,14 @@
-import { useMemo } from 'react';
+import { SelectEntry } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { pick } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
+import { useMemo } from 'react';
 
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
 interface UseLocaleState {
-  changeValue: (_, option: SelectEntry) => void;
+  changeValue: (_: unknown, option: SelectEntry) => void;
   value?: SelectEntry;
 }
 
@@ -23,7 +22,7 @@ export const useLocale = ({
     [getProperty({ obj: values, propertyName })]
   ) as SelectEntry;
 
-  const changeValue = (_, option: SelectEntry): void => {
+  const changeValue = (_: unknown, option: SelectEntry): void => {
     const selectedOption = option ? pick(['id', 'name'], option) : {};
 
     setFieldValue(`options.${propertyName}`, selectedOption);

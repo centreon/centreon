@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     ForbiddenResponse,
     InvalidArgumentResponse,
-    NoContentResponse,
-    NotFoundResponse
+    NoContentResponse
 };
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -40,7 +38,7 @@ use Core\Security\Vault\Application\Repository\WriteVaultConfigurationRepository
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\NewVaultConfigurationFactory;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfiguration;
 use Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration\UpdateVaultConfigurationRequest;
-use Core\Security\Vault\Domain\Model\{Vault, VaultConfiguration};
+use Core\Security\Vault\Domain\Model\{VaultConfiguration};
 use Security\Encryption;
 
 beforeEach(function (): void {
@@ -88,7 +86,7 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $salt = $encryption->generateRandomString(VaultConfiguration::SALT_LENGTH);
     $vaultConfiguration = new VaultConfiguration(
@@ -127,10 +125,10 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        AssertionException::ipOrDomain(
-            $invalidAddress,
-            'VaultConfiguration::address'
-        )->getMessage()
+        sprintf(
+            '[VaultConfiguration::address] The value "%s" was expected to be a valid IP address or hostname',
+            $invalidAddress
+        )
     );
 });
 
@@ -176,7 +174,7 @@ it('should present NoContentResponse when vault configuration is created with su
         ->willReturn(true);
 
     $encryption = new Encryption();
-    $encryption->setFirstKey("myFirstKey");
+    $encryption->setFirstKey('myFirstKey');
 
     $vaultConfiguration = new VaultConfiguration(
         $encryption,

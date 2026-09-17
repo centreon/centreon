@@ -1,0 +1,35 @@
+meta {
+  name: POST /administration/tokens - Create token - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/administration/tokens
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Token1Name}}",
+    "type": "api",
+    "user_id": {{currentUserID}}
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Token has been successfully created.", function () {
+    const body = res.getBody();
+    expect(body).to.include({"name": bru.getEnvVar("Token1Name")});
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

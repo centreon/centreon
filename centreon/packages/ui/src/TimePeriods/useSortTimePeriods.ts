@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { T, always, cond, gte } from 'ramda';
+import { always, cond, gte, T } from 'ramda';
 
 import { getTimePeriodFromNow } from './helpers';
-import { TimePeriod } from './models';
+import type { TimePeriod } from './models';
 
 const useSortTimePeriods = (
   timePeriods: Array<TimePeriod>
@@ -12,7 +12,7 @@ const useSortTimePeriods = (
 
     const numberOfDays = dayjs.duration(dayjs(end).diff(dayjs(start))).asDays();
 
-    const timelineEventsLimit = cond<number, number>([
+    const timelineEventsLimit = cond<[number], number>([
       [gte(1), always(20)],
       [gte(7), always(100)],
       [T, always(500)]

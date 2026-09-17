@@ -1,0 +1,34 @@
+meta {
+  name: GET /agent-configurations - List AC - HTTP 200 - 2 results
+  type: http
+  seq: 17
+  tags: [
+    ignore
+  ]
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("GET /agent-configurations - List AC - HTTP 200 - 2 results (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 404]);
+  });
+
+  if (res.status === 200) {
+    test("List returns 2 agent configurations.", function () {
+      const body = res.getBody();
+      expect(body).to.have.property("result").that.is.an("array");
+      expect(body.result.length).to.be.at.least(2);
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

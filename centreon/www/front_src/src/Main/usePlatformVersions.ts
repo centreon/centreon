@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
+import { getData, useRequest } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useAtom } from 'jotai';
 import { includes, isNil, keys } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
+import { useCallback } from 'react';
 
 import { platformVersionsDecoder } from '../api/decoders';
 import { platformVersionsEndpoint } from '../api/endpoint';
@@ -19,7 +18,9 @@ interface UsePlatformVersionsState {
 const usePlatformVersions = (): UsePlatformVersionsState => {
   const { sendRequest: sendPlatformVersions } = useRequest<PlatformVersions>({
     decoder: platformVersionsDecoder,
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<PlatformVersions>
   });
 
   const [platformVersions, setPlatformVersions] = useAtom(platformVersionsAtom);

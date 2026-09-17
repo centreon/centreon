@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,9 +63,11 @@ abstract class AbstractVaultRepository
 
     protected string $customPath = '';
 
+    private ?string $cachedAuthToken = null;
+
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected AmpHttpClient $httpClient
+        protected AmpHttpClient $httpClient,
     ) {
         $this->vaultConfiguration = $configurationRepository->find();
     }
@@ -99,6 +101,10 @@ abstract class AbstractVaultRepository
      */
     public function getAuthenticationToken(): string
     {
+        if ($this->cachedAuthToken !== null) {
+            return $this->cachedAuthToken;
+        }
+
         try {
             $vaultConfiguration = $this->vaultConfiguration ?? throw new \LogicException();
         } catch (\LogicException $exception) {
@@ -131,7 +137,9 @@ abstract class AbstractVaultRepository
             throw new \Exception('Unable to authenticate to Vault');
         }
 
-        return $content['auth']['client_token'];
+        $this->cachedAuthToken = $content['auth']['client_token'];
+
+        return $this->cachedAuthToken;
     }
 
     protected function buildUrl(string $uuid): string
@@ -155,7 +163,7 @@ abstract class AbstractVaultRepository
             throw new \LogicException();
         }
 
-        return 'secret::'. $this->vaultConfiguration->getName() . '::' . $this->vaultConfiguration->getRootPath()
+        return 'secret::' . $this->vaultConfiguration->getName() . '::' . $this->vaultConfiguration->getRootPath()
             . '/data/' . $this->customPath . '/' . $uuid . '::' . $credentialName;
     }
 
@@ -230,61 +238,61 @@ abstract class AbstractVaultRepository
      */
     protected function sendMultiplexedRequest(string $method, array $urls, ?array $data = null): array
     {
-            $clientToken = $this->getAuthenticationToken();
-            $options = [
-                'headers' => ['X-Vault-Token' => $clientToken],
-            ];
-            if ($method === 'POST') {
-                $options['json'] = ['data' => $data];
+        $clientToken = $this->getAuthenticationToken();
+        $options = [
+            'headers' => ['X-Vault-Token' => $clientToken],
+        ];
+        if ($method === 'POST') {
+            $options['json'] = ['data' => $data];
+        }
+
+        $responses = [];
+        $responseData = [];
+        foreach ($urls as $uuid => $url) {
+            $responseData[$uuid] = [];
+            try {
+                $responses[] = $this->httpClient->request($method, $url, $options);
+            } catch (TransportExceptionInterface $ex) {
+                $this->error(
+                    'Error while sending multiplexed request to vault, process continue',
+                    ['url' => $url, 'exception' => $ex]
+                );
+
+                continue;
             }
+        }
 
-            $responses = [];
-            $responseData = [];
-            foreach ($urls as $uuid => $url) {
-                $responseData[$uuid] = [];
-                try {
-                    $responses[] = $this->httpClient->request($method, $url, $options);
-                } catch (TransportExceptionInterface $ex) {
-                    $this->error(
-                        'Error while sending multiplexed request to vault, process continue',
-                        ['url' => $url, 'exception' => $ex]
-                    );
-
-                    continue;
+        foreach ($this->httpClient->stream($responses) as $response => $chunk) {
+            try {
+                if ($chunk->isFirst()) {
+                    if ($response->getStatusCode() !== Response::HTTP_OK) {
+                        $this->error(
+                            message: 'Error HTTP CODE:' . $response->getStatusCode(),
+                            context: ['url' => $response->getInfo('url'), 'expected_status_code' => Response::HTTP_OK]
+                        );
+                        continue;
+                    }
                 }
-            }
-
-            foreach ($this->httpClient->stream($responses) as $response => $chunk) {
-                try {
-                    if ($chunk->isFirst()) {
-                        if ($response->getStatusCode() !== Response::HTTP_OK) {
-                            $this->error(
-                                message: 'Error HTTP CODE:' . $response->getStatusCode(),
-                                context: ['url' => $response->getInfo('url'), 'expected_status_code' => Response::HTTP_OK]
-                            );
-                            continue;
+                if ($chunk->isLast()) {
+                    foreach (array_keys($responseData) as $uuid) {
+                        if (str_contains($response->getInfo('url'), $uuid)) {
+                            $responseData[$uuid] = $response->toArray();
                         }
                     }
-                    if ($chunk->isLast()) {
-                        foreach (array_keys($responseData) as $uuid) {
-                            if (str_contains($response->getInfo('url'), $uuid)  ) {
-                                $responseData[$uuid] = $response->toArray();
-                            }
-                        }
-                    }
-                } catch (\Exception $ex) {
-                    $this->error(
-                        message: 'Error while processing multiplexed request to vault, process continue',
-                        context: [
-                            'url' => $response->getInfo('url'),
-                            'exception' => $ex,
-                        ]
-                    );
-
-                    continue;
                 }
-            }
+            } catch (\Exception $ex) {
+                $this->error(
+                    message: 'Error while processing multiplexed request to vault, process continue',
+                    context: [
+                        'url' => $response->getInfo('url'),
+                        'exception' => $ex,
+                    ]
+                );
 
-            return $responseData;
+                continue;
+            }
+        }
+
+        return $responseData;
     }
 }

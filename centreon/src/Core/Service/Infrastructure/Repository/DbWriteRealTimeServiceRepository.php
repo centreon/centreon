@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class DbWriteRealTimeServiceRepository extends AbstractRepositoryRDB implements 
     public function addServiceToResourceAcls(int $hostId, int $serviceId, array $accessGroups): void
     {
         $accessGroupIds = array_map(
-            fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

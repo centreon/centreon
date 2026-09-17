@@ -1,47 +1,43 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
 namespace Centreon\Domain\Service;
 
-use Psr\Container\ContainerInterface;
 use CentreonLegacy\ServiceProvider;
+use Psr\Container\ContainerInterface;
 
 /**
  * Class to manage external frontend components provided by modules and widgets
  */
 class FrontendComponentService
 {
+    /**
+     * FrontendComponentService constructor
+     *
+     * @param ContainerInterface $services
+     */
+    public function __construct(private ContainerInterface $services)
+    {
+    }
+
     /**
      * List of class dependencies
      *
@@ -55,12 +51,69 @@ class FrontendComponentService
     }
 
     /**
-     * FrontendComponentService constructor
+     * Get frontend external hooks
      *
-     * @param \Psr\Container\ContainerInterface $services
+     * @return array The list of hooks (js and css)
      */
-    public function __construct(private ContainerInterface $services)
+    public function getHooks(): array
     {
+        $installedModules = $this->getInstalledModules();
+
+        // search in each installed modules if there are hooks
+        $hooks = [];
+        foreach (array_keys($installedModules) as $installedModule) {
+            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/hooks';
+            $chunks = $this->getChunksByModuleName($installedModule);
+            $files = [];
+            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
+            foreach ($files as $path => $hookFiles) {
+                if (preg_match('/\/static\/hooks(\/.+)$/', $path, $hookMatches)) {
+                    // parse hook name by removing beginning of the path
+                    $hookName = $hookMatches[1];
+
+                    $hookParameters = $this->getBundleStructure($path, $hookFiles, $chunks);
+
+                    if (! $hookParameters['js']['bundle'] !== null) {
+                        $hooks[$hookName] = $hookParameters;
+                    }
+                }
+            }
+        }
+
+        return $hooks;
+    }
+
+    /**
+     * Get frontend external pages
+     *
+     * @return array The list of pages (routes, js and css)
+     */
+    public function getPages(): array
+    {
+        $installedModules = $this->getInstalledModules();
+
+        // search in each installed modules if there are pages
+        $pages = [];
+        foreach (array_keys($installedModules) as $installedModule) {
+            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/pages';
+            $chunks = $this->getChunksByModuleName($installedModule);
+            $files = [];
+            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
+            foreach ($files as $path => $pageFiles) {
+                if (preg_match('/\/static\/pages(\/.+)$/', $path, $pageMatches)) {
+                    $pageParameters = $this->getBundleStructure($path, $pageFiles, $chunks);
+
+                    if ($pageParameters['js']['bundle'] !== null) {
+                        // parse page name by removing beginning of the path
+                        $pageName = str_replace('/_', '/:', $pageMatches[1]);
+
+                        $pages[$pageName] = $pageParameters;
+                    }
+                }
+            }
+        }
+
+        return $pages;
     }
 
     /**
@@ -75,7 +128,7 @@ class FrontendComponentService
         string $dir,
         array &$results = [],
         string $regex = '/.*/',
-        bool $recursive = true
+        bool $recursive = true,
     ): array {
         $files = [];
         if (is_dir($dir)) {
@@ -84,10 +137,10 @@ class FrontendComponentService
 
         foreach ($files as $key => $value) {
             $path = $dir . DIRECTORY_SEPARATOR . $value;
-            if (!is_dir($path) && preg_match($regex, $path)) {
+            if (! is_dir($path) && preg_match($regex, $path)) {
                 // group files by directory
                 $results[dirname($path)][] = basename($path);
-            } elseif ($recursive && $value != "." && $value != "..") {
+            } elseif ($recursive && $value != '.' && $value != '..') {
                 $this->getDirContents($path, $results, $regex);
             }
         }
@@ -115,7 +168,7 @@ class FrontendComponentService
     private function getChunksByModuleName(string $moduleName): array
     {
         $chunks = [];
-        $modulePath = __DIR__ . '/../../../../www/modules/' . $moduleName. '/static';
+        $modulePath = __DIR__ . '/../../../../www/modules/' . $moduleName . '/static';
 
         $files = [];
         $this->getDirContents($modulePath, $files, '/\.js$/', false);
@@ -165,71 +218,5 @@ class FrontendComponentService
         }
 
         return $structure;
-    }
-
-    /**
-     * Get frontend external hooks
-     *
-     * @return array The list of hooks (js and css)
-     */
-    public function getHooks(): array
-    {
-        $installedModules = $this->getInstalledModules();
-
-        // search in each installed modules if there are hooks
-        $hooks = [];
-        foreach (array_keys($installedModules) as $installedModule) {
-            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/hooks';
-            $chunks = $this->getChunksByModuleName($installedModule);
-            $files = [];
-            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
-            foreach ($files as $path => $hookFiles) {
-                if (preg_match('/\/static\/hooks(\/.+)$/', $path, $hookMatches)) {
-                    // parse hook name by removing beginning of the path
-                    $hookName = $hookMatches[1];
-
-                    $hookParameters = $this->getBundleStructure($path, $hookFiles, $chunks);
-
-                    if (!$hookParameters['js']['bundle'] !== null) {
-                        $hooks[$hookName] = $hookParameters;
-                    }
-                }
-            }
-        }
-
-        return $hooks;
-    }
-
-    /**
-     * Get frontend external pages
-     *
-     * @return array The list of pages (routes, js and css)
-     */
-    public function getPages(): array
-    {
-        $installedModules = $this->getInstalledModules();
-
-        // search in each installed modules if there are pages
-        $pages = [];
-        foreach (array_keys($installedModules) as $installedModule) {
-            $modulePath = __DIR__ . '/../../../../www/modules/' . $installedModule . '/static/pages';
-            $chunks = $this->getChunksByModuleName($installedModule);
-            $files = [];
-            $this->getDirContents($modulePath, $files, '/\.(js|css)$/');
-            foreach ($files as $path => $pageFiles) {
-                if (preg_match('/\/static\/pages(\/.+)$/', $path, $pageMatches)) {
-                    $pageParameters = $this->getBundleStructure($path, $pageFiles, $chunks);
-
-                    if ($pageParameters['js']['bundle'] !== null) {
-                        // parse page name by removing beginning of the path
-                        $pageName = str_replace('/_', '/:', $pageMatches[1]);
-
-                        $pages[$pageName] = $pageParameters;
-                    }
-                }
-            }
-        }
-
-        return $pages;
     }
 }

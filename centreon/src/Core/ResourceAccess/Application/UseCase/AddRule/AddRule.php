@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ namespace Core\ResourceAccess\Application\UseCase\AddRule;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\ResourceAccess\Application\Repository\WriteResourceAccessRepositoryInterface;
@@ -41,9 +41,8 @@ use Core\ResourceAccess\Domain\Model\NewRule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-final class AddRule
+final readonly class AddRule
 {
-    use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /**
@@ -57,14 +56,14 @@ final class AddRule
      * @param bool $isCloudPlatform
      */
     public function __construct(
-        private readonly ReadResourceAccessRepositoryInterface $readRepository,
-        private readonly WriteResourceAccessRepositoryInterface $writeRepository,
-        private readonly ContactInterface $user,
-        private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly AddRuleValidation $validator,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly DatasetFilterValidator $datasetValidator,
-        private readonly bool $isCloudPlatform
+        private ReadResourceAccessRepositoryInterface $readRepository,
+        private WriteResourceAccessRepositoryInterface $writeRepository,
+        private ContactInterface $user,
+        private DataStorageEngineInterface $dataStorageEngine,
+        private AddRuleValidation $validator,
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private DatasetFilterValidator $datasetValidator,
+        private bool $isCloudPlatform,
     ) {
     }
 
@@ -74,26 +73,21 @@ final class AddRule
      */
     public function __invoke(
         AddRuleRequest $request,
-        AddRulePresenterInterface $presenter
+        AddRulePresenterInterface $presenter,
     ): void {
         try {
             if (! $this->isAuthorized()) {
-                $this->error(
-                    "User doesn't have sufficient rights to create a resource access rule",
-                    [
-                        'user_id' => $this->user->getId(),
-                    ]
-                );
                 $presenter->presentResponse(
-                    new ForbiddenResponse(RuleException::notAllowed()->getMessage())
+                    new ForbiddenResponse(
+                        message: RuleException::notAllowed()->getMessage(),
+                        context: ['user_id' => $this->user->getId(), 'request' => $request]
+                    )
                 );
 
                 return;
             }
 
             try {
-                $this->info('Starting resource access rule creation process');
-                $this->debug('Starting resource access rule transaction');
                 $this->dataStorageEngine->startTransaction();
 
                 /**
@@ -139,31 +133,42 @@ final class AddRule
                 $this->linkContactGroups($ruleId, $rule);
                 $this->linkResources($ruleId, $rule);
 
-                $this->info('New resource access rule created', ['id' => $ruleId]);
                 $this->dataStorageEngine->commitTransaction();
             } catch (\Throwable $exception) {
-                $this->error("Rollback of 'Add Resource Access Rule' transaction");
                 $this->dataStorageEngine->rollbackTransaction();
 
                 throw $exception;
             }
             $presenter->presentResponse($this->createResponse($ruleId));
         } catch (AssertionFailedException|\ValueError $exception) {
-            $presenter->presentResponse(new InvalidArgumentResponse($exception));
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $presenter->presentResponse(
+                new InvalidArgumentResponse(
+                    message: $exception->getMessage(),
+                    context: ['exception' => $exception, 'request' => $request]
+                )
+            );
         } catch (RuleException $exception) {
             $presenter->presentResponse(
                 match ($exception->getCode()) {
-                    RuleException::CODE_CONFLICT => new ConflictResponse($exception),
-                    default => new ErrorResponse($exception),
+                    RuleException::CODE_CONFLICT => new ConflictResponse(
+                        message: $exception->getMessage(),
+                        context: ['exception' => $exception, 'request' => $request]
+                    ),
+                    default => new ErrorResponse(
+                        message: $exception->getMessage(),
+                        context: ['request' => $request],
+                        exception: $exception
+                    ),
                 }
             );
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         } catch (\Throwable $exception) {
             $presenter->presentResponse(
-                new ErrorResponse(RuleException::addRule())
+                new ErrorResponse(
+                    message: RuleException::addRule(),
+                    context: ['request' => $request],
+                    exception: $exception,
+                )
             );
-            $this->error((string) $exception);
         }
     }
 
@@ -172,6 +177,7 @@ final class AddRule
      * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
      * are authorized to add a Resource Access Rule.
      *
+     * @throws RepositoryException
      * @return bool
      */
     private function isAuthorized(): bool
@@ -199,15 +205,21 @@ final class AddRule
     {
         $parentFilterId = null;
 
-        $saveDatasetFiltersHierarchy = function (int $ruleId, int $datasetId, DatasetFilter $filter) use (&$parentFilterId, &$saveDatasetFiltersHierarchy): void {
-            // First iteration we save the root filter
-            $parentFilterId = $this->writeRepository->addDatasetFilter($ruleId, $datasetId, $filter, $parentFilterId);
+        $saveDatasetFiltersHierarchy
+            = function (int $ruleId, int $datasetId, DatasetFilter $filter) use (&$parentFilterId, &$saveDatasetFiltersHierarchy): void {
+                // First iteration we save the root filter
+                $parentFilterId = $this->writeRepository->addDatasetFilter(
+                    $ruleId,
+                    $datasetId,
+                    $filter,
+                    $parentFilterId
+                );
 
-            // if there is a next level then save next level until final level reached
-            if ($filter->getDatasetFilter() !== null) {
-                $saveDatasetFiltersHierarchy($ruleId, $datasetId, $filter->getDatasetFilter());
-            }
-        };
+                // if there is a next level then save next level until final level reached
+                if ($filter->getDatasetFilter() !== null) {
+                    $saveDatasetFiltersHierarchy($ruleId, $datasetId, $filter->getDatasetFilter());
+                }
+            };
 
         $saveDatasetFiltersHierarchy($ruleId, $datasetId, $filter);
     }
@@ -223,7 +235,8 @@ final class AddRule
             name: $datasetName,
             accessAllHosts: true,
             accessAllHostGroups: true,
-            accessAllServiceGroups: true
+            accessAllServiceGroups: true,
+            accessAllImageFolders: true
         );
 
         // And link it to the rule
@@ -259,7 +272,8 @@ final class AddRule
                     name: $datasetName,
                     accessAllHosts: false,
                     accessAllHostGroups: false,
-                    accessAllServiceGroups: false
+                    accessAllServiceGroups: false,
+                    accessAllImageFolders: false
                 );
 
                 // And link it to the rule
@@ -271,7 +285,7 @@ final class AddRule
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
-                    'last' => $applicableFilter
+                    'last' => $applicableFilter,
                 ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
                 /* Specific behaviour when the last level of filtering is of type
@@ -338,6 +352,8 @@ final class AddRule
     /**
      * @param DatasetFilter $parent
      * @param DatasetFilter $child
+     *
+     * @return bool
      */
     private function shouldBothFiltersBeSaved(DatasetFilter $parent, DatasetFilter $child): bool
     {
@@ -352,8 +368,6 @@ final class AddRule
      */
     private function addRule(NewRule $rule): int
     {
-        $this->debug('Adding new rule with basic information');
-
         return $this->writeRepository->add($rule);
     }
 
@@ -363,11 +377,6 @@ final class AddRule
      */
     private function linkContacts(int $ruleId, NewRule $rule): void
     {
-        $this->debug(
-            'AddRule: Linking contacts to the resource access rule',
-            ['ruleId' => $ruleId, 'contact_ids' => $rule->getLinkedContactIds()]
-        );
-
         $this->writeRepository->linkContactsToRule($ruleId, $rule->getLinkedContactIds());
     }
 
@@ -377,11 +386,6 @@ final class AddRule
      */
     private function linkContactGroups(int $ruleId, NewRule $rule): void
     {
-        $this->debug(
-            'AddRule: Linking contact groups to the resource access rule',
-            ['ruleId' => $ruleId, 'contact_group_ids' => $rule->getLinkedContactGroupIds()]
-        );
-
         $this->writeRepository->linkContactGroupsToRule($ruleId, $rule->getLinkedContactGroupIds());
     }
 
@@ -393,6 +397,8 @@ final class AddRule
      *
      * @throws RuleException
      * @throws \InvalidArgumentException
+     * @throws RepositoryException
+     * @throws AssertionFailedException
      *
      * @return DatasetFilter[]
      */
@@ -402,7 +408,7 @@ final class AddRule
 
         $validateAndBuildDatasetFilter = function (
             array $data,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that
@@ -466,6 +472,7 @@ final class AddRule
      * @param AddRuleRequest $request
      * @param DatasetFilter[] $datasets
      *
+     * @throws AssertionFailedException
      * @return NewRule
      */
     private function createRuleFromRequest(AddRuleRequest $request, array $datasets): NewRule
@@ -491,7 +498,6 @@ final class AddRule
      */
     private function createResponse(int $ruleId): AddRuleResponse
     {
-        $this->debug('Fetching information post creation', ['rule_id' => $ruleId]);
         $rule = $this->readRepository->findById($ruleId);
 
         if (! $rule) {

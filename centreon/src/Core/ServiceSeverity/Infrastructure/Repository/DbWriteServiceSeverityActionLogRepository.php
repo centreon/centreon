@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInt
 use Core\ServiceSeverity\Application\Repository\WriteServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Domain\Model\NewServiceSeverity;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB implements WriteServiceSeverityRepositoryInterface
 {
@@ -50,8 +51,8 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
         private readonly WriteServiceSeverityRepositoryInterface $writeServiceSeverityRepository,
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        private readonly ContactInterface $contact,
-        DatabaseConnection $db
+        private readonly TokenStorageInterface $tokenStorage,
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -75,13 +76,15 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverity->getId(),
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error("Error while deleting service severity : {$ex->getMessage()}",
-            ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while deleting service severity : {$ex->getMessage()}",
+                ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -99,7 +102,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverityId,
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -110,8 +113,10 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
             return $serviceSeverityId;
         } catch (\Throwable $ex) {
-            $this->error("Error while adding service severity : {$ex->getMessage()}",
-            ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while adding service severity : {$ex->getMessage()}",
+                ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -129,7 +134,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
             }
 
             $this->writeServiceSeverityRepository->update($serviceSeverity);
-            
+
             $diff = $this->getServiceSeverityDiff($initialSeverity, $serviceSeverity);
 
             // If enable/disable has been changed
@@ -141,7 +146,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                         $serviceSeverity->getId(),
                         $serviceSeverity->getName(),
                         (bool) $diff['sc_activate'] ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                        $this->contact->getId()
+                        $this->getContactId()
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -154,7 +159,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                     $serviceSeverity->getId(),
                     $serviceSeverity->getName(),
                     (bool) $diff['sc_activate'] ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
 
                 $this->writeActionLogRepository->addAction($actionLog);
@@ -165,7 +170,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                     $serviceSeverity->getId(),
                     $serviceSeverity->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
 
                 $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -173,7 +178,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
                 $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
 
-            return;
+                return;
             }
             // Log change action if other properties have been changed without activation
             $actionLog = new ActionLog(
@@ -181,19 +186,28 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
                 $serviceSeverity->getId(),
                 $serviceSeverity->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
-            
+
             $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
         } catch (\Throwable $ex) {
-            $this->error("Error while updating service severity : {$ex->getMessage()}",
-            ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while updating service severity : {$ex->getMessage()}",
+                ['serviceSeverity' => $serviceSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**
@@ -208,7 +222,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
 
         foreach ($reflection->getProperties() as $property) {
             $value = $property->getValue($serviceSeverity);
-            
+
             if ($value === null) {
                 $value = '';
             }
@@ -233,7 +247,7 @@ class DbWriteServiceSeverityActionLogRepository extends AbstractRepositoryRDB im
      */
     private function getServiceSeverityDiff(
         ServiceSeverity $initialSeverity,
-        ServiceSeverity $updatedServiceSeverity
+        ServiceSeverity $updatedServiceSeverity,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialSeverity);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class Session
 {
     /**
@@ -31,6 +33,7 @@ class Session
      * @param string|null $clientIp
      */
     public function __construct(
+        #[Sensitive]
         private string $token,
         private int $contactId,
         private ?string $clientIp,

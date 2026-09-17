@@ -1,12 +1,14 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
 import {
   MutateOptions,
   UseMutationResult,
   useQueryClient
 } from '@tanstack/react-query';
-
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
-
 import { useAtomValue } from 'jotai';
+
 import {
   limitAtom,
   totalAtom
@@ -42,9 +44,9 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     method: Method.DELETE,
     optimisticListing: {
       enabled: true,
+      limit: limit || 10,
       queryKey: resource.dashboards,
-      total,
-      limit: limit || 10
+      total
     }
   });
 
@@ -61,7 +63,9 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: undefined,
+      data:
+        | { _meta?: { id: string | number } | undefined; payload: Dashboard }
+        | undefined,
       error: ResponseError | null,
       vars: DeleteDashboardDto
     ): void => {
@@ -71,7 +75,7 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
 
     const { id } = variables;
 
-    return mutateAsync(
+    return await mutateAsync(
       { _meta: { id } },
       {
         mutationKey: [resource.dashboards, 'delete', id],

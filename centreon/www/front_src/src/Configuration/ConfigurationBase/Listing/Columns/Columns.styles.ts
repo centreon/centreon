@@ -5,20 +5,20 @@ export const useColumnStyles = makeStyles()((theme) => ({
     display: 'flex',
     gap: theme.spacing(1)
   },
+  duplicateIcon: {
+    fontSize: theme.spacing(2.25)
+  },
   icon: {
     fontSize: theme.spacing(2)
   },
   removeButton: {
-    color: theme.palette.primary.main,
     '& :hover': {
       color: theme.palette.error.main
-    }
+    },
+    color: theme.palette.primary.main
   },
   removeIcon: {
-    fontSize: theme.spacing(2.5),
-    color: theme.palette.error.main
-  },
-  duplicateIcon: {
-    fontSize: theme.spacing(2.25)
+    color: theme.palette.error.main,
+    fontSize: theme.spacing(2.5)
   }
 }));

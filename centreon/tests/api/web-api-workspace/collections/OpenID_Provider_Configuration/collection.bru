@@ -1,0 +1,13 @@
+meta {
+  name: OpenID_Provider_Configuration
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}

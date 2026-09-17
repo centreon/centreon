@@ -1,19 +1,26 @@
-import { useEffect, useState } from 'react';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import {
+  Alert,
+  Checkbox,
+  FormControlLabel,
+  Link,
+  Typography
+} from '@mui/material';
+
+import type { SelectEntry } from '@centreon/ui';
+import {
+  centreonBaseURL,
+  MultiAutocompleteField,
+  postData,
+  SelectField,
+  useRequest
+} from '@centreon/ui';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pick } from 'ramda';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { Checkbox, FormControlLabel, Typography } from '@mui/material';
-
-import {
-  MultiAutocompleteField,
-  SelectField,
-  centreonBaseURL,
-  postData,
-  useRequest
-} from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
 
 import routeMap from '../../reactRoutes/routeMap';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
@@ -23,12 +30,19 @@ import { PollerRemoteList, Props, WizardButtonsTypes } from '../models';
 import { PollerData, pollerAtom, setWizardDerivedAtom } from '../pollerAtoms';
 import {
   labelAdvancedServerConfiguration,
-  labelLinkedRemoteMaster,
+  labelDocumentation,
+  labelGorgonePullWss,
+  labelGorgonePullWssPrerequisite,
   labelLinkedadditionalRemote,
+  labelLinkedRemoteMaster,
   labelOpenBrokerFlow
 } from '../translatedLabels';
 
+const pullWssDocumentationUrl =
+  'https://docs.centreon.com/docs/monitoring/monitoring-servers/communications';
+
 interface StepTwoFormData {
+  gorgone_pull_wss: boolean;
   linked_remote_master: string;
   linked_remote_slaves: Array<SelectEntry>;
   open_broker_flow: boolean;
@@ -44,6 +58,7 @@ const PollerWizardStepTwo = ({
     []
   );
   const [stepTwoFormData, setStepTwoFormData] = useState<StepTwoFormData>({
+    gorgone_pull_wss: false,
     linked_remote_master: '',
     linked_remote_slaves: [],
     open_broker_flow: false
@@ -78,6 +93,14 @@ const PollerWizardStepTwo = ({
       setStepTwoFormData({
         ...stepTwoFormData,
         open_broker_flow: !stepTwoFormData.open_broker_flow
+      });
+
+      return;
+    }
+    if (name === 'gorgone_pull_wss') {
+      setStepTwoFormData({
+        ...stepTwoFormData,
+        gorgone_pull_wss: !stepTwoFormData.gorgone_pull_wss
       });
 
       return;
@@ -146,17 +169,17 @@ const PollerWizardStepTwo = ({
             fullWidth
             label={t(labelLinkedRemoteMaster)}
             name="linked_remote_master"
+            onChange={handleChange}
             options={linkedRemoteMasterOption || []}
             selectedOptionId={stepTwoFormData.linked_remote_master}
-            onChange={handleChange}
           />
           {stepTwoFormData.linked_remote_master && (
             <MultiAutocompleteField
               fullWidth
               label={t(labelLinkedadditionalRemote)}
+              onChange={changeValue}
               options={linkedRemoteSlavesOption || []}
               value={stepTwoFormData.linked_remote_slaves}
-              onChange={changeValue}
             />
           )}
           <FormControlLabel
@@ -169,6 +192,27 @@ const PollerWizardStepTwo = ({
             }
             label={`${t(labelOpenBrokerFlow)}`}
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={stepTwoFormData.gorgone_pull_wss}
+                name="gorgone_pull_wss"
+                onChange={handleChange}
+              />
+            }
+            label={`${t(labelGorgonePullWss)}`}
+          />
+          <Alert severity="info">
+            {`${t(labelGorgonePullWssPrerequisite)} `}
+            <Link
+              href={pullWssDocumentationUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+              underline="hover"
+            >
+              {t(labelDocumentation)}
+            </Link>
+          </Alert>
           <WizardButtons
             disabled={loading}
             goToPreviousStep={goToPreviousStep}

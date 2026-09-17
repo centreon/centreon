@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class FindRulesController extends AbstractController
 {
-    /**
-     * @param FindRules $useCase
-     * @param FindRulesPresenterInterface $presenter
-     *
-     * @return Response
-     */
     public function __invoke(
         FindRules $useCase,
-        FindRulesPresenterInterface $presenter
+        FindRulesPresenterInterface $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

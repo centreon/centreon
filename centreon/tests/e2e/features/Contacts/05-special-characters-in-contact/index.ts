@@ -1,5 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import contacts from '../../../fixtures/users/contact.json';
 
@@ -7,11 +8,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -35,13 +36,15 @@ When('one non admin contact has been created', () => {
 When(
   'the user has changed the contact alias by adding a special character',
   () => {
-    cy.navigateTo({
-      page: 'Contacts / Users',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    });
+    cy.visit(PAGES.configuration.contactsUsersLegacy);
     cy.getIframeBody().contains('user-with-access-to-allmodules').click();
     cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+    cy.getIframeBody()
+      .find('input.btc.bt_success[name^="submit"]')
+      .eq(0)
+      .click();
+    cy.wait('@getTimeZone');
+    cy.exportConfig();
   }
 );
 
@@ -60,13 +63,12 @@ Then(
 );
 
 Given('the contact alias contains an accent', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.getIframeBody().contains('user-with-access-to-allmodules').click();
   cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
   cy.logout();
 });
 

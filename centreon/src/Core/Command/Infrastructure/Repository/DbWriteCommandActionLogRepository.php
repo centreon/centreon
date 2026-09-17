@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\CommandMacro\Domain\Model\NewCommandMacro;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements WriteCommandRepositoryInterface
 {
@@ -57,7 +58,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     public function __construct(
         private readonly WriteCommandRepositoryInterface $writeCommandRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         DatabaseConnection $db,
     ) {
         $this->db = $db;
@@ -76,7 +77,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
                 objectId: $commandId,
                 objectName: $command->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->contact->getId()
+                contactId: $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -96,6 +97,13 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**
@@ -121,7 +129,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
                 'type' => $propertyValue instanceof CommandType ? CommandTypeConverter::toInt($propertyValue) : '',
                 'arguments' => is_array($propertyValue) ? $this->getArgumentsAsString($propertyValue) : '',
                 'macros' => is_array($propertyValue) ? $this->getMacrosAsString($propertyValue) : '',
-                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue  : '',
+                'connectorId', 'graphTemplateId' => is_int($propertyValue) ? $propertyValue : '',
                 default => '',
             };
         }
@@ -137,11 +145,11 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     private function getArgumentsAsString(array $arguments): string
     {
         $arguments = array_map(
-            fn($argument) => $argument->getName() . ' : ' . $argument->getDescription(),
+            fn ($argument) => $argument->getName() . ' : ' . $argument->getDescription(),
             $arguments
         );
         $argumentsAsString = '';
-        if (! empty($arguments)) {
+        if ($arguments !== []) {
             $argumentsAsString = implode(' ', $arguments);
         }
 
@@ -167,7 +175,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
             $macros
         );
         $macrosAsString = '';
-        if (! empty($macros)) {
+        if ($macros !== []) {
             $macrosAsString = implode(' ', $macros);
         }
 

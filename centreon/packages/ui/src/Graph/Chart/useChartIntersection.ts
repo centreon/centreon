@@ -4,7 +4,11 @@ interface GraphIntersectionState {
   isInViewport: boolean;
 }
 
-export const useIntersection = ({ element }): GraphIntersectionState => {
+export const useIntersection = ({
+  element
+}: {
+  element: Element | null;
+}): GraphIntersectionState => {
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -36,7 +35,6 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFact
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\Repository\WriteOpenIdConfigurationRepositoryInterface;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdateOpenIdConfiguration\{
     PartialUpdateOpenIdConfiguration,
     PartialUpdateOpenIdConfigurationPresenterInterface,
@@ -45,6 +43,7 @@ use Core\Security\ProviderConfiguration\Application\OpenId\UseCase\PartialUpdate
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 beforeEach(function (): void {
     $this->repository = $this->createMock(WriteOpenIdConfigurationRepositoryInterface::class);
@@ -254,7 +253,7 @@ it('should present an ErrorResponse when an error occured during the use case ex
         ->expects($this->once())
         ->method('setResponseStatus')
         ->with(new ErrorResponse(
-            AssertionException::ipOrDomain('abcd_.@', 'AuthenticationConditions::trustedClientAddresses')->getMessage()
+            '[AuthenticationConditions::trustedClientAddresses] The value "abcd_.@" was expected to be a valid IP address or hostname'
         ));
 
     $useCase = new PartialUpdateOpenIdConfiguration(

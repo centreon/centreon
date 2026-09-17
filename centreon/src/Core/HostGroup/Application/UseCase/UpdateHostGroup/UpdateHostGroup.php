@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
+use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     InvalidArgumentResponse,
@@ -36,6 +38,7 @@ use Core\Application\Common\UseCase\{
     ResponseStatusInterface,
 };
 use Core\Common\Domain\SimpleEntity;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -80,7 +83,9 @@ final class UpdateHostGroup
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
-        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
+        private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
     ) {
     }
 
@@ -90,7 +95,7 @@ final class UpdateHostGroup
     public function __invoke(UpdateHostGroupRequest $request): ResponseStatusInterface
     {
         try {
-            $existingHostGroup = $this->user->isAdmin()
+            $existingHostGroup = $this->adminResolver->isAdmin($this->user)
                 ? $this->readHostGroupRepository->findOne($request->id)
                 : $this->readHostGroupRepository->findOneByAccessGroups(
                     $request->id,
@@ -100,8 +105,10 @@ final class UpdateHostGroup
             if ($existingHostGroup === null) {
                 return new NotFoundResponse('Host Group');
             }
-            $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
-            $this->validator->assertHostsExist($request->hosts);
+            $this->validator->assertNameIsValid($existingHostGroup, $request->name);
+            if ($request->hosts !== null) {
+                $this->validator->assertHostsExist($request->hosts);
+            }
             if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);
             }
@@ -115,7 +122,9 @@ final class UpdateHostGroup
             }
 
             $this->updateHostGroup($request, $existingHostGroup);
-            $this->updateHostLinks($request);
+            if ($request->hosts !== null) {
+                $this->updateHostLinks($request, $existingHostGroup);
+            }
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
             }
@@ -181,12 +190,16 @@ final class UpdateHostGroup
      * Update the hosts linked to the host group.
      *
      * @param UpdateHostGroupRequest $request
+     * @param HostGroup $existingHostGroup
      *
      * @throws \Throwable
      */
-    private function updateHostLinks(UpdateHostGroupRequest $request): void
+    private function updateHostLinks(UpdateHostGroupRequest $request, HostGroup $existingHostGroup): void
     {
-        if ($this->user->isAdmin()) {
+        /** @var int[] $hosts */
+        $hosts = $request->hosts;
+
+        if ($this->adminResolver->isAdmin($this->user)) {
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
         } else {
@@ -197,13 +210,38 @@ final class UpdateHostGroup
 
             $hostsToRemove = (new BasicDifference(
                 array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
-                $request->hosts
+                $hosts
             ))->getRemoved();
         }
 
+        $linkedBefore = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHostLinks($request->id, $request->hosts);
-        $this->notifyConfigurationChange($request->hosts);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
+        $linkedAfter = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
+        $this->notifyConfigurationChange($hosts);
+
+        sort($linkedBefore);
+        sort($linkedAfter);
+        if ($linkedBefore === $linkedAfter) {
+            return;
+        }
+
+        $actionLog = new ActionLog(
+            ActionLog::OBJECT_TYPE_HOSTGROUP,
+            $request->id,
+            $existingHostGroup->getName(),
+            ActionLog::ACTION_TYPE_CHANGE,
+            $this->user->getId(),
+        );
+        $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+        $actionLog->setId($actionLogId);
+
+        $added = array_values(array_diff($linkedAfter, $linkedBefore));
+        $removed = array_values(array_diff($linkedBefore, $linkedAfter));
+        $this->writeActionLogRepository->addActionDetails($actionLog, [
+            'hosts_added' => implode(',', $added),
+            'hosts_removed' => implode(',', $removed),
+        ]);
     }
 
     /**
@@ -288,7 +326,7 @@ final class UpdateHostGroup
                     $datasetFilterRelation->getResourceIds(),
                     fn ($resourceId) => $resourceId !== $hostGroupId
                 );
-                if (empty($resourceIdToUpdates)) {
+                if ($resourceIdToUpdates === []) {
                     $this->writeResourceAccessRepository->deleteDatasetFilter($datasetFilterRelation->getDatasetFilterId());
                 } else {
                     $this->writeResourceAccessRepository->updateDatasetResources($datasetFilterRelation->getDatasetFilterId(), $resourceIdToUpdates);

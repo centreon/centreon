@@ -1,0 +1,36 @@
+meta {
+  name: GET /services/categories - Get 3 service categories - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Three service categories are visible to the editor.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const sc4 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceCategory4Id")));
+    expect(sc4).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory4Id")),
+      "name": bru.getEnvVar("ServiceCategory4Name"),
+      "alias": bru.getEnvVar("ServiceCategory4Alias"),
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

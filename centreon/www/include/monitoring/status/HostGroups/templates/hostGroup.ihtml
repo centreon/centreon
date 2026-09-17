@@ -1,5 +1,5 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-<form name='form'>
+<form name='form' onsubmit="return false;">
 
 <input name="o" value="svc" type="hidden">
 <table class="ajaxOption table">
@@ -26,7 +26,7 @@
         <tr class="ToolbarTR">
             <td width="330">
                 <span class="consol_button" id="instance_selected"></span>
-                
+
                 <div class="Toolbar_TDSelectAction_Top">
                     <span class="consol_button"><a id="JS_monitoring_refresh" href="#" onclick="javascript:monitoring_refresh('');"><span title='Refresh'>{displaysvg svgPath="www/img/icons/refresh.svg" color="var(--icons-fill-color)" height=18.0 width=18.0}</span></a></span>
                     <span class="consol_button"><a id="JS_monitoring_play" class="cachediv" href="#" onclick="javascript:monitoring_play('');"><span title="Play">{displaysvg svgPath="www/img/icons/media_play.svg" color="var(--icons-fill-color)" height=20.0 width=20.0}</span></a></span>

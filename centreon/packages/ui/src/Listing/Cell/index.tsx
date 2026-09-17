@@ -1,40 +1,34 @@
-import { useAtom } from 'jotai';
-import { append, equals, includes, isNil, omit, reject } from 'ramda';
-import { CSSObject } from 'tss-react';
-import { makeStyles } from 'tss-react/mui';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  alpha,
   TableCell,
-  TableCellBaseProps,
-  TableCellProps,
-  Theme,
-  alpha
+  type TableCellBaseProps,
+  type TableCellProps,
+  type Theme,
+  useTheme
 } from '@mui/material';
 
-import { ListingVariant } from '@centreon/ui-context';
+import type { ListingVariant } from '@centreon/ui-context';
+
+import { useAtom } from 'jotai';
+import { equals, includes, isNil, reject } from 'ramda';
+import type { ElementType } from 'react';
+import type { CSSObject } from 'tss-react';
 
 import { IconButton } from '../..';
 import { subItemsPivotsAtom } from '../tableAtoms';
 import { getTextStyleByViewMode } from '../useStyleTable';
-
-import { ElementType } from 'react';
-import { Props as DataCellProps } from './DataCell';
+import type { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
 }
 
-interface StylesProps extends Props {
-  isRowHighlighted?: boolean;
-  listingVariant?: ListingVariant;
-}
-
 interface GetRowHighlightStyleProps {
   isRowHighlighted?: boolean;
   theme: Theme;
-  disableRowCondition;
-  row;
+  disableRowCondition: (row: Record<string, unknown>) => boolean;
+  row?: Record<string, unknown>;
 }
 
 const getBackgroundColor = ({
@@ -44,7 +38,7 @@ const getBackgroundColor = ({
   disableRowCondition,
   theme
 }: GetBackgroundColorProps): string => {
-  if (disableRowCondition(row)) {
+  if (disableRowCondition(row as Record<string, unknown>)) {
     return alpha(theme.palette.common.black, theme.palette.action.focusOpacity);
   }
 
@@ -53,7 +47,7 @@ const getBackgroundColor = ({
   }
 
   const foundCondition = rowColorConditions?.find(({ condition }) =>
-    condition(row)
+    condition(row as Record<string, unknown>)
   );
 
   if (!isNil(foundCondition)) {
@@ -73,63 +67,17 @@ const getRowTextColor = ({
     return { color: theme.palette.text.primary };
   }
 
-  if (disableRowCondition(row)) {
+  if (disableRowCondition(row as Record<string, unknown>)) {
     return { color: alpha(theme.palette.text.secondary, 0.5) };
   }
-};
 
-const useStyles = makeStyles<StylesProps>()(
-  (
-    theme,
-    {
-      isRowHovered,
-      row,
-      rowColorConditions,
-      disableRowCondition,
-      isRowHighlighted,
-      listingVariant
-    }
-  ) => ({
-    caret: {
-      transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.short
-      })
-    },
-    caretLess: {
-      transform: 'rotate3d(0,0,1,0deg)'
-    },
-    caretMore: {
-      transform: 'rotate3d(0,0,1,180deg)'
-    },
-    root: {
-      alignItems: 'center',
-      backgroundColor: getBackgroundColor({
-        disableRowCondition,
-        isRowHovered,
-        row,
-        rowColorConditions,
-        theme
-      }),
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      display: 'flex',
-      'div:nth-of-type(n)': {
-        alignItems: 'center',
-        display: 'flex'
-      },
-      height: '100%',
-      overflow: 'hidden',
-      ...getTextStyleByViewMode({ listingVariant, theme }),
-      p: getRowTextColor({ isRowHighlighted, disableRowCondition, row, theme }),
-      padding: theme.spacing(0, 1),
-      whiteSpace: 'nowrap'
-    }
-  })
-);
+  return undefined;
+};
 
 interface Props
   extends Pick<
       DataCellProps,
-      'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
+      'isRowHovered' | 'rowColorConditions' | 'disableRowCondition'
     >,
     TableCellProps {
   displaySubItemsCaret?: boolean;
@@ -137,22 +85,26 @@ interface Props
   labelCollapse?: string;
   labelExpand?: string;
   listingVariant?: ListingVariant;
+  row?: Record<string, unknown>;
   subItemsRowProperty?: string;
 }
 
 const isPivotExistInTheList = (
-  id
+  id: number | string
 ): ((list: Array<number | string>) => boolean) => includes(id);
 
 const handleSubItems = ({
   currentSubItemsPivots,
   id
+}: {
+  currentSubItemsPivots: Array<number | string>;
+  id: number | string;
 }): Array<number | string> => {
   if (isPivotExistInTheList(id)(currentSubItemsPivots)) {
     return reject(equals(id), currentSubItemsPivots);
   }
 
-  return append(id, currentSubItemsPivots);
+  return [...currentSubItemsPivots, id];
 };
 
 const Cell = ({
@@ -160,60 +112,83 @@ const Cell = ({
   subItemsRowProperty,
   labelCollapse,
   labelExpand,
+  disableRowCondition,
+  isRowHovered,
+  isRowHighlighted,
+  rowColorConditions,
+  listingVariant,
+  row,
+  style,
   ...props
 }: Props): JSX.Element => {
-  const { classes, cx } = useStyles(props);
+  const theme = useTheme();
 
   const [subItemsPivots, setSubItemsPivots] = useAtom(subItemsPivotsAtom);
 
   const { children } = props;
 
-  const rowId = props.row?.id;
+  const rowId = row?.id as number | string | undefined;
 
-  const click = (e): void => {
+  const click = (e: React.MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
 
     setSubItemsPivots((currentSubItemsPivots) =>
-      handleSubItems({ currentSubItemsPivots, id: rowId })
+      handleSubItems({
+        currentSubItemsPivots,
+        id: rowId as number | string
+      })
     );
   };
 
-  const isSubItemsExpanded = isPivotExistInTheList(rowId)(subItemsPivots);
+  const isSubItemsExpanded = isPivotExistInTheList(rowId as number | string)(
+    subItemsPivots
+  );
 
-  const hasSubItems = subItemsRowProperty && props.row[subItemsRowProperty];
+  const hasSubItems = Boolean(
+    subItemsRowProperty && row?.[subItemsRowProperty]
+  );
 
   return (
     <TableCell
       classes={{
-        root: cx(classes.root)
+        root: 'flex items-center h-full overflow-hidden border-b-1 border-divider px-2 whitespace-nowrap py-0'
       }}
       component={'div' as unknown as ElementType<TableCellBaseProps>}
-      {...omit(
-        [
-          'isRowHovered',
-          'row',
-          'rowColorConditions',
-          'disableRowCondition',
-          'isRowHighlighted',
-          'listingVariant'
-        ],
-        props
-      )}
+      style={
+        {
+          backgroundColor: getBackgroundColor({
+            disableRowCondition,
+            isRowHovered,
+            row,
+            rowColorConditions,
+            theme
+          }),
+          ...getTextStyleByViewMode({
+            listingVariant,
+            theme
+          }),
+          ...getRowTextColor({
+            disableRowCondition,
+            isRowHighlighted,
+            row,
+            theme
+          }),
+          ...style
+        } as React.CSSProperties
+      }
+      {...props}
     >
       {displaySubItemsCaret && hasSubItems && (
         <IconButton
           ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
-            props.row.id
+            row?.id
           }`}
-          size="small"
           onClick={click}
+          size="small"
         >
           <ExpandMoreIcon
-            className={cx(
-              classes.caret,
-              isSubItemsExpanded ? classes.caretMore : classes.caretLess
-            )}
+            className={`transition-transform ${isSubItemsExpanded ? 'rotate-z-180' : 'rotate-z-0'} transform-gpu`}
             fontSize="small"
           />
         </IconButton>

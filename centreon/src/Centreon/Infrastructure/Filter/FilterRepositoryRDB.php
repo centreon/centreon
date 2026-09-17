@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,19 +18,19 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Filter;
 
 use Centreon\Domain\Entity\EntityCreator;
-use Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface;
 use Centreon\Domain\Filter\Filter;
 use Centreon\Domain\Filter\FilterCriteria;
+use Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
-use JMS\Serializer\SerializerInterface;
 
 /**
  * This class is designed to manage the repository of the monitoring servers
@@ -39,9 +39,7 @@ use JMS\Serializer\SerializerInterface;
  */
 class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db)
@@ -85,26 +83,6 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         $statement->execute();
 
         return (int) $this->db->lastInsertId();
-    }
-
-    /**
-     * @param Filter $filter 
-     * @return array<string, mixed> 
-     */
-    private function buildCriteriasFromFilter(Filter $filter): array
-    {
-        $criterias = $filter->getCriterias(); 
-
-        return array_map(
-            static fn (FilterCriteria $criteria): array => [
-                'name' => $criteria->getName(),
-                'type' => $criteria->getType(),
-                'object_type' => $criteria->getObjectType(),
-                'value' => $criteria->getValue(),
-                'search_data' => $criteria->getSearchData(),
-            ],
-            $criterias
-        );
     }
 
     /**
@@ -212,6 +190,118 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     }
 
     /**
+     * {@inheritDoc}
+     * @throws \Exception
+     */
+    public function findFilterByUserIdAndName(int $userId, string $pageName, string $name): ?Filter
+    {
+        $request = $this->translateDbName('
+            SELECT id, name, user_id, page_name, criterias, `order`
+            FROM `:db`.user_filter
+            WHERE user_id = :user_id
+            AND page_name = :page_name
+            AND name = :name
+        ');
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':user_id', $userId, \PDO::PARAM_INT);
+        $statement->bindValue(':page_name', $pageName, \PDO::PARAM_STR);
+        $statement->bindValue(':name', $name, \PDO::PARAM_STR);
+        $statement->execute();
+
+        if (false !== ($filter = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /**
+             * @var FilterCriteria[] $filterCriterias
+             */
+            $filterCriterias = [];
+            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
+                $filterCriterias[] = EntityCreator::createEntityByArray(
+                    FilterCriteria::class,
+                    $filterCriteria
+                );
+            }
+
+            $filter['criterias'] = $filterCriterias;
+
+            /**
+             * @var Filter $filterEntity
+             */
+            return EntityCreator::createEntityByArray(
+                Filter::class,
+                $filter
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @throws \Exception
+     */
+    public function findFilterByUserIdAndId(int $userId, string $pageName, int $filterId): ?Filter
+    {
+        $request = $this->translateDbName('
+            SELECT id, name, user_id, page_name, criterias, `order`
+            FROM `:db`.user_filter
+            WHERE user_id = :user_id
+            AND id = :filter_id
+            AND page_name = :page_name
+        ');
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':user_id', $userId, \PDO::PARAM_INT);
+        $statement->bindValue(':filter_id', $filterId, \PDO::PARAM_INT);
+        $statement->bindValue(':page_name', $pageName, \PDO::PARAM_STR);
+        $statement->execute();
+
+        if (false !== ($filter = $statement->fetch(\PDO::FETCH_ASSOC))) {
+            /**
+             * @var FilterCriteria[] $filterCriterias
+             */
+            $filterCriterias = [];
+            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
+                $filterCriterias[] = EntityCreator::createEntityByArray(
+                    FilterCriteria::class,
+                    $filterCriteria
+                );
+            }
+
+            $filter['criterias'] = $filterCriterias;
+
+            /**
+             * @var Filter $filterEntity
+             */
+            return EntityCreator::createEntityByArray(
+                Filter::class,
+                $filter
+            );
+        }
+
+        return null;
+    }
+
+    /**
+     * @param Filter $filter
+     * @return array<string, mixed>
+     */
+    private function buildCriteriasFromFilter(Filter $filter): array
+    {
+        $criterias = $filter->getCriterias();
+
+        return array_map(
+            static fn (FilterCriteria $criteria): array => [
+                'name' => $criteria->getName(),
+                'type' => $criteria->getType(),
+                'object_type' => $criteria->getObjectType(),
+                'value' => $criteria->getValue(),
+                'search_data' => $criteria->getSearchData(),
+            ],
+            $criterias
+        );
+    }
+
+    /**
      * Retrieve all filters linked to a user id
      *
      * @param int $userId user id for which we want to find filters
@@ -219,15 +309,15 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
      * @param string|null $searchRequest search request
      * @param string|null $sortRequest sort request
      * @param string|null $paginationRequest pagination request
-     * @return Filter[]
      * @throws \Exception
+     * @return Filter[]
      */
     private function findFiltersByUserId(
         int $userId,
         string $pageName,
         ?string $searchRequest = null,
         ?string $sortRequest = null,
-        ?string $paginationRequest = null
+        ?string $paginationRequest = null,
     ): array {
         $request = $this->translateDbName('
             SELECT SQL_CALC_FOUND_ROWS id, name, user_id, page_name, criterias, `order`
@@ -235,16 +325,16 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         ');
 
         // Search
-        $request .= !is_null($searchRequest) ? $searchRequest . ' AND ' : ' WHERE ';
+        $request .= ! is_null($searchRequest) ? $searchRequest . ' AND ' : ' WHERE ';
         $request .= 'user_id = :user_id AND page_name = :page_name';
         $this->sqlRequestTranslator->addSearchValue(':user_id', [\PDO::PARAM_INT => $userId]);
         $this->sqlRequestTranslator->addSearchValue(':page_name', [\PDO::PARAM_STR => $pageName]);
 
         // Sort
-        $request .= !is_null($sortRequest) ? $sortRequest : ' ORDER BY `order` ASC';
+        $request .= ! is_null($sortRequest) ? $sortRequest : ' ORDER BY `order` ASC';
 
         // Pagination
-        $request .= !is_null($paginationRequest) ? $paginationRequest : '';
+        $request .= ! is_null($paginationRequest) ? $paginationRequest : '';
 
         $statement = $this->db->prepare($request);
 
@@ -291,107 +381,11 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     }
 
     /**
-     * {@inheritDoc}
-     * @throws \Exception
-     */
-    public function findFilterByUserIdAndName(int $userId, string $pageName, string $name): ?Filter
-    {
-        $request = $this->translateDbName('
-            SELECT id, name, user_id, page_name, criterias, `order`
-            FROM `:db`.user_filter
-            WHERE user_id = :user_id
-            AND page_name = :page_name
-            AND name = :name
-        ');
-
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':user_id', $userId, \PDO::PARAM_INT);
-        $statement->bindValue(':page_name', $pageName, \PDO::PARAM_STR);
-        $statement->bindValue(':name', $name, \PDO::PARAM_STR);
-        $statement->execute();
-
-        if (false !== ($filter = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /**
-             * @var FilterCriteria[] $filterCriterias
-             */
-            $filterCriterias = [];
-            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
-                $filterCriterias[] = EntityCreator::createEntityByArray(
-                    FilterCriteria::class,
-                    $filterCriteria
-                );
-            }
-
-            $filter['criterias'] = $filterCriterias;
-
-            /**
-             * @var Filter $filterEntity
-             */
-            $filterEntity = EntityCreator::createEntityByArray(
-                Filter::class,
-                $filter
-            );
-
-            return $filterEntity;
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws \Exception
-     */
-    public function findFilterByUserIdAndId(int $userId, string $pageName, int $filterId): ?Filter
-    {
-        $request = $this->translateDbName('
-            SELECT id, name, user_id, page_name, criterias, `order`
-            FROM `:db`.user_filter
-            WHERE user_id = :user_id
-            AND id = :filter_id
-            AND page_name = :page_name
-        ');
-
-        $statement = $this->db->prepare($request);
-        $statement->bindValue(':user_id', $userId, \PDO::PARAM_INT);
-        $statement->bindValue(':filter_id', $filterId, \PDO::PARAM_INT);
-        $statement->bindValue(':page_name', $pageName, \PDO::PARAM_STR);
-        $statement->execute();
-
-        if (false !== ($filter = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            /**
-             * @var FilterCriteria[] $filterCriterias
-             */
-            $filterCriterias = [];
-            foreach (json_decode($filter['criterias'], true) as $filterCriteria) {
-                $filterCriterias[] = EntityCreator::createEntityByArray(
-                    FilterCriteria::class,
-                    $filterCriteria
-                );
-            }
-
-            $filter['criterias'] = $filterCriterias;
-
-            /**
-             * @var Filter $filterEntity
-             */
-            $filterEntity = EntityCreator::createEntityByArray(
-                Filter::class,
-                $filter
-            );
-
-            return $filterEntity;
-        }
-
-        return null;
-    }
-
-    /**
      * Find max order value by user id and page name
      *
-     * @param integer $userId The user id
+     * @param int $userId The user id
      * @param string $pageName The page name
-     * @return integer The max order value
+     * @return int The max order value
      */
     private function findMaxOrderByUserId(int $userId, string $pageName): int
     {
@@ -410,7 +404,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         $statement->execute();
 
         if (false !== ($order = $statement->fetch(\PDO::FETCH_ASSOC))) {
-            $maxOrder = $order['max_order'] === null ? 0 : (int)$order['max_order'];
+            $maxOrder = $order['max_order'] === null ? 0 : (int) $order['max_order'];
         }
 
         return $maxOrder;
@@ -419,7 +413,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     /**
      * Remove order gap which happen after filter deletion
      *
-     * @param integer $userId The user id
+     * @param int $userId The user id
      * @param string $pageName The page name
      * @return void
      */
@@ -441,17 +435,17 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     /**
      * Decrement order of filters which have order between given interval
      *
-     * @param integer $userId The user id
+     * @param int $userId The user id
      * @param string $pageName The page name
-     * @param integer $lowOrder The low order interval
-     * @param integer $highOrder The high order interval
+     * @param int $lowOrder The low order interval
+     * @param int $highOrder The high order interval
      * @return void
      */
     private function decrementOrderBetweenIntervalByUserId(
         int $userId,
         string $pageName,
         int $lowOrder,
-        int $highOrder
+        int $highOrder,
     ): void {
         $filters = $this->findFiltersByUserId($userId, $pageName, null, null, null);
 
@@ -466,17 +460,17 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
     /**
      * Increment order of filters which have order between given interval
      *
-     * @param integer $userId The user id
+     * @param int $userId The user id
      * @param string $pageName The page name
-     * @param integer $lowOrder The low order interval
-     * @param integer $highOrder The high order interval
+     * @param int $lowOrder The low order interval
+     * @param int $highOrder The high order interval
      * @return void
      */
     private function incrementOrderBetweenIntervalByUserId(
         int $userId,
         string $pageName,
         int $lowOrder,
-        int $highOrder
+        int $highOrder,
     ): void {
         $filters = $this->findFiltersByUserId($userId, $pageName, null, null, null);
 

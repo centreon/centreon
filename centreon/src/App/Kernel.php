@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,59 +19,64 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\ErrorHandler\Debug;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
- * Class Kernel.
+ * Legacy Kernel.
  */
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    /** @var Kernel */
-    private static $instance;
+    private static ?Kernel $instance = null;
 
     /** @var string cache path */
-    private $cacheDir = '/var/cache/centreon/symfony';
+    private string $cacheDir = '/var/cache/centreon/symfony';
 
-    /** @var string Log path */
-    private $logDir = '/var/log/centreon/symfony';
+    /** @var string|null memoized config file set fingerprint */
+    private ?string $configFingerprint = null;
 
     /**
      * Kernel constructor.
-     *
-     * @param string $environment
-     * @param bool $debug
      */
     public function __construct(string $environment, bool $debug)
     {
         parent::__construct($environment, $debug);
-        if (defined('_CENTREON_LOG_')) {
-            $this->logDir = _CENTREON_LOG_ . '/symfony';
-        }
-        if (defined('_CENTREON_CACHEDIR_')) {
+        if (\defined('_CENTREON_CACHEDIR_')) {
             $this->cacheDir = _CENTREON_CACHEDIR_ . '/symfony';
         }
     }
 
-    /**
-     * @return Kernel
-     */
-    public static function createForWeb(): Kernel
+    public static function createForWeb(): self
     {
-        if (self::$instance === null) {
+        if (! self::$instance instanceof self) {
             include_once \dirname(__DIR__, 2) . '/config/bootstrap.php';
-            if ($_SERVER['APP_DEBUG']) {
+            if (isset($_SERVER['APP_DEBUG']) && $_SERVER['APP_DEBUG'] === '1') {
                 umask(0000);
-
                 Debug::enable();
+            } else {
+                $_SERVER['APP_DEBUG'] = '0';
             }
-            self::$instance = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+
+            $env = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
+                ? (string) $_SERVER['APP_ENV']
+                : 'prod';
+            self::$instance = new self($env, (bool) $_SERVER['APP_DEBUG']);
             self::$instance->boot();
+            $request = Request::createFromGlobals();
+            /** @var RequestStack $requestStack */
+            $requestStack = self::$instance->getContainer()->get('request_stack');
+            $requestStack->push($request);
         }
 
         return self::$instance;
@@ -83,34 +88,73 @@ class Kernel extends BaseKernel
     public function registerBundles(): iterable
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';
+        if (! is_array($contents)) {
+            return;
+        }
+
         foreach ($contents as $class => $envs) {
-            if ($envs[$this->environment] ?? $envs['all'] ?? false) {
+            if ((is_array($envs) && (($envs[$this->environment] ?? $envs['all'] ?? false)))) {
                 yield new $class();
             }
         }
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getProjectDir(): string
     {
         return \dirname(__DIR__, 2);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getCacheDir(): string
     {
-        return $this->cacheDir;
+        return $this->cacheDir . '/' . $this->getConfigFingerprint();
+    }
+
+    #[\Override]
+    public function getLogDir(): string
+    {
+        return defined('_CENTREON_LOG_') ? (string) _CENTREON_LOG_ : '/var/log/centreon';
+    }
+
+    protected function build(ContainerBuilder $container): void
+    {
+        $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
+
+        if (class_exists($class)) {
+            /** @var CompilerPassInterface $compilerPass */
+            $compilerPass = new $class();
+            $container->addCompilerPass($compilerPass);
+        }
     }
 
     /**
-     * @return string
+     * Modules drop yaml files under config/routes and config/packages after the container
+     * may already have been compiled. Keying the cache directory on the config file set
+     * makes such a stale container unreachable instead of fatal.
+     *
+     * The shared kernel computes its own fingerprint the same way. Sharing the code is not an
+     * option: the deptrac Legacy layer must not depend on App\Shared.
      */
-    public function getLogDir(): string
+    private function getConfigFingerprint(): string
     {
-        return $this->logDir;
+        if ($this->configFingerprint === null) {
+            // filemtime() and filesize() read PHP's stat cache, which must not hand back
+            // pre-write values to a process that just wrote a configuration file.
+            clearstatcache();
+
+            $files = array_merge(
+                glob($this->getProjectDir() . '/config/{routes,packages}/{*,*/*}.yaml', \GLOB_BRACE) ?: [],
+                glob($this->getProjectDir() . '/config/bundles.php') ?: []
+            );
+            sort($files);
+            $entries = array_map(
+                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
+                $files
+            );
+            $this->configFingerprint = mb_substr(md5(implode('|', $entries)), 0, 8);
+        }
+
+        return $this->configFingerprint;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ use Centreon\Application\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 
 beforeEach(function (): void {
-    $this->validateDataSentController = new class extends AbstractController {
+    $this->validateDataSentController = new class () extends AbstractController {
         // We expose a public method to make the protected function testable.
         public function testValidateDataSent(Request $request, string $jsonSchema): ?string
         {
             // Write the json schema in a temporary file
             $jsonTempFile = tempnam(sys_get_temp_dir(), 'jsonSchema');
-            if (false === $jsonTempFile || false === file_put_contents($jsonTempFile, $jsonSchema)) {
+            if ($jsonTempFile === false || file_put_contents($jsonTempFile, $jsonSchema) === false) {
                 throw new \Exception('Failed to create a temporary JSON schema file for the AbstractControllerTest');
             }
 
@@ -76,7 +76,7 @@ it(
                 "$schema": "http://json-schema.org/draft-04/schema#",
                 "type": "object"
             }
-            JSON
+            JSON,
     ],
     'JSON is an emtpy object, expect an array' => [
         'Object value found, but an array is required',
@@ -87,7 +87,7 @@ it(
                 "type": "array",
                 "items": { "type": "object" }
             }
-            JSON
+            JSON,
     ],
     'JSON is an object containing an sub-object, expect an sub-array' => [
         '[myProperty] Object value found, but an array is required',
@@ -100,7 +100,7 @@ it(
                     "myProperty": { "type": "array" }
                 }
             }
-            JSON
+            JSON,
     ],
     'JSON is an object containing an sub-array, expect an sub-object' => [
         '[myProperty] Array value found, but an object is required',
@@ -113,7 +113,7 @@ it(
                     "myProperty": { "type": "object" }
                 }
             }
-            JSON
+            JSON,
     ],
 ]);
 
@@ -136,7 +136,7 @@ it(
                 "type": "array",
                 "items": { "type": "object" }
             }
-            JSON
+            JSON,
     ],
     'JSON is an array of objects but empty' => [
         '[]',
@@ -146,7 +146,7 @@ it(
                 "type": "array",
                 "items": { "type": "object" }
             }
-            JSON
+            JSON,
     ],
     'JSON is an empty object' => [
         '{}',
@@ -155,7 +155,7 @@ it(
                 "$schema": "http://json-schema.org/draft-04/schema#",
                 "type": "object"
             }
-            JSON
+            JSON,
     ],
     'JSON is an object containing an sub-object' => [
         '{"myProperty": [] }',
@@ -167,7 +167,7 @@ it(
                     "myProperty": { "type": "array" }
                 }
             }
-            JSON
+            JSON,
     ],
     'JSON is an object containing an sub-array' => [
         '{"myProperty": {} }',
@@ -179,6 +179,6 @@ it(
                     "myProperty": { "type": "object" }
                 }
             }
-            JSON
+            JSON,
     ],
 ]);

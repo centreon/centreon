@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -45,12 +30,14 @@ final class ServiceCategory extends AbstractObject
 {
     private const TAG_TYPE = 'servicecategory';
 
-    /** @var array<int,mixed> */
-    private array $serviceCategories = [];
-    /** @var array<int,int[]>|null */
-    private array|null $serviceCategoriesRelationsCache = null;
     /** @var string */
     protected string $object_name = 'tag';
+
+    /** @var array<int,mixed> */
+    private array $serviceCategories = [];
+
+    /** @var array<int,int[]>|null */
+    private array|null $serviceCategoriesRelationsCache = null;
 
     /**
      * @param Container $dependencyInjector
@@ -64,25 +51,6 @@ final class ServiceCategory extends AbstractObject
             'tag_name',
             'type',
         ];
-    }
-    /**
-     * Build cache for service categories
-     */
-    private function buildCache(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT service_categories.sc_id, service_service_id
-            FROM service_categories, service_categories_relation
-            WHERE level IS NULL
-            AND sc_activate = '1'
-            AND service_categories_relation.sc_id = service_categories.sc_id"
-        );
-        $stmt->execute();
-
-        $this->serviceCategoriesRelationsCache = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            $this->serviceCategoriesRelationsCache[(int) $value['service_service_id']][] = (int) $value['sc_id'];
-        }
     }
 
     /**
@@ -101,31 +69,6 @@ final class ServiceCategory extends AbstractObject
     }
 
     /**
-     * Retrieve a categorie from its id
-     *
-     * @param int $serviceCategoryId
-     *
-     * @return self
-     * @throws PDOException
-     */
-    private function addServiceCategoryToList(int $serviceCategoryId): self
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT sc_id as id, sc_name as tag_name
-            FROM service_categories
-            WHERE sc_id = :serviceCategoryId AND level IS NULL AND sc_activate = '1'"
-        );
-        $stmt->bindParam(':serviceCategoryId', $serviceCategoryId, PDO::PARAM_INT);
-        $stmt->execute();
-        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->serviceCategories[$serviceCategoryId] = $row;
-            $this->serviceCategories[$serviceCategoryId]['members'] = [];
-        }
-
-        return $this;
-    }
-
-    /**
      * Add a service to members of a service category
      *
      * @param int $serviceCategoryId
@@ -137,7 +80,7 @@ final class ServiceCategory extends AbstractObject
     public function insertServiceToServiceCategoryMembers(
         int $serviceCategoryId,
         int $serviceId,
-        string $serviceDescription
+        string $serviceDescription,
     ): void {
         if (! isset($this->serviceCategories[$serviceCategoryId])) {
             $this->addServiceCategoryToList($serviceCategoryId);
@@ -178,6 +121,7 @@ final class ServiceCategory extends AbstractObject
             }
         }
     }
+
     /**
      * @param int $serviceId
      * @return int[]
@@ -192,5 +136,50 @@ final class ServiceCategory extends AbstractObject
         }
 
         return $serviceCategoryIds;
+    }
+
+    /**
+     * Build cache for service categories
+     */
+    private function buildCache(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT service_categories.sc_id, service_service_id
+            FROM service_categories, service_categories_relation
+            WHERE level IS NULL
+            AND sc_activate = '1'
+            AND service_categories_relation.sc_id = service_categories.sc_id"
+        );
+        $stmt->execute();
+
+        $this->serviceCategoriesRelationsCache = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $this->serviceCategoriesRelationsCache[(int) $value['service_service_id']][] = (int) $value['sc_id'];
+        }
+    }
+
+    /**
+     * Retrieve a categorie from its id
+     *
+     * @param int $serviceCategoryId
+     *
+     * @throws PDOException
+     * @return self
+     */
+    private function addServiceCategoryToList(int $serviceCategoryId): self
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT sc_id as id, sc_name as tag_name
+            FROM service_categories
+            WHERE sc_id = :serviceCategoryId AND level IS NULL AND sc_activate = '1'"
+        );
+        $stmt->bindParam(':serviceCategoryId', $serviceCategoryId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $this->serviceCategories[$serviceCategoryId] = $row;
+            $this->serviceCategories[$serviceCategoryId]['members'] = [];
+        }
+
+        return $this;
     }
 }

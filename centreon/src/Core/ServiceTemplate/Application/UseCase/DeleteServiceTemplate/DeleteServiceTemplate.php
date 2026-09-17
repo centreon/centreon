@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
@@ -41,7 +42,8 @@ use Core\ServiceTemplate\Application\Repository\WriteServiceTemplateRepositoryIn
 
 final class DeleteServiceTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param ReadServiceTemplateRepositoryInterface $readRepository
@@ -56,8 +58,9 @@ final class DeleteServiceTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
-         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+        $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**
@@ -100,7 +103,7 @@ final class DeleteServiceTemplate
                 return;
             }
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveServiceUuidFromVault($serviceTemplateId);
                 if ($this->uuid !== null) {
                     $this->writeVaultRepository->delete($this->uuid);

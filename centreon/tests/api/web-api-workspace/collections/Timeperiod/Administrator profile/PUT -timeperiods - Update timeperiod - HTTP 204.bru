@@ -1,0 +1,39 @@
+meta {
+  name: PUT /timeperiods - Update timeperiod - HTTP 204
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/timeperiods/{{Timeperiod3Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Timeperiod3Name}}",
+    "alias": "{{Timeperiod3Alias}}",
+    "days": [
+      {"day": 1, "time_range": "00:00-24:00"},
+      {"day": 2, "time_range": "00:00-24:00"}
+    ],
+    "templates": [],
+    "exceptions": []
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Timeperiod 3 has been successfully updated.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

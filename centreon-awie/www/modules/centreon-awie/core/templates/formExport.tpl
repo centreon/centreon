@@ -1,7 +1,7 @@
 <script type='text/javascript' src="./modules/centreon-awie/core/js/Export.js"></script>
 
 <form name="exportForm" id="exportForm" enctype="multipart/form-data">
-
+    <input type="hidden" id="centreon_token" name="centreon_token" value="{$csrfToken}" />
     <div class="loadingWrapper" style="display: none">
         {include file='loading.tpl'}
     </div>
@@ -138,9 +138,6 @@
                 <label for="d_cmd">Discovery CMD</label>
             </td>
         </tr>
-        <tr class="list_one">
-
-        </tr>
         <tr class="list_lvl_1">
             <td class="ListColLvl1_name" >
                 <h4>Resources</h4>
@@ -152,6 +149,13 @@
                 <label for="ldap">LDAP</label>
                 <input name="TP" type="checkbox" id="tp"/>
                 <label for="tp">Timeperiods</label>
+            </td>
+        </tr>
+
+        <tr class="list_one">
+            <td class="FormRowValue" colspan="2">
+                <div class="msg-wrapper msg-center" style="display: none;">
+                </div>
             </td>
         </tr>
     </table>

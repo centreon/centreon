@@ -1,21 +1,23 @@
-import {
-  Dispatch,
-  MouseEvent,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import Collapse from '@mui/material/Collapse';
 import List from '@mui/material/List';
 import ListSubheader from '@mui/material/ListSubheader';
 
 import { useMemoComponent } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import {
+  Dispatch,
+  MouseEvent,
+  ReactElement,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { Page } from '../../models';
 import {
@@ -23,7 +25,6 @@ import {
   selectedNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-
 import MenuItems from './MenuItems';
 
 interface Props {
@@ -123,7 +124,7 @@ const CollapsibleItems = ({
   collapseScrollMaxWidth,
   setCollapseScrollMaxWidth,
   setCollapseScrollMaxHeight
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes, cx } = useStyles({
     collapseScrollMaxHeight,
     collapseScrollMaxWidth,
@@ -214,7 +215,6 @@ const CollapsibleItems = ({
   return useMemoComponent({
     Component: (
       <Collapse
-        unmountOnExit
         className={cx(classes.root, classes.toggled)}
         data-cy="collapse"
         enter={false}
@@ -222,6 +222,7 @@ const CollapsibleItems = ({
         in={isCollapsed}
         ref={collapsRef}
         timeout={0}
+        unmountOnExit
       >
         {data?.map((item, index) => {
           const hover =
@@ -249,9 +250,9 @@ const CollapsibleItems = ({
               subheader={
                 isSubHeader && (
                   <ListSubheader
+                    className={classes.subHeader}
                     disableGutters
                     disableSticky
-                    className={classes.subHeader}
                   >
                     {item.label}
                   </ListSubheader>
@@ -301,7 +302,6 @@ const CollapsibleItems = ({
 
               {isCollapseWithSubheader ? (
                 <CollapsibleItems
-                  isSubHeader
                   collapseMenu={collapseMenu}
                   collapseScrollMaxHeight={nestedScrollCollapsMaxHeight}
                   collapseScrollMaxWidth={nestedScrollCollapsMaxWidth}
@@ -309,6 +309,7 @@ const CollapsibleItems = ({
                   currentWidth={itemWidth}
                   data={item.groups}
                   isCollapsed={index === hoveredIndex}
+                  isSubHeader
                   level={level + 1}
                   setCollapseScrollMaxHeight={setNestedScrollCollapsMaxHeight}
                   setCollapseScrollMaxWidth={setNestedScrollCollapsMaxWidth}

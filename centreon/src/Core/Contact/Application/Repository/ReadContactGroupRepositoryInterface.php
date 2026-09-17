@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace Core\Contact\Application\Repository;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
@@ -51,6 +52,21 @@ interface ReadContactGroupRepositoryInterface
      * @return array<ContactGroup>
      */
     public function findAllByUserId(int $userId): array;
+
+    /**
+     * Get contact group ids reachable from $user, considering both the user's
+     * ACL groups (cloud and on-prem) and the user's own contact group
+     * membership. Mirrors {@see ReadContactRepositoryInterface::findContactIdsByUser()}
+     * for contact groups so the same one-method "scope of this user" lookup
+     * works for either dimension.
+     *
+     * @param ContactInterface $user
+     *
+     * @throws RepositoryException
+     *
+     * @return int[]
+     */
+    public function findContactGroupIdsByUser(ContactInterface $user): array;
 
     /**
      * Get a Contact Group.
@@ -89,7 +105,7 @@ interface ReadContactGroupRepositoryInterface
     public function findByAccessGroupsAndUserAndRequestParameter(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array;
 
     /**
@@ -124,7 +140,7 @@ interface ReadContactGroupRepositoryInterface
      *
      * @param int ...$ids
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return array<int, array{id: int, name: string}>
      */

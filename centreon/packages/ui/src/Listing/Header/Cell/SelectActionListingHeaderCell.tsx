@@ -1,19 +1,19 @@
-import { equals, isEmpty, not } from 'ramda';
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { TableCell, TableCellBaseProps } from '@mui/material';
+import { TableCell, type TableCellBaseProps } from '@mui/material';
+
+import { equals, isEmpty, not } from 'ramda';
 
 import PopoverMenu from '../../../PopoverMenu';
 import Checkbox from '../../Checkbox';
-import { PredefinedRowSelection } from '../../models';
+import type { PredefinedRowSelection } from '../../models';
 import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 
-import { useStyles } from './SelectActionListingHeaderCell.styles';
-
 export interface SelectActionListingHeaderCellProps {
-  onSelectAllClick: (event) => void;
-  onSelectRowsWithCondition: (condition) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectRowsWithCondition: (
+    condition: (row: Record<string, unknown>) => boolean
+  ) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
@@ -26,40 +26,38 @@ const SelectActionListingHeaderCell = ({
   predefinedRowsSelection,
   onSelectRowsWithCondition
 }: SelectActionListingHeaderCellProps): JSX.Element => {
-  const { classes } = useStyles();
-
   const hasRows = not(equals(rowCount, 0));
 
   return (
     <TableCell
-      className={classes.checkboxHeaderCell}
+      className="bg-background-listing-header h-full pt-0 pr-1 pb-0 pl-3 flex flex-row items-center leading=[inherit] justify-start border-b-0"
       component={'div' as unknown as React.ElementType<TableCellBaseProps>}
     >
       <Checkbox
         checked={hasRows && selectedRowCount === rowCount}
-        className={classes.checkbox}
+        className="text-text-primary"
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
-        inputProps={{ 'aria-label': 'Select all' }}
         onChange={onSelectAllClick}
+        slotProps={{ input: { 'aria-label': 'Select all' } }}
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
-          className={classes.predefinedRowsMenu}
+          className="text-text-primary"
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
-          {({ close }): JSX.Element => (
+          {(props: { close?: () => void } | undefined): JSX.Element => (
             <PredefinedSelectionList
-              close={close}
-              predefinedRowsSelection={predefinedRowsSelection}
+              close={props?.close ?? ((): void => undefined)}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
+              predefinedRowsSelection={predefinedRowsSelection}
             />
           )}
         </PopoverMenu>
       ) : (
-        <div className={classes.predefinedRowsMenu} />
+        <div className="text-text-primary" />
       )}
     </TableCell>
   );

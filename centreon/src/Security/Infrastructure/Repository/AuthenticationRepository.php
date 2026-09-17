@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
      * @param DatabaseConnection $db
      */
     public function __construct(
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -53,7 +53,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         int $providerConfigurationId,
         int $contactId,
         ProviderToken $providerToken,
-        ?ProviderToken $providerRefreshToken
+        ?ProviderToken $providerRefreshToken,
     ): void {
         // We avoid to start again a database transaction
         $isAlreadyInTransaction = $this->db->inTransaction();
@@ -285,7 +285,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         int $providerConfigurationId,
         int $contactId,
         ProviderToken $providerToken,
-        ?ProviderToken $providerRefreshToken
+        ?ProviderToken $providerRefreshToken,
     ): void {
 
         $this->insertSecurityToken($providerToken);
@@ -347,7 +347,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
         int $contactId,
         int $securityTokenId,
         ?int $securityRefreshTokenId,
-        int $providerConfigurationId
+        int $providerConfigurationId,
     ): void {
         $insertSecurityAuthenticationStatement = $this->db->prepare(
             $this->translateDbName(

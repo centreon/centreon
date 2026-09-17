@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,18 @@ declare(strict_types=1);
 namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\UpdateSAMLConfiguration;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\{
-    UpdateSAMLConfigurationPresenterInterface as PresenterInterface
-};
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\UpdateSAMLConfigurationPresenterInterface;
 
-class UpdateSAMLConfigurationPresenter extends AbstractPresenter implements PresenterInterface
+class UpdateSAMLConfigurationPresenter extends AbstractPresenter implements UpdateSAMLConfigurationPresenterInterface
 {
+    public function presentResponse(ResponseStatusInterface $response): void
+    {
+        if ($response instanceof ErrorResponse && ! is_null($response->getException())) {
+            ExceptionLogger::create()->log($response->getException());
+        }
+        $this->setResponseStatus($response);
+    }
 }

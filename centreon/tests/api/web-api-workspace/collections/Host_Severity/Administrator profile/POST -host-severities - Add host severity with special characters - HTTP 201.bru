@@ -1,0 +1,47 @@
+meta {
+  name: POST /host-severities - Add host severity with special characters - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity3Name}}",
+    "alias": "{{HostSeverity3Alias}}",
+    "level": 1,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host severity has been successfully created, with name '{{HostSeverity3Name}}' and alias '{{HostSeverity3Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostSeverity3Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostSeverity3Name"),
+      "alias": bru.getEnvVar("HostSeverity3Alias"),
+      "level": 1,
+      "icon_id": 1
+    });
+  });
+
+  test("The Location parameter is in the header.", function () {
+    expect(res.getHeaders()).to.have.property("location");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

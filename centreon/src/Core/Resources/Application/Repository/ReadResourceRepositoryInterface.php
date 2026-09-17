@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace Core\Resources\Application\Repository;
 
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
+use Core\Common\Domain\Exception\RepositoryException;
 
 interface ReadResourceRepositoryInterface
 {
@@ -33,30 +34,90 @@ interface ReadResourceRepositoryInterface
      *
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    public function findResources(ResourceFilter $filter): array;
+    public function findResources(ResourceFilter $filter): FindResourcesResult;
 
     /**
      * Find all resources with filter on access group IDs.
      *
      * @param ResourceFilter $filter
-     * @param int[] $accessGroupIds
+     * @param array<int> $accessGroupIds
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): array;
+    public function findResourcesByAccessGroupIds(ResourceFilter $filter, array $accessGroupIds): FindResourcesResult;
 
     /**
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return ResourceEntity[]
      */
     public function findParentResourcesById(ResourceFilter $filter): array;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return \Traversable<ResourceEntity>
+     */
+    public function iterateResources(ResourceFilter $filter, int $maxResults = 0): \Traversable;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param array<int> $accessGroupIds
+     * @param int $maxResults
+     *
+     * @throws RepositoryException
+     * @return \Traversable<ResourceEntity>
+     */
+    public function iterateResourcesByAccessGroupIds(
+        ResourceFilter $filter,
+        array $accessGroupIds,
+        int $maxResults = 0,
+    ): \Traversable;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param bool $allPages
+     *
+     * @throws RepositoryException
+     * @return CountResult
+     */
+    public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): CountResult;
+
+    /**
+     * @param ResourceFilter $filter
+     * @param bool $allPages
+     * @param array<int> $accessGroupIds
+     *
+     * @throws RepositoryException
+     * @return CountResult
+     */
+    public function countResourcesByFilterAndAccessGroupIds(
+        ResourceFilter $filter,
+        bool $allPages,
+        array $accessGroupIds,
+    ): CountResult;
+
+    /**
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countAllResources(): int;
+
+    /**
+     * @param array<int> $accessGroupIds
+     *
+     * @throws RepositoryException
+     * @return int
+     */
+    public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int;
 }

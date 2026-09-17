@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 
 class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
@@ -146,11 +147,12 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
             }
             $serviceCategoriesFields = implode(',', array_keys($bindServiceCategoriesIds));
 
-            $request = $this->translateDbName(<<<"SQL"
-                DELETE FROM `:db`.service_categories_relation
-                WHERE service_service_id = :service_id
-                AND sc_id IN ({$serviceCategoriesFields})
-                SQL
+            $request = $this->translateDbName(
+                <<<"SQL"
+                    DELETE FROM `:db`.service_categories_relation
+                    WHERE service_service_id = :service_id
+                    AND sc_id IN ({$serviceCategoriesFields})
+                    SQL
             );
 
             $statement = $this->db->prepare($request);
@@ -171,5 +173,35 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
 
             throw $ex;
         }
+    }
+
+    /**
+     * @param ServiceCategory $serviceCategory
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function update(ServiceCategory $serviceCategory): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.service_categories
+                SET
+                    `sc_name` = :name,
+                    `sc_description` = :alias,
+                    `sc_activate` = :isActivated
+                WHERE sc_id = :id
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':name', $serviceCategory->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $serviceCategory->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':isActivated', (new BoolToEnumNormalizer())->normalize($serviceCategory->isActivated()), \PDO::PARAM_STR);
+        $statement->bindValue(':id', $serviceCategory->getId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+
     }
 }

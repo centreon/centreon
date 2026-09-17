@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,8 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
 {
-    use LoggerTrait, HostCategoryRepositoryTrait;
+    use LoggerTrait;
+    use HostCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -199,7 +200,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $this->info('Getting all host templates');
         if ($accessGroups === []) {
@@ -207,7 +208,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -405,12 +406,84 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     /**
      * @inheritDoc
      */
+    public function findByName(string $hostTemplateName): ?HostTemplate
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    h.host_id,
+                    h.host_name,
+                    h.host_alias,
+                    h.host_snmp_version,
+                    h.host_snmp_community,
+                    h.host_location,
+                    h.command_command_id,
+                    h.command_command_id_arg1,
+                    h.timeperiod_tp_id,
+                    h.host_max_check_attempts,
+                    h.host_check_interval,
+                    h.host_retry_check_interval,
+                    h.host_active_checks_enabled,
+                    h.host_passive_checks_enabled,
+                    h.host_notifications_enabled,
+                    h.host_notification_options,
+                    h.host_notification_interval,
+                    h.timeperiod_tp_id2,
+                    h.cg_additive_inheritance,
+                    h.contact_additive_inheritance,
+                    h.host_first_notification_delay,
+                    h.host_recovery_notification_delay,
+                    h.host_acknowledgement_timeout,
+                    h.host_check_freshness,
+                    h.host_freshness_threshold,
+                    h.host_flap_detection_enabled,
+                    h.host_low_flap_threshold,
+                    h.host_high_flap_threshold,
+                    h.host_event_handler_enabled,
+                    h.command_command_id2,
+                    h.command_command_id_arg2,
+                    h.host_comment,
+                    h.host_locked,
+                    ehi.ehi_notes_url,
+                    ehi.ehi_notes,
+                    ehi.ehi_action_url,
+                    ehi.ehi_icon_image,
+                    ehi.ehi_icon_image_alt,
+                    hc.hc_id AS severity_id
+                FROM `:db`.host h
+                LEFT JOIN `:db`.extended_host_information ehi
+                    ON h.host_id = ehi.host_host_id
+                LEFT JOIN `:db`.hostcategories_relation hcr
+                    ON hcr.host_host_id = h.host_id
+                LEFT JOIN `:db`.hostcategories hc
+                    ON hc.hc_id = hcr.hostcategories_hc_id
+                    AND hc.level IS NOT NULL
+                WHERE h.host_name = :name
+                    AND h.host_register = :host_template_type
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':name', $hostTemplateName, \PDO::PARAM_STR);
+        $statement->bindValue(':host_template_type', HostType::Template->value, \PDO::PARAM_STR);
+        $statement->execute();
+
+        if ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var _HostTemplate $result */
+            return $this->createHostTemplateFromArray($result);
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByIdAndAccessGroups(int $hostTemplateId, array $accessGroups): ?HostTemplate
     {
         $this->info('Get a host template with ID #' . $hostTemplateId);
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -509,7 +582,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $bindValues[':tpl_' . $index] = $templateId;
         }
 
-        $hostTemplateIdsQuery = implode(', ',array_keys($bindValues));
+        $hostTemplateIdsQuery = implode(', ', array_keys($bindValues));
         $request = $this->translateDbName(
             <<<SQL
                 SELECT
@@ -624,12 +697,13 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $hostTemplateIdsFound = [];
         $concatenator = new SqlConcatenator();
 
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT host_id
-            FROM `:db`.host
-            WHERE host_register = '0'
-                AND host_id IN (:host_ids)
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT host_id
+                FROM `:db`.host
+                WHERE host_register = '0'
+                    AND host_id IN (:host_ids)
+                SQL
         );
         $concatenator->defineSelect($request);
         $concatenator->storeBindValueMultiple(':host_ids', $hostTemplateIds, \PDO::PARAM_INT);
@@ -916,7 +990,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                 default => SnmpVersion::from($result['host_snmp_version']),
             },
             (string) $result['host_snmp_community'],
-            0 === $result['host_location'] ? null : $result['host_location'],
+            $result['host_location'] === 0 ? null : $result['host_location'],
             $result['severity_id'],
             $result['command_command_id'],
             $extractCommandArguments($result['command_command_id_arg1']),

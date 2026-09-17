@@ -1,0 +1,22 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "ID of the image folder"
+    example: 1
+  name:
+    type: string
+    description: "Name of the image folder"
+    example: "my-logos"
+  alias:
+    type:
+      - string
+      - 'null'
+    description: "image folder alias"
+    example: "logos"
+  comment:
+    type:
+      - string
+      - 'null'
+    description: "image folder comment"
+    example: "Those are my beautiful logos"

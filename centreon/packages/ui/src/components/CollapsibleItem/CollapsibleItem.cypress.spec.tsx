@@ -1,4 +1,4 @@
-import { CollapsibleItem, Props } from './CollapsibleItem';
+import { CollapsibleItem, type Props } from './CollapsibleItem';
 
 const title = 'Title';
 

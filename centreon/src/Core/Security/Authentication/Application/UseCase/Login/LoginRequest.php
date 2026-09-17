@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
 final class LoginRequest
@@ -41,6 +42,7 @@ final class LoginRequest
         public string $providerName,
         public ?string $clientIp = null,
         public ?string $username = null,
+        #[Sensitive]
         public ?string $password = null,
         public ?string $code = null,
         public ?string $refererQueryParameters = null,
@@ -61,7 +63,7 @@ final class LoginRequest
         string $username,
         string $password,
         ?string $clientIp = null,
-        ?string $refererQueryParameters = null
+        ?string $refererQueryParameters = null,
     ): self {
 
         return new self(

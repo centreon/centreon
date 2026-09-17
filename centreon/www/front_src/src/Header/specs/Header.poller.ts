@@ -1,7 +1,7 @@
+import { userAtom } from '@centreon/ui-context';
+
 import { act, renderHook } from '@testing-library/react';
 import { useAtomValue } from 'jotai';
-
-import { userAtom } from '@centreon/ui-context';
 
 import useNavigation from '../../Navigation/useNavigation';
 import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
@@ -22,7 +22,6 @@ import {
   labelPollerNotRunning,
   labelPollers
 } from '../Poller/translatedLabels';
-
 import {
   initialize,
   openSubMenu,
@@ -42,12 +41,12 @@ const getElements = (): void => {
 export default (): void =>
   describe('Pollers', () => {
     describe('responsive behaviors', () => {
-      it("hides the button's text at smaller screen size", () => {
+      it('displays only the icon and the expand chevron, no text label', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
         cy.get('@pollerButton').within(() => {
-          cy.findByText('Pollers').should('not.be.visible');
+          cy.findByText('Pollers').should('not.exist');
           cy.findByTestId('ExpandMoreIcon').should('be.visible');
           cy.findByTestId('DeviceHubIcon').should('be.visible');
         });
@@ -359,7 +358,11 @@ export default (): void =>
         });
 
         it('hides the configuratiuon button if the user is not allowed to access the configuration page', () => {
-          initialize();
+          initialize({
+            navigationList: {
+              result: []
+            }
+          });
           openSubMenu('Pollers');
 
           cy.findByTestId('poller-menu')

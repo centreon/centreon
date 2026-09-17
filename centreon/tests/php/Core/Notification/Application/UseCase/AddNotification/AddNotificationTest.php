@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Converter\NotificationHostEventConverter;
@@ -43,15 +44,15 @@ use Core\Notification\Application\UseCase\AddNotification\AddNotificationRequest
 use Core\Notification\Application\UseCase\AddNotification\Factory\NewNotificationFactory;
 use Core\Notification\Application\UseCase\AddNotification\Factory\NotificationResourceFactory;
 use Core\Notification\Application\UseCase\AddNotification\Validator\NotificationValidator;
-use Core\Notification\Domain\Model\NewNotification;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\ConfigurationResource;
+use Core\Notification\Domain\Model\Contact;
 use Core\Notification\Domain\Model\HostEvent;
 use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\NewNotification;
+use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\NotificationResource;
-use Core\Notification\Domain\Model\ConfigurationResource;
 use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Contact;
 use Core\Notification\Infrastructure\API\AddNotification\AddNotificationPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
@@ -63,7 +64,7 @@ beforeEach(function (): void {
     $this->request->name = 'notification-name';
     $this->request->timePeriodId = 2;
     $this->request->users = [20, 21];
-    $this->request->contactGroups = [5,6];
+    $this->request->contactGroups = [5, 6];
     $this->request->resources = [
         ['type' => 'hostgroup', 'ids' => [12, 25], 'events' => 5, 'includeServiceEvents' => 1],
     ];
@@ -72,7 +73,7 @@ beforeEach(function (): void {
             'channel' => 'Slack',
             'subject' => 'some subject',
             'message' => 'some message',
-            'formatted_message' => '<h1> A Test Message </h1>'
+            'formatted_message' => '<h1> A Test Message </h1>',
         ],
     ];
     $this->request->isActivated = true;
@@ -87,6 +88,7 @@ beforeEach(function (): void {
         $this->notificationResourceFactory = $this->createMock(NotificationResourceFactory::class),
         $this->notificationValidator = $this->createMock(NotificationValidator::class),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->resourceRepository = $this->createMock(NotificationResourceRepositoryInterface::class);
@@ -110,7 +112,7 @@ beforeEach(function (): void {
             'hostgroup',
             HostEvent::class,
             array_map(
-                (fn($resourceId) => new ConfigurationResource($resourceId, "resource-name-{$resourceId}")),
+                (fn ($resourceId) => new ConfigurationResource($resourceId, "resource-name-{$resourceId}")),
                 $this->request->resources[0]['ids']
             ),
             NotificationHostEventConverter::fromBitFlags($this->request->resources[0]['events']),
@@ -118,12 +120,17 @@ beforeEach(function (): void {
         ),
     ];
     $this->users = array_map(
-        (fn($userId) => new Contact($userId, "user_name_{$userId}", "email_{$userId}@centreon.com")),
+        (fn ($userId) => new Contact(
+            $userId,
+            "user_name_{$userId}",
+            "email_{$userId}@centreon.com",
+            "alias_{$userId}"
+        )),
         $this->request->users
     );
 
     $this->contactGroups = array_map(
-        (fn($contactGroupIds) => new ContactGroup($contactGroupIds, "user_name_{$contactGroupIds}", "alias_{$contactGroupIds}")),
+        (fn ($contactGroupIds) => new ContactGroup($contactGroupIds, "user_name_{$contactGroupIds}", "alias_{$contactGroupIds}")),
         $this->request->contactGroups
     );
 });
@@ -181,9 +188,7 @@ it('should present an InvalidArgumentResponse when name is already used', functi
         ->toBe(NotificationException::nameAlreadyExists()->getMessage());
 });
 
-it('should present an InvalidArgumentResponse if an error is generated when creating a notification resource.', function
-():
-void {
+it('should present an InvalidArgumentResponse if an error is generated when creating a notification resource.', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -212,10 +217,8 @@ void {
         ->toBe(NotificationException::invalidId('resource.ids')->getMessage());
 });
 
-
 it('should throw an InvalidArgumentResponse if at least one of the user IDs does not exist', function (): void {
-
-    $this->request->users = [10,12];
+    $this->request->users = [10, 12];
 
     $this->notificationValidator
         ->expects($this->once())
@@ -265,7 +268,6 @@ it('should throw an InvalidArgumentResponse if at least one of the user IDs does
 });
 
 it('should throw an InvalidArgumentResponse if at least one of the user IDs is not provided', function (): void {
-
     $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups')
@@ -318,7 +320,7 @@ it('should present an ErrorResponse if the newly created service severity cannot
     $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups');
-    
+
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -370,7 +372,6 @@ it('should present an ErrorResponse if the newly created service severity cannot
 });
 
 it('should return created object on success', function (): void {
-
     $this->notificationValidator
         ->expects($this->once())
         ->method('validateUsersAndContactGroups');
@@ -395,9 +396,10 @@ it('should return created object on success', function (): void {
         ->expects($this->once())
         ->method('findContactGroupsByNotificationId')
         ->willReturn($this->contactGroups);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
     $this->resourceRepositoryProvider
         ->expects($this->once())
@@ -426,7 +428,7 @@ it('should return created object on success', function (): void {
         ->toBe($this->notification->isActivated())
         ->and($payload['users'])
         ->toBe(array_map(
-            (fn($user) => [
+            (fn ($user) => [
                 'id' => $user->getId(),
                 'name' => $user->getName(),
             ]),
@@ -434,7 +436,7 @@ it('should return created object on success', function (): void {
         ))
         ->and($payload['contactgroups'])
         ->toBe(array_map(
-            (fn($contactgroup) => [
+            (fn ($contactgroup) => [
                 'id' => $contactgroup->getId(),
                 'name' => $contactgroup->getName(),
             ]),
@@ -442,7 +444,7 @@ it('should return created object on success', function (): void {
         ))
         ->and($payload['messages'])
         ->toBe(array_map(
-            (fn($message) => [
+            (fn ($message) => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
@@ -452,15 +454,16 @@ it('should return created object on success', function (): void {
         ))
         ->and($payload['resources'])
         ->toBe(array_map(
-            (fn($resource) => [
+            (fn ($resource) => [
                 'type' => $resource->getType(),
                 'events' => NotificationHostEventConverter::toBitFlags($resource->getEvents()),
                 'ids' => array_map(
-                    (fn($resourceDetail) => [
+                    (fn ($resourceDetail) => [
                         'id' => $resourceDetail->getId(),
                         'name' => $resourceDetail->getName(),
                     ]),
-                    $resource->getResources()),
+                    $resource->getResources()
+                ),
                 'extra' => [
                     'event_services' => NotificationServiceEventConverter::toBitFlags($resource->getServiceEvents()),
                 ],

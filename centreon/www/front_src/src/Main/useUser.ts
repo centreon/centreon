@@ -1,9 +1,9 @@
+import { getData, useRequest } from '@centreon/ui';
+import type { User } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
+
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
-import type { User } from '@centreon/ui-context';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';
@@ -14,7 +14,9 @@ const useUser = (): (() => null | Promise<void>) => {
   const { sendRequest: getUser } = useRequest<User>({
     decoder: userDecoder,
     httpCodesBypassErrorSnackbar: [403, 401],
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<User>
   });
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(
@@ -51,6 +53,12 @@ const useUser = (): (() => null | Promise<void>) => {
           canManageApiTokens
         } = retrievedUser as User;
 
+        if (themeMode === ThemeMode.dark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+
         setUser({
           alias,
           canManageApiTokens,
@@ -59,7 +67,7 @@ const useUser = (): (() => null | Promise<void>) => {
           id,
           isAdmin,
           isExportButtonEnabled,
-          locale: locale || 'en',
+          locale,
           name,
           themeMode,
           timezone,

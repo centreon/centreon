@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Domain\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\YesNoDefault;
@@ -167,7 +168,7 @@ class NewHost
             'monitoringServerId' => $monitoringServerId,
         ];
         foreach ($foreignKeys as $foreignKeyName => $foreignKeyValue) {
-            if (null !== $foreignKeyValue) {
+            if ($foreignKeyValue !== null) {
                 Assertion::positiveInt($foreignKeyValue, "{$shortName}::{$foreignKeyName}");
             }
         }
@@ -185,7 +186,7 @@ class NewHost
         Assertion::min($highFlapThreshold ?? 0, 0, "{$shortName}::highFlapThreshold");
 
         // Other assert
-        Assertion::ipOrDomain($address, "{$shortName}::address");
+        CentreonAssert::ipOrHostname($address, "{$shortName}::address");
     }
 
     /**

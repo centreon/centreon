@@ -1,39 +1,30 @@
 <?php
+
 /*
- * Copyright 2005-2017 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once "Centreon/Object/ObjectRt.php";
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
+require_once 'Centreon/Object/ObjectRt.php';
 
 /**
  * Class
@@ -43,13 +34,16 @@ require_once "Centreon/Object/ObjectRt.php";
 class Centreon_Object_RtDowntime extends Centreon_ObjectRt
 {
     /** @var string */
-    protected $table = "downtimes";
+    protected $table = 'downtimes';
+
     /** @var string */
-    protected $name = "downtime_name";
+    protected $name = 'downtime_name';
+
     /** @var string */
-    protected $primaryKey = "downtime_id";
+    protected $primaryKey = 'downtime_id';
+
     /** @var string */
-    protected $uniqueLabelField = "comment_data";
+    protected $uniqueLabelField = 'comment_data';
 
     /**
      * @param array $hostList
@@ -58,22 +52,32 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     public function getHostDowntimes($hostList = [])
     {
         $hostFilter = '';
+        $parameters = [];
 
-        if (!empty($hostList)) {
-            $hostFilter = "AND h.name IN ('" . implode("','", $hostList) . "') ";
+        if (! empty($hostList)) {
+            $placeholders = [];
+            foreach (array_values($hostList) as $index => $hostName) {
+                $placeholder = ':host_' . $index;
+                $placeholders[] = $placeholder;
+                $parameters[] = QueryParameter::string(ltrim($placeholder, ':'), (string) $hostName);
+            }
+            $hostFilter = 'AND h.name IN (' . implode(',', $placeholders) . ') ';
         }
 
-        $query = "SELECT downtime_id, name, author, actual_start_time , actual_end_time, " .
-            "start_time, end_time, comment_data, duration, fixed " .
-            "FROM downtimes d, hosts h " .
-            "WHERE d.host_id = h.host_id " .
-            "AND d.cancelled = 0 " .
-            "AND type = 2 " .
-            "AND end_time > UNIX_TIMESTAMP(NOW()) " .
-            $hostFilter .
-            "ORDER BY actual_start_time, name";
+        $query = 'SELECT downtime_id, name, author, actual_start_time , actual_end_time, '
+            . 'start_time, end_time, comment_data, duration, fixed '
+            . 'FROM downtimes d, hosts h '
+            . 'WHERE d.host_id = h.host_id '
+            . 'AND d.cancelled = 0 '
+            . 'AND type = 2 '
+            . 'AND end_time > UNIX_TIMESTAMP(NOW()) '
+            . $hostFilter
+            . 'ORDER BY actual_start_time, name';
 
-        return $this->getResult($query);
+        return $this->dbMon->fetchAllAssociative(
+            $query,
+            $parameters === [] ? null : QueryParameters::create($parameters)
+        );
     }
 
     /**
@@ -83,42 +87,58 @@ class Centreon_Object_RtDowntime extends Centreon_ObjectRt
     public function getSvcDowntimes($svcList = [])
     {
         $serviceFilter = '';
+        $parameters = [];
 
-        if (!empty($svcList)) {
+        if (! empty($svcList)) {
             $serviceFilter = 'AND (';
             $filterTab = [];
             $counter = count($svcList);
             for ($i = 0; $i < $counter; $i += 2) {
-                $hostname = $svcList[$i];
-                $serviceDescription = $svcList[$i + 1];
-                $filterTab[] = '(h.name = "' . $hostname . '" AND s.description = "' . $serviceDescription . '")';
+                $hostnamePlaceholder = ':host_' . $i;
+                $servicePlaceholder = ':svc_' . $i;
+                $filterTab[] = '(h.name = ' . $hostnamePlaceholder
+                    . ' AND s.description = ' . $servicePlaceholder . ')';
+                $parameters[] = QueryParameter::string(ltrim($hostnamePlaceholder, ':'), (string) $svcList[$i]);
+                $parameters[] = QueryParameter::string(ltrim($servicePlaceholder, ':'), (string) $svcList[$i + 1]);
             }
             $serviceFilter .= implode(' AND ', $filterTab) . ') ';
         }
 
-        $query = "SELECT d.downtime_id, h.name, s.description, author, actual_start_time, actual_end_time, " .
-            "start_time, end_time, comment_data, duration, fixed " .
-            "FROM downtimes d, hosts h, services s " .
-            "WHERE d.service_id = s.service_id " .
-            "AND d.host_id = s.host_id " .
-            "AND s.host_id = h.host_id " .
-            "AND d.cancelled = 0 " .
-            "AND d.type = 1 " .
-            "AND end_time > UNIX_TIMESTAMP(NOW()) " .
-            $serviceFilter .
-            "ORDER BY actual_start_time, h.name, s.description";
+        $query = 'SELECT d.downtime_id, h.name, s.description, author, actual_start_time, actual_end_time, '
+            . 'start_time, end_time, comment_data, duration, fixed '
+            . 'FROM downtimes d, hosts h, services s '
+            . 'WHERE d.service_id = s.service_id '
+            . 'AND d.host_id = s.host_id '
+            . 'AND s.host_id = h.host_id '
+            . 'AND d.cancelled = 0 '
+            . 'AND d.type = 1 '
+            . 'AND end_time > UNIX_TIMESTAMP(NOW()) '
+            . $serviceFilter
+            . 'ORDER BY actual_start_time, h.name, s.description';
 
-        return $this->getResult($query);
+        return $this->dbMon->fetchAllAssociative(
+            $query,
+            $parameters === [] ? null : QueryParameters::create($parameters)
+        );
     }
 
     /**
-     * @param $id
-     * @return array
+     * @param int|string $id
+     * @return array|false
      */
     public function getCurrentDowntime($id)
     {
-        $query = "SELECT * FROM downtimes WHERE ISNULL(actual_end_time) " .
-            " AND end_time > " . time() . " AND downtime_id = " . $id;
-        return $this->getResult($query, [], 'fetch');
+        return $this->dbMon->fetchAssociative(
+            <<<'SQL'
+                SELECT * FROM downtimes
+                WHERE ISNULL(actual_end_time)
+                AND end_time > :now
+                AND downtime_id = :downtime_id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('now', time()),
+                QueryParameter::int('downtime_id', (int) $id),
+            ])
+        );
     }
 }

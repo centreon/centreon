@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
@@ -45,7 +46,7 @@ final class AgentConfigurationVoter extends Voter
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -70,7 +71,7 @@ final class AgentConfigurationVoter extends Voter
      *
      * @param numeric-string|null $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
@@ -81,7 +82,7 @@ final class AgentConfigurationVoter extends Voter
         return match ($attribute) {
             self::READ_AC => $this->checkTopologyRole($user),
             self::READ_AC_POLLERS => $this->checkAgentConfigurationPollers($user, (int) $subject),
-            default => throw new \LogicException('Action on agent configuration not handled')
+            default => throw new \LogicException('Action on agent configuration not handled'),
         };
     }
 
@@ -123,14 +124,14 @@ final class AgentConfigurationVoter extends Voter
         $pollers = $this->readRepository->findPollersByAcId($agentConfigurationId);
 
         $pollerIds = array_map(
-            static fn(Poller $poller): int => $poller->id,
+            static fn (Poller $poller): int => $poller->id,
             $pollers
         );
         $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
             $pollerIds,
             $this->readAccessGroupRepository->findByContact($user)
         );
-        if ([] === array_diff($pollerIds, $validPollerIds)) {
+        if (array_diff($pollerIds, $validPollerIds) === []) {
             return true;
         }
 

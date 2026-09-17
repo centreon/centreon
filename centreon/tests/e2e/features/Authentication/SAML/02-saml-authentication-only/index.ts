@@ -1,35 +1,37 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage
-} from '../common';
 import { configureProviderAcls } from '../../../../commons';
+import {
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
+  saveSamlFormIfEnabled
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('getSAMLProvider');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/authentication/providers/configurations'
+    url: INTERCEPTORS.api.authentication_configuration
   }).as('getCentreonAuthConfigs');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('updateSAMLProvider');
 });
 
@@ -38,7 +40,7 @@ Given('an administrator is logged on the platform', () => {
 });
 
 When('the administrator sets authentication mode to SAML only', () => {
-  navigateToSAMLConfigPage();
+  navigateToSamlConfigPage();
 
   cy.getByLabel({
     label: 'SAML only',
@@ -50,11 +52,9 @@ When('the administrator sets authentication mode to SAML only', () => {
     tag: 'input'
   }).check();
 
-  configureSAML();
+  configureSaml();
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
-
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+  saveSamlFormIfEnabled();
 
   cy.logout();
 });
@@ -72,9 +72,8 @@ Then(
     }).as('getUserInformation');
 
     cy.loginKeycloak('admin');
-    cy.get('#input-error')
-      .should('be.visible')
-      .and('include.text', 'Invalid username or password.');
+
+    cy.contains('Invalid username or password.');
 
     cy.loginKeycloak(username);
 

@@ -1,12 +1,10 @@
-import { useEffect } from 'react';
-
-import { equals } from 'ramda';
-
 import { Paper } from '@mui/material';
 
-import { Tooltip } from '../../models';
+import { equals } from 'ramda';
+import { useCallback, useEffect } from 'react';
 
-import { GraphTooltip as GraphTooltipModel, width } from './models';
+import type { Tooltip } from '../../models';
+import { type GraphTooltip as GraphTooltipModel, width } from './models';
 
 interface Props extends GraphTooltipModel, Tooltip {
   [x: string]: unknown;
@@ -20,11 +18,14 @@ const GraphTooltip = ({
   renderComponent,
   tooltipOpen
 }: Props): JSX.Element | null => {
-  const hideTooltipOnEscapePress = (event: globalThis.KeyboardEvent): void => {
-    if (equals(event.key, 'Escape')) {
-      hideTooltip();
-    }
-  };
+  const hideTooltipOnEscapePress = useCallback(
+    (event: globalThis.KeyboardEvent): void => {
+      if (equals(event.key, 'Escape')) {
+        hideTooltip();
+      }
+    },
+    [hideTooltip]
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', hideTooltipOnEscapePress, false);
@@ -32,7 +33,7 @@ const GraphTooltip = ({
     return (): void => {
       document.removeEventListener('keydown', hideTooltipOnEscapePress, false);
     };
-  }, []);
+  }, [hideTooltipOnEscapePress]);
 
   if (!tooltipOpen) {
     return null;

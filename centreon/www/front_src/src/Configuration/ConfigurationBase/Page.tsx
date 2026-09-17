@@ -1,48 +1,155 @@
-import { usePluralizedTranslation } from '@centreon/ui';
-import { Box, capitalize } from '@mui/material';
-import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import { LoadingSkeleton } from '@centreon/ui';
+import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { PageHeader, PageLayout } from '@centreon/ui/components';
-import { Listing } from './Listing';
-import { Modal } from './Modal';
+import { PrimitiveAtom, useAtom, useSetAtom } from 'jotai';
+import { isNil, isNotEmpty, or } from 'ramda';
+import { JSX, useLayoutEffect } from 'react';
+import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
-import { useStyles } from './Page.styles';
+import { modalStateAtom } from './atoms';
+import { DeleteDialog, DuplicateDialog } from './Dialogs';
+import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
+import { Listing } from './Listing';
+import useLoadData from './Listing/useLoadData';
+import { Modal } from './Modal';
+import Navbar from './NavBar';
 
-const Page = ({
+interface WelcomePageProps {
+  labels: ConfigurationBase<unknown>['labels']['welcomePage'];
+  dataTestId: string;
+  onCreate: () => void;
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  filtersAtom: PrimitiveAtom<any>;
+  filtersAtomKey: string;
+  isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
+  hasWriteAccess: boolean;
+}
+
+const WelcomePage = ({
+  labels,
+  dataTestId,
+  onCreate,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
+}: WelcomePageProps) => {
+  const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
+
+  const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
+  const { isClear } = useCoutChangedFilters({ filtersAtom });
+
+  useLayoutEffect(() => {
+    if (!isLoading && (!isClear || (isClear && isNotEmpty(data?.result)))) {
+      setIsWelcomePageDisplayed(false);
+    }
+  }, [isLoading]);
+
+  if (isLoading && isNil(data)) {
+    return <LoadingSkeleton />;
+  }
+
+  return (
+    <DataTable.EmptyState
+      aria-label="create"
+      canCreate={hasWriteAccess}
+      data-testid={dataTestId}
+      labels={labels}
+      onCreate={onCreate}
+    />
+  );
+};
+
+const Page = <TFilters,>({
   columns,
   resourceType,
   form,
-  hasWriteAccess
+  actions,
+  labels,
+  selectedColumnIdsAtom,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom,
+  navbar
 }: Pick<
-  ConfigurationBase,
-  'columns' | 'form' | 'resourceType' | 'hasWriteAccess'
+  ConfigurationBase<TFilters>,
+  | 'columns'
+  | 'form'
+  | 'resourceType'
+  | 'actions'
+  | 'labels'
+  | 'selectedColumnIdsAtom'
+  | 'filtersAtom'
+  | 'filtersAtomKey'
+  | 'isWelcomePageDisplayedAtom'
+  | 'navbar'
 >): JSX.Element => {
-  const { classes } = useStyles();
-  const { pluralizedT } = usePluralizedTranslation();
+  const [, setSearchParams] = useSearchParams();
 
-  const labelTitle = pluralizedT({
-    label: capitalize(resourceType),
-    count: 10
-  });
+  const setModalState = useSetAtom(modalStateAtom);
+  const [isWelcomePageDisplayed, setIsWelcomePageDisplayed] = useAtom(
+    isWelcomePageDisplayedAtom
+  );
+
+  const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
+
+  const openCreatetModal = (): void => {
+    setSearchParams({ mode: 'add' });
+
+    setModalState({ id: null, isOpen: true, mode: 'add' });
+
+    setIsWelcomePageDisplayed(false);
+  };
 
   return (
     <PageLayout>
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
-            <PageHeader.Title title={labelTitle} />
+            <PageHeader.Title title={labels.title} />
           </PageHeader.Main>
+          {!!navbar && (
+            <PageHeader.Actions>
+              <Navbar navbar={navbar} />
+            </PageHeader.Actions>
+          )}
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <Box className={classes.pageBody}>
-          <Listing columns={columns} hasWriteAccess={hasWriteAccess} />
-        </Box>
+        <DataTable
+          isEmpty={isWelcomePageDisplayed}
+          variant={isWelcomePageDisplayed ? 'grid' : 'listing'}
+        >
+          {isWelcomePageDisplayed ? (
+            <WelcomePage
+              dataTestId={`create-${resourceType}`}
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+              hasWriteAccess={!!actions?.edit}
+              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              labels={labels.welcomePage}
+              onCreate={openCreatetModal}
+            />
+          ) : (
+            <Listing<TFilters>
+              actions={actions}
+              columns={columns}
+              data={data}
+              filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+              hasWriteAccess={!!actions?.edit}
+              isLoading={isLoading}
+              selectedColumnIdsAtom={selectedColumnIdsAtom}
+            />
+          )}
+        </DataTable>
       </PageLayout.Body>
-      <Modal form={form} hasWriteAccess={hasWriteAccess} />
-      <DeleteDialog />
-      <DuplicateDialog />
+      {or(!!actions?.edit, !!actions?.viewDetails) && (
+        <Modal form={form} hasWriteAccess={!!actions?.edit} />
+      )}
+      {actions?.delete && <DeleteDialog />}
+      {actions?.duplicate && <DuplicateDialog />}
     </PageLayout>
   );
 };

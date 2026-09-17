@@ -1,70 +1,137 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { Box } from '@mui/material';
+
 import { Button } from '@centreon/ui/components';
-import { useTranslation } from 'react-i18next';
-import { labelClear, labelSearch } from '../../translatedLabels';
-import { useFilterStyles } from '../Filters.styles';
 
-import useFilters from './useFilters';
-
+import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
-import Status from './Fields/Status';
-import Text from './Fields/Text';
+import { labelClear, labelSearch } from '../../translatedLabels';
+import { useFilterStyles } from '../Filters.styles';
+import {
+  Checkbox,
+  Checkboxes,
+  MultiAutocomplete,
+  MultiConnectedAutocomplete,
+  Status,
+  Text
+} from './Fields';
+import useFilters from './useFilters';
 
-const Filters = (): JSX.Element => {
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+  filtersAtomKey: string;
+}
+
+const Filters = <TFilters,>({
+  filtersAtom,
+  filtersAtomKey
+}: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useFilterStyles();
 
-  const { isLoading } = useLoadData();
+  const [filters, setFilters] = useAtom(filtersAtom);
 
-  const {
-    reset,
-    isClearDisabled,
-    change,
-    changeCheckbox,
-    reload,
-    filtersConfiguration,
-    filters
-  } = useFilters();
+  const { isLoading } = useLoadData({ filtersAtom, filtersAtomKey });
+
+  const { reset, isClearDisabled, reload, filtersConfiguration } = useFilters({
+    filters,
+    setFilters
+  });
 
   return (
     <div className={classes.additionalFilters} data-testid="advanced-filters">
       {filtersConfiguration?.map((filter) => {
-        if (equals(filter.fieldType, FieldType.Status))
+        if (equals(filter.fieldType, FieldType.Text))
           return (
-            <Status
-              change={changeCheckbox}
+            <Text<TFilters>
               filters={filters}
               key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
+              setFilters={setFilters}
             />
           );
 
-        return (
-          <Text
-            label={filter.name}
-            name={filter.fieldName}
-            change={change}
-            filters={filters}
-            key={filter.name}
-          />
-        );
+        if (equals(filter.fieldType, FieldType.Status))
+          return (
+            <Status<TFilters>
+              filters={filters}
+              key={filter.name}
+              setFilters={setFilters}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.Checkbox))
+          return (
+            <Checkbox<TFilters>
+              filters={filters}
+              key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
+              setFilters={setFilters}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.Checkboxes))
+          return (
+            <Checkboxes<TFilters>
+              filters={filters}
+              key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
+              options={filter.options}
+              setFilters={setFilters}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.MultiAutocomplete))
+          return (
+            <MultiAutocomplete<TFilters>
+              filters={filters}
+              key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
+              options={filter.options}
+              setFilters={setFilters}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
+          return (
+            <MultiConnectedAutocomplete<TFilters>
+              filters={filters}
+              getEndpoint={filter.getEndpoint}
+              key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
+              setFilters={setFilters}
+            />
+          );
+
+        return <Box key={filter.name} />;
       })}
 
       <div className={classes.additionalFiltersButtons}>
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}
+          onClick={reset}
           size="small"
           variant="ghost"
-          onClick={reset}
         >
           {t(labelClear)}
         </Button>
         <Button
           data-testid={labelSearch}
           disabled={isLoading}
-          size="small"
           onClick={reload}
+          size="small"
         >
           {t(labelSearch)}
         </Button>

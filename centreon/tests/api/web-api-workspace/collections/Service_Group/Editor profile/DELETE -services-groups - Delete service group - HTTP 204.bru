@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /services/groups - Delete service group - HTTP 204
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/groups/{{ServiceGroup4Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The service group '{{ServiceGroup4Name}}' has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

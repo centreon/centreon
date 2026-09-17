@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ class Remover extends Module
         $removed = false;
 
         $phpFile = $this->getModulePath($this->moduleName)
-	    . '/php/uninstall' . ($isPreUninstall ? '.pre' : '') . '.php';
+        . '/php/uninstall' . ($isPreUninstall ? '.pre' : '') . '.php';
         if ($this->services->get('filesystem')->exists($phpFile)) {
             $this->utils->executePhpFile($phpFile);
             $removed = true;

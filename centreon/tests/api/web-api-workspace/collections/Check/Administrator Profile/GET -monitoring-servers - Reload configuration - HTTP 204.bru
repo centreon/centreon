@@ -1,0 +1,26 @@
+meta {
+  name: GET /monitoring-servers - Reload configuration - HTTP 204
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/monitoring-servers/reload
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The configuration has been successfully reloaded.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

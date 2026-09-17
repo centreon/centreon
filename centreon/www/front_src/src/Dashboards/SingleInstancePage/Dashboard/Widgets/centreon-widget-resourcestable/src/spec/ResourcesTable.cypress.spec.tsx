@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   aclAtom,
@@ -9,25 +6,27 @@ import {
   platformVersionsAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
+
 import { SortOrder } from '../../../models';
 import { getPublicWidgetEndpoint } from '../../../utils';
-import { DisplayType } from '../Listing/models';
-import ResourcesTable from '../ResourcesTable';
 import {
   closeTicketEndpoint,
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import type { Data, PanelOptions } from '../models';
-
+import Widget from '../index';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
   downtimeEndpoint
 } from '../Listing/Actions/api/endpoint';
+import { DisplayType } from '../Listing/models';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
+  labelAction,
   labelCheck,
   labelCheckCommandSent,
   labelCloseATicket,
@@ -38,6 +37,7 @@ import {
   labelEndDateGreaterThanStartDate,
   labelForcedCheck,
   labelForcedCheckCommandSent,
+  labelNotes,
   labelOpenTicketForHost,
   labelOpenTicketForService,
   labelSetDowntime,
@@ -51,6 +51,7 @@ import {
   metaServiceResources,
   resources,
   options as resourcesOptions,
+  resourcesRegex,
   selectedColumnIds
 } from './testUtils';
 
@@ -110,6 +111,7 @@ const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
   store.set(aclAtom, mockAcl());
+  store.set(platformVersionsAtom, platformVersions);
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -124,17 +126,19 @@ const render = ({ options, data, isPublic = false }: Props): void => {
           <SnackbarProvider>
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
-                <ResourcesTable
+                <Widget
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
                     type: 'manual'
                   }}
+                  hasDescription={false}
                   id="1"
                   panelData={data}
                   panelOptions={options}
                   playlistHash="hash"
                   refreshCount={0}
+                  widgetPrefixQuery="widget"
                 />
               </div>
             </Provider>
@@ -258,6 +262,16 @@ describe('View by all', () => {
     cy.makeSnapshot();
   });
 
+  it('handles regex resources when the appropriate data is provided', () => {
+    render({ data: { resources: resourcesRegex }, options: resourcesOptions });
+
+    cy.waitForRequest('@getResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
+
   it('executes a listing request with limit from widget properties', () => {
     render({
       data: { resources },
@@ -293,7 +307,6 @@ describe('View by all', () => {
 
     cy.contains('Load')
       .parent()
-      .parent()
       .should('have.css', 'background-color', 'rgb(223, 210, 185)');
 
     cy.makeSnapshot();
@@ -306,7 +319,6 @@ describe('View by all', () => {
     });
 
     cy.contains('Disk-/')
-      .parent()
       .parent()
       .should('have.css', 'background-color', 'rgb(229, 216, 243)');
 
@@ -382,6 +394,9 @@ describe('View by all', () => {
 
     cy.waitForRequest('@getResources');
 
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+
     cy.findByLabelText('arrow').click();
     cy.contains(labelCheck).click();
     cy.findByLabelText('arrow').click();
@@ -409,6 +424,9 @@ describe('View by all', () => {
     });
 
     cy.waitForRequest('@getResources');
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
 
     cy.findByLabelText(labelAcknowledge).click();
     cy.contains(labelSticky).click();
@@ -689,6 +707,7 @@ describe('View by host', () => {
 
     cy.makeSnapshot();
   });
+
   it('executes a listing request with limit from widget properties', () => {
     cy.contains('Centreon-Server').should('be.visible');
 
@@ -719,6 +738,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withoutTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -738,6 +759,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -766,6 +789,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withoutTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -803,6 +828,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -829,8 +856,8 @@ describe('Open tickets', () => {
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
       expect(request.body).to.deep.equal({
         data: {
-          selection: '14;19',
-          rule_id: '1'
+          rule_id: '1',
+          selection: '14;19'
         }
       });
     });
@@ -846,6 +873,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -872,13 +901,127 @@ describe('Open tickets', () => {
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
       expect(request.body).to.deep.equal({
         data: {
-          selection: '6',
-          rule_id: '1'
+          rule_id: '1',
+          selection: '6'
         }
       });
     });
 
     cy.contains(labelTicketClosed).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Notes and Action URL columns', () => {
+  beforeEach(resourcesRequests);
+
+  const columnIdsWithUrls = [...selectedColumnIds, 'notes_url', 'action_url'];
+
+  it('does not display the Notes and Action URL columns by default', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: undefined }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByTestId('LinkIcon').should('not.exist');
+    cy.findAllByTestId('FlashOnIcon').should('not.exist');
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains(`${labelNotes} (N)`).should('be.visible');
+    cy.contains(`${labelAction} (A)`).should('be.visible');
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable link icon with the note as tooltip when a resource has a note and a note URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('Restart me')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/restart');
+
+    cy.findByTestId('Restart me').trigger('mouseover');
+
+    cy.contains('Restart me').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a non-clickable icon with the note as tooltip when a resource has a note but no note URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('Maintenance info').should('contain.text', 'N');
+
+    cy.findByTestId('Maintenance info').parents('a').should('not.exist');
+
+    cy.findByTestId('Maintenance info').trigger('mouseover');
+
+    cy.contains('Maintenance info').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable link icon with the note URL as tooltip when a resource has a note URL but no note', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('https://example.com/manual')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/manual');
+
+    cy.findByTestId('https://example.com/manual').trigger('mouseover');
+
+    cy.contains('https://example.com/manual').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable action icon when a resource has an action URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('https://example.com/action')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/action');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays no icon for resources without note, note URL and action URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByTestId('LinkIcon').should('have.length', 2);
+    cy.findAllByTestId('FlashOnIcon').should('have.length', 1);
+    cy.findByTestId('Maintenance info').should('be.visible');
 
     cy.makeSnapshot();
   });

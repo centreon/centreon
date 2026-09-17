@@ -407,35 +407,35 @@
                         <h4>{t}Host commands and shortcuts{/t}</h4>
                     </td>
                 </tr>
-                {if ($lcaTopo.60101 || $admin == 1) && !$isRemote}
+                {if (isset($lcaTopo.60101) || $admin == 1) && !$isRemote}
                 <tr class='list_two'>
                     <td class="ListColLeft ColPopup">
                         <a href='./main.php?p=60101&host_id={$host_id}&o=c'>{$lnk_host_config}</a>
                     </td>
                 </tr>
                 {/if}
-                {if $lcaTopo.20301 || $admin == 1}
+                {if isset($lcaTopo.20301) || $admin == 1}
                 <tr class='list_one'>
                     <td class="ListColLeft ColPopup">
                         <a href='./main.php?p=20301&h={$host_id}'>{$lnk_host_logs}</a>
                     </td>
                 </tr>
                 {/if}
-                {if $lcaTopo.20301 || $admin == 1}
+                {if isset($lcaTopo.20301) || $admin == 1}
                 <tr class='list_two'>
                     <td class="ListColLeft ColPopup">
                         <a href='./main.php?p=20201&o=svc&host_search={$host_data.host_name}&statusService=svc&statusFilter='>{$lnk_all_services}</a>
                     </td>
                 </tr>
                 {/if}
-                {if $lcaTopo.307 || $admin == 1}
+                {if isset($lcaTopo.307) || $admin == 1}
                 <tr class='list_one'>
                     <td class="ListColLeft ColPopup">
                         <a href='./main.php?p=307&host={$host_id}'>{$lnk_host_reports}</a>
                     </td>
                 </tr>
                 {/if}
-                {if $lcaTopo.20401 || $admin == 1}
+                {if isset($lcaTopo.20401) || $admin == 1}
                 <tr class='list_two'>
                     <td class="ListColLeft ColPopup">
                         <a href='./main.php?p=20401&mode=0&svc_id={$host_data.host_name}'>{$lnk_host_graphs}</a>

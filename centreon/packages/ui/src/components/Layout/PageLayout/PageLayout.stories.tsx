@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { Default as DefaultPageHeaderStory } from '../../Header/PageHeader/PageHeader.stories';
 import { AreaIndicator } from '../AreaIndicator';
-
 import { PageLayout } from './index';
+import '../../../ThemeProvider/tailwindcss.css';
 
 const meta: Meta<typeof PageLayout> = {
   argTypes: {

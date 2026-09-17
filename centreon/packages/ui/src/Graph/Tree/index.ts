@@ -1,4 +1,4 @@
-export { Tree } from './Tree';
+export type { ChildrenProps, Node, TreeProps } from './models';
 export { StandaloneTree } from './StandaloneTree';
+export { Tree } from './Tree';
 export * from './utils';
-export type { Node, TreeProps, ChildrenProps } from './models';

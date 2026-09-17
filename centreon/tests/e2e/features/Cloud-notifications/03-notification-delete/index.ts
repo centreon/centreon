@@ -1,5 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
+import {
+  checkHostsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
+import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import {
   createNotification,
   enableNotificationFeature,
@@ -7,12 +15,6 @@ import {
   setBrokerNotificationsOutput,
   waitUntilLogFileChange
 } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
-import {
-  checkHostsAreMonitored,
-  checkServicesAreMonitored
-} from '../../../commons';
-import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -24,12 +26,12 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.loginByTypeOfUser({ jsonName: 'admin' });
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/notifications?page=1&limit=10*'
+    url: `${INTERCEPTORS.api.notifications_configuration}?page=1&limit=10*`
   }).as('getNotifications');
 
   cy.addHostGroup({
@@ -70,11 +72,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the Notification Rules page', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 Given('a Notification Rule is already created', () => {

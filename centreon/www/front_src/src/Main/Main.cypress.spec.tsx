@@ -1,6 +1,12 @@
 import { Method } from '@centreon/ui';
 
 import { externalTranslationEndpoint } from '../App/endpoint';
+import {
+  platformFeaturesEndpoint,
+  platformInstallationStatusEndpoint,
+  platformVersionsEndpoint,
+  userEndpoint
+} from '../api/endpoint';
 import { providersConfigurationEndpoint } from '../Login/api/endpoint';
 import {
   labelAlias,
@@ -8,13 +14,6 @@ import {
   labelLogin,
   labelPassword
 } from '../Login/translatedLabels';
-import {
-  platformFeaturesEndpoint,
-  platformInstallationStatusEndpoint,
-  platformVersionsEndpoint,
-  userEndpoint
-} from '../api/endpoint';
-
 import Provider from './Provider';
 import {
   retrievedProvidersConfiguration,

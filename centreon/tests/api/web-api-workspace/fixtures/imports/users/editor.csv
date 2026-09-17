@@ -1,0 +1,4 @@
+CONTACT;ADD;user_editor;user_editor;user_editor@localhost;Centreon!123;0;1;en_US;local
+CONTACT;SETPARAM;user_editor;reach_api;1
+CONTACT;SETPARAM;user_editor;reach_api_rt;1
+ACLGROUP;ADDCONTACT;customer_editor_acl;user_editor

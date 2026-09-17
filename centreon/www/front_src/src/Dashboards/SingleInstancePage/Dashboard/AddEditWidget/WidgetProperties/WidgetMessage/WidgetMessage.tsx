@@ -1,10 +1,11 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { widgetPropertiesAtom } from '../../atoms';
-import { useWidgetMessageStyles } from '../widgetProperties.styles';
 
 import parse from 'html-react-parser';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
+import { widgetPropertiesAtom } from '../../atoms';
+import { useWidgetMessageStyles } from '../widgetProperties.styles';
 
 const WidgetMessage = (): JSX.Element => {
   const { t } = useTranslation();
@@ -25,13 +26,13 @@ const WidgetMessage = (): JSX.Element => {
           className={classes.icon}
           color="inherit"
           data-icon={message.label}
-          viewBox="0 0 20 20"
           data-testid="Message icon"
+          viewBox="0 0 20 20"
         >
           {parse(message.icon)}
         </SvgIcon>
       )}
-      <Typography variant="h6" className={classes.label}>
+      <Typography className={classes.label} variant="h6">
         {t(message.label)}
       </Typography>
     </Box>

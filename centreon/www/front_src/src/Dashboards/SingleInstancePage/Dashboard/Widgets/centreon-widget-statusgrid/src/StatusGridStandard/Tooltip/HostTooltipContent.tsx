@@ -1,7 +1,3 @@
-import dayjs from 'dayjs';
-import { dec, equals, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Box,
   CircularProgress,
@@ -12,14 +8,17 @@ import {
 
 import { SeverityCode, useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { useHostTooltipContentStyles } from '../StatusGrid.styles';
+import dayjs from 'dayjs';
+import { dec, equals, isEmpty } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { ResourceData } from '../models';
+import { useHostTooltipContentStyles } from '../StatusGrid.styles';
 import {
   labelAllServicesAreWorkingFine,
   labelServiceName
 } from '../translatedLabels';
 import { getColor } from '../utils';
-
 import States from './States';
 import { useHostTooltipContent } from './useHostTooltipContent';
 

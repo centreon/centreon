@@ -35,6 +35,11 @@
         "values": "user-ACLMENU;1;Configuration"
     },
     {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU;1;Administration"
+    },
+    {
         "action": "ADDMENU",
         "object": "ACLGROUP",
         "values": "user-ACLGROUP;user-ACLMENU"
@@ -57,7 +62,7 @@
     {
         "action": "GRANT",
         "object": "ACLACTION",
-        "values": "user-ACLACTION;generate_cfg|generate_trap"
+        "values": "user-ACLACTION;poller_listing|poller_stats|top_counter|generate_cfg|generate_trap"
     },
     {
         "action": "RELOAD",

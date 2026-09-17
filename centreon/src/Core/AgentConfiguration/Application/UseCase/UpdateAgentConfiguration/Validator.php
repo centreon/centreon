@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,11 @@ use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\Validation\TypeValidatorInterface;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
 use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Common\Domain\TrimmedString;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use ValueError;
 
 class Validator
 {
@@ -66,19 +64,15 @@ class Validator
      * @param UpdateAgentConfigurationRequest $request
      * @param AgentConfiguration $agentConfiguration
      *
-     * @throws AgentConfigurationException|ValueError|AssertionFailedException
+     * @throws AgentConfigurationException|AssertionFailedException
      */
     public function validateRequestOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
-    ): void
-    {
+        AgentConfiguration $agentConfiguration,
+    ): void {
         $this->validateNameOrFail($request, $agentConfiguration);
         $this->validatePollersOrFail($request, $agentConfiguration);
-        $this->validateTypeOrFail($request, $agentConfiguration);
-        if ($request->connectionMode === ConnectionModeEnum::SECURE) {
-            $this->validateParametersOrFail($request);
-        }
+        $this->validateParametersOrFail($request, $agentConfiguration);
     }
 
     /**
@@ -91,9 +85,8 @@ class Validator
      */
     public function validateNameOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
-        ): void
-    {
+        AgentConfiguration $agentConfiguration,
+    ): void {
         $trimmedName = new TrimmedString($request->name);
 
         if (
@@ -101,26 +94,6 @@ class Validator
             && $this->readAcRepository->existsByName($trimmedName)
         ) {
             throw AgentConfigurationException::nameAlreadyExists($trimmedName->value);
-        }
-    }
-
-    /**
-     * Check type validity.
-     *
-     * @param UpdateAgentConfigurationRequest $request
-     * @param AgentConfiguration $agentConfiguration
-     *
-     * @throws AgentConfigurationException|ValueError
-     */
-    public function validateTypeOrFail(
-        UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
-    ): void
-    {
-        $type = Type::from($request->type);
-
-        if ($type->name !== $agentConfiguration->getType()->name) {
-            throw AgentConfigurationException::typeChangeNotAllowed();
         }
     }
 
@@ -135,10 +108,9 @@ class Validator
      */
     public function validatePollersOrFail(
         UpdateAgentConfigurationRequest $request,
-        AgentConfiguration $agentConfiguration
-    ): void
-    {
-        if ([] === $request->pollerIds) {
+        AgentConfiguration $agentConfiguration,
+    ): void {
+        if ($request->pollerIds === []) {
             throw AgentConfigurationException::arrayCanNotBeEmpty('pollerIds');
         }
 
@@ -153,7 +125,7 @@ class Validator
                 $isPollerIdValid = $this->readMonitoringServerRepository->existsByAccessGroups($pollerId, $agentConfigurationcessGroups);
             }
 
-            if (false === $isPollerIdValid) {
+            if ($isPollerIdValid === false) {
                 $invalidPollers[] = $pollerId;
             }
         }
@@ -164,7 +136,7 @@ class Validator
 
         // Check pollers are not already associated to an AC.
         $actualPollers = $this->readAcRepository->findPollersByAcId($agentConfiguration->getId());
-        $actualPollerIds = array_map(fn(Poller $poller) => $poller->id, $actualPollers);
+        $actualPollerIds = array_map(fn (Poller $poller) => $poller->id, $actualPollers);
 
         $unavailablePollers = [];
         foreach (Type::cases() as $type) {
@@ -173,7 +145,7 @@ class Validator
                 $this->readAcRepository->findPollersByType($type)
             );
         }
-        $unavailablePollerIds = array_map(fn(Poller $poller) => $poller->id, $unavailablePollers);
+        $unavailablePollerIds = array_map(fn (Poller $poller) => $poller->id, $unavailablePollers);
         $unavailablePollerIds = array_diff($unavailablePollerIds, $actualPollerIds);
 
         if ([] !== $invalidPollers = array_intersect($unavailablePollerIds, $request->pollerIds)) {
@@ -183,13 +155,16 @@ class Validator
 
     /**
      * @param UpdateAgentConfigurationRequest $request
+     * @param AgentConfiguration $agentConfiguration
      *
      * @throws AgentConfigurationException|AssertionFailedException
      */
-    public function validateParametersOrFail(UpdateAgentConfigurationRequest $request): void
-    {
+    public function validateParametersOrFail(
+        UpdateAgentConfigurationRequest $request,
+        AgentConfiguration $agentConfiguration,
+    ): void {
         foreach ($this->parametersValidators as $validator) {
-            if ($validator->isValidFor(Type::from($request->type))) {
+            if ($validator->isValidFor($agentConfiguration->getType())) {
                 $validator->validateParametersOrFail($request);
             }
         }

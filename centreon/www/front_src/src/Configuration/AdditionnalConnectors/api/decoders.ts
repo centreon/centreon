@@ -1,0 +1,93 @@
+import { buildListingDecoder } from '@centreon/ui';
+
+import { JsonDecoder } from 'ts.data.json';
+
+import {
+  AdditionalConnectorListItem,
+  NamedEntity,
+  Parameter,
+  ParameterKeys
+} from '../models';
+import { maskedPassword } from '../utils';
+
+const namedEntityDecoder = {
+  id: JsonDecoder.number,
+  name: JsonDecoder.string
+};
+
+const additionalConnectorsDecoder =
+  JsonDecoder.object<AdditionalConnectorListItem>(
+    {
+      ...namedEntityDecoder,
+      createdAt: JsonDecoder.string,
+      createdBy: JsonDecoder.optional(
+        JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
+      ),
+      description: JsonDecoder.nullable(JsonDecoder.string),
+      type: JsonDecoder.string,
+      updatedAt: JsonDecoder.nullable(JsonDecoder.string),
+      updatedBy: JsonDecoder.optional(
+        JsonDecoder.nullable(
+          JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+        )
+      )
+    },
+    'Additional connector',
+    {
+      createdAt: 'created_at',
+      createdBy: 'created_by',
+      updatedAt: 'updated_at',
+      updatedBy: 'updated_by'
+    }
+  );
+
+export const additionalConnectorsListDecoder = buildListingDecoder({
+  entityDecoder: additionalConnectorsDecoder,
+  entityDecoderName: 'Additional connector',
+  listingDecoderName: 'Additional connectors List'
+});
+
+const vcenterDecoder = JsonDecoder.object<Parameter & { id: number | null }>(
+  {
+    id: JsonDecoder.nullable(JsonDecoder.number),
+    [ParameterKeys.name]: JsonDecoder.string,
+    [ParameterKeys.url]: JsonDecoder.string,
+    [ParameterKeys.username]: JsonDecoder.nullable(JsonDecoder.string),
+    [ParameterKeys.password]: JsonDecoder.nullable(JsonDecoder.string)
+  },
+  'vcenter',
+  {
+    [ParameterKeys.name]: 'name',
+    [ParameterKeys.url]: 'url',
+    [ParameterKeys.username]: 'username',
+    [ParameterKeys.password]: 'password'
+  }
+).map((param) => ({ ...param, [ParameterKeys.password]: maskedPassword }));
+
+const connectorsParametersDecoder = JsonDecoder.object<{
+  port: number;
+  vcenters: Array<Parameter>;
+}>(
+  {
+    port: JsonDecoder.number,
+    vcenters: JsonDecoder.array(vcenterDecoder, 'vcenters')
+  },
+  'connector parameters'
+);
+
+export const additionalConnectorDecoder = JsonDecoder.object(
+  {
+    ...namedEntityDecoder,
+    description: JsonDecoder.nullable(JsonDecoder.string),
+    parameters: connectorsParametersDecoder,
+    pollers: JsonDecoder.array(
+      JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By'),
+      'pollers'
+    ),
+    type: JsonDecoder.string
+  },
+  'Connector Configuration'
+).map((connector) => ({
+  ...connector,
+  type: 1
+}));

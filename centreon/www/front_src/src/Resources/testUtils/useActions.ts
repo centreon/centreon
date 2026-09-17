@@ -1,6 +1,5 @@
-import { Dispatch, SetStateAction } from 'react';
-
 import { useAtom } from 'jotai';
+import { Dispatch, SetStateAction } from 'react';
 
 import { selectedResourcesAtom } from '../Actions/actionsAtoms';
 import { Resource } from '../models';

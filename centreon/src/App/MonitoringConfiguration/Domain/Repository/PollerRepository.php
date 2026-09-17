@@ -1,0 +1,82 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Repository;
+
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
+use App\Shared\Domain\Collection;
+
+interface PollerRepository
+{
+    public function add(Poller $poller): void;
+
+    public function findOneByName(PollerName $name): ?Poller;
+
+    public function findOneByAddress(PollerAddress $address): ?Poller;
+
+    /**
+     * @return Collection<Poller>
+     */
+    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+
+    /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a poller by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<PollerId> $ids
+     *
+     * @return Collection<PollerName> indexed by poller id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * @return \IteratorAggregate<int, Poller>&\Countable
+     */
+    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * @throws PollerNotFoundException
+     */
+    public function get(PollerId $pollerId): Poller;
+
+    /**
+     * Raises `nagios_server.updated` on the poller referenced by the given poller-scoped
+     * resource, so its configuration is regenerated — anything that changes what a poller
+     * monitors (adding a host, for instance) must call this, or the monitoring engine keeps
+     * running on stale configuration.
+     *
+     * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
+     */
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
+
+    public function withCmaCertificates(): self;
+}

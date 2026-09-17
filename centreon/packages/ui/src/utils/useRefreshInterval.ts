@@ -1,7 +1,7 @@
+import { refreshIntervalAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { always, cond, equals } from 'ramda';
-
-import { refreshIntervalAtom } from '@centreon/ui-context';
 
 interface Props {
   globalRefreshInterval?: {

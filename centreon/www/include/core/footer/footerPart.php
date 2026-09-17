@@ -1,45 +1,29 @@
 <?php
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
-
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit;
 }
 
-require_once("./class/centreonData.class.php");
+require_once './class/centreonData.class.php';
 
-if (!$min) {
+if (! $min) {
     ?>
     <!-- Footer -->
     <?php
@@ -49,8 +33,8 @@ if (!$min) {
 <script type="text/javascript">
     // Centreon ToolTips
     var centreonTooltip = new CentreonToolTip();
-    centreonTooltip.setTitle('<?php echo _("Help"); ?>');
-    var svg = "<?php displaySvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18); ?>"
+    centreonTooltip.setTitle('<?php echo _('Help'); ?>');
+    var svg = "<?php displaySvg('www/img/icons/question.svg', 'var(--help-tool-tip-icon-fill-color)', 18, 18); ?>"
     centreonTooltip.setSource(svg);
     centreonTooltip.render();
 
@@ -132,30 +116,28 @@ if (!$min) {
 </script>
 <?php
 
-if ((isset($_GET["mini"]) && $_GET["mini"] == 1)
-|| (isset($_SESSION['fullScreen']) && isset($_SESSION['fullScreen']['value']) && $_SESSION['fullScreen']['value'])) {
+if ((isset($_GET['mini']) && $_GET['mini'] == 1)
+|| (isset($_SESSION['fullScreen'], $_SESSION['fullScreen']['value'])   && $_SESSION['fullScreen']['value'])) {
     ?>
     <script type="text/javascript">
         myToggleAll(0, false);
     </script>
-    <?php 
-} elseif (!$centreon->user->showDiv("footer")) {
+    <?php
+} elseif (! $centreon->user->showDiv('footer')) {
     ?>
         <script type="text/javascript">
             new Effect.toggle('footer', 'blind', {
                 duration: 0
             });
         </script>
-        <?php 
+        <?php
 }
 
-/*
- * Create Data Flow
- */
+// Create Data Flow
 $cdata = CentreonData::getInstance();
 $jsdata = $cdata->getJsData();
 foreach ($jsdata as $k => $val) {
-    echo "<span class=\"data hide\" id=\"" . $k . "\" data-" . $k . "=\"" . $val . "\"></span>";
+    echo '<span class="data hide" id="' . $k . '" data-' . $k . '="' . $val . '"></span>';
 }
 
 ?>
@@ -177,7 +159,7 @@ foreach ($jsdata as $k => $val) {
     function initWholePage() {
         setQuickSearchPosition();
         jQuery().centreon_notify({
-            refresh_rate: <?php echo ($centreon->optGen['AjaxTimeReloadMonitoring'] * 1000); ?>
+            refresh_rate: <?php echo $centreon->optGen['AjaxTimeReloadMonitoring'] * 1000; ?>
         });
     }
 
@@ -202,8 +184,8 @@ foreach ($jsdata as $k => $val) {
 
     <?php
     $featureToAsk = $centreonFeature->toAsk($centreon->user->get_id());
-    if (count($featureToAsk) === 1) {
-        ?>
+if (count($featureToAsk) === 1) {
+    ?>
         var testingFeature = jQuery('<div/>')
             .html(
                 '<h3>Feature testing</h3>' +
@@ -262,8 +244,8 @@ foreach ($jsdata as $k => $val) {
             open: true
         })
         <?php
-    }
-    ?>
+}
+?>
 
     // send an event to parent for change in iframe URL
     function parentHrefUpdate(href) {
@@ -348,9 +330,7 @@ foreach ($jsdata as $k => $val) {
 </html>
 <?php
 
-/*
- * Close all DB handler
- */
+// Close all DB handler
 if (isset($pearDB) && is_object($pearDB)) {
     $pearDB = null;
 }

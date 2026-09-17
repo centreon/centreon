@@ -1,0 +1,15 @@
+# Create a Cucumber Test from a scenario's gherkin and return its Jira key.
+# Docs: https://us.xray.cloud.getxray.app/doc/graphql/createtest.doc.html
+mutation CreateCucumberTest($projectKey: String!, $summary: String!, $gherkin: String!) {
+  createTest(
+    testType: { name: "Cucumber" }
+    gherkin: $gherkin
+    jira: { fields: { project: { key: $projectKey }, summary: $summary } }
+  ) {
+    test {
+      issueId
+      jira(fields: ["key"])
+    }
+    warnings
+  }
+}

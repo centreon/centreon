@@ -1,0 +1,33 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+    - phpstan.core.test.baseline.neon
+
+parameters:
+
+    level: 2
+
+    bootstrapFiles:
+        - config/centreon.config.php.template
+
+    scanFiles:
+        - config/centreon.config.php.template
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
+        - tests/php/bootstrap.php
+        - tests/php/polyfill.php
+
+    paths:
+        - tests/php/Adaptation #// TODO adaptation tests need to be fixed and moved to new section
+        - tests/php/Core
+    ignoreErrors:
+        -
+            reportUnmatched: false
+            path: tests/php
+            messages:
+                - '#^Undefined variable: \$this$#'
+                - '#^Call to an undefined method Pest#'
+                - '#^Access to an undefined property PHPUnit#'
+                - '#^Call to protected method .+\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+                - '#^Access to private property PHPUnit\\Framework\\TestCase::\$\w+\.$#'
+                - '#^Call to an undefined method PHPUnit\\Framework\\TestCase::\w+\(\)\.$#'
+                - '#^Method PHPUnit\\Framework\\TestCase::\w+\(\) invoked with \d+ parameters?, \d+ required\.$#'

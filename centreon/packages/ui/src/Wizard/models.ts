@@ -1,6 +1,6 @@
-import { FormikErrors, FormikHelpers, FormikValues } from 'formik';
+import type { DialogProps } from '@mui/material';
 
-import { DialogProps } from '@mui/material';
+import type { FormikErrors, FormikHelpers, FormikValues } from 'formik';
 
 export interface StepComponentProps {
   disableNextOnSendingRequests: (sendingRequests: Array<boolean>) => void;
@@ -12,7 +12,7 @@ export interface Step {
   skipFormChangeCheck?: boolean;
   stepName: string;
   validate?: (values: FormikValues) => FormikErrors<FormikValues>;
-  validationSchema?;
+  validationSchema?: unknown;
 }
 
 interface ActionsBarLabels {

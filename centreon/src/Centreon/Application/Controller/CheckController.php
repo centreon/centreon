@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class CheckController extends AbstractController
      */
     public function __construct(
         private CheckServiceInterface $checkService,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -75,7 +75,7 @@ class CheckController extends AbstractController
     public function checkHosts(
         Request $request,
         EntityValidator $entityValidator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -139,7 +139,7 @@ class CheckController extends AbstractController
     public function checkServices(
         Request $request,
         EntityValidator $entityValidator,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -205,7 +205,7 @@ class CheckController extends AbstractController
         Request $request,
         EntityValidator $entityValidator,
         SerializerInterface $serializer,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -267,7 +267,7 @@ class CheckController extends AbstractController
         EntityValidator $entityValidator,
         SerializerInterface $serializer,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -331,7 +331,7 @@ class CheckController extends AbstractController
         Request $request,
         EntityValidator $entityValidator,
         SerializerInterface $serializer,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -394,14 +394,14 @@ class CheckController extends AbstractController
          */
         $user = $this->getUser();
 
-        if (false === $user->isAdmin()) {
+        if ($user->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($user);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }

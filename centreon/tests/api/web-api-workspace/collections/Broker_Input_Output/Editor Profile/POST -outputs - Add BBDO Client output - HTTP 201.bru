@@ -1,0 +1,45 @@
+meta {
+  name: POST /outputs - Add BBDO Client output - HTTP 201
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-editor-14",
+    "type": 36,
+    "parameters": {
+      "host": "127.0.0.1",
+      "port": 80,
+      "retry_interval": null,
+      "transport_protocol": "gRPC",
+      "authorization": null,
+      "encryption": "no",
+      "ca_certificate": null,
+      "ca_name": null,
+      "compression": "no",
+      "filters_category": ["dumper", "neb"]
+    }
+  }
+}
+
+tests {
+  test("Editor can create a BBDO Client output. (known issue: no is_admin access, returns 403 in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 403]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

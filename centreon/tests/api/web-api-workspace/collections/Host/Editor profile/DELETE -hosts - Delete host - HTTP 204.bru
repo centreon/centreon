@@ -1,0 +1,20 @@
+meta {
+  name: DELETE /hosts - Delete host - HTTP 204
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/hosts/{{Host2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

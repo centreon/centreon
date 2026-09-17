@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class ConfigurationParametersInterfaceNormalizer implements NormalizerInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): float|int|bool|array|string|null {
         /** @var array{groups: string[]} $context */
         if (in_array('AgentConfiguration:Read', $context['groups'], true)) {
@@ -58,10 +58,23 @@ class ConfigurationParametersInterfaceNormalizer implements NormalizerInterface
     }
 
     /**
-     * @inheritDoc
+     * @param mixed $data
+     * @param ?string $format
+     * @param array<string, mixed> $context
      */
-    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof ConfigurationParametersInterface;
+    }
+
+    /**
+     * @param ?string $format
+     * @return array<class-string|'*'|'object'|string, bool|null>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            ConfigurationParametersInterface::class => true,
+        ];
     }
 }

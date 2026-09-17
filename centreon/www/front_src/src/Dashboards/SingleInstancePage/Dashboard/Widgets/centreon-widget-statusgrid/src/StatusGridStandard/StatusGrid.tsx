@@ -1,9 +1,5 @@
-import { useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { useTheme } from '@mui/material';
 
 import {
@@ -13,6 +9,11 @@ import {
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
 import {
@@ -30,17 +31,16 @@ import {
   buildResourcesEndpoint,
   resourcesEndpoint
 } from '../api/endpoints';
-
 import HeatMapSkeleton from './LoadingSkeleton';
-import Tile from './Tile';
-import Tooltip from './Tooltip/Tooltip';
 import {
   IndicatorType,
   type ResourceData,
   type ResourceStatus,
   type StatusGridProps
 } from './models';
-import { getColor } from './utils';
+import Tile from './Tile';
+import Tooltip from './Tooltip/Tooltip';
+import { getColor, seeMoreTileId } from './utils';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -50,8 +50,9 @@ const StatusGrid = ({
   id: widgetId,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -59,6 +60,7 @@ const StatusGrid = ({
     refreshInterval,
     resourceType,
     sortBy,
+    states,
     statuses,
     tiles,
     refreshIntervalCustom
@@ -125,7 +127,7 @@ const StatusGrid = ({
                 limit: tiles,
                 resources,
                 sortBy,
-                states: [],
+                states,
                 statuses: statusesToUse,
                 type: resourceType
               }),
@@ -138,12 +140,14 @@ const StatusGrid = ({
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
+      JSON.stringify(states),
       sortBy,
       tiles,
       JSON.stringify(resources),
       refreshCount
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },
@@ -185,8 +189,8 @@ const StatusGrid = ({
               id,
               information,
               is_acknowledged,
-              is_in_flapping,
               is_in_downtime,
+              is_in_flapping,
               metricsEndpoint: links?.endpoints.metrics,
               name: name || resource_name,
               parentId: parent?.id || resource?.parent_id,
@@ -216,8 +220,10 @@ const StatusGrid = ({
   const seeMoreTile = hasMoreResources
     ? {
         backgroundColor: theme.palette.background.paper,
-        data: null,
-        id: 'see-more'
+        data: {
+          type: panelOptions.resourceType
+        },
+        id: seeMoreTileId
       }
     : undefined;
 
@@ -227,16 +233,17 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
-      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize, id }) => (
         <Tile
           data={resourceData}
           isBAResourceType={isBVResourceType || isBAResourceType}
+          isMediumSize={isMediumSize}
+          isSeeMoreTile={id === seeMoreTileId}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
-          type={resourceData?.type}
           tileSize={tileSize}
-          isMediumSize={isMediumSize}
+          type={resourceData?.type}
         />
       )}
     </HeatMap>

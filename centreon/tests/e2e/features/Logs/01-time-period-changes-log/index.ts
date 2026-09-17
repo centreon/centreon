@@ -1,5 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import periods from '../../../fixtures/time-periods/time-period.json';
 
@@ -7,15 +8,15 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/main.php?p=508&object_type=timeperiod&object_id=5&searchU=&searchO=&otype='
+    url: `${INTERCEPTORS.pages.time_period_object}&object_id=5&searchU=&searchO=&otype=`
   }).as('getTimePeriod');
 });
 
@@ -29,15 +30,19 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('a call to the endpoint "Add" a time period is done via APIv2', () => {
-  cy.addTimePeriodViaApi(periods.default);
+  cy.addTimePeriodViaApi({
+    ...periods.default,
+    days: periods.default.days.map((day) => ({
+      ...day,
+      timeRange: day.time_range
+    })),
+    exceptions: periods.default.exceptions,
+    templates: periods.default.templates
+  });
 });
 
 Then('a new time period is displayed on the time periods page', () => {
-  cy.navigateTo({
-    page: 'Time Periods',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.timePeriodsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', periods.default.name).should('be.visible');
 });
@@ -45,10 +50,7 @@ Then('a new time period is displayed on the time periods page', () => {
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -62,7 +64,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
 
@@ -111,23 +113,36 @@ Then(
 );
 
 Given('a time period is configured via APIv2', () => {
-  cy.addTimePeriodViaApi(periods.default);
+  cy.addTimePeriodViaApi({
+    ...periods.default,
+    days: periods.default.days.map((day) => ({
+      ...day,
+      timeRange: day.time_range
+    })),
+    exceptions: periods.default.exceptions,
+    templates: periods.default.templates
+  });
 });
 
 When(
   'a call to the endpoint "Update" a time period is done on the configured time period via APIv2',
   () => {
-    cy.updateTimePeriodViaApi(periods.default.name, periods.time_period1);
+    cy.updateTimePeriodViaApi(periods.default.name, {
+      ...periods.time_period1,
+      days: periods.time_period1.days.map((day) => ({
+        ...day,
+        timeRange: day.time_range
+      })),
+      exceptions: periods.time_period1.exceptions,
+      templates: periods.time_period1.templates
+    });
   }
 );
 
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -141,7 +156,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
 
@@ -186,10 +201,7 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -203,6 +215,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );

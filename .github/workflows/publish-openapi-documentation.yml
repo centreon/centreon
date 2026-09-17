@@ -1,0 +1,74 @@
+name: publish-openapi-documentation
+run-name: ${{ format('Build and publish OpenAPI documentation for module {0} and branch/tag {1}', inputs.module_name, inputs.openapi_file_reference) }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      module_name:
+        type: choice
+        description: Name of the module
+        required: true
+        options:
+          - "centreon-web"
+      openapi_file_reference:
+        type: string
+        description: Branch or tag on which the doc files are fetched
+        required: true
+        default: ""
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  check-inputs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Verify that the workflow is run in a develop context
+        uses: ./.github/actions/verify-run-in-develop-context
+
+      - name: Check that input ${{ inputs.openapi_file_reference }} exists on the repository
+        shell: bash
+        env:
+          OPENAPI_FILE_REFERENCE: ${{ inputs.openapi_file_reference }}
+        run: |
+          if gh api repos/centreon/centreon/branches/$OPENAPI_FILE_REFERENCE --silent 2>/dev/null; then
+            echo "Found branch: $OPENAPI_FILE_REFERENCE"
+          elif gh api repos/centreon/centreon/git/refs/tags/$OPENAPI_FILE_REFERENCE --silent 2>/dev/null; then
+            echo "Found tag: $OPENAPI_FILE_REFERENCE"
+          else
+            echo "::error:: Reference $OPENAPI_FILE_REFERENCE not found as branch or tag in centreon"
+            exit 1
+          fi
+
+  build-openapi-documentation:
+    needs: [check-inputs]
+    runs-on: ubuntu-24.04
+    outputs:
+      doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build OpenAPI documentation
+        uses: ./.github/actions/build-openapi-documentation
+        id: build-openapi-documentation
+        with:
+          module_name: ${{ inputs.module_name }}
+          openapi_file_reference: ${{ inputs.openapi_file_reference }}
+
+  publish-openapi-documentation:
+    needs: [check-inputs, build-openapi-documentation]
+    runs-on: documentation
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: ./.github/actions/publish-openapi-documentation
+        with:
+          doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
+          module_name: ${{ inputs.module_name }}
+          openapi_file_reference: ${{ inputs.openapi_file_reference }}
+          cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
+          cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}

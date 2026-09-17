@@ -1,57 +1,42 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
-include "./include/common/autoNumLimit.php";
+include_once './class/centreonUtils.class.php';
+include './include/common/autoNumLimit.php';
 
 // list of enum
-$tabStatus = [-1 => _("Pending"), 0 => _("OK"), 1 => _("Warning"), 2 => _("Critical"), 3 => _("Unknown")];
+$tabStatus = [-1 => _('Pending'), 0 => _('OK'), 1 => _('Warning'), 2 => _('Critical'), 3 => _('Unknown')];
 
 // list without id 0 for select2
-$tabStatusFilter = [1 => _("OK"), 2 => _("Warning"), 3 => _("Critical"), 4 => _("Unknown"), 5 => _("Pending")];
+$tabStatusFilter = [1 => _('OK'), 2 => _('Warning'), 3 => _('Critical'), 4 => _('Unknown'), 5 => _('Pending')];
 
-$searchTraps = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$searchTraps = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchT'] ?? $_GET['searchT'] ?? null
 );
 
 $searchStatus = null;
-if (!empty($_POST['status']) || !empty($_GET['status'])) {
+if (! empty($_POST['status']) || ! empty($_GET['status'])) {
     $searchStatus = filter_var(
         $_POST['status'] ?? $_GET['status'],
         FILTER_VALIDATE_INT
@@ -59,7 +44,7 @@ if (!empty($_POST['status']) || !empty($_GET['status'])) {
 }
 
 $searchVendor = null;
-if (!empty($_POST['vendor']) || !empty($_GET['vendor'])) {
+if (! empty($_POST['vendor']) || ! empty($_GET['vendor'])) {
     $searchVendor = filter_var(
         $_POST['vendor'] ?? $_GET['vendor'],
         FILTER_VALIDATE_INT
@@ -67,42 +52,42 @@ if (!empty($_POST['vendor']) || !empty($_GET['vendor'])) {
 }
 
 if ($searchStatus === false || $searchVendor === false) {
-    throw new \InvalidArgumentException('Bad Parameters');
+    throw new InvalidArgumentException('Bad Parameters');
 }
 
 if (isset($_POST['Search'])) {
-    //saving filters values
+    // saving filters values
     $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['searchTraps'] = $searchTraps;
     $centreon->historySearch[$url]['searchStatus'] = $searchStatus;
     $centreon->historySearch[$url]['searchVendor'] = $searchVendor;
 } else {
-    //restoring saved values
+    // restoring saved values
     $searchTraps = $centreon->historySearch[$url]['searchTraps'] ?? null;
     $searchStatus = $centreon->historySearch[$url]['searchStatus'] ?? null;
     $searchVendor = $centreon->historySearch[$url]['searchVendor'] ?? null;
 }
 
-//convert status filter to enum
+// convert status filter to enum
 $enumStatus = $searchStatus == 5 ? -1 : $searchStatus - 1;
 $queryValues = [];
 $rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM traps WHERE 1 ';
 // List of elements - Depends on different criteria
 if ($searchTraps) {
-    $rq .= ' AND (traps_oid LIKE :trapName OR traps_name LIKE :trapName ' .
-        'OR manufacturer_id IN (SELECT id FROM traps_vendor WHERE alias LIKE :trapName )) ';
+    $rq .= ' AND (traps_oid LIKE :trapName OR traps_name LIKE :trapName '
+        . 'OR manufacturer_id IN (SELECT id FROM traps_vendor WHERE alias LIKE :trapName )) ';
     $queryValues[':trapName'] = '%' . $searchTraps . '%';
 }
 if ($searchVendor) {
     $rq .= ' AND manufacturer_id = :manufacturer ';
-    $queryValues[':manufacturer'] = (int)$searchVendor;
+    $queryValues[':manufacturer'] = (int) $searchVendor;
 }
 if ($searchStatus) {
     $rq .= ' AND traps_status = :status ';
     $queryValues[':status'] = $enumStatus;
 }
 
-$rq .= ' ORDER BY manufacturer_id, traps_name LIMIT ' . (int) ($num * $limit) . ', ' . (int)$limit;
+$rq .= ' ORDER BY manufacturer_id, traps_name LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit;
 
 $stmt = $pearDB->prepare($rq);
 
@@ -118,8 +103,8 @@ if (isset($queryValues[':status'])) {
 
 $stmt->execute();
 
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
-include "./include/common/checkPagination.php";
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -129,29 +114,29 @@ $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_desc", _("OID"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_manufacturer", _("Vendor Name"));
-$tpl->assign("headerMenu_args", _("Output Message"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_desc', _('OID'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_manufacturer', _('Vendor Name'));
+$tpl->assign('headerMenu_args', _('Output Message'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-$form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
 
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 $attrTrapsStatus = null;
-if (!empty($searchStatus)) {
+if (! empty($searchStatus)) {
     $statusDefault = [$tabStatusFilter[$searchStatus] => $searchStatus];
     $attrTrapsStatus = ['defaultDataset' => $statusDefault];
 }
-$form->addElement('select2', 'status', "", $tabStatusFilter, $attrTrapsStatus);
+$form->addElement('select2', 'status', '', $tabStatusFilter, $attrTrapsStatus);
 
-$vendorResult = $pearDB->query("SELECT id, name FROM traps_vendor ORDER BY name, alias");
+$vendorResult = $pearDB->query('SELECT id, name FROM traps_vendor ORDER BY name, alias');
 $vendors = [];
 for ($i = 0; $vendor = $vendorResult->fetch(); $i++) {
     $vendors[$vendor['id']] = $vendor['name'];
@@ -162,36 +147,36 @@ if ($searchVendor) {
     $vendorDefault = [$vendors[$searchVendor] => $searchVendor];
     $attrTrapsVendor = ['defaultDataset' => $vendorDefault];
 }
-$form->addElement('select2', 'vendor', "", $vendors, $attrTrapsVendor);
+$form->addElement('select2', 'vendor', '', $vendors, $attrTrapsVendor);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 for ($i = 0; $trap = $stmt->fetch(); $i++) {
-    $trap = array_map(["CentreonUtils", "escapeAll"], $trap);
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $trap['traps_id'] . "]");
-    $moptions .= "&nbsp;&nbsp;&nbsp;";
-    $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
-        "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
-        $trap['traps_id'] . "]' />";
-    $statement = $pearDB->prepare("select alias from traps_vendor where id= :trap LIMIT 1");
-    $statement->bindValue(':trap', (int) $trap['manufacturer_id'], \PDO::PARAM_INT);
+    $trap = array_map(['CentreonUtils', 'escapeAll'], $trap);
+    $moptions = '';
+    $selectedElements = $form->addElement('checkbox', 'select[' . $trap['traps_id'] . ']');
+    $moptions .= '&nbsp;&nbsp;&nbsp;';
+    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
+        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
+        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
+        . $trap['traps_id'] . "]' />";
+    $statement = $pearDB->prepare('select alias from traps_vendor where id= :trap LIMIT 1');
+    $statement->bindValue(':trap', (int) $trap['manufacturer_id'], PDO::PARAM_INT);
     $statement->execute();
     $mnftr = $statement->fetch();
     $statement->closeCursor();
-    $elemArr[$i] = ["MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => $trap["traps_name"], "RowMenu_link" => "?p=$p&o=c&traps_id={$trap['traps_id']}", "RowMenu_desc" => substr($trap["traps_oid"], 0, 40), "RowMenu_status" => $tabStatus[($trap["traps_status"])] ?? $tabStatus[3], "RowMenu_args" => $trap["traps_args"], "RowMenu_manufacturer" => CentreonUtils::escapeSecure(
-        $mnftr["alias"],
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $trap['traps_name'], 'RowMenu_link' => "?p={$p}&o=c&traps_id={$trap['traps_id']}", 'RowMenu_desc' => substr($trap['traps_oid'], 0, 40), 'RowMenu_status' => $tabStatus[($trap['traps_status'])] ?? $tabStatus[3], 'RowMenu_args' => $trap['traps_args'], 'RowMenu_manufacturer' => CentreonUtils::escapeSecure(
+        $mnftr['alias'],
         CentreonUtils::ESCAPE_ALL
-    ), "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    ), 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 ?>
@@ -201,46 +186,46 @@ $tpl->assign(
         }
     </script>
 <?php
-$attrs1 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _("Do you confirm the duplication ?") . "')) {" .
-    "   setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _("Do you confirm the deletion ?") . "')) {" .
-    "   setO(this.form.elements['o1'].value); submit();} " .
-    "else if (this.form.elements['o1'].selectedIndex == 3) {" .
-    "   setO(this.form.elements['o1'].value); submit();} " .
-    ""];
+$attrs1 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . "   setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . "   setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
+    . "   setO(this.form.elements['o1'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs1
 );
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => "javascript: " .
-    " var bChecked = isChecked(); " .
-    " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {" .
-    " alert('" . _("Please select one or more items") . "'); return false;} " .
-    "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _("Do you confirm the duplication ?") . "')) {" .
-    "   setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _("Do you confirm the deletion ?") . "')) {" .
-    "   setO(this.form.elements['o2'].value); submit();} " .
-    "else if (this.form.elements['o2'].selectedIndex == 3) {" .
-    "   setO(this.form.elements['o2'].value); submit();} " .
-    ""];
+$attrs2 = ['onchange' => 'javascript: '
+    . ' var bChecked = isChecked(); '
+    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
+    . " alert('" . _('Please select one or more items') . "'); return false;} "
+    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
+    . _('Do you confirm the duplication ?') . "')) {"
+    . "   setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
+    . _('Do you confirm the deletion ?') . "')) {"
+    . "   setO(this.form.elements['o2'].value); submit();} "
+    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
+    . "   setO(this.form.elements['o2'].value); submit();} "
+    . ''];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "m" => _("Duplicate"), "d" => _("Delete")],
+    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs2
 );
 $form->setDefaults(['o2' => null]);
@@ -260,4 +245,4 @@ $tpl->assign('searchT', $searchTraps);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listTraps.ihtml");
+$tpl->display('listTraps.ihtml');

@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { PageSkeleton } from '@centreon/ui';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()(() => ({
   skeletonContainer: {

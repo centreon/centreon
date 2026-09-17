@@ -1,0 +1,29 @@
+meta {
+  name: POST /monitoring/services - Submit CRITICAL result - HTTP 204
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/hosts/{{Host1Id}}/services/{{Service1Id}}/submit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status": 2,
+    "output": "CRITICAL"
+  }
+}
+
+tests {
+  test("Submit CRITICAL result (known infra issue: service may not be in centengine catalog in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 404]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

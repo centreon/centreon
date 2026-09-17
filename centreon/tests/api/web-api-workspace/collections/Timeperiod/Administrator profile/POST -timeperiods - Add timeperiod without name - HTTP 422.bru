@@ -1,0 +1,38 @@
+meta {
+  name: POST /timeperiods - Add timeperiod without name - HTTP 422
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "alias": "Missing name alias",
+    "days": [
+      {"day": 1, "time_range": "00:00-24:00"}
+    ],
+    "templates": [],
+    "exceptions": []
+  }
+}
+
+assert {
+  res.status: eq 422
+}
+
+tests {
+  test("Creating a timeperiod without a name returns a 422 validation error.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

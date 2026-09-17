@@ -1,17 +1,16 @@
-import { useMemo } from 'react';
-
-import dayjs from 'dayjs';
-import { FormikValues, useFormikContext } from 'formik';
-import { lte } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { FormHelperText, FormLabel } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import TimeInputs from '../../TimeInputs';
+import dayjs from 'dayjs';
+import { FormikValues, useFormikContext } from 'formik';
+import { lte } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import { TimeInputConfiguration } from '../../models';
+import TimeInputs from '../../TimeInputs';
 import { twelveMonths } from '../../timestamps';
 import { labelPasswordExpiresAfter } from '../../translatedLabels';
 import { getField } from '../utils';
@@ -89,9 +88,9 @@ const PasswordExpiration = (): JSX.Element => {
           baseName={passwordExpirationFieldName}
           inputLabel={labelPasswordExpiresAfter}
           maxDuration={twelveMonths}
+          onChange={change}
           timeInputConfigurations={timeInputConfiguration}
           timeValue={passwordExpirationValue}
-          onChange={change}
         />
         {passwordExpirationError && (
           <FormHelperText error>{passwordExpirationError}</FormHelperText>

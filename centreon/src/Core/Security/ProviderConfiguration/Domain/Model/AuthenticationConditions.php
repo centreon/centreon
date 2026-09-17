@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Domain\Model;
 
-use Centreon\Domain\Common\Assertion\Assertion;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Core\Security\ProviderConfiguration\Domain\Exception\ConfigurationException;
 
 /**
@@ -63,7 +63,7 @@ class AuthenticationConditions
         private bool $isEnabled,
         private string $attributePath,
         private ?Endpoint $endpoint,
-        private array $authorizedValues
+        private array $authorizedValues,
     ) {
         $this->validateMandatoryParametersForEnabledCondition(
             $isEnabled,
@@ -192,7 +192,7 @@ class AuthenticationConditions
      */
     private function validateClientAddressOrFail(string $clientAddress, string $fieldName): void
     {
-        Assertion::ipOrDomain($clientAddress, 'AuthenticationConditions::' . $fieldName);
+        CentreonAssert::ipOrHostname($clientAddress, 'AuthenticationConditions::' . $fieldName);
     }
 
     /**
@@ -207,7 +207,7 @@ class AuthenticationConditions
     private function validateMandatoryParametersForEnabledCondition(
         bool $isEnabled,
         string $attributePath,
-        array $authorizedValues
+        array $authorizedValues,
     ): void {
         if ($isEnabled) {
             $mandatoryParameters = [];
@@ -217,7 +217,7 @@ class AuthenticationConditions
             if ($authorizedValues === []) {
                 $mandatoryParameters[] = 'authorized_values';
             }
-            if (! empty($mandatoryParameters)) {
+            if ($mandatoryParameters !== []) {
                 throw ConfigurationException::missingMandatoryParameters($mandatoryParameters);
             }
         }

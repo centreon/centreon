@@ -1,20 +1,23 @@
-import { useEffect } from 'react';
-
 import {
-  UseMutationOptions,
-  UseMutationResult,
+  type UseMutationOptions,
+  type UseMutationResult,
   useMutation,
   useQueryClient
 } from '@tanstack/react-query';
 import { equals, includes, omit, type } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
+import { useEffect } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
 
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
-import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
+import {
+  type CatchErrorProps,
+  customFetch,
+  type ResponseError
+} from '../customFetch';
 import { errorLog } from '../logger';
 import {
-  OptimisticListing,
+  type OptimisticListing,
   useOptimisticMutation
 } from './useOptimisticMutation';
 
@@ -111,7 +114,9 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          'Content-Type': 'application/json',
+          'Content-Type': equals(method, Method.PATCH)
+            ? 'application/merge-patch+json'
+            : 'application/json',
           ...fetchHeaders
         }),
         isMutation: true,
@@ -124,7 +129,7 @@ const useMutationQuery = <T extends object, TMeta>({
         const listingQueryKey = getListingQueryKey();
         queryClient.setQueriesData(
           { queryKey: listingQueryKey },
-          context.previousListing
+          (context as { previousListing: unknown })?.previousListing
         );
       }
 
@@ -134,9 +139,9 @@ const useMutationQuery = <T extends object, TMeta>({
       ? ({ payload, _meta }) => {
           const listingQueryKey = getListingQueryKey();
           const newListing = getOptimisticMutationItems({
+            _meta,
             method,
-            payload,
-            _meta
+            payload
           });
           const previousListing = getPreviousListing();
 
@@ -145,7 +150,11 @@ const useMutationQuery = <T extends object, TMeta>({
           return { previousListing };
         }
       : onMutate,
-    onSettled,
+    onSettled: onSettled as UseMutationOptions<
+      T | ResponseError,
+      ResponseError,
+      Variables<TMeta, T>
+    >['onSettled'],
     onSuccess: (data, variables, context) => {
       if (optimisticListing?.enabled) {
         const isQueryKeyArray = equals(
@@ -157,20 +166,20 @@ const useMutationQuery = <T extends object, TMeta>({
           : [optimisticListing?.queryKey];
 
         queryClient.invalidateQueries({
-          queryKey: listingQueryKey
+          queryKey: listingQueryKey as Array<string>
         });
       }
 
-      if (data?.isError) {
+      if ((data as ResponseError)?.isError) {
         if (optimisticListing?.enabled) {
           const listingQueryKey = getListingQueryKey();
           queryClient.setQueriesData(
             { queryKey: listingQueryKey },
-            context.previousListing
+            (context as { previousListing: unknown })?.previousListing
           );
         }
 
-        onError?.(data, variables, context);
+        onError?.(data as ResponseError, variables, context);
 
         return;
       }
@@ -204,7 +213,7 @@ const useMutationQuery = <T extends object, TMeta>({
     ...omit(['isError'], queryData),
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
     isMutating: queryData.isPending
-  };
+  } as unknown as UseMutationQueryState<T, TMeta>;
 };
 
 export default useMutationQuery;

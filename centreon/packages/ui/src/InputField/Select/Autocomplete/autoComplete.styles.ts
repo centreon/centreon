@@ -1,9 +1,9 @@
-import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 interface StyledProps {
   hideInput?: boolean;

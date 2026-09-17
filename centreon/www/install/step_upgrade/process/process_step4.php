@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,29 +24,36 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../steps/functions.php';
 
-use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
+use Adaptation\Log\LoggerUpgrade;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
+use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
 $current = $_POST['current'];
 $next = $_POST['next'];
 $status = 0;
 
-$kernel = \App\Kernel::createForWeb();
+$kernel = App\Kernel::createForWeb();
 
 $updateLockerRepository = $kernel->getContainer()->get(UpdateLockerRepositoryInterface::class);
 $updateWriteRepository = $kernel->getContainer()->get(WriteUpdateRepositoryInterface::class);
 
+$startedAt = microtime(true);
+LoggerUpgrade::create()->start($current, $next);
+
 try {
     if (! $updateLockerRepository->lock()) {
-        throw UpdateVersionsException::updateAlreadyInProgress();
+        throw new RuntimeException('Update already in progress.');
     }
 
     $updateWriteRepository->runUpdate($next);
 
     $updateLockerRepository->unlock();
-} catch (\Throwable $e) {
+
+    $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+    LoggerUpgrade::create()->success($current, $next, $durationMs);
+} catch (Throwable $e) {
+    LoggerUpgrade::create()->failure($current, $next, $e->getMessage(), $e);
     exitUpgradeProcess(1, $current, $next, $e->getMessage());
 }
 

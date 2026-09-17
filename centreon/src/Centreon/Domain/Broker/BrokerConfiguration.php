@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,7 +46,7 @@ class BrokerConfiguration
     private $configurationValue;
 
     /**
-     * @return integer|null
+     * @return int|null
      */
     public function getId(): ?int
     {
@@ -54,12 +54,13 @@ class BrokerConfiguration
     }
 
     /**
-     * @param integer|null $id
+     * @param int|null $id
      * @return self
      */
     public function setId(?int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -78,6 +79,7 @@ class BrokerConfiguration
     public function setConfigurationKey(?string $configurationKey): self
     {
         $this->configurationKey = $configurationKey;
+
         return $this;
     }
 
@@ -96,6 +98,7 @@ class BrokerConfiguration
     public function setConfigurationValue(?string $configurationValue): self
     {
         $this->configurationValue = $configurationValue;
+
         return $this;
     }
 }

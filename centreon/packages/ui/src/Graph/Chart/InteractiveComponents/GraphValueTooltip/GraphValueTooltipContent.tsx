@@ -1,12 +1,11 @@
+import { Box, Typography } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 
-import { Box, Typography } from '@mui/material';
-
 import { formatMetricValueWithUnit } from '../../../common/timeSeries';
-import { Tooltip } from '../../models';
+import type { Tooltip } from '../../models';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
-
 import { useGraphValueTooltip } from './useGraphValueTooltip';
 import { useGraphValueTooltipStyles } from './useGraphValueTooltipStyles';
 

@@ -1,13 +1,13 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import webPageWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithWebPageWidget.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
@@ -24,19 +24,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
@@ -48,15 +48,15 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards/favorites'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/favorites`
   }).as('addFavorites');
-    cy.intercept({
+  cy.intercept({
     method: 'DELETE',
-    url: '/centreon/api/latest/configuration/dashboards/*/favorites'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*/favorites`
   }).as('deleteFavorites');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards/favorites?page=1&limit=10*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/favorites?page=1&limit=10*`
   }).as('getFavorites');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
@@ -74,7 +74,7 @@ Given('a dashboard having a configured web page widget', () => {
 });
 
 When('the dashboard administrator clicks on the favourite icon', () => {
-  cy.getByTestId({ testId: 'FavoriteIcon' }).click();
+  cy.getByTestId({ testId: 'FavoriteIconButton' }).click();
   cy.wait('@addFavorites');
   cy.contains('Show only dashboards added to favorites').click();
 
@@ -86,7 +86,9 @@ When('the dashboard administrator clicks on the favourite icon', () => {
     expect(responseBody.result).to.be.an('array');
     expect(responseBody.result).to.have.length.greaterThan(0);
 
-    const dashboard = responseBody.result.find((item) => item.name === 'dashboard default');
+    const dashboard = responseBody.result.find(
+      (item) => item.name === 'dashboard default'
+    );
     expect(dashboard).to.exist;
     expect(dashboard.name).to.eq('dashboard default');
     expect(dashboard.created_by.name).to.eq('user-dashboard-administrator');
@@ -102,22 +104,25 @@ Given('a dashboard having another configured web page widget', () => {
   cy.visitDashboards();
 });
 
-When('the dashboard administrator clicks on the favourite icon of the first dashboard in the favourites list', () => {
-  cy.getByTestId({ testId: 'FavoriteIcon' }).eq(0).click();
-  cy.wait('@deleteFavorites');
-  cy.contains('Show only dashboards added to favorites').click();
+When(
+  'the dashboard administrator clicks on the favourite icon of the first dashboard in the favourites list',
+  () => {
+    cy.getByTestId({ testId: 'FavoriteIconButton' }).eq(0).click();
+    cy.wait('@deleteFavorites');
+    cy.contains('Show only dashboards added to favorites').click();
 
-  cy.wait('@getFavorites').then((interception) => {
-    expect(interception.response?.statusCode).to.eq(200);
+    cy.wait('@getFavorites').then((interception) => {
+      expect(interception.response?.statusCode).to.eq(200);
 
-    const responseBody = interception.response?.body;
+      const responseBody = interception.response?.body;
 
-    expect(responseBody.result).to.be.an('array').that.is.empty;
-    expect(responseBody.meta).to.have.property('page', 1);
-    expect(responseBody.meta).to.have.property('limit', 10);
-    expect(responseBody.meta).to.have.property('total', 0);
-  });
-});
+      expect(responseBody.result).to.be.an('array').that.is.empty;
+      expect(responseBody.meta).to.have.property('page', 1);
+      expect(responseBody.meta).to.have.property('limit', 10);
+      expect(responseBody.meta).to.have.property('total', 0);
+    });
+  }
+);
 
 Then('the dashboard should be removed from the favourites list', () => {
   cy.contains(dashboards.default.name).should('not.exist');

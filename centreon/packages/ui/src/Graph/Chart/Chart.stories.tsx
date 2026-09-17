@@ -1,8 +1,8 @@
+import type { Meta, StoryObj } from '@storybook/react';
 import { useEffect, useState } from 'react';
+import '../../ThemeProvider/tailwindcss.css';
 
-import { Meta, StoryObj } from '@storybook/react';
-
-import { Button } from '@mui/material';
+import { Button, Menu } from '@mui/material';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
@@ -10,7 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import TimePeriod from '../../TimePeriods';
-import { LineChartData } from '../common/models';
+import type { LineChartData } from '../common/models';
 import annotationData from '../mockedData/annotationData.json';
 import dataCurvesSameColor from '../mockedData/curvesWithSameColor.json';
 import exclusionPeriodFirstPeriod from '../mockedData/exclusionPeriodFirstPeriod.json';
@@ -26,8 +26,9 @@ import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceLinesBars from '../mockedData/pingServiceLinesBars.json';
 import dataPingServiceLinesBarsMixed from '../mockedData/pingServiceLinesBarsMixed.json';
 import dataPingServiceLinesBarsStacked from '../mockedData/pingServiceLinesBarsStacked.json';
+import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
 import dataZoomPreview from '../mockedData/zoomPreview.json';
-
+import WrapperChart from '.';
 import { dateTimeFormat } from './common';
 import {
   argTypes,
@@ -39,9 +40,7 @@ import {
   lastDayForwardDate,
   zoomPreviewDate
 } from './helpers/doc';
-import { Interval, ThresholdType, TooltipData } from './models';
-
-import WrapperChart from '.';
+import { type Interval, ThresholdType, type TooltipData } from './models';
 
 const meta: Meta<typeof WrapperChart> = {
   component: WrapperChart
@@ -114,7 +113,7 @@ const ExternalComponent = (tooltipData): JSX.Element => {
       })}
       <br />
       <br />
-      <button type="button" onClick={(): void => hideTooltip()}>
+      <button onClick={(): void => hideTooltip()} type="button">
         hide tooltip
       </button>
     </>
@@ -157,7 +156,7 @@ const TimePeriodSwitch = ({
 
   useEffect(() => {
     getDataSwitch?.(checked);
-  }, [checked]);
+  }, [checked, getDataSwitch]);
 
   return (
     <Switch
@@ -209,7 +208,7 @@ const LineChartAndTimePeriod = (args): JSX.Element => {
     if (start.includes(zoomPreviewDate)) {
       setCurrentData(dataZoomPreview as unknown as LineChartData);
     }
-  }, [start, end, adjustedTimePeriodInterval]);
+  }, [start, end]);
 
   const getInterval = (interval: Interval): void => {
     setAdjustedTimePeriodInterval(interval);
@@ -338,19 +337,19 @@ const LineChartWithCLS: Story = {
 
 export const LineChart: Story = {
   ...Template,
-  argTypes,
-  args: argumentsData
+  args: argumentsData,
+  argTypes
 };
 
 export const LineChartWithStepCurve: Story = {
   ...Template,
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
       curve: 'step'
     }
-  }
+  },
+  argTypes
 };
 
 export const LineChartWithTimePeriod: Story = {
@@ -393,7 +392,6 @@ export const withCLS: Story = {
 };
 
 export const withThresholds: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     thresholds: {
@@ -412,16 +410,15 @@ export const withThresholds: Story = {
       ]
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const withThresholdsAndUnit: Story = {
-  argTypes,
   args: {
     ...argumentsData,
-    thresholdUnit: '%',
     thresholds: {
       critical: [
         {
@@ -436,18 +433,18 @@ export const withThresholdsAndUnit: Story = {
           value: 65
         }
       ]
-    }
+    },
+    thresholdUnit: '%'
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const thresholdsRange: Story = {
-  argTypes,
   args: {
     ...argumentsData,
-    thresholdUnit: '%',
     thresholds: {
       critical: [
         {
@@ -470,8 +467,10 @@ export const thresholdsRange: Story = {
           value: 30
         }
       ]
-    }
+    },
+    thresholdUnit: '%'
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
@@ -479,8 +478,8 @@ export const thresholdsRange: Story = {
 
 export const LineChartWithSameColorCurves: Story = {
   ...Template,
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -490,20 +489,19 @@ export const LineChartWithSameColorCurves: Story = {
 };
 
 export const zeroCentered: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
       isCenteredZero: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const customLines: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -515,13 +513,13 @@ export const customLines: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const customLinesAndBars: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     barStyle: {
@@ -534,6 +532,7 @@ export const customLinesAndBars: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -543,8 +542,8 @@ export const customLinesAndBars: Story = {
 };
 
 export const multipleUnits: Story = {
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -554,7 +553,6 @@ export const multipleUnits: Story = {
 };
 
 export const linesAndBars: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -563,6 +561,7 @@ export const linesAndBars: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -572,7 +571,6 @@ export const linesAndBars: Story = {
 };
 
 export const linesAndBarsStacked: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -581,6 +579,7 @@ export const linesAndBarsStacked: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -590,7 +589,6 @@ export const linesAndBarsStacked: Story = {
 };
 
 export const linesAndBarsMixed: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -599,6 +597,7 @@ export const linesAndBarsMixed: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -608,7 +607,6 @@ export const linesAndBarsMixed: Story = {
 };
 
 export const linesAndBarsCenteredZero: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
@@ -620,6 +618,7 @@ export const linesAndBarsCenteredZero: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -629,7 +628,6 @@ export const linesAndBarsCenteredZero: Story = {
 };
 
 export const linesAndBarsStackedCenteredZero: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
@@ -641,6 +639,7 @@ export const linesAndBarsStackedCenteredZero: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -650,7 +649,6 @@ export const linesAndBarsStackedCenteredZero: Story = {
 };
 
 export const linesAndBarsMixedCenteredZero: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
@@ -662,6 +660,7 @@ export const linesAndBarsMixedCenteredZero: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -692,28 +691,130 @@ const CustomYUnits = (props): JSX.Element => {
 };
 
 export const customYUnits: Story = {
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => <CustomYUnits {...args} />
 };
 
 export const WithAdditionalLines: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     additionalLines: [
       {
-        yValue: 3,
-        text: 'my text',
         color: 'grey',
-        unit: '%'
+        text: 'my text',
+        unit: '%',
+        yValue: 3
       }
     ]
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
       data={dataPingService as unknown as LineChartData}
     />
   )
+};
+
+export const linesAndBarsMinMax: Story = {
+  args: {
+    ...argumentsData,
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    },
+    max: 30,
+    min: 10
+  },
+  argTypes,
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
+
+export const linesAndBarsMinMaxForUnit: Story = {
+  args: {
+    ...argumentsData,
+    boundariesUnit: '%',
+    lineStyle: {
+      curve: 'natural',
+      lineWidth: 2,
+      showPoints: true
+    },
+    max: 30,
+    min: 10
+  },
+  argTypes,
+  render: (args) => (
+    <WrapperChart
+      {...args}
+      data={dataPingServiceLinesBarsMixed as unknown as LineChartData}
+    />
+  )
+};
+
+const LegendSecondaryClick = (args) => {
+  const [anchor, setAnchor] = useState<EventTarget | null>(null);
+
+  return (
+    <>
+      <WrapperChart
+        {...args}
+        legend={{
+          secondaryClick: ({ element }) => setAnchor(element)
+        }}
+      />
+      <Menu
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        open={Boolean(anchor)}
+      >
+        menu
+      </Menu>
+    </>
+  );
+};
+
+export const withLegendSecondaryClick: Story = {
+  args: argumentsData,
+  argTypes,
+  render: (args) => (
+    <LegendSecondaryClick
+      {...args}
+      data={dataPingService as unknown as LineChartData}
+    />
+  )
+};
+
+export const stackedKey: Story = {
+  args: {
+    ...argumentsData,
+    data: dataPingServiceLinesStackKeys
+  },
+  argTypes
+};
+
+export const WithControlledCalculations: Story = {
+  ...Template,
+  args: {
+    ...argumentsData,
+    legend: {
+      mode: 'grid',
+      placement: 'bottom',
+      showCalculations: {
+        avg: true,
+        max: true,
+        min: false
+      }
+    },
+    lineStyle: {
+      curve: 'step'
+    }
+  },
+  argTypes
 };

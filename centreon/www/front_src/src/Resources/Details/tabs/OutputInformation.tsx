@@ -1,9 +1,10 @@
+import { Typography } from '@mui/material';
+
+import { truncate } from '@centreon/ui';
+
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
 import { makeStyles } from 'tss-react/mui';
-
-import { truncate } from '@centreon/ui';
-import { Typography } from '@mui/material';
 
 type StylesProps = Pick<Props, 'bold'>;
 

@@ -1,9 +1,13 @@
-import { T, always, cond, equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
+import type { SvgIconComponent } from '@mui/icons-material';
+import {
+  Box,
+  FormControlLabel,
+  Checkbox as MuiCheckbox,
+  type Theme
+} from '@mui/material';
+import Typography, { type TypographyProps } from '@mui/material/Typography';
 
-import { SvgIconComponent } from '@mui/icons-material';
-import { Box, FormControlLabel, Checkbox as MuiCheckbox } from '@mui/material';
-import Typography, { TypographyProps } from '@mui/material/Typography';
+import { makeStyles } from 'tss-react/mui';
 
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
@@ -12,12 +16,13 @@ interface StyleProps {
   labelPlacement: LabelPlacement;
 }
 
-const getLabelSpacing = (labelPlacement, theme): string => {
-  return cond([
-    [equals('top'), always(theme.spacing(0, 0, 0.5))],
-    [equals('end'), always(theme.spacing(0, 0, 0, 0.5))],
-    [T, always(0)]
-  ])(labelPlacement);
+const getLabelSpacing = (
+  labelPlacement: LabelPlacement,
+  theme: Theme
+): string => {
+  if (labelPlacement === 'top') return theme.spacing(0, 0, 0.5);
+  if (labelPlacement === 'end') return theme.spacing(0, 0, 0, 0.5);
+  return '0';
 };
 
 const useStyles = makeStyles<StyleProps>()(
@@ -55,12 +60,14 @@ interface Props {
   dataTestId?: string;
   disabled?: boolean;
   label: string;
+  id: string;
   labelPlacement?: LabelPlacement;
   labelProps?: TypographyProps;
-  onChange?: (e) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Checkbox = ({
+  id,
   Icon,
   checked,
   label,
@@ -86,10 +93,10 @@ const Checkbox = ({
             className={classes.checkbox}
             color="primary"
             disabled={disabled}
-            id={label}
+            id={id}
+            onChange={onChange}
             size="small"
             sx={{ padding: 0 }}
-            onChange={onChange}
           />
         }
         data-testid={dataTestId || ''}

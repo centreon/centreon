@@ -1,5 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
 
@@ -17,11 +18,11 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -51,11 +52,7 @@ Given('a blocked host template', () => {
 });
 
 When('the user goes to the host template listing page', () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -130,12 +127,12 @@ Then('the fields are all frozen', () => {
     isInputFreezed(name);
   });
   // Click on the "Relations" tab
-  cy.getIframeBody().contains('a', 'Notification').click();
+  cy.getIframeBody().contains('a', 'Relations').click();
   // Click outside the form
   cy.get('body').click(0, 0);
   // Check that the "Linked Service Templates" field is freezed
   cy.getIframeBody().find('select[name="host_svTpls[]"]').should('be.disabled');
-  // Check that the "Linked Service Templates" field is freezed
+  // Check that the "Linked Host Categories" field is freezed
   cy.getIframeBody().find('select[name="host_hcs[]"]').should('be.disabled');
   // Click on the "Data Processing" tab
   cy.getIframeBody().contains('a', 'Data Processing').click();

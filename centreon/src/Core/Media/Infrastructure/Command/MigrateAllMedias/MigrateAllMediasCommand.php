@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Command\MigrateAllMedias;
 
@@ -29,17 +29,18 @@ use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMedias;
 use Core\Media\Application\UseCase\MigrateAllMedias\MigrateAllMediasRequest;
 use Core\Media\Infrastructure\Repository\ApiWriteMediaRepository;
 use Core\Proxy\Application\Repository\ReadProxyRepositoryInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'media:all',
+    description: 'Migrate all media from the current platform to the defined target platform'
+)]
 class MigrateAllMediasCommand extends AbstractMigrationCommand
 {
     use LoggerTrait;
-
-    protected static $defaultName = 'media:all';
-
-    protected static $defaultDescription = 'Migrate all media from the current platform to the defined target platform';
 
     private int $maxFilesize;
 
@@ -114,10 +115,13 @@ class MigrateAllMediasCommand extends AbstractMigrationCommand
         switch (mb_substr($size, -1)) {
             case 't':
                 $max *= 1024;
+                // no break
             case 'g':
                 $max *= 1024;
+                // no break
             case 'm':
                 $max *= 1024;
+                // no break
             case 'k':
                 $max *= 1024;
         }

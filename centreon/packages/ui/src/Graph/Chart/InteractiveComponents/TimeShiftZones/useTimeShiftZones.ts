@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
-
 import { add, equals, negate, prop } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
 
-import { GraphInterval, GraphIntervalProperty, Interval } from '../../models';
-
-import { GetShiftDate, TimeShiftDirection } from './models';
+import {
+  type GraphInterval,
+  GraphIntervalProperty,
+  type Interval
+} from '../../models';
+import { type GetShiftDate, TimeShiftDirection } from './models';
 
 interface Props {
   direction: TimeShiftDirection;
@@ -20,34 +22,37 @@ export const useTimeShiftZones = ({
   const [start, setStart] = useState<Date>();
   const [end, setEnd] = useState<Date>();
 
-  const getShiftedDate = ({
-    property,
-    timeShiftDirection,
-    timePeriod
-  }: GetShiftDate): Date | null => {
-    if (!timePeriod?.end || !timePeriod?.start) {
-      return null;
-    }
-    const adjustTimePeriodProps =
-      (new Date(timePeriod.end).getTime() -
-        new Date(timePeriod.start).getTime()) /
-      shiftRatio;
+  const getShiftedDate = useCallback(
+    ({
+      property,
+      timeShiftDirection,
+      timePeriod
+    }: GetShiftDate): Date | null => {
+      if (!timePeriod?.end || !timePeriod?.start) {
+        return null;
+      }
+      const adjustTimePeriodProps =
+        (new Date(timePeriod.end).getTime() -
+          new Date(timePeriod.start).getTime()) /
+        shiftRatio;
 
-    const date = prop(property, timePeriod);
+      const date = prop(property, timePeriod);
 
-    if (!date) {
-      return null;
-    }
+      if (!date) {
+        return null;
+      }
 
-    return new Date(
-      add(
-        new Date(date).getTime(),
-        equals(timeShiftDirection, TimeShiftDirection.backward)
-          ? negate(adjustTimePeriodProps)
-          : adjustTimePeriodProps
-      )
-    );
-  };
+      return new Date(
+        add(
+          new Date(date).getTime(),
+          equals(timeShiftDirection, TimeShiftDirection.backward)
+            ? negate(adjustTimePeriodProps)
+            : adjustTimePeriodProps
+        )
+      );
+    },
+    []
+  );
 
   useEffect(() => {
     const endInterval = getShiftedDate({
@@ -67,7 +72,13 @@ export const useTimeShiftZones = ({
     }
     setStart(startInterval);
     setEnd(endInterval);
-  }, [graphInterval.end, graphInterval.start, direction]);
+  }, [
+    graphInterval.end,
+    graphInterval.start,
+    direction,
+    getShiftedDate,
+    graphInterval
+  ]);
 
   return { end, start } as Interval;
 };

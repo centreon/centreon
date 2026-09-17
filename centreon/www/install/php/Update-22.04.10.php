@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
@@ -72,9 +73,9 @@ try {
                     SQL
             );
 
-            $preparedUpdate->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], \PDO::PARAM_STR);
-            $preparedUpdate->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], \PDO::PARAM_STR);
-            $preparedUpdate->bindValue(':nagios_id', $modified['nagios_id'], \PDO::PARAM_INT);
+            $preparedUpdate->bindValue(':illegal_object_name_chars', $modified['illegal_object_name_chars'], PDO::PARAM_STR);
+            $preparedUpdate->bindValue(':illegal_macro_output_chars', $modified['illegal_macro_output_chars'], PDO::PARAM_STR);
+            $preparedUpdate->bindValue(':nagios_id', $modified['nagios_id'], PDO::PARAM_INT);
             $preparedUpdate->execute();
         }
     })(
@@ -82,7 +83,7 @@ try {
     );
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         $pearDB->rollBack();
     }
@@ -95,5 +96,5 @@ try {
         . ' - Trace : ' . $e->getTraceAsString()
     );
 
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }

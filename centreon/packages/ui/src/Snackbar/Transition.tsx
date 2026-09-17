@@ -1,10 +1,10 @@
-import {
-  TransitionActions,
-  TransitionProps as _TransitionProps
-} from 'react-transition-group/Transition';
-
 import { Fade } from '@mui/material';
-import { CSSProperties, ReactNode } from 'react';
+
+import type { CSSProperties, ReactNode } from 'react';
+import type {
+  TransitionProps as _TransitionProps,
+  TransitionActions
+} from 'react-transition-group/Transition';
 
 type TransitionHandlerKeys =
   | 'onEnter'

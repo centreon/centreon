@@ -26,10 +26,7 @@ namespace Core\Common\Infrastructure\Validator\Constraints;
 use Core\Common\Domain\PlatformType;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Composite;
-use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
-use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\LogicException;
-use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * Strongly Inspired by Symfony\Component\Validator\Constraints\When
@@ -48,52 +45,28 @@ use Symfony\Component\Validator\Exception\MissingOptionsException;
 final class WhenPlatform extends Composite
 {
     /**
-     * @param string $platform
-     * @param Constraint[]|Constraint|null $constraints
+     * @param Constraint[] $constraints
      * @param null|string[] $groups
-     * @param mixed $payload
-     * @param array<mixed> $options
      *
      * @throws LogicException
-     * @throws ConstraintDefinitionException
-     * @throws InvalidOptionsException
-     * @throws MissingOptionsException
      */
     public function __construct(
         public string $platform,
-        public array|Constraint|null $constraints = null,
+        public array $constraints,
         ?array $groups = null,
-        $payload = null,
-        array $options = []
+        mixed $payload = null,
     ) {
         if (! \in_array($platform, PlatformType::AVAILABLE_TYPES, true)) {
             throw new LogicException(\sprintf('The platform "%s" is not valid.', $platform));
         }
 
-        $options['platform'] = $platform;
-        $options['constraints'] = $constraints;
-
-        if (isset($options['constraints']) && ! \is_array($options['constraints'])) {
-            $options['constraints'] = [$options['constraints']];
-        }
-
-        if (null !== $groups) {
-            $options['groups'] = $groups;
-        }
-
-        if (null !== $payload) {
-            $options['payload'] = $payload;
-        }
-
-        parent::__construct($options);
+        parent::__construct(groups: $groups, payload: $payload);
     }
 
-    public function getRequiredOptions(): array
-    {
-        return ['platform', 'constraints'];
-    }
-
-    public function getTargets(): string|array
+    /**
+     * @return string[]
+     */
+    public function getTargets(): array
     {
         return [self::CLASS_CONSTRAINT, self::PROPERTY_CONSTRAINT];
     }

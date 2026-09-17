@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,9 +199,9 @@ it('should present a FindRuleResponse when no error occurs', function (): void {
 
     $this->contactRepository
         ->expects($this->any())
-        ->method('findNamesByIds')
+        ->method('findAliasesByIds')
         ->with(...$this->rule->getLinkedContactIds())
-        ->willReturn(['1' => ['id' => 1, 'name' => 'contact1']]);
+        ->willReturn(['1' => ['id' => 1, 'alias' => 'contact1']]);
 
     $this->contactGroupRepository
         ->expects($this->any())

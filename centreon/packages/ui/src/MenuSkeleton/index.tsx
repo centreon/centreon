@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
+import { alpha, type SkeletonProps, useTheme } from '@mui/material';
 
-import { SkeletonProps, alpha, useTheme } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ beforeEach(function (): void {
 
     $this->request = new UpdateAgentConfigurationRequest();
     $this->request->name = 'my-AC';
-    $this->request->type = 'telegraf';
     $this->request->pollerIds = [1];
     $this->request->configuration = [];
     $this->request->connectionMode = ConnectionModeEnum::SECURE;
@@ -77,11 +76,6 @@ it('should throw an exception when the poller list is empty', function (): void 
     $this->request->pollerIds = [];
     $this->validator->validatePollersOrFail($this->request, $this->agentConfiguration);
 })->throws(AgentConfigurationException::arrayCanNotBeEmpty('pollerIds')->getMessage());
-
-it('should throw an exception when the type is changed', function (): void {
-    $this->request->type = 'centreon-agent';
-    $this->validator->validateTypeOrFail($this->request, $this->agentConfiguration);
-})->throws(AgentConfigurationException::typeChangeNotAllowed()->getMessage());
 
 it('should throw an exception when a poller ID does not exist', function (): void {
     $this->user

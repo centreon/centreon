@@ -1,8 +1,8 @@
-import { ComponentMeta } from '@storybook/react';
-
 import { Box } from '@mui/material';
 
-import FluidTypography, { FluidTypographyProps } from '.';
+import type { ComponentMeta } from '@storybook/react';
+
+import FluidTypography, { type FluidTypographyProps } from '.';
 
 interface Props extends FluidTypographyProps {
   height?: string | number;

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ final class FindHostResponse
         array $downtimes,
         ?Acknowledgement $acknowledgement,
         array $categories,
-        ?Severity $severity
+        ?Severity $severity,
     ) {
         $this->icon = $this->iconToArray($icon);
         $this->status = $this->statusToArray($status);
@@ -159,7 +159,7 @@ final class FindHostResponse
         $this->downtimes = $this->downtimesToArray($downtimes);
         $this->acknowledgement = $this->acknowledgementToArray($acknowledgement);
         $this->categories = $this->tagsToArray($categories);
-        $this->severity = null === $severity ? $severity : $this->severityToArray($severity);
+        $this->severity = $severity === null ? $severity : $this->severityToArray($severity);
     }
 
     /**

@@ -1,14 +1,16 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getUserTimezone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 });
 
@@ -21,11 +23,7 @@ Then('a service template is configured', () => {
     name: 'service_template',
     template: 'generic-service'
   });
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesTemplatesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
   cy.getIframeBody().contains('service_template').click();
   cy.waitForElementInIframe('#main-content', 'input[name="service_alias"]');
@@ -94,10 +92,10 @@ Then('the properties are updated', () => {
   cy.get('body').click(0, 0);
   // Check that the 'Notification Period' has the setted value
   cy.getIframeBody()
-      .find('#timeperiod_tp_id2')
-      .find('option:selected')
-      .should('have.length', 1)
-      .and('have.text', '24x7');
+    .find('#timeperiod_tp_id2')
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', '24x7');
   // Check that the type 'Critical' is checked
   cy.getIframeBody().find('#notifC').should('be.checked');
 });

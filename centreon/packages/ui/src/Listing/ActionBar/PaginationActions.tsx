@@ -1,12 +1,20 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import IconButton from '@mui/material/IconButton';
-import { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
+
+type TablePaginationActionsProps = {
+  count: number;
+  onPageChange: (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    page: number
+  ) => void;
+  page: number;
+  rowsPerPage: number;
+};
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelFirstPage,
@@ -15,31 +23,29 @@ import {
   labelPreviousPage
 } from '../translatedLabels';
 
-const useStyles = makeStyles()((theme) => ({
-  root: {
-    color: theme.palette.text.secondary,
-    flexShrink: 0
-  }
-}));
-
 const PaginationActions = ({
   onPageChange,
   page,
   rowsPerPage,
   count
 }: TablePaginationActionsProps): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
-  const changeToFirstPage = (event): void => {
+  const changeToFirstPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, 0);
   };
 
-  const changeToPreviousPage = (event): void => {
+  const changeToPreviousPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, page - 1);
   };
 
-  const changeToNextPage = (event): void => {
+  const changeToNextPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, page + 1);
   };
 
@@ -48,41 +54,43 @@ const PaginationActions = ({
   const isFirstPage = page === 0;
   const isLastPage = page >= lastPage;
 
-  const changeToLastPage = (event): void => {
+  const changeToLastPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, Math.max(0, lastPage));
   };
 
   return (
-    <div className={classes.root}>
+    <div className="shrink-0 text-text-secondary">
       <IconButton
         aria-label={t(labelFirstPage) || ''}
         disabled={isFirstPage}
-        size="large"
         onClick={changeToFirstPage}
+        size="large"
       >
         <FirstPageIcon />
       </IconButton>
       <IconButton
         aria-label={t(labelPreviousPage) || ''}
         disabled={isFirstPage}
-        size="large"
         onClick={changeToPreviousPage}
+        size="large"
       >
         <KeyboardArrowLeft />
       </IconButton>
       <IconButton
         aria-label={t(labelNextPage) || ''}
         disabled={isLastPage}
-        size="large"
         onClick={changeToNextPage}
+        size="large"
       >
         <KeyboardArrowRight />
       </IconButton>
       <IconButton
         aria-label={t(labelLastPage) || ''}
         disabled={isLastPage}
-        size="large"
         onClick={changeToLastPage}
+        size="large"
       >
         <LastPageIcon />
       </IconButton>

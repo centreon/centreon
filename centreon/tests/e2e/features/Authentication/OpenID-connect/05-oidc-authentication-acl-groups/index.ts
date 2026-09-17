@@ -1,42 +1,44 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/openid'
+    url: `${INTERCEPTORS.api.authentication_provider}/openid`
   }).as('getOIDCProvider');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/openid'
+    url: `${INTERCEPTORS.api.authentication_provider}/openid`
   }).as('updateOIDCProvider');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentification');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+    url: `${INTERCEPTORS.api.access_groups}?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D`
   }).as('getListAccessGroup');
 });
 
@@ -45,10 +47,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -58,13 +57,16 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Roles mapping and saves',
   () => {
-    configureOpenIDConnect();
-
-    cy.getByLabel({ label: 'Roles mapping' }).click();
+    cy.get('[data-testid="Roles mapping-header"]').click();
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
-    }).check();
+    })
+      .scrollIntoView()
+      .check();
+
+    configureOpenIdConnect();
+
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'
@@ -84,7 +86,9 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    }).type('{selectall}{backspace}centreon-editor');
+    })
+      .eq(0)
+      .type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
@@ -117,7 +121,7 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
-    cy.contains('Login with openid').should('be.visible').click();
+    cy.get('[data-testid="Login with openid"').should('be.visible').click();
 
     cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
 

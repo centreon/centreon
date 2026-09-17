@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,8 @@ class FindHostTemplatesSaasPresenter extends AbstractPresenter implements FindHo
                     'note' => $this->emptyStringAsNull($hostTemplate['note']),
                     'action_url' => $this->emptyStringAsNull($hostTemplate['actionUrl']),
                     'icon_id' => $hostTemplate['iconId'],
+                    'freshness_checked' => $hostTemplate['freshnessChecked'],
+                    'freshness_threshold' => $hostTemplate['freshnessThreshold'],
                     'is_locked' => $hostTemplate['isLocked'],
                 ];
             }

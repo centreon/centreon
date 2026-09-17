@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,13 +61,13 @@ final class AddDashboard
         private readonly WriteDashboardPanelRepositoryInterface $writeDashboardPanelRepository,
         private readonly ReadDashboardPanelRepositoryInterface $readDashboardPanelRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
     public function __invoke(
         AddDashboardRequest $request,
-        AddDashboardPresenterInterface $presenter
+        AddDashboardPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->isAuthorized()) {

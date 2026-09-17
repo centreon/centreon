@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,4 +63,14 @@ interface WriteServiceRepositoryInterface
      * @throws \Throwable
      */
     public function update(Service $service): void;
+
+    /**
+     * Delete deployed services on a host that are based on a given service template.
+     *
+     * @param int $hostId
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     */
+    public function deleteByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): void;
 }

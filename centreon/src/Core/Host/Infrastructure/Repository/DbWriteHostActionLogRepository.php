@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\NewHost;
 use Core\Host\Domain\Model\SnmpVersion;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements WriteHostRepositoryInterface
 {
@@ -90,17 +91,17 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
 
     /**
      * @param WriteHostRepositoryInterface $writeHostRepository
-     * @param ContactInterface $contact
+     * @param TokenStorageInterface $tokenStorage
      * @param ReadHostRepositoryInterface $readHostRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteHostRepositoryInterface $writeHostRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -121,7 +122,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                 $hostId,
                 $host->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -159,7 +160,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                 $hostId,
                 $host->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $this->writeActionLogRepository->addAction($actionLog);
@@ -196,7 +197,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     $action,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -210,7 +211,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     $action,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
 
@@ -219,7 +220,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -235,7 +236,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
                     $host->getId(),
                     $host->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -267,12 +268,20 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
         $this->writeHostRepository->deleteParents($childId);
     }
 
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
+    }
+
     /**
      * @param NewHost $host
      *
      * @return array<string,int|bool|string>
      */
-    private function getHostPropertiesAsArray(NewHost $host): array {
+    private function getHostPropertiesAsArray(NewHost $host): array
+    {
         $hostPropertiesArray = [];
         $hostReflection = new \ReflectionClass($host);
 

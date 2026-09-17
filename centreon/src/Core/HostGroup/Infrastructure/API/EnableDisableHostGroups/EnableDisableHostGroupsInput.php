@@ -36,7 +36,7 @@ final class EnableDisableHostGroupsInput
         #[Assert\All(
             new Assert\Type('integer')
         )]
-        public readonly mixed $ids
+        public readonly mixed $ids,
     ) {
     }
 }

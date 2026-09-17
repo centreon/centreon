@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ interface ReadServiceTemplateRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -121,4 +121,49 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplate[]
      */
     public function findByHostId(int $hostId): array;
+
+    /**
+     * Find service templates by their IDs.
+     *
+     * @param int ...$serviceTemplateIds
+     *
+     * @throws \Throwable
+     *
+     * @return list<ServiceTemplate>
+     */
+    public function findByIds(int ...$serviceTemplateIds): array;
+
+    /**
+     * Find service template IDs by command names.
+     *
+     * @param string[] $commandNames
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByCommandNames(array $commandNames): array;
+
+    /**
+     * Find service template IDs linked to a host template via the host_service_relation table.
+     *
+     * @param int $hostTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByHostTemplateId(int $hostTemplateId): array;
+
+    /**
+     * Check if a service template is linked to any of the given host template IDs.
+     *
+     * @param int $serviceTemplateId
+     * @param int[] $hostTemplateIds
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function isLinkedToAnyHostTemplate(int $serviceTemplateId, array $hostTemplateIds): bool;
 }

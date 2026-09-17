@@ -1,13 +1,12 @@
-import { isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import ForwardIcon from '@mui/icons-material/ArrowForwardIos';
 import { List, ListItem, Paper, Slide } from '@mui/material';
 
-import Panel from '..';
+import { isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
+
 import ContentWithCircularLoading from '../../ContentWithCircularProgress';
 import { useMemoComponent } from '../../utils';
-
+import Panel from '..';
 import ExpandableSection from './ExpandableSection';
 
 const panelWidth = 550;
@@ -125,6 +124,8 @@ const SectionPanel = ({
   return (
     <Panel
       header={header}
+      onClose={onClose}
+      onResize={onResize}
       selectedTab={
         <ContentWithCircularLoading alignCenter loading={loading}>
           <div className={classes.container}>
@@ -142,10 +143,10 @@ const SectionPanel = ({
 
             {hasSecondaryPanel && (
               <Paper
-                square
                 aria-label="Close Secondary Panel"
                 className={classes.closeSecondaryPanelBar}
                 onClick={onSecondaryPanelClose}
+                square
               >
                 <ForwardIcon className={classes.closeIcon} color="primary" />
               </Paper>
@@ -162,8 +163,6 @@ const SectionPanel = ({
         </ContentWithCircularLoading>
       }
       width={getWidth()}
-      onClose={onClose}
-      onResize={onResize}
     />
   );
 };

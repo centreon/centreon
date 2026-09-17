@@ -1,36 +1,36 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 $resultat = [
-    "code" => 0,
-    "msg" => 'ok',
+    'code' => 0,
+    'msg' => 'ok',
 ];
 
 // We get Host or Service
 $selected_values = explode(',', $get_information['form']['selection']);
-$db_storage = new CentreonDBManager('centstorage');
+$db_storage = new CentreonDB('centstorage');
 
 $problems = [];
 
-# check services and hosts
+// check services and hosts
 $selected_str = '';
 $selected_str_append = '';
 $hosts_selected_str = '';
@@ -42,40 +42,46 @@ foreach ($selected_values as $value) {
     $selected_str .= $selected_str_append . 'services.host_id = ' . $str[0] . ' AND services.service_id = ' . $str[1];
     $selected_str_append = ' OR ';
 
-    if (!isset($hosts_done[$str[0]])) {
+    if (! isset($hosts_done[$str[0]])) {
         $hosts_selected_str .= $hosts_selected_str_append . $str[0];
         $hosts_selected_str_append = ', ';
         $hosts_done[$str[0]] = 1;
     }
 }
 
-$query = "(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts
-    WHERE (" . $selected_str . ') AND services.host_id = hosts.host_id';
-if (!$centreon_bg->is_admin) {
-    $query .= " AND EXISTS(
-        SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN (" .
-            $centreon_bg->grouplistStr . "
-        )
-        AND hosts.host_id = centreon_acl.host_id
-        AND services.service_id = centreon_acl.service_id
-    )";
+$accessGroupIds = '';
+if (! $centreon_bg->is_admin) {
+    $ids = $centreon_bg->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
 }
-$query .= ") UNION ALL (
+
+$query = '(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts
+    WHERE (' . $selected_str . ') AND services.host_id = hosts.host_id';
+if (! $centreon_bg->is_admin) {
+    $query .= <<<SQL
+            AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+                AND services.service_id = centreon_acl.service_id
+            )
+        SQL;
+}
+$query .= ') UNION ALL (
     SELECT DISTINCT NULL as description, hosts.name as host_name, hosts.instance_id
     FROM hosts
-    WHERE hosts.host_id IN (" .
-        $hosts_selected_str . "
-    )";
-if (!$centreon_bg->is_admin) {
-    $query .= " AND EXISTS(
-        SELECT * FROM centreon_acl
-        WHERE centreon_acl.group_id IN (" .
-            $centreon_bg->grouplistStr . "
-        )
-        AND hosts.host_id = centreon_acl.host_id
-    )";
+    WHERE hosts.host_id IN ('
+        . $hosts_selected_str . '
+    )';
+if (! $centreon_bg->is_admin) {
+    $query .= <<<SQL
+            AND EXISTS (
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+            )
+        SQL;
 }
-$query .= ") ORDER BY `host_name`, `description`";
+
+$query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];
 
@@ -119,7 +125,7 @@ try {
 
     foreach ($problems as $row) {
         if (is_null($row['description']) || $row['description'] == '') {
-            $command = "ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s";
+            $command = 'ACKNOWLEDGE_HOST_PROBLEM;%s;%s;%s;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [
@@ -132,11 +138,11 @@ try {
                         $get_information['form']['author'],
                         $get_information['form']['comment']
                     ),
-                    $row['instance_id']
+                    $row['instance_id'],
                 ]
             );
             if ($forceCheck) {
-                $command = "SCHEDULE_FORCED_HOST_CHECK;%s;%d";
+                $command = 'SCHEDULE_FORCED_HOST_CHECK;%s;%d';
                 call_user_func_array(
                     [$external_cmd, $method_external_name],
                     [
@@ -145,14 +151,14 @@ try {
                             $row['host_name'],
                             time()
                         ),
-                        $row['instance_id']
+                        $row['instance_id'],
                     ]
                 );
             }
             continue;
         }
 
-        $command = "ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s";
+        $command = 'ACKNOWLEDGE_SVC_PROBLEM;%s;%s;%s;%s;%s;%s;%s';
         call_user_func_array(
             [$external_cmd, $method_external_name],
             [
@@ -166,11 +172,11 @@ try {
                     $get_information['form']['author'],
                     $get_information['form']['comment']
                 ),
-                $row['instance_id']
+                $row['instance_id'],
             ]
         );
         if ($forceCheck) {
-            $command = "SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d";
+            $command = 'SCHEDULE_FORCED_SVC_CHECK;%s;%s;%d';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
                 [
@@ -180,7 +186,7 @@ try {
                         $row['description'],
                         time()
                     ),
-                    $row['instance_id']
+                    $row['instance_id'],
                 ]
             );
         }

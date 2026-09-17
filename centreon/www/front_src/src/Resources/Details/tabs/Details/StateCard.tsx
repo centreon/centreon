@@ -1,7 +1,7 @@
+import { Card, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Card, Typography } from '@mui/material';
 
 import { labelComment } from '../../../translatedLabels';
 

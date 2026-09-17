@@ -1,7 +1,6 @@
 import { ParentSize } from '../..';
-
+import type { BarStackProps } from './models';
 import ResponsiveBarStack from './ResponsiveBarStack';
-import { BarStackProps } from './models';
 
 const Bar = (props: BarStackProps): JSX.Element => (
   <ParentSize>

@@ -17,13 +17,13 @@ export const labelCreateRemoteServer = 'Create new Remote Server';
 export const labelSelectRemoteServer = 'Select a Remote Server';
 export const labelSelectRemoteLinks = 'Select Pending Remote Links';
 export const labelServerName = 'Server Name';
-export const labelServerIp = 'Server IP address';
+export const labelServerIp = 'Server address';
 
 export const labelDbUser = 'Database username';
 export const labelDbPassword = 'Database password';
 
 export const labelCentreonCentralIp =
-  'Centreon Central IP address, as seen by this server';
+  'Centreon Central address, as seen by this server';
 export const labelCentreonFolder = 'Centreon Web Folder on Remote';
 
 export const labelLinkedRemoteMaster =
@@ -37,6 +37,14 @@ export const labelRemoteServers =
 
 export const labelOpenBrokerFlow =
   'Advanced: reverse Centreon Broker communication flow';
+
+export const labelGorgonePullWss =
+  'Advanced: gorgone - poller connects to the central';
+
+export const labelGorgonePullWssPrerequisite =
+  'Prerequisite: configure the central to accept PullWSS connections';
+
+export const labelDocumentation = 'documentation';
 
 export const labelDoNotUseConfiguredProxy =
   'Do not use configured proxy to connect to this server';

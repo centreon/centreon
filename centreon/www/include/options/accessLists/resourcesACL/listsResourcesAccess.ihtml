@@ -16,7 +16,7 @@
     </table>
 	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
-			<td> 
+			<td>
 				{$form.o1.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
 			</td>
@@ -36,6 +36,7 @@
 			<td class="ListColHeaderCenter">{$headerMenu_allH}</td>
 			<td class="ListColHeaderCenter">{$headerMenu_allHG}</td>
 			<td class="ListColHeaderCenter">{$headerMenu_allSG}</td>
+			<td class="ListColHeaderCenter">{$headerMenu_allImageFolders}</td>
 			<td class="ListColHeaderCenter">{$headerMenu_status}</td>
 			<td class="ListColHeaderRight">{$headerMenu_options}</td>
 		</tr>
@@ -43,10 +44,11 @@
 		<tr class={$elemArr[elem].MenuClass}>
 			<td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
 			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name}</a></td>
-			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_alias}</a></td>
+			<td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_alias|escape:"html"}</a></td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_hosts}</td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_hostgroups}</td>
 			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_servicegroups}</td>
+			<td class="ListColCenter">{$elemArr[elem].RowMenu_all_image_folders}</td>
 			<td class="ListColCenter"><span class="badge {$elemArr[elem].RowMenu_badge}">{$elemArr[elem].RowMenu_status}</span></td>
 			<td class="ListColRight">{$elemArr[elem].RowMenu_options}</td>
 		</tr>
@@ -54,7 +56,7 @@
 	</table>
 	<table class="ToolbarTable table">
 		<tr class="ToolbarTR">
-			<td> 
+			<td>
 				{$form.o2.html}
 				<a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
 			</td>
@@ -62,7 +64,7 @@
 		</tr>
 	</table>
 <input type='hidden' name='o' id='o' value='42'>
-<input type='hidden' id='limit' name='limit' value='{$limit}'>	
+<input type='hidden' id='limit' name='limit' value='{$limit}'>
 {$form.hidden}
 </form>
 {literal}

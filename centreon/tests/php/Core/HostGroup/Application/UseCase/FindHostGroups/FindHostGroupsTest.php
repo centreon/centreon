@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ namespace Tests\Core\HostGroup\Application\UseCase\FindHostGroups;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -45,6 +46,7 @@ beforeEach(function (): void {
         $this->readMediaRepository = $this->createMock(ReadMediaRepositoryInterface::class),
         $this->createMock(RequestParametersInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->hostCounts = new HostGroupRelationCount(1, 2);
@@ -65,7 +67,7 @@ beforeEach(function (): void {
 it(
     'should present an ErrorResponse when an exception is thrown',
     function (): void {
-        $this->contact
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -86,7 +88,7 @@ it(
 it(
     'should present a FindHostGroupsResponse as admin',
     function (): void {
-        $this->contact
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -113,7 +115,7 @@ it(
 it(
     'should present a FindHostGroupsResponse as non-admin',
     function (): void {
-        $this->contact
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(false);

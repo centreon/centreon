@@ -96,12 +96,12 @@ const getNotificationResponse = ({
   },
   users: [
     {
-      id: 4,
-      name: 'centreon-gorgone'
+      alias: 'centreon-gorgone',
+      id: 4
     },
     {
-      id: 17,
-      name: 'Guest'
+      alias: 'Guest',
+      id: 17
     }
   ]
 });
@@ -160,10 +160,12 @@ const usersResponse = {
   },
   result: [
     {
+      alias: 'centreon-gorgone',
       id: 4,
       name: 'centreon-gorgone'
     },
     {
+      alias: 'Guest',
       id: 17,
       name: 'Guest'
     }

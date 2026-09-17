@@ -1,7 +1,7 @@
-import { Provider, createStore } from 'jotai';
-import { equals } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+
+import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
 
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
@@ -14,10 +14,10 @@ import {
   labelDeleteMultipleResourceAccessRules,
   labelDeleteResourceAccessRule,
   labelDeleteResourceAccessRuleDialogMessage,
-  labelDeleteResourceAccessRuleWarning,
   labelDeleteResourceAccessRules,
   labelDeleteResourceAccessRulesDialogMessage,
   labelDeleteResourceAccessRulesWarning,
+  labelDeleteResourceAccessRuleWarning,
   labelDuplicate,
   labelEnterNameForDuplicatedRule,
   labelFailedToDeleteSelectedRules,
@@ -28,9 +28,8 @@ import {
   labelResourceAccessRulesDeletedSuccess,
   labelRuleDuplicatedSuccess
 } from '../../translatedLabels';
-import ResourceAccessRulesListing from '../Listing';
 import { buildResourceAccessRulesEndpoint } from '../api/endpoints';
-
+import ResourceAccessRulesListing from '../Listing';
 import {
   defaultQueryParams,
   deleteMultipleRulesFailedResponse,
@@ -48,11 +47,9 @@ const ListingWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <>
-              <ResourceAccessRulesListing />
-              <DeleteConfirmationDialog />
-              <DuplicationForm />
-            </>
+            <ResourceAccessRulesListing />
+            <DeleteConfirmationDialog />
+            <DuplicationForm />
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>

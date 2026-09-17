@@ -1,0 +1,45 @@
+meta {
+  name: POST /hosts/categories - Create HC with mandatory properties - HTTP 201
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostCategory2Name}}",
+    "alias": "{{HostCategory2Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host category has been successfully created, with name '{{HostCategory2Name}}' and alias '{{HostCategory2Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostCategory2Id", body.id);
+    expect(body).to.eql({
+      "id": body.id,
+      "name": bru.getEnvVar("HostCategory2Name"),
+      "alias": bru.getEnvVar("HostCategory2Alias"),
+      "is_activated": true,
+      "comment": null
+    });
+  });
+
+  test("The Location parameter is in the header.", function () {
+    expect(res.getHeaders()).to.have.property("location");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

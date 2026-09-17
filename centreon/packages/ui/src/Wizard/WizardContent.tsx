@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
-
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
+import { useEffect } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import ActionsBar from './ActionsBar';
-import { WizardContentProps } from './models';
+import type { WizardContentProps } from './models';
 
 const useStyles = makeStyles()(() => ({
   content: {
@@ -26,7 +25,6 @@ const WizardContent = ({
   isFirstStep,
   disableNextOnSendingRequests,
   goToPreviousStep,
-  currentStep,
   actionsBarLabels,
   goToNextStep
 }: WizardContentProps): JSX.Element => {
@@ -45,7 +43,7 @@ const WizardContent = ({
 
   useEffect(() => {
     validateForm();
-  }, [currentStep]);
+  }, [validateForm]);
 
   const disableActionButtons =
     sendingRequest || isSubmitting || !isValid || getFormChanged();

@@ -22,7 +22,7 @@ if (isset($_SESSION['step'])) {
     <script type="text/javascript">jQuery.noConflict();</script>
     <script type='text/javascript'>
         jQuery().ready(function () {
-            var curstep = <?php echo $step;?>;
+            var curstep = <?php echo $step; ?>;
             jQuery('#installationContent').load('./step_upgrade/step' + curstep + '.php');
         });
 

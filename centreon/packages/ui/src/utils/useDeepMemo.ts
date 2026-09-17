@@ -11,4 +11,4 @@ export const useDeepMemo = <TVariable, TMemoProps>({
   deps,
   variable
 }: UseDeepMemo<TVariable, TMemoProps>): TVariable =>
-  useMemo(() => variable, useDeepCompare(deps));
+  useMemo(() => variable, [...useDeepCompare(deps), variable]);

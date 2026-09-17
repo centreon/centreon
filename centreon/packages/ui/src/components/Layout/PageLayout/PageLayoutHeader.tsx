@@ -1,18 +1,20 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { useStyles } from './PageLayout.styles';
 
 type PageLayoutHeaderProps = {
   children: Array<ReactNode> | ReactNode;
+  className?: string;
 };
 
 export const PageLayoutHeader = ({
-  children
+  children,
+  className
 }: PageLayoutHeaderProps): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
-    <header className={classes.pageLayoutHeader} id="header">
+    <header className={cx(classes.pageLayoutHeader, className)} id="header">
       {children}
     </header>
   );

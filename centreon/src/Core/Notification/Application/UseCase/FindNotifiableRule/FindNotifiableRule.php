@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\BasicContact;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
@@ -55,6 +56,7 @@ final class FindNotifiableRule
         private readonly ReadNotificationRepositoryInterface $notificationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -116,10 +118,10 @@ final class FindNotifiableRule
      */
     private function findContactGroupsByNotificationId(int $notificationId): array
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
         }
-  
+
         return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
             $notificationId,
             $this->user,
@@ -136,16 +138,16 @@ final class FindNotifiableRule
      */
     private function findUsersByNotificationId(int $notificationId): array
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             return $this->notificationRepository->findUsersByNotificationId($notificationId);
         }
-  
-            return $this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
-                $notificationId,
-                $this->user,
-                $this->findAccessGroupsOfNonAdminUser()
-            );
-        
+
+        return $this->notificationRepository->findUsersByNotificationIdUserAndAccessGroups(
+            $notificationId,
+            $this->user,
+            $this->findAccessGroupsOfNonAdminUser()
+        );
+
     }
 
     /**
@@ -183,7 +185,7 @@ final class FindNotifiableRule
 
         // Retrieve contacts from contact groups
         $contactGroupIds = array_map(
-            static fn(ContactGroup $contactGroup) => $contactGroup->getId(),
+            static fn (ContactGroup $contactGroup) => $contactGroup->getId(),
             $contactGroups
         );
 
@@ -213,7 +215,7 @@ final class FindNotifiableRule
      *
      * @return ContactDto[]
      */
-    private function createContactDto (array $contacts): array
+    private function createContactDto(array $contacts): array
     {
         $contactDtos = [];
         $contactIdsAlreadyCreated = [];

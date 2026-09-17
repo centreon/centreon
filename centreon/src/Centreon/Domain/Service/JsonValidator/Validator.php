@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,9 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
- *Controller
+ *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Service\JsonValidator;
@@ -42,39 +43,25 @@ class Validator implements JsonValidatorInterface
 {
     public const VERSION_LATEST = 'latest';
     public const VERSION_BETA = 'beta';
-
     private const VERSION_DEFAULT = 'default';
-
     private const COMPONENTS_REFERENCE = '$components';
 
-    /**
-     * @var JsonSchemaValidator
-     */
+    /** @var JsonSchemaValidator */
     private $validator;
 
-    /**
-     * @var array List of definitions that will be used to validate the JSON
-     */
+    /** @var array List of definitions that will be used to validate the JSON */
     private $definitions = [];
 
-    /**
-     * @var ResourceInterface[] List of YAML definition files
-     */
+    /** @var ResourceInterface[] List of YAML definition files */
     private $definitionFiles = [];
 
-    /**
-     * @var string Version of the definition files to use for the validation process
-     */
+    /** @var string Version of the definition files to use for the validation process */
     private $version = self::VERSION_DEFAULT;
 
-    /**
-     * @var string Path where the definition files are stored
-     */
+    /** @var string Path where the definition files are stored */
     private $validationFilePath;
 
-    /**
-     * @var ValidatorCacheInterface
-     */
+    /** @var ValidatorCacheInterface */
     private $validatorCache;
 
     /**
@@ -95,6 +82,7 @@ class Validator implements JsonValidatorInterface
     public function forVersion(string $version): JsonValidatorInterface
     {
         $this->version = $version;
+
         return $this;
     }
 
@@ -150,7 +138,7 @@ class Validator implements JsonValidatorInterface
             Constraint::CHECK_MODE_ONLY_REQUIRED_DEFAULTS
         );
 
-        return (!$this->validator->isValid())
+        return (! $this->validator->isValid())
             ? $this->formatErrors($this->validator->getErrors(), $json)
             : new ConstraintViolationList();
     }
@@ -164,7 +152,7 @@ class Validator implements JsonValidatorInterface
      */
     private function populateComponentsToDefinitions(
         array $definitionsToPopulate,
-        array $versionedDefinitions
+        array $versionedDefinitions,
     ): array {
         if (array_key_exists(self::COMPONENTS_REFERENCE, $versionedDefinitions)) {
             $definitionsToPopulate[self::COMPONENTS_REFERENCE] = $versionedDefinitions[self::COMPONENTS_REFERENCE];
@@ -176,10 +164,10 @@ class Validator implements JsonValidatorInterface
     /**
      * Load the definition files for the filesystem or cache.
      */
-    private function loadDefinitionFile(): void
+    private function loadDefinitionFile(bool $forceRebuild = false): void
     {
         $this->definitionFiles = [];
-        if (!$this->validatorCache->isCacheValid()) {
+        if ($forceRebuild || ! $this->validatorCache->isCacheValid()) {
             // We will load the definition files and create the cache
             if (is_file($this->validationFilePath)) {
                 $info = pathinfo($this->validationFilePath);
@@ -188,23 +176,27 @@ class Validator implements JsonValidatorInterface
                 }
             } elseif (is_dir($this->validationFilePath)) {
                 foreach (new \DirectoryIterator($this->validationFilePath) as $fileInfo) {
-                    if ($fileInfo->isDir() && !in_array($fileInfo->getFilename(), ['.', '..'])) {
+                    if ($fileInfo->isDir() && ! in_array($fileInfo->getFilename(), ['.', '..'])) {
                         $version = $fileInfo->getFilename();
                         $this->definitions = array_merge_recursive(
                             $this->definitions,
                             $this->getDefinitionsByVersion($version)
                         );
                     }
-                };
+                }
             }
             // The definitions are loaded, we put them in the cache
             $this->validatorCache->setCache(
-                serialize($this->definitions),
+                json_encode($this->definitions, JSON_THROW_ON_ERROR),
                 $this->definitionFiles
             );
         } elseif (($cache = $this->validatorCache->getCache()) !== null) {
-            // We retrieve data from cache
-            $this->definitions = unserialize($cache);
+            try {
+                $this->definitions = json_decode($cache, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                @unlink($this->validatorCache->getCacheFile());
+                $this->loadDefinitionFile(true);
+            }
         }
     }
 
@@ -222,6 +214,7 @@ class Validator implements JsonValidatorInterface
                 $this->getDefinitionsByFile($file[0])
             );
         }
+
         return [$version => $definitions];
     }
 
@@ -237,6 +230,7 @@ class Validator implements JsonValidatorInterface
         if (($yamlData = file_get_contents($pathFilename)) !== false) {
             return Yaml::parse($yamlData);
         }
+
         return [];
     }
 
@@ -264,6 +258,7 @@ class Validator implements JsonValidatorInterface
                 )
             );
         }
+
         return $constraints;
     }
 
@@ -280,13 +275,14 @@ class Validator implements JsonValidatorInterface
         if (array_key_exists($firstKeyToFind, $data)) {
             if (is_array($data[$firstKeyToFind])) {
                 return $this->getOriginalValue($root, $data[$firstKeyToFind]);
-            } else {
-                if (\is_bool($data[$firstKeyToFind])) {
-                    return ($data[$firstKeyToFind]) ? 'true' : 'false';
-                }
-                return (string) $data[$firstKeyToFind];
             }
+            if (\is_bool($data[$firstKeyToFind])) {
+                return ($data[$firstKeyToFind]) ? 'true' : 'false';
+            }
+
+            return (string) $data[$firstKeyToFind];
         }
+
         return null;
     }
 }

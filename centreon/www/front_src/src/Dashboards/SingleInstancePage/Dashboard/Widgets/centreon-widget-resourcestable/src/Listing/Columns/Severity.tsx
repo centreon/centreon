@@ -1,13 +1,11 @@
-import { ReactNode } from 'react';
-
-import { isNil } from 'ramda';
-
 import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { Severity } from '../models';
+import { isNil } from 'ramda';
+import { ReactNode } from 'react';
 
+import { Severity } from '../models';
 import { useSeverityStyles } from './Columns.styles';
 
 interface Props {
@@ -44,9 +42,10 @@ const Title = ({ severity }: { severity: Severity }): JSX.Element => {
 
 const SeverityColumn = ({ row }: ComponentColumnProps): JSX.Element | null => {
   const { classes } = useSeverityStyles();
-  const isSeverityIcon = !isNil(row?.severity?.icon?.url);
+  const typedRow = row as { severity?: Severity };
+  const isSeverityIcon = !isNil(typedRow?.severity?.icon?.url);
 
-  if (!row?.severity) {
+  if (!typedRow?.severity) {
     return null;
   }
 
@@ -55,12 +54,12 @@ const SeverityColumn = ({ row }: ComponentColumnProps): JSX.Element | null => {
       {isSeverityIcon && (
         <WrapperTooltip
           className={classes.container}
-          title={<Title severity={row?.severity} />}
+          title={<Title severity={typedRow?.severity} />}
         >
           <img
             alt="severity"
             height={24}
-            src={row.severity?.icon?.url}
+            src={typedRow.severity?.icon?.url}
             width={24}
           />
         </WrapperTooltip>

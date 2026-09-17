@@ -1,13 +1,12 @@
-import { useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import CloseIcon from '@mui/icons-material/Close';
 
 import { ConfirmDialog, IconButton } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useSetAtom } from 'jotai';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { isPanelOpenAtom } from '../../../atom';
 import {
@@ -64,17 +63,17 @@ const ClosePanelAction = (): JSX.Element => {
       <IconButton
         ariaLabel={t(labelClosePanel) as string}
         className={classes.button}
-        title={t(labelClosePanel) as string}
         onClick={askBeforeClosePanelEdit}
+        title={t(labelClosePanel) as string}
       >
         <CloseIcon className={classes.icon} />
       </IconButton>
       <ConfirmDialog
         labelMessage={t(labelDoYouWantToQuitWithoutSaving)}
         labelTitle={t(labelYourFormHasUnsavedChanges)}
-        open={dialogOpen}
         onCancel={onCancel}
         onConfirm={onConfirm}
+        open={dialogOpen}
       />
     </>
   );

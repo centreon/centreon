@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ interface ReadHostRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -188,4 +188,15 @@ interface ReadHostRepositoryInterface
      * @return SimpleEntity[]
      */
     public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array;
+
+    /**
+     * Retrieve all parent template relations for multiple hosts (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, array<array{parent_id:int,child_id:int,order:int}>> Map of hostId => array of parent relations
+     */
+    public function findParentsByHostIds(array $hostIds): array;
 }

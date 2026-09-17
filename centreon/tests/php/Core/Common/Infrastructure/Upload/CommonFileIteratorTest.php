@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,26 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\Upload;
 
 use Core\Common\Infrastructure\Upload\CommonFileIterator;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-it('should iterate on each files', function(): void {
+it('should iterate on each files', function (): void {
     $fileIterator = new CommonFileIterator();
     $fileIterator->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'logo.jpg', 'logo.jpg'));
     $fileIterator->addFile(new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'logo.svg', 'logo.svg'));
     $files = [];
-    foreach($fileIterator as $filename => $contentFile) {
+    foreach ($fileIterator as $filename => $contentFile) {
         echo null; // To ensure that we can iterate several times
     }
-    foreach($fileIterator as $filename => $contentFile) {
+    foreach ($fileIterator as $filename => $contentFile) {
         /** @var list<array{filename: string, md5: string}> $files */
         $files[] = [
             'filename' => $filename,
-            'md5' => md5($contentFile)
+            'md5' => md5($contentFile),
         ];
     }
 

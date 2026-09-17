@@ -1,0 +1,64 @@
+meta {
+  name: GET /hosts/templates - Get 2 host templates after update - HTTP 200
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/templates?sort_by={"id":"DESC"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host templates are listed with all of their parameters, HT2 is absent.", function () {
+    const body = res.getBody();
+    const ht1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate1Id")));
+    const ht2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate2Id")));
+    const ht3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostTemplate3Id")));
+    expect(ht2).to.be.undefined;
+    expect(ht3).to.include({
+      "id": parseInt(bru.getEnvVar("HostTemplate3Id")),
+      "name": bru.getEnvVar("HostTemplate3Name"),
+      "alias": bru.getEnvVar("HostTemplate3Alias"),
+      "snmp_version": "2c",
+      "timezone_id": 2,
+      "severity_id": null,
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 6,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "note_url": "noteUrl!!!!",
+      "note": "notéé",
+      "action_url": "actionUrl-ouêp",
+      "icon_id": 1,
+      "is_locked": false
+    });
+    expect(ht1).to.include({
+      "id": parseInt(bru.getEnvVar("HostTemplate1Id")),
+      "name": bru.getEnvVar("HostTemplate1Name"),
+      "alias": bru.getEnvVar("HostTemplate1Alias"),
+      "snmp_version": "2c",
+      "timezone_id": 1,
+      "severity_id": parseInt(bru.getEnvVar("HostSeverity1Id")),
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 3,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "note_url": "noteUrl-value",
+      "note": "note-value",
+      "action_url": "actionUrl-value",
+      "icon_id": 1,
+      "is_locked": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

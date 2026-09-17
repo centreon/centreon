@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,28 @@ class ProviderException extends \Exception
     /**
      * Exception thrown when a Provider class was unexpected.
      *
-     * @param class-string $class
+     * @param string $class
      *
      * @return self
      */
     public static function unexpectedProvider(string $class): self
     {
         return new self(sprintf(_('Must not Happen, got unexpected Provider type %s'), $class));
+    }
+
+    /**
+     * Exception thrown when the configuration of a provider could not be retrieved.
+     *
+     * @param string $providerConfigurationName
+     * @param \Throwable $e
+     *
+     * @return self
+     */
+    public static function errorWhileSearchingConfiguration(string $providerConfigurationName, \Throwable $e): self
+    {
+        return new self(
+            sprintf(_("Error while searching provider configuration: '%s'"), $providerConfigurationName),
+            previous: $e
+        );
     }
 }

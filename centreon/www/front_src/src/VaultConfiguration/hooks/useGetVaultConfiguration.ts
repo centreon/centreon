@@ -1,9 +1,11 @@
 import { useFetchQuery } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
-import { useValidationSchema } from '../Form/useValidationSchema';
+
 import { getVaultConfigurationDecoder } from '../api/decoders';
 import { vaultConfigurationEndpoint } from '../api/endpoints';
 import { canMigrateAtom } from '../atoms';
+import { useValidationSchema } from '../Form/useValidationSchema';
 
 export const useGetVaultConfiguration = () => {
   const setCanMigrate = useSetAtom(canMigrateAtom);
@@ -24,8 +26,8 @@ export const useGetVaultConfiguration = () => {
     setCanMigrate(
       validationSchema.isValidSync({
         ...data,
-        secretId: 'secret',
-        roleId: 'role'
+        roleId: 'role',
+        secretId: 'secret'
       })
     );
   }

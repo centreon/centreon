@@ -1,0 +1,53 @@
+meta {
+  name: POST /monitoring/acknowledgements - Bulk acknowledge resources - HTTP 204
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledge
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "acknowledgement": {
+      "comment": "Acknowledged by editor",
+      "is_notify_contacts": false,
+      "with_services": false,
+      "force_active_checks": false,
+      "is_persistent_comment": false,
+      "is_sticky": false
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      },
+      {
+        "type": "service",
+        "id": {{Service1Id}},
+        "parent": {
+          "id": {{Host1Id}}
+        }
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The bulk acknowledgement has been successfully submitted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

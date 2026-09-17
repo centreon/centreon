@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
-import { UserPermissions } from '.';
+
+import type { UserPermissions } from '.';
 
 const userPermissionsAtom = atom<UserPermissions | null>(null);
 

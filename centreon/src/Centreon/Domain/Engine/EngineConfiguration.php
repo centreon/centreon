@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Engine;
@@ -29,36 +30,25 @@ class EngineConfiguration
     public const NOTIFICATIONS_OPTION_DISABLED = 0;
     public const NOTIFICATIONS_OPTION_ENABLED = 1;
     public const NOTIFICATIONS_OPTION_DEFAULT = 2;
-
     private const AVAILABLE_NOTIFICATION_OPTIONS = [
         self::NOTIFICATIONS_OPTION_DISABLED,
         self::NOTIFICATIONS_OPTION_ENABLED,
         self::NOTIFICATIONS_OPTION_DEFAULT,
     ];
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null Illegal object name characters
-     */
+    /** @var string|null Illegal object name characters */
     private $illegalObjectNameCharacters;
 
-    /**
-     * @var int|null Monitoring server id
-     */
+    /** @var int|null Monitoring server id */
     private $monitoringServerId;
 
-    /**
-     * @var string|null Engine configuration name
-     */
+    /** @var string|null Engine configuration name */
     private $name;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_ENABLED;
 
     /**
@@ -76,6 +66,7 @@ class EngineConfiguration
     public function setId(?int $id): EngineConfiguration
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -94,6 +85,7 @@ class EngineConfiguration
     public function setIllegalObjectNameCharacters(?string $illegalObjectNameCharacters): EngineConfiguration
     {
         $this->illegalObjectNameCharacters = $illegalObjectNameCharacters;
+
         return $this;
     }
 
@@ -112,6 +104,7 @@ class EngineConfiguration
     public function setMonitoringServerId(?int $monitoringServerId): EngineConfiguration
     {
         $this->monitoringServerId = $monitoringServerId;
+
         return $this;
     }
 
@@ -130,6 +123,7 @@ class EngineConfiguration
     public function setName(?string $name): EngineConfiguration
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -144,6 +138,7 @@ class EngineConfiguration
         if ($this->illegalObjectNameCharacters === null || $this->illegalObjectNameCharacters === '') {
             return $stringToAnalyse;
         }
+
         return str_replace(str_split($this->illegalObjectNameCharacters), '', $stringToAnalyse);
     }
 

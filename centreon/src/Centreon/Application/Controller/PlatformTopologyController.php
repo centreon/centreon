@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,43 +48,15 @@ class PlatformTopologyController extends AbstractController
     /** @var PlatformTopologyServiceInterface */
     private $platformTopologyService;
 
-
     /**
      * PlatformTopologyController constructor.
      *
      * @param PlatformTopologyServiceInterface $platformTopologyService
      */
     public function __construct(
-        PlatformTopologyServiceInterface $platformTopologyService
+        PlatformTopologyServiceInterface $platformTopologyService,
     ) {
         $this->platformTopologyService = $platformTopologyService;
-    }
-
-    /**
-     * Validate platform topology data according to json schema
-     *
-     * @param array<mixed> $platformToAdd data sent in json
-     * @param string $schemaPath
-     *
-     * @throws PlatformTopologyException
-     */
-    private function validatePlatformTopologySchema(array $platformToAdd, string $schemaPath): void
-    {
-        $platformTopologySchemaToValidate = Validator::arrayToObjectRecursive($platformToAdd);
-        $validator = new Validator();
-        $validator->validate(
-            $platformTopologySchemaToValidate,
-            (object) ['$ref' => 'file://' . $schemaPath],
-            Constraint::CHECK_MODE_VALIDATE_SCHEMA
-        );
-
-        if (!$validator->isValid()) {
-            $message = '';
-            foreach ($validator->getErrors() as $error) {
-                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
-            }
-            throw new PlatformTopologyException($message);
-        }
     }
 
     /**
@@ -186,7 +158,7 @@ class PlatformTopologyController extends AbstractController
             $edges = [];
             $nodes = [];
 
-            //Format the PlatformTopology into a Json Graph Format
+            // Format the PlatformTopology into a Json Graph Format
             foreach ($platformTopology as $platform) {
                 $topologyJsonGraph = new PlatformJsonGraph($platform);
                 if (! empty($topologyJsonGraph->getRelation())) {
@@ -245,11 +217,40 @@ class PlatformTopologyController extends AbstractController
 
         try {
             $this->platformTopologyService->deletePlatformAndReallocateChildren($platformId);
+
             return $this->view(null, Response::HTTP_NO_CONTENT);
         } catch (EntityNotFoundException $ex) {
             return $this->view(['message' => $ex->getMessage()], Response::HTTP_NOT_FOUND);
         } catch (\Exception $ex) {
             return $this->view(['message' => $ex->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Validate platform topology data according to json schema
+     *
+     * @param array<mixed> $platformToAdd data sent in json
+     * @param string $schemaPath
+     *
+     * @throws PlatformTopologyException
+     */
+    private function validatePlatformTopologySchema(array $platformToAdd, string $schemaPath): void
+    {
+        $platformTopologySchemaToValidate = Validator::arrayToObjectRecursive($platformToAdd);
+        $validator = new Validator();
+        $validator->validate(
+            $platformTopologySchemaToValidate,
+            (object) ['$ref' => 'file://' . $schemaPath],
+            Constraint::CHECK_MODE_VALIDATE_SCHEMA
+        );
+
+        if (! $validator->isValid()) {
+            $message = '';
+            foreach ($validator->getErrors() as $error) {
+                $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
+            }
+
+            throw new PlatformTopologyException($message);
         }
     }
 }

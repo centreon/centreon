@@ -81,7 +81,10 @@
 <script type='text/javascript' src='./include/common/javascript/showLogo.js'></script>
 <script type='text/javascript'>
 jQuery(function() {
-    showLogo('icon_id_ctn', document.getElementById('icon_id').value);
+    var iconEl = document.getElementById('icon_id');
+    if (iconEl) {
+        showLogo('icon_id_ctn', iconEl.value);
+    }
     jQuery('#hc_type').click(function() {
         toggleSeverityFields();
     });

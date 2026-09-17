@@ -33,6 +33,6 @@ services:
         arguments:
         - '@.inner'
         - '@Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface'
-        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@security.token_storage'
         - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
         - '@Centreon\Infrastructure\DatabaseConnection'

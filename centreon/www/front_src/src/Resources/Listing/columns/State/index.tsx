@@ -1,9 +1,8 @@
-import { FC } from 'react';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { path } from 'ramda';
+import { FC } from 'react';
 import { makeStyles } from 'tss-react/mui';
-
-import type { ComponentColumnProps } from '@centreon/ui';
 
 import AcknowledgeChip from '../../../Chip/Acknowledge';
 import DowntimeChip from '../../../Chip/Downtime';
@@ -11,7 +10,6 @@ import FlappingChip from '../../../Chip/Flapping';
 import { Resource } from '../../../models';
 import { labelAcknowledged, labelInDowntime } from '../../../translatedLabels';
 import HoverChip from '../HoverChip';
-
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';
 
@@ -81,12 +79,15 @@ const AcknowledgeHoverChip = ({
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyles();
+  const typedRow = row as unknown as Resource & {
+    is_in_flapping?: boolean;
+  };
 
   return (
     <div className={classes.container}>
-      {row.is_in_downtime && <DowntimeHoverChip resource={row} />}
-      {row.is_acknowledged && <AcknowledgeHoverChip resource={row} />}
-      {row.is_in_flapping && <FlappingChip />}
+      {typedRow.is_in_downtime && <DowntimeHoverChip resource={typedRow} />}
+      {typedRow.is_acknowledged && <AcknowledgeHoverChip resource={typedRow} />}
+      {typedRow.is_in_flapping && <FlappingChip />}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ class MetricException extends \Exception
 
     public static function invalidMetricFormat(): self
     {
-        return new self (_('Invalid metric format'));
+        return new self(_('Invalid metric format'));
     }
 
     public static function downloadNotAllowed(): self
     {
-        return new self (_('Downloading the performance metrics is not allowed'));
+        return new self(_('Downloading the performance metrics is not allowed'));
     }
 }

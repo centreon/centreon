@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,13 +52,13 @@ final class FindPerformanceMetricsData
         private readonly ReadMetricRepositoryInterface $metricRepository,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly DashboardRights $rights,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
     public function __invoke(
         FindPerformanceMetricsDataPresenterInterface $presenter,
-        FindPerformanceMetricsDataRequestDto $request
+        FindPerformanceMetricsDataRequestDto $request,
     ): void {
         try {
             if ($this->isUserAdmin()) {
@@ -104,7 +104,7 @@ final class FindPerformanceMetricsData
      * @return PerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsAdmin(
-        FindPerformanceMetricsDataRequestDto $request
+        FindPerformanceMetricsDataRequestDto $request,
     ): PerformanceMetricsData {
         $services = $this->metricRepository->findServicesByMetricNamesAndRequestParameters(
             $request->metricNames,
@@ -127,7 +127,7 @@ final class FindPerformanceMetricsData
      */
     private function findPerformanceMetricsDataAsNonAdmin(
         FindPerformanceMetricsDataRequestDto $request,
-        array $accessGroups
+        array $accessGroups,
     ): PerformanceMetricsData {
         $services = $this->metricRepository->findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
             $request->metricNames,
@@ -158,7 +158,7 @@ final class FindPerformanceMetricsData
      */
     private function createPerformanceMetricsData(
         array $services,
-        FindPerformanceMetricsDataRequestDto $request
+        FindPerformanceMetricsDataRequestDto $request,
     ): PerformanceMetricsData {
         $metricsData = [];
         $this->metricRepositoryLegacy->setContact($this->user);

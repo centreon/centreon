@@ -1,0 +1,38 @@
+meta {
+  name: POST clapi add timeperiod - HTTP 200
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "TP",
+    "values": "BrunoClapiTimeperiod;BrunoClapiTimeperiod"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("CLAPI add timeperiod succeeds (data ingested for the export round-trip)", function () {
+    expect(res.getBody()).to.not.be.undefined;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

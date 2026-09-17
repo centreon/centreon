@@ -38,3 +38,6 @@ services:
         arguments:
           $repositoryProviders: !tagged_iterator 'resource.access.dataset.filter.resource.repository.providers'
 
+    Core\Media\Application\Repository\ReadImageFolderRepositoryInterface:
+        class: Core\Media\Infrastructure\Repository\DbReadImageFolderRepository
+

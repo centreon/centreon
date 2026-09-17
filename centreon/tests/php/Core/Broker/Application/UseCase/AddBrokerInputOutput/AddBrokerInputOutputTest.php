@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,10 @@ use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\Type;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Tests\Core\Broker\Infrastructure\API\AddBrokerInputOutput\AddBrokerInputOutputPresenterStub;
 
 beforeEach(function (): void {
@@ -60,7 +62,15 @@ beforeEach(function (): void {
     );
     $this->outputFields = [
         $this->field = new BrokerInputOutputField(
-            1, 'path', 'text', null, null, true, false, null, []
+            1,
+            'path',
+            'text',
+            null,
+            null,
+            true,
+            false,
+            null,
+            []
         ),
     ];
 
@@ -74,7 +84,10 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->validator = $this->createMock(BrokerInputOutputValidator::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
-        $this->flags = new FeatureFlags(false, ''),
+        $this->vaultEligibilityService = new VaultEligibilityService(
+            new FeatureFlags(false, ''),
+            $this->createMock(ReadVaultConfigurationRepositoryInterface::class),
+        ),
     );
 });
 

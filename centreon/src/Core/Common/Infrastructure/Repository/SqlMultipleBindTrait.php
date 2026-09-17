@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,20 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
+
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 trait SqlMultipleBindTrait
 {
     /**
      * @param array<int|string, int|string> $list
      * @param string $prefix
-     * @param int $bindType (optional)
+     * @param int|null $bindType (optional)
      *
      * @return array{
      *     0: array<string, int|string|array{0: int|string, 1: int}>,
@@ -45,5 +49,42 @@ trait SqlMultipleBindTrait
         }
 
         return [$bindValues, implode(', ', array_keys($bindValues))];
+    }
+
+    /**
+     * Create multiple bind parameters compatible with QueryParameterTypeEnum
+     *
+     * @param array<int|string, int|string|null> $values Scalar values to bind
+     * @param string $prefix Placeholder prefix (no colon)
+     * @param QueryParameterTypeEnum $paramType Type of binding (INTEGER|STRING)
+     *
+     * @throws ValueObjectException
+     * @return array{parameters: QueryParameter[], placeholderList: string}
+     */
+    protected function createMultipleBindParameters(
+        array $values,
+        string $prefix,
+        QueryParameterTypeEnum $paramType,
+    ): array {
+        $placeholders = [];
+        $parameters = [];
+
+        foreach (array_values($values) as $idx => $val) {
+            $name = "{$prefix}_{$idx}";
+            $placeholders[] = ':' . $name;
+            $parameters[] = match ($paramType) {
+                QueryParameterTypeEnum::INTEGER => ($val === null)
+                    ? QueryParameter::null($name)
+                    : QueryParameter::int($name, (int) $val),
+                default => ($val === null)
+                    ? QueryParameter::null($name)
+                    : QueryParameter::string($name, (string) $val),
+            };
+        }
+
+        return [
+            'parameters' => $parameters,
+            'placeholderList' => implode(', ', $placeholders),
+        ];
     }
 }

@@ -51,7 +51,7 @@
                     </td>
                     <td class="ListColLeft">
                         <a href={$elem.url_edit}>
-                            {$elem.name}
+                            {$elem.name|escape:"html"}
                         </a>
                     </td>
                     <td class="ListColCenter">

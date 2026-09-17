@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,22 +21,22 @@
 
 declare(strict_types=1);
 
+use Core\Common\Domain\Exception\BusinessLogicException;
+
 /**
  * Class CentreonDbException
  *
  * @class CentreonDbException
  */
-class CentreonDbException extends ExceptionAbstract
+class CentreonDbException extends BusinessLogicException
 {
-
     /**
      * @param string $message
-     * @param array $options
+     * @param array $context
      * @param Throwable|null $previous
      */
-    public function __construct(string $message, array $options = [], ?Throwable $previous = null)
+    public function __construct(string $message, array $context = [], ?Throwable $previous = null)
     {
-        parent::__construct($message, self::DATABASE_ERROR_CODE, $options, $previous);
+        parent::__construct($message, self::ERROR_CODE_REPOSITORY, $context, $previous);
     }
-
 }

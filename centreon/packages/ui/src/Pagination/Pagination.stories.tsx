@@ -1,15 +1,16 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { http, HttpResponse } from 'msw';
+import type { Meta, StoryObj } from '@storybook/react';
+import { HttpResponse, http } from 'msw';
+
 import Pagination from '.';
 import { generateItems } from './utils';
 
 const mockedListing = {
-  result: generateItems(6),
   meta: {
+    limit: 6,
     page: 1,
-    total: 35,
-    limit: 6
-  }
+    total: 35
+  },
+  result: generateItems(6)
 };
 
 const meta: Meta<typeof Pagination> = {
@@ -28,8 +29,8 @@ const meta: Meta<typeof Pagination> = {
     return (
       <div
         style={{
-          width: '240px',
-          background: '#EDEDED'
+          background: '#EDEDED',
+          width: '240px'
         }}
       >
         <Pagination {...args} />

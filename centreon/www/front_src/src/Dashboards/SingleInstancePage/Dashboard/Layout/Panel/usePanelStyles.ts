@@ -35,8 +35,8 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     paddingTop: theme.spacing(1.25)
   },
   panelHeaderContent: {
-    width: '45%',
-    marginTop: '-8px'
+    marginTop: '-8px',
+    width: '45%'
   },
   panelHeaderContentWithShrink: {
     width: '20%'

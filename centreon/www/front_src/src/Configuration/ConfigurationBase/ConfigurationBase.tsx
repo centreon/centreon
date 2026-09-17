@@ -1,13 +1,14 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, isNil, isNotNil, not } from 'ramda';
-import { useEffect, useMemo } from 'react';
+import { isEmpty, isNil, not } from 'ramda';
+import { JSX, useEffect, useMemo } from 'react';
+
 import { ConfigurationBase } from '../models';
-import { configurationAtom, filtersAtom, selectedColumnIdsAtom } from './atoms';
-
+import { configurationAtom } from './atoms';
 import Page from './Page';
-import { columnsAtomKey, filtersAtomKey } from './constants';
 
-const Base = ({
+const Base = <TFilters,>({
   columns,
   resourceType,
   form,
@@ -15,19 +16,27 @@ const Base = ({
   filtersConfiguration,
   filtersInitialValues,
   defaultSelectedColumnIds,
-  hasWriteAccess
-}: ConfigurationBase): JSX.Element => {
+  actions,
+  labels,
+  selectedColumnIdsAtom,
+  columnsAtomKey,
+  filtersAtom,
+  filtersAtomKey,
+  isWelcomePageDisplayedAtom,
+  navbar
+}: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
   useEffect(() => {
     setConfiguration({
-      resourceType,
+      actions,
       api,
+      defaultSelectedColumnIds,
       filtersConfiguration,
       filtersInitialValues,
-      defaultSelectedColumnIds
+      resourceType
     });
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
@@ -42,7 +51,8 @@ const Base = ({
     api,
     filtersConfiguration,
     defaultSelectedColumnIds,
-    filtersInitialValues
+    filtersInitialValues,
+    actions
   ]);
 
   const isConfigurationValid = useMemo(
@@ -52,8 +62,7 @@ const Base = ({
       configuration?.filtersConfiguration &&
       !isEmpty(configuration?.defaultSelectedColumnIds) &&
       !isEmpty(configuration?.filtersInitialValues) &&
-      !isEmpty(filters) &&
-      isNotNil(hasWriteAccess),
+      !isEmpty(filters),
     [configuration, filters]
   ) as boolean;
 
@@ -62,11 +71,17 @@ const Base = ({
   }
 
   return (
-    <Page
+    <Page<TFilters>
+      actions={actions}
       columns={columns}
-      resourceType={resourceType}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
       form={form}
-      hasWriteAccess={hasWriteAccess}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      labels={labels}
+      navbar={navbar}
+      resourceType={resourceType}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

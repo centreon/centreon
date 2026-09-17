@@ -1,11 +1,10 @@
-import { useState } from 'react';
-
-import { useLocation } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import { ListItemText, Switch } from '@mui/material';
 
 import { patchData, useRequest } from '@centreon/ui';
+
+import { useState } from 'react';
+import { useLocation } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import useSwitchThemeMode from './useSwitchThemeMode';
 
@@ -26,13 +25,13 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'space-around'
   },
   containerSwitch: {
+    '&:hover': {
+      backgroundColor: 'unset'
+    },
     '&.Mui-checked': {
       '&:hover': {
         backgroundColor: 'unset'
       }
-    },
-    '&:hover': {
-      backgroundColor: 'unset'
     }
   },
   disabledMode: {
@@ -51,7 +50,9 @@ const SwitchThemeMode = (): JSX.Element => {
   const [isDark, setIsDark] = useState(isDarkMode);
 
   const { sendRequest } = useRequest({
-    request: patchData
+    request: patchData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const switchEndPoint = './api/latest/configuration/users/current/parameters';
@@ -77,8 +78,8 @@ const SwitchThemeMode = (): JSX.Element => {
         className={classes.containerSwitch}
         data-cy="themeSwitch"
         disabled={isPending}
-        size="small"
         onChange={switchThemeMode}
+        size="small"
       />
       <div className={classes.containerMode}>
         <ListItemText

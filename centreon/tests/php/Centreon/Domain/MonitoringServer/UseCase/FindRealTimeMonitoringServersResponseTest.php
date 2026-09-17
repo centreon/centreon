@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,14 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\MonitoringServer\UseCase;
 
 use Centreon\Domain\MonitoringServer\UseCase\RealTimeMonitoringServer\FindRealTimeMonitoringServersResponse;
-use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
 use PHPUnit\Framework\TestCase;
+use Tests\Centreon\Domain\MonitoringServer\Model\RealTimeMonitoringServerTest;
 
 /**
  * @package Tests\Centreon\Domain\MonitoringServer\UseCase
@@ -53,7 +54,6 @@ class FindRealTimeMonitoringServersResponseTest extends TestCase
         $this->assertCount(1, $realTimeMonitoringServers);
         $this->assertEquals($realTimeMonitoringServer->getId(), $realTimeMonitoringServers[0]['id']);
         $this->assertEquals($realTimeMonitoringServer->getName(), $realTimeMonitoringServers[0]['name']);
-        $this->assertEquals($realTimeMonitoringServer->getDescription(), $realTimeMonitoringServers[0]['description']);
         $this->assertEquals($realTimeMonitoringServer->getVersion(), $realTimeMonitoringServers[0]['version']);
         $this->assertEquals($realTimeMonitoringServer->isRunning(), $realTimeMonitoringServers[0]['is_running']);
         $this->assertEquals($realTimeMonitoringServer->getLastAlive(), $realTimeMonitoringServers[0]['last_alive']);

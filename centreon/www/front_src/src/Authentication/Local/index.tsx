@@ -1,14 +1,12 @@
-import { useMemo } from 'react';
+import { LinearProgress, Theme } from '@mui/material';
 
 import { isNil, not } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress, Theme } from '@mui/material';
-
 import FormTitle from '../FormTitle';
 import useTab from '../useTab';
-
 import Form from './Form';
 import { PasswordSecurityPolicy } from './models';
 import { labelDefinePasswordPasswordSecurityPolicy } from './translatedLabels';

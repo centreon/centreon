@@ -1,8 +1,3 @@
-import { useSetAtom } from 'jotai';
-import { path, equals, isNil, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
@@ -15,8 +10,13 @@ import {
   useStyleTable
 } from '@centreon/ui';
 
-import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
+import { useSetAtom } from 'jotai';
+import { equals, isNil, path, pathEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import useAclQuery from '../../Actions/Resource/aclQuery';
+import { forcedCheckInlineEndpointAtom } from '../../Actions/Resource/Check/checkAtoms';
 import {
   labelAcknowledge,
   labelActionNotPermitted,
@@ -24,7 +24,6 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../../translatedLabels';
-
 import { ColumnProps } from '.';
 
 interface StylesProps {
@@ -57,7 +56,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { data }) => ({
 }));
 
 type StatusColumnProps = {
-  actions;
+  actions: Record<string, (row: unknown) => void>;
 } & Pick<ComponentColumnProps, 'row'>;
 
 const StatusColumnOnHover = ({
@@ -91,7 +90,13 @@ const StatusColumnOnHover = ({
   const disableDowntime = !isDowntimePermitted;
   const disableForcedCheck = !isForcedCheckPermitted;
 
-  const getActionTitle = ({ labelAction, isActionPermitted }): string => {
+  const getActionTitle = ({
+    labelAction,
+    isActionPermitted
+  }: {
+    isActionPermitted: boolean;
+    labelAction: string;
+  }): string => {
     const translatedLabelAction = t(labelAction);
 
     return isActionPermitted
@@ -106,12 +111,12 @@ const StatusColumnOnHover = ({
         color="primary"
         data-testid={`${labelAcknowledge} ${row.name}`}
         disabled={disableAcknowledge}
+        onClick={(): void => actions.onAcknowledge(row)}
         size="large"
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge
         })}
-        onClick={(): void => actions.onAcknowledge(row)}
         tooltipPlacement="left"
       >
         <IconAcknowledge fontSize="small" />
@@ -120,12 +125,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelSetDowntimeOn)} ${row.name}`}
         data-testid={`${labelSetDowntimeOn} ${row.name}`}
         disabled={disableDowntime}
+        onClick={(): void => actions.onDowntime(row)}
         size="large"
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime
         })}
-        onClick={(): void => actions.onDowntime(row)}
         tooltipPlacement="left"
       >
         <DowntimeIcon fontSize="small" />
@@ -135,20 +140,20 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
         data-testid={`${labelForcedCheck} ${row.name}`}
         disabled={disableForcedCheck}
-        size="large"
-        title={getActionTitle({
-          isActionPermitted: isForcedCheckPermitted,
-          labelAction: labelForcedCheck
-        })}
         onClick={(): void => {
           const forcedCheckEndpoint = path(
             ['links', 'endpoints', 'forced_check'],
             row
           );
-          setForcedCheckInlineEndpoint(forcedCheckEndpoint);
+          setForcedCheckInlineEndpoint(forcedCheckEndpoint as string);
 
           actions.onCheck(row);
         }}
+        size="large"
+        title={getActionTitle({
+          isActionPermitted: isForcedCheckPermitted,
+          labelAction: labelForcedCheck
+        })}
         tooltipPlacement="right"
       >
         <IconForcedCheck fontSize="small" />
@@ -167,13 +172,14 @@ const StatusColumn = ({
       data: dataStyle.statusColumnChip
     });
 
-    const statusName = row.status.name;
+    const typedRow = row as unknown as {
+      status: { name: string; severity_code: SeverityCode };
+    };
+    const statusName = typedRow.status.name;
 
-    const label = equals(SeverityCode[5], statusName) ? (
-      <>{t(statusName)}</>
-    ) : (
-      t(statusName)
-    );
+    const label = equals(SeverityCode[5], statusName)
+      ? t(statusName)
+      : t(statusName);
 
     return (
       <div className={classes.statusColumn}>
@@ -183,7 +189,7 @@ const StatusColumn = ({
           <StatusChip
             className={classes.statusColumnChip}
             label={label}
-            severityCode={row.status.severity_code}
+            severityCode={typedRow.status.severity_code}
           />
         )}
       </div>

@@ -1,16 +1,27 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
+
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
-import AgentConfigurationPage from '../Page';
+import { BrowserRouter as Router } from 'react-router';
+
 import {
   agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
+  getInstallationCommandEndpoint,
   getPollerAgentEndpoint,
   hostsConfigurationEndpoint,
+  listTokensEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
+import AgentConfigurationPage from '../Page';
+
+export const windowsCommandLine =
+  'installcma.ps /FINGERPRINT=wwwww  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4318';
+export const linuxCommandLine =
+  'installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317';
 
 const mockRequest = (isListingEmpty): void => {
   if (isListingEmpty) {
@@ -18,7 +29,7 @@ const mockRequest = (isListingEmpty): void => {
       alias: 'getEmptyAgentConfigurations',
       method: Method.GET,
       path: `./api/latest${getAgentConfigurationsEndpoint}**`,
-      response: { result: [], meta: { limit: 10, page: 1, total: 0 } }
+      response: { meta: { limit: 10, page: 1, total: 0 }, result: [] }
     });
   } else {
     cy.fixture('AgentConfigurations/listing.json').then((listing): void => {
@@ -78,10 +89,23 @@ const mockRequest = (isListingEmpty): void => {
     method: Method.GET,
     path: `./api/latest${getAgentConfigurationEndpoint(1)}`,
     response: {
+      configuration: {
+        conf_certificate: '/sub/test.crt',
+        conf_private_key: 'test.key',
+        conf_server_port: 9090,
+        otel_ca_certificate: 'test.crt',
+        otel_private_key: 'test.key',
+        otel_public_certificate: 'test.cer',
+        otel_server_address: '127.0.0.1',
+        otel_server_port: 8080,
+        tokens: [
+          { creator_id: 1, name: 'token 1' },
+          { creator_id: 2, name: 'token 2' }
+        ]
+      },
+      connection_mode: 'secure',
       id: 1,
       name: 'agent',
-      connection_mode: 'secure',
-      type: 'telegraf',
       pollers: [
         {
           id: 1,
@@ -92,32 +116,56 @@ const mockRequest = (isListingEmpty): void => {
           name: 'poller 2'
         }
       ],
-      configuration: {
-        otel_server_address: '127.0.0.1',
-        otel_server_port: 8080,
-        otel_public_certificate: 'test.cer',
-        otel_ca_certificate: 'test.crt',
-        otel_private_key: 'test.key',
-        conf_server_port: 9090,
-        conf_certificate: '/sub/test.crt',
-        conf_private_key: 'test.crt'
-      }
+      type: 'telegraf'
+    }
+  });
+  cy.interceptAPIRequest({
+    alias: 'getHosts',
+    method: Method.GET,
+    path: `./api/latest${hostsConfigurationEndpoint}**`,
+    response: {
+      meta: { limit: 10, page: 1, total: 1 },
+      result: [{ address: '127.0.0.2', id: 1, name: 'central' }]
     }
   });
 
   cy.interceptAPIRequest({
-    alias: 'getHosts',
-    path: `./api/latest${hostsConfigurationEndpoint}**`,
+    alias: 'getTokens',
     method: Method.GET,
+    path: `*${listTokensEndpoint}**`,
     response: {
-      result: [{ id: 1, name: 'central', address: '127.0.0.2' }],
-      meta: { limit: 10, page: 1, total: 1 }
+      meta: { limit: 10, page: 1, total: 2 },
+      result: [
+        { creator: { id: 1, name: 'Admin' }, name: 'token 1' },
+        { creator: { id: 1, name: 'Admin' }, name: 'token 2' }
+      ]
     }
   });
+
+  cy.fixture('AgentConfigurations/installation-command.json').then(
+    (response): void => {
+      cy.interceptAPIRequest({
+        alias: 'getCommandDetails',
+        method: Method.GET,
+        path: `./api/latest${getInstallationCommandEndpoint(1)}`,
+        response
+      });
+    }
+  );
 };
 
 const initialize = ({ isListingEmpty = false }) => {
   const store = createStore();
+
+  store.set(userAtom, {
+    is_admin: true,
+    locale: 'en',
+    timezone: 'Europe/Paris'
+  });
+  store.set(platformFeaturesAtom, {
+    featureFlags: {},
+    isCloudPlatform: false
+  });
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -130,11 +178,13 @@ const initialize = ({ isListingEmpty = false }) => {
     Component: (
       <TestQueryProvider>
         <Provider store={store}>
-          <SnackbarProvider>
-            <div style={{ height: '100vh', display: 'grid' }}>
-              <AgentConfigurationPage />
-            </div>
-          </SnackbarProvider>
+          <Router>
+            <SnackbarProvider>
+              <div style={{ display: 'grid', height: '100vh' }}>
+                <AgentConfigurationPage />
+              </div>
+            </SnackbarProvider>
+          </Router>
         </Provider>
       </TestQueryProvider>
     )

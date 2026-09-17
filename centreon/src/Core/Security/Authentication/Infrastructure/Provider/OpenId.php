@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,16 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\Authentication\Domain\Exception\OpenIdException;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -43,22 +45,23 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Exception;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
 {
-    use LoggerTrait;
-
     /** @var string */
     private string $username;
 
     /**
      * @param Container $dependencyInjector
+     * @param RequestStack $requestStack
      * @param OpenIdProvider $provider
      */
     public function __construct(
-        private Container $dependencyInjector,
-        private OpenIdProviderInterface $provider
+        private readonly Container $dependencyInjector,
+        private readonly RequestStack $requestStack,
+        private readonly OpenIdProviderInterface $provider,
     ) {
     }
 
@@ -86,17 +89,17 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($user === null) {
-            $this->info('User not found');
+            Logger::create(LogChannelEnum::WEB)->info('User not found');
             if (! $this->isAutoImportEnabled()) {
                 throw new NotFoundException('User could not be created');
             }
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             $user = $this->getAuthenticatedUser();
             if ($user === null) {
                 throw new NotFoundException('User not found');
             }
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
         }
 
         return $user;
@@ -126,10 +129,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             $user = $this->findUserOrFail();
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
         }
     }
 
@@ -141,10 +144,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             if ($user = $this->provider->getUser()) {
-                $this->info('User imported: ' . $user->getName());
+                Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
             }
         }
     }
@@ -176,6 +179,7 @@ class OpenId implements ProviderAuthenticationInterface
             'default_page' => $user->getDefaultPage(),
             'contact_location' => (string) $user->getTimezoneId(),
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
+            'show_deprecated_custom_views' => $user->isUsingDeprecatedCustomViews(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',
@@ -242,7 +246,7 @@ class OpenId implements ProviderAuthenticationInterface
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
             if (! in_array($claimValue, $this->provider->getAclConditionsMatches(), true)) {
-                $this->info(
+                Logger::create(LogChannelEnum::WEB)->info(
                     'Configured claim value not found in user claims',
                     ['claim_value' => $claimValue]
                 );
@@ -312,5 +316,69 @@ class OpenId implements ProviderAuthenticationInterface
     public function getAclConditionsMatches(): array
     {
         return $this->provider->getAclConditionsMatches();
+    }
+
+    /**
+     * @throws SSOAuthenticationException
+     */
+    public function getTokenForSession(): ?string
+    {
+        return $this->provider->getTokenForSession();
+    }
+
+    /**
+     * Redirect the user to the OIDC end-session endpoint
+     *
+     * @param string $idToken
+     * @param bool $stay
+     *
+     * @throws OpenIdException
+     * @return string|null
+     */
+    public function logout(string $idToken, bool $stay = false): string|null
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            throw new OpenIdException('Request is not available for OpenID logout');
+        }
+
+        /** @var CustomConfiguration $customConfig */
+        $customConfig = $this->provider->getConfiguration()->getCustomConfiguration();
+        $baseUrl = $customConfig->getBaseUrl();
+        $endSessionEndpoint = $customConfig->getEndSessionEndpoint();
+
+        if (empty($baseUrl) || empty($endSessionEndpoint)) {
+            throw new OpenIdException('Missing required OpenID configuration for logout');
+        }
+
+        $endSessionUrl = $baseUrl . $endSessionEndpoint;
+        $centreonBase = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+        $postLogout = $centreonBase . '/login';
+
+        $params = [
+            'post_logout_redirect_uri' => $postLogout,
+            'id_token_hint' => $idToken,
+        ];
+
+        $logoutUrl = $endSessionUrl . '?' . http_build_query($params);
+
+        if ($stay !== false) {
+            return $postLogout;
+        }
+
+        try {
+            header('Location: ' . $logoutUrl, true, 302);
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            }
+
+            exit;
+        } catch (Throwable $e) {
+            throw new OpenIdException(
+                message: 'Failed to redirect to logout URL: ' . $e->getMessage(),
+                context: ['logout_url' => $logoutUrl],
+                previous: $e
+            );
+        }
     }
 }

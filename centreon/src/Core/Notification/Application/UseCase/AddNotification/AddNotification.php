@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -63,6 +64,7 @@ final class AddNotification
         private readonly NotificationResourceFactory $notificationResourceFactory,
         private readonly NotificationValidator $notificationValidator,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -72,7 +74,7 @@ final class AddNotification
      */
     public function __invoke(
         AddNotificationRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             $this->info('Add notification', ['request' => $request]);
@@ -138,7 +140,7 @@ final class AddNotification
         } catch (NotificationException $ex) {
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
-                        NotificationException::CODE_CONFLICT => new InvalidArgumentResponse($ex),
+                    NotificationException::CODE_CONFLICT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -175,7 +177,7 @@ final class AddNotification
     {
         $resources = [];
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $resource = $repository->findByNotificationId($notificationId);
             } else {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -217,7 +219,7 @@ final class AddNotification
         $response->isActivated = $notification->isActivated();
 
         $response->messages = array_map(
-            static fn(Message $message): array => [
+            static fn (Message $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
@@ -227,12 +229,12 @@ final class AddNotification
         );
 
         $response->users = array_map(
-            static fn(NotificationContact $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
+            static fn (NotificationContact $user): array => ['id' => $user->getId(), 'name' => $user->getName()],
             $users
         );
 
         $response->contactGroups = array_map(
-            static fn(ContactGroup $contactGroup): array => [
+            static fn (ContactGroup $contactGroup): array => [
                 'id' => $contactGroup->getId(),
                 'name' => $contactGroup->getName(),
             ],
@@ -246,7 +248,7 @@ final class AddNotification
                     ? $response->convertHostEventsToBitFlags($resource->getEvents())
                     : $response->convertServiceEventsToBitFlags($resource->getEvents()),
                 'ids' => array_map(
-                    static fn($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
+                    static fn ($resource): array => ['id' => $resource->getId(), 'name' => $resource->getName()],
                     $resource->getResources()
                 ),
             ];

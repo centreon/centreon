@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\NewHostGroup;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implements WriteHostGroupRepositoryInterface
 {
@@ -42,12 +43,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     private const HOSTGROUP_PROPERTIES_MAP = [
         'name' => 'hg_name',
         'alias' => 'hg_alias',
-        'notes' => 'hg_notes',
-        'notesUrl' => 'hg_notes_url',
-        'actionUrl' => 'hg_action_url',
         'iconId' => 'hg_icon_image',
-        'iconMapId' => 'hg_map_icon_image',
-        'rrdRetention' => 'hg_rrd_retention',
         'geoCoords' => 'geo_coords',
         'comment' => 'hg_comment',
         'isActivated' => 'hg_activate',
@@ -55,17 +51,17 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
 
     /**
      * @param WriteHostGroupRepositoryInterface $writeHostGroupRepository
-     * @param ContactInterface $contact
+     * @param TokenStorageInterface $tokenStorage
      * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -88,7 +84,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 $hostGroupId,
                 $hostGroup->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -114,7 +110,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 $hostGroupId,
                 $newHostGroup->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -156,7 +152,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -170,7 +166,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     $action,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
 
@@ -179,7 +175,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -195,7 +191,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                     $hostGroup->getId(),
                     $hostGroup->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $actionLogChangeId = $this->writeActionLogRepository->addAction($actionLogChange);
                 if ($actionLogChangeId === 0) {
@@ -250,7 +246,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 $hostGroupId,
                 $hostGroup->getName(),
                 $isEnable ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
 
@@ -282,7 +278,7 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
                 $newHostGroupId,
                 $newHostGroup->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -302,6 +298,13 @@ class DbWriteHostGroupActionLogRepository extends AbstractRepositoryRDB implemen
     public function deleteHostLinks(int $hostGroupId, array $hostIds): void
     {
         $this->writeHostGroupRepository->deleteHostLinks($hostGroupId, $hostIds);
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**

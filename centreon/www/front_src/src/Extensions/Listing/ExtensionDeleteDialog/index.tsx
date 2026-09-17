@@ -20,11 +20,11 @@ const ExtensionDeletePopup = ({
 
   return (
     <Dialog
-      open
       labelConfirm="Delete"
       onCancel={onCancel}
       onClose={onCancel}
       onConfirm={confirmDelete}
+      open
     >
       <Typography variant="h6">{deletingEntity.description}</Typography>
 

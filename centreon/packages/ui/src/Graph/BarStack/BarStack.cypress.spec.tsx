@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 
 import BarStack from './BarStack';
-import { BarStackProps, BarType } from './models';
+import type { BarStackProps, BarType } from './models';
 
 const defaultData = [
   { color: '#88B922', label: 'Ok', value: 148 },
@@ -197,10 +197,10 @@ describe('Bar stack', () => {
 
   it('displays the bars within a small display', () => {
     initialize({
-      width: '120px',
+      displayLegend: true,
       height: '89px',
       title: 'host',
-      displayLegend: true
+      width: '120px'
     });
 
     cy.get('.visx-bar-rounded')

@@ -38,9 +38,6 @@ overrides:
   rpm:
     depends:
       - "mariadb-server"
-      - centreon-broker < ${NEXT_MAJOR_VERSION}
-      - centreon-engine-daemon >= ${MAJOR_VERSION}
-      - centreon-engine-daemon < ${NEXT_MAJOR_VERSION}
     provides:
       - centreon-database
     replaces:
@@ -50,9 +47,6 @@ overrides:
   deb:
     depends:
       - "mariadb-server"
-      - "centreon-broker (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-engine-daemon (>= ${MAJOR_VERSION}~)"
-      - "centreon-engine-daemon (<< ${NEXT_MAJOR_VERSION}~)"
     provides:
       - centreon-database
     replaces:

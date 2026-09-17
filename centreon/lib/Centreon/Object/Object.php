@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -78,21 +63,21 @@ abstract class Centreon_Object
     }
 
     /**
-     * Get result from sql query
+     * Generic method that allows to retrieve object ids
+     * from another object parameter
      *
-     * @param string $sqlQuery
-     * @param array $sqlParams
-     * @param string $fetchMethod
-     *
+     * @param string $name
+     * @param array $args
+     * @throws Exception
      * @return array
-     * @throws PDOException
      */
-    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = "fetchAll")
+    public function __call($name, $args)
     {
-        $res = $this->db->query($sqlQuery, $sqlParams);
-        $result = $res->{$fetchMethod}();
+        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
+            return $this->getIdByParameter($matches[1], $args);
+        }
 
-        return $result;
+        throw new Exception('Unknown method');
     }
 
     /**
@@ -100,35 +85,37 @@ abstract class Centreon_Object
      *
      * @param array $params
      *
-     * @return false|string|null
      * @throws PDOException
+     * @return false|string|null
      */
     public function insert($params = [])
     {
-        $sql = "INSERT INTO $this->table ";
-        $sqlFields = "";
-        $sqlValues = "";
-        $sqlParams = [];
+        $fields = [];
+        $placeholders = [];
+        $bindParams = [];
         foreach ($params as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlFields != "") {
-                $sqlFields .= ",";
-            }
-            if ($sqlValues != "") {
-                $sqlValues .= ",";
-            }
-            $sqlFields .= $key;
-            $sqlValues .= "?";
-            $sqlParams[] = trim($value);
+            $fields[] = $key;
+            $placeholders[] = ':' . $key;
+            $bindParams[':' . $key] = trim($value);
         }
-        if ($sqlFields && $sqlValues) {
-            $sql .= "(" . $sqlFields . ") VALUES (" . $sqlValues . ")";
-            $this->db->query($sql, $sqlParams);
-            return $this->db->lastInsertId();
+
+        if ($fields === []) {
+            return null;
         }
-        return null;
+
+        $sql = "INSERT INTO {$this->table} (" . implode(',', $fields) . ') VALUES ('
+            . implode(',', $placeholders) . ')';
+        $statement = $this->db->prepare($sql);
+        foreach ($bindParams as $paramName => $paramValue) {
+            $statement->bindValue($paramName, $paramValue);
+        }
+        $statement->execute();
+
+        return $this->db->lastInsertId();
     }
 
     /**
@@ -140,8 +127,11 @@ abstract class Centreon_Object
      */
     public function delete($objectId): void
     {
-        $sql = "DELETE FROM  $this->table WHERE $this->primaryKey = ?";
-        $this->db->query($sql, [$objectId]);
+        $statement = $this->db->prepare(
+            "DELETE FROM {$this->table} WHERE {$this->primaryKey} = :objectId"
+        );
+        $statement->bindValue(':objectId', $objectId, PDO::PARAM_INT);
+        $statement->execute();
     }
 
     /**
@@ -150,47 +140,48 @@ abstract class Centreon_Object
      * @param int $objectId
      * @param array $params
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function update($objectId, $params = []): void
     {
-        $sql = "UPDATE $this->table SET ";
-        $sqlUpdate = "";
-        $sqlParams = [];
-        $not_null_attributes = [];
+        $notNullAttributes = [];
 
-        if (array_search("", $params)) {
-            $sql_attr = "SHOW FIELDS FROM $this->table";
-            $res = $this->getResult($sql_attr, [], "fetchAll");
+        if (array_search('', $params, true) !== false) {
+            $res = $this->getResult("SHOW FIELDS FROM {$this->table}", [], 'fetchAll');
             foreach ($res as $tab) {
                 if ($tab['Null'] == 'NO') {
-                    $not_null_attributes[$tab['Field']] = true;
+                    $notNullAttributes[$tab['Field']] = true;
                 }
             }
         }
 
+        $setClauses = [];
+        $bindParams = [];
         foreach ($params as $key => $value) {
+            $key = $this->sanitizeIdentifier($key);
             if ($key == $this->primaryKey) {
                 continue;
             }
-            if ($sqlUpdate != "") {
-                $sqlUpdate .= ",";
-            }
-            $sqlUpdate .= $key . " = ? ";
-            if ($value === "" && !isset($not_null_attributes[$key])) {
+            $setClauses[] = $key . ' = :' . $key;
+            if ($value === '' && ! isset($notNullAttributes[$key])) {
                 $value = null;
             }
-            if (!is_null($value)) {
-                $value = str_replace("<br/>", "\n", $value);
+            if (! is_null($value)) {
+                $value = str_replace('<br/>', "\n", $value);
             }
-            $sqlParams[] = $value;
+            $bindParams[':' . $key] = $value;
         }
 
-        if ($sqlUpdate) {
-            $sqlParams[] = $objectId;
-            $sql .= $sqlUpdate . " WHERE $this->primaryKey = ?";
-            $this->db->query($sql, $sqlParams);
+        if ($setClauses !== []) {
+            $sql = "UPDATE {$this->table} SET " . implode(',', $setClauses)
+                . " WHERE {$this->primaryKey} = :primaryKeyId";
+            $statement = $this->db->prepare($sql);
+            foreach ($bindParams as $paramName => $paramValue) {
+                $statement->bindValue($paramName, $paramValue);
+            }
+            $statement->bindValue(':primaryKeyId', $objectId, PDO::PARAM_INT);
+            $statement->execute();
         }
     }
 
@@ -205,7 +196,7 @@ abstract class Centreon_Object
      */
     public function duplicate($sourceObjectId, $duplicateEntries = 1): void
     {
-        $sourceParams = $this->getParameters($sourceObjectId, "*");
+        $sourceParams = $this->getParameters($sourceObjectId, '*');
         if (isset($sourceParams[$this->primaryKey])) {
             unset($sourceParams[$this->primaryKey]);
         }
@@ -214,11 +205,11 @@ abstract class Centreon_Object
         }
         $originalName = $sourceParams[$this->uniqueLabelField];
         for ($i = 1; $i <= $duplicateEntries; $i++) {
-            if (isset($sourceParams[$this->uniqueLabelField]) && isset($originalName)) {
-                $sourceParams[$this->uniqueLabelField] = $originalName . "_" . $i;
+            if (isset($sourceParams[$this->uniqueLabelField], $originalName)) {
+                $sourceParams[$this->uniqueLabelField] = $originalName . '_' . $i;
             }
             $ids = $this->getIdByParameter($this->uniqueLabelField, [$sourceParams[$this->uniqueLabelField]]);
-            if (!count($ids)) {
+            if (! count($ids)) {
                 $this->insert($sourceParams);
             }
         }
@@ -230,14 +221,22 @@ abstract class Centreon_Object
      * @param int $objectId
      * @param mixed $parameterNames
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getParameters($objectId, $parameterNames)
     {
-        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
-        $sql = "SELECT $params FROM $this->table WHERE $this->primaryKey = ?";
-        return $this->getResult($sql, [$objectId], "fetch");
+        if (is_array($parameterNames)) {
+            $params = implode(',', array_map([$this, 'sanitizeIdentifier'], $parameterNames));
+        } else {
+            $params = $parameterNames !== '*' ? $this->sanitizeIdentifier($parameterNames) : $parameterNames;
+        }
+        $sql = "SELECT {$params} FROM {$this->table} WHERE {$this->primaryKey} = :objectId";
+        $statement = $this->db->prepare($sql);
+        $statement->bindValue(':objectId', $objectId, PDO::PARAM_INT);
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -252,51 +251,72 @@ abstract class Centreon_Object
      * @param string $sort
      * @param array $filters
      * @param string $filterType
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getList(
-        $parameterNames = "*",
+        $parameterNames = '*',
         $count = -1,
         $offset = 0,
         $order = null,
-        $sort = "ASC",
+        $sort = 'ASC',
         $filters = [],
-        $filterType = "OR"
+        $filterType = 'OR',
     ) {
-        if ($filterType != "OR" && $filterType != "AND") {
+        if ($filterType != 'OR' && $filterType != 'AND') {
             throw new Exception('Unknown filter type');
         }
-        $params = is_array($parameterNames) ? implode(",", $parameterNames) : $parameterNames;
-        $sql = "SELECT $params FROM $this->table ";
-        $filterTab = [];
-        if (count($filters)) {
-            foreach ($filters as $key => $rawvalue) {
-                if ($filterTab === []) {
-                    $sql .= " WHERE $key ";
-                } else {
-                    $sql .= " $filterType $key ";
+        if (is_array($parameterNames)) {
+            $params = implode(',', array_map([$this, 'sanitizeIdentifier'], $parameterNames));
+        } else {
+            $params = $parameterNames !== '*' ? $this->sanitizeIdentifier($parameterNames) : $parameterNames;
+        }
+        $sql = "SELECT {$params} FROM {$this->table} ";
+        $bindParams = [];
+        $filterIndex = 0;
+        $whereClauses = [];
+        foreach ($filters as $key => $rawvalue) {
+            $key = $this->sanitizeIdentifier($key);
+            if (is_array($rawvalue)) {
+                if ($rawvalue === []) {
+                    $whereClauses[] = '1 = 0';
+                    continue;
                 }
-                if (is_array($rawvalue)) {
-                    $sql .= ' IN (' . str_repeat('?,', count($rawvalue) - 1) . '?) ';
-                    $filterTab = array_merge($filterTab, $rawvalue);
-                } else {
-                    $sql .= ' LIKE ? ';
-                    $value = trim($rawvalue);
-                    $value = str_replace("\\", "\\\\", $value);
-                    $value = str_replace("_", "\_", $value);
-                    $value = str_replace(" ", "\ ", $value);
-                    $filterTab[] = $value;
+                $inPlaceholders = [];
+                foreach ($rawvalue as $inValue) {
+                    $paramName = ':filter_' . $filterIndex++;
+                    $inPlaceholders[] = $paramName;
+                    $bindParams[$paramName] = $inValue;
                 }
+                $whereClauses[] = "{$key} IN (" . implode(',', $inPlaceholders) . ')';
+            } else {
+                $paramName = ':filter_' . $filterIndex++;
+                $value = trim($rawvalue);
+                $value = str_replace('\\', '\\\\', $value);
+                $value = str_replace('_', "\_", $value);
+                $value = str_replace(' ', "\ ", $value);
+                $whereClauses[] = "{$key} LIKE {$paramName}";
+                $bindParams[$paramName] = $value;
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if ($whereClauses !== []) {
+            $sql .= ' WHERE ' . implode(" {$filterType} ", $whereClauses);
+        }
+        if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeIdentifier($order);
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
-        return $this->getResult($sql, $filterTab, "fetchAll");
+
+        $statement = $this->db->prepare($sql);
+        foreach ($bindParams as $paramName => $paramValue) {
+            $statement->bindValue($paramName, $paramValue);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll();
     }
 
     /**
@@ -306,50 +326,40 @@ abstract class Centreon_Object
      * @param string $paramName
      * @param array $paramValues
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getIdByParameter($paramName, $paramValues = [])
     {
-        $sql = "SELECT $this->primaryKey FROM $this->table WHERE ";
-        $condition = "";
-        if (!is_array($paramValues)) {
+        $paramName = $this->sanitizeIdentifier($paramName);
+        if (! is_array($paramValues)) {
             $paramValues = [$paramValues];
         }
-        foreach ($paramValues as $val) {
-            if ($condition != "") {
-                $condition .= " OR ";
-            }
-            $condition .= $paramName . " = ? ";
+        if ($paramValues === []) {
+            return [];
         }
-        if ($condition) {
-            $sql .= $condition;
-            $rows = $this->getResult($sql, $paramValues, "fetchAll");
-            $tab = [];
-            foreach ($rows as $val) {
-                $tab[] = $val[$this->primaryKey];
-            }
-            return $tab;
-        }
-        return [];
-    }
 
-    /**
-     * Generic method that allows to retrieve object ids
-     * from another object parameter
-     *
-     * @param string $name
-     * @param array $args
-     * @return array
-     * @throws Exception
-     */
-    public function __call($name, $args)
-    {
-        if (preg_match('/^getIdBy([a-zA-Z0-9_]+)/', $name, $matches)) {
-            return $this->getIdByParameter($matches[1], $args);
-        } else {
-            throw new Exception('Unknown method');
+        $conditions = [];
+        $bindParams = [];
+        foreach ($paramValues as $index => $val) {
+            $paramKey = ':val_' . $index;
+            $conditions[] = $paramName . ' = ' . $paramKey;
+            $bindParams[$paramKey] = $val;
         }
+
+        $sql = "SELECT {$this->primaryKey} FROM {$this->table} WHERE " . implode(' OR ', $conditions);
+        $statement = $this->db->prepare($sql);
+        foreach ($bindParams as $paramKey => $paramValue) {
+            $statement->bindValue($paramKey, $paramValue);
+        }
+        $statement->execute();
+
+        $tab = [];
+        foreach ($statement->fetchAll() as $row) {
+            $tab[] = $row[$this->primaryKey];
+        }
+
+        return $tab;
     }
 
     /**
@@ -380,5 +390,35 @@ abstract class Centreon_Object
     public function getTableName()
     {
         return $this->table;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    /**
+     * Get result from sql query
+     *
+     * @param string $sqlQuery
+     * @param array $sqlParams
+     * @param string $fetchMethod
+     *
+     * @throws PDOException
+     * @return array
+     */
+    protected function getResult($sqlQuery, $sqlParams = [], $fetchMethod = 'fetchAll')
+    {
+        $res = $this->db->query($sqlQuery, $sqlParams);
+
+        return $res->{$fetchMethod}();
     }
 }

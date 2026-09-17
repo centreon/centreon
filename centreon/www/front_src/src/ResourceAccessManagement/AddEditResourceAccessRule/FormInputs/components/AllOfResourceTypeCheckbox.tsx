@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Checkbox, FormControlLabel } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { Dataset, ResourceTypeEnum } from '../../../models';
 import { useAllOfResourceTypeCheckbox } from '../hooks/useAllOfResourceTypeCheckbox';
@@ -36,8 +36,8 @@ const AllOfResourceTypeCheckbox = ({
         <Checkbox
           checked={checked}
           className={classes.checkbox}
-          size="small"
           onChange={onChange}
+          size="small"
         />
       }
       label={t(checkboxLabel)}

@@ -41,7 +41,10 @@ export const getXAxisTickFormat = (graphInterval: GraphInterval): string => {
 export const truncate = ({
   content,
   maxLength = 180
-}: { content?: string; maxLength?: number }): string => {
+}: {
+  content?: string;
+  maxLength?: number;
+}): string => {
   if (isNil(content)) {
     return '';
   }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import LinkIcon from '@mui/icons-material/Link';
 
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -8,17 +8,15 @@ import { useAtom } from 'jotai';
 import {
   $getSelection,
   $isRangeSelection,
-  ElementNode,
-  RangeSelection,
+  type ElementNode,
+  type RangeSelection,
   SELECTION_CHANGE_COMMAND,
-  TextNode
+  type TextNode
 } from 'lexical';
-
-import LinkIcon from '@mui/icons-material/Link';
+import { useCallback, useEffect } from 'react';
 
 import { IconButton } from '../../..';
 import { isInsertingLinkAtom } from '../../atoms';
-
 import { useStyles } from './ToolbarPlugin.styles';
 
 const LowPriority = 1;
@@ -63,7 +61,7 @@ const LinkButton = ({ disabled }: Props): JSX.Element => {
     } else {
       setIsLink(false);
     }
-  }, [editor]);
+  }, [setIsLink]);
 
   const insertLink = useCallback(() => {
     if (!isLink) {
@@ -93,10 +91,10 @@ const LinkButton = ({ disabled }: Props): JSX.Element => {
       className={cx(classes.button, { [classes.buttonSelected]: isLink })}
       disabled={disabled}
       key="link"
+      onClick={insertLink}
       size="medium"
       title="link"
       tooltipPlacement="top"
-      onClick={insertLink}
     >
       <LinkIcon />
     </IconButton>

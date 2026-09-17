@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?: array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?: array<array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name?: string,
@@ -262,7 +262,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?:array<array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name: string,
@@ -274,11 +274,15 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      retry_check_interval?: null|int,
          *      timezone_id?: null|int,
          *      severity_id?: null|int,
+         *      check_command_id?: null|int,
+         *      check_command_args?: string[],
          *      check_timeperiod_id?: null|int,
          *      note_url?: null|string,
          *      note?: null|string,
          *      action_url?: null|string,
-         *      icon_id?: null|int
+         *      icon_id?: null|int,
+         *      freshness_checked?: int,
+         *      freshness_threshold?: null|int
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateSaasSchema.json');
@@ -321,6 +325,12 @@ final class PartialUpdateHostTemplateController extends AbstractController
         if (\array_key_exists('severity_id', $data)) {
             $dto->severityId = $data['severity_id'];
         }
+        if (\array_key_exists('check_command_id', $data)) {
+            $dto->checkCommandId = $data['check_command_id'];
+        }
+        if (\array_key_exists('check_command_args', $data)) {
+            $dto->checkCommandArgs = $data['check_command_args'];
+        }
         if (\array_key_exists('check_timeperiod_id', $data)) {
             $dto->checkTimeperiodId = $data['check_timeperiod_id'];
         }
@@ -335,6 +345,12 @@ final class PartialUpdateHostTemplateController extends AbstractController
         }
         if (\array_key_exists('icon_id', $data)) {
             $dto->iconId = $data['icon_id'];
+        }
+        if (\array_key_exists('freshness_checked', $data)) {
+            $dto->freshnessChecked = $data['freshness_checked'];
+        }
+        if (\array_key_exists('freshness_threshold', $data)) {
+            $dto->freshnessThreshold = $data['freshness_threshold'];
         }
 
         return $dto;

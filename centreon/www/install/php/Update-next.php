@@ -1,7 +1,5 @@
 <?php
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -9,7 +7,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,241 +19,272 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerUpgrade;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
 $version = 'xx.xx.x';
+
 $errorMessage = '';
 
-// -------------------------------------------- Host Group Configuration -------------------------------------------- //
-
 /**
- * Update topology for host group configuration pages.
- *
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
  */
-$updateTopologyForHostGroup = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from topology table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'Host Groups'
-                AND `topology_page` = 60105
-        SQL
-    );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
 
-    if (! $topologyAlreadyExists) {
-        $errorMessage = 'Unable to insert new host group configuration topology';
-        $pearDB->executeQuery(
-            <<<'SQL'
-                INSERT INTO `topology` (`topology_name`,`topology_url`,`readonly`,`is_react`,`topology_parent`,`topology_page`,`topology_order`,`topology_group`,`topology_show`)
-                VALUES ('Host Groups', '/configuration/hosts/groups', '1', '1', 601, 60105,21,1,'1')
-            SQL
-        );
+// TODO add your functions here
+
+$addCentralAddressColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'platform_topology',
+        'central_address'
+    )) {
+        LoggerUpgrade::create()->info($version, 'central_address column already exists, skipping');
+
+        return;
     }
 
-    $errorMessage = 'Unable to update old host group configuration topology';
-    $pearDB->executeQuery(
-        <<<'SQL'
-            UPDATE `topology`
-            SET `is_react` = '1',
-                `topology_url` = '/configuration/hosts/groups',
-            WHERE `topology_name` = 'Host Groups'
-                AND `topology_page` = 60102
-        SQL
-    );
-};
+    $errorMessage = 'Unable to add central_address column to platform_topology';
+    LoggerUpgrade::create()->info($version, 'Adding central_address column to platform_topology');
 
-$updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve SAML provider configuration';
-    $samlConfiguration = $pearDB->fetchAssociative(
-        <<<'SQL'
-            SELECT * FROM `provider_configuration`
-            WHERE `type` = 'saml'
-            SQL
-    );
-
-    if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
-        throw new \Exception('SAML configuration is missing');
-    }
-
-    $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
-
-    if (!isset($customConfiguration['requested_authn_context'])) {
-        $customConfiguration['requested_authn_context'] = 'minimum';
-        $query = <<<'SQL'
-                UPDATE `provider_configuration`
-                SET `custom_configuration` = :custom_configuration
-                WHERE `type` = 'saml'
-            SQL;
-        $queryParameters = QueryParameters::create(
-            [
-                QueryParameter::string(
-                    'custom_configuration',
-                    json_encode($customConfiguration, JSON_THROW_ON_ERROR)
-                )
-            ]
-        );
-
-        $pearDB->update($query, $queryParameters);
-    }
-};
-
-// -------------------------------------------- Agent Configuration -------------------------------------------- //
-/**
- * Add prefix "/etc/pki/" and extensions (.crt, .key) to certificate and key paths in agent_configuration table.
- *
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
- */
-$updateAgentConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from agent_configuration table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT `id`, `configuration` FROM `agent_configuration`
-        SQL
-    );
-
-    $errorMessage = 'Unable to update agent_configuration table';
-    $updates = [];
-    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-        $config = json_decode($row['configuration'], true);
-        if (! is_array($config)) {
-            continue;
-        }
-
-        foreach ($config as $key => $value) {
-            if (str_ends_with($key, '_certificate') && is_string($value)) {
-                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
-                $filename = preg_replace('/(\.crt|\.cer)$/', '', $filename);
-                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.crt';
-            } elseif (str_ends_with($key, '_key') && is_string($value)) {
-                $filename = str_starts_with($value, '/etc/pki/') ? substr($value, 9) : ltrim($value, '/');
-                $filename = preg_replace('/\.key$/', '', $filename);
-                $config[$key] = '/etc/pki/' . ltrim($filename, '/') . '.key';
-            }
-
-            if ($key === 'hosts') {
-                foreach ($value as $index => $host) {
-                    if (! is_array($host)) {
-                        continue;
-                    }
-
-                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
-                        $config[$key][$index]['poller_ca_certificate'] = '/etc/pki/' . ltrim($host['poller_ca_certificate'], '/') . '.crt';
-                    }
-                }
-            }
-        }
-
-        $updatedConfig = json_encode($config);
-        $updates[] = [
-            'id' => $row['id'],
-            'configuration' => $updatedConfig
-        ];
-    }
-
-    if (! empty($updates)) {
-        $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
-        $params = [];
-        $whereParams = [];
-
-        foreach ($updates as $index => $update) {
-            $idParam = ":case_id{$index}";
-            $configParam = ":case_config{$index}";
-            $query .= "WHEN {$idParam} THEN {$configParam} ";
-            $params[$idParam] = $update['id'];
-            $params[$configParam] = $update['configuration'];
-
-            $whereParams[] = ":where_id{$index}";
-            $params[":where_id{$index}"] = $update['id'];
-        }
-
-        $query .= 'END WHERE `id` IN (' . implode(', ', $whereParams) . ')';
-
-        $statement = $pearDB->prepareQuery($query);
-        $pearDB->executePreparedQuery($statement, $params);
-    }
-};
-
-/**
-  * Add Column connection_mode to agent_configuration table.
-  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
-  *
-  * @param CentreonDB $pearDB
-  *
-  * @throws CentreonDbException
-  */
-  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `agent_configuration`
-            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
-        SQL
+            ALTER TABLE `platform_topology`
+            ADD COLUMN `central_address` varchar(255) NULL AFTER `address`
+            SQL
     );
+
+    LoggerUpgrade::create()->info($version, 'Successfully added central_address column');
+};
+
+$fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix the gorgone_communication_type column comment';
+    LoggerUpgrade::create()->info($version, 'Fixing the gorgone_communication_type column comment');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            MODIFY COLUMN `gorgone_communication_type`
+            enum('1','2','3','4') NOT NULL DEFAULT '1'
+            COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
+};
+
+/**
+ * Resolve central address from /etc/centreon/poller_installation (cloud only).
+ * Builds address as: {orga}.{region}.{domain}/{site}
+ */
+$resolveCloudCentralAddress = function () use ($version): ?string {
+    $filePath = _CENTREON_ETC_ . '/poller_installation';
+
+    if (! is_readable($filePath)) {
+        LoggerUpgrade::create()->warning(
+            $version,
+            "Cloud platform: {$filePath} not found or not readable"
+        );
+
+        return null;
+    }
+
+    $content = file_get_contents($filePath);
+
+    if ($content === false) {
+        LoggerUpgrade::create()->warning(
+            $version,
+            "Cloud platform: could not read {$filePath}"
+        );
+
+        return null;
+    }
+
+    $hasAllFields = preg_match('/CLOUD_REGION="([^"]+)"/', $content, $regionMatch)
+        && preg_match('/CLOUD_DOMAIN="([^"]+)"/', $content, $domainMatch)
+        && preg_match('/\binstall\b.*-o\s+([^\s;]+)/s', $content, $orgaMatch)
+        && preg_match('/\binstall\b.*-s\s+([^\s;]+)/s', $content, $siteMatch);
+
+    if (! $hasAllFields) {
+        LoggerUpgrade::create()->warning(
+            $version,
+            "Cloud platform: could not extract CLOUD_REGION, CLOUD_DOMAIN, -o or -s from {$filePath}"
+        );
+
+        return null;
+    }
+
+    return "{$orgaMatch[1]}.{$regionMatch[1]}.{$domainMatch[1]}/{$siteMatch[1]}";
+};
+
+/**
+ * Resolve central address from broker output configs (on-prem).
+ * Looks for IPv4 or BBDO Client outputs with a non-empty host.
+ * When multiple outputs exist, takes the most recent one (highest id).
+ *
+ * @param array{server_id: ?int} $platform
+ */
+$resolveOnPremCentralAddress = function (array $platform) use ($pearDB): ?string {
+    if ($platform['server_id'] === null) {
+        return null;
+    }
+
+    $host = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT cbi_host.config_value
+            FROM cfg_centreonbroker_info cbi_host
+            JOIN cfg_centreonbroker_info cbi_type
+                ON cbi_type.config_id = cbi_host.config_id
+                AND cbi_type.config_group = cbi_host.config_group
+                AND cbi_type.config_group_id = cbi_host.config_group_id
+                AND cbi_type.config_key = 'type'
+                AND cbi_type.config_value IN ('ipv4', 'bbdo_client')
+            JOIN cfg_centreonbroker cb
+                ON cb.config_id = cbi_host.config_id
+            WHERE cb.ns_nagios_server = :serverId
+                AND cbi_host.config_group = 'output'
+                AND cbi_host.config_key = 'host'
+                AND TRIM(cbi_host.config_value) != ''
+            ORDER BY cbi_host.id DESC
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('serverId', (int) $platform['server_id']),
+        ])
+    );
+
+    return is_string($host) && trim($host) !== '' ? trim($host) : null;
+};
+
+$populateCentralAddress = function () use ($pearDB, &$errorMessage, $version, $resolveCloudCentralAddress, $resolveOnPremCentralAddress): void {
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+        FILTER_VALIDATE_BOOL,
+        FILTER_NULL_ON_FAILURE
+    ) === true;
+
+    $errorMessage = 'Unable to populate central_address for central servers';
+    LoggerUpgrade::create()->info($version, 'Setting central_address = address for central servers');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `platform_topology`
+            SET `central_address` = `address`
+            WHERE `type` = 'central'
+            SQL
+    );
+
+    $errorMessage = 'Unable to fetch non-central platforms';
+    $platforms = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `id`, `server_id`, `address`, `type`
+            FROM `platform_topology`
+            WHERE `type` != 'central'
+            SQL
+    );
+
+    $cloudCentralAddress = $isCloudPlatform ? $resolveCloudCentralAddress() : null;
+
+    foreach ($platforms as $platform) {
+        if ($isCloudPlatform) {
+            $centralAddress = $cloudCentralAddress ?? $platform['address'];
+        } else {
+            $centralAddress = $resolveOnPremCentralAddress($platform) ?? $platform['address'];
+        }
+
+        if ($centralAddress === $platform['address']) {
+            $reason = $isCloudPlatform
+                ? 'Could not resolve central address from /etc/centreon/poller_installation'
+                : "No broker output host found (server_id={$platform['server_id']})";
+
+            LoggerUpgrade::create()->warning(
+                $version,
+                "{$reason} for platform id={$platform['id']}, "
+                . "falling back to address '{$centralAddress}'. "
+                . 'Please verify this value is correct.'
+            );
+        }
+
+        $errorMessage = "Unable to update central_address for platform id={$platform['id']}";
+        $pearDB->executeStatement(
+            <<<'SQL'
+                UPDATE `platform_topology`
+                SET `central_address` = :centralAddress
+                WHERE `id` = :platformId
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('centralAddress', $centralAddress),
+                QueryParameter::int('platformId', (int) $platform['id']),
+            ])
+        );
+    }
+
+    LoggerUpgrade::create()->info($version, 'Successfully populated central_address for all platforms');
+};
+
+$realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to realign command audit logs to the 'command' object type";
+    LoggerUpgrade::create()->info($version, "Realigning command audit logs from 'commands' to 'command'");
+
+    // The ActivityLogging system used to store command changes under the plural
+    // 'commands' token, which the Administration > Logs Type filter (bound on the
+    // canonical singular 'command') could never match. Realign the existing rows.
+    $pearDBO->update(
+        <<<'SQL'
+            UPDATE `log_action` SET `object_type` = 'command' WHERE `object_type` = 'commands'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Successfully realigned command audit logs to 'command'");
 };
 
 try {
-    // TODO add your function calls to update the real time database structure here
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
-    // TODO add your function calls to update the configuration database structure here
-    $addConnectionModeColumnToAgentConfiguration();
+    $addCentralAddressColumn();
+    $fixGorgoneCommunicationTypeComment();
 
-    // Transactional queries for configuration database
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
+    $realignCommandActionLogObjectType();
+
+    $errorMessage = 'Unable to start the configuration database transaction';
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
     }
 
-    $updateTopologyForHostGroup($pearDB);
-    $updateSamlProviderConfiguration($pearDB);
-    $updateAgentConfiguration($pearDB);
+    $populateCentralAddress();
 
-    $pearDB->commit();
+    $errorMessage = 'Unable to commit the configuration database transaction';
+    $pearDB->commitTransaction();
 
-} catch (\Throwable $exception) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        customContext: [
-            'exception' => [
-                'error_message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
-            ]
-        ],
-        exception: $exception
-    );
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
+
+} catch (Throwable $throwable) {
     try {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
+        if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
+            $pearDB->rollBackTransaction();
         }
-    } catch (\PDOException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            customContext: [
-                'error_to_rollback' => $errorMessage,
-                'exception' => [
-                    'error_message' => $rollbackException->getMessage(),
-                    'trace' => $rollbackException->getTraceAsString()
-                ]
-            ],
-            exception: $rollbackException
-        );
-        throw new \Exception(
+    } catch (ConnectionException $rollbackException) {
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            (int) $rollbackException->getCode(),
             $rollbackException
         );
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
+        );
     }
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
 }

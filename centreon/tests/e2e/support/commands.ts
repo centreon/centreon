@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+
 
 import 'cypress-wait-until';
-import '@centreon/js-config/cypress/e2e/commands';
+import '../../../packages/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/ACLs/commands';
 import '../features/Api-Token/commands';
@@ -18,6 +18,11 @@ import '../features/Notifications/commands';
 import '../features/Commands/commands';
 import '../features/Resources-status/commands';
 import '../features/Platform-upgrade-update/commands';
+import '../features/Additional-connectors/commands';
+import '../features/Macros/commands';
+
+import type { ActionClapi } from '../commons';
+
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -37,7 +42,9 @@ Cypress.Commands.add('removeResourceData', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
+Cypress.Commands.add('loginKeycloak', (jsonName): Cypress.Chainable => {
+  cy.url().should('include', '/realms/Centreon_SSO');
+
   cy.fixture(`users/${jsonName}.json`).then((credential) => {
     cy.get('#username').type(`{selectall}{backspace}${credential.login}`);
     cy.get('#password').type(`{selectall}{backspace}${credential.password}`);
@@ -49,7 +56,7 @@ Cypress.Commands.add('loginKeycloak', (jsonName: string): Cypress.Chainable => {
 Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
-    cy.get('header svg[aria-label="Profile"]').click();
+    cy.get('header [aria-label="Profile"]').click();
 
     return cy.get('div[role="tooltip"]').contains(targetedMenu);
   }
@@ -73,6 +80,19 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
     });
   });
 });
+
+Cypress.Commands.add(
+  'applyAclProfile',
+  (fixturePath: string): Cypress.Chainable => {
+    cy.fixture(fixturePath).then((actions: Array<ActionClapi>) => {
+      actions.forEach((action) => {
+        cy.executeActionViaClapi({ bodyContent: action });
+      });
+    });
+
+    return cy.applyAcl();
+  }
+);
 
 interface Serviceparams {
   name: string;
@@ -131,6 +151,7 @@ interface HtmlElt {
 declare global {
   namespace Cypress {
     interface Chainable {
+      applyAclProfile: (fixturePath: string) => Cypress.Chainable;
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;
@@ -144,7 +165,7 @@ declare global {
         paramName,
         paramValue,
       }: Serviceparams) => Cypress.Chainable;
-      enterIframe: () => Cypress.Chainable;
+      enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;

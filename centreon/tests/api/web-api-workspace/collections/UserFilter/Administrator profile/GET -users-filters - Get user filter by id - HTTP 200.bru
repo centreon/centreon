@@ -1,0 +1,27 @@
+meta {
+  name: GET /users/filters/events-view/{filterId} - Get user filter by id - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/users/filters/events-view/{{UserFilter1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("User filter is retrieved by id and matches expected values.", function () {
+    const body = res.getBody();
+    expect(body).to.include({"id": parseInt(bru.getEnvVar("UserFilter1Id")), "name": bru.getEnvVar("UserFilter1Name")});
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,19 +1,17 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { isNil, pluck } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, Breadcrumbs as MuiBreadcrumbs } from '@mui/material';
-
-import navigationAtom from '../Navigation/navigationAtoms';
 
 import { useCopyToClipboard } from '@centreon/ui';
 import { IconButton, Tooltip } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { isNil, pluck } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
+import navigationAtom from '../Navigation/navigationAtoms';
 import Breadcrumb from './Breadcrumb';
 import getBreadcrumbsByPath from './getBreadcrumbsByPath';
 import { Breadcrumb as BreadcrumbModel, BreadcrumbsByPath } from './models';
@@ -24,17 +22,24 @@ import {
 } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
-  item: {
-    display: 'flex'
-  },
-  root: {
-    padding: theme.spacing(0.5, 0, 0.5, 3)
-  },
   breadcrumbCopyIcon: {
     '&[data-is-hovered="true"]': {
       opacity: 1
     },
     opacity: 0
+  },
+  item: {
+    display: 'flex'
+  },
+  root: {
+    padding: 0
+  },
+  separator: {
+    color: theme.palette.text.secondary,
+    fontSize: '0.875rem',
+    lineHeight: 1,
+    marginLeft: theme.spacing(0.75),
+    marginRight: theme.spacing(0.75)
   }
 }));
 
@@ -46,7 +51,7 @@ interface Props {
 const getBreadcrumbs = ({
   breadcrumbsByPath,
   path
-}): Array<BreadcrumbModel> => {
+}: Props): Array<BreadcrumbModel> => {
   if (breadcrumbsByPath[path]) {
     return breadcrumbsByPath[path];
   }
@@ -67,8 +72,8 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
   const [isHovered, setIsHovered] = useState(false);
 
   const { copy } = useCopyToClipboard({
-    successMessage: t(labelBreadcrumbCopied),
-    errorMessage: t(labelFailedToCopyBreadcrumb)
+    errorMessage: t(labelFailedToCopyBreadcrumb),
+    successMessage: t(labelBreadcrumbCopied)
   });
 
   const breadcrumbs = useMemo(
@@ -86,19 +91,25 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
 
   return (
     <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: 1,
-        width: 'fit-content'
-      }}
+      data-cy="breadcrumb"
       onMouseEnter={hover}
       onMouseLeave={leave}
+      sx={{
+        alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 0.5,
+        width: 'fit-content'
+      }}
     >
       <MuiBreadcrumbs
         aria-label="Breadcrumb"
-        classes={{ li: classes.item, root: classes.root }}
-        separator={<NavigateNextIcon fontSize="small" />}
+        classes={{
+          li: classes.item,
+          root: classes.root,
+          separator: classes.separator
+        }}
+        separator="›"
       >
         {breadcrumbs.map((breadcrumb, index) => (
           <Breadcrumb
@@ -108,19 +119,19 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
           />
         ))}
       </MuiBreadcrumbs>
-      <Tooltip label={t(labelCopyBreadcrumb)} followCursor={false}>
+      <Tooltip followCursor={false} label={t(labelCopyBreadcrumb)}>
         <IconButton
-          size="small"
-          onClick={copyBreadcrumb}
+          className={classes.breadcrumbCopyIcon}
+          data-is-hovered={isHovered}
           icon={
             <ContentCopyIcon
-              fontSize="small"
               color="primary"
               data-testid={labelCopyBreadcrumb}
+              fontSize="small"
             />
           }
-          data-is-hovered={isHovered}
-          className={classes.breadcrumbCopyIcon}
+          onClick={copyBreadcrumb}
+          size="small"
           sx={{
             transition: 'all 175ms ease-out'
           }}
@@ -134,20 +145,45 @@ export const router = {
   useLocation
 };
 
+const resolveLegacyPath = (
+  search: string,
+  breadcrumbsByPath: BreadcrumbsByPath
+): string | null => {
+  const page = new URLSearchParams(search).get('p');
+
+  if (isNil(page)) {
+    return null;
+  }
+
+  const exactPath = `/main.php?p=${page}`;
+
+  if (breadcrumbsByPath[exactPath]) {
+    return exactPath;
+  }
+
+  return (
+    Object.keys(breadcrumbsByPath).find((key) =>
+      key.startsWith(`${exactPath}&`)
+    ) ?? null
+  );
+};
+
 const Breadcrumbs = (): JSX.Element | null => {
   const navigation = useAtomValue(navigationAtom);
-  const { pathname } = router.useLocation();
+  const { pathname, search } = router.useLocation();
 
   if (isNil(navigation)) {
     return null;
   }
 
-  return (
-    <BreadcrumbTrail
-      breadcrumbsByPath={getBreadcrumbsByPath(navigation.result)}
-      path={pathname}
-    />
-  );
+  const breadcrumbsByPath = getBreadcrumbsByPath(navigation.result);
+
+  const path =
+    pathname === '/main.php'
+      ? (resolveLegacyPath(search, breadcrumbsByPath) ?? pathname)
+      : pathname;
+
+  return <BreadcrumbTrail breadcrumbsByPath={breadcrumbsByPath} path={path} />;
 };
 
 export default Breadcrumbs;

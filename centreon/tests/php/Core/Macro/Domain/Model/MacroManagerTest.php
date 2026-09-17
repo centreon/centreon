@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,16 +47,16 @@ it('should resolve command macro inheritance', function (): void {
 });
 
 it('should set macros order property', function (): void {
-    $macroA = new Macro(1, 'nameA', 'valueA');
+    $macroA = new Macro(null, 1, 'nameA', 'valueA');
     $macroA->setOrder(0);
-    $macroB = new Macro(1, 'nameB', 'valueB');
+    $macroB = new Macro(null, 1, 'nameB', 'valueB');
     $macroB->setOrder(1);
-    $macroC = new Macro(1, 'nameC', 'valueC');
+    $macroC = new Macro(null, 1, 'nameC', 'valueC');
     $macroC->setOrder(2);
-    $macroD = new Macro(1, 'nameD', 'valueD');
+    $macroD = new Macro(null, 1, 'nameD', 'valueD');
     $macroD->setOrder(3);
-    $macroE = new Macro(2, 'nameE', 'valueE');
-    $macroF = new Macro(1, 'nameF', 'valueF');
+    $macroE = new Macro(null, 2, 'nameE', 'valueE');
+    $macroF = new Macro(null, 1, 'nameF', 'valueF');
 
     $directMacros = [
         $macroA->getName() => $macroA,

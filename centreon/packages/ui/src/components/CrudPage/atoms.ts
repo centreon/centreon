@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
-import { ItemToDelete } from './models';
+
+import type { ItemToDelete } from './models';
 
 export const pageAtom = atom(0);
 export const limitAtom = atom(10);

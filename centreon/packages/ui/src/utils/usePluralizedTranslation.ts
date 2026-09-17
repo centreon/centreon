@@ -1,11 +1,9 @@
-import { useCallback } from 'react';
-
-import { useAtomValue } from 'jotai';
 import pluralize from 'pluralize';
 import { equals, includes } from 'ramda';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { userAtom } from '@centreon/ui-context';
+import { useLocale } from './useLocale';
 
 interface TProps {
   count: number;
@@ -16,7 +14,7 @@ export const usePluralizedTranslation = (): {
   pluralizedT: (props: TProps) => string;
 } => {
   const translation = useTranslation();
-  const { locale } = useAtomValue(userAtom);
+  const locale = useLocale();
 
   const isNotPartitiveLocale = includes('fr', locale);
 
@@ -29,7 +27,7 @@ export const usePluralizedTranslation = (): {
         isZero && isNotPartitiveLocale ? 1 : count
       );
     },
-    [isNotPartitiveLocale]
+    [isNotPartitiveLocale, translation.t]
   );
 
   return {

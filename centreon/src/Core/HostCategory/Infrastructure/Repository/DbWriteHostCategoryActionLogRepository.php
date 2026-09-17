@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
 use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostCategory\Domain\Model\NewHostCategory;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB implements WriteHostCategoryRepositoryInterface
 {
@@ -49,8 +50,8 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private readonly ContactInterface $user,
-        DatabaseConnection $db
+        private readonly TokenStorageInterface $tokenStorage,
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -71,7 +72,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                 objectId: $hostCategoryId,
                 objectName: $hostCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_DELETE,
-                contactId: $this->user->getId(),
+                contactId: $this->getContactId(),
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -96,12 +97,13 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                 objectId: $hostCategoryId,
                 objectName: $hostCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->user->getId(),
+                contactId: $this->getContactId(),
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
             $this->writeActionLogRepository->addActionDetails(
-                $actionLog, $this->getNewHostCategoryAsArray($hostCategory)
+                $actionLog,
+                $this->getNewHostCategoryAsArray($hostCategory)
             );
 
             return $hostCategoryId;
@@ -137,7 +139,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                         actionType: $diff['hc_activate']
                             ? ActionLog::ACTION_TYPE_ENABLE
                             : ActionLog::ACTION_TYPE_DISABLE,
-                        contactId: $this->user->getId(),
+                        contactId: $this->getContactId(),
                     );
                     $this->writeActionLogRepository->addAction($actionLog);
                 }
@@ -150,7 +152,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                         actionType: $diff['hc_activate']
                             ? ActionLog::ACTION_TYPE_ENABLE
                             : ActionLog::ACTION_TYPE_DISABLE,
-                        contactId: $this->user->getId(),
+                        contactId: $this->getContactId(),
                     );
                     $this->writeActionLogRepository->addAction($actionLog);
                     $actionLog = new ActionLog(
@@ -158,7 +160,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                         objectId: $hostCategory->getId(),
                         objectName: $hostCategory->getName(),
                         actionType: ActionLog::ACTION_TYPE_CHANGE,
-                        contactId: $this->user->getId(),
+                        contactId: $this->getContactId(),
                     );
                     $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
                     $actionLog->setId($actionLogId);
@@ -174,7 +176,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
                 objectId: $hostCategory->getId(),
                 objectName: $hostCategory->getName(),
                 actionType: ActionLog::ACTION_TYPE_CHANGE,
-                contactId: $this->user->getId(),
+                contactId: $this->getContactId(),
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -202,6 +204,13 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
         $this->writeHostCategoryRepository->unlinkFromHost($hostId, $categoryIds);
     }
 
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
+    }
+
     /**
      * Compare the initial and updated HostCategory and return the differences.
      *
@@ -217,7 +226,7 @@ class DbWriteHostCategoryActionLogRepository extends AbstractRepositoryRDB imple
      */
     private function getHostCategoryDiff(
         HostCategory $initialHostCategory,
-        HostCategory $updatedHostCategory
+        HostCategory $updatedHostCategory,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialHostCategory);

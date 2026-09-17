@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import {
   RenderResult,
   render,
@@ -7,22 +5,23 @@ import {
   waitFor
 } from '@centreon/ui/test/testRenderer';
 
+import axios from 'axios';
+
 import {
   aclEndpoint,
   externalTranslationEndpoint,
   internalTranslationEndpoint,
   parametersEndpoint
 } from '../App/endpoint';
-import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
-import { labelConnect } from '../Login/translatedLabels';
-import { retrievedNavigation } from '../Navigation/mocks';
-import { navigationEndpoint } from '../Navigation/useNavigation';
 import {
   platformInstallationStatusEndpoint,
   userEndpoint
 } from '../api/endpoint';
+import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
 import { retrievedFederatedModule } from '../federatedModules/mocks';
-
+import { labelConnect } from '../Login/translatedLabels';
+import { retrievedNavigation } from '../Navigation/mocks';
+import { navigationEndpoint } from '../Navigation/useNavigation';
 import Provider from './Provider';
 import {
   retrievedActionsAcl,
@@ -266,6 +265,7 @@ describe('Main', () => {
       );
     });
 
+    // biome-ignore lint: test purpose
     expect(window.location.href).toBe('http://localhost/login');
 
     await waitFor(() => {
@@ -302,6 +302,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/install/install.php'
       );
     });
@@ -331,6 +332,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/install/upgrade.php'
       );
     });
@@ -360,6 +362,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/monitoring/resources'
       );
     });
@@ -434,6 +437,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(window.location.href).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/monitoring/resources'
       );
     });

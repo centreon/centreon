@@ -1,9 +1,8 @@
-import { ReactElement } from 'react';
+import { Paper } from '@mui/material';
 
 import { isNil } from 'ramda';
+import type { ReactElement } from 'react';
 import { makeStyles } from 'tss-react/mui';
-
-import { Paper } from '@mui/material';
 
 import Image from '../Image/Image';
 import LoadingSkeleton from '../LoadingSkeleton';

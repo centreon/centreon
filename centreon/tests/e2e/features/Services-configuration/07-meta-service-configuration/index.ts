@@ -1,18 +1,70 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/services/meta_service.json';
+
+// Selection filters of the legacy service-configuration list endpoint:
+// 'all' -> services and meta services, 's' -> services only, 'm' -> meta services only.
+const serviceSelectionFilters = ['all', 's', 'm'];
+
+const configurationServicesListUrl = (selection: string): string =>
+  `/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list&page_limit=60&page=1&s=${selection}`;
+
+const metaServiceLabel = `Meta - ${data.default.name}`;
+
+const serviceListByFilter: Record<
+  string,
+  Array<{ id: string; text: string }>
+> = {};
+
+const isMetaServiceItem = (item: { text: string }): boolean =>
+  item.text.startsWith('Meta - ');
+
+// Asserts the items returned for a given selection filter contain the expected
+// mix of regular services and meta services. The meta service created in the
+// Background (metaServiceLabel) is the deterministic anchor of these checks.
+const assertServiceListForFilter = (
+  items: Array<{ id: string; text: string }>,
+  selection: string
+): void => {
+  expect(items, `items returned for s=${selection}`).to.be.an('array');
+
+  const containsMetaService = items.some(
+    (item) => item.text === metaServiceLabel
+  );
+
+  if (selection === 'all') {
+    expect(
+      containsMetaService,
+      `meta service "${metaServiceLabel}" should be listed when s=all`
+    ).to.be.true;
+  } else if (selection === 'm') {
+    expect(
+      containsMetaService,
+      `meta service "${metaServiceLabel}" should be listed when s=m`
+    ).to.be.true;
+    expect(
+      items.every(isMetaServiceItem),
+      'only meta services should be listed when s=m'
+    ).to.be.true;
+  } else {
+    expect(
+      containsMetaService,
+      `meta service "${metaServiceLabel}" should not be listed when s=s`
+    ).to.be.false;
+  }
+};
 
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getUserTimezone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 });
 
@@ -21,11 +73,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 Then('a meta service is configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchMS"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="meta_name"]');
@@ -117,9 +165,10 @@ When('the user changes the properties of a meta service', () => {
   cy.getIframeBody().find('select[name="calcul_type"]').select('Max');
   cy.getIframeBody().find('select[name="data_source_type"]').select('COUNTER');
   cy.getIframeBody()
-    .find('input[name*="meta_select_mode"][value="1"]')
+    .find('input[name*="meta_select_mode"][value="2"]')
     .parent()
     .click();
+  cy.waitForElementInIframe('#main-content', 'input[name="regexp_str"]');
   cy.getIframeBody()
     .find('input[name="regexp_str"]')
     .clear()
@@ -160,7 +209,7 @@ When('the user changes the properties of a meta service', () => {
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
     .clear()
-    .type('2.3522219,48.856614');
+    .type(data.default.geo_coordinates);
   cy.getIframeBody().find('select[name="graph_id"]').select('Memory');
   cy.getIframeBody()
     .find('textarea[name="meta_comment"]')
@@ -194,7 +243,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .should('have.value', '1');
   cy.getIframeBody()
-    .find('input[name*="meta_select_mode"][value="1"]')
+    .find('input[name*="meta_select_mode"][value="2"]')
     .should('be.checked');
   cy.getIframeBody()
     .find('input[name="regexp_str"]')
@@ -215,7 +264,7 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('input[name*="notifications_enabled"][value="2"]')
     .should('be.checked');
-  cy.getIframeBody().find(`li[title=Guest]`).contains('Guest').should('exist');
+  cy.getIframeBody().find('li[title=Guest]').contains('Guest').should('exist');
   cy.getIframeBody()
     .find('li[title="Supervisors"]')
     .contains('Supervisors')
@@ -229,7 +278,7 @@ Then('the properties are updated', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', '2.3522219,48.856614');
+    .should('have.value', data.default.geoCoordinatesTruncated);
   cy.getIframeBody()
     .find('select[name="graph_id"]')
     .find('option:selected')
@@ -325,7 +374,7 @@ Then('the new meta service has the same properties', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', data.default.geo_coordinates);
+    .should('have.value', data.default.geoCoordinatesTruncated);
   cy.getIframeBody()
     .find('select[name="graph_id"]')
     .find('option:selected')
@@ -360,6 +409,31 @@ Then('the deleted meta service is not displayed in the list', () => {
     .contains(data.default.name)
     .should('not.exist');
 });
+
+When(
+  'the configuration services list is requested for each selection filter',
+  () => {
+    serviceSelectionFilters.forEach((selection) => {
+      cy.request(configurationServicesListUrl(selection)).then((response) => {
+        expect(response.status).to.eq(200);
+        const body =
+          typeof response.body === 'string'
+            ? JSON.parse(response.body)
+            : response.body;
+        serviceListByFilter[selection] = body.items;
+      });
+    });
+  }
+);
+
+Then(
+  'services and meta services are returned according to the selected filter',
+  () => {
+    serviceSelectionFilters.forEach((selection) => {
+      assertServiceListForFilter(serviceListByFilter[selection], selection);
+    });
+  }
+);
 
 afterEach(() => {
   cy.stopContainers();

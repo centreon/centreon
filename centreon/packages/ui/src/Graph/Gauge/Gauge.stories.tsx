@@ -1,7 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import dataLastWeek from '../mockedData/lastWeek.json';
-
 import { Gauge } from './Gauge';
 
 const meta: Meta<typeof Gauge> = {

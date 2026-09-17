@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Interfaces\EncryptionInterface;
@@ -66,13 +67,13 @@ class NewVaultConfiguration
         protected string $rootPath,
         private string $roleId,
         private string $secretId,
-        protected string $name = self::DEFAULT_NAME
+        protected string $name = self::DEFAULT_NAME,
     ) {
         Assertion::minLength($name, self::MIN_LENGTH, 'NewVaultConfiguration::name');
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::name');
         Assertion::regex($name, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
         Assertion::minLength($address, self::MIN_LENGTH, 'NewVaultConfiguration::address');
-        Assertion::ipOrDomain($address, 'NewVaultConfiguration::address');
+        CentreonAssert::ipOrHostname($address, 'NewVaultConfiguration::address');
         Assertion::max($port, self::MAX_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::min($port, self::MIN_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::minLength($rootPath, self::MIN_LENGTH, 'NewVaultConfiguration::rootPath');

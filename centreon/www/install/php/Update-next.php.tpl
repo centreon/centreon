@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +19,26 @@
  *
  */
 
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Log\LoggerUpgrade;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
 $version = 'xx.xx.x';
+
 $errorMessage = '';
+
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
 
 // TODO add your functions here
 
 try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
@@ -37,48 +46,40 @@ try {
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
+    $errorMessage = 'Unable to start the configuration database transaction';
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
     }
 
     // TODO add your function calls to update the configuration database data here
 
-    $pearDB->commit();
+    $errorMessage = 'Unable to commit the configuration database transaction';
+    $pearDB->commitTransaction();
 
-} catch (\Throwable $exception) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        customContext: [
-            'exception' => [
-                'error_message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
-            ]
-        ],
-        exception: $exception
-    );
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
+
+} catch (Throwable $throwable) {
     try {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
+        if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
+            $pearDB->rollBackTransaction();
         }
-    } catch (\PDOException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            customContext: [
-                'error_to_rollback' => $errorMessage,
-                'exception' => [
-                    'error_message' => $rollbackException->getMessage(),
-                    'trace' => $rollbackException->getTraceAsString()
-                ]
-            ],
-            exception: $rollbackException
-        );
-        throw new \Exception(
+    } catch (ConnectionException $rollbackException) {
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            (int) $rollbackException->getCode(),
             $rollbackException
         );
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
+        );
     }
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
 }

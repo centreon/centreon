@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,47 +21,37 @@
 
 namespace Tests\Centreon\Application\Controller;
 
+use Centreon\Application\Controller\AuthenticationController;
+use Centreon\Domain\Authentication\Exception\AuthenticationException;
+use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
+use Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse;
+use Centreon\Domain\Authentication\UseCase\Logout;
+use Centreon\Domain\Contact\Contact;
 use FOS\RestBundle\View\View;
 use PHPUnit\Framework\TestCase;
-use Centreon\Domain\Contact\Contact;
 use Psr\Container\ContainerInterface;
+use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Centreon\Domain\Authentication\UseCase\Logout;
-use Centreon\Domain\Authentication\UseCase\AuthenticateApi;
-use Centreon\Application\Controller\AuthenticationController;
-use Centreon\Domain\Authentication\UseCase\AuthenticateApiResponse;
-use Centreon\Domain\Authentication\Exception\AuthenticationException;
-use Security\Infrastructure\Authentication\API\Model_2110\ApiAuthenticationFactory;
 
 /**
  * @package Tests\Centreon\Application\Controller
  */
 class AuthenticationControllerTest extends TestCase
 {
-    /**
-     * @var Contact
-     */
+    /** @var Contact */
     protected $adminContact;
 
-    /**
-     * @var AuthenticateApi|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var AuthenticateApi|\PHPUnit\Framework\MockObject\MockObject */
     protected $authenticateApi;
 
-    /**
-     * @var Logout|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Logout|\PHPUnit\Framework\MockObject\MockObject */
     protected $logout;
 
-    /**
-     * @var ContainerInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContainerInterface|\PHPUnit\Framework\MockObject\MockObject */
     protected $container;
 
-    /**
-     * @var Request|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Request */
     protected $request;
 
     protected function setUp(): void
@@ -81,7 +71,7 @@ class AuthenticationControllerTest extends TestCase
 
         $this->container = $this->createMock(ContainerInterface::class);
 
-        $this->request = $this->createMock(Request::class);
+        $this->request = new Request();
     }
 
     /**
@@ -92,17 +82,14 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(json_encode([
-                'security' => [
-                    'credentials' => [
-                        'login' => 'admin',
-                        'password' => 'centreon',
-                    ],
+        $this->request = new Request([], [], [], [], [], [], json_encode([
+            'security' => [
+                'credentials' => [
+                    'login' => 'admin',
+                    'password' => 'centreon',
                 ],
-            ]));
+            ],
+        ]));
 
         $response = new AuthenticateApiResponse();
         $response->setApiAuthentication(
@@ -125,17 +112,14 @@ class AuthenticationControllerTest extends TestCase
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request
-            ->expects($this->once())
-            ->method('getContent')
-            ->willReturn(json_encode([
-                'security' => [
-                    'credentials' => [
-                        'login' => 'toto',
-                        'password' => 'centreon',
-                    ],
+        $this->request = new Request([], [], [], [], [], [], json_encode([
+            'security' => [
+                'credentials' => [
+                    'login' => 'toto',
+                    'password' => 'centreon',
                 ],
-            ]));
+            ],
+        ]));
 
         $response = new AuthenticateApiResponse();
         $response->setApiAuthentication(
@@ -153,8 +137,8 @@ class AuthenticationControllerTest extends TestCase
         $this->assertEquals(
             View::create(
                 [
-                    "code" => Response::HTTP_UNAUTHORIZED,
-                    "message" => 'Authentication failed',
+                    'code' => Response::HTTP_UNAUTHORIZED,
+                    'message' => 'Authentication failed',
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),
@@ -162,53 +146,35 @@ class AuthenticationControllerTest extends TestCase
         );
     }
 
-    /**
-     * test logout
-     */
     public function testLogout(): void
     {
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
 
-        $this->request->headers = new class () {
-            public function get(): string
-            {
-                return 'token';
-            }
-        };
+        $this->request->headers->set('X-AUTH-TOKEN', 'token');
 
         $view = $authenticationController->logout($this->request, $this->logout);
 
         $this->assertEquals(
             View::create([
-                "message" => 'Successful logout'
+                'message' => 'Successful logout',
             ]),
             $view
         );
     }
 
-    /**
-     * test logout with bad token
-     */
     public function testLogoutFailed(): void
     {
         $authenticationController = new AuthenticationController();
         $authenticationController->setContainer($this->container);
-
-        $this->request->headers = new class () {
-            public function get(): void
-            {
-                return;
-            }
-        };
 
         $view = $authenticationController->logout($this->request, $this->logout);
 
         $this->assertEquals(
             View::create(
                 [
-                    "code" => Response::HTTP_UNAUTHORIZED,
-                    "message" => 'Authentication failed'
+                    'code' => Response::HTTP_UNAUTHORIZED,
+                    'message' => 'Authentication failed',
                 ],
                 Response::HTTP_UNAUTHORIZED
             ),

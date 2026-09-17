@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ class MetaService
         private string $name,
         private string $calculationType,
         private int $metaSelectionMode,
-        private string $dataSourceType
+        private string $dataSourceType,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'MetaService::name');
         Assertion::notEmpty($name, 'MetaService::name');

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\API\AddMedia;
 
@@ -36,13 +36,13 @@ class AddMediaPresenter extends AbstractPresenter implements AddMediaPresenterIn
             $this->setResponseStatus($response);
         } else {
             $this->present([
-                'result' => array_map(fn(array $media) => [
+                'result' => array_map(fn (array $media) => [
                     'id' => $media['id'],
                     'filename' => $media['filename'],
                     'directory' => $media['directory'],
                     'md5' => $media['md5'],
                 ], $response->mediasRecorded),
-                'errors' => array_map(fn(array $errors) => [
+                'errors' => array_map(fn (array $errors) => [
                     'filename' => $errors['filename'],
                     'directory' => $errors['directory'],
                     'reason' => $errors['reason'],

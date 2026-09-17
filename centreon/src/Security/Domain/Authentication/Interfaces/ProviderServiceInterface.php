@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ interface ProviderServiceInterface
      * @return ProviderAuthenticationInterface|null
      */
     public function findProviderByConfigurationName(
-        string $providerAuthenticationName
+        string $providerAuthenticationName,
     ): ?ProviderAuthenticationInterface;
 
     /**
@@ -64,7 +64,7 @@ interface ProviderServiceInterface
      * @return ProviderConfiguration|null
      */
     public function findProviderConfigurationByConfigurationName(
-        string $providerConfigurationName
+        string $providerConfigurationName,
     ): ?ProviderConfiguration;
 
     /**

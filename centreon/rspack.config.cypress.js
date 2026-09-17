@@ -20,6 +20,7 @@ const output = isDevelopmentMode
   : {};
 
 module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
+  cache: false,
   devServer: {
     ...devServer,
     port: 9092,
@@ -31,6 +32,7 @@ module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
     ]
   },
   devtool: false,
+  infrastructureLogging: { level: 'error' },
   output,
   plugins: devServerPlugins,
   resolve: {

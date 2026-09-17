@@ -1,23 +1,23 @@
-import { useEffect, useRef } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { inc, isEmpty, pluck } from 'ramda';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import {
-  ListingModel,
   buildListingEndpoint,
+  type ListingModel,
   useDeepCompare,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { SortOrder } from '../../models';
-import { getWidgetEndpoint } from '../../utils';
+import { useAtomValue } from 'jotai';
+import { inc, isEmpty, pluck } from 'ramda';
+import { useEffect, useRef } from 'react';
 
+import { SortOrder } from '../../models';
+import { getWidgetEndpoint, isResourceString } from '../../utils';
 import { groupsDecoder } from './api/decoders';
 import { getEndpoint } from './api/endpoints';
-import { FormattedGroup, Group, WidgetProps } from './models';
+import type { FormattedGroup, Group, WidgetProps } from './models';
 import { getResourceTypeName } from './utils';
 
 interface UseGroupMonitoringState {
@@ -48,7 +48,8 @@ export const useGroupMonitoring = ({
   dashboardId,
   id,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport
 }: WidgetProps): UseGroupMonitoringState => {
   const isFirstMountRef = useRef(true);
   const limitRef = useRef(10);
@@ -84,7 +85,7 @@ export const useGroupMonitoring = ({
     refreshCount
   ];
 
-  const { data } = useFetchQuery<ListingModel<Group>>({
+  const { data, isLoading } = useFetchQuery<ListingModel<Group>>({
     decoder: groupsDecoder,
     getEndpoint: () =>
       getWidgetEndpoint({
@@ -106,12 +107,24 @@ export const useGroupMonitoring = ({
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                  lists: [
-                    {
-                      field: 'name',
-                      values: pluck('name', resource?.resources)
-                    }
-                  ]
+                  conditions: isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: {
+                            $rg: resource?.resources
+                          }
+                        }
+                      ]
+                    : undefined,
+                  lists: !isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: pluck('name', resource?.resources)
+                        }
+                      ]
+                    : undefined
                 }
               : undefined,
             sort: {
@@ -125,7 +138,7 @@ export const useGroupMonitoring = ({
       }),
     getQueryKey: () => key,
     queryOptions: {
-      enabled: hasResourceTypeDefined,
+      enabled: (isInViewport ?? true) && hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
     },
@@ -176,6 +189,7 @@ export const useGroupMonitoring = ({
     groupType: resource?.resourceType || '',
     groupTypeName: getResourceTypeName(resource?.resourceType),
     hasResourceTypeDefined,
+    isLoading,
     limit: limitToUse,
     listing: formattedListing,
     page: pageToUse,

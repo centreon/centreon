@@ -1,35 +1,26 @@
-import { ReactElement, useCallback, useEffect } from 'react';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@centreon/ui/components';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+
+import { useIsFetching } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { ReactElement, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
-import { Button } from '@centreon/ui/components';
-
-import { Dashboard, DashboardPanel } from '../../../../api/models';
-import {
-  dashboardAtom,
-  isEditingAtom,
-  switchPanelsEditionModeDerivedAtom
-} from '../../atoms';
-import {
-  formatPanel,
-  getPanels,
-  routerParams
-} from '../../hooks/useDashboardDetails';
+import { DashboardPanel } from '../../../../api/models';
+import { isEditingAtom, switchPanelsEditionModeDerivedAtom } from '../../atoms';
+import { formatPanel, routerParams } from '../../hooks/useDashboardDetails';
 import useDashboardDirty from '../../hooks/useDashboardDirty';
+import useResetDashboardFromSavedState from '../../hooks/useResetDashboardFromSavedState';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import {
   labelCancel,
   labelEditDashboard,
   labelSave
 } from '../../translatedLabels';
-
 import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
 
 interface DashboardEditActionsProps {
@@ -43,7 +34,6 @@ const DashboardEditActions = ({
   const { t } = useTranslation();
   const { dashboardId } = routerParams.useParams();
 
-  const queryClient = useQueryClient();
   const isFetchingDashboard = useIsFetching({
     queryKey: ['dashboard', dashboardId]
   });
@@ -53,7 +43,6 @@ const DashboardEditActions = ({
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
-  const setDashboard = useSetAtom(dashboardAtom);
 
   const { saveDashboard } = useSaveDashboard();
 
@@ -67,13 +56,16 @@ const DashboardEditActions = ({
     window.location.search
   );
 
+  const resetDashboardFromSavedState = useResetDashboardFromSavedState();
+
   const startEditing = useCallback(() => {
+    resetDashboardFromSavedState();
     switchPanelsEditionMode(true);
     if (searchParams.get('edit') !== 'true') {
       searchParams.set('edit', 'true');
       setSearchParams(searchParams);
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, resetDashboardFromSavedState]);
 
   const stopEditing = useCallback(() => {
     switchPanelsEditionMode(false);
@@ -83,20 +75,8 @@ const DashboardEditActions = ({
 
   const cancel = useCallback(() => {
     stopEditing();
-
-    const dashboard = queryClient.getQueryData<Dashboard>([
-      'dashboard',
-      dashboardId
-    ]);
-    const basePanels = getPanels(dashboard);
-
-    setDashboard({
-      layout:
-        basePanels.map((panel) => formatPanel({ federatedWidgets, panel })) ||
-        []
-    });
-    queryClient.getQueryData(['dashboard', dashboardId]);
-  }, []);
+    resetDashboardFromSavedState();
+  }, [stopEditing, resetDashboardFromSavedState]);
 
   useEffect(() => {
     if (equals(searchParams.get('edit'), 'true')) {
@@ -120,9 +100,9 @@ const DashboardEditActions = ({
         disabled={!!isFetchingDashboard}
         icon={<EditOutlinedIcon />}
         iconVariant="start"
+        onClick={startEditing}
         size="small"
         variant="ghost"
-        onClick={startEditing}
       >
         {t(labelEditDashboard)}
       </Button>
@@ -134,9 +114,9 @@ const DashboardEditActions = ({
       <Button
         aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
+        onClick={cancel}
         size="small"
         variant="ghost"
-        onClick={cancel}
       >
         {t(labelCancel)}
       </Button>
@@ -144,9 +124,9 @@ const DashboardEditActions = ({
         aria-label={t(labelSave) as string}
         data-testid="save_dashboard"
         disabled={!dirty}
+        onClick={saveAndProceed}
         size="small"
         variant="primary"
-        onClick={saveAndProceed}
       >
         {t(labelSave)}
       </Button>

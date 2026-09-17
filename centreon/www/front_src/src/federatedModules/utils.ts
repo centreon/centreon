@@ -1,7 +1,7 @@
-import { createStore } from 'jotai';
-
 import { centreonBaseURL } from '@centreon/ui';
 import { additionalResourcesAtom } from '@centreon/ui-context';
+
+import { createStore } from 'jotai';
 
 interface LoadScriptProps {
   scriptPath: string;
@@ -12,7 +12,7 @@ export const loadScript = async ({
   scriptPath,
   store
 }: LoadScriptProps): Promise<void> => {
-  const timestamp = `?t=${new Date().getTime()}`;
+  const timestamp = `?t=${Date.now()}`;
 
   const formattedScriptPath = scriptPath.replace('.', centreonBaseURL);
 

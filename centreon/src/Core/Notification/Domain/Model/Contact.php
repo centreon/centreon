@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,12 @@ class Contact
         private readonly int $id,
         private readonly string $name,
         private readonly string $email,
+        private readonly string $alias,
     ) {
         Assertion::positiveInt($id, 'User::id');
         Assertion::notEmpty($name, 'User::name');
         Assertion::notEmpty($email, 'User::email');
+        Assertion::notEmpty($alias, 'User::alias');
     }
 
     /**
@@ -73,5 +75,10 @@ class Contact
     public function getEmail(): string
     {
         return $this->email;
+    }
+
+    public function getAlias(): string
+    {
+        return $this->alias;
     }
 }

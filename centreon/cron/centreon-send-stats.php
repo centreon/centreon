@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
 
-$shortopts  = "d";
-$longopts  = [ "debug" ];
+$shortopts  = 'd';
+$longopts  = ['debug'];
 $options = getopt($shortopts, $longopts);
 
 $output = new ConsoleOutput();
@@ -54,7 +54,7 @@ $db = $dependencyInjector['configuration_db'];
  * @param string $message Message to log
  * @param Throwable $exception
  */
-function logger(string $message, Throwable $exception = null)
+function logger(string $message, ?Throwable $exception = null)
 {
     try {
         $datetime = new DateTime();
@@ -68,7 +68,7 @@ function logger(string $message, Throwable $exception = null)
 // Check if CEIP is enable
 $result = $db->query("SELECT `value` FROM `options` WHERE `key` = 'send_statistics'");
 if ($row = $result->fetch()) {
-    $shouldSendStatistics = (bool)$row['value'];
+    $shouldSendStatistics = (bool) $row['value'];
 }
 
 // Check if it's a Central server
@@ -78,7 +78,7 @@ if ($row = $result->fetch()) {
 }
 
 // Check if valid Centreon licences exist
-$centreonLicensesDir = "/etc/centreon/license.d/";
+$centreonLicensesDir = '/etc/centreon/license.d/';
 if (is_dir($centreonLicensesDir) && ($dh = opendir($centreonLicensesDir)) !== false) {
     $dateNow = new DateTime('NOW');
     while (($file = readdir($dh)) !== false) {
@@ -87,7 +87,7 @@ if (is_dir($centreonLicensesDir) && ($dh = opendir($centreonLicensesDir)) !== fa
             if (is_file($statisticsFileName)) {
                 $licenseContent = file_get_contents($statisticsFileName);
                 if (preg_match('/"end": "(\d{4}\-\d{2}\-\d{2})"/', $licenseContent, $matches)) {
-                    $dateLicense = new DateTime((string)$matches[1]);
+                    $dateLicense = new DateTime((string) $matches[1]);
                     if ($dateLicense >= $dateNow) {
                         $hasValidLicenses = true;
                         break;
@@ -103,7 +103,7 @@ if (is_dir($centreonLicensesDir) && ($dh = opendir($centreonLicensesDir)) !== fa
 // Check if it's an IMP user
 $result = $db->query("SELECT options.value FROM options WHERE options.key = 'impCompanyToken'");
 if ($row = $result->fetch()) {
-    if (!empty($row['value'])) {
+    if (! empty($row['value'])) {
         $isImpUser = true;
     }
 }
@@ -116,7 +116,7 @@ if ($isRemote === false) {
         $timestamp = time();
         $uuid = $oStatistics->getCentreonUUID();
         if (empty($uuid)) {
-            throw new Exception("No UUID specified");
+            throw new Exception('No UUID specified');
         }
         $versions = $oStatistics->getVersion();
         $infos = $oStatistics->getPlatformInfo();
@@ -134,14 +134,14 @@ if ($isRemote === false) {
         if ($shouldSendStatistics || $hasValidLicenses) {
             try {
                 $additional = $oStatistics->getAdditionalData();
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $logger->error('Cannot get stats from modules');
             }
         }
 
         // Construct the object gathering datas
         $data = [
-            'timestamp' => "$timestamp",
+            'timestamp' => "{$timestamp}",
             'UUID' => $uuid,
             'versions' => $versions,
             'infos' => $infos,
@@ -149,10 +149,10 @@ if ($isRemote === false) {
             'authentication' => $authentication,
             'additional' => $additional,
             'acc' => $acc,
-            'poller-agent-configuration' => $pac
+            'poller-agent-configuration' => $pac,
         ];
 
-        if ( isset($options["d"]) || isset($options["debug"]) ) {
+        if (isset($options['d']) || isset($options['debug'])) {
             echo json_encode($data, JSON_PRETTY_PRINT) . "\n";
         } else {
             $returnData = $http->call(CENTREON_STATS_URL, 'POST', $data, [], true);

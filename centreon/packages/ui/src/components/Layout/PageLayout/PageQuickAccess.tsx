@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import { useTranslation } from 'react-i18next';
 
 import { Button, Menu } from '../..';
 
@@ -11,10 +11,11 @@ interface NamedEntity {
 }
 
 type Props = {
-  create: () => void;
+  create?: () => void;
   elements: Array<NamedEntity>;
   goBack: () => void;
   isActive: (id: number | string) => boolean;
+  isDisabled?: (id: number | string) => boolean;
   labels: {
     create: string;
     goBack: string;
@@ -25,6 +26,7 @@ type Props = {
 export const PageQuickAccess = ({
   elements,
   isActive,
+  isDisabled,
   navigateToElement,
   goBack,
   create,
@@ -38,37 +40,35 @@ export const PageQuickAccess = ({
       <Menu.Items>
         {elements?.map((element) => (
           <Menu.Item
+            isActive={isActive(element.id)}
+            isDisabled={isDisabled?.(element.id)}
             key={`${element.id}`}
             onClick={navigateToElement(element.id)}
-            {...(isActive(element.id) && {
-              isActive: true,
-              isDisabled: true
-            })}
           >
             {element.name}
           </Menu.Item>
         ))}
         <Menu.Divider key="divider" />
-        <Menu.Item key="create">
-          <>
-            <Button
-              icon={<ArrowBackIcon />}
-              iconVariant="start"
-              variant="ghost"
-              onClick={goBack}
-            >
-              {t(labels.goBack)}
-            </Button>
+        <div className="px-2 pb-2 flex gap-4">
+          <Button
+            icon={<ArrowBackIcon />}
+            iconVariant="start"
+            onClick={goBack}
+            variant="ghost"
+          >
+            {t(labels.goBack)}
+          </Button>
+          {create && (
             <Button
               icon={<AddIcon />}
               iconVariant="start"
-              variant="secondary"
               onClick={create}
+              variant="secondary"
             >
               {t(labels.create)}
             </Button>
-          </>
-        </Menu.Item>
+          )}
+        </div>
       </Menu.Items>
     </Menu>
   );

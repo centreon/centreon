@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Box, Typography } from '@mui/material';
 
 import { ParentSize } from '@centreon/ui';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   lineText: {

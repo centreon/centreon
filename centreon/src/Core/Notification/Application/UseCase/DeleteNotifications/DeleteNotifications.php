@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ final class DeleteNotifications
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly WriteNotificationRepositoryInterface $writeRepository
+        private readonly WriteNotificationRepositoryInterface $writeRepository,
     ) {
     }
 
@@ -58,7 +58,7 @@ final class DeleteNotifications
      */
     public function __invoke(
         DeleteNotificationsRequest $request,
-        DeleteNotificationsPresenterInterface $presenter
+        DeleteNotificationsPresenterInterface $presenter,
     ): void {
         try {
             if ($this->contactCanExecuteUseCase()) {
@@ -130,7 +130,7 @@ final class DeleteNotifications
      */
     private function createStatusResponseDto(
         ResponseStatusInterface $statusResponse,
-        int $notificationId
+        int $notificationId,
     ): DeleteNotificationsStatusResponse {
         $responseStatusDto = new DeleteNotificationsStatusResponse();
         $responseStatusDto->id = $notificationId;

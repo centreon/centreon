@@ -1,11 +1,9 @@
-import { memo } from 'react';
-
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, map, not, pipe } from 'ramda';
+import { memo } from 'react';
 
 import { bisectDate } from '../../Graph';
 import { TimeValue } from '../../models';
-
 import AnchorPoint from '.';
 
 interface StackData {
@@ -29,7 +27,8 @@ const test = 'data';
 
 const getStackedDates = (stackValues: Array<StackValue>): Array<Date> => {
   const toTimeTick = (stackValue: StackValue): string =>
-    stackValue[test].timeTick;
+    (stackValue as unknown as Record<string, { timeTick: string }>)[test]
+      .timeTick;
   const toDate = (tick: string): Date => new Date(tick);
 
   return pipe(map(toTimeTick), map(toDate))(stackValues);

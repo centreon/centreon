@@ -1,21 +1,22 @@
-import { T, always, cond, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Box } from '@mui/material';
 
-import { Gauge, GraphText, SingleBar } from '@centreon/ui';
+import { Gauge, GraphText, SingleBar, Thresholds } from '@centreon/ui';
+
+import { always, cond, equals, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { labelCritical, labelWarning } from '../../translatedLabels';
-
 import { useGraphStyles } from './Graph.styles';
 import { SingleMetricGraphType } from './models';
 
 interface Props {
   graphProps: {
     baseColor?: string;
-    data?;
+    data?: unknown;
     displayAsRaw?: boolean;
-    thresholds;
+    thresholds: Thresholds;
   };
   singleMetricGraphType: SingleMetricGraphType;
 }
@@ -27,6 +28,10 @@ const SingleMetricRenderer = ({
   const { classes: graphClasses } = useGraphStyles();
 
   const { t } = useTranslation();
+
+  const hasTwoThresholds =
+    graphProps.thresholds.critical.length === 2 ||
+    graphProps.thresholds.warning.length === 2;
 
   return (
     <Box className={graphClasses.graphContainer}>
@@ -43,6 +48,8 @@ const SingleMetricRenderer = ({
                   critical: t(labelCritical),
                   warning: t(labelWarning)
                 }}
+                minThresholds="8px"
+                prefThresholds={hasTwoThresholds ? 7 : 11}
               />
             )
           ]

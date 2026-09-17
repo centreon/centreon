@@ -1,3 +1,4 @@
+import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
 import { Listing, ListingMeta } from './models';
@@ -15,13 +16,34 @@ interface ListingDecoderOptions<TEntity> {
   entityDecoder: JsonDecoder.Decoder<TEntity>;
   entityDecoderName: string;
   listingDecoderName: string;
+  apiFormat?: 'Standard' | 'JSON-LD';
 }
 
-const buildListingDecoder = <TEntity>({
-  entityDecoder,
-  entityDecoderName,
-  listingDecoderName
-}: ListingDecoderOptions<TEntity>): JsonDecoder.Decoder<Listing<TEntity>> =>
+const jsonLdListingDecoder = <TEntity>(
+  entityDecoder: JsonDecoder.Decoder<TEntity>,
+  entityDecoderName: string,
+  listingDecoderName: string
+): JsonDecoder.Decoder<Listing<TEntity>> =>
+  JsonDecoder.object(
+    {
+      member: JsonDecoder.array(entityDecoder, entityDecoderName),
+      totalItems: JsonDecoder.number
+    },
+    listingDecoderName
+  ).map((data) => ({
+    meta: {
+      limit: data.member.length,
+      page: 1,
+      total: data.totalItems
+    },
+    result: data.member
+  })) as JsonDecoder.Decoder<Listing<TEntity>>;
+
+const standardListingDecoder = <TEntity>(
+  entityDecoder: JsonDecoder.Decoder<TEntity>,
+  entityDecoderName: string,
+  listingDecoderName: string
+): JsonDecoder.Decoder<Listing<TEntity>> =>
   JsonDecoder.object<Listing<TEntity>>(
     {
       meta: metaDecoder,
@@ -29,5 +51,16 @@ const buildListingDecoder = <TEntity>({
     },
     listingDecoderName
   );
+
+const buildListingDecoder = <TEntity>({
+  entityDecoder,
+  entityDecoderName,
+  listingDecoderName,
+  apiFormat = 'Standard'
+}: ListingDecoderOptions<TEntity>): JsonDecoder.Decoder<Listing<TEntity>> => {
+  return (
+    equals(apiFormat, 'JSON-LD') ? jsonLdListingDecoder : standardListingDecoder
+  )(entityDecoder, entityDecoderName, listingDecoderName);
+};
 
 export default buildListingDecoder;

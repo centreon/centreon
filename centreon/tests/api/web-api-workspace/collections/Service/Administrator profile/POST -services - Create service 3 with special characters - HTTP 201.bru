@@ -1,0 +1,67 @@
+meta {
+  name: POST /services - Create service 3 with special characters - HTTP 201
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Service3Name}}",
+    "host_id": {{Host1Id}},
+    "service_template_id": {{ServiceTemplate1Id}},
+    "check_timeperiod_id": 1,
+    "max_check_attempts": 7,
+    "normal_check_interval": 2,
+    "retry_check_interval": 1,
+    "note": "Bloubloublou",
+    "note_url": "Hakuna Matata",
+    "action_url": "Chachacha",
+    "icon_id": 1,
+    "severity_id": {{ServiceSeverity1Id}},
+    "geo_coords": "12.34,23.5",
+    "service_groups": [ {{ServiceGroup1Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service 3 has been successfully created with special characters.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Service3Id", body.id);
+    expect(body).to.include({
+      "name": bru.getEnvVar("Service3Name"),
+      "host_id": parseInt(bru.getEnvVar("Host1Id")),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 7,
+      "normal_check_interval": 2,
+      "retry_check_interval": 1,
+      "note": "Bloubloublou",
+      "note_url": "Hakuna Matata",
+      "action_url": "Chachacha",
+      "icon_id": 1,
+      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "geo_coords": "12.34,23.5"
+    });
+    expect(body.macros).to.be.an("array").that.is.empty;
+    expect(body.categories).to.be.an("array").that.is.empty;
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

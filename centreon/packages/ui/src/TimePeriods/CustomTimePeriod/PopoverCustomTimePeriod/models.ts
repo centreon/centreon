@@ -1,8 +1,7 @@
-import { PopoverOrigin, PopoverPosition } from '@mui/material';
+import type { PopoverOrigin, PopoverPosition } from '@mui/material';
 
-import { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
-
-import { PickersStartEndDateModel } from './usePickersStartEndDate';
+import type { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
+import type { PickersStartEndDateModel } from './usePickersStartEndDate';
 
 interface RangeDate {
   max?: Date;
@@ -11,7 +10,7 @@ interface RangeDate {
 
 export interface AcceptDateProps {
   date: Date;
-  property: CustomTimePeriodProperty;
+  property: CustomTimePeriodProperty | string;
 }
 
 export interface PickersData {
@@ -71,4 +70,5 @@ export interface PickersStartEndDateProps
     PickersStartEndDateModel {
   direction?: PickersStartEndDateDirection;
   disabled?: DisabledPicker;
+  className?: string;
 }

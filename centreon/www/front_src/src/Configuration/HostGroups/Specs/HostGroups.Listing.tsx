@@ -1,14 +1,13 @@
-import initialize from './initialize';
-
 import { capitalize } from '@mui/material';
+
 import { equals } from 'ramda';
 
 import {
   labelDisabledHosts,
   labelEnabledHosts,
-  labelNoDisabledHosts,
   labelNoEnabledHosts
 } from '../translatedLabels';
+import initialize from './initialize';
 
 export default () => {
   describe('Listing: ', () => {
@@ -80,11 +79,11 @@ export default () => {
         cy.waitForRequest('@getAllHostGroups');
 
         cy.findAllByText('0')
-          .eq(isEnabledHost ? 7 : 8)
+          .eq(isEnabledHost ? 8 : 7)
           .trigger('mouseover');
 
         cy.contains(
-          isEnabledHost ? labelNoEnabledHosts : labelNoDisabledHosts
+          !isEnabledHost ? labelDisabledHosts : labelNoEnabledHosts
         ).should('be.visible');
 
         cy.makeSnapshot();

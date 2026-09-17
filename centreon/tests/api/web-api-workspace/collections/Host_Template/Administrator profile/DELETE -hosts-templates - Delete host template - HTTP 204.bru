@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /hosts/templates - Delete host template - HTTP 204
+  type: http
+  seq: 16
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/hosts/templates/{{HostTemplate2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host template '{{HostTemplate2Name}}' has been successfully deleted.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

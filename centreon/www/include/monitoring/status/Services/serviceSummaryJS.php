@@ -1,39 +1,24 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,11 +29,11 @@ $sid = session_id();
 $time = time();
 
 $obis = $o;
-if (isset($_GET["problem"])) {
+if (isset($_GET['problem'])) {
     $obis .= '_pb';
 }
-if (isset($_GET["acknowledge"])) {
-    $obis .= '_ack_' . $_GET["acknowledge"];
+if (isset($_GET['acknowledge'])) {
+    $obis .= '_ack_' . $_GET['acknowledge'];
 }
 
 ?>
@@ -58,7 +43,7 @@ if (isset($_GET["acknowledge"])) {
     var _addrXML = "./include/monitoring/status/Services/xml/serviceSummaryXML.php";
     var _addrXSL = "./include/monitoring/status/Services/xsl/serviceSummary.xsl";
 
-    <?php include_once "./include/monitoring/status/Common/commonJS.php"; ?>
+    <?php include_once './include/monitoring/status/Common/commonJS.php'; ?>
 
     function set_header_title() {
         var _img_asc = mk_imgOrder('./img/icones/7x7/sort_asc.gif', "asc");
@@ -66,7 +51,7 @@ if (isset($_GET["acknowledge"])) {
 
         if (document.getElementById('host_name')) {
             var h = document.getElementById('host_name');
-            h.innerHTML = '<?php echo addslashes(_("Hosts"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Hosts')); ?>';
             h.indice = 'host_name';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -74,12 +59,12 @@ if (isset($_GET["acknowledge"])) {
             h.style.cursor = "pointer";
 
             var h = document.getElementById('services');
-            h.innerHTML = '<?php echo addslashes(_("Services information"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Services information')); ?>';
             h.indice = 'services';
 
             if (document.getElementById('current_state')) {
                 var h = document.getElementById('current_state');
-                h.innerHTML = '<?php echo addslashes(_("Status"))?>';
+                h.innerHTML = '<?php echo addslashes(_('Status')); ?>';
                 h.indice = 'current_state';
                 h.onclick = function () {
                     change_type_order(this.indice)
@@ -161,7 +146,7 @@ if (isset($_GET["acknowledge"])) {
         proc.setCallback(function(t){monitoringCallBack(t); proc = null;});
         proc.setXml(_addrXML + "?" + '&search=' + _host_search + '&num=' + _num + '&limit=' + _limit +
             '&sort_type=' + _sort_type + '&order=' + _order + '&date_time_format_status=' + _date_time_format_status +
-            '&o=' + _o + '&p=' + _p + '&time=<?php print time(); ?>'
+            '&o=' + _o + '&p=' + _p + '&time=<?php echo time(); ?>'
         );
         proc.setXslt(_addrXSL);
         if (handleVisibilityChange()) {

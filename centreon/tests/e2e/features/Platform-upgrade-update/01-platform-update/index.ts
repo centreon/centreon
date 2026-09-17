@@ -1,4 +1,5 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkPlatformVersion,
@@ -8,63 +9,65 @@ import {
 
 beforeEach(() => {
   // clear network cache to avoid chunk loading issues
-  cy.wrap(Cypress.automation('remote:debugger:protocol', {
-    command: 'Network.clearBrowserCache',
-  }));
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Network.clearBrowserCache'
+    })
+  );
 
   cy.getWebVersion().then(({ major_version }) => {
     cy.intercept({
       method: 'GET',
-      url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+      url: INTERCEPTORS.api.navigation_list
     }).as('getNavigationList');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/include/common/userTimezone.php'
+      url: INTERCEPTORS.pages.time_zone
     }).as('getTimeZone');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+      url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
     }).as('getLastestUserFilters');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/install/step_upgrade/step1.php'
+      url: INTERCEPTORS.pages.step1_upgrade
     }).as('getStep1');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/install/step_upgrade/step2.php'
+      url: INTERCEPTORS.pages.step2_upgrade
     }).as('getStep2');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/install/step_upgrade/step3.php'
+      url: INTERCEPTORS.pages.step3_upgrade
     }).as('getStep3');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/install/step_upgrade/step4.php'
+      url: INTERCEPTORS.pages.step4_upgrade
     }).as('getStep4');
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/install/step_upgrade/step5.php'
+      url: INTERCEPTORS.pages.step5_upgrade
     }).as('getStep5');
 
     cy.intercept({
       method: 'POST',
-      url: '/centreon/install/steps/process/generationCache.php'
+      url: INTERCEPTORS.pages.generation_cache
     }).as('generatingCache');
 
-    cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+    cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
       'monitoringEndpoint'
     );
 
     cy.intercept({
       method: 'GET',
-      url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+      url: INTERCEPTORS.api.generate_reload_pollers
     }).as('generateAndReloadPollers');
 
     return cy
@@ -96,7 +99,7 @@ beforeEach(() => {
 
 Given(
   'a running platform in {string} version',
-  (version_from_expression: string) => {
+  (versionFromExpression: string) => {
     return cy.getWebVersion().then(({ major_version, minor_version }) => {
       if (minor_version === '0') {
         cy.log(
@@ -107,52 +110,59 @@ Given(
       }
 
       return getCentreonStableMinorVersions(major_version).then(
-        (stable_minor_versions) => {
-          if (stable_minor_versions.length === 0) {
-            cy.log(`centreon web is currently not available as stable`);
+        (stableMinorVersions) => {
+          if (stableMinorVersions.length === 0) {
+            cy.log('centreon web is currently not available as stable');
 
             return cy.stopContainer({ name: 'web' }).wrap('skipped');
           }
-          let minor_version_index = 0;
-          if (version_from_expression === 'first minor') {
-            minor_version_index = 0;
+          let minorVersionIndex = 0;
+          if (versionFromExpression === 'first minor') {
+            // Versions below 24.10.21 aren't installable on MySQL 8.4 (see MON-209081).
+            const firstMysql84CompatibleIndex = stableMinorVersions.findIndex(
+              (minor) => minor >= 21
+            );
+            minorVersionIndex =
+              firstMysql84CompatibleIndex === -1
+                ? 0
+                : firstMysql84CompatibleIndex;
           } else {
-            switch (version_from_expression) {
+            switch (versionFromExpression) {
               case 'last stable':
-                minor_version_index = stable_minor_versions.length - 1;
+                minorVersionIndex = stableMinorVersions.length - 1;
                 if (
-                  stable_minor_versions[minor_version_index] ===
+                  stableMinorVersions[minorVersionIndex] ===
                   Cypress.env('lastStableMinorVersion')
                 ) {
                   return cy.stopContainer({ name: 'web' }).wrap('skipped');
                 }
                 break;
               case 'penultimate stable':
-                minor_version_index = stable_minor_versions.length - 2;
+                minorVersionIndex = stableMinorVersions.length - 2;
                 break;
               case 'antepenultimate stable':
-                minor_version_index = stable_minor_versions.length - 3;
+                minorVersionIndex = stableMinorVersions.length - 3;
                 break;
               default:
-                throw new Error(`${version_from_expression} not managed.`);
+                throw new Error(`${versionFromExpression} not managed.`);
             }
-            if (minor_version_index <= 0) {
-              cy.log(`Not needed to test ${version_from_expression} version.`);
+            if (minorVersionIndex <= 0) {
+              cy.log(`Not needed to test ${versionFromExpression} version.`);
 
               return cy.stopContainer({ name: 'web' }).wrap('skipped');
             }
           }
 
           cy.log(
-            `${version_from_expression} version is ${stable_minor_versions[minor_version_index]}`
+            `${versionFromExpression} version is ${stableMinorVersions[minorVersionIndex]}`
           );
 
-          const installed_version = `${major_version}.${stable_minor_versions[minor_version_index]}`;
-          Cypress.env('installed_version', installed_version);
-          cy.log('installed_version', installed_version);
+          const installedVersion = `${major_version}.${stableMinorVersions[minorVersionIndex]}`;
+          Cypress.env('installed_version', installedVersion);
+          cy.log('installed_version', installedVersion);
 
-          return installCentreon(installed_version).then(() => {
-            return checkPlatformVersion(installed_version).then(() =>
+          return installCentreon(installedVersion).then(() => {
+            return checkPlatformVersion(installedVersion).then(() =>
               cy.visit('/')
             );
           });
@@ -163,8 +173,5 @@ Given(
 );
 
 afterEach(() => {
-  cy
-    .visitEmptyPage()
-    .copyWebContainerLogs({ name: 'web' })
-    .stopContainer({ name: 'web' });
+  cy.stopContainers();
 });

@@ -1,17 +1,19 @@
 import {
-  RenderResult,
   act,
   fireEvent,
   getFetchCall,
   mockResponse,
+  type RenderResult,
   render,
   resetMocks,
   waitFor
 } from '../../../../../test/testRenderer';
-import TestQueryProvider from '../../../../api/TestQueryProvider';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
-import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
-
+import type {
+  BuildListingEndpointParameters,
+  ConditionsSearchParameter
+} from '../../../../api/buildListingEndpoint/models';
+import TestQueryProvider from '../../../../api/TestQueryProvider';
 import SingleConnectedAutocompleteField from './Single';
 
 const label = 'Connected Autocomplete';
@@ -31,13 +33,17 @@ const optionsData = {
 
 const baseEndpoint = 'endpoint';
 
-const getEndpoint = (parameters): string => {
+const getEndpoint = (
+  parameters: BuildListingEndpointParameters['parameters']
+): string => {
   return buildListingEndpoint({ baseEndpoint, parameters });
 };
 
 interface Props {
   searchConditions?: Array<ConditionsSearchParameter>;
 }
+
+const mockParams = { headers: { 'Content-Type': 'application/json' } };
 
 const renderSingleConnectedAutocompleteField = (
   { searchConditions }: Props = { searchConditions: undefined }
@@ -58,7 +64,7 @@ const renderSingleConnectedAutocompleteField = (
 describe(SingleConnectedAutocompleteField, () => {
   beforeEach(() => {
     resetMocks();
-    mockResponse({ data: optionsData });
+    mockResponse({ data: optionsData, options: mockParams });
   });
 
   it('populates options with the first page result from the endpoint request', async () => {
@@ -95,7 +101,7 @@ describe(SingleConnectedAutocompleteField, () => {
     });
 
     await waitFor(() => {
-      expect(decodeURIComponent(getFetchCall(2))).toEqual(
+      expect(decodeURIComponent(getFetchCall(2) as string)).toEqual(
         'endpoint?page=1&search={"$and":[{"$and":[{"host.name":{"$lk":"%My Option 2%"}}]}]}'
       );
     });

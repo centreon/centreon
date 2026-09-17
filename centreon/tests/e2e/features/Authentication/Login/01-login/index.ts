@@ -1,15 +1,14 @@
-import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import { initializeConfigACLAndGetLoginPage } from '../common';
+import { initializeConfigAclAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startContainers()
     .then(() => {
-      return initializeConfigACLAndGetLoginPage();
+      return initializeConfigAclAndGetLoginPage();
     })
-    .intercept(
-      '/centreon/api/internal.php?object=centreon_topcounter&action=user'
-    )
+    .intercept(`${INTERCEPTORS.api.centreon_topcounter}&action=user`)
     .as('userTopCounterEndpoint');
 });
 

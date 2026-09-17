@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
+use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -40,12 +45,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final class ThirdPartyLoginForm
 {
+    #[Sensitive]
     private string $token = '';
 
     private ?bool $isActive = null;
 
     public function __construct(
-        private readonly UrlGeneratorInterface $urlGenerator
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -65,11 +71,14 @@ final class ThirdPartyLoginForm
      * The value is forwarded to the IDP to get it back after auth.
      *
      * @param Request $request
+     *
+     * @throws BadRequestException
+     * @return string
      */
     public function getReturnUrlBeforeAuth(Request $request): string
     {
         // Initiated by https://mobile.centreon.com
-        if ('1' === $request->query->get('mobile')) {
+        if ($request->query->get('mobile') === '1') {
             return (string) $request->headers->get('referer');
         }
 
@@ -79,10 +88,15 @@ final class ThirdPartyLoginForm
     /**
      * Retrieve the redirectUrl after auth from the IDP information.
      * For SAML, this is the request parameter RelayState.
+     *
+     * @throws InvalidParameterException
+     * @throws MissingMandatoryParametersException
+     * @throws RouteNotFoundException
+     * @return string
      */
     public function getReturnUrlAfterAuth(): string
     {
-        if ('' === $this->token || ! $this->isActive()) {
+        if ($this->token === '' || ! $this->isActive()) {
             return '';
         }
 
@@ -91,10 +105,15 @@ final class ThirdPartyLoginForm
 
     /**
      * Tells whether the authentication was initiated by a third party login form in our context.
+     *
+     * @throws InvalidParameterException
+     * @throws MissingMandatoryParametersException
+     * @throws RouteNotFoundException
+     * @return bool
      */
     public function isActive(): bool
     {
-        if (null !== $this->isActive) {
+        if ($this->isActive !== null) {
             return $this->isActive;
         }
 
@@ -104,7 +123,11 @@ final class ThirdPartyLoginForm
 
         // We want to avoid possible loop redirects because the use of the RelayState in the SAML case is a bit hacky.
         $ourACS = $this->urlGenerator
-            ->generate('centreon_application_authentication_login_saml', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            ->generate(
+                'centreon_application_authentication_login_saml',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
 
         return $this->isActive = $returnTo !== $ourACS;
     }

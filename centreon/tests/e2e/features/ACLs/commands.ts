@@ -1,16 +1,16 @@
 interface LinkMenuToGroupProps {
-  ACLGroupName: string;
-  ACLMenuName: string;
+  aclGroupName: string;
+  aclMenuName: string;
 }
 
 Cypress.Commands.add(
-  'addACLMenuToACLGroup',
-  ({ ACLGroupName, ACLMenuName }: LinkMenuToGroupProps) => {
+  'addAclMenuToAclGroup',
+  ({ aclGroupName, aclMenuName }: LinkMenuToGroupProps) => {
     return cy.executeActionViaClapi({
       bodyContent: {
         action: 'ADDMENU',
         object: 'ACLGROUP',
-        values: `${ACLGroupName};${ACLMenuName}`
+        values: `${aclGroupName};${aclMenuName}`
       }
     });
   }
@@ -89,8 +89,8 @@ type Action =
   | 'host_submit_result'
   | 'manage_tokens';
 
-type ACLActionType = {
-  ACLGroups: Array<string>;
+type AclActionType = {
+  aclGroups: Array<string>;
   actions: Array<Action>;
   description: string;
   name: string;
@@ -104,12 +104,12 @@ Cypress.Commands.add(
     retryAttempts: number,
     retryDelay: number
   ) => {
-    const attempt = ($iframe): Promise<boolean> => {
+    const attempt = (iframe): Promise<boolean> => {
       return new Cypress.Promise((resolve) => {
-        const $body = $iframe.contents().find('body');
-        const containsText = $body.text().includes(textToFind);
+        const Body = iframe.contents().find('body');
+        const containsText = Body.text().includes(textToFind);
         if (containsText) {
-          action($body);
+          action(Body);
           resolve(true);
         } else {
           resolve(false);
@@ -123,8 +123,8 @@ Cypress.Commands.add(
         throw new Error(`The ${textToFind} not found in the iframe body`);
       }
 
-      return cy.get('iframe#main-content').then(($iframe) => {
-        return attempt($iframe).then((found) => {
+      return cy.get('iframe#main-content').then((iframe) => {
+        return attempt(iframe).then((found) => {
           if (!found) {
             return new Cypress.Promise((resolve) => {
               setTimeout(() => {
@@ -141,49 +141,50 @@ Cypress.Commands.add(
 );
 
 interface LinkActionToGroupProps {
-  ACLActionName: string;
-  ACLGroupName: string;
+  aclActionName: string;
+  aclGroupName: string;
 }
 
 Cypress.Commands.add(
-  'addACLActionToACLGroup',
-  ({ ACLGroupName, ACLActionName }: LinkActionToGroupProps) => {
+  'addAclActionToAclGroup',
+  ({ aclGroupName, aclActionName }: LinkActionToGroupProps) => {
     return cy.executeActionViaClapi({
       bodyContent: {
         action: 'ADDACTION',
         object: 'ACLGROUP',
-        values: `${ACLGroupName};${ACLActionName}`
+        values: `${aclGroupName};${aclActionName}`
       }
     });
   }
 );
 
 interface LinkResourceToGroupProps {
-  ACLGroupName: string;
-  ACLResourceName: string;
+  aclGroupName: string;
+  aclResourceName: string;
 }
 
 Cypress.Commands.add(
-  'addACLResourceToACLGroup',
-  ({ ACLGroupName, ACLResourceName }: LinkResourceToGroupProps) => {
+  'addAclResourceToAclGroup',
+  ({ aclGroupName, aclResourceName }: LinkResourceToGroupProps) => {
     return cy.executeActionViaClapi({
       bodyContent: {
         action: 'ADDRESOURCE',
         object: 'ACLGROUP',
-        values: `${ACLGroupName};${ACLResourceName}`
+        values: `${aclGroupName};${aclResourceName}`
       }
     });
   }
 );
 
 declare global {
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
-      addACLActionToACLGroup: (
+      addAclActionToAclGroup: (
         props: LinkActionToGroupProps
       ) => Cypress.Chainable;
-      addACLMenuToACLGroup: (props: LinkMenuToGroupProps) => Cypress.Chainable;
-      addACLResourceToACLGroup: (
+      addAclMenuToAclGroup: (props: LinkMenuToGroupProps) => Cypress.Chainable;
+      addAclResourceToAclGroup: (
         props: LinkResourceToGroupProps
       ) => Cypress.Chainable;
       executeActionOnIframe: (
@@ -197,4 +198,4 @@ declare global {
   }
 }
 
-export { ACLActionType, Action };
+export type { AclActionType, Action };

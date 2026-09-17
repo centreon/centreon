@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,49 +23,48 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginOpenIdSession;
 
-use CentreonDB;
-use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
-use Pimple\Container;
+use Adaptation\Log\LoggerAuthentication;
 use Centreon\Domain\Contact\Contact;
-use Symfony\Component\HttpFoundation\Request;
-use Core\Contact\Domain\Model\ContactTemplate;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Core\Infrastructure\Common\Presenter\JsonFormatter;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
-use Security\Domain\Authentication\Model\AuthenticationTokens;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Centreon\Infrastructure\Service\Exception\NotFoundException;
-use Security\Domain\Authentication\Exceptions\ProviderException;
-use Core\Security\Authentication\Application\UseCase\Login\Login;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Centreon\Infrastructure\Service\Exception\NotFoundException;
+use CentreonDB;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
+use Core\Contact\Domain\Model\ContactTemplate;
+use Core\Infrastructure\Common\Presenter\JsonFormatter;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
+use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
+use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
+use Core\Security\Authentication\Application\UseCase\Login\Login;
+use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
+use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
+use Core\Security\Authentication\Infrastructure\Api\Login\OpenId\LoginPresenter;
+use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
+use Core\Security\Authentication\Infrastructure\Repository\WriteSessionRepository;
+use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
+use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\Endpoint;
+use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
+use Pimple\Container;
+use Security\Domain\Authentication\Exceptions\ProviderException;
+use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
+use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
-use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
-use Core\Contact\Application\Repository\WriteContactGroupRepositoryInterface;
-use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
-use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
-use Core\Security\Authentication\Infrastructure\Api\Login\OpenId\LoginPresenter;
-use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
-use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
-use Core\Security\Authentication\Infrastructure\Repository\WriteSessionRepository;
-use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
-use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
-use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
-use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
-use Core\Security\Authentication\Application\Repository\WriteSessionTokenRepositoryInterface;
-use Core\Security\ProviderConfiguration\Application\OpenId\Repository\ReadOpenIdConfigurationRepositoryInterface;
+use Security\Domain\Authentication\Model\AuthenticationTokens;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -134,11 +133,32 @@ beforeEach(function (): void {
             []
         ),
         'authentication_conditions' => new AuthenticationConditions(false, '', new Endpoint(), []),
-        'groups_mapping' => (new GroupsMapping(false, "", new Endpoint(), [])),
-        'redirect_url' => null
+        'groups_mapping' => (new GroupsMapping(false, '', new Endpoint(), [])),
+        'redirect_url' => null,
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
     $this->validOpenIdConfiguration = $configuration;
+
+    // Capture the access-log emissions of the Login use case by swapping the
+    // LoggerAuthentication singleton for a recording logger (private ctor + singleton).
+    $this->authLoggerSpy = new class () extends \Psr\Log\AbstractLogger {
+        /** @var list<array{level: string, context: array<string, mixed>}> */
+        public array $records = [];
+
+        public function log($level, string|\Stringable $message, array $context = []): void
+        {
+            $this->records[] = ['level' => (string) $level, 'context' => $context];
+        }
+    };
+    $authLoggerReflection = new \ReflectionClass(LoggerAuthentication::class);
+    $facade = $authLoggerReflection->newInstanceWithoutConstructor();
+    $authLoggerReflection->getProperty('logger')->setValue($facade, $this->authLoggerSpy);
+    $authLoggerReflection->getProperty('instance')->setValue(null, $facade);
+});
+
+afterEach(function (): void {
+    // Drop the injected singleton so the real logger is rebuilt for other tests.
+    (new \ReflectionClass(LoggerAuthentication::class))->getProperty('instance')->setValue(null, null);
 });
 
 it('expects to return an error message in presenter when no provider configuration is found', function (): void {
@@ -250,8 +270,8 @@ it(
 );
 
 it(
-    'expects to return an error message in presenter when the provider ' .
-    'wasn\'t be able to return a user after creating it',
+    'expects to return an error message in presenter when the provider '
+    . 'wasn\'t be able to return a user after creating it',
     function (): void {
         $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
@@ -300,11 +320,11 @@ it(
 it('should update access groups for the authenticated user', function (): void {
     $request = LoginRequest::createForOpenId('127.0.0.1', 'abcde-fghij-klmno');
 
-    $accessGroup1 = new AccessGroup(1, "access_group_1", "access_group_1");
-    $accessGroup2 = new AccessGroup(2, "access_group_2", "access_group_2");
+    $accessGroup1 = new AccessGroup(1, 'access_group_1', 'access_group_1');
+    $accessGroup2 = new AccessGroup(2, 'access_group_2', 'access_group_2');
     $authorizationRules = [
-        new AuthorizationRule("group1", $accessGroup1, 1),
-        new AuthorizationRule("group2", $accessGroup2, 2)
+        new AuthorizationRule('group1', $accessGroup1, 1),
+        new AuthorizationRule('group2', $accessGroup2, 2),
     ];
     $this->validOpenIdConfiguration->getCustomConfiguration()->setAuthorizationRules($authorizationRules);
 
@@ -318,7 +338,7 @@ it('should update access groups for the authenticated user', function (): void {
         ->method('getConfiguration')
         ->willReturn($this->validOpenIdConfiguration);
 
-    $contact = (new Contact())->setId(1);
+    $contact = (new Contact())->setId(1)->setAlias('openid-user');
     $this->provider
         ->expects($this->once())
         ->method('findUserOrFail')
@@ -344,4 +364,14 @@ it('should update access groups for the authenticated user', function (): void {
     );
 
     $useCase($request, $this->presenter);
+
+    // The successful OpenID login must be recorded once on the access log, with the
+    // resolved contact id and the openid provider.
+    $loginSuccessEvents = array_values(array_filter(
+        $this->authLoggerSpy->records,
+        static fn (array $record): bool => ($record['context']['event'] ?? null) === 'login.success',
+    ));
+    expect($loginSuccessEvents)->toHaveCount(1)
+        ->and($loginSuccessEvents[0]['context']['provider'])->toBe('openid')
+        ->and($loginSuccessEvents[0]['context']['user_id'])->toBe(1);
 });

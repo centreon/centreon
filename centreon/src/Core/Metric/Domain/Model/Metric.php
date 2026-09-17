@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,10 @@ class Metric
     private ?float $criticalHighThreshold = null;
 
     private ?float $criticalLowThreshold = null;
+
+    private ?float $min = null;
+
+    private ?float $max = null;
 
     /**
      * @param int $id
@@ -131,5 +135,29 @@ class Metric
     public function getCriticalLowThreshold(): ?float
     {
         return $this->criticalLowThreshold;
+    }
+
+    public function setMin(?float $min): self
+    {
+        $this->min = $min;
+
+        return $this;
+    }
+
+    public function getMin(): ?float
+    {
+        return $this->min;
+    }
+
+    public function setMax(?float $max): self
+    {
+        $this->max = $max;
+
+        return $this;
+    }
+
+    public function getMax(): ?float
+    {
+        return $this->max;
     }
 }

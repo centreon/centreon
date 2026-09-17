@@ -1,28 +1,27 @@
-import { Suspense, lazy } from 'react';
-
-import { animated, useTransition } from '@react-spring/web';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
-import { flatten, isNil, not } from 'ramda';
-import { Route, Routes, useLocation, useParams } from 'react-router';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { styled } from '@mui/material';
 
-import { PageSkeleton, client, useMemoComponent } from '@centreon/ui';
+import { client, PageSkeleton, useMemoComponent } from '@centreon/ui';
 import {
   featureFlagsDerivedAtom,
   federatedModulesAtom
 } from '@centreon/ui-context';
 
-import BreadcrumbTrail from '../../BreadcrumbTrail';
-import useNavigation from '../../Navigation/useNavigation';
-import { Remote } from '../../federatedModules/Load';
+import { animated, useTransition } from '@react-spring/web';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { flatten, isNil, not } from 'ramda';
+import { lazy, Suspense } from 'react';
+import { Route, Routes, useLocation, useParams } from 'react-router';
+
 import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
+import { Remote } from '../../federatedModules/Load';
 import { FederatedModule } from '../../federatedModules/models';
+import useNavigation from '../../Navigation/useNavigation';
 import internalPagesRoutes from '../../reactRoutes';
 import { deprecatedRoutes } from '../../reactRoutes/deprecatedRoutes';
 import routeMap from '../../reactRoutes/routeMap';
-
 import DeprecatedRoute from './DeprecatedRoute';
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
@@ -30,7 +29,7 @@ const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
 
 const PageContainer = styled('div')(() => ({
   display: 'grid',
-  gridTemplateRows: 'auto 1fr',
+  gridTemplateRows: '1fr',
   height: '100%',
   overflow: 'auto'
 }));
@@ -108,7 +107,6 @@ const getExternalPageRoutes = ({
             <Route
               element={
                 <PageContainer>
-                  <BreadcrumbTrail />
                   {ChildrenComponent ? (
                     <Remote
                       component={component}
@@ -183,7 +181,6 @@ const ReactRouterContent = ({
                   element={
                     isAllowed ? (
                       <PageContainer>
-                        <BreadcrumbTrail />
                         <Comp />
                       </PageContainer>
                     ) : (

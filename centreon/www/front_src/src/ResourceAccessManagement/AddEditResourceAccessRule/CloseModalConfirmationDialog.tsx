@@ -1,7 +1,7 @@
+import { ConfirmDialog } from '@centreon/ui';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog } from '@centreon/ui';
 
 import {
   isCloseModalConfirmationDialogOpenAtom,
@@ -32,9 +32,9 @@ const CloseModalConfirmationDialog = (): React.JSX.Element => {
     <ConfirmDialog
       labelMessage={t(labelDoYouWantToQuitWithoutSaving)}
       labelTitle={t(labelYourFormHasUnsavedChanges)}
-      open={isDialogOpen}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      open={isDialogOpen}
     />
   );
 };

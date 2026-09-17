@@ -9,7 +9,7 @@ Feature: Duplicating a Notification Rule
     And a Notification Rule is already created
     And the user is on the Notification Rules page
 
-  @TEST_MON-33206
+  @MON-33206
   Scenario: Duplicating a Notification Rule
     When the user selects the duplication action on a Notification Rule
     And the user enters a new Notification Rule name
@@ -18,13 +18,13 @@ Feature: Duplicating a Notification Rule
     And the duplicated Notification Rule with same properties is displayed in the listing
     And the duplicated Notification Rule features the same properties as the initial Notification Rule
 
-  @TEST_MON-33207
+  @MON-33207
   Scenario: Discard duplicating a Notification Rule
     When the user selects the duplication action on a Notification Rule
     And the user clicks on the discard action
     Then the duplication action is cancelled
 
-  @TEST_MON-33208
+  @MON-33208
   Scenario: Duplicating a Notification Rule with an already existing name
     When the user selects the duplication action on a Notification Rule
     And the user enters a name that is already taken

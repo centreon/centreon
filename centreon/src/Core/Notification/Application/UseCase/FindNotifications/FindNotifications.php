@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -48,6 +49,7 @@ final class FindNotifications
         private readonly NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly RequestParametersInterface $requestParameters,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -115,7 +117,10 @@ final class FindNotifications
             'Retrieving user counts for notifications',
             ['notification' => implode(', ', $notificationsIds)]
         );
-        if ($this->user->isAdmin()) {
+
+        $isAdmin = $this->adminResolver->isAdmin($this->user);
+
+        if ($isAdmin === true) {
             $numberOfUsers = $this->notificationRepository->countContactsByNotificationIds($notificationsIds);
         } else {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
@@ -133,11 +138,10 @@ final class FindNotifications
             'Retrieving resource counts for notifications',
             ['notification' => implode(', ', $notificationsIds)]
         );
-        if ($this->user->isAdmin()) {
-            $numberOfResources = $this->countResourcesForAdmin($repositories, $notificationsIds);
-        } else {
-            $numberOfResources = $this->countResourcesWithACL($repositories, $notificationsIds);
-        }
+        $numberOfResources = $isAdmin === true
+            ? $this->countResourcesForAdmin($repositories, $notificationsIds)
+            : $this->countResourcesWithACL($repositories, $notificationsIds);
+
         $this->debug(sprintf('Found %d resources for notifications', count($numberOfResources)));
 
         return new NotificationCounts($numberOfUsers, $numberOfResources);
@@ -204,7 +208,7 @@ final class FindNotifications
     private function createResponse(
         array $notifications,
         NotificationCounts $notificationCounts,
-        array $notificationChannelByNotifications
+        array $notificationChannelByNotifications,
     ): FindNotificationsResponse {
         $response = new FindNotificationsResponse();
 
@@ -229,7 +233,7 @@ final class FindNotifications
             }
             $notificationDto->timeperiodId = $notification->getTimePeriod()->getId();
             $notificationDto->timeperiodName = $notification->getTimePeriod()->getName();
-            $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()];
+            $notificationDto->notificationChannels = $notificationChannelByNotifications[$notification->getId()] ?? [];
 
             $notificationDtos[] = $notificationDto;
         }

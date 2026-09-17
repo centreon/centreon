@@ -1,8 +1,10 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { Contact, Token, columnsFromLabels, durationMap } from '../common';
+import { Contact, columnsFromLabels, durationMap, Token } from '../common';
 
-interface filterOptions {
+interface FilterOptions {
   creationDate:
     | 'Last 7 days'
     | 'Last 30 days'
@@ -21,7 +23,7 @@ interface filterOptions {
   user: string;
 }
 
-const tokensToSearch: filterOptions = {
+const tokensToSearch: FilterOptions = {
   creationDate: 'Last 7 days',
   creator: 'admin admin',
   expirationDate: 'In 7 days',
@@ -49,15 +51,15 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administration_tokens}?page=*`
   }).as('getTokens');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?page=1*'
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {
@@ -73,25 +75,27 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Login succeeded')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
 });
 
-Given('API tokens with predefined details are created', () => {
+Given('Authentication tokens with predefined details are created', () => {
   cy.fixture('api-token/tokens.json').then((tokens: Record<string, Token>) => {
     Object.values(tokens).forEach((token) => {
       const today = new Date();
       const expirationDate = new Date(today);
       const duration = durationMap[token.duration];
       expirationDate.setDate(today.getDate() + duration);
-      const expirationDateISOString = expirationDate.toISOString();
+      // Get the ISO string without milliseconds
+      const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        expiration_date: expirationDateISOString,
+        expiration_date: expirationDateIsoString,
         name: token.name,
+        type: 'api',
         user_id: token.userId
       };
       cy.request({
@@ -108,45 +112,46 @@ Given('API tokens with predefined details are created', () => {
   });
 });
 
-Given('I am on the API tokens page', () => {
-  cy.visit('/centreon/administration/api-token');
+Given('I am on the Authentication tokens page', () => {
+  cy.visit(PAGES.configuration.authenticationTokens);
   cy.wait('@getTokens');
 
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
   cy.wait('@getTokens');
+
+  // Remove the default central token
+  cy.getByLabel({ label: 'Delete' }).eq(0).click();
+  cy.getByTestId({ tag: 'button', testId: 'confirm' }).click();
+  cy.wait('@getTokens');
 });
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
+  cy.getByTestId({ testId: 'Filters' }).click();
   if (filterBy === 'Name') {
-    cy.getByTestId({ tag: 'input', testId: 'inputSearch' }).type(
-      tokensToSearch.name
-    );
-    cy.getByTestId({ tag: 'input', testId: 'inputSearch' }).trigger('keydown', {
-      keyCode: 13,
-      which: 13
-    });
-
+    cy.getByTestId({ tag: 'input', testId: 'Name' }).type(tokensToSearch.name);
+    cy.getByTestId({ testId: 'Search' }).click();
+    cy.wait('@getTokens');
+    cy.getByTestId({ testId: 'Filters' }).click();
     return;
   }
 
-  cy.getByLabel({ label: 'Filter options', tag: 'button' }).click();
-
   if (filterBy === 'Status') {
     tokensToSearch.status === 'Active'
-      ? cy.contains('Active tokens').click()
-      : cy.contains('Disabled tokens').click();
+      ? cy.getByTestId({ testId: 'Enabled' }).click()
+      : cy.getByTestId({ testId: 'Disabled' }).click();
   } else {
-    cy.getByLabel({ label: filterBy, tag: 'input' }).click();
     switch (filterBy) {
       case 'Creator':
+        cy.getByLabel({ label: 'Creator', tag: 'input' }).click();
         cy.wait('@getTokens');
         cy.contains('li', tokensToSearch.creator).click();
-        cy.getByLabel({ label: filterBy, tag: 'input' }).click();
+        cy.getByLabel({ label: 'Creator', tag: 'input' }).click();
         break;
       case 'User':
+        cy.getByLabel({ label: 'User', tag: 'input' }).click();
         cy.wait('@getUsers');
         cy.contains('li', tokensToSearch.user).click();
-        cy.getByLabel({ label: filterBy, tag: 'input' }).click();
+        cy.getByLabel({ label: 'User', tag: 'input' }).click();
         break;
       case 'Creation date':
         cy.contains('li', tokensToSearch.creationDate).click();
@@ -158,24 +163,22 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
         throw new Error(`${filterBy} filter is not managed`);
     }
   }
-
-  cy.getByTestId({ tag: 'button', testId: 'Search' }).click();
-  cy.getByLabel({ label: 'Filter options', tag: 'button' }).click();
+  cy.getByTestId({ testId: 'Search' }).click();
+  cy.wait('@getTokens');
+  cy.getByTestId({ testId: 'Filters' }).click();
 });
 
 Then(
   'I should see all tokens with a {string} according to the filter',
   (filterBy: string) => {
-    cy.wait('@getTokens');
-
     cy.waitUntil(
       () => {
         const allPromisesResolved: Array<boolean> = [];
 
         return cy
           .get('.MuiTableBody-root .MuiTableRow-root')
-          .each(($row) => {
-            cy.wrap($row)
+          .each((row) => {
+            cy.wrap(row)
               .find('.MuiTableCell-body')
               .eq(columnsFromLabels.indexOf(filterBy))
               .invoke('text')
@@ -204,7 +207,7 @@ Then(
                       break;
                     case 'Creator':
                       allPromisesResolved.push(
-                        value === tokensToSearch.creator
+                        tokensToSearch.creator.includes(value.trim())
                       );
                       break;
                     default:

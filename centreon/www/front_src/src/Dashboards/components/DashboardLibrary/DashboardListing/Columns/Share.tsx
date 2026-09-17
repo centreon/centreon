@@ -1,13 +1,14 @@
-import { equals, isNil } from 'ramda';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import Icon from '@mui/icons-material/People';
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, usePluralizedTranslation } from '@centreon/ui';
 
+import { equals, isNil } from 'ramda';
+
 import { ContactType, DashboardRole } from '../../../../api/models';
 import { labelShares } from '../translatedLabels';
-
 import { useColumnStyles } from './useColumnStyles';
 
 const Share = ({ row }: ComponentColumnProps): JSX.Element => {

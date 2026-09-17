@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
-
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useEffect, useState } from 'react';
 
 import {
   Criteria,
   CriteriaDisplayProps,
   SearchedDataValue as SearchedDataValueModel
 } from '../Criterias/models';
-
 import {
   displayActionsAtom,
   displayInformationFilterAtom

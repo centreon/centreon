@@ -1,7 +1,3 @@
-import { useEffect, useState } from 'react';
-
-import { useQueryClient } from '@tanstack/react-query';
-
 import { Switch as MUISwitch } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -11,6 +7,9 @@ import {
   ResponseError,
   useMutationQuery
 } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 import { notificationEndpoint } from '../../Panel/api/endpoints';
 
@@ -41,11 +40,11 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   }, [row?.isActivated]);
 
   const { mutateAsync } = useMutationQuery({
-    getEndpoint: () => notificationEndpoint({ id: row.id }),
+    getEndpoint: () => notificationEndpoint({ id: row.id as number }),
     method: Method.PATCH
   });
 
-  const onClick = (event): void => {
+  const onClick = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const value = event.target.checked;
     setChecked(value);
 
@@ -62,7 +61,12 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   };
 
   return (
-    <Switch checked={checked} color="success" size="small" onClick={onClick} />
+    <Switch
+      checked={Boolean(checked)}
+      color="success"
+      onClick={onClick as unknown as React.MouseEventHandler<HTMLButtonElement>}
+      size="small"
+    />
   );
 };
 

@@ -200,12 +200,12 @@ export const findContactsResponse = {
   },
   result: [
     {
-      id: 4,
-      name: 'centreon-gorgone'
+      alias: 'centreon-gorgone',
+      id: 4
     },
     {
-      id: 17,
-      name: 'Guest'
+      alias: 'Guest',
+      id: 17
     }
   ]
 };
@@ -397,8 +397,8 @@ export const findResourceAccessRuleResponse = (): object => ({
   contacts: {
     all: false,
     values: [
-      { id: 1, name: 'admin admin' },
-      { id: 4, name: 'centreon-gorgone' }
+      { alias: 'admin admin', id: 1 },
+      { alias: 'centreon-gorgone', id: 4 }
     ]
   },
   dataset_filters: [
@@ -439,29 +439,29 @@ export const findResourceAccessRuleResponseDecoded = (): object => ({
   contacts: {
     all: false,
     values: [
-      { id: 1, name: 'admin admin' },
-      { id: 4, name: 'centreon-gorgone' }
+      { alias: 'admin admin', id: 1 },
+      { alias: 'centreon-gorgone', id: 4 }
     ]
   },
   datasetFilters: [
     {
       datasetFilter: {
         datasetFilter: null,
-        resourceType: 'host',
-        resources: [{ id: 14, name: 'Centreon-Server' }]
+        resources: [{ id: 14, name: 'Centreon-Server' }],
+        resourceType: 'host'
       },
-      resourceType: 'hostgroup',
-      resources: [{ id: 53, name: 'Linux-Servers' }]
+      resources: [{ id: 53, name: 'Linux-Servers' }],
+      resourceType: 'hostgroup'
     },
     {
       datasetFilter: null,
-      resourceType: 'service',
       resources: [
         { id: 23, name: 'Disk-/var' },
         { id: 22, name: 'Disk-/usr' },
         { id: 21, name: 'Disk-/opt' },
         { id: 19, name: 'Disk-/' }
-      ]
+      ],
+      resourceType: 'service'
     }
   ],
   description: 'resourceAccessRule1',

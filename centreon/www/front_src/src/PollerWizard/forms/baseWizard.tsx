@@ -1,8 +1,7 @@
-import { ReactNode } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import { Paper } from '@mui/material';
+
+import { ReactNode } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   page: {

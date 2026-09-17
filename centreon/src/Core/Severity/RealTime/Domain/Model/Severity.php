@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ use Core\Domain\RealTime\Model\Icon;
 class Severity
 {
     public const MAX_NAME_LENGTH = 255;
+    public const MIN_LEVEL = 0;
+    public const MAX_LEVEL = 127;
     public const SERVICE_SEVERITY_TYPE_ID = 0;
     public const HOST_SEVERITY_TYPE_ID = 1;
     public const TYPES_AS_STRING = [
@@ -50,12 +52,12 @@ class Severity
         private string $name,
         private int $level,
         private int $type,
-        private Icon $icon
+        private Icon $icon,
     ) {
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'Severity::name');
         Assertion::notEmpty($name, 'Severity::name');
-        Assertion::min($level, 0, 'Severity::level');
-        Assertion::max($level, 100, 'Severity::level');
+        Assertion::min($level, self::MIN_LEVEL, 'Severity::level');
+        Assertion::max($level, self::MAX_LEVEL, 'Severity::level');
         Assertion::inArray(
             $type,
             [self::HOST_SEVERITY_TYPE_ID, self::SERVICE_SEVERITY_TYPE_ID],

@@ -1,7 +1,7 @@
+import { ThemeMode } from '@centreon/ui-context';
+
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { ThemeMode } from '@centreon/ui-context';
 
 export const useStyles = makeStyles()((theme) => ({
   list: {

@@ -1,6 +1,7 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }
@@ -10,11 +11,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -48,22 +49,20 @@ Given('a host with configured services', () => {
 });
 
 Given('the host is disabled', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
+  // Disable the fixture host's own row: a positional eq(1) picks whichever row
+  // the listing happens to render second, so a dataset change would disable the
+  // wrong host while the assertions keep reading this one.
+  cy.getIframeBody()
+    .contains('tr', services.serviceOk.host)
+    .find('img[alt="Disabled"]')
+    .click();
   cy.exportConfig();
 });
 
 When('the user visit the menu of services configuration', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
 });
 

@@ -1,6 +1,6 @@
-import { CancelToken } from 'axios';
-
 import { deleteData } from '@centreon/ui';
+
+import { CancelToken } from 'axios';
 
 import { buildEndPoint } from './endpoint';
 

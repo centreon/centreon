@@ -13,7 +13,6 @@ export const useFormInputStyles = makeStyles()((theme) => ({
   resourceSelection: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start',
     width: '100%'
   },
   ruleProperties: {
@@ -22,7 +21,6 @@ export const useFormInputStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    justifyContent: 'flex-start',
     padding: theme.spacing(2)
   },
   titleGroup: {

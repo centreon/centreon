@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,7 +48,9 @@ beforeEach(function (): void {
             ->setWarningHighThreshold(100)
             ->setWarningLowThreshold(50)
             ->setCriticalHighThreshold(300)
-            ->setCriticalLowThreshold(100),
+            ->setCriticalLowThreshold(100)
+            ->setMin(0)
+            ->setMax(1000),
         (new Metric(2, 'anothermetric'))
             ->setUnit('%')
             ->setCurrentValue(10)
@@ -56,6 +58,8 @@ beforeEach(function (): void {
             ->setWarningLowThreshold(0)
             ->setCriticalHighThreshold(100)
             ->setCriticalLowThreshold(50)
+            ->setMin(0)
+            ->setMax(100),
     ];
 });
 
@@ -155,6 +159,8 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         ->and($presenter->data->metricsDto[0]->warningLowThreshold)->toBe(50.0)
         ->and($presenter->data->metricsDto[0]->criticalHighThreshold)->toBe(300.0)
         ->and($presenter->data->metricsDto[0]->criticalLowThreshold)->toBe(100.0)
+        ->and($presenter->data->metricsDto[0]->min)->toBe(0.0)
+        ->and($presenter->data->metricsDto[0]->max)->toBe(1000.0)
         ->and($presenter->data->metricsDto[1]->id)->toBe(2)
         ->and($presenter->data->metricsDto[1]->name)->toBe('anothermetric')
         ->and($presenter->data->metricsDto[1]->unit)->toBe('%')
@@ -162,7 +168,9 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         ->and($presenter->data->metricsDto[1]->warningHighThreshold)->toBe(50.0)
         ->and($presenter->data->metricsDto[1]->warningLowThreshold)->toBe(0.0)
         ->and($presenter->data->metricsDto[1]->criticalHighThreshold)->toBe(100.0)
-        ->and($presenter->data->metricsDto[1]->criticalLowThreshold)->toBe(50.0);
+        ->and($presenter->data->metricsDto[1]->criticalLowThreshold)->toBe(50.0)
+        ->and($presenter->data->metricsDto[1]->min)->toBe(0.0)
+        ->and($presenter->data->metricsDto[1]->max)->toBe(100.0);
 });
 
 it('should present an FindMetricsByServiceResponse when metrics are correctly found as non-admin', function (): void {
@@ -189,6 +197,8 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         ->and($presenter->data->metricsDto[0]->warningLowThreshold)->toBe(50.0)
         ->and($presenter->data->metricsDto[0]->criticalHighThreshold)->toBe(300.0)
         ->and($presenter->data->metricsDto[0]->criticalLowThreshold)->toBe(100.0)
+        ->and($presenter->data->metricsDto[0]->min)->toBe(0.0)
+        ->and($presenter->data->metricsDto[0]->max)->toBe(1000.0)
         ->and($presenter->data->metricsDto[1]->id)->toBe(2)
         ->and($presenter->data->metricsDto[1]->name)->toBe('anothermetric')
         ->and($presenter->data->metricsDto[1]->unit)->toBe('%')
@@ -196,5 +206,7 @@ it('should present an FindMetricsByServiceResponse when metrics are correctly fo
         ->and($presenter->data->metricsDto[1]->warningHighThreshold)->toBe(50.0)
         ->and($presenter->data->metricsDto[1]->warningLowThreshold)->toBe(0.0)
         ->and($presenter->data->metricsDto[1]->criticalHighThreshold)->toBe(100.0)
-        ->and($presenter->data->metricsDto[1]->criticalLowThreshold)->toBe(50.0);
+        ->and($presenter->data->metricsDto[1]->criticalLowThreshold)->toBe(50.0)
+        ->and($presenter->data->metricsDto[1]->min)->toBe(0.0)
+        ->and($presenter->data->metricsDto[1]->max)->toBe(100.0);
 });

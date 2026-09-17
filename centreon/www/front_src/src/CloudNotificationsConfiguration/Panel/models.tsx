@@ -4,6 +4,11 @@ import { SvgIconComponent } from '@mui/icons-material';
 
 import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../models';
 
+export interface NamedEntity {
+  id: number;
+  name: string;
+}
+
 export enum PanelMode {
   Create = 'create',
   Edit = 'edit'
@@ -36,7 +41,7 @@ export interface MessageType {
 
 export interface UserType {
   id: number;
-  name: string;
+  alias: string;
 }
 
 export interface ResourceIdsType {
@@ -56,7 +61,7 @@ export interface ResourceType {
 }
 
 export interface NotificationType {
-  contactgroups: Array<UserType>;
+  contactgroups: Array<NamedEntity>;
   id: number;
   isActivated: boolean;
   messages: Array<MessageType>;

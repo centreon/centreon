@@ -1,4 +1,4 @@
-import { SvgIconProps } from '@mui/material';
+import type { SvgIconProps } from '@mui/material';
 
 import BaseIcon from './BaseIcon';
 

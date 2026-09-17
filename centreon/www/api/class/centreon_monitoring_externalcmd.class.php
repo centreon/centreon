@@ -1,42 +1,27 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <htcommand://www.gnu.org/licenses>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
- *
- * For more information : command@centreon.com
+ * For more information : contact@centreon.com
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonExternalCommand.class.php';
-require_once __DIR__ . "/centreon_configuration_objects.class.php";
+require_once __DIR__ . '/centreon_configuration_objects.class.php';
 
 /**
  * Class
@@ -45,9 +30,9 @@ require_once __DIR__ . "/centreon_configuration_objects.class.php";
  */
 class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
 {
-
     /** @var CentreonDB */
     protected $pearDBMonitoring;
+
     /** @var string */
     protected $centcore_file;
 
@@ -57,7 +42,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     public function __construct()
     {
         parent::__construct();
-        $this->pearDBMonitoring = new \CentreonDB('centstorage');
+        $this->pearDBMonitoring = new CentreonDB('centstorage');
         if (is_dir(_CENTREON_VARLIB_ . '/centcore')) {
             $this->centcore_file = _CENTREON_VARLIB_ . '/centcore/' . microtime(true) . '-externalcommand.cmd';
         } else {
@@ -66,11 +51,11 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
      * @throws RestException
      * @throws RestUnauthorizedException
+     * @return array
      */
     public function postSend()
     {
@@ -81,10 +66,10 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
             && is_array($this->arguments['commands'])
             && count($this->arguments['commands'])
         ) {
-            /* Get poller Listing */
-            $query = 'SELECT id ' .
-                'FROM nagios_server ' .
-                'WHERE ns_activate = "1"';
+            // Get poller Listing
+            $query = 'SELECT id '
+                . 'FROM nagios_server '
+                . 'WHERE ns_activate = "1"';
 
             $dbResult = $this->pearDB->query($query);
             $pollers = [];
@@ -111,7 +96,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
             /**
              * If user is not admin we need to retrieve its ACL
              */
-            if (!$isAdmin) {
+            if (! $isAdmin) {
                 $userAcl = new CentreonACL($centreon->user->user_id, $isAdmin);
             }
 
@@ -119,9 +104,9 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                 foreach ($this->arguments['commands'] as $command) {
                     $commandSplitted = explode(';', $command['command']);
                     $action = $commandSplitted[0];
-                    if (!$isAdmin) {
+                    if (! $isAdmin) {
                         if (preg_match('/HOST(_SVC)?/', $action, $matches)) {
-                            if (!isset($commandSplitted[1])) {
+                            if (! isset($commandSplitted[1])) {
                                 throw new RestBadRequestException(_('Host not found'));
                             }
                             $query = 'SELECT acl.host_id
@@ -136,7 +121,7 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                                 throw new RestBadRequestException(_('Host not found'));
                             }
                         } elseif (preg_match('/(?!HOST_)SVC/', $action, $matches)) {
-                            if (!isset($commandSplitted[1]) || !isset($commandSplitted[2])) {
+                            if (! isset($commandSplitted[1]) || ! isset($commandSplitted[2])) {
                                 throw new RestBadRequestException(_('Service not found'));
                             }
                             $query = 'SELECT acl.service_id
@@ -159,11 +144,11 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     }
 
                     // checking that action provided exists
-                    if (!array_key_exists($action, $availableCommands)) {
+                    if (! array_key_exists($action, $availableCommands)) {
                         throw new RestBadRequestException('Action ' . $action . ' not supported');
                     }
 
-                    if (!$isAdmin) {
+                    if (! $isAdmin) {
                         // Checking that the user has rights to do the action provided
                         if ($userAcl->checkAction($availableCommands[$action]) === 0) {
                             throw new RestUnauthorizedException(
@@ -175,16 +160,17 @@ class CentreonMonitoringExternalcmd extends CentreonConfigurationObjects
                     if (isset($pollers[$command['poller_id']])) {
                         fwrite(
                             $fh,
-                            "EXTERNALCMD:" . $command["poller_id"] . ":[" .
-                            $command['timestamp'] . "] " . $command['command'] . "\n"
+                            'EXTERNALCMD:' . $command['poller_id'] . ':['
+                            . $command['timestamp'] . '] ' . $command['command'] . "\n"
                         );
                     }
                 }
                 fclose($fh);
-                return (['success' => true]);
-            } else {
-                throw new RestException('Cannot open Centcore file');
+
+                return ['success' => true];
             }
+
+            throw new RestException('Cannot open Centcore file');
         } else {
             throw new RestBadRequestException('Bad arguments - Cannot find command list');
         }

@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { styled } from '@mui/material';
 
 import { LoadingSkeleton } from '@centreon/ui';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   loadingSkeleton: {

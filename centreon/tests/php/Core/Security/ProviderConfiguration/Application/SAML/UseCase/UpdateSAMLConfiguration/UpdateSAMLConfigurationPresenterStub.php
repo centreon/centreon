@@ -23,20 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration\UpdateSAMLConfigurationPresenterInterface;
 
-class UpdateSAMLConfigurationPresenterStub extends AbstractPresenter implements UpdateSAMLConfigurationPresenterInterface
+class UpdateSAMLConfigurationPresenterStub implements UpdateSAMLConfigurationPresenterInterface
 {
-    /** @var ResponseStatusInterface|null $responseStatus */
-    public ?ResponseStatusInterface $responseStatus = null;
+    public ResponseStatusInterface $response;
 
-    /**
-     * @param ResponseStatusInterface $response
-     */
     public function presentResponse(ResponseStatusInterface $response): void
     {
-        $this->responseStatus = $response;
+        $this->response = $response;
     }
 }

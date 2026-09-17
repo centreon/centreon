@@ -1,8 +1,7 @@
 import EditIcon from '@mui/icons-material/Edit';
 
-import MultiPopoverAutocomplete from './Popover';
-
 import MultiAutocompleteField from '.';
+import MultiPopoverAutocomplete from './Popover';
 
 export default { title: 'InputField/Autocomplete/Multi' };
 
@@ -15,8 +14,8 @@ const options = [
 export const openWithThreeOptions = (): JSX.Element => {
   return (
     <MultiAutocompleteField
-      open
       label="Autocomplete"
+      open
       options={options}
       placeholder=""
       value={[options[1]]}
@@ -69,11 +68,11 @@ export const customRenderedTags = (): JSX.Element => {
 
   return (
     <MultiAutocompleteField
+      customRenderTags={customRender}
       label="Custom Tags Render"
       options={options}
       placeholder="Type here..."
       value={[options[0], options[1]]}
-      customRenderTags={customRender}
     />
   );
 };

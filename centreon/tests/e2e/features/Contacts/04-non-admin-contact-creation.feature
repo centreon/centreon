@@ -6,7 +6,7 @@ Feature: NonAdminContactCreation
   Background:
     Given an admin user is logged in a Centreon server
 
-  @TEST_MON-151725
+  @MON-151725
   Scenario: Non-admin Contact Management Operations
     When the admin user creates a non admin contact
     And the admin user duplicates the newly created non-admin contact

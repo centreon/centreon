@@ -38,7 +38,8 @@
   "data": {
     "resources": {
       "type": "resources",
-      "defaultValue": []
+      "defaultValue": [],
+      "allowRegexOnResourceTypes": ["service"]
     },
     "metrics": {
       "type": "metrics",

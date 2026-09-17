@@ -1,0 +1,70 @@
+meta {
+  name: POST /services/templates - Create ST with wrong types - HTTP 400
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": 1,
+    "service_template_id": "3",
+    "host_templates": true,
+    "check_timeperiod_id": false,
+    "max_check_attempts": -1,
+    "normal_check_interval": "3",
+    "retry_check_interval": "2",
+    "note": 1,
+    "note_url": true,
+    "action_url": "action url",
+    "icon_id": false,
+    "severity_id": "{{ServiceSeverity1Id}}",
+    "macros": [
+      {
+        "name": true,
+        "value": false,
+        "is_password": "false",
+        "description": 1
+      },
+      {
+        "name": 1,
+        "value": 2,
+        "is_password": 0,
+        "description": 1
+      }
+    ],
+    "service_categories": [ "{{ServiceCategory1Id}}" ],
+    "service_groups": [
+      {
+        "service_group_id": "{{ServiceGroup1Id}}",
+        "host_template_id": "3"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service template has not been created, because there are values of the wrong type.", function () {
+    const msg = res.getBody().message;
+    expect(msg).to.include("[name] Boolean value found, but a string is required");
+    expect(msg).to.include("[alias] Integer value found, but a string is required");
+    expect(msg).to.include("[host_templates] Boolean value found, but an array is required");
+    expect(msg).to.include("[macros[0].name] Boolean value found, but a string is required");
+    expect(msg).to.include("[macros[0].is_password] String value found, but a boolean is required");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

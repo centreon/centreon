@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Exception;
 
 beforeEach(function (): void {
-    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->hostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class);
+    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
@@ -77,7 +78,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->hostCategoryRepository
         ->expects($this->once())
         ->method('findAll')
-        ->willThrowException(new \Exception());
+        ->willThrowException(new Exception());
 
     ($this->usecase)($this->presenter);
 
@@ -185,7 +186,6 @@ it('should present a FindHostGroupsResponse when a non-admin user has read/write
         ->and($this->presenter->getPresentedData()->hostCategories[0])
         ->toBe($this->responseArray);
 });
-
 
 it('should present a FindHostCategoriesResponse with admin user', function (): void {
     $this->user

@@ -1,62 +1,121 @@
 import { SelectEntry } from '@centreon/ui';
-import { capitalize } from '@mui/material';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback } from 'react';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, isNil, map, pick } from 'ramda';
+import { SyntheticEvent, useEffect, useState } from 'react';
+
 import {
   changeFilterAtom,
   deleteFilterEntryAtom,
-  filtersAtom
+  filtersAtom,
+  pageAtom
 } from '../../atoms';
-import { AgentType } from '../../models';
-import { labelCMA } from '../../translatedLabels';
+import { FiltersState, filtersInitialValues } from '../../utils';
 
-export const agentTypeOptions = [
-  {
-    id: AgentType.Telegraf,
-    name: capitalize(AgentType.Telegraf)
-  },
-  {
-    id: AgentType.CMA,
-    name: labelCMA
-  }
-];
+type NamedEntity = {
+  id: number;
+  name: string;
+};
 
-interface UseFiltersProps {
-  agentTypes: Array<SelectEntry>;
-  pollers: Array<SelectEntry>;
-  changeEntries: (field: string) => (_, newEntries: Array<SelectEntry>) => void;
-  deleteEntry: (field: string) => (_, entry: SelectEntry) => void;
-  clearFilters: () => void;
+interface UseFiltersState {
+  isClearDisabled: boolean;
+  changeName: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  changeTypes: (_: SyntheticEvent, types: Array<SelectEntry>) => void;
+  changerPollers: (_: SyntheticEvent, values: Array<SelectEntry>) => void;
+  deletePoller: (_: SyntheticEvent, item: SelectEntry) => void;
+  deleteType: (_: SyntheticEvent, item: SelectEntry) => void;
+  isOptionEqualToValue: (
+    option: SelectEntry,
+    selectedValue: SelectEntry
+  ) => boolean;
+  reload: () => void;
+  reset: () => void;
+  filters: FiltersState;
 }
 
-export const useFilters = (): UseFiltersProps => {
-  const filters = useAtomValue(filtersAtom);
+export const useFilters = (): UseFiltersState => {
+  const queryClient = useQueryClient();
+
+  const [isClearClicked, setIsClearClicked] = useState(false);
+
+  const [filters, setFilters] = useAtom(filtersAtom);
+  const setPage = useSetAtom(pageAtom);
   const changeFilter = useSetAtom(changeFilterAtom);
-  const deleteFilter = useSetAtom(deleteFilterEntryAtom);
+  const deleteFilterEntry = useSetAtom(deleteFilterEntryAtom);
 
-  const changeEntries = useCallback(
-    (field) => (_, newEntries) => {
-      changeFilter({ field, newEntries });
-    },
-    []
-  );
+  const isClearDisabled = equals(filters, filtersInitialValues);
 
-  const deleteEntry = useCallback(
-    (field) => (_, entry) => {
-      deleteFilter({ field, entryToDelete: entry });
-    },
-    []
-  );
-
-  const clearFilters = (): void => {
-    changeFilter({ field: 'agentTypes', newEntries: [] });
-    changeFilter({ field: 'pollers', newEntries: [] });
+  const changeName = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    changeFilter({ field: 'name', newEntries: event.target.value });
   };
 
+  const changeTypes = (_: SyntheticEvent, types: Array<SelectEntry>): void => {
+    const selectedTypes = map(
+      pick(['id', 'name']),
+      types || []
+    ) as Array<NamedEntity>;
+
+    changeFilter({ field: 'type', newEntries: selectedTypes });
+  };
+
+  const changerPollers = (
+    _: SyntheticEvent,
+    values: Array<SelectEntry>
+  ): void => {
+    const pollers = map(
+      pick(['id', 'name']),
+      values || []
+    ) as Array<NamedEntity>;
+
+    changeFilter({ field: 'poller.id', newEntries: pollers });
+  };
+
+  const deletePoller = (_: SyntheticEvent, item: SelectEntry): void => {
+    deleteFilterEntry({ entryToDelete: item, field: 'poller.id' });
+  };
+
+  const deleteType = (_: SyntheticEvent, option: SelectEntry): void => {
+    deleteFilterEntry({ entryToDelete: option, field: 'type' });
+  };
+
+  const isOptionEqualToValue = (
+    option: SelectEntry,
+    selectedValue: SelectEntry
+  ): boolean => {
+    return isNil(option)
+      ? false
+      : equals(option.name.toString(), selectedValue.name.toString());
+  };
+
+  const reload = (): void => {
+    queryClient.invalidateQueries({ queryKey: ['listAgentConfigurations'] });
+  };
+
+  const reset = (): void => {
+    setFilters(filtersInitialValues);
+    setPage(0);
+
+    setIsClearClicked(true);
+  };
+
+  useEffect(() => {
+    if (isClearClicked) {
+      reload();
+      setIsClearClicked(false);
+    }
+  }, [filters, isClearClicked]);
+
   return {
-    ...filters,
-    changeEntries,
-    deleteEntry,
-    clearFilters
+    changeName,
+    changerPollers,
+    changeTypes,
+    deletePoller,
+    deleteType,
+    filters,
+    isClearDisabled,
+    isOptionEqualToValue,
+    reload,
+    reset
   };
 };

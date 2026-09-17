@@ -1,12 +1,7 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { path, equals, isNil, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
-
 import {
   IconButton,
   Method,
@@ -16,6 +11,11 @@ import {
   useSnackbar,
   useStyleTable
 } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { equals, isNil, path, pathEq } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   resourcesToAcknowledgeAtom,
@@ -31,14 +31,12 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../translatedLabels';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 import IconDowntime from './Icons/Downtime';
 import { useStyles } from './Status.styles';
 
 const StatusColumnOnHover = ({
   row
-}: Pick<ComponentColumnProps, 'row'>): JSX.Element => {
+}: Pick<ComponentColumnProps, 'row'>): ReactElement => {
   const { dataStyle } = useStyleTable({});
   const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
@@ -49,7 +47,7 @@ const StatusColumnOnHover = ({
   const forcedCheckEndpoint = path(['links', 'endpoints', 'forced_check'], row);
 
   const { mutateAsync: checkResource } = useMutationQuery({
-    getEndpoint: () => forcedCheckEndpoint,
+    getEndpoint: () => forcedCheckEndpoint as string,
     method: Method.POST
   });
 
@@ -64,11 +62,13 @@ const StatusColumnOnHover = ({
   };
 
   const acknowledge = (): void => {
-    setResourcesToAcknowledge([row]);
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+    setResourcesToAcknowledge([row as any]);
   };
 
   const setDowntime = (): void => {
-    setResourcesToSetDowntime([row]);
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+    setResourcesToSetDowntime([row as any]);
   };
 
   const { canAcknowledge, canDowntime } = useAclQuery();
@@ -79,8 +79,10 @@ const StatusColumnOnHover = ({
     row
   );
 
-  const isAcknowledePermitted = canAcknowledge([row]);
-  const isDowntimePermitted = canDowntime([row]);
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  const isAcknowledePermitted = canAcknowledge([row as any]);
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  const isDowntimePermitted = canDowntime([row as any]);
 
   const isForcedCheckPermitted = !isNil(
     path(['links', 'endpoints', 'forced_check'], row)
@@ -90,7 +92,13 @@ const StatusColumnOnHover = ({
   const disableDowntime = !isDowntimePermitted;
   const disableForcedCheck = !isForcedCheckPermitted;
 
-  const getActionTitle = ({ labelAction, isActionPermitted }): string => {
+  const getActionTitle = ({
+    labelAction,
+    isActionPermitted
+  }: {
+    labelAction: string;
+    isActionPermitted: boolean;
+  }): string => {
     const translatedLabelAction = t(labelAction);
 
     return isActionPermitted
@@ -105,12 +113,12 @@ const StatusColumnOnHover = ({
         color="primary"
         data-testid={`${labelAcknowledge} ${row.name}`}
         disabled={disableAcknowledge}
+        onClick={acknowledge}
         size="large"
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge
         })}
-        onClick={acknowledge}
       >
         <IconAcknowledge fontSize="small" />
       </IconButton>
@@ -118,12 +126,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelSetDowntimeOn)} ${row.name}`}
         data-testid={`${labelSetDowntimeOn} ${row.name}`}
         disabled={disableDowntime}
+        onClick={setDowntime}
         size="large"
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime
         })}
-        onClick={setDowntime}
       >
         <IconDowntime fontSize="small" />
       </IconButton>
@@ -132,12 +140,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
         data-testid={`${labelForcedCheck} ${row.name}`}
         disabled={disableForcedCheck}
+        onClick={forcedCheck}
         size="large"
         title={getActionTitle({
           isActionPermitted: isForcedCheckPermitted,
           labelAction: labelForcedCheck
         })}
-        onClick={forcedCheck}
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>
@@ -145,25 +153,36 @@ const StatusColumnOnHover = ({
   );
 };
 
-const StatusColumn =
-  ({ displayType, classes, t }) =>
-  ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+interface StatusColumnFactoryProps {
+  displayType: DisplayType;
+  classes: { statusColumn: string; statusColumnChip: string };
+  t: (key: string) => string;
+  isOnPublicPage?: boolean;
+}
 
-    const statusName = row.status.name;
+const StatusColumn = ({
+  displayType,
+  classes,
+  t,
+  isOnPublicPage
+}: StatusColumnFactoryProps) => {
+  return ({ row, isHovered }: ComponentColumnProps): ReactElement => {
+    const typedRow = row as {
+      status: { name: string; severity_code: number };
+      isHeadRow?: boolean;
+    };
+    const statusName = typedRow.status.name;
 
     const isNestedRow =
-      equals(displayType, DisplayType.Host) && isNil(row?.isHeadRow);
+      equals(displayType, DisplayType.Host) && isNil(typedRow?.isHeadRow);
 
     if (isNestedRow) {
       return <div />;
     }
 
-    const label = equals(SeverityCode[5], statusName) ? (
-      <>{t(statusName)}</>
-    ) : (
-      t(statusName)
-    );
+    const label = equals(SeverityCode[5], statusName)
+      ? t(statusName)
+      : t(statusName);
 
     return (
       <div className={classes.statusColumn}>
@@ -173,11 +192,12 @@ const StatusColumn =
           <StatusChip
             className={classes.statusColumnChip}
             label={label}
-            severityCode={row.status.severity_code}
+            severityCode={typedRow.status.severity_code}
           />
         )}
       </div>
     );
   };
+};
 
 export default StatusColumn;

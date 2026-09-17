@@ -40,10 +40,10 @@ final readonly class ShareDashboardInput
                 ],
                 'role' => [
                     new Assert\NotBlank(),
-                    new Assert\Choice([
-                        'choices' => ['editor', 'viewer'],
-                        'message' => 'Role provided for contact is not valid. Valid roles are: editor, viewer',
-                    ]),
+                    new Assert\Choice(
+                        choices: ['editor', 'viewer'],
+                        message: 'Role provided for contact is not valid. Valid roles are: editor, viewer',
+                    ),
                 ],
             ]),
         ])]
@@ -56,10 +56,10 @@ final readonly class ShareDashboardInput
                 ],
                 'role' => [
                     new Assert\NotBlank(),
-                    new Assert\Choice([
-                        'choices' => ['editor', 'viewer'],
-                        'message' => 'Role provided for contact group is not valid. Valid roles are: editor, viewer',
-                    ]),
+                    new Assert\Choice(
+                        choices: ['editor', 'viewer'],
+                        message: 'Role provided for contact group is not valid. Valid roles are: editor, viewer',
+                    ),
                 ],
             ]),
         ])]

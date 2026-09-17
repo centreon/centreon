@@ -1,42 +1,30 @@
 <?php
 
 /*
- * Copyright 2005-2020 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-define("PROCEDURE_SIMPLE_MODE", 0);
-define("PROCEDURE_INHERITANCE_MODE", 1);
-require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php";
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
+define('PROCEDURE_SIMPLE_MODE', 0);
+define('PROCEDURE_INHERITANCE_MODE', 1);
+require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php';
 
 /**
  * Class
@@ -45,14 +33,17 @@ require_once _CENTREON_PATH_ . "/www/class/centreon-knowledge/wikiApi.class.php"
  */
 class procedures
 {
-    /** @var array */
-    private $procList = [];
     /** @var CentreonDB */
     public $DB;
+
     /** @var CentreonDB */
     public $centreon_DB;
+
     /** @var WikiApi */
     public $api;
+
+    /** @var array */
+    private $procList = [];
 
     /**
      * procedures constructor
@@ -72,12 +63,12 @@ class procedures
      */
     public function fetchProcedures()
     {
-        if (!empty($this->procList)) {
+        if ($this->procList !== []) {
             return null;
         }
 
         $pages = $this->api->getAllPages();
-        //replace space
+        // replace space
         foreach ($pages as $page) {
             $page = str_replace(' ', '_', $page);
             $this->procList[$page] = '';
@@ -89,46 +80,43 @@ class procedures
      *
      * @param null $service_id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getMyServiceTemplateModels($service_id = null)
     {
         $tplArr = [];
 
-        $dbResult = $this->centreon_DB->query(
-            "SELECT service_description, service_template_model_stm_id " .
-            "FROM service " .
-            "WHERE service_id = '" . $service_id . "' LIMIT 1"
+        $query = 'SELECT service_description, service_template_model_stm_id '
+            . 'FROM service '
+            . 'WHERE service_id = :service_id LIMIT 1';
+        $row = $this->centreon_DB->fetchAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('service_id', (int) $service_id)])
         );
-        $row = $dbResult->fetch();
-        if (isset($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != "") {
-            $dbResult->closeCursor();
-            $service_id = $row["service_template_model_stm_id"];
-            if ($row["service_description"]) {
-                $tplArr[$service_id] = html_entity_decode($row["service_description"], ENT_QUOTES);
+        if ($row !== false && isset($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != '') {
+            $service_id = $row['service_template_model_stm_id'];
+            if ($row['service_description']) {
+                $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
             }
             while (1) {
-                $dbResult = $this->centreon_DB->query(
-                    "SELECT service_description, service_template_model_stm_id " .
-                    "FROM service " .
-                    "WHERE service_id = '" . $service_id . "' LIMIT 1"
+                $row = $this->centreon_DB->fetchAssociative(
+                    $query,
+                    QueryParameters::create([QueryParameter::int('service_id', (int) $service_id)])
                 );
-                $row = $dbResult->fetch();
-                $dbResult->closeCursor();
-                if ($row["service_description"]) {
-                    $tplArr[$service_id] = html_entity_decode($row["service_description"], ENT_QUOTES);
-                } else {
+                if ($row === false || ! $row['service_description']) {
                     break;
                 }
-                if ($row["service_template_model_stm_id"]) {
-                    $service_id = $row["service_template_model_stm_id"];
+                $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
+                if ($row['service_template_model_stm_id']) {
+                    $service_id = $row['service_template_model_stm_id'];
                 } else {
                     break;
                 }
             }
         }
-        return ($tplArr);
+
+        return $tplArr;
     }
 
     /**
@@ -136,35 +124,34 @@ class procedures
      *
      * @param null $host_id
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getMyHostMultipleTemplateModels($host_id = null)
     {
-        if (!$host_id) {
+        if (! $host_id) {
             return [];
         }
 
         $tplArr = [];
-        $dbResult = $this->centreon_DB->query(
-            "SELECT host_tpl_id " .
-            "FROM `host_template_relation` " .
-            "WHERE host_host_id = '" . $host_id . "' " .
-            "ORDER BY `order`"
+        $templateRelations = $this->centreon_DB->fetchAllAssociative(
+            'SELECT host_tpl_id '
+            . 'FROM `host_template_relation` '
+            . 'WHERE host_host_id = :host_id '
+            . 'ORDER BY `order`',
+            QueryParameters::create([QueryParameter::int('host_id', (int) $host_id)])
         );
-        $statement = $this->centreon_DB->prepare(
-            "SELECT host_name " .
-            "FROM host " .
-            "WHERE host_id = :host_id LIMIT 1"
-        );
-        while ($row = $dbResult->fetch()) {
-            $statement->bindValue(':host_id', $row['host_tpl_id'], \PDO::PARAM_INT);
-            $statement->execute();
-            $hTpl = $statement->fetch(\PDO::FETCH_ASSOC);
-            $tplArr[$row['host_tpl_id']] = html_entity_decode($hTpl["host_name"], ENT_QUOTES);
+        $hostNameQuery = 'SELECT host_name FROM host WHERE host_id = :host_id LIMIT 1';
+        foreach ($templateRelations as $row) {
+            $hTpl = $this->centreon_DB->fetchAssociative(
+                $hostNameQuery,
+                QueryParameters::create([QueryParameter::int('host_id', (int) $row['host_tpl_id'])])
+            );
+            if ($hTpl !== false) {
+                $tplArr[$row['host_tpl_id']] = html_entity_decode($hTpl['host_name'], ENT_QUOTES);
+            }
         }
-        unset($row);
-        unset($hTpl);
+
         return $tplArr;
     }
 
@@ -178,12 +165,13 @@ class procedures
      */
     public function serviceHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Service_:_" . $key])) {
+        if (isset($this->procList['Service_:_' . $key])) {
             return true;
         }
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 $res = $this->serviceTemplateHasProcedure($templateName, null, PROCEDURE_SIMPLE_MODE);
                 if ($res == true) {
@@ -191,6 +179,7 @@ class procedures
                 }
             }
         }
+
         return false;
     }
 
@@ -204,13 +193,14 @@ class procedures
      */
     public function hostHasProcedure($key, $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Host_:_" . $key])) {
+        if (isset($this->procList['Host_:_' . $key])) {
             return true;
         }
 
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 $res = $this->hostTemplateHasProcedure($templateName, null, PROCEDURE_SIMPLE_MODE);
                 if ($res == true) {
@@ -218,6 +208,7 @@ class procedures
                 }
             }
         }
+
         return false;
     }
 
@@ -229,20 +220,22 @@ class procedures
      * @param int $mode
      * @return bool
      */
-    public function serviceTemplateHasProcedure($key = "", $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function serviceTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Service-Template_:_" . $key])) {
+        if (isset($this->procList['Service-Template_:_' . $key])) {
             return true;
         }
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 if (isset($this->procList['Service-Template_:_' . $templateName])) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
@@ -251,22 +244,25 @@ class procedures
      *
      * @param string $key
      * @param array $templates
+     * @param mixed $mode
      * @return bool
      */
-    public function hostTemplateHasProcedure($key = "", $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
+    public function hostTemplateHasProcedure($key = '', $templates = [], $mode = PROCEDURE_SIMPLE_MODE)
     {
-        if (isset($this->procList["Host-Template_:_" . $key])) {
+        if (isset($this->procList['Host-Template_:_' . $key])) {
             return true;
         }
         if ($mode == PROCEDURE_SIMPLE_MODE) {
             return false;
-        } elseif ($mode == PROCEDURE_INHERITANCE_MODE) {
+        }
+        if ($mode == PROCEDURE_INHERITANCE_MODE) {
             foreach ($templates as $templateId => $templateName) {
                 if (isset($this->procList['Host-Template_:_' . $templateName])) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 }

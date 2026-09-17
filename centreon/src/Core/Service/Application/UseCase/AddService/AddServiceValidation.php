@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -60,6 +61,7 @@ class AddServiceValidation
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -72,7 +74,7 @@ class AddServiceValidation
     public function assertIsValidSeverity(?int $severityId): void
     {
         if ($severityId !== null) {
-            $exists = ($this->accessGroups === [])
+            $exists = $this->adminResolver->isAdmin($this->user)
                 ? $this->serviceSeverityRepository->exists($severityId)
                 : $this->serviceSeverityRepository->existsByAccessGroups($severityId, $this->accessGroups);
 
@@ -106,10 +108,10 @@ class AddServiceValidation
      */
     public function assertIsValidHost(int $hostId): void
     {
-        $hostIdFound = $this->user->isAdmin()
+        $hostIdFound = $this->adminResolver->isAdmin($this->user)
                 ? $this->readHostRepository->exists($hostId)
                 : $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups);
-        if (false === $hostIdFound) {
+        if ($hostIdFound === false) {
             throw ServiceException::idDoesNotExist('host_id', $hostId);
         }
     }
@@ -127,7 +129,7 @@ class AddServiceValidation
             return;
         }
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
                 $serviceCategoriesIds
             );
@@ -154,8 +156,7 @@ class AddServiceValidation
         if ($commandId === null && $serviceTemplateId === null) {
             throw ServiceException::checkCommandCannotBeNull();
         }
-        if ($commandId !== null && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check))
-        {
+        if ($commandId !== null && ! $this->commandRepository->existsByIdAndCommandType($commandId, CommandType::Check)) {
             $this->error('The check command does not exist', ['check_command_id' => $commandId]);
 
             throw ServiceException::idDoesNotExist('check_command_id', $commandId);
@@ -273,7 +274,7 @@ class AddServiceValidation
             return;
         }
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $serviceGroupIdsFound = $this->readServiceGroupRepository->exist($serviceGroupIds);
         } else {
             $serviceGroupIdsFound = $this->readServiceGroupRepository->existByAccessGroups(

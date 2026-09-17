@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,15 @@ namespace Utility;
 
 class EnvironmentFileManager
 {
+    public const DEFAULT_ENVIRONMENT_FILE = '.env';
+    public const APP_ENV_PROD = 'prod';
+
     /** @var array<string, int|float|bool|string> */
     private array $variables = [];
 
     private ?string $currentEnvironnementFile = null;
+
+    private string $environmentMode;
 
     /**
      * @param string $environmentFilePath
@@ -36,6 +41,9 @@ class EnvironmentFileManager
     public function __construct(private string $environmentFilePath)
     {
         $this->environmentFilePath = $this->addDirectorySeparatorIfNeeded($this->environmentFilePath);
+        $this->environmentMode = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
+            ? (string) $_SERVER['APP_ENV']
+            : 'prod';
     }
 
     /**
@@ -43,7 +51,7 @@ class EnvironmentFileManager
      *
      * @throws \Exception
      */
-    public function load(string $environmentFile = '.env'): void
+    public function load(string $environmentFile = self::DEFAULT_ENVIRONMENT_FILE): void
     {
         $this->currentEnvironnementFile = $environmentFile;
         $filePath = $this->environmentFilePath . $environmentFile;
@@ -144,12 +152,23 @@ class EnvironmentFileManager
                 if (is_bool($value)) {
                     $value = $value ? 1 : 0;
                 }
-                fwrite($file, sprintf("%s=%s\n", $key, $value));
+                $successWriteFile = fwrite($file, sprintf("%s=%s\n", $key, $value));
+
+                if ($successWriteFile === false) {
+                    throw new \Exception(sprintf('Impossible to write file \'%s\'', $filePath));
+                }
             }
         } finally {
             fclose($file);
         }
 
+        // If the environment is dev or test, we do not create the local file named .env.local.php to avoid overriding
+        // the local environment variables with .env.local
+        if (! $this->isProdEnvironment()) {
+            return;
+        }
+
+        // Create the local environment file only if the environment is prod
         $variables = var_export($this->variables, true);
         $content = <<<CONTENT
             <?php
@@ -158,7 +177,17 @@ class EnvironmentFileManager
 
             return {$variables};
             CONTENT;
-        file_put_contents($filePath . '.local.php', $content);
+
+        $successWriteFile = file_put_contents($filePath . '.local.php', $content);
+
+        if ($successWriteFile === false) {
+            throw new \Exception(sprintf('Impossible to write file \'%s.local.php\'', $filePath));
+        }
+    }
+
+    public function isProdEnvironment(): bool
+    {
+        return $this->environmentMode === self::APP_ENV_PROD;
     }
 
     /**

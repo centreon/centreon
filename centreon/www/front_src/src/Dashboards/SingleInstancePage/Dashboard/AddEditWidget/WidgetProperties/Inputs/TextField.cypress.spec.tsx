@@ -1,10 +1,9 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../atoms';
 import { WidgetPropertyProps } from '../../models';
-
 import WidgetTextField from './TextField';
 
 interface Props extends Pick<WidgetPropertyProps, 'text'> {

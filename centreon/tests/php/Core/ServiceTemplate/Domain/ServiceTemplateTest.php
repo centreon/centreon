@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is an empty string",
-        fn() => (createServiceTemplate([$field => ' ']))
+        fn () => (createServiceTemplate([$field => ' ']))
     )->throws(
         AssertionException::class,
         AssertionException::notEmptyString("ServiceTemplate::{$field}")->getMessage()
@@ -60,8 +60,9 @@ foreach (
     $tooLongString = str_repeat('a', $length + 1);
     it(
         "should throw an exception when service template {$field} is too long",
-        fn() => (
-            createServiceTemplate([$field => $tooLongString]))
+        fn () => (
+            createServiceTemplate([$field => $tooLongString])
+        )
     )->throws(
         AssertionException::class,
         AssertionException::maxLength(
@@ -89,7 +90,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is less than 0",
-        fn() => (createServiceTemplate([$field => -1]))
+        fn () => (createServiceTemplate([$field => -1]))
     )->throws(
         AssertionException::class,
         AssertionException::min(
@@ -115,7 +116,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} is less than 1",
-        fn() => (createServiceTemplate([$field => 0]))
+        fn () => (createServiceTemplate([$field => 0]))
     )->throws(
         AssertionException::class,
         AssertionException::min(
@@ -133,7 +134,7 @@ foreach (
 ) {
     it(
         "should throw an exception when service template {$field} contains a list of integers less than 1",
-        fn() => (createServiceTemplate([$field => [0]]))
+        fn () => (createServiceTemplate([$field => [0]]))
     )->throws(
         AssertionException::class,
         AssertionException::min(
@@ -158,7 +159,7 @@ foreach (['commandArguments', 'eventHandlerArguments'] as $field) {
 
 it(
     'should throw an exception when one of the arguments in the notification list is not of the correct type',
-    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias', ...['notificationTypes' => ['fake']]))
+    fn () => (new ServiceTemplate(1, 'fake_name', 'fake_alias', ...['notificationTypes' => ['fake']]))
 )->throws(
     AssertionException::class,
     AssertionException::badInstanceOfObject(
@@ -170,7 +171,7 @@ it(
 
 it(
     'should throw an exception when name contains illegal characters',
-    fn() => (new ServiceTemplate(1, 'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
+    fn () => (new ServiceTemplate(1, 'fake_name' . MonitoringServer::ILLEGAL_CHARACTERS[0], 'fake_alias'))
 )->throws(
     AssertionException::class,
     AssertionException::unauthorizedCharacters(
@@ -182,7 +183,7 @@ it(
 
 it(
     'should throw an exception when alias contains illegal characters',
-    fn() => (new ServiceTemplate(1, 'fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
+    fn () => (new ServiceTemplate(1, 'fake_name', 'fake_alias' . MonitoringServer::ILLEGAL_CHARACTERS[0]))
 )->throws(
     AssertionException::class,
     AssertionException::unauthorizedCharacters(

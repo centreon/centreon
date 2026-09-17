@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,7 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
      * @param int $id
      * @param string $name
      * @param string $alias
-     * @param string $notes
-     * @param string $notesUrl
-     * @param string $actionUrl
-     * @param int|null $iconId FK
-     * @param int|null $iconMapId FK
-     * @param int|null $rrdRetention Days
+     * @param int|null $iconId
      * @param GeoCoords|null $geoCoords
      * @param string $comment
      * @param bool $isActivated
@@ -53,12 +48,7 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
         int $id,
         string $name,
         string $alias = '',
-        string $notes = '',
-        string $notesUrl = '',
-        string $actionUrl = '',
         ?int $iconId = null,
-        ?int $iconMapId = null,
-        ?int $rrdRetention = null,
         null|GeoCoords $geoCoords = null,
         string $comment = '',
         bool $isActivated = true,
@@ -69,12 +59,7 @@ class HostGroup extends NewHostGroup implements Comparable, Identifiable
         parent::__construct(
             $name,
             $alias,
-            $notes,
-            $notesUrl,
-            $actionUrl,
             $iconId,
-            $iconMapId,
-            $rrdRetention,
             $geoCoords,
             $comment,
             $isActivated,

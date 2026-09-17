@@ -1,18 +1,16 @@
 import { Modal } from '@centreon/ui/components';
-import { Typography } from '@mui/material';
+
 import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isNotNil } from 'ramda';
+import { isNotNil } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
 import { useGetAgentConfiguration } from '../hooks/useGetAgentConfiguration';
 import { labelUpdateAgentConfiguration } from '../translatedLabels';
 import AgentConfigurationForm from './Form';
-import { useStyles } from './Modal.styles';
 
 const UpdateModal = () => {
-  const { classes } = useStyles();
-
   const { t } = useTranslation();
   const setAskBeforeCloseFormModal = useSetAtom(askBeforeCloseFormModalAtom);
 
@@ -21,7 +19,7 @@ const UpdateModal = () => {
   const { initialValues, isLoading } = useGetAgentConfiguration(openFormModal);
 
   const isModalOpen = useMemo(
-    () => isNotNil(openFormModal) && !equals('add', openFormModal),
+    () => isNotNil(openFormModal) && openFormModal !== 'add',
     [openFormModal]
   );
 
@@ -31,21 +29,15 @@ const UpdateModal = () => {
   );
 
   return (
-    <>
-      <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
-        <Modal.Header>
-          <Typography className={classes.modalHeader}>
-            {t(labelUpdateAgentConfiguration)}
-          </Typography>
-        </Modal.Header>
-        <Modal.Body>
-          <AgentConfigurationForm
-            initialValues={initialValues}
-            isLoading={isLoading}
-          />
-        </Modal.Body>
-      </Modal>
-    </>
+    <Modal onClose={openAskBeforeClose} open={isModalOpen} size="xlarge">
+      <Modal.Header>{t(labelUpdateAgentConfiguration)}</Modal.Header>
+      <Modal.Body>
+        <AgentConfigurationForm
+          initialValues={initialValues}
+          isLoading={isLoading}
+        />
+      </Modal.Body>
+    </Modal>
   );
 };
 

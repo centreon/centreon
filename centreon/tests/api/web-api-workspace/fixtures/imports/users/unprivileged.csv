@@ -1,0 +1,3 @@
+CONTACT;ADD;user_unprivileged;user_unprivileged;user_unprivileged@localhost;Centreon!123;0;1;en_US;local
+CONTACT;SETPARAM;user_unprivileged;reach_api;1
+CONTACT;SETPARAM;user_unprivileged;reach_api_rt;1

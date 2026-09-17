@@ -48,6 +48,15 @@ services:
             $dataStorageEngine: '@Core\Common\Infrastructure\Repository\DataStorageObserver'
             $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
 
+    Core\Media\Application\UseCase\DeleteMedia\DeleteMedia:
+        arguments:
+            $writeMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyWriteMediaRepository'
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+
+    Core\Media\Application\UseCase\GetMedia\GetMedia:
+        arguments:
+            $readMediaRepository: '@Core\Media\Infrastructure\Repository\DbReadMediaRepository'
+
     Core\Media\Infrastructure\Repository\ApiReadMediaRepository:
         arguments:
             $logger: '@Centreon\Domain\Log\Logger'
@@ -60,4 +69,4 @@ services:
 
     Core\Media\Application\UseCase\FindMedias\FindMedias:
         arguments:
-            $readMediaRepository: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'
+            $mediaReader: '@Core\Media\Infrastructure\Repository\FileProxyReadMediaRepository'

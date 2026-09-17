@@ -1,6 +1,7 @@
+import { Column, ColumnType } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType } from '@centreon/ui';
 import { labelActions, labelEnableDisable } from '../../translatedLabels';
 import { Actions } from './Actions';
 import Status from './Status/Status';
@@ -21,15 +22,16 @@ const useColumns = (): Props => {
       label: t(labelActions),
       type: ColumnType.component
     },
+
     {
       Component: Status,
       clickable: true,
       id: 'is_activated',
-      sortField: 'is_activated',
       label: t(labelEnableDisable),
+      sortable: true,
+      sortField: 'is_activated',
       type: ColumnType.component,
-      width: 'max-content',
-      sortable: true
+      width: 'max-content'
     }
   ];
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
     public function __construct(
         private readonly EncryptionInterface $encryption,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-    )
-    {
+    ) {
         $this->readVaultRepository->setCustomPath(AbstractVaultRepository::ACC_VAULT_PATH);
     }
 
@@ -61,7 +60,7 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
      */
     public function getCredentialsFromVault(AccParametersInterface $parameters): AccParametersInterface
     {
-        if (false === $this->readVaultRepository->isVaultConfigured()) {
+        if ($this->readVaultRepository->isVaultConfigured() === false) {
             return $parameters;
         }
 
@@ -70,11 +69,6 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
         $vaultPath = null;
 
         foreach ($data['vcenters'] as $vcenter) {
-            if (str_starts_with($vcenter['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-                $vaultPath = $vcenter['username'];
-
-                break;
-            }
             if (str_starts_with($vcenter['password'], VaultConfiguration::VAULT_PATH_PATTERN)) {
                 $vaultPath = $vcenter['password'];
 
@@ -89,9 +83,9 @@ class VmWareV6ReadVaultAccRepository implements ReadVaultAccRepositoryInterface
         $vaultDatas = $this->readVaultRepository->findFromPath($vaultPath);
 
         foreach ($data['vcenters'] as $index => $vcenter) {
-            if (in_array($vcenter['name']. '_username', array_keys($vaultDatas), true)) {
-                $data['vcenters'][$index]['username'] = $vaultDatas[$vcenter['name'] . '_username'];
-                $data['vcenters'][$index]['password'] = $vaultDatas[$vcenter['name'] . '_password'];
+            $passwordKey = $vcenter['name'] . '_password';
+            if (array_key_exists($passwordKey, $vaultDatas)) {
+                $data['vcenters'][$index]['password'] = $vaultDatas[$passwordKey];
             }
         }
 

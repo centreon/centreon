@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Vault_Configuration", "type": "collection", "ignore": ["node_modules", ".git"] }

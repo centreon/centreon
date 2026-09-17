@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import { type AvatarProps, Avatar as MUIAvatar } from '@mui/material';
 
-import { AvatarProps, Avatar as MUIAvatar } from '@mui/material';
+import type { ReactNode } from 'react';
 
 import { useAvatarStyles } from './Avatar.styles';
 

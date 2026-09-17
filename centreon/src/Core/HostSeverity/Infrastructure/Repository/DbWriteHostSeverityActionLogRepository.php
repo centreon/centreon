@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostSeverity\Application\Repository\WriteHostSeverityRepositoryInterface;
 use Core\HostSeverity\Domain\Model\NewHostSeverity;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB implements WriteHostSeverityRepositoryInterface
 {
@@ -50,15 +51,15 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
      * @param WriteHostSeverityRepositoryInterface $writeHostSeverityRepository
      * @param ReadHostSeverityRepositoryInterface $readHostSeverityRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
-     * @param ContactInterface $contact
+     * @param TokenStorageInterface $tokenStorage
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteHostSeverityRepositoryInterface $writeHostSeverityRepository,
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        private readonly ContactInterface $contact,
-        DatabaseConnection $db
+        private readonly TokenStorageInterface $tokenStorage,
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -82,12 +83,14 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                 $hostSeverityId,
                 $hostSeverity->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
-            $this->error("Error while deleting host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while deleting host severity : {$ex->getMessage()}",
+                ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -105,18 +108,20 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                 $hostSeverityId,
                 $hostSeverity->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
 
             $details = $this->getHostSeverityPropertiesAsArray($hostSeverity);
             $this->writeActionLogRepository->addActionDetails($actionLog, $details);
-            
+
             return $hostSeverityId;
         } catch (\Throwable $ex) {
-            $this->error("Error while adding host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while adding host severity : {$ex->getMessage()}",
+                ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
@@ -151,7 +156,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                         $hostSeverity->getId(),
                         $hostSeverity->getName(),
                         $action,
-                        $this->contact->getId()
+                        $this->getContactId()
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -168,7 +173,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                         $hostSeverity->getId(),
                         $hostSeverity->getName(),
                         $action,
-                        $this->contact->getId()
+                        $this->getContactId()
                     );
 
                     $this->writeActionLogRepository->addAction($actionLog);
@@ -179,7 +184,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                         $hostSeverity->getId(),
                         $hostSeverity->getName(),
                         ActionLog::ACTION_TYPE_CHANGE,
-                        $this->contact->getId()
+                        $this->getContactId()
                     );
 
                     $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -196,7 +201,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
                 $hostSeverity->getId(),
                 $hostSeverity->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -204,11 +209,20 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
             $this->writeActionLogRepository->addActionDetails($actionLog, $diff);
 
         } catch (\Throwable $ex) {
-            $this->error("Error while updating host severity : {$ex->getMessage()}",
-            ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]);
+            $this->error(
+                "Error while updating host severity : {$ex->getMessage()}",
+                ['hostSeverity' => $hostSeverity, 'trace' => $ex->getTraceAsString()]
+            );
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**
@@ -219,7 +233,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
      */
     private function getHostSeverityDiff(
         NewHostSeverity $initialSeverity,
-        NewHostSeverity $updatedHostSeverity
+        NewHostSeverity $updatedHostSeverity,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialSeverity);

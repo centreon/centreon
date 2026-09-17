@@ -1,15 +1,16 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
 
 import {
   Method,
   SnackbarProvider,
-  TestQueryProvider,
-  setUrlQueryParameters
+  setUrlQueryParameters,
+  TestQueryProvider
 } from '@centreon/ui';
 import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { commentEndpoint } from '../Actions/api/endpoint';
 import { resourcesEndpoint } from '../api/endpoint';
@@ -61,18 +62,16 @@ import {
   labelTo,
   labelYourCommentSent
 } from '../translatedLabels';
-
+import Details from '.';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
+import { router } from './tabs/Details/DetailsCard/GroupChip';
 import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
-
-import Details from '.';
-import { router } from './tabs/Details/DetailsCard/GroupChip';
 
 const resourceServiceId = 1;
 
@@ -139,11 +138,11 @@ const mockAcl = {
 const mockRefreshInterval = 60;
 
 const cardsProperties = [
-  { property: 'last_status_change', label: labelLastStatusChange },
-  { property: 'last_check', label: labelLastCheck },
-  { property: 'last_time_with_no_issue', label: labelLastCheckWithOkStatus },
-  { property: 'next_check', label: labelNextCheck },
-  { property: 'last_notification', label: labelLastNotification }
+  { label: labelLastStatusChange, property: 'last_status_change' },
+  { label: labelLastCheck, property: 'last_check' },
+  { label: labelLastCheckWithOkStatus, property: 'last_time_with_no_issue' },
+  { label: labelNextCheck, property: 'next_check' },
+  { label: labelLastNotification, property: 'last_notification' }
 ];
 
 const DetailsTest = (): JSX.Element => {

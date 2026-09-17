@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter as Router } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   ListingVariant,
@@ -8,36 +5,7 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
-import useDetails from '../Details/useDetails';
-import useFilter from '../Filter/useFilter';
-import { Visualization } from '../models';
-import {
-  labelAcknowledged,
-  labelAll,
-  labelInDowntime,
-  labelResourceFlapping,
-  labelViewByHost,
-  labelViewByService
-} from '../translatedLabels';
-
-import {
-  defaultSelectedColumnIds,
-  defaultSelectedColumnIdsforViewByHost
-} from './columns';
-import { selectedColumnIdsAtom } from './listingAtoms';
-import {
-  columnToSort,
-  columns,
-  entities,
-  fakeData,
-  getPlatformFeatures,
-  retrievedListing,
-  retrievedListingByHosts,
-  retrievedListingWithCriticalResources
-} from './testUtils';
-import useLoadDetails from './useLoadResources/useLoadDetails';
-
+import { createStore, Provider } from 'jotai';
 import {
   __,
   equals,
@@ -55,11 +23,41 @@ import {
   split,
   where
 } from 'ramda';
+import { BrowserRouter as Router } from 'react-router';
+
+import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
+import useDetails from '../Details/useDetails';
+import useFilter from '../Filter/useFilter';
+import { Visualization } from '../models';
+import {
+  labelAcknowledged,
+  labelAll,
+  labelInDowntime,
+  labelResourceFlapping,
+  labelViewByHost,
+  labelViewByService
+} from '../translatedLabels';
 import Listing from '.';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from './columns';
+import { selectedColumnIdsAtom } from './listingAtoms';
+import {
+  columns,
+  columnToSort,
+  entities,
+  fakeData,
+  getPlatformFeatures,
+  retrievedListing,
+  retrievedListingByHosts,
+  retrievedListingWithCriticalResources
+} from './testUtils';
+import useLoadDetails from './useLoadResources/useLoadDetails';
 
 const pageNavigationCalls = [
   { expectedCall: 1, param: 'page=2&limit=30' },
-  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 3, param: 'page=1&limit=30' },
   { expectedCall: 1, param: 'page=4&limit=30' }
 ];
 
@@ -67,9 +65,9 @@ const configureUserAtomViewMode = (
   listingVariant: ListingVariant = ListingVariant.compact
 ): void => {
   store.set(userAtom, {
-    user_interface_density: listingVariant,
     locale: 'en_US',
-    timezone: 'Europe/Paris'
+    timezone: 'Europe/Paris',
+    user_interface_density: listingVariant
   });
 };
 
@@ -121,6 +119,9 @@ const interceptRequestsAndMountBeforeEach = (
     path: '**/resources?*',
     response: responseForToListingTable
   });
+  cy.window().then((win) =>
+    win.history.pushState({}, '', win.location.pathname)
+  );
   cy.mount({
     Component: (
       <Router>
@@ -145,11 +146,11 @@ describe('Resource Listing', () => {
     );
     cy.waitFiltersAndListingRequests();
 
-    resourcesWithMultipleLines.forEach(({ information }) =>
-      cy
-        .contains(pipe(split('\n'), head)(information as string) as string)
-        .should('exist')
-    );
+    resourcesWithMultipleLines.forEach(({ information }) => {
+      cy.contains(
+        pipe(split('\n'), head)(information as string) as string
+      ).should('exist');
+    });
     resourcesWithSingleLines.forEach(({ information }) => {
       cy.contains(information as string).should('exist');
     });
@@ -488,7 +489,7 @@ describe('Listing request', () => {
     cy.waitForRequest('@dataToListingTable');
 
     cy.getRequestCalls('@dataToListingTable').then((calls) => {
-      expect(calls).to.have.length(6);
+      expect(calls).to.have.length(5);
       pageNavigationCalls.forEach(({ param, expectedCall }) => {
         expect(
           filter((call) => includes(param, call.request.url.search), calls)
@@ -620,6 +621,19 @@ describe('Display additional columns', () => {
     cy.findByText('Set by admin').should('be.visible');
 
     cy.makeSnapshot();
+
+    cy.findByLabelText(chipLabel).trigger('mouseout');
+
+    cy.get('[value="Information"]').click();
+    cy.get('[value="Status"]').click();
+    cy.get('[value="Resource"]').click();
+    cy.get('[value="Parent"]').click();
+    cy.get('[value="Graph (G)"]').click();
+    cy.get('[value="Duration"]').click();
+    cy.get('[value="Last check"]').click();
+    cy.get('[value="Tries"]').click();
+
+    cy.findByLabelText('Add columns').click();
   });
 
   const columnIds = map(prop('id'), columns);
@@ -659,6 +673,8 @@ describe('Display additional columns', () => {
         cy.findByText(columnDisplayLabel).should('be.visible');
       }
 
+      cy.findByLabelText('Add columns').click();
+
       cy.makeSnapshot();
     });
   });
@@ -674,13 +690,9 @@ describe('Notification column', () => {
 
     cy.waitFiltersAndListingRequests();
 
-    cy.contains('E0').should('be.visible');
-
     cy.findByTestId('Add columns').click();
 
     cy.findByText('Notification (Notif)').should('exist');
-
-    cy.makeSnapshot();
   });
 
   it('hides notification column if the cloud notification feature is enabled', () => {
@@ -691,8 +703,6 @@ describe('Notification column', () => {
     interceptRequestsAndMountBeforeEach();
 
     cy.waitFiltersAndListingRequests();
-
-    cy.contains('E0').should('be.visible');
 
     cy.findByTestId('Add columns').click();
 
@@ -755,7 +765,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(1)
@@ -774,7 +784,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(2)
@@ -794,7 +804,7 @@ describe('Notification column', () => {
       cy.waitForRequest('@listing');
       cy.contains('Memory').should('be.visible');
 
-      cy.findAllByRole('row').should('have.length', 6);
+      cy.findAllByRole('row').should('have.length', 7);
 
       cy.findAllByRole('row')
         .eq(4)
@@ -805,6 +815,19 @@ describe('Notification column', () => {
           'background-color',
           equals(mode, 'dark') ? 'rgb(6, 74, 63)' : 'rgb(216, 243, 239)'
         );
+
+      cy.makeSnapshot();
+    });
+
+    it('displays a Down icon when the parent status is null', () => {
+      cy.waitForRequest('@filterRequest');
+      cy.waitForRequest('@listing');
+      cy.contains('Memory').should('be.visible');
+
+      cy.findByTestId('Add columns').click();
+      cy.findByText('Parent').click();
+
+      cy.contains(/^D$/).should('be.visible');
 
       cy.makeSnapshot();
     });

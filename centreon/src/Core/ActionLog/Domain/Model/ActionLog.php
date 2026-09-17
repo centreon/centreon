@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\ActionLog\Domain\Model;
@@ -97,7 +98,7 @@ class ActionLog
      * @param int $objectId
      * @param string $objectName
      * @param string $actionType
-     * @param int $contactId
+     * @param int|null $contactId
      * @param \DateTime|null $creationDate
      */
     public function __construct(
@@ -105,8 +106,8 @@ class ActionLog
         private readonly int $objectId,
         private readonly string $objectName,
         private readonly string $actionType,
-        private readonly int $contactId,
-        ?\DateTime $creationDate = null
+        private readonly ?int $contactId,
+        ?\DateTime $creationDate = null,
     ) {
         if ($creationDate === null) {
             $this->creationDate = new \DateTime();
@@ -174,9 +175,9 @@ class ActionLog
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getContactId(): int
+    public function getContactId(): ?int
     {
         return $this->contactId;
     }

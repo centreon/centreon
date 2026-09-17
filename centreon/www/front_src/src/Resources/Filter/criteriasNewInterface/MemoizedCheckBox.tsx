@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { useMemoComponent } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { CheckBoxWrapper } from './CheckBoxWrapper';
 import { MemoizedChild } from './model';

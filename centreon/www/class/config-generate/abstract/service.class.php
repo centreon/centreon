@@ -1,39 +1,26 @@
 <?php
 
 /*
- * Copyright 2005-2022 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -46,8 +33,11 @@ require_once __DIR__ . '/object.class.php';
  */
 abstract class AbstractService extends AbstractObject
 {
+    use VaultTrait;
+
     /** @var array */
     protected $service_cache;
+
     // no flap_detection_options attribute
     /** @var string */
     protected $attributes_select = '
@@ -96,70 +86,123 @@ abstract class AbstractService extends AbstractObject
         esi_icon_image_alt as icon_image_alt,
         service_acknowledgement_timeout as acknowledgement_timeout
     ';
+
     /** @var string[] */
     protected $attributes_write = ['host_name', 'service_description', 'display_name', 'contacts', 'contact_groups', 'check_command', 'check_period', 'notification_period', 'event_handler', 'max_check_attempts', 'check_interval', 'retry_interval', 'initial_state', 'freshness_threshold', 'low_flap_threshold', 'high_flap_threshold', 'flap_detection_options', 'notification_interval', 'notification_options', 'first_notification_delay', 'recovery_notification_delay', 'stalking_options', 'register', 'notes', 'notes_url', 'action_url', 'icon_image', 'icon_id', 'icon_image_alt', 'acknowledgement_timeout'];
+
     /** @var string[] */
     protected $attributes_default = ['is_volatile', 'active_checks_enabled', 'passive_checks_enabled', 'event_handler_enabled', 'flap_detection_enabled', 'notifications_enabled', 'obsess_over_service', 'check_freshness', 'process_perf_data', 'retain_status_information', 'retain_nonstatus_information'];
+
     /** @var string[] */
     protected $attributes_array = [
         'use',
         'category_tags',
         'group_tags',
     ];
+
     /** @var string[] */
     protected $attributes_hash = ['macros'];
+
     /** @var array */
-    protected $loop_stpl = []; # To be reset
+    protected $loop_stpl = []; // To be reset
+
     /** @var CentreonDBStatement|null */
     protected $stmt_macro = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_stpl = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_contact = null;
+
     /** @var CentreonDBStatement|null */
     protected $stmt_service = null;
 
     /**
+     * @param $service_id
+     * @param $attr
+     *
+     * @return mixed|null
+     */
+    public function getString($service_id, $attr)
+    {
+        return $this->service_cache[$service_id][$attr] ?? null;
+    }
+
+    /**
      * @param $service
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getImages(&$service)
     {
         $media = Media::getInstance($this->dependencyInjector);
-        if (!isset($service['icon_image'])) {
+        if (! isset($service['icon_image'])) {
             $service['icon_image'] = $media->getMediaPathFromId($service['icon_image_id']);
             $service['icon_id'] = $service['icon_image_id'];
         }
     }
 
     /**
-     * @param $service
+     * Format Macros for export.
      *
-     * @return int
+     * @param array<string, mixed> $service
+     * @param MacroDomain[] $serviceMacros
      */
-    protected function getMacros(&$service)
+    protected function formatMacros(array &$service, array $serviceMacros)
     {
-        if (isset($service['macros'])) {
-            return 1;
-        }
+        $service['macros'] = [];
 
-        $service['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getServiceMacroByServiceId($service['service_id']);
-        return 0;
+        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+            $vaultPathByServices = $this->getVaultPathByResources($serviceMacros);
+            $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByServices);
+            foreach ($vaultData as $serviceId => $macros) {
+                foreach ($macros as $macroName => $value) {
+                    if (str_starts_with($macroName, '_SERVICE')) {
+                        $newName = preg_replace('/^_SERVICE/', '', $macroName);
+                        $vaultData[$serviceId][$newName] = $value;
+                        unset($vaultData[$serviceId][$macroName]);
+                    }
+                }
+            }
+
+            foreach ($serviceMacros as $serviceMacro) {
+                $serviceId = $serviceMacro->getOwnerId();
+                $macroName = $serviceMacro->getName();
+                if (isset($vaultData[$serviceId][$macroName])) {
+                    $serviceMacro->setValue($vaultData[$serviceId][$macroName]);
+                }
+            }
+        }
+        foreach ($serviceMacros as $serviceMacro) {
+            if ($serviceMacro->getOwnerId() === $service['service_id']) {
+                if ($serviceMacro->shouldBeEncrypted()) {
+                    if ($serviceMacro->isPassword()) {
+                        $service['macros']['_' . $serviceMacro->getName()] = 'encrypt::'
+                            . $this->engineContextEncryption->crypt($serviceMacro->getValue());
+                    } else {
+                        $service['macros']['_' . $serviceMacro->getName()] = 'raw::' . $serviceMacro->getValue();
+                    }
+                } else {
+                    $service['macros']['_' . $serviceMacro->getName()] = $serviceMacro->getValue();
+                }
+            }
+        }
+        $service['macros']['_SERVICE_ID'] = $service['service_id'];
     }
 
     /**
      * @param $service
+     * @param mixed $serviceTemplateMacros
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
-    protected function getServiceTemplates(&$service)
+    protected function getServiceTemplates(&$service, $serviceTemplateMacros = [])
     {
         $service['use'] = [ServiceTemplate::getInstance($this->dependencyInjector)
-            ->generateFromServiceId($service['service_template_model_stm_id'])];
+            ->generateFromServiceId($service['service_template_model_stm_id'], $serviceTemplateMacros)];
     }
 
     /**
@@ -169,7 +212,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getContacts(array &$service): void
     {
-        if (!isset($service['contacts_cache'])) {
+        if (! isset($service['contacts_cache'])) {
             $contact = Contact::getInstance($this->dependencyInjector);
             $service['contacts_cache'] = $contact->getContactForService($service['service_id']);
         }
@@ -182,7 +225,7 @@ abstract class AbstractService extends AbstractObject
      */
     protected function getContactGroups(array &$service): void
     {
-        if (!isset($service['contact_groups_cache'])) {
+        if (! isset($service['contact_groups_cache'])) {
             $cg = Contactgroup::getInstance($this->dependencyInjector);
             $service['contact_groups_cache'] = $cg->getCgForService($service['service_id']);
         }
@@ -200,13 +243,13 @@ abstract class AbstractService extends AbstractObject
 
         $services_tpl = ServiceTemplate::getInstance($this->dependencyInjector)->service_cache;
         $service_id = $this->service_cache[$service_id]['service_template_model_stm_id'] ?? null;
-        while (!is_null($service_id)) {
+        while (! is_null($service_id)) {
             if (isset($loop[$service_id])) {
                 break;
             }
             $loop[$service_id] = 1;
-            if (isset($services_tpl[$service_id][$command_label]) &&
-                !is_null($services_tpl[$service_id][$command_label])
+            if (isset($services_tpl[$service_id][$command_label])
+                && ! is_null($services_tpl[$service_id][$command_label])
             ) {
                 return $services_tpl[$service_id][$command_label];
             }
@@ -222,11 +265,11 @@ abstract class AbstractService extends AbstractObject
      * @param $command_id_label
      * @param $command_arg_label
      *
-     * @return int
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return int
      */
     protected function getServiceCommand(&$service, $result_name, $command_id_label, $command_arg_label)
     {
@@ -238,16 +281,16 @@ abstract class AbstractService extends AbstractObject
             return 1;
         }
         $service[$result_name] = $command_name;
-        if (isset($service[$command_arg_label]) &&
-            !is_null($service[$command_arg_label]) &&
-            $service[$command_arg_label] != ''
+        if (isset($service[$command_arg_label])
+            && ! is_null($service[$command_arg_label])
+            && $service[$command_arg_label] != ''
         ) {
             $command_arg = $service[$command_arg_label];
             if (is_null($command_name)) {
-                # Find Command Name in templates
+                // Find Command Name in templates
                 $command_name = $this->findCommandName($service['service_id'], $result_name);
-                # Can have 'args after'. We replace
-                if (!is_null($command_name)) {
+                // Can have 'args after'. We replace
+                if (! is_null($command_name)) {
                     $command_name = preg_replace('/!.*/', '', $command_name);
                     $service[$result_name] = $command_name . $command_arg;
                 }
@@ -262,11 +305,11 @@ abstract class AbstractService extends AbstractObject
     /**
      * @param $service
      *
-     * @return void
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
+     * @return void
      */
     protected function getServiceCommands(&$service)
     {
@@ -277,8 +320,8 @@ abstract class AbstractService extends AbstractObject
     /**
      * @param $service
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function getServicePeriods(&$service)
     {
@@ -290,17 +333,6 @@ abstract class AbstractService extends AbstractObject
     }
 
     /**
-     * @param $service_id
-     * @param $attr
-     *
-     * @return mixed|null
-     */
-    public function getString($service_id, $attr)
-    {
-        return $this->service_cache[$service_id][$attr] ?? null;
-    }
-
-    /**
      * @param ServiceCategory $serviceCategory
      * @param int $serviceId
      *
@@ -308,8 +340,8 @@ abstract class AbstractService extends AbstractObject
      */
     protected function insertServiceInServiceCategoryMembers(ServiceCategory $serviceCategory, int $serviceId): void
     {
-        $this->service_cache[$serviceId]['serviceCategories'] =
-            $serviceCategory->getServiceCategoriesByServiceId($serviceId);
+        $this->service_cache[$serviceId]['serviceCategories']
+            = $serviceCategory->getServiceCategoriesByServiceId($serviceId);
 
         foreach ($this->service_cache[$serviceId]['serviceCategories'] as $serviceCategoryId) {
             if (! is_null($serviceCategoryId)) {
@@ -320,5 +352,26 @@ abstract class AbstractService extends AbstractObject
                 );
             }
         }
+    }
+
+    /**
+     * @param MacroDomain[] $macro
+     * @return array{int, string} vault path indexed by service id
+     */
+    private function getVaultPathByResources(array $macros): array
+    {
+        $vaultPathByResources = [];
+
+        foreach ($macros as $macro) {
+            /**
+             * Check that the value is a vault path and that we haven't store it already
+             * As macros are stored by resources in vault. All the macros for the same service has the same vault path
+             */
+            if ($this->isAVaultPath($macro->getValue()) && ! array_key_exists($macro->getOwnerId(), $vaultPathByResources)) {
+                $vaultPathByResources[$macro->getOwnerId()] = $macro->getValue();
+            }
+        }
+
+        return $vaultPathByResources;
     }
 }

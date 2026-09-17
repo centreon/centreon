@@ -1,0 +1,32 @@
+meta {
+  name: GET /services/groups - Get one service group by id - HTTP 200
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/groups/{{ServiceGroup2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service group retrieved is listed with all of its parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup2Id")),
+      "name": bru.getEnvVar("ServiceGroup2Name"),
+      "alias": bru.getEnvVar("ServiceGroup2Alias"),
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

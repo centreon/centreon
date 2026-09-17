@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,29 +18,25 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Configuration\User\Api\FindUsers;
 
-use PHPUnit\Framework\TestCase;
-use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersPresenter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Application\Configuration\User\UseCase\FindUsers\FindUsersResponse;
 use Core\Domain\Configuration\User\Model\User;
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Infrastructure\Configuration\User\Api\FindUsers\FindUsersPresenter;
+use PHPUnit\Framework\TestCase;
 
 class FindUsersPresenterTest extends TestCase
 {
-    /**
-     * @var RequestParametersInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RequestParametersInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $requestParameters;
 
-    /**
-     * @var PresenterFormatterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var PresenterFormatterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenterFormatter;
-
 
     public function setUp(): void
     {

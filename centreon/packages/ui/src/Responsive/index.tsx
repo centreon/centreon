@@ -1,6 +1,12 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
-
 import { Box } from '@mui/material';
+
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 interface Props {
   children: ReactNode;
@@ -13,9 +19,9 @@ const Responsive = ({ children, margin = 0 }: Props): JSX.Element => {
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [clientRect, setClientRect] = useState<DOMRect | null>(null);
 
-  const resize = (): void => {
+  const resize = useCallback((): void => {
     setWindowHeight(window.innerHeight);
-  };
+  }, []);
 
   useEffect(() => {
     window.addEventListener('resize', resize);
@@ -25,7 +31,7 @@ const Responsive = ({ children, margin = 0 }: Props): JSX.Element => {
     return () => {
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [resize]);
 
   const containerHeight = windowHeight - (clientRect?.top || 0) - margin;
 

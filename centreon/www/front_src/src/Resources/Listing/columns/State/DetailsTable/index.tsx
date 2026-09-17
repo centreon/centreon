@@ -1,7 +1,3 @@
-import { useEffect, useState } from 'react';
-
-import { map, pipe, prop, sum } from 'ramda';
-
 import {
   Paper,
   Skeleton,
@@ -13,8 +9,11 @@ import {
   TableRow
 } from '@mui/material';
 
-import { getData, useRequest } from '@centreon/ui';
 import type { Column, ColumnType, ListingModel } from '@centreon/ui';
+import { getData, useRequest } from '@centreon/ui';
+
+import { map, pipe, prop, sum } from 'ramda';
+import { ReactElement, useEffect, useState } from 'react';
 
 import {
   labelNo,
@@ -25,7 +24,8 @@ import {
 const getYesNoLabel = (value: boolean): string => (value ? labelYes : labelNo);
 
 interface DetailsTableColumn extends Column {
-  getContent: (details) => string | JSX.Element;
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  getContent: (details: any) => string | ReactElement;
   id: string;
   label: string;
   type: ColumnType;
@@ -40,11 +40,13 @@ export interface DetailsTableProps {
 const DetailsTable = <TDetails extends { id: number }>({
   endpoint,
   columns
-}: DetailsTableProps): JSX.Element => {
+}: DetailsTableProps): ReactElement => {
   const [details, setDetails] = useState<Array<TDetails> | null>();
 
   const { sendRequest } = useRequest<ListingModel<TDetails>>({
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ListingModel<TDetails>>
   });
 
   useEffect(() => {
@@ -59,7 +61,10 @@ const DetailsTable = <TDetails extends { id: number }>({
   const error = details === null;
   const success = !loading && !error;
 
-  const tableMaxWidth = pipe(map(prop('width')), sum)(columns);
+  const tableMaxWidth = pipe(
+    map<{ width: number }, number>(prop('width')),
+    sum
+  )(columns);
 
   return (
     <TableContainer component={Paper}>

@@ -1,37 +1,27 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 /**
  * Class
@@ -57,27 +47,27 @@ class CentreonTimeperiod
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         $items = [];
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':tp' . $v . ',';
-                $queryValues['tp' . $v] = (int)$v;
+                $queryValues['tp' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected timeperiods
-        $query = 'SELECT tp_id, tp_name FROM timeperiod ' .
-            'WHERE tp_id IN (' . $listValues . ') ORDER BY tp_name ';
+        // get list of selected timeperiods
+        $query = 'SELECT tp_id, tp_name FROM timeperiod '
+            . 'WHERE tp_id IN (' . $listValues . ') ORDER BY tp_name ';
         $stmt = $this->db->prepare($query);
 
         if ($queryValues !== []) {
@@ -97,20 +87,21 @@ class CentreonTimeperiod
     /**
      * @param string $name
      *
+     * @throws ConnectionException
      * @return string
-     * @throws PDOException
      */
     public function getTimperiodIdByName($name)
     {
-        $query = "SELECT tp_id FROM timeperiod 
-                WHERE tp_name = '" . $this->db->escape($name) . "'";
+        $query = 'SELECT tp_id FROM timeperiod WHERE tp_name = :name';
 
-        $res = $this->db->query($query);
+        $row = $this->db->fetchAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::string('name', $name)])
+        );
 
-        if (!$res->rowCount()) {
+        if ($row === false) {
             return null;
         }
-        $row = $res->fetchRow();
 
         return $row['tp_id'];
     }
@@ -118,19 +109,20 @@ class CentreonTimeperiod
     /**
      * @param int $tpId
      *
+     * @throws ConnectionException
      * @return string
-     * @throws PDOException
      */
     public function getTimeperiodException($tpId)
     {
-        $query = "SELECT `exception_id` FROM `timeperiod_exceptions`
-                WHERE `timeperiod_id` = " . (int)$tpId;
-        $res = $this->db->query($query);
-        if (!$res->rowCount()) {
+        $query = 'SELECT `exception_id` FROM `timeperiod_exceptions` WHERE `timeperiod_id` = :timeperiodId';
+        $row = $this->db->fetchAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('timeperiodId', (int) $tpId)])
+        );
+        if ($row === false) {
             return null;
         }
 
-        $row = $res->fetchRow();
         return $row['exception_id'];
     }
 
@@ -142,23 +134,29 @@ class CentreonTimeperiod
      */
     public function insert($parameters): void
     {
-        $sQuery = "INSERT INTO `timeperiod` "
-            . "(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, "
-            . "`tp_thursday`, `tp_friday`, `tp_saturday`) "
-            . "VALUES ('" . $parameters['name'] . "',"
-            . "'" . $parameters['alias'] . "',"
-            . "'" . $parameters['sunday'] . "',"
-            . "'" . $parameters['monday'] . "',"
-            . "'" . $parameters['tuesday'] . "',"
-            . "'" . $parameters['wednesday'] . "',"
-            . "'" . $parameters['thursday'] . "',"
-            . "'" . $parameters['friday'] . "',"
-            . "'" . $parameters['saturday'] . "')";
+        $sQuery = 'INSERT INTO `timeperiod` '
+            . '(`tp_name`, `tp_alias`, `tp_sunday`, `tp_monday`, `tp_tuesday`, `tp_wednesday`, '
+            . '`tp_thursday`, `tp_friday`, `tp_saturday`) '
+            . 'VALUES (:name, :alias, :sunday, :monday, :tuesday, :wednesday, '
+            . ':thursday, :friday, :saturday)';
 
         try {
-            $this->db->query($sQuery);
-        } catch (PDOException $e) {
-            throw new Exception('Error while insert timeperiod ' . $parameters['name']);
+            $this->db->insert(
+                $sQuery,
+                QueryParameters::create([
+                    QueryParameter::string('name', $parameters['name']),
+                    QueryParameter::string('alias', $parameters['alias']),
+                    QueryParameter::string('sunday', $parameters['sunday']),
+                    QueryParameter::string('monday', $parameters['monday']),
+                    QueryParameter::string('tuesday', $parameters['tuesday']),
+                    QueryParameter::string('wednesday', $parameters['wednesday']),
+                    QueryParameter::string('thursday', $parameters['thursday']),
+                    QueryParameter::string('friday', $parameters['friday']),
+                    QueryParameter::string('saturday', $parameters['saturday']),
+                ])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while insert timeperiod ' . $parameters['name'], 0, $e);
         }
     }
 
@@ -168,27 +166,39 @@ class CentreonTimeperiod
      * @param string|int $tp_id
      * @param array $parameters
      *
-     * @return void
-     *
      * @throws Exception
+     * @return void
      */
     public function update($tp_id, $parameters): void
     {
 
-        $sQuery = "UPDATE `timeperiod` SET `tp_alias` = '" . $parameters['alias'] . "', "
-            . "`tp_sunday` = '" . $parameters['sunday'] . "',"
-            . "`tp_monday` = '" . $parameters['monday'] . "',"
-            . "`tp_tuesday` = '" . $parameters['tuesday'] . "',"
-            . "`tp_wednesday` = '" . $parameters['wednesday'] . "',"
-            . "`tp_thursday` = '" . $parameters['thursday'] . "',"
-            . "`tp_friday` = '" . $parameters['friday'] . "',"
-            . "`tp_saturday` = '" . $parameters['saturday'] . "'"
-            . " WHERE `tp_id` = " . $tp_id;
+        $sQuery = 'UPDATE `timeperiod` SET `tp_alias` = :alias, '
+            . '`tp_sunday` = :sunday,'
+            . '`tp_monday` = :monday,'
+            . '`tp_tuesday` = :tuesday,'
+            . '`tp_wednesday` = :wednesday,'
+            . '`tp_thursday` = :thursday,'
+            . '`tp_friday` = :friday,'
+            . '`tp_saturday` = :saturday'
+            . ' WHERE `tp_id` = :tpId';
 
         try {
-            $this->db->query($sQuery);
-        } catch (PDOException $e) {
-            throw new Exception('Error while update timeperiod ' . $parameters['name']);
+            $this->db->update(
+                $sQuery,
+                QueryParameters::create([
+                    QueryParameter::string('alias', $parameters['alias']),
+                    QueryParameter::string('sunday', $parameters['sunday']),
+                    QueryParameter::string('monday', $parameters['monday']),
+                    QueryParameter::string('tuesday', $parameters['tuesday']),
+                    QueryParameter::string('wednesday', $parameters['wednesday']),
+                    QueryParameter::string('thursday', $parameters['thursday']),
+                    QueryParameter::string('friday', $parameters['friday']),
+                    QueryParameter::string('saturday', $parameters['saturday']),
+                    QueryParameter::int('tpId', (int) $tp_id),
+                ])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while update timeperiod ' . $parameters['name'], 0, $e);
         }
     }
 
@@ -201,17 +211,22 @@ class CentreonTimeperiod
      */
     public function setTimeperiodException($tpId, $parameters): void
     {
-        foreach ($parameters as $exception) {
-            $sQuery = "INSERT INTO `timeperiod_exceptions` "
-                . "(`timeperiod_id`, `days`, `timerange`) "
-                . "VALUES (" . (int)$tpId . ","
-                . "'" . $exception['days'] . "',"
-                . "'" . $exception['timerange'] . "')";
+        $sQuery = 'INSERT INTO `timeperiod_exceptions` '
+            . '(`timeperiod_id`, `days`, `timerange`) '
+            . 'VALUES (:timeperiodId, :days, :timerange)';
 
+        foreach ($parameters as $exception) {
             try {
-                $this->db->query($sQuery);
-            } catch (PDOException $e) {
-                throw new Exception('Error while insert timeperiod exception' . $tpId);
+                $this->db->insert(
+                    $sQuery,
+                    QueryParameters::create([
+                        QueryParameter::int('timeperiodId', (int) $tpId),
+                        QueryParameter::string('days', $exception['days']),
+                        QueryParameter::string('timerange', $exception['timerange']),
+                    ])
+                );
+            } catch (ConnectionException $e) {
+                throw new Exception('Error while insert timeperiod exception' . $tpId, 0, $e);
             }
         }
     }
@@ -225,14 +240,20 @@ class CentreonTimeperiod
      */
     public function setTimeperiodDependency($timeperiodId, $depId): void
     {
-        $sQuery = "INSERT INTO `timeperiod_include_relations` "
-            . "(`timeperiod_id`,`timeperiod_include_id`) "
-            . "VALUES (" . (int)$timeperiodId . "," . (int)$depId . ")";
+        $sQuery = 'INSERT INTO `timeperiod_include_relations` '
+            . '(`timeperiod_id`,`timeperiod_include_id`) '
+            . 'VALUES (:timeperiodId, :timeperiodIncludeId)';
 
         try {
-            $this->db->query($sQuery);
-        } catch (PDOException $e) {
-            throw new Exception('Error while insert timeperiod dependency' . $timeperiodId);
+            $this->db->insert(
+                $sQuery,
+                QueryParameters::create([
+                    QueryParameter::int('timeperiodId', (int) $timeperiodId),
+                    QueryParameter::int('timeperiodIncludeId', (int) $depId),
+                ])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while insert timeperiod dependency' . $timeperiodId, 0, $e);
         }
     }
 
@@ -244,12 +265,15 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodException($tpId): void
     {
-        $sQuery = "DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = " . (int)$tpId;
+        $sQuery = 'DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id` = :timeperiodId';
 
         try {
-            $res = $this->db->query($sQuery);
-        } catch (PDOException $e) {
-            throw new Exception('Error while delete timeperiod exception' . $tpId);
+            $this->db->delete(
+                $sQuery,
+                QueryParameters::create([QueryParameter::int('timeperiodId', (int) $tpId)])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while delete timeperiod exception' . $tpId, 0, $e);
         }
     }
 
@@ -261,12 +285,15 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodInclude($tpId): void
     {
-        $sQuery = "DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = " . (int)$tpId;
+        $sQuery = 'DELETE FROM `timeperiod_include_relations` WHERE `timeperiod_id` = :timeperiodId';
 
         try {
-            $this->db->query($sQuery);
-        } catch (PDOException $e) {
-            throw new Exception('Error while delete timeperiod include' . $tpId);
+            $this->db->delete(
+                $sQuery,
+                QueryParameters::create([QueryParameter::int('timeperiodId', (int) $tpId)])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while delete timeperiod include' . $tpId, 0, $e);
         }
     }
 
@@ -278,13 +305,15 @@ class CentreonTimeperiod
      */
     public function deleteTimeperiodByName($tp_name): void
     {
-        $sQuery = 'DELETE FROM timeperiod '
-            . 'WHERE tp_name = "' . $this->db->escape($tp_name) . '"';
+        $sQuery = 'DELETE FROM timeperiod WHERE tp_name = :name';
 
         try {
-            $this->db->query($sQuery);
-        } catch (PDOException $e) {
-            throw new Exception('Error while delete timperiod ' . $tp_name);
+            $this->db->delete(
+                $sQuery,
+                QueryParameters::create([QueryParameter::string('name', $tp_name)])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while delete timperiod ' . $tp_name, 0, $e);
         }
     }
 
@@ -294,14 +323,16 @@ class CentreonTimeperiod
      * @param string $timeperiodName
      * @param bool $register
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedHostsByName($timeperiodName, $register = false)
     {
         $registerClause = '';
-        if ($register === '0' || $register === '1') {
-            $registerClause = 'AND h.host_register = "' . $register . '" ';
+        $queryParameters = [QueryParameter::string('name', $timeperiodName)];
+        if ((string) $register === '0' || (string) $register === '1') {
+            $registerClause = 'AND h.host_register = :register ';
+            $queryParameters[] = QueryParameter::string('register', (string) $register);
         }
 
         $linkedHosts = [];
@@ -309,15 +340,15 @@ class CentreonTimeperiod
             . 'FROM host h, timeperiod t '
             . 'WHERE (h.timeperiod_tp_id = t.tp_id OR h.timeperiod_tp_id2 = t.tp_id) '
             . $registerClause
-            . 'AND t.tp_name = "' . $this->db->escape($timeperiodName) . '" ';
+            . 'AND t.tp_name = :name ';
 
         try {
-            $result = $this->db->query($query);
-        } catch (PDOException $e) {
-            throw new Exception('Error while getting linked hosts of ' . $timeperiodName);
+            $rows = $this->db->fetchAllAssociative($query, QueryParameters::create($queryParameters));
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while getting linked hosts of ' . $timeperiodName, 0, $e);
         }
 
-        while ($row = $result->fetchRow()) {
+        foreach ($rows as $row) {
             $linkedHosts[] = $row['host_name'];
         }
 
@@ -330,14 +361,16 @@ class CentreonTimeperiod
      * @param string $timeperiodName
      * @param bool $register
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedServicesByName($timeperiodName, $register = false)
     {
         $registerClause = '';
-        if ($register === '0' || $register === '1') {
-            $registerClause = 'AND s.service_register = "' . $register . '" ';
+        $queryParameters = [QueryParameter::string('name', $timeperiodName)];
+        if ((string) $register === '0' || (string) $register === '1') {
+            $registerClause = 'AND s.service_register = :register ';
+            $queryParameters[] = QueryParameter::string('register', (string) $register);
         }
 
         $linkedServices = [];
@@ -345,15 +378,15 @@ class CentreonTimeperiod
             . 'FROM service s, timeperiod t '
             . 'WHERE (s.timeperiod_tp_id = t.tp_id OR s.timeperiod_tp_id2 = t.tp_id) '
             . $registerClause
-            . 'AND t.tp_name = "' . $this->db->escape($timeperiodName) . '" ';
+            . 'AND t.tp_name = :name ';
 
         try {
-            $result = $this->db->query($query);
-        } catch (PDOException $e) {
-            throw new Exception('Error while getting linked services of ' . $timeperiodName);
+            $rows = $this->db->fetchAllAssociative($query, QueryParameters::create($queryParameters));
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while getting linked services of ' . $timeperiodName, 0, $e);
         }
 
-        while ($row = $result->fetchRow()) {
+        foreach ($rows as $row) {
             $linkedServices[] = $row['service_description'];
         }
 
@@ -364,8 +397,8 @@ class CentreonTimeperiod
      * Returns array of Contacts linked to the timeperiod
      *
      * @param string $timeperiodName
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedContactsByName($timeperiodName)
     {
@@ -373,15 +406,18 @@ class CentreonTimeperiod
         $query = 'SELECT DISTINCT c.contact_name '
             . 'FROM contact c, timeperiod t '
             . 'WHERE (c.timeperiod_tp_id = t.tp_id OR c.timeperiod_tp_id2 = t.tp_id) '
-            . 'AND t.tp_name = "' . $this->db->escape($timeperiodName) . '" ';
+            . 'AND t.tp_name = :name ';
 
         try {
-            $result = $this->db->query($query);
-        } catch (PDOException $e) {
-            throw new Exception('Error while getting linked contacts of ' . $timeperiodName);
+            $rows = $this->db->fetchAllAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::string('name', $timeperiodName)])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while getting linked contacts of ' . $timeperiodName, 0, $e);
         }
 
-        while ($row = $result->fetchRow()) {
+        foreach ($rows as $row) {
             $linkedContacts[] = $row['contact_name'];
         }
 
@@ -392,8 +428,8 @@ class CentreonTimeperiod
      * Returns array of Timeperiods linked to the timeperiod
      *
      * @param string $timeperiodName
-     * @return array
      * @throws Exception
+     * @return array
      */
     public function getLinkedTimeperiodsByName($timeperiodName)
     {
@@ -403,21 +439,27 @@ class CentreonTimeperiod
             . 'FROM timeperiod t1, timeperiod_include_relations tir1, timeperiod t2 '
             . 'WHERE t1.tp_id = tir1.timeperiod_id '
             . 'AND t2.tp_id = tir1.timeperiod_include_id '
-            . 'AND t2.tp_name = "' . $this->db->escape($timeperiodName) . '" '
+            . 'AND t2.tp_name = :name1 '
             . 'UNION '
             . 'SELECT DISTINCT t3.tp_name '
             . 'FROM timeperiod t3, timeperiod_include_relations tir2, timeperiod t4 '
             . 'WHERE t3.tp_id = tir2.timeperiod_include_id '
             . 'AND t4.tp_id = tir2.timeperiod_id '
-            . 'AND t4.tp_name = "' . $this->db->escape($timeperiodName) . '" ';
+            . 'AND t4.tp_name = :name2 ';
 
         try {
-            $result = $this->db->query($query);
-        } catch (PDOException $e) {
-            throw new Exception('Error while getting linked timeperiods of ' . $timeperiodName);
+            $rows = $this->db->fetchAllAssociative(
+                $query,
+                QueryParameters::create([
+                    QueryParameter::string('name1', $timeperiodName),
+                    QueryParameter::string('name2', $timeperiodName),
+                ])
+            );
+        } catch (ConnectionException $e) {
+            throw new Exception('Error while getting linked timeperiods of ' . $timeperiodName, 0, $e);
         }
 
-        while ($row = $result->fetchRow()) {
+        foreach ($rows as $row) {
             $linkedTimeperiods[] = $row['tp_name'];
         }
 

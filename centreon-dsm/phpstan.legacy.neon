@@ -1,0 +1,23 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+    - phpstan.legacy.baseline.neon
+
+parameters:
+
+    level: 0
+
+    scanFiles:
+        - vendor/centreon/centreon/www/include/common/common-Func.php
+        - .php-cs-fixer.conf.php
+        - .php-cs-fixer.diff.php
+        - .php-cs-fixer.legacy.php
+        - rector.conf.php
+        - rector.diff.php
+        - rector.legacy.php
+
+    paths:
+        - www
+
+    ignoreErrors:
+        - # Ignore path problems
+          message: '#is not a file or it does not exist.#'

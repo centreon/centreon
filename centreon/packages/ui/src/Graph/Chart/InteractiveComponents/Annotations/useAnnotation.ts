@@ -1,19 +1,13 @@
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-
 import { margin } from '../../common';
-import {
-  eventMouseLeaveAtom,
-  mousePositionAtom
-} from '../interactionWithGraphAtoms';
-
+import { mousePositionAtom } from '../interactionWithGraphAtoms';
+import type { Props } from '.';
 import {
   annotationHoveredAtom,
   changeAnnotationHoveredDerivedAtom
 } from './annotationsAtoms';
-
-import { Props } from '.';
 
 const useAnnotation = ({
   graphWidth,
@@ -23,7 +17,6 @@ const useAnnotation = ({
   const [annotationHoveredId] = crypto.getRandomValues(new Uint16Array(1));
 
   const mousePosition = useAtomValue(mousePositionAtom);
-  const mouseLeaveEvent = useAtomValue(eventMouseLeaveAtom);
 
   const setAnnotationHovered = useSetAtom(annotationHoveredAtom);
   const changeAnnotationHovered = useSetAtom(
@@ -44,11 +37,18 @@ const useAnnotation = ({
       timeline: data,
       xScale
     });
-  }, [mousePosition]);
+  }, [
+    mousePosition,
+    annotationHoveredId,
+    changeAnnotationHovered,
+    data,
+    graphWidth,
+    xScale
+  ]);
 
   useEffect(() => {
     setAnnotationHovered(undefined);
-  }, [mouseLeaveEvent]);
+  }, [setAnnotationHovered]);
 
   return annotationHoveredId;
 };

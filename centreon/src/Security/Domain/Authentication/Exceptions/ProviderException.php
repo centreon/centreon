@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,52 +28,29 @@ namespace Security\Domain\Authentication\Exceptions;
  */
 class ProviderException extends \Exception
 {
-    /**
-     * @param string $configurationName
-     *
-     * @return self
-     */
     public static function providerConfigurationNotFound(string $configurationName): self
     {
         return new self(sprintf(_('Provider configuration (%s) not found'), $configurationName));
     }
 
-    /**
-     * @return self
-     */
     public static function providerNotFound(): self
     {
         return new self(_('Provider not found'));
     }
 
-    /**
-     * @param \Throwable $ex
-     *
-     * @return self
-     */
-    public static function findProvidersConfigurations(\Throwable $ex): self
+    public static function findProvidersConfigurations(\Throwable $e): self
     {
-        return new self(_('Error while searching providers configurations'), 0, $ex);
+        return new self(_('Error while searching providers configurations'), previous: $e);
     }
 
-    /**
-     * @param \Throwable $ex
-     * @param string $providerConfigurationName
-     *
-     * @return self
-     */
-    public static function findProviderConfiguration(string $providerConfigurationName, \Throwable $ex): self
+    public static function findProviderConfiguration(string $providerConfigurationName, \Throwable $e): self
     {
         return new self(
             sprintf(_("Error while searching provider configuration: '%s'"), $providerConfigurationName),
-            0,
-            $ex
+            previous: $e
         );
     }
 
-    /**
-     * @return self
-     */
     public static function emptyAuthenticationProvider(): self
     {
         return new self(_('You must at least add one authentication provider'));

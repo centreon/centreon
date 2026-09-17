@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,6 +109,6 @@ final class AddHostTemplateRequest
     /** @var int[] */
     public array $templates = [];
 
-    /** @var array<array{name:string,value:null|string,is_password:bool,description:null|string}> */
+    /** @var array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}> */
     public array $macros = [];
 }

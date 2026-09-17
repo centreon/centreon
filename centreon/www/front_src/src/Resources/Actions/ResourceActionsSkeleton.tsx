@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { LoadingSkeleton } from '@centreon/ui';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   resourceActions: {

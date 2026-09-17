@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { getData, useRequest } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getData, useRequest } from '@centreon/ui';
-
+import { resourceDetailsDecoder } from '../decoders';
 import {
   customTimePeriodAtom,
   getNewCustomTimePeriod,
@@ -13,18 +13,16 @@ import {
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
-import { resourceDetailsDecoder } from '../decoders';
 import {
   labelNoResourceFound,
   labelSomethingWentWrong
 } from '../translatedLabels';
-
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom
+  selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom
 } from './detailsAtoms';
 import { ResourceDetails } from './models';
 import { ChangeCustomTimePeriodProps } from './tabs/Graph/models';
@@ -44,7 +42,9 @@ const useLoadDetails = (): DetailsState => {
       always(t(labelNoResourceFound)),
       pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ResourceDetails>
   });
 
   const [customTimePeriod, setCustomTimePeriod] = useAtom(customTimePeriodAtom);
@@ -78,7 +78,10 @@ const useLoadDetails = (): DetailsState => {
       });
   };
 
-  const changeCustomTimePeriod = ({ date, property }): void => {
+  const changeCustomTimePeriod = ({
+    date,
+    property
+  }: ChangeCustomTimePeriodProps): void => {
     const newCustomTimePeriod = getNewCustomTimePeriod({
       ...customTimePeriod,
       [property]: date

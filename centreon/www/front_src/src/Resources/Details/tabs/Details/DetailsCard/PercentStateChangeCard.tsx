@@ -1,8 +1,7 @@
 import { makeStyles } from 'tss-react/mui';
 
-import { ResourceDetails } from '../../../models';
-
 import FlappingChip from '../../../../Chip/Flapping';
+import { ResourceDetails } from '../../../models';
 import DetailsLine from './DetailsLine';
 
 const useStyles = makeStyles()((theme) => ({

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,27 +23,33 @@ namespace Tests\Centreon\Domain\Monitoring\Metric;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
+use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
 use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\Monitoring\Metric\MetricService;
-use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+use Centreon\Domain\Monitoring\Service;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use PHPUnit\Framework\TestCase;
 
 class MetricServiceTest extends TestCase
 {
     protected $adminContact;
+
     protected $aclContact;
 
     protected $host;
+
     protected $service;
 
     protected $metrics;
+
     protected $start;
+
     protected $end;
 
     protected $monitoringRepository;
+
     protected $metricRepository;
+
     protected $accessGroupRepository;
 
     protected array $status = [];
@@ -78,7 +84,7 @@ class MetricServiceTest extends TestCase
         $this->start = new \DateTime('2020-02-18T00:00:00');
         $this->end = new \DateTime('2020-02-18T12:00:00');
 
-        $this->metricRepository = $this->createMock(metricRepositoryInterface::class);
+        $this->metricRepository = $this->createMock(MetricRepositoryInterface::class);
         $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
         $this->monitoringRepository = $this->createMock(MonitoringRepositoryInterface::class);
     }

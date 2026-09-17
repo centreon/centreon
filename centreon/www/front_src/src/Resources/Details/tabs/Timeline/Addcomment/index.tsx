@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import IconComment from '@mui/icons-material/Comment';
 import Typography from '@mui/material/Typography';
+
+import { useTranslation } from 'react-i18next';
 
 import ActionButton from '../../../../Actions/ActionButton';
 import useAclQuery from '../../../../Actions/Resource/aclQuery';
@@ -27,9 +27,9 @@ const AddCommentButton = ({ resources, onClick }: Props): JSX.Element => {
       aria-label={t(labelAddComment) as string}
       data-testid="addComment"
       disabled={disableAddComment}
+      onClick={onClick}
       startIcon={<IconComment />}
       variant="contained"
-      onClick={onClick}
     >
       <Typography variant="body2"> {t(labelAddComment)} </Typography>
     </ActionButton>

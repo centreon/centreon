@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,17 +18,19 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Repository;
 
 use Adaptation\Database\Connection\ConnectionInterface;
-use Centreon\Infrastructure\DatabaseConnection;
-use JsonSchema\Validator;
 use Centreon\Domain\Log\LoggerTrait;
-use JsonSchema\Constraints\Constraint;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Centreon\Domain\Repository\RepositoryException;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Exception\InvalidArgumentException;
+use JsonSchema\Validator;
 
 /**
  * Class
@@ -43,6 +46,22 @@ class AbstractRepositoryDRB
 
     /** @var DatabaseConnection */
     protected ConnectionInterface $db;
+
+    /**
+     * Formats the access group ids in string. (values are separated by coma)
+     *
+     * @param AccessGroup[] $accessGroups
+     * @return string
+     */
+    public function accessGroupIdToString(array $accessGroups): string
+    {
+        $ids = [];
+        foreach ($accessGroups as $accessGroup) {
+            $ids[] = $accessGroup->getId();
+        }
+
+        return implode(',', $ids);
+    }
 
     /**
      * Replace all instances of :dbstg and :db by the real db names.
@@ -62,26 +81,12 @@ class AbstractRepositoryDRB
     }
 
     /**
-     * Formats the access group ids in string. (values are separated by coma)
-     *
-     * @param AccessGroup[] $accessGroups
-     * @return string
-     */
-    public function accessGroupIdToString(array $accessGroups): string
-    {
-        $ids = [];
-        foreach ($accessGroups as $accessGroup) {
-            $ids[] = $accessGroup->getId();
-        }
-        return implode(',', $ids);
-    }
-
-    /**
      * Validate the Json of a property
      *
      * @param string $jsonRecord The JSON Property to validate
      * @param string $jsonSchemaFilePath The JSON Schema Validation file
-     * @throws RepositoryException
+     *
+     * @throws RepositoryException|InvalidArgumentException
      */
     protected function validateJsonRecord(string $jsonRecord, string $jsonSchemaFilePath): void
     {
@@ -89,6 +94,7 @@ class AbstractRepositoryDRB
 
         if (is_array($decodedRecord) === false) {
             $this->critical('The property get from dbms is not a valid json');
+
             throw new RepositoryException('Invalid Json format');
         }
 
@@ -108,6 +114,7 @@ class AbstractRepositoryDRB
                 $message .= sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
             $this->critical($message);
+
             throw new RepositoryException('Some properties doesn\'t match the json schema :' . $message);
         }
     }

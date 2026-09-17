@@ -1,9 +1,13 @@
-import { ReactNode } from 'react';
-
 import { SelectEntry } from '@centreon/ui';
 
-import { SubInput } from '../../../../federatedModules/models';
+import { ReactNode } from 'react';
+
+import {
+  SubInput,
+  WidgetHiddenCondition
+} from '../../../../federatedModules/models';
 import { PanelConfiguration, WidgetOptions } from '../models';
+import { Resource } from '../Widgets/models';
 
 export interface Widget {
   data: object | null;
@@ -17,6 +21,29 @@ export interface ShowInput {
   contains?: Array<{ key: string; value: unknown }>;
   notContains?: Array<{ key: string; value: unknown }>;
   when: string;
+}
+
+export interface ForceSingleAutocompleteConditions {
+  resourceType: string;
+  conditions: Array<WidgetHiddenCondition> | WidgetHiddenCondition;
+}
+
+interface DisabledDefaultResourceType {
+  when: keyof Resource;
+  matches: WidgetResourceType;
+}
+export interface DefaultResourceType {
+  resourceType: string;
+  requied?: boolean;
+  disabled?: DisabledDefaultResourceType;
+  isSearchBypass?: boolean;
+}
+export interface SelectType {
+  defaultResourceType: Array<DefaultResourceType>;
+}
+
+export interface OverrideAddButtonVisibility {
+  matchedResourcesType: string;
 }
 
 export interface WidgetPropertyProps {
@@ -39,6 +66,8 @@ export interface WidgetPropertyProps {
   requireResourceType?: boolean;
   required?: boolean;
   restrictedResourceTypes?: Array<string>;
+  forcedResourceType?: string;
+  defaultResourceTypes?: Array<string>;
   secondaryLabel?: Array<string> | string;
   show?: ShowInput;
   singleResourceType?: boolean;
@@ -62,11 +91,19 @@ export interface WidgetPropertyProps {
   type: string;
   useAdditionalResources?: boolean;
   isRequiredProperty?: boolean;
+  tooltipLabel?: string;
+  subInputsDelimiter?: string;
+  forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
+  selectType?: SelectType;
+  allowRegexOnResourceTypes?: Array<WidgetResourceType>;
+  labelDisplayUpToOverride?: string;
+  labelTilesOverride?: string;
+  allowEmptyResources?: boolean;
 }
 
 export interface WidgetDataResource {
   resourceType: WidgetResourceType;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 export interface WidgetDataMetric {
   id: number;
@@ -84,6 +121,8 @@ export interface Metric extends NamedEntity {
   unit: string;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
+  serviceId?: number;
+  serviceName?: string;
 }
 
 export interface FormMetric extends Metric {

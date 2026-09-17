@@ -119,6 +119,8 @@
         api_version: jQuery('input[name="api_version"]').val(),
         username: jQuery('input[name="username"]').val(),
         password: jQuery('input[name="password"]').val(),
+        peer_verify: jQuery('input[name="peer_verify"]').is(":checked"),
+        ca_cert_path: jQuery('input[name="ca_cert_path"]').val(),
         timeout: jQuery('input[name="timeout"]').val(),
         protocol: jQuery('input[name="protocol"]').val(),
       }),

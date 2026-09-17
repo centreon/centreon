@@ -1,6 +1,6 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-
 import { Typography } from '@mui/material';
+
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import SectionPanel from '.';
 
@@ -33,9 +33,9 @@ const PanelWithHeader = ({
       header={<Typography>Header</Typography>}
       loading={loading}
       mainPanelWidth={mainPanelWidth}
+      onClose={(): undefined => undefined}
       secondaryPanel={secondaryPanel}
       sections={sections}
-      onClose={(): undefined => undefined}
     />
   </div>
 );

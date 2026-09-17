@@ -1,20 +1,21 @@
-import { isNil, propEq } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Divider,
   FormControl,
+  type FormControlProps,
   FormHelperText,
   InputLabel,
   ListSubheader,
   MenuItem,
   Select,
-  SelectProps,
-  Theme
+  type SelectChangeEvent,
+  type SelectProps,
+  type Theme
 } from '@mui/material';
 
-import { getNormalizedId } from '../../utils';
+import { isNil, propEq } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
+import { getNormalizedId } from '../../utils';
 import Option from './Option';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -59,6 +60,7 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: Array<SelectEntry>;
   selectedOptionId: number | string;
+  formControlProps?: FormControlProps;
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
@@ -72,17 +74,18 @@ const SelectField = ({
   ariaLabel,
   inputProps,
   compact = false,
+  formControlProps,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
-  const getOption = (id): SelectEntry => {
+  const getOption = (id: unknown): SelectEntry => {
     return options.find(propEq(id, 'id')) as SelectEntry;
   };
 
-  const changeOption = (event): void => {
+  const changeOption = (event: SelectChangeEvent<unknown>): void => {
     if (!isNil(event.target.value)) {
-      onChange(event);
+      onChange(event as unknown as React.ChangeEvent<HTMLInputElement>);
     }
   };
 
@@ -92,11 +95,17 @@ const SelectField = ({
       error={!isNil(error)}
       fullWidth={fullWidth}
       size="small"
+      {...formControlProps}
     >
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         displayEmpty
         fullWidth={fullWidth}
+        label={label}
+        onChange={changeOption}
+        renderValue={(id): string => {
+          return getOption(id)?.name;
+        }}
         slotProps={{
           input: {
             'aria-label': ariaLabel,
@@ -104,17 +113,12 @@ const SelectField = ({
               [classes.noLabelInput]: !label && !compact,
               [classes.compact]: compact
             }),
-            'data-testid': dataTestId,
             id: getNormalizedId(dataTestId || ''),
-            ...inputProps
+            ...inputProps,
+            ...({ 'data-testid': dataTestId } as Record<string, string>)
           }
         }}
-        label={label}
-        renderValue={(id): string => {
-          return getOption(id)?.name;
-        }}
         value={selectedOptionId}
-        onChange={changeOption}
         {...props}
       >
         {options

@@ -20,5 +20,5 @@ services:
         - '@.inner'
         - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
         - '@Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface'
-        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@security.token_storage'
         - '@Centreon\Infrastructure\DatabaseConnection'

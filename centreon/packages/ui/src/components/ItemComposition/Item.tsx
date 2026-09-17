@@ -1,9 +1,8 @@
-import { ReactElement } from 'react';
-
 import CloseIcon from '@mui/icons-material/Close';
 
-import { IconButton } from '..';
+import type { ReactElement } from 'react';
 
+import { IconButton } from '..';
 import { useItemStyles } from './ItemComposition.styles';
 
 type Props = {
@@ -31,9 +30,9 @@ export const Item = ({
           aria-label={labelDelete}
           data-testid={labelDelete}
           icon={<CloseIcon />}
+          onClick={onDeleteItem}
           size="small"
           variant="ghost"
-          onClick={onDeleteItem}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 import {
   render as rtlRender,
@@ -12,16 +12,20 @@ import { ThemeMode } from '@centreon/ui-context';
 import ThemeProvider from '../src/StoryBookThemeProvider';
 
 interface Props {
-  children: ReactElement;
+  children: ReactNode;
 }
 
 const ThemeProviderWrapper = ({ children }: Props): JSX.Element => {
-  return <ThemeProvider themeMode={ThemeMode.light}>{children}</ThemeProvider>;
+  return (
+    <ThemeProvider themeMode={ThemeMode.light}>
+      {children as ReactElement}
+    </ThemeProvider>
+  );
 };
 
 const render = (ui: ReactElement, options?: RenderOptions): RenderResult =>
   rtlRender(ui, {
-    wrapper: ThemeProviderWrapper as (props) => ReactElement | null,
+    wrapper: ThemeProviderWrapper,
     ...options
   });
 
@@ -49,7 +53,7 @@ export const resetMocks = (): void => {
 };
 
 export const getFetchCall = (
-  index,
+  index: number,
   secondIndex = 0
 ): string | Request | undefined | RequestInit => {
   return fetchMock.mock.calls[index][secondIndex];

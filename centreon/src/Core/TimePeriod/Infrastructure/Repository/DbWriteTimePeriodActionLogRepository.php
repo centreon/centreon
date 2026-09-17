@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\TimePeriod\Application\Repository\WriteTimePeriodRepositoryInterface;
 use Core\TimePeriod\Domain\Model\Day;
 use Core\TimePeriod\Domain\Model\{NewExtraTimePeriod, NewTimePeriod, Template, TimePeriod};
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB implements WriteTimePeriodRepositoryInterface
 {
@@ -43,9 +44,9 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
     public function __construct(
         private readonly WriteTimePeriodRepositoryInterface $writeTimePeriodRepository,
         private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -68,7 +69,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 $timePeriodId,
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -94,7 +95,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 $timePeriodId,
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -132,7 +133,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                 $timePeriod->getId(),
                 $timePeriod->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             if ($actionLogId === 0) {
@@ -145,6 +146,13 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**
@@ -177,7 +185,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                             5 => 'friday',
                             6 => 'saturday',
                             7 => 'sunday',
-                            default => throw new RepositoryException('Should never happen')
+                            default => throw new RepositoryException('Should never happen'),
                         };
                         $days[$dayAsString] = $day->getTimeRange()->__toString();
                     }
@@ -195,7 +203,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                     $value = implode(
                         ',',
                         array_map(
-                            fn(Template $tpl) => $tpl->getId(),
+                            fn (Template $tpl) => $tpl->getId(),
                             $value
                         )
                     );

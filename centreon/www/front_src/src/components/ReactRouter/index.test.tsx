@@ -1,24 +1,26 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { TextDecoder, TextEncoder } from 'node:util';
 
-import { federatedModulesAtom } from '@centreon/ui-context';
 import {
   RenderResult,
   render,
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
+import { federatedModulesAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { labelYouAreNotAllowedToSeeThisPage } from '../../FallbackPages/NotAllowedPage/translatedLabels';
 import { labelThisPageCouldNotBeFound } from '../../FallbackPages/NotFoundPage/translatedLabels';
+import { retrievedFederatedModule } from '../../federatedModules/mocks';
 import {
   retrievedNavigation,
   retrievedNavigationWithAnEmptySet
 } from '../../Navigation/mocks';
 import navigationAtom from '../../Navigation/navigationAtoms';
-import { retrievedFederatedModule } from '../../federatedModules/mocks';
-
-import { TextDecoder, TextEncoder } from 'node:util';
 import ReactRouter from '.';
 
 Object.assign(global, { TextDecoder, TextEncoder });

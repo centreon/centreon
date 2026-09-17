@@ -1,22 +1,20 @@
-import { useEffect } from 'react';
+import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
-
-import { getUrlQueryParameters, setUrlQueryParameters } from '@centreon/ui';
+import { useEffect } from 'react';
 
 import {
   customTimePeriodAtom,
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
-
 import {
   defaultSelectedCustomTimePeriodAtom,
   defaultSelectedTimePeriodIdAtom,
   openDetailsTabIdAtom,
-  selectedResourceUuidAtom,
   selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom,
   sendingDetailsAtom,
   tabParametersAtom
 } from './detailsAtoms';

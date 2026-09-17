@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use DateTime;
 use DateTimeImmutable;
 
+#[Sensitive]
 class NewProviderToken
 {
     /**
@@ -38,7 +40,7 @@ class NewProviderToken
     public function __construct(
         private string $token,
         private DateTimeImmutable $creationDate,
-        private ?DateTimeImmutable $expirationDate = null
+        private ?DateTimeImmutable $expirationDate = null,
     ) {
     }
 

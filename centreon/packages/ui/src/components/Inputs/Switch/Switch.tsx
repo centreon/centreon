@@ -1,4 +1,4 @@
-import { Switch as MuiSwitch, SwitchProps } from '@mui/material';
+import { Switch as MuiSwitch, type SwitchProps } from '@mui/material';
 
 import { useSwitchStyles } from './Switch.styles';
 

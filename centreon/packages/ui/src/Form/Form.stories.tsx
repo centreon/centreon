@@ -1,13 +1,11 @@
-import { Paper } from '@mui/material';
-
 import { Form, GroupDirection } from './Form';
 import {
-  BasicForm,
-  CustomButton,
+  type BasicForm,
   basicFormGroups,
   basicFormInitialValues,
   basicFormInputs,
-  basicFormValidationSchema
+  basicFormValidationSchema,
+  CustomButton
 } from './storiesData';
 
 export default { title: 'Form' };
@@ -27,51 +25,33 @@ const mandatoryProps = {
 };
 
 export const basicForm = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm> {...mandatoryProps} />
-  </Paper>
+  <Form<BasicForm> {...mandatoryProps} />
 );
 
 export const basicFormWithGroups = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm> {...mandatoryProps} groups={basicFormGroups} />
-  </Paper>
+  <Form<BasicForm> {...mandatoryProps} groups={basicFormGroups} />
 );
 
 export const basicFormWithCollapsibleGroups = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm>
-      {...mandatoryProps}
-      isCollapsible
-      groups={basicFormGroups}
-    />
-  </Paper>
+  <Form<BasicForm> {...mandatoryProps} groups={basicFormGroups} isCollapsible />
 );
 
 export const basicFormWithCustomButton = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm> {...mandatoryProps} Buttons={CustomButton} />
-  </Paper>
+  <Form<BasicForm> {...mandatoryProps} Buttons={CustomButton} />
 );
 
 export const loadingForm = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm> {...mandatoryProps} isLoading />
-  </Paper>
+  <Form<BasicForm> {...mandatoryProps} isLoading />
 );
 
 export const loadingFormWithGroups = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm> {...mandatoryProps} isLoading groups={basicFormGroups} />
-  </Paper>
+  <Form<BasicForm> {...mandatoryProps} groups={basicFormGroups} isLoading />
 );
 
 export const basicFormWithHorizontalGroups = (): JSX.Element => (
-  <Paper elevation={0} sx={{ p: 1 }}>
-    <Form<BasicForm>
-      {...mandatoryProps}
-      groupDirection={GroupDirection.Horizontal}
-      groups={basicFormGroups.filter((group) => group.order !== 3)}
-    />
-  </Paper>
+  <Form<BasicForm>
+    {...mandatoryProps}
+    groupDirection={GroupDirection.Horizontal}
+    groups={basicFormGroups.filter((group) => group.order !== 3)}
+  />
 );

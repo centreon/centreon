@@ -1,0 +1,7 @@
+GetServiceGroup:
+  methods: GET
+  path: /configuration/services/groups/{serviceGroupId}
+  requirements:
+    serviceGroupId: '\d+'
+  controller: 'Core\ServiceGroup\Infrastructure\API\GetServiceGroup\GetServiceGroupController'
+  condition: "request.attributes.get('version') >= '25.10'"

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class FindAccPresenter extends AbstractPresenter implements FindAccPresenterInte
                 'description' => $response->description,
                 'parameters' => $response->parameters,
                 'pollers' => array_map(
-                    static fn(Poller $poller): array => ['id' => $poller->id, 'name' => $poller->name],
+                    static fn (Poller $poller): array => ['id' => $poller->id, 'name' => $poller->name],
                     $response->pollers
                 ),
                 'created_at' => $this->formatDateToIso8601($response->createdAt),

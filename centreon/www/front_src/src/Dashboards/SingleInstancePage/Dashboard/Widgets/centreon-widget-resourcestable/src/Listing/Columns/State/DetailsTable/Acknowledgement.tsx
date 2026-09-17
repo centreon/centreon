@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAuthor,
@@ -10,10 +10,8 @@ import {
   labelSticky
 } from '../../../translatedLabels';
 import useStyles from '../State.styles';
-
-import Comment from './Comment';
-
 import DetailsTable, { DetailsTableProps, getYesNoLabel } from '.';
+import Comment from './Comment';
 
 interface AcknowledgementDetails {
   author_name: string;
@@ -34,21 +32,23 @@ const AcknowledgementDetailsTable = ({
 
   const columns = [
     {
-      getContent: ({ author_name }): string => author_name,
+      getContent: ({ author_name }: AcknowledgementDetails): string =>
+        author_name,
       id: 'author',
       label: t(labelAuthor),
       type: ColumnType.string,
       width: 100
     },
     {
-      getContent: ({ entry_time }): string => toDateTime(entry_time),
+      getContent: ({ entry_time }: AcknowledgementDetails): string =>
+        toDateTime(entry_time),
       id: 'entry_time',
       label: t(labelEntryTime),
       type: ColumnType.string,
       width: 150
     },
     {
-      getContent: ({ is_persistent_comment }): string =>
+      getContent: ({ is_persistent_comment }: AcknowledgementDetails): string =>
         t(getYesNoLabel(is_persistent_comment)),
       id: 'is_persistent',
       label: t(labelPersistent),
@@ -56,7 +56,8 @@ const AcknowledgementDetailsTable = ({
       width: 100
     },
     {
-      getContent: ({ is_sticky }): string => t(getYesNoLabel(is_sticky)),
+      getContent: ({ is_sticky }: AcknowledgementDetails): string =>
+        t(getYesNoLabel(is_sticky)),
       id: 'is_sticky',
       label: t(labelSticky),
       type: ColumnType.string,

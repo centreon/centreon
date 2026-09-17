@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ $updateConnectionsCountDescription = function (CentreonDB $pearDB) use (&$errorM
     $errorMessage = 'Unable to update description in cb_field table';
     $pearDB->executeQuery(
         <<<'SQL'
-            UPDATE `cb_field`
-            SET `displayname` = "Number of connections to the database",
-                `description` = "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest"
-            WHERE `fieldname` = "connections_count"
-        SQL
+                UPDATE `cb_field`
+                SET `displayname` = "Number of connections to the database",
+                    `description` = "1: all queries are sent through one connection\n 2: one connection for data_bin and logs, one for the rest\n 3: one connection for data_bin, one for logs, one for the rest"
+                WHERE `fieldname` = "connections_count"
+            SQL
     );
 };
 
@@ -72,7 +72,7 @@ try {
     $updateConnectionsCountDescription($pearDB);
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     if ($pearDB->inTransaction()) {
         try {
             $pearDB->rollBack();

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ class Information
 {
     /** @var ContainerInterface */
     protected $services;
-    
+
     /** @var Utils */
     protected $utils;
 
@@ -41,7 +41,7 @@ class Information
 
     /** @var bool */
     protected $hasWidgetsForInstallation = false;
-    
+
     /**
      * Construct.
      *
@@ -72,9 +72,23 @@ class Information
 
         $conf = $this->utils->xmlIntoArray($widgetPath . '/configs.xml');
 
+        if (
+            $conf['title'] === null
+            || $conf['description'] === null
+            || $conf['url'] === null
+            || $conf['author'] === null
+        ) {
+            throw new \Exception('Configuration file of widget "' . $widgetDirectory
+                . '" is invalid: missing at least one required attribute (title/description/url/author)');
+        }
+
         $conf['directory'] = $widgetDirectory;
         $conf['autoRefresh'] ??= 0;
         $conf['version'] ??= null;
+        $conf['email'] ??= null;
+        $conf['website'] ??= null;
+        $conf['keywords'] ??= null;
+        $conf['thumbnail'] ??= null;
 
         return $conf;
     }

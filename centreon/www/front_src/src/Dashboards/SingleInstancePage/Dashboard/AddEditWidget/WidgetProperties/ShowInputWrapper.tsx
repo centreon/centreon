@@ -1,10 +1,8 @@
-import { ReactNode } from 'react';
-
 import { FormikValues, useFormikContext } from 'formik';
 import { isNil } from 'ramda';
+import { ReactNode } from 'react';
 
 import { ShowInput } from '../models';
-
 import { showInput } from './Inputs/utils';
 
 interface ShowInputWrapperProps {

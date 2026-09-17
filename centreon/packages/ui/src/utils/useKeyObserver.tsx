@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseKeyObserverProps {
   isShiftKeyDown: boolean;
@@ -7,18 +7,21 @@ interface UseKeyObserverProps {
 export const useKeyObserver = (): UseKeyObserverProps => {
   const [isShiftKeyDown, setIsShiftKeyDown] = useState<boolean>(false);
 
-  const pressShift = (): void => setIsShiftKeyDown(true);
-  const releaseShift = (): void => setIsShiftKeyDown(false);
+  const pressShift = useCallback((): void => setIsShiftKeyDown(true), []);
+  const releaseShift = useCallback((): void => setIsShiftKeyDown(false), []);
 
-  const observeKeyDown = (event: KeyboardEvent): void => {
-    if (event.shiftKey) {
-      pressShift();
-    }
-  };
+  const observeKeyDown = useCallback(
+    (event: KeyboardEvent): void => {
+      if (event.shiftKey) {
+        pressShift();
+      }
+    },
+    [pressShift]
+  );
 
-  const observeKeyUp = (): void => {
+  const observeKeyUp = useCallback((): void => {
     releaseShift();
-  };
+  }, [releaseShift]);
 
   useEffect(() => {
     window.addEventListener('keydown', observeKeyDown);
@@ -28,7 +31,7 @@ export const useKeyObserver = (): UseKeyObserverProps => {
       window.removeEventListener('keydown', observeKeyDown);
       window.removeEventListener('keyup', observeKeyUp);
     };
-  }, []);
+  }, [observeKeyDown, observeKeyUp]);
 
   return {
     isShiftKeyDown

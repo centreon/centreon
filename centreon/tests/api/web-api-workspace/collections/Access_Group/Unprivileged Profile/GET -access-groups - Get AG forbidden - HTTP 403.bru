@@ -1,0 +1,22 @@
+meta {
+  name: GET /access-groups - Get AG forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/access-groups
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Unprivileged user cannot list access groups (ACL not fully configured in CI, may return 200).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

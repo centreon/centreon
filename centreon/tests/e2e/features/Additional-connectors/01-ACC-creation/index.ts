@@ -1,5 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -20,15 +21,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations?*'
+    url: `${INTERCEPTORS.api.connector_configurations}?*`
   }).as('getConnectorPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations'
+    url: INTERCEPTORS.api.connector_configurations
   }).as('addAdditionalConnector');
 });
 
@@ -43,22 +44,26 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );
+
+When('the user clicks on Add additional configurations', () => {
+  cy.getByLabel({ label: 'create', tag: 'button' }).click();
+});
 
 When('the user clicks on Add', () => {
   cy.getByLabel({ label: 'Add', tag: 'button' }).click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
-  cy.contains('Create additional configuration').should('be.visible');
+  cy.contains('Add an additional configuration').should('be.visible');
 });
 
 When('the user fills in all the informations', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+  cy.getByLabel({ label: 'Description', tag: 'input' }).type(
     "I'm the first connector created"
   );
   cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
@@ -72,7 +77,7 @@ When('the user fills in all the informations', () => {
 });
 
 When('the user clicks on Create', () => {
-  cy.getByLabel({ label: 'Create', tag: 'button' }).click();
+  cy.saveAcc();
 });
 
 Then(
@@ -122,7 +127,7 @@ Then('a second group of parameters is displayed', () => {
 
 When('the user fills in the informations of all the parameter groups', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-003');
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).type(
+  cy.getByLabel({ label: 'Description', tag: 'input' }).type(
     'I have multiple parameters groups'
   );
   cy.get('#mui-component-select-type').should('contain', 'VMWare 6/7');
@@ -171,7 +176,7 @@ Then('the user cannot click on Create', () => {
   cy.getByTestId({ testId: 'Password_value' })
     .contains('Required')
     .should('be.visible');
-  cy.getByLabel({ label: 'Create', tag: 'button' }).should('be.disabled');
+  cy.getByLabel({ label: 'Save', tag: 'button' }).should('be.disabled');
 });
 
 When("the user doesn't fill in correct type of informations", () => {
@@ -240,7 +245,7 @@ Then('the additional connector configuration has not been created', () => {
 
 Then('the form fields are empty', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).should('be.empty');
-  cy.getByLabel({ label: 'Description', tag: 'textarea' }).should('be.empty');
+  cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).should('be.empty');
   cy.get('#Usernamevalue').should('be.empty');
@@ -296,7 +301,7 @@ Then('a pop-up is displayed', () => {
 });
 
 Then('the title of this pop-up is {string}', (popupTitle: string) => {
-  cy.get('div[class*="-modalHeader"]')
+  cy.get('[data-testid="modal-header"]')
     .eq(1)
     .within(() => {
       cy.get('h2').should('contain.text', popupTitle);
@@ -304,7 +309,9 @@ Then('the title of this pop-up is {string}', (popupTitle: string) => {
 });
 
 Then('the message body of this pop-up is {string}', (popupMessage: string) => {
-  cy.get('div[class*="-modalBody"]').eq(1).should('contain.text', popupMessage);
+  cy.get('[data-testid="modal-body"]')
+    .eq(1)
+    .should('contain.text', popupMessage);
 });
 
 Then('this pop-up contains two buttons "Leave" and "Stay"', () => {

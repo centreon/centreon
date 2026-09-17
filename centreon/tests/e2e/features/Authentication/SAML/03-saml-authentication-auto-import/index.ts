@@ -1,12 +1,16 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import { configureSAML, navigateToSAMLConfigPage } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
 } from '../../../../commons';
+import {
+  configureSaml,
+  navigateToSamlConfigPage,
+  saveSamlFormIfEnabled
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
@@ -17,35 +21,35 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('getSAMLProvider');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/authentication/providers/configurations'
+    url: INTERCEPTORS.api.authentication_configuration
   }).as('getCentreonAuthConfigs');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('updateSAMLProvider');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentification');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/contacts/templates?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+    url: `${INTERCEPTORS.api.contacts_templates}?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D`
   }).as('getListContactTemplates');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/access-groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+    url: `${INTERCEPTORS.api.access_groups}?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D`
   }).as('getListAccessGroup');
 });
 
@@ -54,16 +58,16 @@ Given('an administrator is logged on the platform', () => {
 });
 
 When('the administrator activates the auto-import option for SAML', () => {
-  navigateToSAMLConfigPage();
+  navigateToSamlConfigPage();
 
   cy.getByLabel({
     label: 'Enable SAMLv2 authentication',
     tag: 'input'
   }).check();
 
-  configureSAML();
+  configureSaml();
 
-  cy.getByLabel({ label: 'Auto import users' }).click();
+  cy.get('[data-testid="Auto import users-header"]').click();
 
   cy.getByLabel({
     label: 'Enable auto import',
@@ -74,7 +78,7 @@ When('the administrator activates the auto-import option for SAML', () => {
     label: 'Contact template',
     tag: 'input'
   })
-    .type('{selectall}{backspace}contact_template')
+    .type('{selectall}{backspace}saml_contact_template')
     .wait('@getListContactTemplates')
     .get('div[role="presentation"] ul li')
     .eq(-1)
@@ -83,7 +87,7 @@ When('the administrator activates the auto-import option for SAML', () => {
       label: 'Contact template',
       tag: 'input'
     })
-    .should('have.value', 'contact_template');
+    .should('have.value', 'saml_contact_template');
 
   cy.getByLabel({
     label: 'Email attribute',
@@ -97,9 +101,7 @@ When('the administrator activates the auto-import option for SAML', () => {
 
   configureACLGroups('Role');
 
-  cy.getByLabel({ label: 'save button', tag: 'button' }).click();
-
-  cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+  saveSamlFormIfEnabled();
 
   cy.logout();
 });
@@ -121,8 +123,27 @@ Then(
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
 
     cy.url().should('include', '/monitoring/resources');
+    cy.waitForElementToBeVisible('[data-cy="userIcon"]');
+    cy.get('[data-cy="userIcon"]').should('exist').click();
+    cy.intercept({
+      method: 'GET',
+      times: 1,
+      url: '/centreon/api/latest/authentication/logout'
+    }).as('logout');
 
-    cy.logout();
+    cy.contains(/Déconnexion|Logout/).click();
+    cy.waitUntil(
+      () =>
+        cy.wait('@logout').then((interception) => {
+          return interception?.response?.statusCode === 302;
+        }),
+      {
+        errorMsg: 'Logout did not complete successfully',
+        interval: 2000,
+        timeout: 30000
+      }
+    );
+
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
@@ -150,7 +171,7 @@ Then(
           );
           cy.getByTestId({ tag: 'select', testId: 'contact_template_id' })
             .find(':selected')
-            .contains('contact_template');
+            .contains('saml_contact_template');
         });
     });
   }

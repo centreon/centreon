@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import { atom } from 'jotai';
-import { T, always, cond, gte, isNil } from 'ramda';
+import { always, cond, gte, isNil, T } from 'ramda';
 
 import {
   defaultTimePeriod,
   getTimePeriodById,
   getTimePeriodFromNow
 } from './helpers';
-import { CustomTimePeriod, TimePeriod, TimePeriodById } from './models';
+import type { CustomTimePeriod, TimePeriod, TimePeriodById } from './models';
 
 export const selectedTimePeriodAtom = atom<TimePeriod | null>(
   defaultTimePeriod
@@ -27,7 +27,7 @@ export const getNewCustomTimePeriod = ({
     .duration(dayjs(end).diff(dayjs(start)))
     .asDays();
 
-  const timelineEventsLimit = cond<number, number>([
+  const timelineEventsLimit = cond<[number], number>([
     [gte(1), always(20)],
     [gte(7), always(100)],
     [T, always(500)]

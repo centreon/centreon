@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { last } from 'ramda';
 
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
@@ -18,11 +20,11 @@ after(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}*`
   }).as('listAllDashboards');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-creator',
@@ -38,7 +40,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the dashboards overview page', () => {
-  cy.visit('/centreon/monitoring/resources');
+  cy.visit(PAGES.monitoring.resourcesStatus);
 });
 
 When('the user accesses the dashboard overview page with no dashboards', () => {

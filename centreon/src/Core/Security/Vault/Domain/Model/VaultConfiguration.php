@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Interfaces\EncryptionInterface;
 
@@ -77,7 +79,8 @@ class VaultConfiguration
         private string $rootPath,
         private string $encryptedRoleId,
         private string $encryptedSecretId,
-        private string $salt
+        #[Sensitive]
+        private string $salt,
     ) {
         $this->setName($name);
         $this->setAddress($address);
@@ -174,7 +177,7 @@ class VaultConfiguration
     public function setAddress(string $address): void
     {
         Assertion::minLength($address, self::MIN_LENGTH, 'VaultConfiguration::address');
-        Assertion::ipOrDomain($address, 'VaultConfiguration::address');
+        CentreonAssert::ipOrHostname($address, 'VaultConfiguration::address');
         $this->address = $address;
     }
 

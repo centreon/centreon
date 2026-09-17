@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,9 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class DeleteAcc
@@ -53,8 +54,9 @@ final class DeleteAcc
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository
      * @param ContactInterface $user
-     * @param FeatureFlags $flags
+     * @param VaultEligibilityService $vaultEligibilityService
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      */
     public function __construct(
         private readonly ReadAccRepositoryInterface $readAccRepository,
@@ -62,15 +64,16 @@ final class DeleteAcc
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly ContactInterface $user,
-        private readonly FeatureFlags $flags,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         \Traversable $writeVaultAccRepositories,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
     ) {
         $this->writeVaultAccRepositories = iterator_to_array($writeVaultAccRepositories);
     }
 
     public function __invoke(
         int $id,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {
@@ -91,9 +94,9 @@ final class DeleteAcc
                 return;
             }
 
-            if (false === $this->user->isAdmin()) {
+            if ($this->user->isAdmin() === false) {
                 $linkedPollerIds = array_map(
-                    static fn(Poller $poller): int => $poller->id,
+                    static fn (Poller $poller): int => $poller->id,
                     $this->readAccRepository->findPollersByAccId($id)
                 );
 
@@ -111,7 +114,7 @@ final class DeleteAcc
                 }
             }
 
-            if ($this->flags->isEnabled('vault_gorgone')) {
+            if ($this->vaultEligibilityService->shouldUseVault('vault_gorgone')) {
                 foreach ($this->writeVaultAccRepositories as $repository) {
                     if ($repository->isValidFor($acc->getType())) {
                         $repository->deleteFromVault($acc);
@@ -119,7 +122,12 @@ final class DeleteAcc
                 }
             }
 
+            $pollerIds = array_map(
+                static fn (Poller $poller): int => $poller->id,
+                $this->readAccRepository->findPollersByAccId($id)
+            );
             $this->writeAccRepository->delete($id);
+            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$pollerIds);
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {

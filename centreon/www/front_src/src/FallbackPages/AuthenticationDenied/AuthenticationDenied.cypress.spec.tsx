@@ -1,9 +1,8 @@
+import AuthenticationDenied from '.';
 import {
   labelAuthenticationDenied,
   labelYouAreNotAbleToLogIn
 } from './translatedLabels';
-
-import AuthenticationDenied from '.';
 
 describe('Authentication denied', () => {
   beforeEach(() => {

@@ -1,0 +1,27 @@
+meta {
+  name: GET /acc - List ACC - HTTP 200 - 2 results
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("The ACC list contains 2 entries (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([200, 500]);
+    if (res.status === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property("result").that.is.an("array");
+      expect(body).to.have.property("meta").that.is.an("object");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

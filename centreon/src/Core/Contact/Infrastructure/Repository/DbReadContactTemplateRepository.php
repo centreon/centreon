@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
-use Centreon\Domain\Log\LoggerTrait;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -48,8 +48,6 @@ use Core\Contact\Domain\Model\ContactTemplate;
  */
 class DbReadContactTemplateRepository extends DatabaseRepository implements ReadContactTemplateRepositoryInterface
 {
-    use LoggerTrait;
-
     /** @var SqlRequestParametersTranslator */
     private SqlRequestParametersTranslator $sqlRequestTranslator;
 
@@ -57,15 +55,13 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
      * DbReadContactTemplateRepository constructor
      *
      * @param ConnectionInterface $connection
-     * @param QueryBuilderInterface $queryBuilder
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
     public function __construct(
         ConnectionInterface $connection,
-        QueryBuilderInterface $queryBuilder,
-        SqlRequestParametersTranslator $sqlRequestTranslator
+        SqlRequestParametersTranslator $sqlRequestTranslator,
     ) {
-        parent::__construct($connection, $queryBuilder);
+        parent::__construct($connection);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
         $this->sqlRequestTranslator
             ->getRequestParameters()
@@ -84,7 +80,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     public function findAll(): array
     {
         try {
-            $query = $this->queryBuilder
+            $query = $this->connection->createQueryBuilder()
                 ->select('SQL_CALC_FOUND_ROWS contact_id, contact_name')
                 ->from('contact')
                 ->getQuery();
@@ -121,9 +117,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             }
 
             return $contactTemplates;
-        } catch (TransformerException|ConnectionException $exception) {
-            $this->error('finding all contact template failed', ['exception' => $exception->getContext()]);
-
+        } catch (QueryBuilderException|RequestParametersTranslatorException|TransformerException|ConnectionException $exception) {
             throw new RepositoryException(
                 message: 'finding all contact template failed',
                 previous: $exception
@@ -140,11 +134,11 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     public function find(int $id): ?ContactTemplate
     {
         try {
-            $query = $this->queryBuilder
-                ->select('contact_id, contact_name')
+            $queryBuilder = $this->connection->createQueryBuilder();
+            $query = $queryBuilder->select('contact_id, contact_name')
                 ->from('contact')
-                ->where($this->queryBuilder->expr()->equal('contact_id', ':id'))
-                ->andWhere($this->queryBuilder->expr()->equal('contact_register', ':register'))
+                ->where($queryBuilder->expr()->equal('contact_id', ':id'))
+                ->andWhere($queryBuilder->expr()->equal('contact_register', ':register'))
                 ->getQuery();
 
             $queryParameters = QueryParameters::create([
@@ -160,12 +154,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             }
 
             return null;
-        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
-            $this->error(
-                'finding contact template by id failed',
-                ['id' => $id, 'exception' => $exception->getContext()]
-            );
-
+        } catch (QueryBuilderException|CollectionException|ValueObjectException|ConnectionException $exception) {
             throw new RepositoryException(
                 'finding contact template by id failed',
                 ['id' => $id, 'exception' => $exception->getContext()],

@@ -1,22 +1,20 @@
-import { useEffect } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box, LinearProgress, Typography } from '@mui/material';
 
 import { CentreonLogo } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import { logoutEndpoint } from '../api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import {
   hoveredNavigationItemsAtom,
   selectedNavigationItemsAtom
 } from '../Navigation/Sidebar/sideBarAtoms';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
-import { logoutEndpoint } from '../api/endpoint';
-
 import { labelYouWillBeDisconnected } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({

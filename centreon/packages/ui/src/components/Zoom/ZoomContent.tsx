@@ -1,30 +1,28 @@
+import ZoomInIcon from '@mui/icons-material/Add';
+import ZoomOutIcon from '@mui/icons-material/Remove';
+import ReplayIcon from '@mui/icons-material/Replay';
+
+import { RectClipPath } from '@visx/clip-path';
 import {
   type ForwardedRef,
-  MutableRefObject,
   forwardRef,
+  type MutableRefObject,
   useEffect,
   useRef,
   useState
 } from 'react';
 
-import { RectClipPath } from '@visx/clip-path';
-
-import ZoomInIcon from '@mui/icons-material/Add';
-import ZoomOutIcon from '@mui/icons-material/Remove';
-import ReplayIcon from '@mui/icons-material/Replay';
-
 import { IconButton } from '../Button';
-
-import Minimap from './Minimap';
-import { useZoomStyles } from './Zoom.styles';
 import { minimapScale, radius } from './constants';
-import {
-  type Dimension,
-  type MinimapPosition,
+import Minimap from './Minimap';
+import type {
+  Dimension,
+  MinimapPosition,
   ZoomChildren,
-  type ZoomInterface
+  ZoomInterface
 } from './models';
 import { useZoom } from './useZoom';
+import { useZoomStyles } from './Zoom.styles';
 
 export interface Props extends Dimension, ZoomInterface, ZoomChildren {
   id?: number | string;
@@ -67,7 +65,7 @@ const ZoomContent = forwardRef(
       return () => {
         resizeObserver.disconnect();
       };
-    }, [contentRef.current]);
+    }, [contentRef.current, resizeObserver.disconnect, resizeObserver.observe]);
 
     const { move, dragEnd, dragStart, isDragging } = useZoom();
 
@@ -88,13 +86,13 @@ const ZoomContent = forwardRef(
           data-is-grabbing={isDragging}
           data-testid="zoom-container"
           height={height}
-          width={width}
           onMouseDown={dragStart(zoom)}
           onMouseEnter={dragStart(zoom)}
           onMouseLeave={dragEnd}
           onMouseMove={move(zoom)}
           onMouseUp={dragEnd}
           onWheel={zoom.handleWheel}
+          width={width}
         >
           <RectClipPath
             height={Math.max(contentClientRect?.height || 0, height)}
@@ -152,20 +150,20 @@ const ZoomContent = forwardRef(
             <IconButton
               data-testid="zoom in"
               icon={<ZoomInIcon />}
-              size="small"
               onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
+              size="small"
             />
             <IconButton
               data-testid="zoom out"
               icon={<ZoomOutIcon />}
-              size="small"
               onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
+              size="small"
             />
             <IconButton
               data-testid="clear"
               icon={<ReplayIcon />}
-              size="small"
               onClick={zoom.reset}
+              size="small"
             />
           </div>
         </div>

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Security\Domain\Authentication;
@@ -40,49 +41,31 @@ use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
  */
 class AuthenticationServiceTest extends TestCase
 {
-    /**
-     * @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var AuthenticationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $authenticationRepository;
 
-    /**
-     * @var SessionRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var SessionRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $sessionRepository;
 
-    /**
-     * @var ProviderAuthenticationInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $provider;
 
-    /**
-     * @var AuthenticationTokens|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var AuthenticationTokens|\PHPUnit\Framework\MockObject\MockObject */
     private $authenticationTokens;
 
-    /**
-     * @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject */
     private $providerToken;
 
-    /**
-     * @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject */
     private $refreshToken;
 
-    /**
-     * @var ReadConfigurationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadConfigurationRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $readConfigurationFactory;
 
-    /**
-     * @var ProviderAuthenticationFactoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $providerFactory;
 
-    /**
-     * @var ReadTokenRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadTokenRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject */
     private $readTokenRepository;
 
     protected function setUp(): void

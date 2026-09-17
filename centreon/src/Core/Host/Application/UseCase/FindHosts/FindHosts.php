@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Application\UseCase\FindHosts;
 
@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\SmallHost;
@@ -37,26 +38,11 @@ use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class FindHosts
 {
     use LoggerTrait;
-    public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
-    /** @var list<AccessGroup> */
-    private array $accessGroups = [];
-
-    /**
-     * @param RequestParametersInterface $requestParameters
-     * @param ContactInterface $user
-     * @param ReadHostRepositoryInterface $hostRepository
-     * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
-     * @param ReadHostCategoryRepositoryInterface $categoryRepository
-     * @param ReadHostTemplateRepositoryInterface $hostTemplateRepository
-     * @param ReadHostGroupRepositoryInterface $groupRepository
-     * @param bool $isCloudPlatform
-     */
     public function __construct(
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $user,
@@ -65,14 +51,13 @@ final class FindHosts
         private readonly ReadHostCategoryRepositoryInterface $categoryRepository,
         private readonly ReadHostTemplateRepositoryInterface $hostTemplateRepository,
         private readonly ReadHostGroupRepositoryInterface $groupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
     public function __invoke(FindHostsPresenterInterface $presenter): void
     {
         try {
-            $this->info('Find host', ['user' => $this->user->getId()]);
             if (! $this->canAccessToListing()) {
                 $this->error(
                     "User doesn't have sufficient rights to list hosts",
@@ -84,26 +69,14 @@ final class FindHosts
 
                 return;
             }
-            $hosts = [];
-            if ($this->isUserAdmin()) {
-                $this->info('Find hosts as admin');
-                $this->debug('Find host as admin', ['request_parameter' => $this->requestParameters]);
-                $hosts = $this->hostRepository->findByRequestParameters($this->requestParameters);
-            } else {
-                $this->info('Find hosts as non-admin');
-                if ($this->accessGroups !== []) {
-                    $this->debug('Find hosts as non-admin', [
-                        'request_parameter' => $this->requestParameters,
-                        'access_groups' => $this->accessGroups,
-                    ]);
-                    $hosts = $this->hostRepository->findByRequestParametersAndAccessGroups(
-                        $this->requestParameters,
-                        $this->accessGroups
-                    );
-                } else {
-                    $this->debug('No access groups for non-admin user');
-                }
-            }
+
+            $hosts = $this->adminResolver->isAdmin($this->user)
+                ? $this->hostRepository->findByRequestParameters($this->requestParameters)
+                : $this->hostRepository->findByRequestParametersAndAccessGroups(
+                    $this->requestParameters,
+                    $this->accessGroupRepository->findByContact($this->user)
+                );
+
             $presenter->presentResponse($this->createResponse($hosts));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -118,33 +91,6 @@ final class FindHosts
     {
         return $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_READ)
             || $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE);
-    }
-
-    private function setUsersAccessGroups(): void
-    {
-        $this->accessGroups = $this->accessGroupRepository->findByContact($this->user);
-    }
-
-    /**
-     * Indicates if the current user is admin or not (cloud + onPremise context).
-     *
-     * @return bool
-     */
-    private function isUserAdmin(): bool
-    {
-        if ($this->user->isAdmin()) {
-            return true;
-        }
-
-        $this->setUsersAccessGroups();
-
-        $userAccessGroupNames = array_map(
-            static fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-            $this->accessGroups
-        );
-
-        return ! empty(array_intersect($userAccessGroupNames, self::AUTHORIZED_ACL_GROUPS))
-            && $this->isCloudPlatform;
     }
 
     /**

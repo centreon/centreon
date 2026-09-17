@@ -1,5 +1,4 @@
 import LoadingSkeleton from '../../LoadingSkeleton';
-
 import { EmptyRow } from './EmptyRow';
 
 interface SkeletonLoaderProps {

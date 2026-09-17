@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class FileBrokerRepository implements WriteBrokerRepositoryInterface
      */
     public function create(string $filename, string $content): void
     {
-        if (false === \file_put_contents($filename, $content)) {
+        if (\file_put_contents($filename, $content) === false) {
             $error = error_get_last();
             $errorMessage = (isset($error) && $error['message'] !== '')
                 ? $error['message'] : 'Error while creating file.';
@@ -46,7 +46,7 @@ class FileBrokerRepository implements WriteBrokerRepositoryInterface
      */
     public function delete(string $filename): void
     {
-        if (false === \unlink($filename)) {
+        if (\unlink($filename) === false) {
             $error = error_get_last();
             $errorMessage = (isset($error) && $error['message'] !== '')
                 ? $error['message'] : 'Error while deleting file.';

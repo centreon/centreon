@@ -1,0 +1,13 @@
+meta {
+  name: Contact_without_Open_API
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}

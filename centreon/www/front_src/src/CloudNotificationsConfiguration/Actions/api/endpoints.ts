@@ -1,6 +1,8 @@
 import { baseEndpoint } from '../../../api/endpoint';
 
-export const deleteSingleNotificationEndpoint = (id): string => {
+export const deleteSingleNotificationEndpoint = (
+  id: number | string
+): string => {
   return `${baseEndpoint}/configuration/notifications/${id}`;
 };
 export const deleteMultipleNotificationEndpoint = `${baseEndpoint}/configuration/notifications/_delete`;

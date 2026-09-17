@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Repository;
 
@@ -163,11 +163,12 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
     private function addMedia(NewMedia $media): int
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                INSERT INTO `:db`.`view_img`
-                (`img_name`,`img_path`,`img_comment`)
-                VALUES (:name, :path, :comments)
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:db`.`view_img`
+                    (`img_name`,`img_path`,`img_comment`)
+                    VALUES (:name, :path, :comments)
+                    SQL
             )
         );
         $fileInfo = explode('.', $media->getFilename());
@@ -202,11 +203,12 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
     private function addDirectory(string $directory): int
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                INSERT INTO `:db`.`view_img_dir`
-                (`dir_name`,`dir_alias`)
-                VALUES (:name, :alias)
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:db`.`view_img_dir`
+                    (`dir_name`,`dir_alias`)
+                    VALUES (:name, :alias)
+                    SQL
             )
         );
         $statement->bindValue(':name', $directory);
@@ -225,11 +227,12 @@ class DbWriteMediaRepository extends AbstractRepositoryRDB implements WriteMedia
     private function linkMediaToDirectory(int $mediaId, int $directory): void
     {
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                INSERT INTO `:db`.`view_img_dir_relation`
-                (`img_img_id`,`dir_dir_parent_id`)
-                VALUES (:media_id, :directory_id)
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:db`.`view_img_dir_relation`
+                    (`img_img_id`,`dir_dir_parent_id`)
+                    VALUES (:media_id, :directory_id)
+                    SQL
             )
         );
         $statement->bindValue(':media_id', $mediaId, \PDO::PARAM_INT);

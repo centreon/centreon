@@ -1,36 +1,22 @@
 <?php
 
-/**
- * Copyright 2005-2018 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 // using bootstrap.php to load the paths and the DB configurations
@@ -43,14 +29,14 @@ require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
 session_start();
 session_write_close();
 
-/* Initialize database connection */
+// Initialize database connection
 $pearDB = $dependencyInjector['configuration_db'];
 $pearDBO = $dependencyInjector['realtime_db'];
 
-/* Load session */
+// Load session
 $centreon = $_SESSION['centreon'];
 
-/* Validate session and get contact */
+// Validate session and get contact
 $sid = session_id();
 $contactId = check_session($sid, $pearDB);
 $isAdmin = isUserAdmin($sid);
@@ -59,7 +45,7 @@ $access = new CentreonACL($contactId, $isAdmin);
 
 $lca = $access->getHostsServices($pearDBO);
 
-/* Build list of services */
+// Build list of services
 $servicesReturn = [];
 
 /**
@@ -76,7 +62,7 @@ function getServiceGraphByHost($host, $isAdmin, $lca)
     $listGraph = [];
     if (
         $isAdmin
-        || (!$isAdmin && isset($lca[$host]))
+        || (! $isAdmin && isset($lca[$host]))
     ) {
         $services =  getMyHostServices($host);
         foreach ($services as $svcId => $svcName) {
@@ -86,6 +72,7 @@ function getServiceGraphByHost($host, $isAdmin, $lca)
             }
         }
     }
+
     return $listGraph;
 }
 
@@ -99,19 +86,21 @@ function getServiceGraphByHost($host, $isAdmin, $lca)
  * @param string $svcName The service name
  * @param bool $isAdmin If the contact is admin
  * @param array $lca The ACL of the contact
+ * @param mixed $title
  */
 function getGraphByService($host, $svcId, $title, $isAdmin, $lca)
 {
     if (
         service_has_graph($host, $svcId)
-        && ($isAdmin || (!$isAdmin && isset($lca[$host][$svcId])))
+        && ($isAdmin || (! $isAdmin && isset($lca[$host][$svcId])))
     ) {
         return ['type' => 'service', 'hostId' => $host, 'serviceId' => $svcId, 'id' => $host . '_' . $svcId, 'title' => $title];
     }
+
     return false;
 }
 
-/* By hostgroups */
+// By hostgroups
 if (isset($_POST['host_group_filter'])) {
     foreach ($_POST['host_group_filter'] as $hgId) {
         $hosts = getMyHostGroupHosts($hgId);
@@ -120,14 +109,14 @@ if (isset($_POST['host_group_filter'])) {
         }
     }
 }
-/* By hosts */
+// By hosts
 if (isset($_POST['host_selector'])) {
     foreach ($_POST['host_selector'] as $host) {
         $servicesReturn = array_merge($servicesReturn, getServiceGraphByHost($host, $isAdmin, $lca));
     }
 }
 
-/* By servicegroups */
+// By servicegroups
 if (isset($_POST['service_group_filter'])) {
     foreach ($_POST['service_group_filter'] as $sgId) {
         $services = getMyServiceGroupServices($sgId);
@@ -138,7 +127,7 @@ if (isset($_POST['service_group_filter'])) {
     }
 }
 
-/* By service */
+// By service
 if (isset($_POST['service_selector'])) {
     foreach ($_POST['service_selector'] as $selectedService) {
         [$hostId, $svcId] = explode('-', $selectedService['id']);
@@ -149,8 +138,8 @@ if (isset($_POST['service_selector'])) {
     }
 }
 
-/* By metaservice */
+// By metaservice
 // @todo
 
 header('Content-type: application/json');
-print json_encode(array_unique($servicesReturn, SORT_REGULAR));
+echo json_encode(array_unique($servicesReturn, SORT_REGULAR));

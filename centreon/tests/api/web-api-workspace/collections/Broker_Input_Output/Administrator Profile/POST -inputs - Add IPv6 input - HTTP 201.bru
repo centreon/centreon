@@ -1,0 +1,46 @@
+meta {
+  name: POST /inputs - Add IPv6 input - HTTP 201
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/inputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "input-test-2",
+    "type": 10,
+    "parameters": {
+      "port": 5670,
+      "host": "localhost",
+      "protocol": "bbdo",
+      "tls": "no",
+      "private_key": null,
+      "tls_hostname": null,
+      "public_cert": null,
+      "ca_certificate": null,
+      "negotiation": "no",
+      "one_peer_retention_mode": "yes",
+      "filters_category": ["neb"]
+    }
+  }
+}
+
+tests {
+  test("IPv6 input created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

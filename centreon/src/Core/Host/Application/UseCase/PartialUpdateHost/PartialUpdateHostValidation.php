@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Host\Application\UseCase\PartialUpdateHost;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
@@ -31,11 +31,10 @@ use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\Timezone\Application\Repository\ReadTimezoneRepositoryInterface;
@@ -54,10 +53,7 @@ class PartialUpdateHostValidation
      * @param ReadHostSeverityRepositoryInterface $readHostSeverityRepository
      * @param ReadTimezoneRepositoryInterface $readTimezoneRepository
      * @param ReadCommandRepositoryInterface $readCommandRepository
-     * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
-     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param InheritanceManager $inheritanceManager
-     * @param ContactInterface $user
      * @param AccessGroup[] $accessGroups
      */
     public function __construct(
@@ -69,10 +65,7 @@ class PartialUpdateHostValidation
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadTimezoneRepositoryInterface $readTimezoneRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
-        private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly InheritanceManager $inheritanceManager,
-        private readonly ContactInterface $user,
         public array $accessGroups = [],
     ) {
     }
@@ -87,11 +80,18 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidName(string $name, Host $host): void
     {
+        Assertion::unauthorizedCharacters(
+            $name,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'Host::name'
+        );
+
         if ($host->isNameIdentical($name)) {
 
             return;
         }
         $formattedName = Host::formatName($name);
+
         if ($this->readHostRepository->existsByName($formattedName)) {
             $this->error('Host name already exists', compact('name', 'formattedName'));
 
@@ -134,7 +134,7 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidIcon(?int $iconId): void
     {
-        if ($iconId !== null && false === $this->readViewImgRepository->existsOne($iconId)) {
+        if ($iconId !== null && $this->readViewImgRepository->existsOne($iconId) === false) {
             $this->error('Icon does not exist', ['icon_id' => $iconId]);
 
             throw HostException::idDoesNotExist('iconId', $iconId);
@@ -151,7 +151,7 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertyName = null): void
     {
-        if ($timePeriodId !== null && false === $this->readTimePeriodRepository->exists($timePeriodId) ) {
+        if ($timePeriodId !== null && $this->readTimePeriodRepository->exists($timePeriodId) === false) {
             $this->error('Time period does not exist', ['time_period_id' => $timePeriodId]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'timePeriodId', $timePeriodId);
@@ -189,7 +189,7 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidTimezone(?int $timezoneId): void
     {
-        if ($timezoneId !== null && false === $this->readTimezoneRepository->exists($timezoneId) ) {
+        if ($timezoneId !== null && $this->readTimezoneRepository->exists($timezoneId) === false) {
             $this->error('Timezone does not exist', ['timezone_id' => $timezoneId]);
 
             throw HostException::idDoesNotExist('timezoneId', $timezoneId);
@@ -208,66 +208,24 @@ class PartialUpdateHostValidation
     public function assertIsValidCommand(
         ?int $commandId,
         ?CommandType $commandType = null,
-        ?string $propertyName = null
+        ?string $propertyName = null,
     ): void {
         if ($commandId === null) {
             return;
         }
 
-        if ($commandType === null && false === $this->readCommandRepository->exists($commandId)) {
+        if ($commandType === null && $this->readCommandRepository->exists($commandId) === false) {
             $this->error('Command does not exist', ['command_id' => $commandId]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
         }
         if (
             $commandType !== null
-            && false === $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType)
+            && $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType) === false
         ) {
             $this->error('Command does not exist', ['command_id' => $commandId, 'command_type' => $commandType]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
-        }
-    }
-
-    /**
-     * Assert category IDs are valid.
-     *
-     * @param int[] $categoryIds
-     *
-     * @throws HostException
-     * @throws \Throwable
-     */
-    public function assertAreValidCategories(array $categoryIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
-        } else {
-            $validCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
-            throw HostException::idsDoNotExist('categories', $invalidIds);
-        }
-    }
-
-    /**
-     * Assert group IDs are valid.
-     *
-     * @param int[] $groupIds
-     *
-     * @throws HostException
-     * @throws \Throwable
-     */
-    public function assertAreValidGroups(array $groupIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validGroupIds = $this->readHostGroupRepository->exist($groupIds);
-        } else {
-            $validGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($groupIds, $validGroupIds))) {
-            throw HostException::idsDoNotExist('groups', $invalidIds);
         }
     }
 
@@ -282,7 +240,7 @@ class PartialUpdateHostValidation
      */
     public function assertAreValidTemplates(array $templateIds, int $hostId): void
     {
-         if ($templateIds === []) {
+        if ($templateIds === []) {
 
             return;
         }
@@ -295,8 +253,8 @@ class PartialUpdateHostValidation
 
         if (
             in_array($hostId, $templateIds, true)
-            || false === $this->inheritanceManager->isValidInheritanceTree($hostId, $templateIds)
-            ) {
+            || $this->inheritanceManager->isValidInheritanceTree($hostId, $templateIds) === false
+        ) {
             throw HostException::circularTemplateInheritance();
         }
     }

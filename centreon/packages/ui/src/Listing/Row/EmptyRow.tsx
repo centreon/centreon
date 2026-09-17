@@ -1,23 +1,19 @@
-import { ReactNode } from 'react';
-
 import { TableRow } from '@mui/material';
 
-import Cell from '../Cell';
+import type { ReactNode } from 'react';
 
-import { useStyles } from './EmptyRow.styles';
+import Cell from '../Cell';
 
 interface EmptyRowProps {
   children: ReactNode;
 }
 
 const EmptyRow = ({ children }: EmptyRowProps): JSX.Element => {
-  const { classes } = useStyles();
-
   return (
-    <TableRow className={classes.emptyDataRow} component="div" tabIndex={-1}>
+    <TableRow className="contents" component="div" tabIndex={-1}>
       <Cell
         align="center"
-        className={classes.emptyDataCell}
+        className="col-span-full flex justify-center"
         disableRowCondition={(): boolean => false}
         isRowHovered={false}
       >

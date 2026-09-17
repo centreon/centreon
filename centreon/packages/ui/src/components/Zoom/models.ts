@@ -1,4 +1,4 @@
-import { ProvidedZoom, TransformMatrix } from '@visx/zoom/lib/types';
+import type { ProvidedZoom, TransformMatrix } from '@visx/zoom/lib/types';
 
 export interface ZoomState {
   transformMatrix: TransformMatrix;

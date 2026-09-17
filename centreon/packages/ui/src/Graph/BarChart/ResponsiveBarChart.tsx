@@ -1,35 +1,55 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
-
-import { useAtom } from 'jotai';
-import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
-
 import { Skeleton } from '@mui/material';
+
+import { useAtom, useAtomValue } from 'jotai';
+import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
+import {
+  type MutableRefObject,
+  type ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { Tooltip } from '../../components';
 import { useDeepCompare } from '../../utils';
 import { margin } from '../Chart/common';
-import { Data, LineChartProps } from '../Chart/models';
+import InteractionWithGraph from '../Chart/InteractiveComponents';
+import { applyingZoomAtomAtom } from '../Chart/InteractiveComponents/ZoomPreview/zoomPreviewAtoms';
+import type { Data, LineChartProps } from '../Chart/models';
 import { useIntersection } from '../Chart/useChartIntersection';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
+import type { Thresholds as ThresholdsModel } from '../common/models';
 import Thresholds from '../common/Thresholds/Thresholds';
-import { Thresholds as ThresholdsModel } from '../common/models';
 import {
   getUnits,
+  getXScale,
   getXScaleBand,
   getYScalePerUnit
 } from '../common/timeSeries';
-import { Line } from '../common/timeSeries/models';
+import type { Line } from '../common/timeSeries/models';
+import { useMarginTop } from '../common/useMarginTop';
 import { useTooltipStyles } from '../common/useTooltipStyles';
-import BarGroup from './BarGroup';
-import BarChartTooltip from './Tooltip/BarChartTooltip';
+import { computPixelsToShiftMouse } from '../common/utils';
 import { tooltipDataAtom } from './atoms';
-import { BarStyle } from './models';
+import BarGroup from './BarGroup';
+import type { BarStyle } from './models';
+import BarChartTooltip from './Tooltip/BarChartTooltip';
 
 interface Props
-  extends Pick<LineChartProps, 'tooltip' | 'legend' | 'axis' | 'header'> {
+  extends Pick<
+    LineChartProps,
+    | 'tooltip'
+    | 'legend'
+    | 'axis'
+    | 'header'
+    | 'zoomPreview'
+    | 'timeShiftZones'
+    | 'annotationEvent'
+  > {
   barStyle: BarStyle;
   graphData: Data;
   graphRef: MutableRefObject<HTMLDivElement | null>;
@@ -40,6 +60,11 @@ interface Props
   thresholds?: ThresholdsModel;
   width: number;
   skipIntersectionObserver?: boolean;
+  min?: number;
+  max?: number;
+  boundariesUnit?: string;
+  start: string;
+  end: string;
 }
 
 const ResponsiveBarChart = ({
@@ -56,16 +81,28 @@ const ResponsiveBarChart = ({
   orientation,
   tooltip,
   barStyle,
-  skipIntersectionObserver
-}: Props): JSX.Element => {
+  skipIntersectionObserver,
+  min,
+  max,
+  boundariesUnit,
+  start,
+  end,
+  timeShiftZones,
+  zoomPreview,
+  annotationEvent
+}: Props): ReactElement => {
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
+
   const { title, timeSeries, baseAxis, lines } = graphData || {};
 
   const { classes, cx } = useTooltipStyles();
 
-  const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines);
+  const [linesGraph, setLinesGraph] = useState<Array<Line>>(lines || []);
   const graphSvgRef = useRef<SVGSVGElement | null>(null);
 
   const [tooltipData, setTooltipData] = useAtom(tooltipDataAtom);
+  const isApplyingZoom = useAtomValue(applyingZoomAtomAtom);
 
   const { isInViewport } = useIntersection({ element: graphRef?.current });
 
@@ -75,17 +112,7 @@ const ResponsiveBarChart = ({
   );
 
   const [firstUnit, secondUnit] = getUnits(displayedLines);
-  const allUnits = getUnits(lines);
-
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      graphData,
-      thresholds,
-      thresholdUnit,
-      axis,
-      firstUnit,
-      secondUnit
-    });
+  const allUnits = getUnits(lines || []);
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
@@ -93,8 +120,11 @@ const ResponsiveBarChart = ({
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      width,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
+      title,
+      units: allUnits,
+      width
     });
 
   const thresholdValues = flatten([
@@ -119,17 +149,30 @@ const ResponsiveBarChart = ({
     [timeSeries, graphWidth, isHorizontal, graphHeight]
   );
 
+  const xScaleLinear = useMemo(
+    () =>
+      getXScale({
+        dataTime: timeSeries,
+        valueWidth: isHorizontal ? graphWidth : graphHeight - 30
+      }),
+    [timeSeries, graphWidth, isHorizontal, graphHeight]
+  );
+
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
+        boundariesUnit,
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
+        isBarChart: true,
         isCenteredZero: axis?.isCenteredZero,
         isHorizontal,
+        max,
+        min,
         scale: axis?.scale,
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
+        thresholdUnit,
         valueGraphHeight:
           (isHorizontal ? graphHeight : graphWidth) - margin.bottom
       }),
@@ -142,16 +185,38 @@ const ResponsiveBarChart = ({
       thresholds?.enabled,
       axis?.isCenteredZero,
       axis?.scale,
-      axis?.scaleLogarithmicBase
+      axis?.scaleLogarithmicBase,
+      boundariesUnit,
+      isHorizontal,
+      max,
+      min,
+      thresholdUnit
     ]
   );
 
-  const leftScale = yScalesPerUnit[firstUnit];
-  const rightScale = yScalesPerUnit[secondUnit];
+  const leftScale = yScalesPerUnit[firstUnit ?? allUnits[0]];
+  const rightScale = yScalesPerUnit[secondUnit ?? allUnits[1]];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
+
+  const pixelsToShift = computPixelsToShiftMouse(xScaleLinear);
 
   useEffect(
     () => {
-      setLinesGraph(lines);
+      setLinesGraph(lines || []);
     },
     useDeepCompare([lines])
   );
@@ -162,6 +227,8 @@ const ResponsiveBarChart = ({
     () => isNil(axis?.showGridLines) || axis?.showGridLines,
     [axis?.showGridLines]
   );
+
+  const marginTop = useMarginTop({ title, units: allUnits });
 
   if (!isInViewport && !skipIntersectionObserver) {
     return (
@@ -178,21 +245,28 @@ const ResponsiveBarChart = ({
   return (
     <BaseChart
       base={baseAxis}
+      graphHeight={graphHeight}
       graphWidth={graphWidth}
       header={header}
       height={height}
       isHorizontal={isHorizontal}
       legend={{
         displayLegend,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         mode: legend?.mode,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         placement: legend?.placement,
-        renderExtraComponent: legend?.renderExtraComponent
+        renderExtraComponent: legend?.renderExtraComponent,
+        secondaryClick: legend?.secondaryClick,
+        showCalculations: legend?.showCalculations
       }}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       legendRef={legendRef}
       limitLegend={limitLegend}
       lines={linesGraph}
       setLines={setLinesGraph}
       title={title}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       titleRef={titleRef}
     >
       <Tooltip
@@ -223,44 +297,98 @@ const ResponsiveBarChart = ({
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
             leftScale={leftScale}
+            maxLeftAxisCharacters={maxLeftAxisCharacters}
             orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}
             svgRef={graphSvgRef}
             timeSeries={timeSeries}
+            title={title}
             xScale={xScale}
-            maxAxisCharacters={maxLeftAxisCharacters}
-            hasSecondUnit={Boolean(secondUnit)}
           >
-            <>
-              <BarGroup
-                barStyle={barStyle}
-                isTooltipHidden={isTooltipHidden}
-                lines={displayedLines}
-                orientation={isHorizontal ? 'horizontal' : 'vertical'}
-                size={isHorizontal ? graphHeight - margin.top - 5 : graphWidth}
-                timeSeries={timeSeries}
-                xScale={xScale}
-                yScalesPerUnit={yScalesPerUnit}
-                scaleType={axis?.scale}
-              />
-              {thresholds?.enabled && (
-                <Thresholds
-                  displayedLines={displayedLines}
-                  hideTooltip={() => setTooltipData(null)}
-                  isHorizontal={isHorizontal}
-                  showTooltip={({ tooltipData: thresholdLabel }) =>
-                    setTooltipData({
-                      thresholdLabel
-                    })
-                  }
-                  thresholdUnit={thresholdUnit}
-                  thresholds={thresholds as ThresholdsModel}
-                  width={isHorizontal ? graphWidth : graphHeight - margin.top}
+            {isApplyingZoom && (
+              <>
+                <BarGroup
+                  barStyle={barStyle}
+                  isTooltipHidden={isTooltipHidden}
+                  lines={displayedLines}
+                  orientation={isHorizontal ? 'horizontal' : 'vertical'}
+                  scaleType={axis?.scale}
+                  size={isHorizontal ? graphHeight - marginTop - 5 : graphWidth}
+                  timeSeries={timeSeries}
+                  xScale={xScale}
                   yScalesPerUnit={yScalesPerUnit}
                 />
-              )}
-            </>
+                {thresholds?.enabled && (
+                  <Thresholds
+                    displayedLines={displayedLines}
+                    hideTooltip={() => setTooltipData(null)}
+                    isHorizontal={isHorizontal}
+                    showTooltip={({ tooltipData: thresholdLabel }) =>
+                      setTooltipData({
+                        thresholdLabel
+                      })
+                    }
+                    thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
+                    width={isHorizontal ? graphWidth : graphHeight - marginTop}
+                    yScalesPerUnit={yScalesPerUnit}
+                  />
+                )}
+              </>
+            )}
+            {isHorizontal && (
+              <InteractionWithGraph
+                additionalZoomMargin={pixelsToShift}
+                annotationData={{ ...annotationEvent }}
+                commonData={{
+                  graphHeight,
+                  graphSvgRef,
+                  graphWidth,
+                  lines,
+                  timeSeries,
+                  xScale: xScaleLinear,
+                  yScalesPerUnit
+                }}
+                maxLeftAxisCharacters={maxLeftAxisCharacters}
+                timeShiftZonesData={{
+                  ...timeShiftZones,
+                  graphInterval: { end, start }
+                }}
+                zoomData={{ ...zoomPreview }}
+              />
+            )}
+            {!isApplyingZoom && (
+              <>
+                <BarGroup
+                  barStyle={barStyle}
+                  isTooltipHidden={isTooltipHidden}
+                  lines={displayedLines}
+                  orientation={isHorizontal ? 'horizontal' : 'vertical'}
+                  scaleType={axis?.scale}
+                  size={isHorizontal ? graphHeight - marginTop - 5 : graphWidth}
+                  timeSeries={timeSeries}
+                  xScale={xScale}
+                  yScalesPerUnit={yScalesPerUnit}
+                />
+                {thresholds?.enabled && (
+                  <Thresholds
+                    displayedLines={displayedLines}
+                    hideTooltip={() => setTooltipData(null)}
+                    isHorizontal={isHorizontal}
+                    showTooltip={({ tooltipData: thresholdLabel }) =>
+                      setTooltipData({
+                        thresholdLabel
+                      })
+                    }
+                    thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
+                    width={isHorizontal ? graphWidth : graphHeight - marginTop}
+                    yScalesPerUnit={yScalesPerUnit}
+                  />
+                )}
+              </>
+            )}
           </ChartSvgWrapper>
         </div>
       </Tooltip>

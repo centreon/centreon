@@ -1,5 +1,7 @@
-export * from './Form.models';
+export {
+  AccessRights,
+  AccessRights as AccessRightsV2
+} from './AccessRights/AccessRights';
 export * from './Dashboard';
-export { AccessRights } from './AccessRights/AccessRights';
-export { AccessRights as AccessRightsV2 } from './AccessRights/AccessRights';
-export { type FormActionsProps, FormActions } from './FormActions';
+export * from './Form.models';
+export { FormActions, type FormActionsProps } from './FormActions';

@@ -1,10 +1,9 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Typography } from '@mui/material';
 
-import { TabPanel } from './TabPanel';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { Tabs } from '.';
+import { TabPanel } from './TabPanel';
 
 const meta: Meta<typeof Tabs> = {
   component: Tabs

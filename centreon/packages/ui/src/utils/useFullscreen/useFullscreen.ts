@@ -1,8 +1,8 @@
 import { useAtom } from 'jotai';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSnackbar } from '../..';
-
 import { isFullscreenActivatedAtom } from './atoms';
 import { labelCannotEnterInFullscreen } from './translatedLabels';
 
@@ -24,9 +24,9 @@ export const useFullscreen = (): UseFullscreenState => {
     isFullscreenActivatedAtom
   );
 
-  const resetVariables = (): void => {
+  const resetVariables = useCallback((): void => {
     setIsFullscreenActivated(false);
-  };
+  }, [setIsFullscreenActivated]);
 
   const enterInFullscreen = (element: HTMLElement | null): void => {
     if (!document.fullscreenEnabled) {

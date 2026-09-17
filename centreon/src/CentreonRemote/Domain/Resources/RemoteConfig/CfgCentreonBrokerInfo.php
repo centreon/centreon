@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,20 @@ class CfgCentreonBrokerInfo
     /**
      * Get template configuration.
      *
-     * @todo move it as yml
-     *
      * @param string $serverName the poller name
      * @param string|null $dbUser the database user
      * @param string|null $dbPassword the database password
+     * @param string $dbHost
      *
      * @return array<string, array<string, array<int, array<string>>>> the configuration template
+     * @todo move it as yml
      */
-    public static function getConfiguration(string $serverName, $dbUser, $dbPassword): array
-    {
+    public static function getConfiguration(
+        string $serverName,
+        ?string $dbUser,
+        ?string $dbPassword,
+        string $dbHost = 'localhost',
+    ): array {
         $serverName = strtolower(str_replace(' ', '-', $serverName));
 
         return [
@@ -54,7 +58,7 @@ class CfgCentreonBrokerInfo
                 'broker' => InputBroker::getConfiguration(),
                 'output_rrd' => OutputRrdMaster::getConfiguration(),
                 'output_forward' => OutputForwardMaster::getConfiguration(),
-                'output_unified_sql' => OutputUnifiedSql::getConfiguration($dbUser, $dbPassword),
+                'output_unified_sql' => OutputUnifiedSql::getConfiguration($dbHost, $dbUser, $dbPassword),
             ],
             'central-module' => [
                 'output' => OutputModuleMaster::getConfiguration(),

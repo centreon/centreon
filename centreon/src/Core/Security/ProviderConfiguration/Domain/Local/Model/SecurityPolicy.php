@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,13 +36,13 @@ class SecurityPolicy
     public const MIN_BLOCKING_DURATION = 1;
     public const MAX_BLOCKING_DURATION = 604800;
     public const // 7 days in seconds.
-                 MIN_PASSWORD_EXPIRATION_DELAY = 604800;
+        MIN_PASSWORD_EXPIRATION_DELAY = 604800;
     public const // 7 days in seconds.
-                 MAX_PASSWORD_EXPIRATION_DELAY = 31536000;
+        MAX_PASSWORD_EXPIRATION_DELAY = 31536000;
     public const // 12 months in seconds.
-                 MIN_NEW_PASSWORD_DELAY = 3600;
+        MIN_NEW_PASSWORD_DELAY = 3600;
     public const // 1 hour in seconds.
-                 MAX_NEW_PASSWORD_DELAY = 604800; // 7 days in seconds.
+        MAX_NEW_PASSWORD_DELAY = 604800; // 7 days in seconds.
 
     /**
      * @param int $passwordMinimumLength

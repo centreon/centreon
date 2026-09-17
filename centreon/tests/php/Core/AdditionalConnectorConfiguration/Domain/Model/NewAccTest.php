@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ it('should return properly set ACC instance', function (): void {
 
 it(
     'should throw an exception when ACC name is an empty string',
-    fn() => ($this->createAcc)(['name' => ''])
+    fn () => ($this->createAcc)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('NewAcc::name')->getMessage()
@@ -106,7 +106,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when ACC {$field} is too long",
-        fn() => ($this->createAcc)([$field => $tooLong])
+        fn () => ($this->createAcc)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewAcc::{$field}")->getMessage()
@@ -122,7 +122,7 @@ foreach (
 ) {
     it(
         "should throw an exception when ACC {$field} is not a positive integer",
-        fn() => ($this->createAcc)([$field => 0])
+        fn () => ($this->createAcc)([$field => 0])
     )->throws(
         AssertionException::class,
         AssertionException::positiveInt(0, 'NewAcc::' . $propertyName)->getMessage()

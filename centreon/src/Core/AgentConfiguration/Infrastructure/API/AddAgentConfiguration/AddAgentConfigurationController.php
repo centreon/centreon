@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ final class AddAgentConfigurationController extends AbstractController
         $schemaFile = match ($data['type']) {
             'telegraf' => 'TelegrafConfigurationSchema.json',
             'centreon-agent' => 'CmaConfigurationSchema.json',
-            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type']))
+            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type'])),
         };
 
         $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");
@@ -89,9 +89,12 @@ final class AddAgentConfigurationController extends AbstractController
         $addRequest = new AddAgentConfigurationRequest();
         $addRequest->type = $data['type'];
         $addRequest->name = $data['name'];
-        $addRequest->connectionMode = $data['connection_mode'] === 'no-tls'
-            ? ConnectionModeEnum::NO_TLS
-            : ConnectionModeEnum::SECURE;
+        $addRequest->connectionMode = match ($data['connection_mode']) {
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
+            default => ConnectionModeEnum::SECURE,
+        };
         $addRequest->pollerIds = $data['poller_ids'];
         $addRequest->configuration = $data['configuration'];
 

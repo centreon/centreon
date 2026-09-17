@@ -1,0 +1,10 @@
+# Query to get the TestPlan by JQL
+query GetTestPlans($jql: String!, $limit: Int!) {
+  getTestPlans(jql: $jql, limit: $limit) {
+    total
+    results {
+      issueId
+      jira(fields: ["key", "summary"])
+    }
+  }
+}

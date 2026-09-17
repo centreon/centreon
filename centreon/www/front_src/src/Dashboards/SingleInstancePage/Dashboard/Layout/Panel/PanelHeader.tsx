@@ -1,11 +1,5 @@
-import { useMemo, useState } from 'react';
-
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import DvrIcon from '@mui/icons-material/Dvr';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import UpdateIcon from '@mui/icons-material/Update';
@@ -19,18 +13,25 @@ import {
 import { IconButton, useDeepCompare } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty } from 'ramda';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+
 import {
   dashboardAtom,
   duplicatePanelDerivedAtom,
   isEditingAtom
 } from '../../atoms';
 import { useLastRefresh } from '../../hooks/useLastRefresh';
+import useResetDashboardFromSavedState from '../../hooks/useResetDashboardFromSavedState';
 import {
   labelMoreActions,
   labelResourcesStatus,
   labelSeeMore
 } from '../../translatedLabels';
-
 import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
 import { ExpandableData } from './models';
@@ -38,14 +39,14 @@ import { usePanelHeaderStyles } from './usePanelStyles';
 import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
 interface PanelHeaderProps {
-  changeViewMode: (displayType) => void;
+  changeViewMode: (displayType: unknown) => void;
   displayMoreActions: boolean;
   displayShrinkRefresh: boolean;
   forceDisplayShrinkRefresh: boolean;
   id: string;
   linkToResourceStatus?: string;
   pageType: string | null;
-  setRefreshCount?: (id) => void;
+  setRefreshCount?: (id: string) => void;
   name: string;
   expandableData?: ExpandableData;
 }
@@ -70,7 +71,9 @@ const PanelHeader = ({
   const dashboard = useAtomValue(dashboardAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
 
-  const setIsEditing = useSetAtom(isEditingAtom);
+  const [isEditing, setIsEditing] = useAtom(isEditingAtom);
+
+  const resetDashboardFromSavedState = useResetDashboardFromSavedState();
 
   const panel = useMemo(
     () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
@@ -96,6 +99,9 @@ const PanelHeader = ({
 
   const duplicate = (event: MouseEvent): void => {
     event.preventDefault();
+    if (!isEditing) {
+      resetDashboardFromSavedState();
+    }
     setIsEditing(() => true);
     duplicatePanel(id);
   };
@@ -104,7 +110,8 @@ const PanelHeader = ({
     setRefreshCount?.(id);
   };
 
-  const openMoreActions = (event): void => setMoreActionsOpen(event.target);
+  const openMoreActions = (event: React.MouseEvent): void =>
+    setMoreActionsOpen(event.target as never);
   const closeMoreActions = (): void => setMoreActionsOpen(null);
 
   const page = t(pageType || labelResourcesStatus);
@@ -124,10 +131,10 @@ const PanelHeader = ({
                 (displayShrinkRefresh && isLastRefreshMoreThanADay) ? (
                   <IconButton
                     disabled={!!isFetching}
+                    onClick={refresh}
                     size="small"
                     title={labelRefresh}
                     tooltipPlacement="top"
-                    onClick={refresh}
                   >
                     {isFetching ? (
                       <CircularProgress size={22} />
@@ -139,6 +146,7 @@ const PanelHeader = ({
                   <Button
                     className={classes.panelHeaderRefreshButton}
                     disabled={!!isFetching}
+                    onClick={refresh}
                     size="small"
                     startIcon={
                       isFetching ? (
@@ -147,7 +155,6 @@ const PanelHeader = ({
                         <UpdateIcon sx={{ height: 22, width: 22 }} />
                       )
                     }
-                    onClick={refresh}
                   >
                     {labelRefresh}
                   </Button>
@@ -164,8 +171,8 @@ const PanelHeader = ({
               >
                 <IconButton
                   ariaLabel={t(labelSeeMore, { page })}
-                  title={t(labelSeeMore, { page })}
                   onClick={changeViewMode}
+                  title={t(labelSeeMore, { page })}
                 >
                   <DvrIcon fontSize="small" />
                 </IconButton>
@@ -174,10 +181,10 @@ const PanelHeader = ({
 
             {isWebPageWidget && (
               <IconButton
+                onClick={refresWebpageWidget}
                 size="small"
                 title={'Refresh the page'}
                 tooltipPlacement="top"
-                onClick={refresWebpageWidget}
               >
                 <UpdateIcon sx={{ height: 22, width: 22 }} />
               </IconButton>
@@ -186,8 +193,8 @@ const PanelHeader = ({
             {!expandableData || !expandableData?.isExpanded ? (
               <IconButton
                 ariaLabel={t(labelMoreActions) as string}
-                title={t(labelMoreActions) as string}
                 onClick={openMoreActions}
+                title={t(labelMoreActions) as string}
               >
                 <MoreHorizIcon fontSize="small" />
               </IconButton>
@@ -198,20 +205,20 @@ const PanelHeader = ({
               anchor={moreActionsOpen}
               close={closeMoreActions}
               duplicate={duplicate}
-              id={id}
               expandableData={expandableData}
+              id={id}
             />
           </div>
         ) : (
           <ExpandableButton expandableData={expandableData} />
         )
       }
-      className={classes.panelHeader}
       classes={{
         content: displayShrinkRefresh
           ? classes.panelHeaderContentWithShrink
           : classes.panelHeaderContent
       }}
+      className={classes.panelHeader}
       title={
         <Tooltip
           followCursor={false}

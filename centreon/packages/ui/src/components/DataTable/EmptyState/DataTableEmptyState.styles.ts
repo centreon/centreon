@@ -17,11 +17,13 @@ const useStyles = makeStyles()((theme) => ({
     },
     height: '100%',
     justifyContent: 'center',
+    marginTop: theme.spacing(3),
     minHeight: '30vh',
     width: '100%'
   },
   description: {
-    maxWidth: '65%'
+    maxWidth: '65%',
+    textAlign: 'center'
   }
 }));
 

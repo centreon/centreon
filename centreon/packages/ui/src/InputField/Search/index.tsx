@@ -1,6 +1,6 @@
 import IconSearch from '@mui/icons-material/Search';
 
-import TextField, { TextProps } from '../Text';
+import TextField, { type TextProps } from '../Text';
 
 type Props = Omit<TextProps, 'StartAdornment'>;
 

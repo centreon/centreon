@@ -1,7 +1,6 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 import { LoadingSkeleton } from '../../..';
-
 import { useStyles } from './DataTableItem.styles';
 
 const DataTableItemSkeleton = (): ReactElement => {

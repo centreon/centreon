@@ -1,9 +1,9 @@
-import PickersStartEndDate from './PopoverCustomTimePeriod/PickersStartEndDate';
 import {
-  AcceptDateProps,
+  type AcceptDateProps,
   PickersStartEndDateDirection,
-  PickersStartEndDateProps
+  type PickersStartEndDateProps
 } from './PopoverCustomTimePeriod/models';
+import PickersStartEndDate from './PopoverCustomTimePeriod/PickersStartEndDate';
 
 interface Props {
   changeDate: (props: AcceptDateProps) => void;

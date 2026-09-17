@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 /**
  * This class provide methods to help resolve and validate host inheritance.
  */
-class InheritanceManager {
+class InheritanceManager
+{
     public function __construct(
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
     ) {
@@ -46,10 +47,10 @@ class InheritanceManager {
     public static function findInheritanceLine(int $hostId, array $parents): array
     {
         $inheritanceLine = [];
-        $directParents = array_filter($parents, (fn($row) => $row['child_id'] === $hostId));
+        $directParents = array_filter($parents, (fn ($row) => $row['child_id'] === $hostId));
         usort(
             $directParents,
-            (static fn(array $parentA, array $parentB): int => $parentA['order'] <=> $parentB['order'])
+            (static fn (array $parentA, array $parentB): int => $parentA['order'] <=> $parentB['order'])
         );
 
         foreach ($directParents as $parent) {
@@ -61,6 +62,34 @@ class InheritanceManager {
         }
 
         return array_unique($inheritanceLine);
+    }
+
+    /**
+     * Return the check command ID of the first ancestor that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    public function findInheritedCheckCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readHostTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCheckCommandId() !== null) {
+                return $indexed[$parentId]->getCheckCommandId();
+            }
+        }
+
+        return null;
     }
 
     /**

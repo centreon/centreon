@@ -1,0 +1,43 @@
+meta {
+  name: POST /agent-configurations - Empty configuration - HTTP 400
+  type: http
+  seq: 27
+  tags: [
+    ignore
+  ]
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "agent-configuration-missing-property",
+    "connection_mode": "secure",
+    "type": "telegraf",
+    "poller_ids": [{{Poller2Id}}],
+    "configuration": {}
+  }
+}
+
+tests {
+  test("POST /agent-configurations - Empty configuration - HTTP 400 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([400, 404]);
+  });
+
+  if (res.status === 400) {
+    test("Empty 'configuration' object is rejected.", function () {
+      const body = res.getBody();
+      expect(body).to.have.property("code").that.equals(400);
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

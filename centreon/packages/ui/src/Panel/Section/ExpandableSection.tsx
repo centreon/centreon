@@ -1,15 +1,15 @@
-import { makeStyles } from 'tss-react/mui';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
   AccordionDetails,
-  AccordionProps,
+  type AccordionProps,
   AccordionSummary,
-  AccordionSummaryProps,
-  Typography,
-  styled
+  type AccordionSummaryProps,
+  styled,
+  Typography
 } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   details: {
@@ -24,7 +24,7 @@ const Title = styled(Typography)(({ theme }) => ({
 }));
 
 const Section = styled((props: AccordionProps) => (
-  <Accordion disableGutters square elevation={0} {...props} />
+  <Accordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
   '&:before': {
     display: 'none'

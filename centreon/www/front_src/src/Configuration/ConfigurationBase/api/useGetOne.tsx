@@ -1,6 +1,8 @@
 import { useFetchQuery } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { isNotNil } from 'ramda';
+
 import { configurationAtom } from '../atoms';
 
 const useGetDetails = ({ id }: { id: number | null }) => {
@@ -10,9 +12,11 @@ const useGetDetails = ({ id }: { id: number | null }) => {
   const endpoint = configuration?.api?.endpoints?.getOne;
   const decoder = configuration?.api?.decoders?.getOne;
 
-  const { data, isFetching } = useFetchQuery({
-    decoder,
-    getEndpoint: () => endpoint?.({ id }) as string,
+  const { data, isFetching } = useFetchQuery<object>({
+    decoder: decoder as
+      | import('ts.data.json').JsonDecoder.Decoder<object>
+      | undefined,
+    getEndpoint: () => endpoint?.({ id: id as number | string }) as string,
     getQueryKey: () => ['getDetails', id, resourceType],
     queryOptions: {
       enabled: isNotNil(id),

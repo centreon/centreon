@@ -1,12 +1,12 @@
-import { Ref, useEffect, useRef, useState } from 'react';
+import { type Ref, useCallback, useEffect, useRef, useState } from 'react';
 
 const useHover = (): Array<Ref<Node> | boolean> => {
   const [value, setValue] = useState<boolean>(false);
 
   const ref = useRef<Node>(null);
 
-  const mouseHover = (): void => setValue(true);
-  const mouseOut = (): void => setValue(false);
+  const mouseHover = useCallback((): void => setValue(true), []);
+  const mouseOut = useCallback((): void => setValue(false), []);
 
   useEffect((): (() => void) | undefined => {
     const node = ref.current;
@@ -22,7 +22,7 @@ const useHover = (): Array<Ref<Node> | boolean> => {
       node.removeEventListener('mouseover', mouseHover);
       node.removeEventListener('mouseout', mouseOut);
     };
-  }, []);
+  }, [mouseHover, mouseOut]);
 
   return [ref, value];
 };

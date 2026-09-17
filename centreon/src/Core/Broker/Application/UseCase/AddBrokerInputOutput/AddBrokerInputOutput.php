@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ use Core\Broker\Domain\Model\BrokerInputOutputField;
 use Core\Broker\Domain\Model\NewBrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 
 /**
@@ -47,7 +47,8 @@ use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
  */
 final class AddBrokerInputOutput
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly WriteBrokerInputOutputRepositoryInterface $writeOutputRepository,
@@ -55,7 +56,7 @@ final class AddBrokerInputOutput
         private readonly ContactInterface $user,
         private readonly BrokerInputOutputValidator $validator,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
-        private readonly FeatureFlags $flags,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
     }
@@ -100,7 +101,7 @@ final class AddBrokerInputOutput
                 parameters: $validatedParameters
             );
 
-            if ($this->flags->isEnabled('vault_broker') && $this->writeVaultRepository->isVaultConfigured() === true) {
+            if ($this->vaultEligibilityService->shouldUseVault('vault_broker')) {
                 $this->uuid = $this->getBrokerVaultUuid($request->brokerId);
                 $newOutput = $this->saveInVault($newOutput, $outputFields);
             }
@@ -175,6 +176,9 @@ final class AddBrokerInputOutput
         $updatedParameters = $inputOutput->getParameters();
 
         foreach ($updatedParameters as $paramName => $paramValue) {
+            if (! array_key_exists($paramName, $inputOutputFields)) {
+                continue;
+            }
             if (is_array($inputOutputFields[$paramName])) {
                 if (! is_array($paramValue)) {
                     // for phpstan, should not happen.

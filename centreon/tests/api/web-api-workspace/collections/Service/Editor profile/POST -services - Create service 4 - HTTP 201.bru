@@ -1,0 +1,61 @@
+meta {
+  name: POST /services - Create service 4 - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Service4Name}}",
+    "host_id": {{Host2Id}},
+    "service_template_id": {{ServiceTemplate1Id}},
+    "service_categories": [ {{ServiceCategory1Id}} ],
+    "service_groups": [ {{ServiceGroup1Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service 4 has been successfully created by the editor.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Service4Id", body.id);
+    expect(body).to.include({
+      "name": bru.getEnvVar("Service4Name"),
+      "host_id": parseInt(bru.getEnvVar("Host2Id")),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "check_timeperiod_id": null,
+      "max_check_attempts": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "note": null,
+      "note_url": null,
+      "action_url": null,
+      "icon_id": null,
+      "geo_coords": null,
+      "severity_id": null
+    });
+    expect(body.macros).to.be.an("array").that.is.empty;
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,16 +1,15 @@
-import { useAtomValue } from 'jotai';
-import { isNil } from 'ramda';
-
 import { useTheme } from '@mui/material';
 
 import { useFetchQuery } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
+
 import { Resource } from '../../models';
 import { getWidgetEndpoint } from '../../utils';
-
 import { buildResourcesEndpoint } from './api/endpoint';
-import { StatusChartProps, StatusType } from './models';
+import { StateSelection, StatusChartProps, StatusType } from './models';
 import { FormattedResponse, formatResponse } from './utils';
 
 interface LoadResourcesProps
@@ -22,6 +21,8 @@ interface LoadResourcesProps
   refreshIntervalToUse: number | false;
   resourceType: 'host' | 'service';
   resources: Array<Resource>;
+  isInViewport: boolean;
+  stateList: Array<StateSelection>;
 }
 
 interface LoadResources {
@@ -37,26 +38,31 @@ const useLoadResources = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
+  widgetPrefixQuery,
+  isInViewport,
+  stateList
 }: LoadResourcesProps): LoadResources => {
   const theme = useTheme();
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
+  const widgetEndpoint = getWidgetEndpoint({
+    dashboardId,
+    defaultEndpoint: buildResourcesEndpoint({
+      resources,
+      stateList,
+      type: resourceType
+    }),
+    extraQueryParameters: { resource_type: resourceType as string },
+    isOnPublicPage,
+    playlistHash,
+    widgetId: id
+  });
+
   const { data: statuses, isLoading } = useFetchQuery<StatusType>({
-    getEndpoint: () =>
-      getWidgetEndpoint({
-        dashboardId,
-        defaultEndpoint: buildResourcesEndpoint({
-          resources,
-          type: resourceType
-        }),
-        extraQueryParameters: { resource_type: resourceType as string },
-        isOnPublicPage,
-        playlistHash,
-        widgetId: id
-      }),
+    getEndpoint: () => widgetEndpoint,
     getQueryKey: () => [
+      JSON.stringify(stateList),
       widgetPrefixQuery,
       'statusChart',
       JSON.stringify(resources),
@@ -64,6 +70,7 @@ const useLoadResources = ({
       resourceType
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

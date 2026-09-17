@@ -1,0 +1,25 @@
+meta {
+  name: Host_Category
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  HostGroup1Id:
+  HostGroup2Id:
+  HostCategory1Id:
+  HostCategory2Id:
+  HostCategory3Id:
+  HostCategory4Id:
+  Host1Id:
+  Host2Id:
+  Host3Id:
+}

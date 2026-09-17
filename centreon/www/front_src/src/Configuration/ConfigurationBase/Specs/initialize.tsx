@@ -1,14 +1,19 @@
-import { Provider, createStore } from 'jotai';
+import { capitalize } from '@mui/material';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import i18next from 'i18next';
+import { atom, createStore, Provider } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
-import ConfigurationBase from '..';
+
 import { FilterConfiguration, ResourceType } from '../../models';
+import ConfigurationBase from '..';
 import {
   columns,
+  columnsAtomKey,
+  filtersAtomKey,
   filtersConfiguration,
   filtersInitialValues,
   getEndpoints,
@@ -23,38 +28,38 @@ export const mockActionsRequests = (resourceType): void => {
     alias: 'deleteOne',
     method: Method.DELETE,
     path: `**${getEndpoints(resourceType).deleteOne({ id: 1 })}`,
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'delete',
     method: Method.POST,
     path: `**${getEndpoints(resourceType).delete}`,
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'duplicate',
     method: Method.POST,
     path: `**${getEndpoints(resourceType).duplicate}`,
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'enable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).enable}`,
+    path: `**${getEndpoints(resourceType).enable?.()}`,
     response: {
-      results: [{ status: 204, message: null, href: '/resources/1' }]
+      results: [{ href: '/resources/1', message: null, status: 204 }]
     }
   });
 
   cy.interceptAPIRequest({
     alias: 'disable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).disable}`,
+    path: `**${getEndpoints(resourceType).disable?.()}`,
     response: {
-      results: [{ status: 204, message: null, href: '/resources/1' }]
+      results: [{ href: '/resources/1', message: null, status: 204 }]
     }
   });
 };
@@ -70,15 +75,15 @@ const mockListingRequests = (resourceType): void => {
 
 export const mockModalRequests = (resourceType): void => {
   const response = {
-    name: `${resourceType} 1`,
     alias: `${resourceType} 1 alias`,
-    coordinates: '-20.40,13,12'
+    coordinates: '-20.40,13,12',
+    name: `${resourceType} 1`
   };
 
   cy.interceptAPIRequest({
     alias: 'getDetails',
     method: Method.GET,
-    path: `**${getEndpoints(resourceType).getOne({ id: 1 })}`,
+    path: `**${getEndpoints(resourceType).getOne?.({ id: 1 })}`,
     response
   });
 
@@ -92,7 +97,7 @@ export const mockModalRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'update',
     method: Method.PUT,
-    path: `**${getEndpoints(resourceType).update({ id: 1 })}`,
+    path: `**${getEndpoints(resourceType).update?.({ id: 1 })}`,
     response: {}
   });
 };
@@ -113,6 +118,10 @@ const initialize = ({
     resources: {}
   });
 
+  const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
+  const filtersAtom = atomWithStorage(filtersAtomKey, filtersInitialValues);
+  const isWelcomePageDisplayedAtom = atom(false);
+
   const store = createStore();
 
   cy.mount({
@@ -121,33 +130,56 @@ const initialize = ({
         <SnackbarProvider>
           <TestQueryProvider>
             <Provider store={store}>
-              <ConfigurationBase
-                resourceType={resourceType}
-                columns={columns}
-                hasWriteAccess={true}
-                form={{
-                  groups,
-                  inputs,
-                  defaultValues: {
-                    name: '',
-                    alias: '',
-                    coordinates: ''
-                  }
-                }}
-                api={{
-                  endpoints: getEndpoints(resource),
-                  decoders: { getAll: resourceDecoderListDecoder },
-                  adapter: (data) => data
-                }}
-                filtersConfiguration={filters}
-                filtersInitialValues={filtersInitialValues}
-                defaultSelectedColumnIds={[
-                  'name',
-                  'alias',
-                  'actions',
-                  'is_activated'
-                ]}
-              />
+              <div style={{ height: '100vh' }}>
+                <ConfigurationBase
+                  actions={{
+                    delete: () => true,
+                    duplicate: () => true,
+                    edit: true,
+                    enableDisable: () => true,
+                    massive: true,
+                    viewDetails: true
+                  }}
+                  api={{
+                    adapter: (data) => data,
+                    decoders: { getAll: resourceDecoderListDecoder },
+                    endpoints: getEndpoints(resource)
+                  }}
+                  columns={columns}
+                  columnsAtomKey={columnsAtomKey}
+                  defaultSelectedColumnIds={[
+                    'name',
+                    'alias',
+                    'actions',
+                    'is_activated'
+                  ]}
+                  filtersAtom={filtersAtom}
+                  filtersAtomKey={filtersAtomKey}
+                  filtersConfiguration={filters}
+                  filtersInitialValues={filtersInitialValues}
+                  form={{
+                    defaultValues: {
+                      alias: '',
+                      coordinates: '',
+                      name: ''
+                    },
+                    groups,
+                    inputs
+                  }}
+                  isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+                  labels={{
+                    title: `${capitalize(resourceType)}s`,
+                    welcomePage: {
+                      actions: {
+                        create: 'Add configuration base'
+                      },
+                      title: 'Welcome to configuration base'
+                    }
+                  }}
+                  resourceType={resourceType}
+                  selectedColumnIdsAtom={selectedColumnIdsAtom}
+                />
+              </div>
             </Provider>
           </TestQueryProvider>
         </SnackbarProvider>

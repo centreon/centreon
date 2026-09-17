@@ -1,10 +1,10 @@
+import { Stepper as MUIStepper, Step, StepLabel } from '@mui/material';
+
 import { gte, length } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Stepper as MUIStepper, Step, StepLabel } from '@mui/material';
-
+import type { Step as StepType } from './models';
 import StepIcon from './StepIcon';
-import { Step as StepType } from './models';
 
 interface Props {
   currentStep: number;
@@ -35,17 +35,17 @@ const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
 
   return (
     <MUIStepper
-      alternativeLabel
       activeStep={currentStep}
+      alternativeLabel
       className={classes.stepper}
     >
       {steps.map(({ stepName }) => (
         <Step key={stepName}>
           <StepLabel
-            StepIconComponent={StepIcon}
             classes={{
               alternativeLabel: classes.label
             }}
+            StepIconComponent={StepIcon}
           >
             {stepName}
           </StepLabel>

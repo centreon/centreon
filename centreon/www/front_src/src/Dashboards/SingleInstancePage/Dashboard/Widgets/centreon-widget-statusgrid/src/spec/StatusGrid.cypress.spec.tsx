@@ -1,28 +1,27 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import Widget from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../../utils';
+import Widget from '..';
+import { resourcesEndpoint } from '../api/endpoints';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { router } from '../StatusGridStandard/Tile';
 import { Data, PanelOptions } from '../StatusGridStandard/models';
+import { router } from '../StatusGridStandard/Tile';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelSeeMore,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { resourcesEndpoint } from '../api/endpoints';
-
 import {
   condensedOptions,
   hostOptions,
@@ -32,6 +31,7 @@ import {
   linkToResourcePing,
   noResources,
   resources,
+  resourcesRegex,
   seeMoreOptions,
   serviceOptions,
   services
@@ -250,14 +250,14 @@ describe('View by host', () => {
       cy.get('[data-status="up"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+        .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
       cy.contains('Passive_server_1').should('be.visible');
       cy.get('[data-status="down"]').should('be.visible');
       cy.get('[data-status="down"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(255, 102, 102)');
+        .should('have.css', 'background-color', 'rgb(255, 110, 110)');
 
       cy.contains('Passive_server').should('be.visible');
       cy.get('[data-status="unknown"]').should('be.visible');
@@ -318,7 +318,7 @@ describe('View by host', () => {
       cy.get('[data-status="up"]')
         .parent()
         .parent()
-        .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+        .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
       cy.makeSnapshot();
     });
@@ -333,6 +333,20 @@ describe('View by host', () => {
       cy.waitForRequest('@getHostResources');
 
       cy.contains(labelNoHostsFound).should('be.visible');
+    });
+  });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    hostsRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: hostOptions
+    });
+
+    cy.waitForRequest('@getHostResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
     });
   });
 });
@@ -367,7 +381,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Ping"]').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
@@ -385,7 +399,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Centreon_Pass"]').should(
         'have.css',
         'color',
-        'rgb(255, 102, 102)'
+        'rgb(255, 110, 110)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
@@ -395,7 +409,7 @@ describe('View by service', () => {
       cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
-      cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
+      cy.contains('1').should('have.css', 'color', 'rgb(252, 196, 129)');
 
       cy.makeSnapshot();
     });
@@ -408,7 +422,7 @@ describe('View by service', () => {
       cy.get('[data-resourcename="Passive"]').should(
         'have.css',
         'color',
-        'rgb(253, 155, 39)'
+        'rgb(252, 196, 129)'
       );
       cy.get('[data-parentstatus="5"]').should('be.visible');
       cy.findAllByText('Centreon-Server').should('have.length', 7);
@@ -418,7 +432,7 @@ describe('View by service', () => {
       cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
-      cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
+      cy.contains('1').should('have.css', 'color', 'rgb(252, 196, 129)');
 
       cy.makeSnapshot();
     });
@@ -527,6 +541,20 @@ describe('View by service', () => {
       cy.contains(labelNoServicesFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    servicesRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: serviceOptions
+    });
+
+    cy.waitForRequest('@getServiceResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 const initializeSeeMore = (): void => {
@@ -599,6 +627,20 @@ describe('Condensed view', () => {
       cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
       statusRequests();
       initialize({ data: { resources }, options: condensedOptions });
+    });
+
+    it('handles regex resources when the appropriate data is provided', () => {
+      statusRequests();
+      initialize({
+        data: { resources: resourcesRegex },
+        options: condensedOptions
+      });
+
+      cy.waitForRequest('@getStatuses').then(({ request }) => {
+        expect(request.url.searchParams.get('search')).to.equal(
+          '{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]},{"$or":[{"host.name":{"$rg":"^H1$"}}]}]}'
+        );
+      });
     });
 
     it('displays status tiles', () => {

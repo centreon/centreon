@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration;
@@ -45,38 +46,28 @@ class HostConfigurationService implements HostConfigurationServiceInterface
 {
     use LoggerTrait;
 
-    /**
-     * @var HostConfigurationRepositoryInterface
-     */
+    /** @var HostConfigurationRepositoryInterface */
     private $hostConfigurationRepository;
-    /**
-     * @var EngineConfigurationServiceInterface
-     */
+
+    /** @var EngineConfigurationServiceInterface */
     private $engineConfigurationService;
-    /**
-     * @var ActionLogServiceInterface
-     */
+
+    /** @var ActionLogServiceInterface */
     private $actionLogService;
-    /**
-     * @var DataStorageEngineInterface
-     */
+
+    /** @var DataStorageEngineInterface */
     private $dataStorageEngine;
-    /**
-     * @var HostMacroServiceInterface
-     */
+
+    /** @var HostMacroServiceInterface */
     private $hostMacroService;
-    /**
-     * @var HostCategoryServiceInterface
-     */
+
+    /** @var HostCategoryServiceInterface */
     private $hostCategoryService;
-    /**
-     * @var HostGroupServiceInterface
-     */
+
+    /** @var HostGroupServiceInterface */
     private $hostGroupService;
 
-    /**
-     * @var ContactInterface
-     */
+    /** @var ContactInterface */
     private $contact;
 
     /**
@@ -97,7 +88,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
         HostCategoryServiceInterface $hostCategoryService,
         HostGroupServiceInterface $hostGroupService,
         DataStorageEngineInterface $dataStorageEngine,
-        ContactInterface $contact
+        ContactInterface $contact,
     ) {
         $this->hostConfigurationRepository = $hostConfigurationRepository;
         $this->actionLogService = $actionLogService;
@@ -149,9 +140,14 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 /**
                  * Create all the entities that will be associated with the host that must be created first.
                  */
+                $newMacroOrder = 0; // by default we initialize the order of the macros
                 foreach ($host->getMacros() as $macro) {
                     $this->debug('Add macro ' . $macro->getName());
+                    if ($macro->getOrder() === null) {
+                        $macro->setOrder($newMacroOrder);
+                    }
                     $this->hostMacroService->addMacroToHost($host, $macro);
+                    $newMacroOrder++;
                 }
                 if ($transactionAlreadyStarted === false) {
                     $this->debug('Commit transaction');
@@ -162,6 +158,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     $this->debug('Rollback transaction');
                     $this->dataStorageEngine->rollbackTransaction();
                 }
+
                 throw HostConfigurationServiceException::errorOnAddingAHost($ex);
             }
 
@@ -215,6 +212,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 $this->debug('Rollback transaction');
                 $this->dataStorageEngine->rollbackTransaction();
             }
+
             throw HostConfigurationServiceException::errorOnUpdatingAHost($ex);
         }
     }
@@ -329,8 +327,8 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             }
             $this->hostConfigurationRepository->changeActivationStatus($loadedHost->getId(), $shouldBeActivated);
             $this->actionLogService->addAction(
-            // The userId is set to 0 because it is not yet possible to determine who initiated the action.
-            // We will see later how to get it back.
+                // The userId is set to 0 because it is not yet possible to determine who initiated the action.
+                // We will see later how to get it back.
                 new ActionLog(
                     'host',
                     $host->getId(),
@@ -355,14 +353,60 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
-    * @inheritDoc
-    */
+     * @inheritDoc
+     */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array
     {
         try {
             return $this->hostConfigurationRepository->findHostNamesAlreadyUsed($namesToCheck);
         } catch (\Throwable $ex) {
             throw new HostConfigurationException(_('Error when searching for already used host names'));
+        }
+    }
+
+    /**
+     *  @inheritDoc
+     */
+    public function findHostTemplatesByHost(Host $host): array
+    {
+        try {
+            return $this->hostConfigurationRepository->findHostTemplatesByHost($host);
+        } catch (\Throwable $ex) {
+            throw new HostConfigurationException(_('Error when searching for host templates'), 0, $ex);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostByName(string $hostName): ?Host
+    {
+        try {
+            return $this->hostConfigurationRepository->findHostByName($hostName);
+        } catch (\Throwable $ex) {
+            throw new HostConfigurationException(_('Error while searching for the host'), 0, $ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * @throws HostConfigurationException
+     */
+    public function findHostTemplate(int $hostTemplateId): ?Host
+    {
+        try {
+            return $this->hostConfigurationRepository->findHostTemplate($hostTemplateId);
+        } catch (\Throwable $ex) {
+            $message = sprintf(
+                _('Error while searching for the host template %d'),
+                $hostTemplateId
+            );
+            $this->error(
+                $message,
+                ['message' => $ex->getMessage()]
+            );
+
+            throw new HostConfigurationException($message, 0, $ex);
         }
     }
 
@@ -577,15 +621,15 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             foreach ($host->getMacros() as $macro) {
                 if (empty($macro->getName()) === false) {
                     // We remove the symbol characters in the macro name
-                    $macroDetails[substr($macro->getName(), 2, strlen($macro->getName()) - 3)] =
-                        $macro->isPassword() ? '*****' : $macro->getValue() ?? '';
+                    $macroDetails[substr($macro->getName(), 2, strlen($macro->getName()) - 3)]
+                        = $macro->isPassword() ? '*****' : $macro->getValue() ?? '';
                 }
             }
             $actionsDetails = array_merge(
                 $actionsDetails,
                 [
                     'Macro names' => implode(', ', array_keys($macroDetails)),
-                    'Macro values' => implode(', ', array_values($macroDetails))
+                    'Macro values' => implode(', ', array_values($macroDetails)),
                 ]
             );
         }
@@ -632,18 +676,6 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
-     *  @inheritDoc
-     */
-    public function findHostTemplatesByHost(Host $host): array
-    {
-        try {
-            return $this->hostConfigurationRepository->findHostTemplatesByHost($host);
-        } catch (\Throwable $ex) {
-            throw new HostConfigurationException(_('Error when searching for host templates'), 0, $ex);
-        }
-    }
-
-    /**
      * Add the host macros that does not exist.
      * The host macros added will be those that are not present in the $existingHostMacros list.
      *
@@ -669,44 +701,11 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     fn () => [
                         'name' => $hostMacro->getName(),
                         'is_password' => $hostMacro->isPassword(),
-                        'value' => (! $hostMacro->isPassword()) ? $hostMacro->getValue() : '*****'
+                        'value' => (! $hostMacro->isPassword()) ? $hostMacro->getValue() : '*****',
                     ]
                 );
                 $this->hostMacroService->addMacroToHost($host, $hostMacro);
             }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findHostByName(string $hostName): ?Host
-    {
-        try {
-            return $this->hostConfigurationRepository->findHostByName($hostName);
-        } catch (\Throwable $ex) {
-            throw new HostConfigurationException(_('Error while searching for the host'), 0, $ex);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws HostConfigurationException
-     */
-    public function findHostTemplate(int $hostTemplateId): ?Host
-    {
-        try {
-            return $this->hostConfigurationRepository->findHostTemplate($hostTemplateId);
-        } catch (\Throwable $ex) {
-            $message = sprintf(
-                _('Error while searching for the host template %d'),
-                $hostTemplateId
-            );
-            $this->error(
-                $message,
-                [ 'message' => $ex->getMessage()]
-            );
-            throw new HostConfigurationException($message, 0, $ex);
         }
     }
 }

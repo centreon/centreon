@@ -15,6 +15,7 @@ get:
     * creation_date
     * expiration_date
     * is_revoked
+    * type
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'
     - $ref: '../../Common/QueryParameter/Page.yaml'
@@ -49,7 +50,7 @@ post:
       application/json:
         schema:
           allOf:
-            - required: ["name", "user_id", "expiration_date"]
+            - required: ["name", "expiration_date", "type"]
             - $ref: 'Schema/NewToken.yaml'
   responses:
     '201':

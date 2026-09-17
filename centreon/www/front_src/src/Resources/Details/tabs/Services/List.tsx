@@ -1,6 +1,5 @@
-import { RefObject } from 'react';
-
 import { equals, last } from 'ramda';
+import { RefObject } from 'react';
 
 import { Resource, Status } from '../../../models';
 import ServiceCard from '../Details/ServiceCard';
@@ -27,14 +26,14 @@ const ServiceList = ({
             <ServiceCard
               information={information}
               name={name}
-              status={status as Status}
-              subInformation={duration}
               onSelect={(): void =>
                 onSelectService({
                   ...service,
                   parent: undefined
                 })
               }
+              status={status as Status}
+              subInformation={duration}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}
           </div>

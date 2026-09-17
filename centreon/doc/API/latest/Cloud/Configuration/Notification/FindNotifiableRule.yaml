@@ -4,6 +4,8 @@ get:
   summary: "List methods and contacts by notification id"
   description: |
     Return a list of notification methods/channels and contacts by notification id.
+  parameters:
+    - $ref: "./QueryParameter/NotificationId.yaml"
   responses:
     '200':
       description: "OK"

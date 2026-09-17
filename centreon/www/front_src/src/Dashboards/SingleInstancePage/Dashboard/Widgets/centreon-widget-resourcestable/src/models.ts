@@ -4,7 +4,6 @@ import type {
   Resource,
   SortOrder
 } from '../../models';
-
 import type { DisplayType } from './Listing/models';
 
 export interface Data {
@@ -12,8 +11,10 @@ export interface Data {
 }
 
 export interface PanelOptions {
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
+  enableHostTicketCreation: boolean;
+  enableServiceTicketCreation: boolean;
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden: boolean;
   isOpenTicketEnabled: boolean;
@@ -32,7 +33,18 @@ export interface PanelOptions {
 }
 
 export interface ResourcesTableProps extends CommonWidgetProps<PanelOptions> {
-  changeViewMode?: (displayType) => void;
+  changeViewMode?: (displayType: DisplayType) => void;
   panelData: Data;
   panelOptions: PanelOptions;
+}
+
+export interface OpenTicketContext {
+  displayResources: 'withTicket' | 'withoutTicket';
+  isDownHostHidden: boolean;
+  isOpenTicketInstalled: boolean;
+  isOpenTicketEnabled: boolean;
+  isUnreachableHostHidden: boolean;
+  enableHostTicketCreation: boolean;
+  enableServiceTicketCreation: boolean;
+  provider?: { id: number; name: string };
 }

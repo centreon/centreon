@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace Core\Notification\Application\UseCase\UpdateNotification\Factory;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Contact\Domain\AdminResolver;
 use Core\Notification\Application\Converter\NotificationServiceEventConverter;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -41,7 +42,8 @@ class NotificationResourceFactory
     public function __construct(
         private NotificationResourceRepositoryProviderInterface $repositoryProvider,
         private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private ContactInterface $user
+        private ContactInterface $user,
+        private AdminResolver $adminResolver,
     ) {
     }
 
@@ -64,7 +66,7 @@ class NotificationResourceFactory
     {
         $resourceIds = array_unique($resource['ids']);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             // Assert IDs validity without ACLs
             $existingResources = $repository->exist($resourceIds);
         } else {
@@ -75,7 +77,7 @@ class NotificationResourceFactory
 
         $difference = new BasicDifference($resourceIds, $existingResources);
         $missingResources = $difference->getRemoved();
-        if ([] !== $missingResources) {
+        if ($missingResources !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'resources', 'propertyValues' => array_values($missingResources)]
@@ -88,7 +90,7 @@ class NotificationResourceFactory
         return new NotificationResource(
             $repository->resourceType(),
             $repository->eventEnum(),
-            array_map((fn($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
+            array_map((fn ($resourceId) => new ConfigurationResource($resourceId, '')), $resourceIds),
             ($repository->eventEnumConverter())::fromBitFlags($resource['events']),
             $resource['includeServiceEvents']
                 ? NotificationServiceEventConverter::fromBitFlags($resource['includeServiceEvents'])

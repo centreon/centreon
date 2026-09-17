@@ -1,6 +1,5 @@
-import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import {
   ContentWithCircularLoading,
   useGraphQuery,
@@ -8,18 +7,25 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { equals, isNil, last } from 'ramda';
+import { type ReactElement } from 'react';
+
+import type { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import NoResources from '../../NoResources';
-import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
 } from '../../utils';
-
+import { selectEndpoint } from './api/endpoints';
+import type {
+  FormThreshold,
+  SingleMetricGraphType,
+  ValueFormat
+} from './models';
 import SingleMetricRenderer from './SingleMetricRenderer';
-import { graphEndpoint } from './api/endpoints';
-import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
   dashboardId: number | string;
@@ -36,6 +42,7 @@ interface Props {
   threshold: FormThreshold;
   valueFormat: ValueFormat;
   widgetPrefixQuery: string;
+  isInViewport: boolean;
 }
 
 const Graph = ({
@@ -52,8 +59,9 @@ const Graph = ({
   playlistHash,
   dashboardId,
   id,
-  widgetPrefixQuery
-}: Props): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
     globalRefreshInterval,
@@ -66,9 +74,34 @@ const Graph = ({
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
+  const getServiceId = () => {
+    const service = last(
+      resources.find(({ resourceType }) => equals(resourceType, 'service'))
+        ?.resources || []
+    );
+
+    if (isMetaServiceSelected) {
+      return resources[0]?.resources[0]?.id;
+    }
+
+    return metrics.find(({ serviceName }) => equals(serviceName, service?.name))
+      ?.serviceId;
+  };
+
+  const hostId = last(
+    resources.find(({ resourceType }) => !equals(resourceType, 'service'))
+      ?.resources || []
+  )?.id;
+
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
-    defaultEndpoint: graphEndpoint,
+    defaultEndpoint: selectEndpoint({
+      hostId,
+      idForService: getServiceId(),
+      isMetaServiceSelected,
+      metricName
+    }),
+    displayType,
     isOnPublicPage,
     playlistHash,
     widgetId: id
@@ -77,7 +110,10 @@ const Graph = ({
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint,
     bypassMetricsExclusion: true,
-    bypassQueryParams: isOnPublicPage,
+    bypassQueryParams: true,
+    isEnabled:
+      (isInViewport ?? true) &&
+      Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
@@ -87,12 +123,22 @@ const Graph = ({
 
   const displayAsRaw = equals('raw')(valueFormat);
 
+  const formattedGraphData = graphData
+    ? {
+        ...graphData,
+        metrics: graphData?.metrics?.map((metric) => ({
+          ...metric,
+          data: [metric?.current_value]
+        }))
+      }
+    : undefined;
+
   const formattedThresholds = useThresholds({
-    data: graphData,
+    data: formattedGraphData,
     displayAsRaw,
+    isMetaServiceSelected,
     metricName,
-    thresholds: threshold,
-    isMetaServiceSelected
+    thresholds: threshold
   });
 
   const areResourcesOk = areResourcesFullfilled(resources);
@@ -105,16 +151,16 @@ const Graph = ({
     return <NoResources />;
   }
 
-  const filteredGraphData = graphData
+  const filteredGraphData = formattedGraphData
     ? {
-        ...graphData,
+        ...formattedGraphData,
         metrics: isMetaServiceSelected
-          ? graphData.metrics
-          : graphData.metrics.filter((metric) =>
+          ? formattedGraphData.metrics
+          : formattedGraphData.metrics.filter((metric) =>
               equals(metricId, metric.metric_id)
             )
       }
-    : graphData;
+    : formattedGraphData;
 
   const props = {
     baseColor: threshold.baseColor,

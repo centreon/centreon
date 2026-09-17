@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ final class DeleteHostSeverity
         private readonly WriteHostSeverityRepositoryInterface $writeHostSeverityRepository,
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private ContactInterface $user
+        private ContactInterface $user,
     ) {
     }
 

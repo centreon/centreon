@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,6 +197,35 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
 
             throw $ex;
         }
+    }
+
+    /**
+     * @param ServiceGroup $serviceGroup
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function update(ServiceGroup $serviceGroup): void
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.servicegroup
+                SET
+                    `sg_name` = :name,
+                    `sg_alias` = :alias,
+                    `sg_comment` = :comment,
+                    `geo_coords` = :geo_coords,
+                    `sg_activate` = :activate
+                WHERE sg_id = :id
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $this->bindValueOfServiceGroup($statement, $serviceGroup);
+        $statement->bindValue(':id', $serviceGroup->getId(), \PDO::PARAM_INT);
+
+        $statement->execute();
     }
 
     /**

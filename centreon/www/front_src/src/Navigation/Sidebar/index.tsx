@@ -1,16 +1,15 @@
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
-
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import { CSSObject, Theme, styled } from '@mui/material/styles';
+import { CSSObject, styled, Theme } from '@mui/material/styles';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 
 import { headerHeight } from '../../Header';
 import { Page } from '../models';
 import { isSidebarOpenAtom } from '../navigationAtoms';
-
 import Logo from './Logo';
 import NavigationMenu from './Menu';
 
@@ -54,7 +53,7 @@ const Drawer = styled(MuiDrawer, {
   '& .MuiPaper-root': {
     backgroundColor: isDarkMode(theme)
       ? theme.palette.common.black
-      : theme.palette.primary.dark,
+      : theme.palette.primary.main,
     border: 'none'
   },
   boxSizing: 'border-box',

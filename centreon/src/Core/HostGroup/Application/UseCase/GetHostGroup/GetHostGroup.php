@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -49,7 +50,8 @@ final class GetHostGroup
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly ReadContactGroupRepositoryInterface $readContactGroupRepository,
         private readonly bool $isCloudPlatform,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -57,7 +59,7 @@ final class GetHostGroup
     {
         try {
 
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
 
                 if ($hostGroup === null) {
@@ -91,17 +93,19 @@ final class GetHostGroup
                 if ($this->isCloudPlatform) {
                     $rules = array_unique(
                         array_merge(
-                        $this->readResourceAccessRepository->findRuleByResourceIdAndContactId(
-                            HostGroupFilterType::TYPE_NAME,
-                            $hostGroupId,
-                            $this->user->getId()
+                            $this->readResourceAccessRepository->findRuleByResourceIdAndContactId(
+                                HostGroupFilterType::TYPE_NAME,
+                                $hostGroupId,
+                                $this->user->getId()
+                            ),
+                            $this->readResourceAccessRepository->findRuleByResourceIdAndContactGroups(
+                                HostGroupFilterType::TYPE_NAME,
+                                $hostGroupId,
+                                $this->readContactGroupRepository->findAllByUserId($this->user->getId())
+                            ),
                         ),
-                        $this->readResourceAccessRepository->findRuleByResourceIdAndContactGroups(
-                            HostGroupFilterType::TYPE_NAME,
-                            $hostGroupId,
-                            $this->readContactGroupRepository->findAllByUserId($this->user->getId())
-                        ),
-                    ), SORT_REGULAR);
+                        SORT_REGULAR
+                    );
                 }
 
             }

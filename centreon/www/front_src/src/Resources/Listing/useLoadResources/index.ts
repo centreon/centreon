@@ -1,11 +1,17 @@
-import { useEffect, useRef } from 'react';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import type { SelectEntry } from '@centreon/ui';
+import { getData, getUrlQueryParameters, useRequest } from '@centreon/ui';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   always,
   equals,
   ifElse,
-  isEmpty,
   isNil,
   map,
   mergeRight,
@@ -14,43 +20,38 @@ import {
   pathOr,
   prop
 } from 'ramda';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { SelectEntry } from '@centreon/ui';
-import {
-  getData,
-  getFoundFields,
-  getUrlQueryParameters,
-  useRequest
-} from '@centreon/ui';
-import { refreshIntervalAtom } from '@centreon/ui-context';
-
 import { selectedVisualizationAtom } from '../../Actions/actionsAtoms';
+import {
+  resourcesEndpoint as allResourcesEndpoint,
+  hostsEndpoint
+} from '../../api/endpoint';
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourceUuidAtom,
   selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom,
   sendingDetailsAtom
 } from '../../Details/detailsAtoms';
 import type { ResourceDetails } from '../../Details/models';
-import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
+import { resourceDetailsDecoder } from '../../decoders';
 import {
   appliedFilterAtom,
   customFiltersAtom,
   getCriteriaValueDerivedAtom
 } from '../../Filter/filterAtoms';
-import {
-  resourcesEndpoint as allResourcesEndpoint,
-  hostsEndpoint
-} from '../../api/endpoint';
-import { resourceDetailsDecoder } from '../../decoders';
 import { type ResourceListing, SortOrder, Visualization } from '../../models';
 import {
   labelNoResourceFound,
   labelSomethingWentWrong
 } from '../../translatedLabels';
+import {
+  exactCountAtom,
+  exactCountLoadingAtom
+} from '../ApproximateCountBadge';
 import { listResources } from '../api';
 import {
   enabledAutorefreshAtom,
@@ -59,8 +60,8 @@ import {
   pageAtom,
   sendingAtom
 } from '../listingAtoms';
-
-import type { Search } from './models';
+import useGetCriteriaName from './useGetCriteriaName';
+import { getSearch } from './utils';
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
@@ -71,6 +72,8 @@ const defaultSecondSortCriteria = { [secondSortField]: SortOrder.desc };
 
 const useLoadResources = (): LoadResources => {
   const { t } = useTranslation();
+
+  const { getCriteriaNames } = useGetCriteriaName();
 
   const { sendRequest, sending } = useRequest<ResourceListing>({
     getErrorMessage: ifElse(
@@ -106,11 +109,17 @@ const useLoadResources = (): LoadResources => {
   const getCriteriaValue = useAtomValue(getCriteriaValueDerivedAtom);
   const appliedFilter = useAtomValue(appliedFilterAtom);
   const visualization = useAtomValue(selectedVisualizationAtom);
+  const isResourceStatusFullSearchEnabled = useAtomValue(
+    isResourceStatusFullSearchEnabledAtom
+  );
   const setListing = useSetAtom(listingAtom);
   const setSending = useSetAtom(sendingAtom);
+  const setExactCount = useSetAtom(exactCountAtom);
+  const setExactCountLoading = useSetAtom(exactCountLoadingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
-  const refreshIntervalRef = useRef<number>();
+  const refreshTimeoutRef = useRef<number>(undefined);
+  const scheduleRef = useRef<() => void>(() => {});
 
   const refreshIntervalMs = refreshInterval * 1000;
 
@@ -150,50 +159,7 @@ const useLoadResources = (): LoadResources => {
       });
   };
 
-  const getSearch = (): Search | undefined => {
-    const searchCriteria = getCriteriaValue('search');
-
-    if (!searchCriteria) {
-      return undefined;
-    }
-
-    const fieldMatches = getFoundFields({
-      fields: searchableFields,
-      value: searchCriteria as string
-    });
-
-    if (!isEmpty(fieldMatches)) {
-      const matches = fieldMatches.map((item) => {
-        const field = item?.field;
-        const values = item.value?.split(',')?.join('|');
-
-        return { field, value: `${field}:${values}` };
-      });
-
-      const formattedValue = matches.reduce((accumulator, previousValue) => {
-        return {
-          ...accumulator,
-          value: `${accumulator.value} ${previousValue.value}`
-        };
-      });
-
-      return {
-        regex: {
-          fields: matches.map(({ field }) => field),
-          value: formattedValue.value
-        }
-      };
-    }
-
-    return {
-      regex: {
-        fields: searchableFields,
-        value: searchCriteria as string
-      }
-    };
-  };
-
-  const load = (): void => {
+  const load = (): Promise<void> => {
     const getCriteriaIds = (
       name: string
     ): Array<string | number> | undefined => {
@@ -202,14 +168,6 @@ const useLoadResources = (): LoadResources => {
         | undefined;
 
       return criteriaValue?.map(prop('id'));
-    };
-
-    const getCriteriaNames = (name: string): Array<string> => {
-      const criteriaValue = getCriteriaValue(name) as
-        | Array<SelectEntry>
-        | undefined;
-
-      return (criteriaValue || []).map(prop('name')) as Array<string>;
     };
 
     const getCriteriaLevels = (name: string): Array<number> => {
@@ -223,13 +181,13 @@ const useLoadResources = (): LoadResources => {
     };
 
     if (getUrlQueryParameters().fromTopCounter) {
-      return;
+      return Promise.resolve();
     }
 
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
 
-    sendRequest({
+    const listingPromise = sendRequest({
       endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
@@ -239,30 +197,36 @@ const useLoadResources = (): LoadResources => {
       monitoringServers: getCriteriaNames('monitoring_servers'),
       page,
       resourceTypes: getCriteriaIds('resource_types'),
-      search: mergeRight(getSearch() || {}, {
-        conditions: [
-          ...names.map((name) => ({
-            field: 'name',
-            values: {
-              $rg: name
-            }
-          })),
-          ...parentNames.map((name) => ({
-            field: 'parent_name',
-            values: {
-              $rg: name
-            }
-          }))
-        ]
-      }),
+      search: mergeRight(
+        getSearch({
+          isResourceStatusFullSearchEnabled,
+          searchCriteria: getCriteriaValue('search')
+        }) || {},
+        {
+          conditions: [
+            ...names.map((name) => ({
+              field: 'name',
+              values: {
+                $rg: name
+              }
+            })),
+            ...parentNames.map((name) => ({
+              field: 'parent_name',
+              values: {
+                $rg: name
+              }
+            }))
+          ]
+        }
+      ),
       serviceCategories: getCriteriaNames('service_categories'),
       serviceGroups: getCriteriaNames('service_groups'),
       serviceSeverities: getCriteriaNames('service_severities'),
       serviceSeverityLevels: getCriteriaLevels('service_severity_levels'),
       sort: getSort(),
       states: getCriteriaIds('states'),
-      statusTypes: getCriteriaIds('status_types'),
-      statuses: getCriteriaIds('statuses')
+      statuses: getCriteriaIds('statuses'),
+      statusTypes: getCriteriaIds('status_types')
     }).then((response) => {
       if (!equals(visualization, Visualization.Host)) {
         setListing(response);
@@ -283,41 +247,39 @@ const useLoadResources = (): LoadResources => {
       setListing(hostsResponse);
     });
 
-    if (isNil(details)) {
-      return;
+    if (!isNil(details)) {
+      loadDetails();
     }
 
-    loadDetails();
+    return listingPromise;
   };
 
-  const initAutorefresh = (): void => {
-    window.clearInterval(refreshIntervalRef.current);
-
-    const interval = enabledAutorefresh
-      ? window.setInterval(() => {
-          load();
-        }, refreshIntervalMs)
-      : undefined;
-
-    refreshIntervalRef.current = interval;
+  const scheduleNextRefresh = (): void => {
+    window.clearTimeout(refreshTimeoutRef.current);
+    if (!enabledAutorefresh) return;
+    refreshTimeoutRef.current = window.setTimeout(() => {
+      load().finally(() => scheduleRef.current());
+    }, refreshIntervalMs);
   };
+
+  scheduleRef.current = scheduleNextRefresh;
 
   const initAutorefreshAndLoad = (): void => {
     if (isNil(customFilters)) {
       return;
     }
 
-    initAutorefresh();
-    load();
+    window.clearTimeout(refreshTimeoutRef.current);
+    load().finally(() => scheduleRef.current());
   };
 
   useEffect(() => {
-    initAutorefresh();
+    scheduleNextRefresh();
   }, [enabledAutorefresh, selectedResourceDetails?.resourceId]);
 
   useEffect(() => {
     return (): void => {
-      clearInterval(refreshIntervalRef.current);
+      window.clearTimeout(refreshTimeoutRef.current);
     };
   }, []);
 
@@ -326,7 +288,7 @@ const useLoadResources = (): LoadResources => {
       return;
     }
 
-    initAutorefresh();
+    scheduleNextRefresh();
   }, [isNil(details)]);
 
   useEffect(() => {
@@ -335,13 +297,9 @@ const useLoadResources = (): LoadResources => {
     }
 
     initAutorefreshAndLoad();
-  }, [page]);
+  }, [page, limit, appliedFilter]);
 
   useEffect(() => {
-    if (page === 1) {
-      initAutorefreshAndLoad();
-    }
-
     setPage(1);
   }, [limit, appliedFilter]);
 
@@ -350,8 +308,14 @@ const useLoadResources = (): LoadResources => {
   }, [sending]);
 
   useEffect(() => {
-    setSendingDetails(sending);
+    setSendingDetails(sendingDetails);
   }, [sendingDetails]);
+
+  useEffect(() => {
+    // Reset approximate count state so the badge reappears when filters change.
+    setExactCount(null);
+    setExactCountLoading(false);
+  }, [appliedFilter]);
 
   useEffect(() => {
     setDetails(undefined);

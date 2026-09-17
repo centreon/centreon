@@ -1,33 +1,20 @@
 {
   "global": {
-    "title": "oracle-buffer-hit-ratio graph on srv-oracle-users",
-    "start": "2023-06-18T17:04:46+02:00",
-    "end": "2023-06-19T17:04:46+02:00",
-    "vertical-label": "Value",
     "base": 1000,
-    "width": 550,
+    "end": "2023-06-19T17:04:46+02:00",
     "height": 140,
+    "multiple_services": false,
     "scaled": 0,
-    "multiple_services": false
+    "start": "2023-06-18T17:04:46+02:00",
+    "title": "oracle-buffer-hit-ratio graph on srv-oracle-users",
+    "vertical-label": "Value",
+    "width": 550
   },
   "metrics": [
     {
-      "metric_id": 1,
-      "metric": "Centreon-Server: rta",
-      "metric_legend": "Centreon-Server: rta",
-      "unit": "ms",
-      "min": 0.0,
-      "max": null,
-      "ds_data": {
-        "ds_color_line": "#29AFEE"
-      },
-      "legend": "Centreon-Server: Round-Trip Average Time",
-      "stack": 0,
-      "warning_high_threshold": 200.0,
+      "average_value": 0.03,
       "critical_high_threshold": 400.0,
-      "warning_low_threshold": 0.0,
       "critical_low_threshold": 0.0,
-      "ds_order": 1,
       "data": [
         null,
         null,
@@ -43,28 +30,28 @@
         0.02108,
         null
       ],
-      "last_value": 0.02,
-      "minimum_value": null,
-      "maximum_value": null,
-      "average_value": 0.03
-    },
-    {
-      "metric_id": 21,
-      "metric": "Centreon-Server_1: rta",
-      "metric_legend": "Centreon-Server_1: rta",
-      "unit": "ms",
-      "min": 0.0,
-      "max": null,
       "ds_data": {
         "ds_color_line": "#29AFEE"
       },
-      "legend": "Centreon-Server_1: Round-Trip Average Time",
-      "stack": 0,
-      "warning_high_threshold": 200.0,
-      "critical_high_threshold": 400.0,
-      "warning_low_threshold": 0.0,
-      "critical_low_threshold": 0.0,
       "ds_order": 1,
+      "last_value": 0.02,
+      "legend": "Centreon-Server: Round-Trip Average Time",
+      "max": null,
+      "maximum_value": null,
+      "metric": "Centreon-Server: rta",
+      "metric_id": 1,
+      "metric_legend": "Centreon-Server: rta",
+      "min": 0.0,
+      "minimum_value": null,
+      "stack": 0,
+      "unit": "ms",
+      "warning_high_threshold": 200.0,
+      "warning_low_threshold": 0.0
+    },
+    {
+      "average_value": 0.04,
+      "critical_high_threshold": 400.0,
+      "critical_low_threshold": 0.0,
       "data": [
         null,
         null,
@@ -80,28 +67,28 @@
         0.033813333333,
         null
       ],
-      "last_value": 0.03,
-      "minimum_value": null,
-      "maximum_value": null,
-      "average_value": 0.04
-    },
-    {
-      "metric_id": 17,
-      "metric": "Centreon-Server_2: rta",
-      "metric_legend": "Centreon-Server_2: rta",
-      "unit": "ms",
-      "min": 0.0,
-      "max": null,
       "ds_data": {
         "ds_color_line": "#29AFEE"
       },
-      "legend": "Centreon-Server_2: Round-Trip Average Time",
-      "stack": 0,
-      "warning_high_threshold": 200.0,
-      "critical_high_threshold": 400.0,
-      "warning_low_threshold": 0.0,
-      "critical_low_threshold": 0.0,
       "ds_order": 1,
+      "last_value": 0.03,
+      "legend": "Centreon-Server_1: Round-Trip Average Time",
+      "max": null,
+      "maximum_value": null,
+      "metric": "Centreon-Server_1: rta",
+      "metric_id": 21,
+      "metric_legend": "Centreon-Server_1: rta",
+      "min": 0.0,
+      "minimum_value": null,
+      "stack": 0,
+      "unit": "ms",
+      "warning_high_threshold": 200.0,
+      "warning_low_threshold": 0.0
+    },
+    {
+      "average_value": 0.04,
+      "critical_high_threshold": 400.0,
+      "critical_low_threshold": 0.0,
       "data": [
         null,
         null,
@@ -117,28 +104,28 @@
         0.03853,
         null
       ],
-      "last_value": 0.04,
-      "minimum_value": null,
-      "maximum_value": null,
-      "average_value": 0.04
-    },
-    {
-      "metric_id": 13,
-      "metric": "Centreon-Server_3: rta",
-      "metric_legend": "Centreon-Server_3: rta",
-      "unit": "ms",
-      "min": 0.0,
-      "max": null,
       "ds_data": {
         "ds_color_line": "#29AFEE"
       },
-      "legend": "Centreon-Server_3: Round-Trip Average Time",
-      "stack": 0,
-      "warning_high_threshold": 200.0,
-      "critical_high_threshold": 400.0,
-      "warning_low_threshold": 0.0,
-      "critical_low_threshold": 0.0,
       "ds_order": 1,
+      "last_value": 0.04,
+      "legend": "Centreon-Server_2: Round-Trip Average Time",
+      "max": null,
+      "maximum_value": null,
+      "metric": "Centreon-Server_2: rta",
+      "metric_id": 17,
+      "metric_legend": "Centreon-Server_2: rta",
+      "min": 0.0,
+      "minimum_value": null,
+      "stack": 0,
+      "unit": "ms",
+      "warning_high_threshold": 200.0,
+      "warning_low_threshold": 0.0
+    },
+    {
+      "average_value": 0.04,
+      "critical_high_threshold": 400.0,
+      "critical_low_threshold": 0.0,
       "data": [
         null,
         null,
@@ -154,28 +141,28 @@
         0.03161,
         null
       ],
-      "last_value": 0.03,
-      "minimum_value": null,
-      "maximum_value": null,
-      "average_value": 0.04
-    },
-    {
-      "metric_id": 9,
-      "metric": "Centreon-Server_4: rta",
-      "metric_legend": "Centreon-Server_4: rta",
-      "unit": "ms",
-      "min": 0.0,
-      "max": null,
       "ds_data": {
         "ds_color_line": "#29AFEE"
       },
-      "legend": "Centreon-Server_4: Round-Trip Average Time",
-      "stack": 0,
-      "warning_high_threshold": 200.0,
-      "critical_high_threshold": 400.0,
-      "warning_low_threshold": 0.0,
-      "critical_low_threshold": 0.0,
       "ds_order": 1,
+      "last_value": 0.03,
+      "legend": "Centreon-Server_3: Round-Trip Average Time",
+      "max": null,
+      "maximum_value": null,
+      "metric": "Centreon-Server_3: rta",
+      "metric_id": 13,
+      "metric_legend": "Centreon-Server_3: rta",
+      "min": 0.0,
+      "minimum_value": null,
+      "stack": 0,
+      "unit": "ms",
+      "warning_high_threshold": 200.0,
+      "warning_low_threshold": 0.0
+    },
+    {
+      "average_value": 0.03,
+      "critical_high_threshold": 400.0,
+      "critical_low_threshold": 0.0,
       "data": [
         null,
         null,
@@ -191,28 +178,28 @@
         0.03634,
         null
       ],
-      "last_value": 0.04,
-      "minimum_value": null,
-      "maximum_value": null,
-      "average_value": 0.03
-    },
-    {
-      "metric_id": 5,
-      "metric": "Centreon-Server_5: rta",
-      "metric_legend": "Centreon-Server_5: rta",
-      "unit": "ms",
-      "min": 0.0,
-      "max": null,
       "ds_data": {
         "ds_color_line": "#29AFEE"
       },
-      "legend": "Centreon-Server_5: Round-Trip Average Time",
-      "stack": 0,
-      "warning_high_threshold": 200.0,
-      "critical_high_threshold": 400.0,
-      "warning_low_threshold": 0.0,
-      "critical_low_threshold": 0.0,
       "ds_order": 1,
+      "last_value": 0.04,
+      "legend": "Centreon-Server_4: Round-Trip Average Time",
+      "max": null,
+      "maximum_value": null,
+      "metric": "Centreon-Server_4: rta",
+      "metric_id": 9,
+      "metric_legend": "Centreon-Server_4: rta",
+      "min": 0.0,
+      "minimum_value": null,
+      "stack": 0,
+      "unit": "ms",
+      "warning_high_threshold": 200.0,
+      "warning_low_threshold": 0.0
+    },
+    {
+      "average_value": 0.05,
+      "critical_high_threshold": 400.0,
+      "critical_low_threshold": 0.0,
       "data": [
         null,
         null,
@@ -228,10 +215,23 @@
         0.051873333333,
         null
       ],
+      "ds_data": {
+        "ds_color_line": "#29AFEE"
+      },
+      "ds_order": 1,
       "last_value": 0.05,
-      "minimum_value": null,
+      "legend": "Centreon-Server_5: Round-Trip Average Time",
+      "max": null,
       "maximum_value": null,
-      "average_value": 0.05
+      "metric": "Centreon-Server_5: rta",
+      "metric_id": 5,
+      "metric_legend": "Centreon-Server_5: rta",
+      "min": 0.0,
+      "minimum_value": null,
+      "stack": 0,
+      "unit": "ms",
+      "warning_high_threshold": 200.0,
+      "warning_low_threshold": 0.0
     }
   ],
   "times": [

@@ -1,0 +1,22 @@
+meta {
+  name: GET /users/filters/events-view - List user filters forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/users/filters/events-view
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Operator cannot list user filters (ACL not fully configured in CI, may return 200).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,66 @@
+[
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "contacts-user-readonly;contacts-user-readonly;contacts-user-readonly@centreon;Centreon@2021;0;1;en_US;local"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"contacts-user-readonly;reach_api;1"
+    },
+    {
+        "action":"SETPARAM",
+        "object":"CONTACT",
+        "values":"contacts-user-readonly;reach_api_rt;1"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP-READ;user-ACLGROUP-READ"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP-READ;contacts-user-readonly;"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU-READ;user-ACLMENU-READ"
+    },
+    {
+        "action": "GRANTRO",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU-READ;1;Configuration;Users"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP-READ;user-ACLMENU-READ"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP-READ;All Resources"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLACTION",
+        "values": "user-ACLACTION-READ;user-ACLACTION-READ"
+    },
+    {
+        "action": "ADDACTION",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP-READ;user-ACLACTION-READ"
+    },
+    {
+        "action": "GRANT",
+        "object": "ACLACTION",
+        "values": "user-ACLACTION-READ;poller_listing|poller_stats|top_counter|generate_cfg|generate_trap"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL"
+    }
+]

@@ -1,40 +1,27 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
-require_once __DIR__ . "/webService.class.php";
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once __DIR__ . '/webService.class.php';
+require_once __DIR__ . '/../../include/common/common-Func.php';
 
 /**
  * Class
@@ -56,34 +43,34 @@ class CentreonRealtimeBase extends CentreonWebService
     }
 
     /**
-     * @return array
      * @throws RestBadRequestException
+     * @return array
      */
     public function getDefaultValues()
     {
         // Get Object targeted
-        if (isset($this->arguments['id']) && !empty($this->arguments['id'])) {
+        if (isset($this->arguments['id']) && ! empty($this->arguments['id'])) {
             $id = $this->arguments['id'];
         } else {
-            throw new RestBadRequestException("Bad parameters id");
+            throw new RestBadRequestException('Bad parameters id');
         }
 
         // Get Object targeted
         if (isset($this->arguments['field'])) {
-            $field = $this->arguments['field'];
+            $field = sanitizeSqlIdentifier($this->arguments['field']);
         } else {
-            throw new RestBadRequestException("Bad parameters field");
+            throw new RestBadRequestException('Bad parameters field');
         }
 
         // Get Object targeted
-        if (isset($this->arguments['target'])) {
+        if (isset($this->arguments['target']) && preg_match('/^[a-zA-Z]+$/', $this->arguments['target'])) {
             $target = ucfirst($this->arguments['target']);
         } else {
-            throw new RestBadRequestException("Bad parameters target");
+            throw new RestBadRequestException('Bad parameters target');
         }
 
         $defaultValuesParameters = [];
-        $targetedFile = _CENTREON_PATH_ . "/www/class/centreon$target.class.php";
+        $targetedFile = _CENTREON_PATH_ . "/www/class/centreon{$target}.class.php";
         if (file_exists($targetedFile)) {
             require_once $targetedFile;
             $calledClass = 'Centreon' . $target;
@@ -91,7 +78,7 @@ class CentreonRealtimeBase extends CentreonWebService
         }
 
         if (count($defaultValuesParameters) == 0) {
-            throw new RestBadRequestException("Bad parameters count");
+            throw new RestBadRequestException('Bad parameters count');
         }
 
         if (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'simple') {
@@ -107,10 +94,10 @@ class CentreonRealtimeBase extends CentreonWebService
         } elseif (isset($defaultValuesParameters['type']) && $defaultValuesParameters['type'] === 'relation') {
             $selectedValues = $this->retrieveRelatedValues($defaultValuesParameters['relationObject'], $id);
         } else {
-            throw new RestBadRequestException("Bad parameters");
+            throw new RestBadRequestException('Bad parameters');
         }
 
-        # Manage final data
+        // Manage final data
         $finalDatas = [];
         if (count($selectedValues) > 0) {
             $finalDatas = $this->retrieveExternalObjectDatas(
@@ -123,11 +110,27 @@ class CentreonRealtimeBase extends CentreonWebService
     }
 
     /**
+     * Authorize to access to the action
+     *
+     * @param string $action The action name
+     * @param CentreonUser $user The current user
+     * @param bool $isInternal If the api is call in internal
+     * @return bool If the user has access to the action
+     */
+    public function authorize($action, $user, $isInternal = false)
+    {
+        return (bool) (
+            parent::authorize($action, $user, $isInternal)
+            || ($user && $user->hasAccessRestApiRealtime())
+        );
+    }
+
+    /**
      * @param $externalObject
      * @param $values
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     protected function retrieveExternalObjectDatas($externalObject, $values)
     {
@@ -135,7 +138,7 @@ class CentreonRealtimeBase extends CentreonWebService
 
         if (isset($externalObject['object'])) {
             $classFile = $externalObject['object'] . '.class.php';
-            include_once _CENTREON_PATH_ . "/www/class/$classFile";
+            include_once _CENTREON_PATH_ . "/www/class/{$classFile}";
             $calledClass = ucfirst($externalObject['object']);
             $externalObjectInstance = new $calledClass($this->pearDB);
 
@@ -146,13 +149,13 @@ class CentreonRealtimeBase extends CentreonWebService
             try {
                 $tmpValues = $externalObjectInstance->getObjectForSelect2($values, $options);
             } catch (Exception $e) {
-                print $e->getMessage();
+                echo $e->getMessage();
             }
         } else {
             $explodedValues = '';
             $queryValues = [];
 
-            if (!empty($values)) {
+            if (! empty($values)) {
                 foreach ($values as $key => $value) {
                     $explodedValues .= ':object' . $key . ',';
                     $queryValues['object'][$key] = $value;
@@ -160,10 +163,15 @@ class CentreonRealtimeBase extends CentreonWebService
                 $explodedValues = rtrim($explodedValues, ',');
             }
 
-            $query = "SELECT $externalObject[id], $externalObject[name] " .
-                "FROM $externalObject[table] " .
-                "WHERE $externalObject[comparator] " .
-                "IN ($explodedValues)";
+            $safeId = sanitizeSqlIdentifier($externalObject['id']);
+            $safeName = sanitizeSqlIdentifier($externalObject['name']);
+            $safeTable = sanitizeSqlIdentifier($externalObject['table']);
+            $safeComparator = sanitizeSqlIdentifier($externalObject['comparator']);
+
+            $query = "SELECT {$safeId}, {$safeName} "
+                . "FROM {$safeTable} "
+                . "WHERE {$safeComparator} "
+                . "IN ({$explodedValues})";
             $stmt = $this->pearDB->prepare($query);
 
             if (isset($queryValues['object'])) {
@@ -174,9 +182,10 @@ class CentreonRealtimeBase extends CentreonWebService
             $stmt->execute();
 
             while ($row = $stmt->fetch()) {
-                $tmpValues[] = ['id' => $row[$externalObject['id']], 'text' => $row[$externalObject['name']]];
+                $tmpValues[] = ['id' => $row[$safeId], 'text' => $row[$safeName]];
             }
         }
+
         return $tmpValues;
     }
 
@@ -184,28 +193,34 @@ class CentreonRealtimeBase extends CentreonWebService
      * @param $currentObject
      * @param $id
      * @param $field
+     *
+     * @throws RestBadRequestException
      * @return array
      */
     protected function retrieveSimpleValues($currentObject, $id, $field)
     {
+        if (! is_numeric($id)) {
+            throw new RestBadRequestException('Error, id must be numerical');
+        }
         $tmpValues = [];
 
-        $fields = [];
-        $fields[] = $field;
+        $safeField = sanitizeSqlIdentifier($field);
+        $fields = [$safeField];
         if (isset($currentObject['additionalField'])) {
-            $fields[] = $currentObject['additionalField'];
+            $fields[] = sanitizeSqlIdentifier($currentObject['additionalField']);
         }
 
         // Getting Current Values
-        $queryValuesRetrieval = "SELECT " . implode(', ', $fields) . " " .
-            "FROM " . $currentObject['table'] . " " .
-            "WHERE " . $currentObject['id'] . " = :objectId";
+        $queryValuesRetrieval = 'SELECT ' . implode(', ', $fields) . ' '
+            . 'FROM ' . sanitizeSqlIdentifier($currentObject['table']) . ' '
+            . 'WHERE ' . sanitizeSqlIdentifier($currentObject['id']) . ' = :objectId';
 
         $stmt = $this->pearDB->prepare($queryValuesRetrieval);
         $stmt->bindParam(':objectId', $id, PDO::PARAM_INT);
+        $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            $tmpValue = $row[$field];
+            $tmpValue = $row[$safeField];
             if (isset($currentObject['additionalField'])) {
                 $tmpValue .= '-' . $row[$currentObject['additionalField']];
             }
@@ -224,47 +239,29 @@ class CentreonRealtimeBase extends CentreonWebService
     {
         $tmpValues = [];
 
-        $fields = [];
-        $fields[] = $relationObject['field'];
+        $safeField = sanitizeSqlIdentifier($relationObject['field']);
+        $fields = [$safeField];
         if (isset($relationObject['additionalField'])) {
-            $fields[] = $relationObject['additionalField'];
+            $fields[] = sanitizeSqlIdentifier($relationObject['additionalField']);
         }
 
-        $queryValuesRetrieval = "SELECT " . implode(', ', $fields) . " " .
-            "FROM " . $relationObject['table'] . " " .
-            "WHERE " . $relationObject['comparator'] . " = :comparatorId";
+        $queryValuesRetrieval = 'SELECT ' . implode(', ', $fields) . ' '
+            . 'FROM ' . sanitizeSqlIdentifier($relationObject['table']) . ' '
+            . 'WHERE ' . sanitizeSqlIdentifier($relationObject['comparator']) . ' = :comparatorId';
         $stmt = $this->pearDB->prepare($queryValuesRetrieval);
         $stmt->bindParam(':comparatorId', $id, PDO::PARAM_INT);
+        $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            if (!empty($row[$relationObject['field']])) {
-                $tmpValue = $row[$relationObject['field']];
+            if (! empty($row[$safeField])) {
+                $tmpValue = $row[$safeField];
                 if (isset($relationObject['additionalField'])) {
                     $tmpValue .= '-' . $row[$relationObject['additionalField']];
                 }
                 $tmpValues[] = $tmpValue;
             }
         }
+
         return $tmpValues;
-    }
-
-    /**
-     * Authorize to access to the action
-     *
-     * @param string $action The action name
-     * @param CentreonUser $user The current user
-     * @param bool $isInternal If the api is call in internal
-     * @return bool If the user has access to the action
-     */
-    public function authorize($action, $user, $isInternal = false)
-    {
-        if (
-            parent::authorize($action, $user, $isInternal)
-            || ($user && $user->hasAccessRestApiRealtime())
-        ) {
-            return true;
-        }
-
-        return false;
     }
 }

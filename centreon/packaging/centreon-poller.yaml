@@ -49,7 +49,7 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate}"
+  - src: "../bin/{registerServerTopology.sh,registerServerTopologyTemplate,writeEngineSecrets.sh}"
     dst: "/usr/share/centreon/bin/"
     file_info:
       mode: 0755
@@ -88,8 +88,12 @@ overrides:
       - centreon-engine < ${NEXT_MAJOR_VERSION}
       - centreon-connector >= ${MAJOR_VERSION}
       - centreon-connector < ${NEXT_MAJOR_VERSION}
-      - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
-      - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
+      - centreon-gorgone >= ${MAJOR_VERSION}
+      - centreon-gorgone < ${NEXT_MAJOR_VERSION}
+      - centreon-broker-core >= ${MAJOR_VERSION}
+      - centreon-broker-core < ${NEXT_MAJOR_VERSION}
+      - centreon-engine-opentelemetry >= ${MAJOR_VERSION}
+      - centreon-engine-opentelemetry < ${NEXT_MAJOR_VERSION}
       - perl-DBD-MySQL
       - perl-DBD-SQLite
       - nagios-plugins-dhcp >= 2.0.0
@@ -98,7 +102,6 @@ overrides:
       - centreon-plugin-Applications-Databases-Mysql
       - centreon-plugin-Applications-Monitoring-Centreon-Central
       - centreon-plugin-Applications-Monitoring-Centreon-Database
-      - centreon-plugin-Applications-Monitoring-Centreon-Map4-Jmx
       - centreon-plugin-Applications-Monitoring-Centreon-Poller
       - centreon-plugin-Applications-Protocol-Dns
       - centreon-plugin-Applications-Protocol-Ftp
@@ -110,6 +113,7 @@ overrides:
       - centreon-plugin-Network-Cisco-Standard-Snmp
       - centreon-plugin-Operatingsystems-Linux-Snmp
       - centreon-plugin-Operatingsystems-Windows-Snmp
+      - logrotate
     provides:
       - centreon-poller
       - centreon-poller-centreon-engine
@@ -127,8 +131,12 @@ overrides:
       - "centreon-engine (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-connector (>= ${MAJOR_VERSION}~)"
       - "centreon-connector (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
-      - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-gorgone (>= ${MAJOR_VERSION}~)"
+      - "centreon-gorgone (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-broker-core (>= ${MAJOR_VERSION}~)"
+      - "centreon-broker-core (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-engine-opentelemetry (>= ${MAJOR_VERSION}~)"
+      - "centreon-engine-opentelemetry (<< ${NEXT_MAJOR_VERSION}~)"
       - libdbd-mysql-perl
       - libdbd-sqlite3-perl
       - monitoring-plugins-basic
@@ -136,7 +144,6 @@ overrides:
       - centreon-plugin-applications-databases-mysql
       - centreon-plugin-applications-monitoring-centreon-central
       - centreon-plugin-applications-monitoring-centreon-database
-      - centreon-plugin-applications-monitoring-centreon-map4-jmx
       - centreon-plugin-applications-monitoring-centreon-poller
       - centreon-plugin-applications-protocol-dns
       - centreon-plugin-applications-protocol-ftp
@@ -148,6 +155,7 @@ overrides:
       - centreon-plugin-network-cisco-standard-snmp
       - centreon-plugin-operatingsystems-linux-snmp
       - centreon-plugin-operatingsystems-windows-snmp
+      - logrotate
     provides:
       - centreon-poller-centreon-engine
     replaces:

@@ -1,6 +1,7 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import MultiSelectEntries from '.';
+import '../ThemeProvider/tailwindcss.css';
 
 export default {
   argTypes: {
@@ -45,18 +46,18 @@ export const oneElement = (): JSX.Element => (
   <MultiSelectEntries
     emptyLabel={emptyLabel}
     label={label}
-    values={[entries[0]]}
     onClick={noOp}
+    values={[entries[0]]}
   />
 );
 
 export const oneElementHighlight = (): JSX.Element => (
   <MultiSelectEntries
-    highlight
     emptyLabel={emptyLabel}
+    highlight
     label={label}
-    values={[entries[0]]}
     onClick={noOp}
+    values={[entries[0]]}
   />
 );
 
@@ -64,8 +65,8 @@ export const sixElements = (): JSX.Element => (
   <MultiSelectEntries
     emptyLabel={emptyLabel}
     label={label}
-    values={entries}
     onClick={noOp}
+    values={entries}
   />
 );
 
@@ -74,7 +75,7 @@ export const sixElementsError = (): JSX.Element => (
     emptyLabel={emptyLabel}
     error="Something went wrong"
     label={label}
-    values={entries}
     onClick={noOp}
+    values={entries}
   />
 );

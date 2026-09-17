@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@ it('should trim the "name" field', function (): void {
 });
 
 it('should throw an exception when notification name is empty', function (): void {
-    new NewNotification('',
+    new NewNotification(
+        '',
         $this->timePeriod,
         $this->isActivated
     );

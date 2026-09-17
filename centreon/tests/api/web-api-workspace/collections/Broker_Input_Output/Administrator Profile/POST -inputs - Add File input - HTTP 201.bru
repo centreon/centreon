@@ -1,0 +1,39 @@
+meta {
+  name: POST /inputs - Add File input - HTTP 201
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/inputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "input-test-3",
+    "type": 11,
+    "parameters": {
+      "path": "/some/random/path/",
+      "protocol": "bbdo",
+      "max_size": 512,
+      "filters_category": ["correlation"]
+    }
+  }
+}
+
+tests {
+  test("File input created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

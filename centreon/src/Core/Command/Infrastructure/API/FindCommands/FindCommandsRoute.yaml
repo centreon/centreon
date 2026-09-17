@@ -1,5 +1,0 @@
-FindCommands:
-  methods: GET
-  path: /configuration/commands
-  controller: 'Core\Command\Infrastructure\API\FindCommands\FindCommandsController'
-  condition: "request.attributes.get('version') >= 23.10"

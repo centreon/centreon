@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import PageSkeleton from '.';
 
@@ -24,5 +24,5 @@ PlaygroundPageSkeleton.args = {
 export const normal = (): JSX.Element => <PageSkeleton animate={false} />;
 
 export const normalWidthHeaderAndNavigation = (): JSX.Element => (
-  <PageSkeleton displayHeaderAndNavigation animate={false} />
+  <PageSkeleton animate={false} displayHeaderAndNavigation />
 );

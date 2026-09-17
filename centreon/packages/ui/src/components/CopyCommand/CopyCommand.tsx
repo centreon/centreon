@@ -1,13 +1,13 @@
-import hljs from 'highlight.js/lib/core';
+import ContentCopy from '@mui/icons-material/ContentCopy';
 
+import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';
 import json from 'highlight.js/lib/languages/json';
 import php from 'highlight.js/lib/languages/php';
 import yaml from 'highlight.js/lib/languages/yaml';
-
-import ContentCopy from '@mui/icons-material/ContentCopy';
 import parse from 'html-react-parser';
 import { useTranslation } from 'react-i18next';
+
 import { useCopyToClipboard } from '../../utils';
 import { IconButton } from '../Button';
 import { useCopyCommandStyle } from './CopyCommand.styles';
@@ -48,8 +48,8 @@ const CopyCommand = ({ text, commandToCopy, language }: CopyCommandProps) => {
   const { classes, cx } = useCopyCommandStyle();
 
   const { copy } = useCopyToClipboard({
-    successMessage: t(labelCommandCopied),
-    errorMessage: t(labelFailedToCopyCommand)
+    errorMessage: t(labelFailedToCopyCommand),
+    successMessage: t(labelCommandCopied)
   });
 
   const copyCommand = (): Promise<void> | undefined | '' =>
@@ -65,12 +65,12 @@ const CopyCommand = ({ text, commandToCopy, language }: CopyCommandProps) => {
       <div className={classes.languageChip}>{language}</div>
       {commandToCopy && (
         <IconButton
-          data-testid="Copy command"
-          variant="ghost"
           className={classes.copyButton}
+          data-testid="Copy command"
           icon={<ContentCopy fontSize="small" />}
-          size="small"
           onClick={copyCommand}
+          size="small"
+          variant="ghost"
         />
       )}
     </div>

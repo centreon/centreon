@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote\Abstracts;
 
-use Exception;
 use ConfigGenerateRemote\Backend;
 use ConfigGenerateRemote\Manifest;
+use Exception;
 use Pimple\Container;
 
 /**
@@ -35,59 +36,54 @@ abstract class AbstractObject
 {
     /** @var array */
     public $attributes_array;
+
     /** @var array */
     public $attributes_hash;
+
     /** @var array */
     public $attributes_default;
+
     /** @var Backend|null */
     protected $backendInstance = null;
+
     /** @var string|null */
     protected $generateFilename = null;
+
     /** @var string|null */
     protected $table = null;
+
     /** @var array */
     protected $exported = [];
+
     /** @var resource|null */
     protected $fp = null;
+
     /** @var string */
     protected $type = 'infile';
+
     /** @var string */
     protected $subdir = 'configuration';
 
     /** @var array */
     protected $attributesWrite = [];
+
     /** @var array */
     protected $attributesArray = [];
 
     /** @var bool */
     protected $engine = true;
+
     /** @var bool */
     protected $broker = false;
+
     /** @var Container */
     protected $dependencyInjector;
 
     /** @var string|null */
     protected $fieldSeparatorInfile = null;
+
     /** @var string|null */
     protected $lineSeparatorInfile = null;
-
-    /**
-     * Get instance singleton
-     *
-     * @param Container $dependencyInjector
-     * @return object
-     */
-    public static function getInstance(Container $dependencyInjector)
-    {
-        static $instances = [];
-        $calledClass = static::class;
-
-        if (!isset($instances[$calledClass])) {
-            $instances[$calledClass] = new $calledClass($dependencyInjector);
-        }
-
-        return $instances[$calledClass];
-    }
 
     /**
      * Constructor
@@ -111,13 +107,31 @@ abstract class AbstractObject
     }
 
     /**
+     * Get instance singleton
+     *
+     * @param Container $dependencyInjector
+     * @return object
+     */
+    public static function getInstance(Container $dependencyInjector)
+    {
+        static $instances = [];
+        $calledClass = static::class;
+
+        if (! isset($instances[$calledClass])) {
+            $instances[$calledClass] = new $calledClass($dependencyInjector);
+        }
+
+        return $instances[$calledClass];
+    }
+
+    /**
      * Close file if open
      *
      * @return void
      */
     public function closeFile(): void
     {
-        if (!is_null($this->fp)) {
+        if (! is_null($this->fp)) {
             fclose($this->fp);
         }
         $this->fp = null;
@@ -128,8 +142,8 @@ abstract class AbstractObject
      *
      * @param bool $createfile
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset($createfile = false): void
     {
@@ -141,17 +155,58 @@ abstract class AbstractObject
     }
 
     /**
+     * Check if an id has already been generated
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function checkGenerate($id): bool
+    {
+        return (bool) (isset($this->exported[$id]));
+    }
+
+    /**
+     * Get exported ids
+     *
+     * @return array
+     */
+    public function getExported(): array
+    {
+        return $this->exported ?? [];
+    }
+
+    /**
+     * Check if current object is engine
+     *
+     * @return bool
+     */
+    public function isEngineObject(): bool
+    {
+        return $this->engine;
+    }
+
+    /**
+     * Check if current object is broker
+     *
+     * @return bool
+     */
+    public function isBrokerObject(): bool
+    {
+        return $this->broker;
+    }
+
+    /**
      * Create generateFilename in given directory
      *
      * @param string $dir
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     protected function createFile(string $dir): void
     {
         $fullFile = $dir . '/' . $this->subdir . '/' . $this->generateFilename;
-        if (!($this->fp = @fopen($fullFile, 'a+'))) {
+        if (! ($this->fp = @fopen($fullFile, 'a+'))) {
             throw new Exception("Cannot open file (writing permission) '" . $fullFile . "'");
         }
 
@@ -167,22 +222,6 @@ abstract class AbstractObject
                 $this->attributesWrite
             );
         }
-    }
-
-    /**
-     * Convert string in UTF-8
-     *
-     * @param string $str
-     * @return string
-     */
-    private function toUTF8(string $str): string
-    {
-        $finalString = $str;
-        if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {
-            $finalString = mb_convert_encoding($finalString, 'UTF-8');
-        }
-
-        return $finalString;
     }
 
     /**
@@ -214,8 +253,8 @@ abstract class AbstractObject
      * @param array $object
      * @param int|string|null $id
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     protected function generateObjectInFile(array $object, $id = null): void
     {
@@ -223,46 +262,8 @@ abstract class AbstractObject
             $this->createFile($this->backendInstance->getPath());
         }
         $this->writeObject($object);
-        if (!is_null($id)) {
+        if (! is_null($id)) {
             $this->exported[$id] = 1;
-        }
-    }
-
-    /**
-     * Write string in file
-     *
-     * @param array $object
-     * @return void
-     */
-    private function writeNoObject(array $object): void
-    {
-        foreach ($this->attributes_array as &$attr) {
-            if (isset($object[$attr]) && !is_null($object[$attr]) && is_array($object[$attr])) {
-                foreach ($object[$attr] as $v) {
-                    fwrite($this->fp, $this->toUTF8($attr . "=" . $v . "\n"));
-                }
-            }
-        }
-
-        foreach ($this->attributes_hash as &$attr) {
-            if (!isset($object[$attr])) {
-                continue;
-            }
-            foreach ($object[$attr] as $key => &$value) {
-                fwrite($this->fp, $this->toUTF8($key . "=" . $value . "\n"));
-            }
-        }
-
-        foreach ($this->attributesWrite as &$attr) {
-            if (isset($object[$attr]) && !is_null($object[$attr]) && $object[$attr] != '') {
-                fwrite($this->fp, $this->toUTF8($attr . "=" . $object[$attr] . "\n"));
-            }
-        }
-
-        foreach ($this->attributes_default as &$attr) {
-            if (isset($object[$attr]) && !is_null($object[$attr]) && $object[$attr] != 2) {
-                fwrite($this->fp, $this->toUTF8($attr . "=" . $object[$attr] . "\n"));
-            }
         }
     }
 
@@ -271,8 +272,8 @@ abstract class AbstractObject
      *
      * @param array $object
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     protected function generateFile(array $object): void
     {
@@ -284,47 +285,56 @@ abstract class AbstractObject
     }
 
     /**
-     * Check if an id has already been generated
+     * Convert string in UTF-8
      *
-     * @param int $id
-     * @return bool
+     * @param string $str
+     * @return string
      */
-    public function checkGenerate($id): bool
+    private function toUTF8(string $str): string
     {
-        if (isset($this->exported[$id])) {
-            return true;
+        $finalString = $str;
+        if (mb_detect_encoding($finalString, 'UTF-8', true) !== 'UTF-8') {
+            $finalString = mb_convert_encoding($finalString, 'UTF-8');
         }
 
-        return false;
+        return $finalString;
     }
 
     /**
-     * Get exported ids
+     * Write string in file
      *
-     * @return array
+     * @param array $object
+     * @return void
      */
-    public function getExported(): array
+    private function writeNoObject(array $object): void
     {
-        return $this->exported ?? [];
-    }
+        foreach ($this->attributes_array as &$attr) {
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && is_array($object[$attr])) {
+                foreach ($object[$attr] as $v) {
+                    fwrite($this->fp, $this->toUTF8($attr . '=' . $v . "\n"));
+                }
+            }
+        }
 
-    /**
-     * Check if current object is engine
-     *
-     * @return bool
-     */
-    public function isEngineObject(): bool
-    {
-        return $this->engine;
-    }
+        foreach ($this->attributes_hash as &$attr) {
+            if (! isset($object[$attr])) {
+                continue;
+            }
+            foreach ($object[$attr] as $key => &$value) {
+                fwrite($this->fp, $this->toUTF8($key . '=' . $value . "\n"));
+            }
+        }
 
-    /**
-     * Check if current object is broker
-     *
-     * @return bool
-     */
-    public function isBrokerObject(): bool
-    {
-        return $this->broker;
+        foreach ($this->attributesWrite as &$attr) {
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != '') {
+                fwrite($this->fp, $this->toUTF8($attr . '=' . $object[$attr] . "\n"));
+            }
+        }
+
+        foreach ($this->attributes_default as &$attr) {
+            if (isset($object[$attr]) && ! is_null($object[$attr]) && $object[$attr] != 2) {
+                fwrite($this->fp, $this->toUTF8($attr . '=' . $object[$attr] . "\n"));
+            }
+        }
     }
 }

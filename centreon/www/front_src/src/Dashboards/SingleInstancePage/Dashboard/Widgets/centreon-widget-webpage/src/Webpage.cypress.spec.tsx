@@ -24,7 +24,11 @@ const initialize = ({
           globalRefreshInterval={globalRefreshInterval}
           hasDescription={false}
           id={widgetId}
-          panelOptions={{ url }}
+          panelOptions={{
+            refreshInterval: 'custom',
+            refreshIntervalCustom: 100,
+            url
+          }}
           queryClient={new QueryClient()}
           refreshCount={0}
           store={store}
@@ -58,8 +62,8 @@ describe('Web page', () => {
 
   it('refreshes the iframe content at the specified interval', () => {
     initialize({
-      url: 'docs.centreon.com',
-      globalRefreshInterval: { interval: 1000, type: 'automatic' }
+      globalRefreshInterval: { interval: 1000, type: 'automatic' },
+      url: 'docs.centreon.com'
     });
 
     cy.findByTestId('Webpage Display').as('iframe');
@@ -74,8 +78,8 @@ describe('Web page', () => {
   it('generates the correct iframe ID based on widgetId', () => {
     const widgetId = '1';
     initialize({
-      url: 'docs.centreon.com',
       globalRefreshInterval: { interval: null, type: 'manual' },
+      url: 'docs.centreon.com',
       widgetId
     });
 
@@ -84,8 +88,8 @@ describe('Web page', () => {
 
   it('transforms a URL correctly when missing http prefix', () => {
     initialize({
-      url: 'docs.centreon.com',
-      globalRefreshInterval: { interval: null, type: 'manual' }
+      globalRefreshInterval: { interval: null, type: 'manual' },
+      url: 'docs.centreon.com'
     });
 
     cy.findByTestId('Webpage Display').should(

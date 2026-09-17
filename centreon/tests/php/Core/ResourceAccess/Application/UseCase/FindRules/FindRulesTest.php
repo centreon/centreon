@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Core\ResourceAccess\Application\UseCase\FindRules;
 
@@ -27,7 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
@@ -43,8 +43,6 @@ use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceCategoryFilt
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceFilterType;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\Providers\ServiceGroupFilterType;
 use Core\ResourceAccess\Domain\Model\Rule;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Tests\Core\ResourceAccess\Infrastructure\API\FindRules\FindRulesPresenterStub;
 
 beforeEach(closure: function (): void {
@@ -66,22 +64,15 @@ beforeEach(closure: function (): void {
     $this->user = $this->createMock(ContactInterface::class);
     $this->repository = $this->createMock(ReadResourceAccessRepositoryInterface::class);
     $this->presenter = new FindRulesPresenterStub($this->createMock(PresenterFormatterInterface::class));
-    $this->accessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 
-    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->accessGroupRepository, true);
+    $this->useCase = new FindRules($this->user, $this->repository, $this->requestParameters, $this->adminResolver);
 });
 
 it('should present an ErrorResponse when an exception occurs', function (): void {
-    $this->accessGroupRepository
+    $this->adminResolver
         ->expects($this->once())
-        ->method('findByContact')
-        ->willReturn(
-            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
-        );
-
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
+        ->method('isAdmin')
         ->willReturn(true);
 
     $exception = new \Exception();
@@ -99,16 +90,9 @@ it('should present an ErrorResponse when an exception occurs', function (): void
 });
 
 it('should present an ErrorResponse when an error occurs concerning the request parameters', function (): void {
-    $this->accessGroupRepository
+    $this->adminResolver
         ->expects($this->once())
-        ->method('findByContact')
-        ->willReturn(
-            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
-        );
-
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
+        ->method('isAdmin')
         ->willReturn(true);
 
     $this->repository
@@ -123,16 +107,9 @@ it('should present an ErrorResponse when an error occurs concerning the request 
 });
 
 it('should present a FindRulesResponse when no error occurs (custom_admin)', function (): void {
-    $this->accessGroupRepository
+    $this->adminResolver
         ->expects($this->once())
-        ->method('findByContact')
-        ->willReturn(
-            [new AccessGroup(1, 'customer_admin_acl', 'not an admin')]
-        );
-
-    $this->user
-        ->expects($this->once())
-        ->method('hasTopologyRole')
+        ->method('isAdmin')
         ->willReturn(true);
 
     $rule = new Rule(
@@ -162,12 +139,10 @@ it('should present a FindRulesResponse when no error occurs (custom_admin)', fun
 });
 
 it('should present a FindRulesResponse when no error occurs (custom_editor)', function (): void {
-    $this->accessGroupRepository
+    $this->adminResolver
         ->expects($this->once())
-        ->method('findByContact')
-        ->willReturn(
-            [new AccessGroup(1, 'customer_editor_acl', 'not an admin')]
-        );
+        ->method('isAdmin')
+        ->willReturn(false);
 
     $rule = new Rule(
         id: 1,

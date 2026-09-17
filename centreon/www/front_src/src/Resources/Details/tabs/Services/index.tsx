@@ -1,21 +1,22 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-
-import { useRequest } from '@centreon/ui';
 import type { ListingModel } from '@centreon/ui';
+import { useRequest } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { has } from 'ramda';
 
 import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';
-import InfiniteScroll from '../../InfiniteScroll';
 import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
-
-import { has } from 'ramda';
+import InfiniteScroll from '../../InfiniteScroll';
 import ServiceList from './List';
 import LoadingSkeleton from './LoadingSkeleton';
 
 const ServicesTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest({
-    request: listResources
+    request: listResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ListingModel<Resource>>
   });
 
   const details = useAtomValue(detailsAtom);
@@ -64,8 +65,8 @@ const ServicesTab = (): JSX.Element => {
         return (
           <ServiceList
             infiniteScrollTriggerRef={infiniteScrollTriggerRef}
-            services={entities}
             onSelectService={selectResource}
+            services={entities}
           />
         );
       }}

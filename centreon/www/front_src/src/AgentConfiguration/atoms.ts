@@ -1,24 +1,39 @@
 import { SelectEntry } from '@centreon/ui';
+
 import { atom } from 'jotai';
-import { equals, findIndex, remove } from 'ramda';
+import { atomWithStorage } from 'jotai/utils';
+import { equals, findIndex, isNotNil, remove } from 'ramda';
+
 import { AgentType } from './models';
+import {
+  baseKey,
+  defaultSelectedColumnIds,
+  filtersInitialValues
+} from './utils';
 
 export const pageAtom = atom(0);
 export const limitAtom = atom(10);
-export const searchAtom = atom('');
+
 export const sortOrderAtom = atom('asc');
 export const sortFieldAtom = atom('name');
-export const filtersAtom = atom({
-  agentTypes: [],
-  pollers: []
-});
+
 export const itemToDeleteAtom = atom<{
   agent: SelectEntry;
   poller?: SelectEntry;
 } | null>(null);
 export const agentTypeFormAtom = atom<AgentType | null>(null);
 export const openFormModalAtom = atom<number | 'add' | null>(null);
+export const isEditingAtom = atom<boolean>((get) => {
+  const modal = get(openFormModalAtom);
+
+  return isNotNil(modal) && !equals(modal, 'add');
+});
 export const askBeforeCloseFormModalAtom = atom(false);
+
+export const pollerToGenerateCommandAtom = atom<{
+  id?: number;
+  name?: string;
+} | null>(null);
 
 export const changeSortAtom = atom(
   null,
@@ -30,7 +45,7 @@ export const changeSortAtom = atom(
 
 interface ChangeFilterProps {
   field: string;
-  newEntries: Array<SelectEntry>;
+  newEntries: Array<SelectEntry> | string;
 }
 
 export const changeFilterAtom = atom(
@@ -52,10 +67,12 @@ interface DeleteFilterProps {
 export const deleteFilterEntryAtom = atom(
   null,
   (get, set, { field, entryToDelete }: DeleteFilterProps) => {
-    const fieldEntries = get(filtersAtom)[field];
+    const fieldEntries = (
+      get(filtersAtom) as unknown as Record<string, unknown>
+    )[field] as Array<SelectEntry>;
 
     const entryToDeleteIndex = findIndex(
-      ({ id }) => equals(entryToDelete.id, id),
+      ({ id }: SelectEntry) => equals(entryToDelete.id, id),
       fieldEntries
     );
 
@@ -65,4 +82,16 @@ export const deleteFilterEntryAtom = atom(
     });
     set(pageAtom, 0);
   }
+);
+
+export const isWelcomePageDisplayedAtom = atom<boolean>(true);
+
+export const filtersAtom = atomWithStorage(
+  `${baseKey}_filters`,
+  filtersInitialValues
+);
+
+export const selectedColumnIdsAtom = atomWithStorage(
+  `${baseKey}_column-ids`,
+  defaultSelectedColumnIds
 );

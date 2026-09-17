@@ -1,4 +1,5 @@
 import { JsonDecoder } from 'ts.data.json';
+
 import { GetVaultConfiguration } from '../models';
 
 export const getVaultConfigurationDecoder =

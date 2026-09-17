@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-
-import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
 import { Switch, Tooltip } from '@mui/material';
 
 import { ComponentColumnProps, Method, useMutationQuery } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
 import {
@@ -13,7 +12,6 @@ import {
   labelDisabled,
   labelEnabled
 } from '../../translatedLabels';
-
 import useActivateStyles from './Activate.styles';
 
 const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
@@ -31,7 +29,7 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   }, [row?.isActivated]);
 
   const { mutateAsync } = useMutationQuery({
-    getEndpoint: () => resourceAccessRuleEndpoint({ id: row.id }),
+    getEndpoint: () => resourceAccessRuleEndpoint({ id: row.id as number }),
     method: Method.PATCH,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] })
@@ -50,11 +48,11 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
       <Switch
         aria-label={t(labelActiveOrInactive)}
-        checked={checked}
+        checked={Boolean(checked)}
         className={classes.switch}
         color="success"
-        size="small"
         onClick={onClick}
+        size="small"
       />
     </Tooltip>
   );

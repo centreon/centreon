@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import {
   dashboardRefreshIntervalAtom,
@@ -10,14 +10,10 @@ import {
   labelDashboardGlobalInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
-
 import RefreshInterval from './RefreshInterval';
 
 const initializeComponent = (
-  refreshInterval: {
-    interval: number | null;
-    type: 'global' | 'manual';
-  } = {
+  refreshInterval: { interval: number | null; type: 'global' | 'manual' } = {
     interval: null,
     type: 'global' as const
   }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -49,7 +50,8 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteHost
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -61,6 +63,7 @@ final class DeleteHost
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
@@ -111,11 +114,12 @@ final class DeleteHost
         $this->debug('Start transaction');
 
         $this->storageEngine->startTransaction();
-        $isVaultActive = $this->writeVaultRepository->isVaultConfigured();
+        $isVaultActive = $this->vaultEligibilityService->shouldUseVault();
         try {
-            $serviceIds = $this->readServiceRepository->findServiceIdsLinkedToHostId($host->getId());
+            // Only delete services that are exclusively linked to this host
+            $serviceIds = $this->readServiceRepository->findServiceIdsExclusivelyLinkedToHostId($host->getId());
             if ($serviceIds !== []) {
-                $this->info('Services to delete', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
+                $this->info('Services to delete (exclusively linked to this host)', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
                 if ($isVaultActive) {
                     $serviceUuids = $this->retrieveServiceUuidsFromVault($serviceIds);
                     $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
@@ -184,7 +188,7 @@ final class DeleteHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (

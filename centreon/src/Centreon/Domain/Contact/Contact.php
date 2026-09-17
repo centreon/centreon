@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,12 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Contact;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -56,6 +58,47 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_DELETE_POLLER_CFG = 'DELETE_POLLER_CFG';
     public const ROLE_DISPLAY_TOP_COUNTER = 'DISPLAY_TOP_COUNTER';
     public const ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS = 'DISPLAY_TOP_COUNTER_POLLERS_STATISTICS';
+    public const ROLE_SEE_CHECK_COMMANDS = 'SEE_CHECK_COMMANDS';
+    public const ROLE_MANAGE_CHECK_COMMANDS = 'MANAGE_CHECK_COMMANDS';
+    public const ROLE_SEE_NOTIFICATION_COMMANDS = 'SEE_NOTIFICATION_COMMANDS';
+    public const ROLE_MANAGE_NOTIFICATION_COMMANDS = 'MANAGE_NOTIFICATION_COMMANDS';
+    public const ROLE_SEE_DISCOVERY_COMMANDS = 'SEE_DISCOVERY_COMMANDS';
+    public const ROLE_MANAGE_DISCOVERY_COMMANDS = 'MANAGE_DISCOVERY_COMMANDS';
+    public const ROLE_SEE_MISCELLANEOUS_COMMANDS = 'SEE_MISCELLANEOUS_COMMANDS';
+    public const ROLE_MANAGE_MISCELLANEOUS_COMMANDS = 'MANAGE_MISCELLANEOUS_COMMANDS';
+    public const ACTION_ROLES = [
+        self::ROLE_HOST_CHECK,
+        self::ROLE_HOST_FORCED_CHECK,
+        self::ROLE_SERVICE_CHECK,
+        self::ROLE_SERVICE_FORCED_CHECK,
+        self::ROLE_HOST_ACKNOWLEDGEMENT,
+        self::ROLE_HOST_DISACKNOWLEDGEMENT,
+        self::ROLE_SERVICE_ACKNOWLEDGEMENT,
+        self::ROLE_SERVICE_DISACKNOWLEDGEMENT,
+        self::ROLE_CANCEL_HOST_DOWNTIME,
+        self::ROLE_CANCEL_SERVICE_DOWNTIME,
+        self::ROLE_ADD_HOST_DOWNTIME,
+        self::ROLE_ADD_SERVICE_DOWNTIME,
+        self::ROLE_SERVICE_SUBMIT_RESULT,
+        self::ROLE_HOST_SUBMIT_RESULT,
+        self::ROLE_HOST_ADD_COMMENT,
+        self::ROLE_SERVICE_ADD_COMMENT,
+        self::ROLE_DISPLAY_COMMAND,
+        self::ROLE_GENERATE_CONFIGURATION,
+        self::ROLE_MANAGE_TOKENS,
+        self::ROLE_CREATE_EDIT_POLLER_CFG,
+        self::ROLE_DELETE_POLLER_CFG,
+        self::ROLE_DISPLAY_TOP_COUNTER,
+        self::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
+        self::ROLE_SEE_CHECK_COMMANDS,
+        self::ROLE_MANAGE_CHECK_COMMANDS,
+        self::ROLE_SEE_NOTIFICATION_COMMANDS,
+        self::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+        self::ROLE_SEE_DISCOVERY_COMMANDS,
+        self::ROLE_MANAGE_DISCOVERY_COMMANDS,
+        self::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+        self::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
+    ];
 
     // user pages access
     public const ROLE_HOME_DASHBOARD_VIEWER = 'ROLE_HOME_DASHBOARDS_VIEWER_RW';
@@ -106,7 +149,7 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_GRAPH_TEMPLATES_RW = 'ROLE_MONITORING_PERFORMANCES_TEMPLATES_RW';
     public const ROLE_CONFIGURATION_CONNECTORS_R = 'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R';
     public const ROLE_CONFIGURATION_CONNECTORS_RW = 'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW';
-    public const ROLE_ADMINISTRATION_API_TOKENS_RW = 'ROLE_ADMINISTRATION_API_TOKENS_RW';
+    public const ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW = 'ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW';
     public const ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW = 'ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW';
     public const ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW = 'ROLE_ADMINISTRATION_ACL_RESOURCE_ACCESS_MANAGEMENT_RW';
     public const ROLE_ADMINISTRATION_PARAMETERS_MONITORING_RW = 'ROLE_ADMINISTRATION_PARAMETERS_MONITORING_RW';
@@ -114,9 +157,9 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_CONFIGURATION_BROKER_RW = 'ROLE_CONFIGURATION_POLLERS_BROKER_CONFIGURATION_RW';
     public const ROLE_MONITORING_PERFORMANCES_RW = 'ROLE_MONITORING_PERFORMANCES_RW';
     public const ROLE_MONITORING_RW = 'ROLE_MONITORING_RW';
-
     public const ROLE_CONFIGURATION_ACC_RW = 'ROLE_CONFIGURATION_CONNECTORS_ADDITIONAL_CONFIGURATIONS_RW';
     public const ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW = 'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW';
+    public const ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW = 'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW';
 
     /**
      * @var string
@@ -128,99 +171,63 @@ class Contact implements UserInterface, ContactInterface
      */
     public const DEFAULT_CHARSET = 'UTF-8';
 
-    /**
-     * @var int Id of contact
-     */
+    /** @var int Id of contact */
     private $id;
 
-    /**
-     * @var string Name of contact
-     */
+    /** @var string Name of contact */
     private $name;
 
-    /**
-     * @var string Alias of contact
-     */
+    /** @var string Alias of contact */
     private $alias;
 
-    /**
-     * @var string Language of contact
-     */
+    /** @var string Language of contact */
     private $lang;
 
-    /**
-     * @var string Email of contact
-     */
+    /** @var string Email of contact */
     private $email;
 
-    /**
-     * @var bool Is an admin contact ?
-     */
+    /** @var bool Is an admin contact ? */
     private $isAdmin;
 
-    /**
-     * @var int|null Id of the contact template
-     */
+    /** @var int|null Id of the contact template */
     private $templateId;
 
-    /**
-     * @var bool Indicates whether this contact is enabled or disabled
-     */
+    /** @var bool Indicates whether this contact is enabled or disabled */
     private $isActive;
 
-    /**
-     * @var bool Indicates whether this contact is allowed to reach centreon application
-     */
+    /** @var bool Indicates whether this contact is allowed to reach centreon application */
     private $isAllowedToReachWeb;
 
-    /**
-     * @var string|null Authentication Token
-     */
+    /** @var string|null Authentication Token */
+    #[Sensitive]
     private $token;
 
-    /**
-     * @var string|null Encoded password
-     */
+    /** @var string|null Encoded password */
+    #[Sensitive]
     private $encodedPassword;
 
-    /**
-     * @var bool Indicates if this user has access to the configuration section of API
-     */
+    /** @var bool Indicates if this user has access to the configuration section of API */
     private $hasAccessToApiConfiguration;
 
-    /**
-     * @var bool Indicates if this user has access to the real time section of API
-     */
+    /** @var bool Indicates if this user has access to the real time section of API */
     private $hasAccessToApiRealTime;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $roles = [];
 
-    /**
-     * @var string[] List of names of topology rules to which the contact can access
-     */
+    /** @var string[] List of names of topology rules to which the contact can access */
     private $topologyRulesNames = [];
 
-    /**
-     * @var \DateTimeZone $timezone timezone of the user
-     */
+    /** @var \DateTimeZone timezone of the user */
     private $timezone;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private int $timezoneId;
 
-    /**
-     * @var string|null $locale locale of the user
-     */
+    /** @var string|null locale of the user */
     private $locale;
 
-    /**
-     * @var Page|null
-     */
+    /** @var Page|null */
     private $defaultPage;
 
     /**
@@ -230,9 +237,9 @@ class Contact implements UserInterface, ContactInterface
      */
     private $useDeprecatedPages;
 
-    /**
-     * @var string|null
-     */
+    private bool $useDeprecatedCustomViews;
+
+    /** @var string|null */
     private $theme;
 
     /** @var string|null */
@@ -240,6 +247,7 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param int $timezoneId
+     *
      * @return self
      */
     public function setTimezoneId(int $timezoneId): self
@@ -267,11 +275,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param int $id
+     *
      * @return self
      */
     public function setId(int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -285,11 +295,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $name
+     *
      * @return self
      */
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -303,11 +315,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $alias
+     *
      * @return self
      */
     public function setAlias(string $alias): self
     {
         $this->alias = $alias;
+
         return $this;
     }
 
@@ -321,11 +335,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $lang
+     *
      * @return self
      */
     public function setLang(string $lang): self
     {
         $this->lang = $lang;
+
         return $this;
     }
 
@@ -339,11 +355,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string $email
+     *
      * @return self
      */
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -359,6 +377,7 @@ class Contact implements UserInterface, ContactInterface
      * Set if the user is admin or not.
      *
      * @param bool $isAdmin
+     *
      * @return self
      */
     public function setAdmin(bool $isAdmin): self
@@ -367,7 +386,11 @@ class Contact implements UserInterface, ContactInterface
         if ($this->isAdmin) {
             $this->addRole(self::ROLE_API_REALTIME);
             $this->addRole(self::ROLE_API_CONFIGURATION);
+            foreach (self::ACTION_ROLES as $role) {
+                $this->addRole($role);
+            }
         }
+
         return $this;
     }
 
@@ -381,11 +404,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param int|null $templateId
+     *
      * @return self
      */
     public function setTemplateId(?int $templateId): self
     {
         $this->templateId = $templateId;
+
         return $this;
     }
 
@@ -399,11 +424,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param bool $isActive
+     *
      * @return self
      */
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
         return $this;
     }
 
@@ -435,11 +462,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string|null $token
+     *
      * @return self
      */
     public function setToken(?string $token): self
     {
         $this->token = $token;
+
         return $this;
     }
 
@@ -453,11 +482,13 @@ class Contact implements UserInterface, ContactInterface
 
     /**
      * @param string|null $encodedPassword
+     *
      * @return self
      */
     public function setEncodedPassword(?string $encodedPassword): self
     {
         $this->encodedPassword = $encodedPassword;
+
         return $this;
     }
 
@@ -489,6 +520,7 @@ class Contact implements UserInterface, ContactInterface
         foreach ($roles as $role) {
             $this->addRole($role);
         }
+
         return $this;
     }
 
@@ -509,6 +541,7 @@ class Contact implements UserInterface, ContactInterface
         foreach ($topologyRoles as $topologyRole) {
             $this->addTopologyRule($topologyRole);
         }
+
         return $this;
     }
 
@@ -545,17 +578,6 @@ class Contact implements UserInterface, ContactInterface
     public function getUsername()
     {
         return $this->name;
-    }
-
-    /**
-     * Removes sensitive data from the user.
-     *
-     * This is important if, at any given point, sensitive information like
-     * the plain-text password is stored on this object.
-     */
-    public function eraseCredentials(): void
-    {
-        // Nothing to do. But we must to define this method
     }
 
     /**
@@ -601,6 +623,7 @@ class Contact implements UserInterface, ContactInterface
         } else {
             $this->removeRole(self::ROLE_API_REALTIME);
         }
+
         return $this;
     }
 
@@ -627,20 +650,8 @@ class Contact implements UserInterface, ContactInterface
      */
     public function addRole(string $roleName): void
     {
-        if (!in_array($roleName, $this->roles)) {
+        if (! in_array($roleName, $this->roles)) {
             $this->roles[] = $roleName;
-        }
-    }
-
-    /**
-     * Removes an existing roles.
-     *
-     * @param string $roleName Role name to remove
-     */
-    private function removeRole(string $roleName): void
-    {
-        if (($index = array_search($roleName, $this->roles)) !== false) {
-            unset($this->roles[$index]);
         }
     }
 
@@ -651,7 +662,7 @@ class Contact implements UserInterface, ContactInterface
      */
     public function addTopologyRule(string $topologyRuleName): void
     {
-        if (!in_array($topologyRuleName, $this->topologyRulesNames)) {
+        if (! in_array($topologyRuleName, $this->topologyRulesNames)) {
             $this->topologyRulesNames[] = $topologyRuleName;
         }
     }
@@ -660,11 +671,13 @@ class Contact implements UserInterface, ContactInterface
      * timezone setter
      *
      * @param \DateTimeZone $timezone
+     *
      * @return self
      */
     public function setTimezone(\DateTimeZone $timezone): self
     {
         $this->timezone = $timezone;
+
         return $this;
     }
 
@@ -682,11 +695,13 @@ class Contact implements UserInterface, ContactInterface
      * locale setter
      *
      * @param string|null $locale
+     *
      * @return self
      */
     public function setLocale(?string $locale): self
     {
         $this->locale = $locale;
+
         return $this;
     }
 
@@ -706,6 +721,7 @@ class Contact implements UserInterface, ContactInterface
     public function setDefaultPage(?Page $defaultPage): static
     {
         $this->defaultPage = $defaultPage;
+
         return $this;
     }
 
@@ -737,6 +753,18 @@ class Contact implements UserInterface, ContactInterface
         return $this;
     }
 
+    public function isUsingDeprecatedCustomViews(): bool
+    {
+        return $this->useDeprecatedCustomViews;
+    }
+
+    public function setUseDeprecatedCustomViews(bool $useDeprecatedCustomViews): static
+    {
+        $this->useDeprecatedCustomViews = $useDeprecatedCustomViews;
+
+        return $this;
+    }
+
     /**
      * @inheritDoc
      */
@@ -748,12 +776,14 @@ class Contact implements UserInterface, ContactInterface
     /**
      * Set user current theme.
      *
-     * @param string $theme user's new theme.
+     * @param string $theme user's new theme
+     *
      * @return self
      */
     public function setTheme(string $theme): self
     {
         $this->theme = $theme;
+
         return $this;
     }
 
@@ -785,5 +815,71 @@ class Contact implements UserInterface, ContactInterface
     public function getUserInterfaceDensity(): ?string
     {
         return $this->userInterfaceDensity;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormatDate(): string
+    {
+        $dateFormatter = new \IntlDateFormatter(
+            $this->getLocale(),
+            \IntlDateFormatter::SHORT,
+            \IntlDateFormatter::SHORT,
+            $this->getTimezone()
+        );
+        $format = $dateFormatter->getPattern();
+
+        return $this->convertIntlPatternToDateTimeFormat($format);
+    }
+
+    /**
+     * Removes an existing roles.
+     *
+     * @param string $roleName Role name to remove
+     */
+    private function removeRole(string $roleName): void
+    {
+        if (($index = array_search($roleName, $this->roles)) !== false) {
+            unset($this->roles[$index]);
+        }
+    }
+
+    /**
+     * IntlDateFormatter used a different format than DateTime::format.
+     * This method converts IntlDateFormatter pattern to DateTime format.
+     *
+     * @param string $intlPattern
+     *
+     * @return string
+     */
+    private function convertIntlPatternToDateTimeFormat(string $intlPattern): string
+    {
+        $intlToPhp = [
+            'yyyy' => 'Y',
+            'yy' => 'y',
+            'MMMM' => 'F',
+            'MMM' => 'M',
+            'MM' => 'm',
+            'M' => 'n',
+            'dd' => 'd',
+            'd' => 'j',
+            'EEEE' => 'l',
+            'EEE' => 'D',
+            'HH' => 'H',
+            'H' => 'G',
+            'hh' => 'h',
+            'h' => 'g',
+            'mm' => 'i',
+            'ss' => 's',
+            'SSS' => 'u',
+            'a' => 'A',
+            'zzzz' => 'e',
+            'zzz' => 'T',
+            'zz' => 'T',
+            'z' => 'T',
+        ];
+
+        return strtr($intlPattern, $intlToPhp);
     }
 }

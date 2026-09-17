@@ -1,28 +1,31 @@
+import { darken, getLuminance, lighten, type Theme } from '@mui/material';
+
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import {
-  T,
   always,
   cond,
   equals,
+  flatten,
   gt,
   gte,
   head,
+  isEmpty,
   isNil,
   last,
   length,
   lt,
   lte,
   pluck,
+  T,
   type
 } from 'ramda';
 
-import { Theme, darken, getLuminance, lighten } from '@mui/material';
-
-import { BarStyle } from '../BarChart/models';
-import { LineStyle } from '../Chart/models';
-import { Threshold, Thresholds } from './models';
-import { formatMetricValue } from './timeSeries';
-import { Line, TimeValue } from './timeSeries/models';
+import type { BarStyle } from '../BarChart/models';
+import type { LineStyle } from '../Chart/models';
+import type { Threshold, Thresholds } from './models';
+import { formatMetricValueWithUnit } from './timeSeries';
+import type { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
   baseColor?: string;
@@ -123,6 +126,7 @@ export const emphasizeCurveColor = ({
 
   if (gte(getLuminance(color), 0.5)) {
     if (gte(index, totalLevels * 2)) {
+      // @ts-expect-error - suppressing pre-existing type mismatch
       return darken(color, normalizeLevel({ factor, level: last(levels) }));
     }
     if (gte(index, totalLevels)) {
@@ -136,6 +140,7 @@ export const emphasizeCurveColor = ({
   }
 
   if (gte(index, totalLevels * 2)) {
+    // @ts-expect-error - suppressing pre-existing type mismatch
     return lighten(color, normalizeLevel({ factor, level: last(levels) }));
   }
   if (gte(index, totalLevels)) {
@@ -199,8 +204,10 @@ export const getStyle = ({
   metricId
 }: GetStyleProps): BarStyle | LineStyle => {
   return equals(type(style), 'Array')
-    ? style.find((metricStyle) => equals(metricId, metricStyle.metricId))
-    : style;
+    ? // @ts-expect-error - suppressing pre-existing type mismatch
+      style.find((metricStyle) => equals(metricId, metricStyle.metricId))
+    : // @ts-expect-error - suppressing pre-existing type mismatch
+      style;
 };
 
 interface GetFormattedAxisValuesProps {
@@ -220,31 +227,54 @@ export const getFormattedAxisValues = ({
   lines,
   threshold
 }: GetFormattedAxisValuesProps): Array<string> => {
-  const metricId = (lines.find(({ unit }) => equals(unit, axisUnit)) as Line)
-    ?.metric_id;
+  const filteredMetrics = lines.filter(({ unit }) => equals(unit, axisUnit));
 
-  if (isNil(metricId)) {
+  if (isEmpty(filteredMetrics)) {
     return [];
   }
-  const formattedData = timeSeries.map((data) =>
-    formatMetricValue({
-      value: data[metricId],
-      unit: axisUnit,
-      base
-    })
+
+  const metricIds = pluck('metric_id', filteredMetrics);
+
+  const formattedData = metricIds.map((metricId) =>
+    timeSeries.map((data) =>
+      formatMetricValueWithUnit({
+        base,
+        unit: axisUnit,
+        value: data[metricId]
+      })
+    )
   );
+
+  const flattenedFormattedData = flatten(formattedData);
 
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
-        formatMetricValue({
-          value,
+        formatMetricValueWithUnit({
+          base,
           unit: axisUnit,
-          base
+          value
         })
       ) || []
     : [];
 
-  return formattedData
+  return flattenedFormattedData
     .concat(formattedThresholdValues)
     .filter((v) => v) as Array<string>;
+};
+
+export const computeGElementMarginLeft = (maxLeftCharacters: number): number =>
+  maxLeftCharacters * 5;
+
+export const computPixelsToShiftMouse = (
+  xScale: import('d3-scale').ScaleTime<number, number>
+): number => {
+  const domain = xScale.domain();
+
+  const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');
+
+  if (!hoursDiffInGraph) {
+    return 0;
+  }
+
+  return Math.round(8 / hoursDiffInGraph);
 };

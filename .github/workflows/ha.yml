@@ -6,83 +6,132 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
+      - ".github/workflows/ha.yml"
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
-      - "!centreon-ha/veracode.json"
-      - "!centreon-ha/.veracode-exclusions"
   push:
     branches:
       - dev-[2-9][0-9].[0-9][0-9].x
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-ha"
       - "centreon-ha/**"
-      - "!centreon-ha/veracode.json"
-      - "!centreon-ha/.veracode-exclusions"
+    tags:
+      - "centreon-ha-*"
 
 env:
   module: ha
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   get-environment:
+    needs: [dependency-scan]
+    if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-ha/.env
+      labels: ${{ inputs.labels || '' }}
+
+  changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.event.pull_request.head.repo.fork != true
+    needs: [get-environment]
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-ha"
+        "centreon-ha/bin/**"
+        "centreon-ha/etc/**"
+        "centreon-ha/lib/**"
+        "centreon-ha/ocf-scripts/**"
+        "centreon-ha/packaging/**"
+        "centreon-ha/systemd/**"
+        "centreon-ha/.env"
+      frontend_production_paths: |
+        ""
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
 
   package:
-    needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        include:
-          - package_extension: rpm
-            image: packaging-alma8
-            distrib: el8
-          - package_extension: rpm
-            image: packaging-alma9
-            distrib: el9
-          - package_extension: deb
-            image: packaging-bookworm
-            distrib: bookworm
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
-    uses: ./.github/workflows/package.yml
-    with:
-      base_directory: centreon-ha
-      spec_file: centreon-ha/packaging/centreon-ha.spectemplate
-      package_extension: ${{ matrix.package_extension }}
-      image_name: ${{ matrix.image }}
-      module_name: ha
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      release: ${{ needs.get-environment.outputs.release }}
-      commit_hash: ${{ github.sha }}
-      cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-      distrib: ${{ matrix.distrib }}
-    secrets:
-      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-      registry_private_username: ${{ secrets.HARBOR_CENTREON_PRIVATE_USERNAME }}
-      registry_private_token: ${{ secrets.HARBOR_CENTREON_PRIVATE_TOKEN }}
+    runs-on: ubuntu-24.04
+
+    container:
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
+
+    name: package ${{ matrix.distrib }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Package
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon-ha/packaging/*.yaml"
+          module_name: centreon-ha
+          distrib: ${{ matrix.distrib }}
+          package_extension: ${{ matrix.package_extension }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
+          upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, package]
-    if: ${{ contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && github.repository == 'centreon/centreon' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -94,23 +143,29 @@ jobs:
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
-  delivery-rpm:
-    needs: [get-environment, package]
+  deliver:
+    needs: [get-environment, changes, package]
     if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
-    runs-on: centreon-common
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
-        distrib: [el8, el9]
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
+    name: deliver ${{ matrix.distrib }}
+    permissions:
+      contents: read
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Delivery
+      - name: Deliver RPM package on Artifactory
+        if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
           module_name: ha
@@ -121,25 +176,11 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  deliver-deb:
-    needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.is_cloud == 'false' &&
-      contains(fromJson('["unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
-    runs-on: centreon-common
-
-    strategy:
-      matrix:
-        distrib: [bookworm]
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Delivery
+      - name: Deliver DEB package on Artifactory
+        if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
           module_name: ha
@@ -151,27 +192,108 @@ jobs:
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-#   promote:
-#     needs: [get-environment]
-#     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch' && needs.get-environment.outputs.is_cloud == 'false' && github.repository == 'centreon/centreon' }}
-#     runs-on: centreon-common
-#     strategy:
-#       matrix:
-#         distrib: [el8, el9, bookworm]
+  promote:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
 
-#     steps:
-#       - name: Checkout sources
-#         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    name: promote ${{ matrix.distrib }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-#       - name: Promote ${{ matrix.distrib }} to stable
-#         uses: ./.github/actions/promote-to-stable
-#         with:
-#           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-#           module: ha
-#           distrib: ${{ matrix.distrib }}
-#           major_version: ${{ needs.get-environment.outputs.major_version }}
-#           minor_version: ${{ needs.get-environment.outputs.minor_version }}
-#           stability: ${{ needs.get-environment.outputs.stability }}
-#           github_ref_name: ${{ github.ref_name }}
-#           release_type: ${{ needs.get-environment.outputs.release_type }}
-#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+      - name: Promote ${{ matrix.distrib }} to stable on Artifactory
+        uses: ./.github/actions/promote-to-stable
+        with:
+          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          github_ref_name: ${{ github.ref_name }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  deliver-pulp:
+    needs: [get-environment, changes, package]
+    if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: centreon-ubuntu-22.04
+
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+
+    name: deliver ${{ matrix.distrib }} (pulp)
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Deliver packages on Pulp
+        id: deliver_pulp
+        uses: ./.github/actions/package-delivery-pulp
+        with:
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+  promote-pulp:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+      github.event_name != 'workflow_dispatch' &&
+      needs.get-environment.outputs.is_cloud == 'false' &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: centreon-ubuntu-22.04
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+
+    name: promote ${{ matrix.distrib }} (pulp)
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Promote ${{ matrix.distrib }} to stable on Pulp
+        id: promote_pulp
+        uses: ./.github/actions/promote-to-stable-pulp
+        with:
+          module_name: ha
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}

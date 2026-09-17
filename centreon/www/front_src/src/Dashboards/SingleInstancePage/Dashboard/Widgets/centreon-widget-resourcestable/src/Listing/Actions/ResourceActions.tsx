@@ -1,11 +1,13 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { all, equals, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import { SeverityCode, useSnackbar } from '@centreon/ui';
+
+import { useAtom, useSetAtom } from 'jotai';
+import { all, equals, pathEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   resourcesToAcknowledgeAtom,
@@ -21,11 +23,10 @@ import {
   labelForcedCheckDescription,
   labelSetDowntime
 } from '../translatedLabels';
-
-import CheckActionButton from './Check';
-import ResourceActionButton from './ResourceActionButton';
 import useAclQuery from './aclQuery';
+import CheckActionButton from './Check';
 import { Action, CheckActionModel } from './model';
+import ResourceActionButton from './ResourceActionButton';
 
 const useStyles = makeStyles()((theme) => ({
   action: {
@@ -42,7 +43,7 @@ const ResourceActions = (): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
-  const resources = useAtomValue(selectedResourcesAtom);
+  const [resources, setSelectedResources] = useAtom(selectedResourcesAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
 
@@ -50,10 +51,12 @@ const ResourceActions = (): JSX.Element => {
 
   const onSuccessCheckAction = (): void => {
     showSuccessMessage(t(labelCheckCommandSent));
+    setSelectedResources([]);
   };
 
   const onSuccessForcedCheckAction = (): void => {
     showSuccessMessage(t(labelForcedCheckCommandSent));
+    setSelectedResources([]);
   };
 
   const checkAction: CheckActionModel = {
@@ -79,7 +82,7 @@ const ResourceActions = (): JSX.Element => {
   ];
 
   const extractActionsInformation = (
-    key
+    key: Action
   ): Record<string, boolean | undefined> | Record<string, never> => {
     const item = actions.find(({ action }) => action === key);
 
@@ -156,9 +159,9 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableAcknowledge}
               icon={<IconAcknowledge />}
               label={t(labelAcknowledge)}
+              onClick={prepareToAcknowledge}
               permitted={isAcknowledgePermitted}
               testId="mainAcknowledge"
-              onClick={prepareToAcknowledge}
             />
           </div>
         )}
@@ -169,9 +172,9 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableDowntime}
               icon={<IconDowntime />}
               label={t(labelSetDowntime)}
+              onClick={prepareToSetDowntime}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
-              onClick={prepareToSetDowntime}
             />
           </div>
         )}

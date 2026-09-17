@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
+import { Box, Link } from '@mui/material';
 
 import { always, ifElse, isNil } from 'ramda';
-
-import { Box, Link } from '@mui/material';
+import type { ReactElement } from 'react';
 
 import PersistentTooltip from './PersistentTooltip';
 
@@ -48,7 +47,9 @@ const RegexpHelpTooltip = ({
   urlTip,
   labelUrlTip
 }: TooltipProps): JSX.Element => {
-  const displayElement = (element): ((prop) => ReactElement | null) =>
+  const displayElement = (
+    element: ReactElement
+  ): ((prop: unknown) => ReactElement | null) =>
     ifElse(isNil, always(null), always(element));
 
   const content = (

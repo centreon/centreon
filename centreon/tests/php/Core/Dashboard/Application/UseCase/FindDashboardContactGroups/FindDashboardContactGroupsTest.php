@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardContactGroupRole;
 use Core\Dashboard\Domain\Model\Role\DashboardGlobalRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->requestParameters = $this->createMock(RequestParametersInterface::class);
@@ -123,8 +124,12 @@ it(
             roles: [DashboardGlobalRole::Creator]
         );
 
+        $this->readAccessgroupRepository->expects($this->any())
+            ->method('findByContact')
+            ->willReturn([new AccessGroup(1, 'access_group', 'alias')]);
+
         $this->readDashboardShareRepository->expects($this->once())
-            ->method('findContactGroupsWithAccessRightByUserAndRequestParameters')
+            ->method('findContactGroupsWithAccessRightByACLGroupsAndRequestParameters')
             ->willReturn([$contactGroupRole]);
 
         $response = ($this->useCaseOnPremise)();

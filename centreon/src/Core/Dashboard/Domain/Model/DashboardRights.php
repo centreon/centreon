@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,32 +52,32 @@ class DashboardRights
 
     public function canDelete(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canUpdate(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canCreateShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canDeleteShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canUpdateShare(DashboardSharingRoles $roles): bool
     {
-        return DashboardSharingRole::Editor === $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() === DashboardSharingRole::Editor;
     }
 
     public function canAccessShare(DashboardSharingRoles $roles): bool
     {
-        return null !== $roles->getTheMostPermissiveRole();
+        return $roles->getTheMostPermissiveRole() !== null;
     }
 
     public function hasAdminRole(): bool

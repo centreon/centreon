@@ -1,17 +1,17 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
-import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import { Provider, createStore } from 'jotai';
 
 import { Switch } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { retrievedUser } from './mockedData';
+import localizedFormatPlugin from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import { createStore, Provider } from 'jotai';
 
 import TimePeriod from './index';
+import { retrievedUser } from './mockedData';
 
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -35,7 +35,7 @@ const data = [
   }
 ];
 
-data.forEach((item) =>
+data.forEach((item) => {
   describe('Time period', () => {
     const { height, width } = item.resolution;
     beforeEach(() => {
@@ -70,5 +70,5 @@ data.forEach((item) =>
         title: `${width}px`
       });
     });
-  })
-);
+  });
+});

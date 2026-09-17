@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ final class PartialUpdateDashboard
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -77,7 +77,7 @@ final class PartialUpdateDashboard
     public function __invoke(
         int $dashboardId,
         PartialUpdateDashboardRequest $request,
-        PartialUpdateDashboardPresenterInterface $presenter
+        PartialUpdateDashboardPresenterInterface $presenter,
     ): void {
         try {
             if ($this->isUserAdmin()) {
@@ -157,10 +157,10 @@ final class PartialUpdateDashboard
      */
     private function partialUpdateDashboardAsAdmin(
         int $dashboardId,
-        PartialUpdateDashboardRequest $request
+        PartialUpdateDashboardRequest $request,
     ): NoContentResponse|NotFoundResponse {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             return new NotFoundResponse('Dashboard');
         }
         $this->updateDashboardAndSave($dashboard, $request);
@@ -178,10 +178,10 @@ final class PartialUpdateDashboard
      */
     private function partialUpdateDashboardAsContact(
         int $dashboardId,
-        PartialUpdateDashboardRequest $request
+        PartialUpdateDashboardRequest $request,
     ): NoContentResponse|NotFoundResponse|ForbiddenResponse {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             return new NotFoundResponse('Dashboard');
         }
 
@@ -218,7 +218,7 @@ final class PartialUpdateDashboard
 
             $this->writeDashboardRepository->update($updatedDashboard);
 
-            if (null !== $panelsDifference) {
+            if ($panelsDifference !== null) {
                 foreach ($panelsDifference->getPanelIdsToDelete() as $id) {
                     $this->writeDashboardPanelRepository->deletePanel($id);
                 }

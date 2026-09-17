@@ -1,11 +1,10 @@
-import { ReactNode } from 'react';
+import { useMemoComponent } from '@centreon/ui';
 
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { useMemoComponent } from '@centreon/ui';
-
-import { TimeShiftDirection } from './models';
+import type { TimeShiftDirection } from './models';
 
 export const timeShiftIconSize = 20;
 
@@ -46,6 +45,7 @@ const TimeShiftIcon = ({
     Component: (
       <g>
         <svg {...svgProps}>
+          <title>time shift icon</title>
           <rect
             fill="transparent"
             height={timeShiftIconSize}

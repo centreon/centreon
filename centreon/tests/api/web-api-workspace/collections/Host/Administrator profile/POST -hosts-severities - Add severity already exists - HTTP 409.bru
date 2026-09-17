@@ -1,0 +1,43 @@
+meta {
+  name: POST /hosts/severities - Add severity already exists - HTTP 409
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity2Name}}",
+    "alias": "{{HostSeverity2Alias}}",
+    "level": 4,
+    "icon_id": 2,
+    "is_activated": false,
+    "comment": "I look like a category but with something more"
+  }
+}
+
+assert {
+  res.status: eq 409
+}
+
+tests {
+  test("Ressource already exists", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("code").that.is.a("number");
+    expect(body).to.have.property("message").that.is.an("string");
+    
+    expect(body.message).to.contain("already exists");
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

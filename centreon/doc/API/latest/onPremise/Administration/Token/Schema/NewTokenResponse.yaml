@@ -9,7 +9,9 @@ properties:
     description: "Authentication token"
     example: "xxxxxxx"
   user:
-    type: object
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -23,10 +25,11 @@ properties:
     type: object
     properties:
       id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Token creator ID"
         example: 23
-        nullable: true
       name:
         type: string
         description: "Token creator name"
@@ -37,7 +40,9 @@ properties:
     format: date-time
     example: '2023-08-31T15:46:00+02:00'
   expiration_date:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Expiration date of the API authentication token"
     format: date-time
     example: '2024-08-31T00:00:00+00:00'
@@ -45,3 +50,8 @@ properties:
     type: boolean
     description: "Indicate if the token has been revoked"
     example: false
+  type:
+    type: string
+    enum: ["cma", "api", "poller"]
+    description: "Type of the token"
+    example: "cma"

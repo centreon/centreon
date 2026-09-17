@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { alpha } from '@mui/system';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useDeleteConfirmationDialogStyles = makeStyles()((theme) => ({
   confimButton: {

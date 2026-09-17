@@ -1,2 +1,2 @@
-export { default as RichTextEditor } from './RichTextEditor';
 export type { RichTextEditorProps } from './RichTextEditor';
+export { default as RichTextEditor } from './RichTextEditor';

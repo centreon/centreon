@@ -1,7 +1,6 @@
-import { SelectEntry } from '../..';
 import { buildListingEndpoint } from '../../../..';
-import { Listing } from '../../../../api/models';
-
+import type { Listing } from '../../../../api/models';
+import type { SelectEntry } from '../..';
 import MultiConnectedAutocompleteField from './Multi';
 import SingleConnectedAutocompleteField from './Single';
 
@@ -37,6 +36,7 @@ const getEndpoint = ({ endpoint, parameters }): string =>
 
 const mockSearch = (page: number): object => ({
   delay: 1000,
+  headers: { 'Content-Type': 'application/json' },
   method: 'GET',
   response: (request): Listing<SelectEntry> => {
     const { searchParams } = request;

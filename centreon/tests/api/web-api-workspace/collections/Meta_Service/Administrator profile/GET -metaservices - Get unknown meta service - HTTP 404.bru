@@ -1,0 +1,26 @@
+meta {
+  name: GET /configuration/metaservices/{metaId} - Get unknown meta service - HTTP 404
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/metaservices/999999999
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+tests {
+  test("Requesting an unknown meta service returns HTTP 404.", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

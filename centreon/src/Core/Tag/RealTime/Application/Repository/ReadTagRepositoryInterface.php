@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,34 +23,10 @@ declare(strict_types=1);
 
 namespace Core\Tag\RealTime\Application\Repository;
 
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Tag\RealTime\Domain\Model\Tag;
 
 interface ReadTagRepositoryInterface
 {
-    /**
-     * Find all tags.
-     *
-     * @param int $typeId
-     *
-     * @throws \Throwable
-     *
-     * @return Tag[]
-     */
-    public function findAllByTypeId(int $typeId): array;
-
-    /**
-     * Find all tags.
-     *
-     * @param int $typeId
-     * @param AccessGroup[] $accessGroups
-     *
-     * @throws \Throwable
-     *
-     * @return Tag[]
-     */
-    public function findAllByTypeIdAndAccessGroups(int $typeId, array $accessGroups): array;
-
     /**
      * Find tags of type typeId linked to the resource (identified by id and parentId).
      *

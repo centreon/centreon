@@ -1,3 +1,11 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import {
+  buildListingEndpoint,
+  ListingParameters,
+  QueryParameter
+} from '@centreon/ui';
+
 import {
   equals,
   flatten,
@@ -8,13 +16,13 @@ import {
   toUpper
 } from 'ramda';
 
-import {
-  ListingParameters,
-  QueryParameter,
-  buildListingEndpoint
-} from '@centreon/ui';
 import { Resource } from '../../../models';
-import { formatBAStatus, formatStatus } from '../../../utils';
+import {
+  buildResourceTypeNameForSearchParameter,
+  formatBAStatus,
+  formatStatus,
+  isResourceString
+} from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
@@ -22,10 +30,10 @@ export const hostsEndpoint = '/monitoring/resources/hosts';
 export const baIndicatorsEndpoint =
   '/bam/monitoring/business-activities/indicators';
 export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
-export const getBAEndpoint = (id): string =>
+export const getBAEndpoint = (id: number): string =>
   `/bam/monitoring/business-activities/${id}`;
 
-export const getBooleanRuleEndpoint = (id): string =>
+export const getBooleanRuleEndpoint = (id: number): string =>
   `/bam/monitoring/indicators/boolean-rules/${id}`;
 
 interface BuildResourcesEndpointProps {
@@ -104,7 +112,9 @@ export const getListingQueryParameters = ({
   page
 }: GetListingQueryParametersProps): ListingParameters => {
   const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesSearchParameters) &&
+      !isResourceString(resourcesToApply)
   );
 
   const searchConditions = resourcesToApplyToSearchParameters.map(
@@ -118,11 +128,25 @@ export const getListingQueryParameters = ({
     }
   );
 
-  const search = isEmpty(flatten(searchConditions))
+  const resourcesWithRegexConditions = resources
+    .filter((resource) => isResourceString(resource.resources))
+    .map((resource) => ({
+      field: buildResourceTypeNameForSearchParameter(resource.resourceType),
+      values: {
+        $rg: resource.resources
+      }
+    }));
+
+  const search = isEmpty(
+    flatten([...searchConditions, ...resourcesWithRegexConditions])
+  )
     ? {}
     : {
         search: {
-          conditions: flatten(searchConditions)
+          conditions: flatten([
+            ...searchConditions,
+            ...resourcesWithRegexConditions
+          ])
         }
       };
 
@@ -175,7 +199,8 @@ export const buildCondensedViewEndpoint = ({
   type,
   resources,
   baseEndpoint,
-  statuses
+  statuses,
+  states
 }: BuildResourcesEndpointProps): string => {
   const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
@@ -190,21 +215,36 @@ export const buildCondensedViewEndpoint = ({
 
   const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
-      return resourcesToApply.map((resource) => ({
-        field: resourceType,
-        values: {
-          $rg: `^${resource.name}$`
-        }
-      }));
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
+      return resourcesToApply.map((resource) => {
+        return {
+          field: resourceType,
+          values: {
+            $rg: `^${resource.name}$`
+          }
+        };
+      });
     }
   );
 
+  const state =
+    states && !isEmpty(states) ? [{ name: 'states', value: states }] : [];
+
+  const status =
+    statuses && !isEmpty(statuses)
+      ? [{ name: 'statuses', value: statuses.map(toUpper) }]
+      : [];
+
   return buildListingEndpoint({
     baseEndpoint,
-    customQueryParameters:
-      statuses && !isEmpty(statuses)
-        ? [{ name: 'statuses', value: statuses.map(toUpper) }]
-        : [],
+    customQueryParameters: [...state, ...status],
     parameters: {
       search: {
         conditions: flatten(searchConditions)

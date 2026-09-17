@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,58 +25,54 @@ namespace Core\Security\Token\Infrastructure\API\AddToken;
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Security\Token\Application\Exception\TokenException;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
 use Core\Security\Token\Application\UseCase\AddToken\AddToken;
-use Core\Security\Token\Application\UseCase\AddToken\AddTokenRequest;
-use Symfony\Component\HttpFoundation\Request;
+use Core\Security\Token\Infrastructure\Voters\TokenVoters;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    TokenVoters::TOKEN_ADD,
+    null,
+    'You are not allowed to add tokens',
+    Response::HTTP_FORBIDDEN
+)]
 final class AddTokenController extends AbstractController
 {
     use LoggerTrait;
 
     /**
-     * @param Request $request
+     * @param AddTokenInput $request
      * @param AddToken $useCase
-     * @param AddTokenPresenter $presenter
+     * @param StandardPresenter $presenter
      *
      * @throws AccessDeniedException
      *
      * @return Response
      */
     public function __invoke(
-        Request $request,
+        #[MapRequestPayload()] AddTokenInput $request,
         AddToken $useCase,
-        AddTokenPresenter $presenter,
+        StandardPresenter $presenter,
     ): Response {
-        $this->denyAccessUnlessGrantedForAPIConfiguration();
+        $response = $useCase(AddTokenRequestTransformer::transform($request));
 
-         try {
-            /** @var array{
-             *     name: string,
-             *     user_id: int,
-             *     expiration_date: string
-             * } $data
-             */
-            $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddTokenSchema.json');
-
-            $dto = new AddTokenRequest();
-            $dto->name = $data['name'];
-            $dto->userId = $data['user_id'];
-            $dto->expirationDate = new \DateTimeImmutable($data['expiration_date']);
-
-            $useCase($dto, $presenter);
-        } catch (\InvalidArgumentException $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse(TokenException::addToken()));
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
         }
 
-        return $presenter->show();
+        return JsonResponse::fromJsonString(
+            $presenter->present(
+                $response,
+                [
+                    'groups' => ['Token:Add'],
+                ]
+            ),
+            Response::HTTP_CREATED
+        );
     }
 }

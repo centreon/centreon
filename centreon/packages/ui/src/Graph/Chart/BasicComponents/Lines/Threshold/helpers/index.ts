@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 
-import {
+import type {
   ArePointsOnline,
   EnvelopeVariationFormula,
   Online,

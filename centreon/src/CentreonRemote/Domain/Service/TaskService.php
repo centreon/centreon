@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class TaskService
      */
     public function __construct(
         CentreonDBManagerService $dbManager,
-        CentcoreCommandService $cmdService
+        CentcoreCommandService $cmdService,
     ) {
         $this->dbManager = $dbManager;
         $this->cmdService = $cmdService;
@@ -113,17 +113,16 @@ class TaskService
             case Task::TYPE_EXPORT:
             case Task::TYPE_IMPORT:
                 $newTask->setType($type);
-                $result = $this->getDbManager()->getAdapter('configuration_db')->insert('task', $newTask->toArray());
-
+                $taskId = $this->getDbManager()->getAdapter('configuration_db')->insert('task', $newTask->toArray());
                 $cmd = new Command();
-                $cmd->setCommandLine(Command::COMMAND_START_IMPEX_WORKER);
+                $cmd->setCommandLine(Command::COMMAND_START_IMPEX_WORKER . ':' . $taskId);
                 $cmdWritten = $this->getCmdService()->sendCommand($cmd);
                 break;
             default:
                 return false;
         }
 
-        return ($result && $cmdWritten) ? $result : false;
+        return ($taskId && $cmdWritten) ? $taskId : false;
     }
 
     /**

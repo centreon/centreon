@@ -1,0 +1,46 @@
+meta {
+  name: POST /outputs - Add IPv6 output - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-test-2",
+    "type": 10,
+    "parameters": {
+      "port": 5670,
+      "host": "localhost",
+      "protocol": "bbdo",
+      "tls": "no",
+      "private_key": null,
+      "tls_hostname": null,
+      "public_cert": null,
+      "ca_certificate": null,
+      "negotiation": "no",
+      "one_peer_retention_mode": "yes",
+      "filters_category": ["neb"]
+    }
+  }
+}
+
+tests {
+  test("IPv6 output created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

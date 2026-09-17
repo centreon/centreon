@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
 
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface UpdateSAMLConfigurationPresenterInterface extends PresenterInterface
+interface UpdateSAMLConfigurationPresenterInterface
 {
+    public function presentResponse(ResponseStatusInterface $response): void;
 }

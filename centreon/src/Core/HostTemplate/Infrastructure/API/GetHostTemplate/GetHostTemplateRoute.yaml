@@ -1,0 +1,7 @@
+GetHostTemplate:
+  methods: GET
+  path: /configuration/hosts/templates/{hostTemplateId}
+  requirements:
+    hostTemplateId: '\d+'
+  controller: 'Core\HostTemplate\Infrastructure\API\GetHostTemplate\GetHostTemplateController'
+  condition: "request.attributes.get('version') >= 25.10"

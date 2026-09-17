@@ -1,9 +1,8 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Add as AddIcon } from '@mui/icons-material';
 
-import { Button } from '../Button';
+import type { Meta, StoryObj } from '@storybook/react';
 
+import { Button } from '../Button';
 import { Menu } from '.';
 
 const meta: Meta<typeof Menu> = {

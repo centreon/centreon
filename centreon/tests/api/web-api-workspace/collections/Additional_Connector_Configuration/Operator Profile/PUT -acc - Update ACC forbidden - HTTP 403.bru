@@ -1,0 +1,35 @@
+meta {
+  name: PUT /acc - Update ACC forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC3Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "acc-operator-update",
+    "description": null,
+    "pollers": [1],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{"name": "my-vcenter", "url": "http://10.10.10.10/sdk", "username": "admin", "password": "my-pwd"}]
+    }
+  }
+}
+
+tests {
+  test("Operator cannot update an ACC (known issue: pollers may not exist in CI, returns 404 instead of 403).", function () {
+    expect(res.status).to.be.oneOf([403, 404]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,4 +1,4 @@
-import { GraphInterval, GraphIntervalProperty } from '../../models';
+import type { GraphInterval, GraphIntervalProperty } from '../../models';
 
 export enum TimeShiftDirection {
   backward = 0,

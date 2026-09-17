@@ -1,45 +1,30 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-include "./include/common/autoNumLimit.php";
-require_once __DIR__ . "/listFunction.php";
+include './include/common/autoNumLimit.php';
+require_once __DIR__ . '/listFunction.php';
 
 $labels = ['name' => _('Name'), 'description' => _('Description'), 'status' => _('Status'), 'enabled' => _('Enabled'), 'disabled' => _('Disabled')];
 
-$searchLdap = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$searchLdap = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchLdap'] ?? $_GET['searchLdap'] ?? null
 );
 
@@ -64,28 +49,28 @@ $statement = $pearDB->prepare("UPDATE options SET `value` = :value WHERE `key` =
 $statement->bindValue(':value', $enableLdap, PDO::PARAM_STR);
 $statement->execute();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 $list = $ldapConf->getLdapConfigurationList($searchLdap, ($num * $limit), $limit);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path . 'ldap/');
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?o=ldap&p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?o=ldap&p=' . $p);
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "&o=ldap');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "&o=ldap');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 $tpl->assign('list', $list);
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=ldap&new=1", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=ldap&new=1', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+    [null => _('More actions...'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     getActionList('o1')
 );
 $form->setDefaults(['o1' => null]);
@@ -94,7 +79,7 @@ $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+    [null => _('More actions...'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     getActionList('o2')
 );
 $form->setDefaults(['o2' => null]);
@@ -112,7 +97,7 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('labels', $labels);
 $tpl->assign('searchLdap', $searchLdap);
 $tpl->assign('p', $p);
-$tpl->display("list.ihtml");
+$tpl->display('list.ihtml');
 ?>
 <script type="text/javascript">
     function setA(_i) {

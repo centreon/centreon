@@ -1,12 +1,10 @@
-import { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Add as AddIcon } from '@mui/icons-material';
 import { Typography as MuiTypography } from '@mui/material';
 
-import { Button } from '../../Button';
+import type { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { Button } from '../../Button';
 import { useStyles } from './DataTableEmptyState.styles';
 
 type ListEmptyStateProps = {
@@ -19,12 +17,14 @@ type ListEmptyStateProps = {
     description?: string;
   };
   onCreate?: () => void;
+  buttonCreateTestId?: string;
 };
 
 const DataTableEmptyState = ({
   labels,
   onCreate,
-  canCreate = true
+  canCreate = true,
+  buttonCreateTestId
 }: ListEmptyStateProps): ReactElement => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -44,6 +44,7 @@ const DataTableEmptyState = ({
         {canCreate && (
           <Button
             aria-label="create"
+            data-testid={buttonCreateTestId}
             icon={<AddIcon />}
             iconVariant="start"
             onClick={() => onCreate?.()}

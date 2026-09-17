@@ -1,0 +1,35 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import { useAtomValue } from 'jotai';
+import { equals, filter, length, pipe, toPairs } from 'ramda';
+
+import { filtersAtom } from '../atoms';
+import { filtersInitialValues } from '../utils';
+
+const countDifferences = (
+  defaultValues: Record<string, unknown>,
+  values: Record<string, unknown>
+) =>
+  pipe(
+    toPairs,
+    filter(([key, val]) => !equals(val, values[key])),
+    length
+  )(defaultValues);
+
+interface Props {
+  isClear: boolean;
+  changedFiltersCount: number;
+}
+
+const useCountChangedFilters = (): Props => {
+  const filters = useAtomValue(filtersAtom);
+
+  const changedFiltersCount = countDifferences(filtersInitialValues, filters);
+
+  return {
+    changedFiltersCount,
+    isClear: equals(changedFiltersCount, 0)
+  };
+};
+
+export default useCountChangedFilters;

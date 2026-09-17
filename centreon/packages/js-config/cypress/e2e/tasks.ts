@@ -19,6 +19,13 @@ interface Containers {
   [key: string]: StartedTestContainer;
 }
 
+class NotFoundContainerError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotFoundContainerError';
+  }
+}
+
 export default (on: Cypress.PluginEvents): void => {
   let dockerEnvironment: StartedDockerComposeEnvironment | null = null;
   const containers: Containers = {};
@@ -31,7 +38,7 @@ export default (on: Cypress.PluginEvents): void => {
     } else if (containers[containerName]) {
       container = containers[containerName];
     } else {
-      throw new Error(`Cannot get container ${containerName}`);
+      throw new NotFoundContainerError(`Cannot get container ${containerName}`);
     }
 
     return container;
@@ -68,7 +75,11 @@ export default (on: Cypress.PluginEvents): void => {
             });
           });
       } catch (error) {
-        console.error(error);
+        if (error instanceof NotFoundContainerError) {
+          console.log(`Cannot get ${source} from container ${serviceName} because it doesn't exist.`);
+        } else {
+          console.error(error);
+        }
       }
 
       return null;
@@ -139,7 +150,12 @@ export default (on: Cypress.PluginEvents): void => {
         return null;
       }
     },
-    requestOnDatabase: async ({ database, query }) => {
+    getContainerMappedPort: async ({ containerName, containerPort }) => {
+      const container = getContainer(containerName);
+
+      return container.getMappedPort(containerPort);
+    },
+    requestOnDatabase: async ({ database, query, params }) => {
       let container: StartedTestContainer | null = null;
 
       if (dockerEnvironment !== null) {
@@ -156,11 +172,15 @@ export default (on: Cypress.PluginEvents): void => {
         user: "centreon",
       });
 
-      const [rows, fields] = await client.query(query);
+      try {
+        const [rows, fields] = params
+          ? await client.execute(query, params)
+          : await client.query(query);
 
-      await client.end();
-
-      return [rows, fields];
+        return [rows, fields];
+      } finally {
+        await client.end();
+      }
     },
     startContainer: async ({
       command,
@@ -190,6 +210,8 @@ export default (on: Cypress.PluginEvents): void => {
     startContainers: async ({
       composeFile,
       databaseImage,
+      dbConfiguration,
+      dbStorage,
       openidImage,
       profiles,
       samlImage,
@@ -199,18 +221,26 @@ export default (on: Cypress.PluginEvents): void => {
         const composeFileDir = path.dirname(composeFile);
         const composeFileName = path.basename(composeFile);
 
+        const environment: Record<string, string> = {
+          MYSQL_IMAGE: databaseImage,
+          OPENID_IMAGE: openidImage,
+          SAML_IMAGE: samlImage,
+          WEB_IMAGE: webImage,
+        };
+        if (dbConfiguration) {
+          environment.MYSQL_DB_CONFIGURATION = dbConfiguration;
+        }
+        if (dbStorage) {
+          environment.MYSQL_DB_STORAGE = dbStorage;
+        }
+
         dockerEnvironment = await new DockerComposeEnvironment(
           composeFileDir,
           composeFileName,
         )
-          .withEnvironment({
-            MYSQL_IMAGE: databaseImage,
-            OPENID_IMAGE: openidImage,
-            SAML_IMAGE: samlImage,
-            WEB_IMAGE: webImage,
-          })
+          .withEnvironment(environment)
           .withProfiles(...profiles)
-          .withStartupTimeout(120000)
+          .withStartupTimeout(900_000) // 15 minutes
           .withWaitStrategy(
             "web-1",
             Wait.forAll([
@@ -222,8 +252,15 @@ export default (on: Cypress.PluginEvents): void => {
 
         return null;
       } catch (error) {
-        if (error instanceof Error) {
-          console.error(error.message);
+        console.error(error);
+
+        // Best-effort teardown: keep the original startup error if cleanup fails.
+        try {
+          await dockerEnvironment?.down();
+        } catch (teardownError) {
+          console.error(teardownError);
+        } finally {
+          dockerEnvironment = null;
         }
 
         throw error;
@@ -242,7 +279,7 @@ export default (on: Cypress.PluginEvents): void => {
     },
     stopContainers: async () => {
       if (dockerEnvironment !== null) {
-        await dockerEnvironment.down();
+        await dockerEnvironment.down({ timeout: 0 });
 
         dockerEnvironment = null;
       }
@@ -267,6 +304,69 @@ export default (on: Cypress.PluginEvents): void => {
     },
     fileExists: async ( filePath ) => {
       return fs.existsSync(filePath);
+    },
+    getExportedFile({ downloadsFolder }: { downloadsFolder: string }): string {
+      const files = fs
+        .readdirSync(downloadsFolder)
+        .filter((name) => name.startsWith("ResourceStatusExport_all") && name.endsWith(".csv"))
+        .map((name) => ({
+          name,
+          time: fs.statSync(path.join(downloadsFolder, name)).mtime.getTime()
+        }))
+        .sort((a, b) => b.time - a.time);
+
+      if (files.length === 0) {
+        throw new Error("No exported file found");
+      }
+
+      return path.join(downloadsFolder, files[0].name);
+    },
+    readCsvFile({ filePath }: { filePath: string }): Promise<string> {
+      const projectRoot = path.resolve(process.cwd());
+      const resolvedPath = path.resolve(filePath);
+      if (resolvedPath !== projectRoot && !resolvedPath.startsWith(projectRoot + path.sep)) {
+        return Promise.reject(new Error("Path is outside of the project directory"));
+      }
+
+      return new Promise((resolve, reject) => {
+        fs.readFile(resolvedPath, "utf8", (err, data) => {
+          if (err) return reject(err);
+          resolve(data);
+        });
+      });
+    },
+    clearDownloadsFolder({ downloadsFolder }: { downloadsFolder: string }): null {
+      const projectRoot = path.resolve(process.cwd());
+      const resolvedFolder = path.resolve(downloadsFolder);
+      if (resolvedFolder !== projectRoot && !resolvedFolder.startsWith(projectRoot + path.sep)) {
+        throw new Error("Path is outside of the project directory");
+      }
+
+      if (!fs.existsSync(resolvedFolder)) {
+        return null;
+      }
+
+      const files = fs.readdirSync(resolvedFolder);
+      for (const file of files) {
+        const filePath = path.join(resolvedFolder, file);
+        if (!filePath.startsWith(resolvedFolder + path.sep)) {
+          continue;
+        }
+        fs.unlinkSync(filePath);
+      }
+
+      return null;
+    },
+    isDownloadComplete({ downloadsFolder }: { downloadsFolder: string }): boolean {
+      if (!fs.existsSync(downloadsFolder)) return false;
+
+      const files = fs
+        .readdirSync(downloadsFolder)
+        .filter(
+          (name) => !name.endsWith(".crdownload") && !name.endsWith(".tmp")
+        );
+
+      return files.length > 0;
     },
   });
 };

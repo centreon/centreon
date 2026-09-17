@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ final class DeleteDashboardFromFavoritesController extends AbstractController
      */
     public function __invoke(
         int $dashboardId,
-        DeleteDashboardFromFavorites $useCase
+        DeleteDashboardFromFavorites $useCase,
     ): Response {
         return $this->createResponse($useCase($dashboardId));
     }

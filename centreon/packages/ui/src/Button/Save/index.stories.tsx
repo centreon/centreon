@@ -1,9 +1,10 @@
-import { ComponentStory } from '@storybook/react';
+import type { Theme } from '@mui/material';
+
+import type { ComponentStory } from '@storybook/react';
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme } from '@mui/material';
-
 import ButtonSave from '.';
+import '../../ThemeProvider/tailwindcss.css';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
@@ -55,11 +56,11 @@ export const largeWithText = (): JSX.Element => (
 );
 
 export const loadingWithTextAndMediumSize = (): JSX.Element => (
-  <ButtonSave loading labelLoading="Loading" size="medium" />
+  <ButtonSave labelLoading="Loading" loading size="medium" />
 );
 
 export const succeededWithText = (): JSX.Element => (
-  <ButtonSave succeeded labelSucceeded="Succeeded" />
+  <ButtonSave labelSucceeded="Succeeded" succeeded />
 );
 
 export const normalWithTextAndSmallSize = (): JSX.Element => (
@@ -67,15 +68,15 @@ export const normalWithTextAndSmallSize = (): JSX.Element => (
 );
 
 export const loadingWithTextAndSmallSize = (): JSX.Element => (
-  <ButtonSave loading labelLoading="Loading" size="small" />
+  <ButtonSave labelLoading="Loading" loading size="small" />
 );
 
 export const loadingWithTextAndLargeSize = (): JSX.Element => (
-  <ButtonSave loading labelLoading="Loading" size="large" />
+  <ButtonSave labelLoading="Loading" loading size="large" />
 );
 
 export const succeededWithTextAndSmallSize = (): JSX.Element => (
-  <ButtonSave succeeded labelSucceeded="Succeeded" size="small" />
+  <ButtonSave labelSucceeded="Succeeded" size="small" succeeded />
 );
 
 const CustomButton = (): JSX.Element => {

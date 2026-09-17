@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ namespace Tests\Core\Service\Application\UseCase\PartialUpdateService;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\PerformanceGraph\Application\Repository\ReadPerformanceGraphRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
@@ -53,6 +54,7 @@ beforeEach(closure: function (): void {
         $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class),
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->contact = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 });
 
@@ -125,6 +127,10 @@ it('should raise an exception when the time period ID does not exist', function 
 );
 
 it('should raise an exception when the severity ID does not exist', function (): void {
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->serviceSeverityRepository
         ->expects($this->once())
         ->method('exists')
@@ -164,7 +170,7 @@ it('should raise an exception when the icon ID does not exist', function (): voi
 );
 
 it('should raise an exception when the host ID does not exist, as an administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -181,7 +187,7 @@ it('should raise an exception when the host ID does not exist, as an administrat
 );
 
 it('should raise an exception when the host ID does not exist, as a non-administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -198,7 +204,7 @@ it('should raise an exception when the host ID does not exist, as a non-administ
 );
 
 it('should raise an exception when the service category IDs do not exist, as an administrator', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -214,10 +220,8 @@ it('should raise an exception when the service category IDs do not exist, as an 
     ServiceException::idsDoNotExist('service_categories', [1])->getMessage()
 );
 
-it('should raise an exception when the service category IDs do not exist, as a non-administrator', function ():
-void {
-
-    $this->contact
+it('should raise an exception when the service category IDs do not exist, as a non-administrator', function (): void {
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -236,7 +240,7 @@ void {
 it('should raise an exception when the service group IDs do not exist, as an administrator', function (): void {
     $serviceGroupIds = [1, 2, 3];
 
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -255,7 +259,7 @@ it('should raise an exception when the service group IDs do not exist, as an adm
 it('should raise an exception when the service group IDs do not exist, as a non-administrator', function (): void {
     $serviceGroupIds = [1, 2, 3];
 
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

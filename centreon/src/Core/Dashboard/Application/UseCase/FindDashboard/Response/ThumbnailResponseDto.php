@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Dashboard\Application\UseCase\FindDashboard\Response;
 
-readonly final class ThumbnailResponseDto
+final readonly class ThumbnailResponseDto
 {
     public function __construct(
         public int $id = 0,
@@ -32,4 +32,3 @@ readonly final class ThumbnailResponseDto
     ) {
     }
 }
-

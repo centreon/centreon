@@ -1,0 +1,47 @@
+meta {
+  name: POST /hosts/groups - Create HG with all properties - HTTP 201
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostGroup1Name}}",
+    "alias": "{{HostGroup1Alias}}",
+    "icon_id": null,
+    "geo_coords": null,
+    "comment": "Hello world! 1",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host group has been successfully created, with name '{{HostGroup1Name}}' and alias '{{HostGroup1Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostGroup1Id", body.id);
+    expect(body).to.eql({
+      "id": body.id,
+      "name": bru.getEnvVar("HostGroup1Name"),
+      "alias": bru.getEnvVar("HostGroup1Alias"),
+      "icon_id": null,
+      "geo_coords": null,
+      "comment": "Hello world! 1",
+      "hosts": []
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

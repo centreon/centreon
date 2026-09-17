@@ -1,0 +1,46 @@
+meta {
+  name: POST /pollers - Create VM poller returns installation command - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/pollers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{PollerName}}",
+    "address": "{{PollerAddress}}",
+    "poller_type": "vm",
+    "poller_token_name": "{{PollerTokenName}}",
+    "central_address": "{{CentralAddress}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("VM poller is created and returns a non-null installation command", function () {
+    const body = res.getBody();
+    if (body.id) {
+      bru.setEnvVar("CreatedPollerId", body.id);
+    }
+    expect(body.name).to.eql(bru.getEnvVar("PollerName"));
+    expect(body.poller_type).to.eql("vm");
+    expect(body.installation_command).to.be.a("string");
+    expect(body.installation_command).to.include("curl -fsSL");
+    expect(body.installation_command).to.include("--type vm");
+    expect(body.central_address).to.eql(bru.getEnvVar("CentralAddress"));
+    expect(body.installation_command).to.include(bru.getEnvVar("CentralAddress"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
