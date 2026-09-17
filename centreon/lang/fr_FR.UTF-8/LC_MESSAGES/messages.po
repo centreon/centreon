@@ -9,9 +9,9 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-08-26 12:34+0000\n"
-"Last-Translator: Cécile GENIER <user-"
-"4@users.noreply.translate.apps.centreon.com>\n"
+"PO-Revision-Date: 2026-09-17 09:59+0000\n"
+"Last-Translator: Weblate user 4 <user-"
+"4@users.noreply.weblate.prod.centreon.io>\n"
 "Language-Team: French <https://weblate.prod.centreon.io/projects/centreon-"
 "infra-monitoring/24-10/web-messages-24-10/fr/>\n"
 "Language: fr_FR\n"
@@ -97,7 +97,7 @@ msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
 msgid "1,000+"
-msgstr ""
+msgstr "1,000+"
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
@@ -1421,7 +1421,7 @@ msgstr "Une erreur est survenue durant l'authentification"
 
 #: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
 msgid "An error occurred during session logout"
-msgstr ""
+msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
 msgid "An error occurred when applying post update actions"
@@ -3182,7 +3182,7 @@ msgstr "Nom obligatoire"
 
 #: centreon/www/install/front_translate.php
 msgid "Computing exact count…"
-msgstr ""
+msgstr "Calcul du nombre exact en cours…"
 
 #: centreon/www/install/front_translate.php
 msgid "Condition value"
@@ -3546,7 +3546,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Could not load the SNMP trap. Please try again."
-msgstr ""
+msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
 
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -10843,6 +10843,8 @@ msgid ""
 "More than 1,000 resources match your search. Click to compute the exact "
 "count."
 msgstr ""
+"Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
+"calculer le nombre exact."
 
 #: centreon/www/install/front_translate.php
 msgid "More than 1,000 resources match your search. Click to continue."
@@ -16298,7 +16300,7 @@ msgstr "Ce mois ci"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "This SNMP trap no longer exists."
-msgstr ""
+msgstr "Ce trap SNMP n'existe plus."
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
@@ -19293,7 +19295,7 @@ msgstr "année"
 
 #: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
-msgstr ""
+msgstr "{{count}} ressources"
 
 #: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
