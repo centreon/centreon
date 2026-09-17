@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 /*
  * Shared guard for cron entry points. When Centreon has no configuration yet
@@ -29,12 +29,13 @@ declare(strict_types = 1);
  * The including script must have defined _CENTREON_ETC_ (via centreon.config.php)
  * before requiring this file.
  */
-if (!file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
+if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
     // No TTY: assume unattended (cron, etc.) and exit quietly to avoid noise before first-time setup
     if (posix_isatty(STDIN)) {
-        fwrite(STDERR, "Configuration file \"" . _CENTREON_ETC_ . "/centreon.conf.php\" does not exist." . PHP_EOL);
+        fwrite(STDERR, 'Configuration file "' . _CENTREON_ETC_ . '/centreon.conf.php" does not exist.' . PHP_EOL);
+
         exit(1);
-    } else {
-        exit(0);
     }
+
+    exit(0);
 }
