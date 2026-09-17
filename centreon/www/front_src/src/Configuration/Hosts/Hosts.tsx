@@ -13,7 +13,8 @@ import type { Filters } from './models';
 import {
   labelAddHost,
   labelHosts,
-  labelWelcomeToHosts
+  labelWelcomeToHosts,
+  labelWelcomeToHostsDescription
 } from './translatedLabels';
 import useHosts from './useHosts';
 import {
@@ -34,6 +35,14 @@ const Hosts = () => {
 
   return (
     <ConfigurationBase<Filters>
+      /**
+       * `edit` drives `canCreate` on the empty state, so it is what surfaces the
+       * create button. Hardcoded to true for now: there is no host write
+       * permission to gate it on — `FindUserPermissions` exposes
+       * `configuration_host_group_write` but no host equivalent, and the create
+       * flow itself lands with the form ticket.
+       */
+      actions={{ edit: true }}
       api={api}
       columns={columns}
       columnsAtomKey={columnsAtomKey}
@@ -50,6 +59,7 @@ const Hosts = () => {
           actions: {
             create: t(labelAddHost)
           },
+          description: t(labelWelcomeToHostsDescription),
           title: t(labelWelcomeToHosts)
         }
       }}

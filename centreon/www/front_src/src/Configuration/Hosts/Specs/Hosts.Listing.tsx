@@ -25,13 +25,12 @@ export default () => {
       cy.makeSnapshot();
     });
 
-    it('decodes a host whose optional fields are absent from the payload', () => {
+    it('decodes a host with a null alias and no icon key', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
 
-      // Host 1 has neither `alias` nor `icon` keys: skip_null_values omits them
-      // rather than sending null. The row must still render.
+      // Host 1 carries a null alias and no icon key at all. Both must decode.
       cy.contains('host 1').should('be.visible');
       cy.contains('10.0.0.1').should('be.visible');
 

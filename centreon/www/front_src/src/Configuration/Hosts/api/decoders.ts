@@ -15,12 +15,20 @@ const iconDecoder = {
 };
 
 /**
- * The listing endpoint is API Platform with `skip_null_values`: a field with no
- * value is absent from the payload rather than null, hence `optional` on alias
- * and icon.
+ * Decoded against the CURRENT listing endpoint.
  *
- * `activated` is mapped to `isActivated` because the shared status column reads
- * `row.isActivated`.
+ * `/api/latest/configuration/hosts` is still served by the legacy
+ * `FindHostsController` (`FindHosts/FindHostsRoute.yaml`, condition
+ * `version >= 23.10`), which shadows the API Platform resource. It returns the
+ * `{ result, meta }` envelope, `monitoring_server` and `is_activated`.
+ *
+ * The API Platform resource at `/api/configuration/hosts` returns a Hydra
+ * envelope with `poller`, `activated` and — once MON-208571 lands — `icon`.
+ * When the legacy route is retired, switch `apiFormat` to 'JSON-LD' and rename
+ * those two fields; everything else is already aligned.
+ *
+ * `optional` + `nullable` on alias and icon covers both: legacy nulls today,
+ * omitted keys (skip_null_values) after the switch.
  */
 const hostsDecoder = JsonDecoder.object<HostListItem>(
   {
@@ -31,7 +39,7 @@ const hostsDecoder = JsonDecoder.object<HostListItem>(
       JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
     ),
     isActivated: JsonDecoder.boolean,
-    poller: JsonDecoder.object(namedEntityDecoder, 'Poller'),
+    poller: JsonDecoder.object(namedEntityDecoder, 'Monitoring server'),
     templates: JsonDecoder.array(
       JsonDecoder.object(namedEntityDecoder, 'Template'),
       'Templates'
@@ -39,12 +47,12 @@ const hostsDecoder = JsonDecoder.object<HostListItem>(
   },
   'Host',
   {
-    isActivated: 'activated'
+    isActivated: 'is_activated',
+    poller: 'monitoring_server'
   }
 );
 
 export const hostsListDecoder = buildListingDecoder({
-  apiFormat: 'JSON-LD',
   entityDecoder: hostsDecoder,
   entityDecoderName: 'Host',
   listingDecoderName: 'Hosts List'
