@@ -307,6 +307,7 @@ msgstr "Access Groups"
 msgid "Access List"
 msgstr "Access List"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 msgid "Access group"
 msgstr "Access group"
@@ -2827,6 +2828,7 @@ msgstr "Colors"
 msgid "Columns"
 msgstr "Columns"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/install/front_translate.php
@@ -3328,6 +3330,7 @@ msgstr "Contact additive inheritance"
 msgid "Contact already exists"
 msgstr "Contact already exists"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Contact group"
@@ -6464,6 +6467,7 @@ msgstr "Escalated Hosts"
 msgid "Escalated Services"
 msgstr "Escalated Services"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Escalation"
 msgstr "Escalation"
@@ -7675,6 +7679,7 @@ msgstr "History Options"
 msgid "Home"
 msgstr "Home"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -7723,6 +7728,7 @@ msgstr "Host / Service Required"
 msgid "Host Acknowledgement"
 msgstr "Host Acknowledgement"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -7795,6 +7801,7 @@ msgstr "Host Freshness Check Interval"
 msgid "Host Freshness Check Option"
 msgstr "Host Freshness Check Option"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
@@ -7938,6 +7945,7 @@ msgstr "Host check options"
 msgid "Host commands and shortcuts"
 msgstr "Host commands and shortcuts"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Host dependency"
@@ -8057,6 +8065,7 @@ msgstr "Host not found"
 msgid "Host notifications"
 msgstr "Host notifications"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/install/front_translate.php
@@ -9827,6 +9836,7 @@ msgstr "Manual refresh only"
 msgid "Manually request to synchronize this contact with his LDAP"
 msgstr "Manually request to synchronize this contact with his LDAP"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/menu_translation.php
 msgid "Manufacturer"
 msgstr "Manufacturer"
@@ -9964,6 +9974,7 @@ msgstr ""
 msgid "Memory file"
 msgstr "Memory file"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Menu access"
 msgstr "Menu access"
@@ -9990,6 +10001,7 @@ msgstr "Message truncated (exceeded %s characters)"
 msgid "Meta Host %d not found"
 msgstr "Meta Host %d not found"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -12318,6 +12330,7 @@ msgid "Plugins Directory"
 msgstr "Plugins Directory"
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
@@ -13220,6 +13233,7 @@ msgstr "Resource type"
 msgid "Resource used by one of the instances"
 msgstr "Resource used by one of the instances"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
@@ -13475,6 +13489,7 @@ msgstr "SNMP Community"
 msgid "SNMP Trap Generation"
 msgstr "SNMP Trap Generation"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/menu_translation.php
@@ -14026,6 +14041,7 @@ msgstr "Server port"
 msgid "Server type"
 msgstr "Server type"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -14075,6 +14091,7 @@ msgstr "Service Acknowledgement"
 msgid "Service Basic Information"
 msgstr "Service Basic Information"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -14144,6 +14161,7 @@ msgstr "Service Freshness Check Interval"
 msgid "Service Freshness Check Option"
 msgstr "Service Freshness Check Option"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/install/front_translate.php
@@ -14240,6 +14258,7 @@ msgstr "Service category name already exists"
 msgid "Service check latency"
 msgstr "Service check latency"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Service dependency"
 msgstr "Service dependency"
@@ -14303,6 +14322,7 @@ msgstr "Service not found"
 msgid "Service notifications"
 msgstr "Service notifications"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/front_translate.php
@@ -16364,6 +16384,7 @@ msgstr "Time Unit"
 msgid "Time Zone"
 msgstr "Time Zone"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/monitoring/recurrentDowntime/ajaxForms.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/install/front_translate.php
