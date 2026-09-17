@@ -1,0 +1,70 @@
+import { type Column, ColumnType, truncate } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
+
+import type { NamedEntity } from '../models';
+import {
+  labelAlias,
+  labelIpAddress,
+  labelMonitoringServer,
+  labelName
+} from '../translatedLabels';
+
+interface Props {
+  columns: Array<Column>;
+}
+
+/**
+ * Minimal column set: enough for the page to render real data.
+ * Icon, Templates and the row actions are added by the listing ticket.
+ *
+ * `getFormattedString` is mandatory on a string column: DataCell falls back to
+ * an empty string, not to `row[id]`.
+ */
+const useColumns = (): Props => {
+  const { t } = useTranslation();
+
+  const columns: Array<Column> = [
+    {
+      disablePadding: false,
+      getFormattedString: ({ name }: Record<string, unknown>) => name as string,
+      id: 'name',
+      label: t(labelName),
+      sortable: true,
+      sortField: 'name',
+      type: ColumnType.string
+    },
+    {
+      disablePadding: false,
+      getFormattedString: ({ alias }: Record<string, unknown>) =>
+        truncate({ content: (alias as string) ?? '', maxLength: 50 }),
+      id: 'alias',
+      label: t(labelAlias),
+      sortable: true,
+      sortField: 'alias',
+      type: ColumnType.string
+    },
+    {
+      disablePadding: false,
+      getFormattedString: ({ address }: Record<string, unknown>) =>
+        address as string,
+      id: 'address',
+      label: t(labelIpAddress),
+      sortable: true,
+      sortField: 'address',
+      type: ColumnType.string
+    },
+    {
+      disablePadding: false,
+      getFormattedString: ({ poller }: Record<string, unknown>) =>
+        (poller as NamedEntity)?.name ?? '',
+      id: 'poller',
+      label: t(labelMonitoringServer),
+      type: ColumnType.string
+    }
+  ];
+
+  return { columns };
+};
+
+export default useColumns;
