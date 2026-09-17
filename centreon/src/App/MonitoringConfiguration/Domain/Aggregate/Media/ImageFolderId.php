@@ -24,10 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Media;
 
 /**
- * Identity of the image folder a Media belongs to, used only for ACL scoping
- * ({@see \App\Security\Domain\Repository\ResourceAccessRepository::findAccessibleImageFolderIds()}).
- * Not an {@see \App\Shared\Domain\Aggregate\AggregateRootId}: no full ImageFolder aggregate is
- * modeled here, folder management (create/rename/delete) is out of scope.
+ * Identifies the image folder a media belongs to. Used only to know which media a user is
+ * allowed to see; folder management (create/rename/delete) isn't a feature here, so this
+ * doesn't need its own identity beyond that.
  */
 final readonly class ImageFolderId
 {
