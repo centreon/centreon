@@ -1,0 +1,156 @@
+# docker-compose-tls-smoke.yml
+#
+# Two-step smoke test for the HTTPS overlay (.github/docker/docker-compose.tls.yml).
+#
+#   1. config-validate: always runs. `docker compose config` validates that the
+#      base + overlay merge cleanly (catches !override misuse, broken depends_on
+#      maps, missing volumes, etc.). Pure YAML validation, no image pull.
+#
+#   2. https-up: DISABLED by default. Gated on the `force-tls-smoke` label so
+#      the job stays skipped until someone opts in per-PR. Brings the HTTPS
+#      stack up and curls the API. Disabled because gorgone TLS support is
+#      still being worked on by the gorgone team outside this PR — `DBD::mysql
+#      4.053 + libmariadb 3.x` on the trixie image rejects `mysql_ssl=1` with
+#      "Enforcing SSL encryption is not supported", so the stack can't fully
+#      come up. PR #9237 (DatabaseTLSResolver, PHP path) is in; gorgone is the
+#      remaining blocker.
+#
+# Two ways to re-enable once gorgone TLS work merges:
+#   - Add the `force-tls-smoke` label on a PR (ad-hoc), or
+#   - Replace the expression below with the original:
+#     ${{ github.event.pull_request.head.repo.fork != true }}
+
+name: docker-compose-tls-smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/docker/**'
+      - '.github/workflows/docker-compose-tls-smoke.yml'
+  push:
+    branches: [develop, master]
+    paths:
+      - '.github/docker/**'
+      - '.github/workflows/docker-compose-tls-smoke.yml'
+
+# Least-privilege default for GITHUB_TOKEN: this workflow only checks out and
+# runs docker; neither job writes to the repo. Registry auth in https-up uses
+# explicit Harbor secrets, not GITHUB_TOKEN.
+permissions:
+  contents: read
+
+jobs:
+  config-validate:
+    name: Validate base + overlay merge
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: docker compose config (HTTP — baseline)
+        run: docker compose -f .github/docker/docker-compose.yml config >/dev/null
+
+      - name: docker compose config (HTTPS overlay)
+        run: |
+          docker compose \
+            -f .github/docker/docker-compose.yml \
+            -f .github/docker/docker-compose.tls.yml \
+            config >/dev/null
+
+  https-up:
+    name: HTTPS smoke (disabled — gorgone TLS support landing separately)
+    runs-on: ubuntu-24.04
+    # Disabled until the gorgone team merges native TLS support. On trixie
+    # DBD::mysql 4.053 + libmariadb 3.x can't enable SSL, so the stack can't
+    # come up cleanly. See header comment for re-enable instructions.
+    if: contains(github.event.pull_request.labels.*.name, 'force-tls-smoke')
+    needs: [config-validate]
+    # Job-level so every docker compose invocation below (bring-up, log dump,
+    # teardown) resolves the same base+overlay stack. Setting it only on the
+    # bring-up step left the on-failure log dump and teardown with no compose
+    # file ("no configuration file provided: not found").
+    env:
+      COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Login to internal registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Build certgen image
+        run: docker build -t centreon-certgen:local .github/docker/certgen
+
+      - name: Bring up HTTPS stack
+        run: docker compose up -d --wait --wait-timeout 300
+
+      - name: Probe HTTPS endpoint
+        run: |
+          curl --fail-with-body -k --show-error \
+            --retry 10 --retry-delay 3 --retry-connrefused \
+            https://localhost:4443/centreon/api/latest/platform/versions
+
+      # We don't enforce --require-secure-transport=ON server-side (see
+      # docker-compose.tls.yml header: install wizard plaintext path) — so this
+      # positive assertion is what keeps us honest. If the count is 0, the
+      # entire stack ran without ever negotiating TLS (resolver mis-wired,
+      # cert mounted wrong, etc.) and the smoke must fail even though the
+      # plaintext probe above succeeded.
+      - name: Assert TLS was actually used (Ssl_accepts > 0)
+        run: |
+          n=$(docker compose exec -T db mariadb -uroot -p"${MARIADB_ROOT_PASSWORD:-centreon}" -N \
+                -e 'SHOW GLOBAL STATUS LIKE "Ssl_accepts";' | awk '{print $2}')
+          echo "Ssl_accepts=${n:-<empty>}"
+          if [ -z "$n" ] || [ "$n" -lt 1 ]; then
+            echo "::error::No TLS handshakes recorded on db — stack is running fully plaintext."
+            exit 1
+          fi
+
+      - name: Inspect cert chain
+        if: always()
+        run: |
+          echo "::group::server cert chain"
+          openssl s_client -showcerts -connect localhost:4443 -servername web < /dev/null 2>/dev/null \
+            | openssl x509 -noout -text \
+            | grep -E "Subject:|Issuer:|DNS:|IP Address:" || true
+          echo "::endgroup::"
+
+      # Visibility steps run on every result (success OR failure) so we can
+      # diagnose the kind of issue — healthcheck timing, gorgone DBD::mysql
+      # rejection, Apache vhost generation — that doesn't surface in the probe's
+      # exit code. --timestamps is critical for timing-sensitive races (e.g.
+      # web→db connect attempts vs. db healthcheck transition).
+      - name: Show container status
+        if: always()
+        run: |
+          echo "::group::docker compose ps"
+          docker compose ps
+          echo "::endgroup::"
+
+      - name: Dump container logs (per-service, always)
+        if: always()
+        run: |
+          # Iterate the services we expect. The `|| true` ensures a service
+          # that was profiled out (or never started) doesn't fail the step;
+          # any service added to the overlay in future just needs to be
+          # appended here, and the on-failure fallback below covers the gap
+          # in the interim.
+          for svc in certgen db web db-remote remote-server; do
+            echo "::group::logs: $svc"
+            docker compose logs --no-color --timestamps --tail=500 "$svc" 2>&1 || true
+            echo "::endgroup::"
+          done
+
+      - name: Dump all logs on failure (fallback for services not listed above)
+        if: failure()
+        run: docker compose logs --no-color --timestamps --tail=2000
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
