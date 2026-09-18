@@ -1,6 +1,6 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-import { Method, TestQueryProvider } from '../..';
+import { TestQueryProvider } from '../..';
 import buildListingEndpoint from '../../api/buildListingEndpoint';
 import type { SelectEntry } from '../../InputField/Select';
 import type { SortableAutocompleteEntry } from './models';
@@ -28,15 +28,13 @@ const initialize = ({
   const onChange = cy.stub();
   const onDuplicate = cy.stub();
 
-  cy.interceptAPIRequest({
-    alias: 'getTemplates',
-    method: Method.GET,
-    path: `${endpoint}**`,
-    response: {
+  cy.intercept('GET', `**${endpoint}**`, {
+    body: {
       meta: { limit: 10, page: 1, total: options.length },
       result: options
-    }
-  });
+    },
+    statusCode: 200
+  }).as('getTemplates');
 
   cy.mount({
     Component: (
@@ -128,7 +126,7 @@ describe('SortableSingleConnectedAutocompleteList', () => {
     initialize();
 
     cy.get('[data-testid="Template"]').eq(0).click();
-    cy.waitForRequest('@getTemplates');
+    cy.wait('@getTemplates');
 
     cy.findByRole('presentation').within(() => {
       options.forEach((option) => {
@@ -141,7 +139,7 @@ describe('SortableSingleConnectedAutocompleteList', () => {
     const { onChange } = initialize();
 
     cy.get('[data-testid="Template"]').eq(0).click();
-    cy.waitForRequest('@getTemplates');
+    cy.wait('@getTemplates');
 
     cy.findByRole('presentation').within(() => {
       cy.contains(options[2].name).click();
