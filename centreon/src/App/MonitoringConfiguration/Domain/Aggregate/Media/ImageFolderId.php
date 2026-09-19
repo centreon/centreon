@@ -21,30 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Media;
 
-use ApiPlatform\Metadata\ApiProperty;
-
-final class HostCollectionOutput
+/**
+ * Identifies the image folder a media belongs to. Used only to know which media a user is
+ * allowed to see; folder management (create/rename/delete) isn't a feature here, so this
+ * doesn't need its own identity beyond that.
+ */
+final readonly class ImageFolderId
 {
-    public HostPollerOutput $poller;
-
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    public ?HostIconOutput $icon = null;
-
     public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
-
-        public string $name,
-
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
+        public int $value,
     ) {
     }
 }

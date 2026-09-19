@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\ImageFolderId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
@@ -298,6 +299,48 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         return new Collection(
             array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows),
             HostGroupId::class,
+        );
+    }
+
+    public function findAccessibleImageFolderIds(UserId $userId): ?Collection
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Unlike pollers, image folders carry an explicit "all image folders" flag on the ACL
+        // resource itself (acl_resources.all_image_folders). A resource simply carrying no
+        // image-folder relation row is NOT the same thing as this flag — it means that resource
+        // grants zero folders, not every folder. Legacy (DbReadImageFolderRepository::
+        // hasAccessToAllImageFolders()) only treats the user as unrestricted when at least one
+        // accessible resource has the flag set.
+        $allImageFoldersQb = $this->connection->createQueryBuilder();
+        $allImageFoldersQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_image_folders = '1'")
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allImageFoldersQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return null;
+        }
+
+        // No "all image folders" flag anywhere: the accessible set is the union of image-folder
+        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()).
+        // This is naturally empty — not "everything" — for a user with no accessible resource at
+        // all, or whose accessible resources carry no image-folder relation.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arifr.dir_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_image_folder_relations', 'arifr', 'arifr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{dir_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return new Collection(
+            array_map(static fn (array $row): ImageFolderId => new ImageFolderId((int) $row['dir_id']), $rows),
+            ImageFolderId::class,
         );
     }
 

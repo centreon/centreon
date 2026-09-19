@@ -21,30 +21,32 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use ApiPlatform\Metadata\ApiProperty;
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
+use Webmozart\Assert\Assert;
 
-final class HostCollectionOutput
+final class MediaCriteria implements PaginableCriteria
 {
-    public HostPollerOutput $poller;
+    use PaginableCriteriaTrait;
+    use ViewerScopedCriteriaTrait;
 
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
+    private ?string $name = null;
 
-    public ?HostIconOutput $icon = null;
+    public function withName(string $name): self
+    {
+        // notEmpty() relies on empty(), which would wrongly reject a legitimate name of "0"
+        Assert::stringNotEmpty($name);
 
-    public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
+        $new = clone $this;
+        $new->name = $name;
 
-        public string $name,
+        return $new;
+    }
 
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
-    ) {
+    public function getName(): ?string
+    {
+        return $this->name;
     }
 }

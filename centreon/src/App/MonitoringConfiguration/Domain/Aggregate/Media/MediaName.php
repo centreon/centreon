@@ -21,30 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Media;
 
-use ApiPlatform\Metadata\ApiProperty;
+use Webmozart\Assert\Assert;
 
-final class HostCollectionOutput
+final readonly class MediaName
 {
-    public HostPollerOutput $poller;
-
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    public ?HostIconOutput $icon = null;
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 255;
 
     public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
-
-        public string $name,
-
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
+        public string $value,
     ) {
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
     }
 }

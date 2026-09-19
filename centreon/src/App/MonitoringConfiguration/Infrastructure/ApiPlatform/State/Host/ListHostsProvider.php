@@ -30,15 +30,20 @@ use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
@@ -65,6 +70,8 @@ final readonly class ListHostsProvider implements ProviderInterface
         private HostRepository $repository,
         private PollerRepository $pollerRepository,
         private HostTemplateRepository $hostTemplateRepository,
+        private MediaRepository $mediaRepository,
+        private MediaUrlGenerator $mediaUrlGenerator,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -138,10 +145,15 @@ final readonly class ListHostsProvider implements ProviderInterface
         $pollerIds = [];
         /** @var array<int, HostTemplateId> $templateIds */
         $templateIds = [];
+        /** @var array<int, MediaId> $iconIds */
+        $iconIds = [];
         foreach ($hostList as $host) {
             $pollerIds[$host->pollerId->value] = $host->pollerId;
             foreach ($host->templateIds as $templateId) {
                 $templateIds[$templateId->value] = $templateId;
+            }
+            if ($host->iconId !== null) {
+                $iconIds[$host->iconId->value] = $host->iconId;
             }
         }
 
@@ -151,6 +163,8 @@ final readonly class ListHostsProvider implements ProviderInterface
         $templateNames = $this->hostTemplateRepository->findNamesByIds(
             new Collection(array_values($templateIds), HostTemplateId::class)
         )->toArray();
+        /** @var array<int, Media> $icons */
+        $icons = $this->mediaRepository->findByIds(new Collection(array_values($iconIds), MediaId::class))->toArray();
 
         $resources = [];
         foreach ($hostList as $host) {
@@ -164,6 +178,11 @@ final readonly class ListHostsProvider implements ProviderInterface
             $resource = $this->transformer->transform($host);
             $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
             $resource->templates = $templates;
+
+            $icon = $host->iconId !== null ? $icons[$host->iconId->value] ?? null : null;
+            $resource->icon = $icon instanceof Media
+                ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
+                : null;
 
             $resources[] = $resource;
         }
