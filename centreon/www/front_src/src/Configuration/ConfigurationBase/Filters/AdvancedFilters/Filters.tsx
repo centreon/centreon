@@ -18,6 +18,7 @@ import {
   Checkboxes,
   MultiAutocomplete,
   MultiConnectedAutocomplete,
+  SingleConnectedAutocomplete,
   Status,
   Text
 } from './Fields';
@@ -105,6 +106,18 @@ const Filters = <TFilters,>({
         if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
           return (
             <MultiConnectedAutocomplete<TFilters>
+              filters={filters}
+              getEndpoint={filter.getEndpoint}
+              key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
+              setFilters={setFilters}
+            />
+          );
+
+        if (equals(filter.fieldType, FieldType.SingleConnectedAutocomplete))
+          return (
+            <SingleConnectedAutocomplete<TFilters>
               filters={filters}
               getEndpoint={filter.getEndpoint}
               key={filter.name}
