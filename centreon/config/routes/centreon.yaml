@@ -5,6 +5,13 @@ centreon:
         version: "latest"
     requirements:
         base_uri: ".*"
+        version: '%api.version.pattern%'
+centreon_authentication_bare_api:
+    resource: "./Centreon/authentication.yaml"
+    prefix: "{base_uri}api"
+    name_prefix: "bare_api_"
+    requirements:
+        base_uri: ".*"
 security:
     resource: "./Security/**/*.yaml"
     prefix: "{base_uri}authentication"
@@ -17,6 +24,7 @@ core:
         version: "latest"
     requirements:
         base_uri: ".*"
+        version: '%api.version.pattern%'
 core_attribute:
     resource: "./../../src/Core/**/Infrastructure/**/*Controller.php"
     type: attribute
@@ -25,3 +33,4 @@ core_attribute:
       version: "latest"
     requirements:
         base_uri: ".*"
+        version: '%api.version.pattern%'

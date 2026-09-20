@@ -30,7 +30,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListConnectorsProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/connectors';
+    private const BASE_ENDPOINT = '/api/configuration/connectors';
 
     public function testItFindAllConnectorsWithoutParameter(): void
     {
@@ -161,5 +161,37 @@ final class ListConnectorsProviderTest extends ApiTestCase
         );
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'Perl Connector']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAScalarIdFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => '1']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsANonNumericIdFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => ['eq' => 'not-a-number']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAZeroIdFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => ['eq' => '0']]]);
+        self::assertResponseStatusCodeSame(400);
     }
 }

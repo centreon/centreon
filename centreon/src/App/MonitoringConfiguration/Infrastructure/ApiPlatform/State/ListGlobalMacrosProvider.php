@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -40,6 +41,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ListGlobalMacrosProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
+
     /**
      * @param TransformerInterface<GlobalMacro,GlobalMacroResource> $transformer
      */
@@ -64,20 +67,11 @@ final readonly class ListGlobalMacrosProvider implements ProviderInterface
             );
         }
 
-        /** @var array{filters: array{name?: array<string, string|array<string>>}} $context */
-        $nameFilter = $context['filters']['name'] ?? null;
-        if ($nameFilter) {
-            foreach ($nameFilter as $operator => $names) {
-                if (! in_array($operator, GlobalMacroCriteria::ALLOWED_OPERATORS, true)) {
-                    continue;
-                }
-                if (is_string($names)) {
-                    $names = [$names];
-                }
-
-                foreach ($names as $name) {
-                    $criteria = $criteria->withName($name, $operator);
-                }
+        /** @var array<string, mixed> $filters */
+        $filters = $context['filters'] ?? [];
+        foreach ($this->handleOperatorFilter($filters['name'] ?? null, 'name', GlobalMacroCriteria::ALLOWED_OPERATORS) as $operator => $names) {
+            foreach ($names as $name) {
+                $criteria = $criteria->withName($name, $operator);
             }
         }
 

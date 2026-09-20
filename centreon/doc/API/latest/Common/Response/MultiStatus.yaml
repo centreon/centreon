@@ -11,14 +11,16 @@ content:
             type: object
             properties:
               href:
-                type: string
-                nullable: true
+                type:
+                  - string
+                  - 'null'
                 example: "/path/to/entity/1"
               status:
                 type: integer
                 format: int64
                 example: 404
               message:
-                type: string
-                nullable: true
+                type:
+                  - string
+                  - 'null'
                 example: "Not found"

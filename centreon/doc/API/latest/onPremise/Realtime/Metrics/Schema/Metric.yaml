@@ -7,30 +7,37 @@ properties:
   unit:
     type: string
   current_value:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true
   warning_high_threshold:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true
   warning_low_threshold:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true
   critical_high_threshold:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true
   critical_low_threshold:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true
   min:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true
   max:
-    type: number
+    type:
+      - number
+      - 'null'
     format: float
-    nullable: true

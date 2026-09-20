@@ -419,13 +419,29 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             continue;
         }
         $row['host_id'] = null;
-        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        // Bound 0..999 server-side (the listing input's maxlength="3" is
+        // client-only) so a forged dupNbr cannot drive unbounded duplication.
+        $dupCount = filter_var(
+            $nbrDup[$key] ?? 0,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 0, 'max_range' => 999]]
+        );
         if ($dupCount === false) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                'Host duplication skipped: invalid duplication count',
+                ['sourceHostId' => (int) $key, 'submitted' => $nbrDup[$key] ?? null]
+            );
+
             continue;
         }
         $originalHostName = $row['host_name'];
+        $skippedNames = [];
+        $skippedTotal = 0;
         for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
+            // Reset per copy: after a skipped name, a stale id from the previous
+            // iteration would replay the ACL update below for the wrong copy.
+            $maxId = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == 'host_name') {
@@ -439,7 +455,12 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['host_name'] = $hostName;
                 }
             }
-            if (hasHostNameNeverUsed($hostName)) {
+            // The name has to be free among BOTH hosts and templates. Host templates
+            // duplicate through this same function — hostTemplateModel.php requires
+            // this file and calls multipleHostInDB() — and they carry
+            // host_register = '0', so a host-only check never sees the template copy
+            // it has just made.
+            if (hasHostNameNeverUsed($hostName) && hasHostTemplateNeverUsed($hostName)) {
                 $columns = array_keys($row);
                 $placeholders = array_map(fn ($col) => ':' . $col, $columns);
                 $insertHostQuery = 'INSERT INTO host (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
@@ -498,51 +519,53 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     } elseif (file_exists($path . '../service/DB-Func.php')) {
                         require_once $path . '../configObject/service/DB-Func.php';
                     }
-                    $hostInf = $maxId;
-                    $serviceArr = [];
-                    $serviceNbr = [];
-                    // Get all Services link to the Host
-                    $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
-                    $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
-                    $svcRelStatement->execute();
-                    $dbResult = $svcRelStatement;
-                    $countStatement = $pearDB->prepare(
-                        'SELECT COUNT(*)
-                        FROM host_service_relation
-                        WHERE service_service_id = :service_service_id'
-                    );
-                    $insertStatement = $pearDB->prepare(
-                        'INSERT INTO host_service_relation
-                        VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
-                    );
-                    while ($service = $dbResult->fetch()) {
-                        // If the Service is link with several Host, we keep this property and don't duplicate it,
-                        // just create a new relation with the new Host
-                        $countStatement->bindValue(
-                            ':service_service_id',
-                            (int) $service['service_service_id'],
-                            PDO::PARAM_INT
+                    // Register Host -> Duplicate the Service list
+                    if ($row['host_register'] == 1) {
+                        $hostInf = $maxId;
+                        $serviceArr = [];
+                        $serviceNbr = [];
+                        // Get all Services link to the Host
+                        $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
+                        $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                        $svcRelStatement->execute();
+                        $dbResult = $svcRelStatement;
+                        $countStatement = $pearDB->prepare(
+                            'SELECT COUNT(*)
+                            FROM host_service_relation
+                            WHERE service_service_id = :service_service_id'
                         );
-                        $countStatement->execute();
-                        $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
-                        if ($mulHostSv['COUNT(*)'] > 1) {
-                            $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
-                            $insertStatement->bindValue(
+                        $insertStatement = $pearDB->prepare(
+                            'INSERT INTO host_service_relation
+                            VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
+                        );
+                        while ($service = $dbResult->fetch()) {
+                            // If the Service is link with several Host, we keep this property and don't duplicate it,
+                            // just create a new relation with the new Host
+                            $countStatement->bindValue(
                                 ':service_service_id',
                                 (int) $service['service_service_id'],
                                 PDO::PARAM_INT
                             );
-                            $insertStatement->execute();
-                        } else {
-                            $serviceArr[$service['service_service_id']] = $service['service_service_id'];
-                            $serviceNbr[$service['service_service_id']] = 1;
+                            $countStatement->execute();
+                            $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
+                            if ($mulHostSv['COUNT(*)'] > 1) {
+                                $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
+                                $insertStatement->bindValue(
+                                    ':service_service_id',
+                                    (int) $service['service_service_id'],
+                                    PDO::PARAM_INT
+                                );
+                                $insertStatement->execute();
+                            } else {
+                                $serviceArr[$service['service_service_id']] = $service['service_service_id'];
+                                $serviceNbr[$service['service_service_id']] = 1;
+                            }
                         }
-                    }
-                    // Register Host -> Duplicate the Service list
-                    if ($row['host_register'] == 1) {
                         multipleServiceInDB($serviceArr, $serviceNbr, $hostInf, 0);
                     } else {
-                        // Host Template -> Link to the existing Service Template List
+                        // Host Template -> Link to the existing Service Template List. Do not
+                        // reintroduce the host branch's COUNT(*) > 1 insert before this loop: a
+                        // service template shared by several hosts would be related twice.
                         $svcTplStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
                         $svcTplStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
                         $svcTplStatement->execute();
@@ -766,10 +789,25 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         object_name: $hostName,
                         action_type: ActionLog::ACTION_TYPE_ADD
                     );
+                } else {
+                    // Insert returned no id (misconfigured AUTO_INCREMENT): no copy
+                    // was created, so account for it like a skipped name.
+                    ++$skippedTotal;
+                    if (count($skippedNames) < 20) {
+                        $skippedNames[] = $hostName ?? '(unnamed)';
+                    }
+                }
+            } else {
+                // Aggregated, not logged per name: one record per colliding name
+                // would multiply disk writes within the duplication loop.
+                ++$skippedTotal;
+                if (count($skippedNames) < 20) {
+                    $skippedNames[] = $hostName ?? '(unnamed)';
                 }
             }
-            // if all duplication names are already used, next value is never set
-            if (isset($maxId)) {
+            // Falsy covers both "no insert this round" (null) and the insert
+            // branch's own rejected lastInsertId of 0.
+            if ($maxId) {
                 $centreon->user->access->updateACL([
                     'type' => 'HOST',
                     'id' => $maxId,
@@ -777,6 +815,19 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     'duplicate_host' => (int) $key,
                 ]);
             }
+        }
+
+        if ($skippedTotal > 0) {
+            // The page reloads unchanged, so this is the operator's only clue
+            // about the copies that never appeared.
+            AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                'Host duplication skipped: generated name already taken by a host or host template, or the insert returned no id',
+                [
+                    'sourceHostId' => (int) $key,
+                    'names' => $skippedNames,
+                    'skippedTotal' => $skippedTotal,
+                ]
+            );
         }
     }
     CentreonACL::duplicateHostAcl($hostAcl);

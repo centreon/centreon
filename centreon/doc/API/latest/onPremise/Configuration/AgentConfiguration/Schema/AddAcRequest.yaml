@@ -49,9 +49,10 @@ properties:
             example: true
 
           port:
-            type: integer
+            type:
+              - integer
+              - 'null'
             description: Port used for connection (mandatory for agent initiated connection).
-            nullable: true
 
           create_host_auto:
             type: boolean
@@ -64,8 +65,9 @@ properties:
             example: true
 
           otel_public_certificate:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path of the public certificate.
               - Must end with `.crt`,`.cert` or `.cer`
@@ -74,8 +76,9 @@ properties:
             example: otel-cert.crt
 
           otel_ca_certificate:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path of the CA certificate used by the agent.
               - Must end with `.crt` or `.cer`
@@ -84,8 +87,9 @@ properties:
             example: ca-cert.cer
 
           otel_private_key:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path of the private key.
               - Must end with `.key`
@@ -134,18 +138,21 @@ properties:
                   description: Port used to connect to the host.
                   example: 1234
                 poller_ca_certificate:
-                  type: string
-                  nullable: true
+                  type:
+                    - string
+                    - 'null'
                   description: CA certificate expected by the host.
                   example: poller-ca-cert.crt
                 poller_ca_name:
-                  type: string
-                  nullable: true
+                  type:
+                    - string
+                    - 'null'
                   description: CA name for the host.
                   example: CentreonCA
                 token:
-                  type: object
-                  nullable: true
+                  type:
+                    - object
+                    - 'null'
                   description: Token used for the host.
                   properties:
                     name:
@@ -197,8 +204,9 @@ properties:
           - conf_private_key
         properties:
           otel_public_certificate:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path of the public certificate.
               - Must end with `.crt`,`.cert` or `.cer`
@@ -207,8 +215,9 @@ properties:
             example: otel-cert.crt
 
           otel_ca_certificate:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path of CA certificate.
               - Must end with `.crt`,`.cert` or `.cer`
@@ -217,8 +226,9 @@ properties:
             example: telegraf-ca.crt
 
           otel_private_key:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path of the private key.
               - Must end with `.key`
@@ -232,8 +242,9 @@ properties:
             example: 1443
 
           conf_certificate:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Path to certificate for the configuration server.
               - Must end with `.crt` or `.cer`
@@ -242,8 +253,9 @@ properties:
             example: conf-cert.crt
 
           conf_private_key:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: |
               Private key for the configuration server.
               - Must end with `.key`

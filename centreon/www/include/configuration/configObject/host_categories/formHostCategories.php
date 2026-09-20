@@ -184,9 +184,6 @@ $form->addFormRule('checkSeverity');
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
-$tpl->assign('centreon_path', _CENTREON_PATH_);
-
 $tpl->assign(
     'helpattr',
     'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", '
@@ -199,12 +196,6 @@ foreach ($help as $key => $text) {
     $helptext .= "<span style=\"display:none\" id=\"help:{$key}\">{$text}</span>\n";
 }
 $tpl->assign('helptext', $helptext);
-
-// The Status / Severity type switches are custom UI laid over the (hidden) QuickForm
-// fields, so their initial state is driven from the real values here rather than read
-// back from the frozen DOM. Severity type has no column: it is "on" when a level is set.
-$tpl->assign('hcActivateOn', ($hc['hc_activate'] ?? '1') === '1');
-$tpl->assign('hcTypeOn', ! empty($hc['level']));
 
 if ($o === 'w') {
     // Just watch a HostCategorie information

@@ -30,6 +30,38 @@ function _checkDockerPrerequisites() {
   return ${ret}
 }
 
+# centreon-vmware's Dockerfile lives in centreon-plugins (a different repo),
+# and its image is never published (licensed Broadcom VMware Perl SDK), so it
+# must be built locally. Validate the checkout + SDK archives are in place
+# before we ever reference them as a compose build context, and fail with the
+# exact command needed to fix it instead of letting `docker compose up` fail
+# deep inside the build.
+function _checkVmwarePrerequisites() {
+  local plugins_path="${VMWARE_PATH:-./centreon-plugins}"
+  local ret=0
+
+  if [ ! -d "${plugins_path}" ] || [ ! -f "${plugins_path}/.github/docker/connector/Dockerfile.connector-vmware" ]; then
+    consoleError "centreon-plugins checkout not found at '${plugins_path}'."
+    consoleError "Clone it with: git clone https://github.com/centreon/centreon-plugins.git ${plugins_path}"
+    consoleError "Or point to an existing checkout with --vmware-path <path>."
+    logError "centreon-plugins checkout not found at '${plugins_path}'."
+    ret=1
+  else
+    local missing_sdk=""
+    [ -f "${plugins_path}/sdks-vmware/VMware-vSphere-Perl-SDK-7.0.0-17698549.x86_64.tar.gz" ] || missing_sdk="${missing_sdk}VMware-vSphere-Perl-SDK-7.0.0-17698549.x86_64.tar.gz "
+    [ -f "${plugins_path}/sdks-vmware/vsan-sdk-perl.zip" ] || missing_sdk="${missing_sdk}vsan-sdk-perl.zip "
+
+    if [ -n "${missing_sdk}" ]; then
+      consoleError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      consoleError "Download them from the Broadcom Developer Portal and place them there — see ${plugins_path}/sdks-vmware/README.md."
+      logError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      ret=1
+    fi
+  fi
+
+  return ${ret}
+}
+
 function runDockerInstall() {
   echo ""
   consoleMainTitle "Generating Docker Compose files for Centreon poller"
@@ -37,6 +69,10 @@ function runDockerInstall() {
   consoleTitle "Checking prerequisites:"
   _checkDockerPrerequisites || exit 1
   consoleInfo "docker and docker compose are available"
+  if [ "${WITH_VMWARE}" = "1" ]; then
+    _checkVmwarePrerequisites || exit 1
+    consoleInfo "centreon-plugins checkout and VMware SDK found"
+  fi
   echo ""
 
   _generateDotEnv "."
@@ -59,16 +95,10 @@ function runDockerInstall() {
     consoleInfo "  Centreon Monitoring Agent support (--with-cma): TLS certs + port 4317"
   fi
   echo ""
-  if [ "${STABILITY}" = "testing" ]; then
-    consoleInfo "Stability 'testing': not starting the stack automatically."
-    consoleTitle "Next steps:"
-    echo "  1. Edit .env: set ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG to the branch/tag you are testing."
-    echo "  2. Start the stack:"
-    echo "       docker compose up -d"
-    echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
-    echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
-    echo ""
-  elif [ "${START_STACK}" = "1" ]; then
+  # No stability-based auto-start block: every case (stable/unstable/testing*)
+  # now resolves TAG to a real, pullable tag (MON-208554 dropped the old
+  # SET_ME_PER_COMPONENT placeholder), so --no-start/START_STACK alone decides.
+  if [ "${START_STACK}" = "1" ]; then
     echo ""
     consoleTitle "Starting stack:"
     docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
@@ -83,27 +113,62 @@ function runDockerInstall() {
   fi
 }
 
+# Effective stability for every Docker decision (tag, registry, whether to
+# auto-start the stack): FORCE_REGISTRY (hidden --registry flag), when set,
+# pins it — 'ghcr' behaves like stable, 'harbor' behaves like testing —
+# regardless of FORCE_STABILITY/STABILITY. This lets --registry harbor work
+# on a build baked STABILITY=stable without also needing --stability testing.
+# Otherwise falls back to FORCE_STABILITY (hidden --stability flag), then the
+# real baked STABILITY. MON-208554.
+function _dockerEffectiveStability() {
+  case "${FORCE_REGISTRY}" in
+  ghcr)
+    echo "stable"
+    return
+    ;;
+  harbor)
+    echo "testing"
+    return
+    ;;
+  esac
+  echo "${FORCE_STABILITY:-${STABILITY}}"
+}
+
 function _generateDotEnv() {
   local dir=$1
-  logInfo "Generating .env in ${dir} (stability: ${STABILITY})"
+  local tag_stability
+  tag_stability="$(_dockerEffectiveStability)"
+  logInfo "Generating .env in ${dir} (stability: ${tag_stability})"
 
   # Registry/repo selection (ghcr.io for stable, Harbor otherwise) happens in
   # _pollerImageRepo, used by _generateDockerCompose. Only the tag is decided
   # here (MON-207531 verified these tag conventions end-to-end).
   local image_tag
-  case "${STABILITY}" in
-  stable)
-    image_tag="${major}"
-    ;;
-  unstable)
-    image_tag="develop"
-    ;;
-  testing)
-    image_tag="SET_ME_PER_COMPONENT"
-    consoleInfo "Stability 'testing' has no single shared image tag (testing builds are tagged per-component/per-branch)."
-    consoleInfo "Edit ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG in .env to the branch/tag you are validating before starting the stack."
-    ;;
-  esac
+  if [ -n "${FORCE_TAG}" ]; then
+    # Hidden --tag override: use verbatim, regardless of everything else.
+    image_tag="${FORCE_TAG}"
+  else
+    case "${tag_stability}" in
+    stable)
+      image_tag="$(_pollerImageMajor)"
+      ;;
+    unstable)
+      image_tag="develop"
+      ;;
+    testing | testing-release)
+      # 'testing' here is the real baked STABILITY, unforced (no --stability
+      # given): centreon-collect's testing channel is actually two repos/
+      # tags (release vs hotfix candidates), so this guesses the more common
+      # release one. Force --stability testing-hotfix for the other, or pass
+      # the exact validated <major>.<minor>.<patch> semver retag via --tag
+      # once known (after promote-docker-tag has run for that patch).
+      image_tag="release-$(_pollerImageMajor)-next"
+      ;;
+    testing-hotfix)
+      image_tag="hotfix-$(_pollerImageMajor)-next"
+      ;;
+    esac
+  fi
 
   cat > "${dir}/.env" <<EOF
 # Generated by install-poller $(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -115,6 +180,9 @@ GORGONE_TAG=
 SNMPTRAPD_TAG=
 CENTREONTRAPD_TAG=
 VMWARE_TAG=
+
+# Build context for centreon-vmware (see --vmware-path)
+CENTREON_PLUGINS_PATH=${VMWARE_PATH:-./centreon-plugins}
 
 TZ=${TZ:-UTC}
 DEBUG=${DEBUG:-false}
@@ -142,13 +210,46 @@ EOF
   logInfo ".env written"
 }
 
+# Whether a Centreon major version (e.g. 26.10) is an on-prem release.
+# On-prem majors always end in .10; anything else is a cloud release. Same
+# heuristic as get-environment.yml's cloud/on-prem detection and
+# uses_internal_repo() in centreon/unattended.sh (mirrored in
+# _usesInternalRepo, src/vm/packages.sh) — shared here so both the Docker and
+# VM install paths classify a major the same way.
+function _isOnPremMajor() {
+  [[ "${1}" == *.10 ]]
+}
+
+# The on-prem major this release's containerized pollers come from. On-prem
+# majors are used as-is. A cloud major pulls the nearest not-later on-prem
+# major, floored at 26.10 (MON-192897: no containerized poller exists before
+# that release). MON-208333.
+#
+# Unlike _usesInternalRepo (VM/RPM path), this doesn't just switch the
+# registry at the same major: RPM/DEB packages ARE published for cloud majors
+# (to an internal repo, per .github/actions/promote-to-stable), but poller
+# container images are only ever published for on-prem majors — so a cloud
+# major has to resolve to a *different*, older major here.
+function _pollerImageMajor() {
+  if _isOnPremMajor "${major}"; then
+    echo "${major}"
+    return
+  fi
+  local year=$((10#${major%%.*}))
+  local month=$((10#${major##*.}))
+  local onprem_year=${year}
+  [ "${month}" -lt 10 ] && onprem_year=$((year - 1))
+  [ "${onprem_year}" -lt 26 ] && onprem_year=26
+  printf "%02d.10" "${onprem_year}"
+}
+
 # Registry + repo (no tag) for one of the 5 poller component images, per
-# stability. Only 'stable' is published to ghcr.io (MON-207531); testing and
-# unstable stay on Harbor, as neither ever gets a validated stable-equivalent
-# tag there.
+# effective stability (see _dockerEffectiveStability). Only 'stable' is
+# published to ghcr.io (MON-207531); testing and unstable stay on Harbor, as
+# neither ever gets a validated stable-equivalent tag there.
 function _pollerImageRepo() {
   local component=$1
-  if [ "${STABILITY}" = "stable" ]; then
+  if [ "$(_dockerEffectiveStability)" = "stable" ]; then
     echo "ghcr.io/centreon/centreon-${component}"
   else
     echo "docker.centreon.com/centreon/centreon-${component}-trixie"
@@ -261,6 +362,9 @@ EOF
     cat >> "${out}" <<'EOF'
   centreon-vmware:
     image: "connector-vmware:${VMWARE_TAG:-local}"
+    build:
+      context: "${CENTREON_PLUGINS_PATH}"
+      dockerfile: .github/docker/connector/Dockerfile.connector-vmware
     container_name: "${NAME}-vmware"
     hostname: centreon-vmware
     restart: unless-stopped

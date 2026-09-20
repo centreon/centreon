@@ -30,7 +30,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/global-macros';
+    private const BASE_ENDPOINT = '/api/configuration/global-macros';
 
     protected function setUp(): void
     {
@@ -173,5 +173,13 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         );
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => '$USER1$']]);
+        self::assertResponseStatusCodeSame(400);
     }
 }

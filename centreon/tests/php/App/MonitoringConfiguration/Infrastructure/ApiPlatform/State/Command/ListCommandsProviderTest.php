@@ -29,7 +29,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListCommandsProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/commands';
+    private const BASE_ENDPOINT = '/api/configuration/commands';
 
     protected function setUp(): void
     {
@@ -170,7 +170,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->login();
 
         // call PATCH to deactivate a command
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -374,5 +374,21 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         $this->assertContains('Check', $commandTypes);
         $this->assertNotContains('Miscellaneous', $commandTypes);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'check_host_alive']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItIgnoresAnEmptyNameFilterValue(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => '']]]);
+        self::assertResponseIsSuccessful();
     }
 }

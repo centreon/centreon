@@ -50,7 +50,7 @@ final class FindCommandProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', '/api/latest/configuration/commands/1');
+        $this->request('GET', '/api/configuration/commands/1');
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
     }

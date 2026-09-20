@@ -149,6 +149,11 @@ trait DbalCriteriaApplierTrait
      * sort / pagination — SQL_CALC_FOUND_ROWS is deprecated in MySQL 8.x, so we
      * run a dedicated COUNT instead.
      *
+     * Also resets GROUP BY: a base query that groups rows to collapse a one-to-many
+     * join (e.g. to GROUP_CONCAT a to-many relation) would otherwise have its COUNT
+     * expression evaluated per group instead of once overall. A no-op when the base
+     * query has no GROUP BY.
+     *
      * @param string $countExpression the COUNT expression to select, e.g. 'COUNT(DISTINCT t.id)'
      *
      * @throws \Doctrine\DBAL\Exception
@@ -159,6 +164,7 @@ trait DbalCriteriaApplierTrait
 
         $count = $countQb
             ->resetOrderBy()
+            ->resetGroupBy()
             ->select($countExpression)
             ->setFirstResult(0)
             ->setMaxResults(null)

@@ -303,15 +303,30 @@ Then(
 );
 
 Given('a host is configured', () => {
-  cy.visit(PAGES.configuration.hostsLegacy);
-  cy.waitForElementInIframe(
-    '#main-content',
-    'a:contains("generic-active-host")'
-  );
+  // "Display Host command arguments" already created generic-active-host earlier
+  // in this spec, and the containers are shared, so creating it again answers
+  // 409. Look it up, and only create it if this scenario runs on its own.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query:
+      "SELECT host_id FROM host WHERE host_name = 'generic-active-host' AND host_register = '1'"
+  }).then(([rows]) => {
+    if (rows.length > 0) {
+      hostId = rows[0].host_id;
+
+      return;
+    }
+    cy.addNewHostAndReturnId().then((returnedHostId) => {
+      hostId = returnedHostId;
+    });
+  });
 });
 
 When('the admin user opens the host in edit mode', () => {
-  cy.getIframeBody().find('a:contains("generic-active-host")').eq(0).click();
+  // Straight to the form rather than through the listing: clicking the first
+  // matching link depends on the listing's rendering and row order, while the
+  // host id is already known.
+  cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostId}`);
   cy.waitForElementInIframe('#main-content', '#command_command_id');
 });
 
