@@ -4,7 +4,6 @@ import { SetStateAction } from 'jotai';
 import { equals, is, isNil, pick } from 'ramda';
 import { Dispatch, SyntheticEvent } from 'react';
 
-
 type AutocompleteChangedValue =
   | SelectEntry
   | Array<SelectEntry | string>
