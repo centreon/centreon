@@ -92,7 +92,7 @@ msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
 msgid "1,000+"
-msgstr ""
+msgstr "1 000+"
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
@@ -1456,7 +1456,7 @@ msgstr "Une erreur est survenue durant l'authentification"
 
 #: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
 msgid "An error occurred during session logout"
-msgstr ""
+msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
@@ -3301,7 +3301,7 @@ msgstr "Nom obligatoire"
 
 #: centreon/www/install/front_translate.php
 msgid "Computing exact count…"
-msgstr ""
+msgstr "Calcul du nombre exact…"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
@@ -3669,7 +3669,7 @@ msgstr "Copier/coller le certificat x.509"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 msgid "Could not copy VMWare configuration file"
-msgstr ""
+msgstr "Impossible de copier le fichier de configuration VMWare"
 
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
@@ -3687,7 +3687,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Could not load the SNMP trap. Please try again."
-msgstr ""
+msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
 
 #: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
@@ -3933,15 +3933,15 @@ msgstr "Durée du statut actuel"
 
 #: centreon/www/install/front_translate.php
 msgid "Current status of the hosts being monitored"
-msgstr ""
+msgstr "Statut actuel des hôtes supervisés"
 
 #: centreon/www/install/front_translate.php
 msgid "Current status of the pollers and monitoring engines"
-msgstr ""
+msgstr "Statut actuel des collecteurs et des moteurs de supervision"
 
 #: centreon/www/install/front_translate.php
 msgid "Current status of the services being monitored"
-msgstr ""
+msgstr "Statut actuel des services supervisés"
 
 #: centreon/www/install/smarty_translate.php
 msgid ""
@@ -6047,7 +6047,7 @@ msgstr "Activer le mode regex"
 
 #: centreon/www/install/front_translate.php
 msgid "Enter your poller's information"
-msgstr ""
+msgstr "Saisissez les informations de votre collecteur"
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -7379,7 +7379,7 @@ msgstr "FQDN / Adresse"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to close the ticket"
-msgstr ""
+msgstr "Échec de la fermeture du ticket"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to copy breadcrumb"
@@ -8535,7 +8535,7 @@ msgstr "Groupes d'hôtes partagés"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Host ID"
-msgstr ""
+msgstr "ID de l'hôte"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
@@ -11590,7 +11590,7 @@ msgstr "Plus de filtres"
 msgid ""
 "More than 1,000 resources match your search. Click to compute the exact "
 "count."
-msgstr ""
+msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour calculer le nombre exact."
 
 #: centreon/www/install/front_translate.php
 msgid "More than 1,000 resources match your search. Click to continue."
@@ -12546,13 +12546,13 @@ msgstr "Un des éléments fourni n'est pas de type ResourceGroup"
 msgid ""
 "One or more of the selected services cannot be moved: a service with the "
 "same description already exists on the target host group(s)."
-msgstr ""
+msgstr "Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un service avec la même description existe déjà sur le ou les groupes d'hôtes cibles."
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
 msgid ""
 "One or more of the selected services cannot be moved: a service with the "
 "same description already exists on the target host(s)."
-msgstr ""
+msgstr "Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un service avec la même description existe déjà sur le ou les hôtes cibles."
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "One peer retention"
@@ -13043,11 +13043,11 @@ msgstr "Services au statut \"En attente\""
 
 #: centreon/www/install/front_translate.php
 msgid "Pending status hosts"
-msgstr ""
+msgstr "Hôtes au statut \"En attente\""
 
 #: centreon/www/install/front_translate.php
 msgid "Pending status services"
-msgstr ""
+msgstr "Services au statut \"En attente\""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "People linked to this Access list"
@@ -13483,7 +13483,7 @@ msgstr "Prérequis : configurer le central pour accepter les connexions PullWSS"
 
 #: centreon/www/install/react_translation.php
 msgid "Prerequisite: configure the central to accept pullwss connections"
-msgstr ""
+msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
 
 #: centreon/www/install/front_translate.php
 msgid "Press Enter to accept"
@@ -15301,7 +15301,7 @@ msgstr "Groupes de services"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Service ID"
-msgstr ""
+msgstr "ID du service"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Service Inter-Check Delay Method"
@@ -17413,7 +17413,7 @@ msgstr "Ce mois ci"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "This SNMP trap no longer exists."
-msgstr ""
+msgstr "Ce trap SNMP n'existe plus."
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
@@ -18133,7 +18133,7 @@ msgstr "Impossible de récupérer les données d'information sur la plateforme."
 
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "Unable to revert passwords"
-msgstr ""
+msgstr "Impossible de restaurer les mots de passe"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
@@ -18604,7 +18604,7 @@ msgstr "Accès au coffre-fort"
 
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "Vault is not available"
-msgstr ""
+msgstr "Le coffre-fort n'est pas disponible"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/listMnftr.php
@@ -18779,7 +18779,7 @@ msgstr "Visualiser une plage de maintenance"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "View a host category"
-msgstr ""
+msgstr "Visualiser une catégorie d'hôte"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -20611,7 +20611,7 @@ msgstr "année"
 
 #: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
-msgstr ""
+msgstr "{{count}} ressources"
 
 #: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
