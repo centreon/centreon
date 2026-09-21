@@ -92,7 +92,7 @@ msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
 msgid "1,000+"
-msgstr ""
+msgstr "1 000+"
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
@@ -1462,7 +1462,7 @@ msgstr "Une erreur est survenue durant l'authentification"
 
 #: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
 msgid "An error occurred during session logout"
-msgstr ""
+msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
@@ -3305,7 +3305,7 @@ msgstr "Nom obligatoire"
 
 #: centreon/www/install/front_translate.php
 msgid "Computing exact count…"
-msgstr ""
+msgstr "Calcul du nombre exact…"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
@@ -3658,7 +3658,7 @@ msgstr "Copier/coller le certificat x.509"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 msgid "Could not copy VMWare configuration file"
-msgstr ""
+msgstr "Impossible de copier le fichier de configuration VMWare"
 
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
@@ -3676,7 +3676,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Could not load the SNMP trap. Please try again."
-msgstr ""
+msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
 
 #: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
@@ -8494,7 +8494,7 @@ msgstr "Groupes d'hôtes partagés"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Host ID"
-msgstr ""
+msgstr "ID de l'hôte"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
@@ -11510,7 +11510,7 @@ msgstr "Plus de filtres"
 msgid ""
 "More than 1,000 resources match your search. Click to compute the exact "
 "count."
-msgstr ""
+msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour calculer le nombre exact."
 
 #: centreon/www/install/front_translate.php
 msgid "More than 1,000 resources match your search. Click to continue."
@@ -12464,13 +12464,13 @@ msgstr "Un des éléments fourni n'est pas de type ResourceGroup"
 msgid ""
 "One or more of the selected services cannot be moved: a service with the "
 "same description already exists on the target host group(s)."
-msgstr ""
+msgstr "Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un service avec la même description existe déjà sur le ou les groupes d'hôtes cibles."
 
 #: centreon/www/include/configuration/configObject/service/DB-Func.php
 msgid ""
 "One or more of the selected services cannot be moved: a service with the "
 "same description already exists on the target host(s)."
-msgstr ""
+msgstr "Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un service avec la même description existe déjà sur le ou les hôtes cibles."
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "One peer retention"
@@ -15143,7 +15143,7 @@ msgstr "Groupes de services"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Service ID"
-msgstr ""
+msgstr "ID du service"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Service Inter-Check Delay Method"
@@ -17232,7 +17232,7 @@ msgstr "Ce mois ci"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "This SNMP trap no longer exists."
-msgstr ""
+msgstr "Ce trap SNMP n'existe plus."
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
@@ -20417,7 +20417,7 @@ msgstr "année"
 
 #: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
-msgstr ""
+msgstr "{{count}} ressources"
 
 #: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
