@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostSeverity\HostSeverityCollectionOutput;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -44,6 +45,8 @@ use Webmozart\Assert\Assert;
  */
 final readonly class ListHostSeveritiesProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
+
     /**
      * @param TransformerInterface<HostSeverity, HostSeverityCollectionOutput> $transformer
      */
@@ -105,21 +108,9 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
 
     private function handleNameFilter(mixed $nameFilter, HostSeverityCriteria $criteria): HostSeverityCriteria
     {
-        if ($nameFilter === null) {
-            return $criteria;
-        }
+        $likeValue = $this->handleLikeFilter($nameFilter, 'name');
 
-        // a client sending "?name=foo" instead of "?name[lk]=foo" lands here as a plain string
-        if (! is_array($nameFilter)) {
-            throw new BadRequestHttpException('The "name" filter must use the "name[lk]=value" format.');
-        }
-
-        $likeValue = $nameFilter['lk'] ?? null;
-        if (is_array($likeValue)) {
-            $likeValue = reset($likeValue);
-        }
-
-        if (! is_string($likeValue) || $likeValue === '') {
+        if ($likeValue === null) {
             return $criteria;
         }
 
