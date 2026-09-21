@@ -1,12 +1,3 @@
-/**
- * Shaped like the API Platform collection at ./api/configuration/hosts: a Hydra
- * envelope whose items come from `HostCollectionOutput` (`activated`, `poller`,
- * `templates`).
- *
- * Host 1 carries a null alias, host 0 an explicit one, and neither carries an
- * icon — `HostCollectionOutput` does not expose it yet (MON-208571). The
- * decoder must accept all three cases.
- */
 export const getListingResponse = () => ({
   '@context': '/centreon/api/contexts/Host',
   '@id': '/centreon/api/configuration/hosts',

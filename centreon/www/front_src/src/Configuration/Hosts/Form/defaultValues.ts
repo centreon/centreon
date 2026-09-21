@@ -1,5 +1,2 @@
-/**
- * Placeholder until the form is implemented.
- * `ConfigurationBase` requires a `form` prop, so the scaffold supplies an empty one.
- */
+// Placeholder: ConfigurationBase requires a `form`.
 export const defaultValues = {};

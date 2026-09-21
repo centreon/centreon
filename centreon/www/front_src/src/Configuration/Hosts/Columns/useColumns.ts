@@ -14,13 +14,8 @@ interface Props {
   columns: Array<Column>;
 }
 
-/**
- * Minimal column set: enough for the page to render real data.
- * Icon, Templates and the row actions are added by the listing ticket.
- *
- * `getFormattedString` is mandatory on a string column: DataCell falls back to
- * an empty string, not to `row[id]`.
- */
+// `getFormattedString` is mandatory: DataCell falls back to an empty string,
+// not to `row[id]`.
 const useColumns = (): Props => {
   const { t } = useTranslation();
 

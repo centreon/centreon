@@ -9,18 +9,6 @@ const namedEntityDecoder = {
   name: JsonDecoder.string
 };
 
-/**
- * Decoded against the API Platform resource at `./api/configuration/hosts`
- * (`HostResource`, `GetCollection` → `HostCollectionOutput`): a Hydra envelope
- * whose items expose `activated`, `poller` and `templates`.
- *
- * `icon` is deliberately absent: `HostCollectionOutput` does not expose it yet.
- * It arrives with MON-208571, together with the column that renders it and a
- * fixture that covers it.
- *
- * `optional` + `nullable` on `alias` covers both an explicit null and an
- * omitted key, since API Platform skips null values.
- */
 const hostsDecoder = JsonDecoder.object<HostListItem>(
   {
     ...namedEntityDecoder,
