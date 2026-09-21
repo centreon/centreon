@@ -84,6 +84,7 @@ export enum FieldType {
   Status = 'status',
   MultiAutocomplete = 'multiAutocomplete',
   MultiConnectedAutocomplete = 'multiConnectedAutocomplete',
+  SingleConnectedAutocomplete = 'singleConnectedAutocomplete',
   Checkbox = 'Checkbox',
   Checkboxes = 'Checkboxes'
 }

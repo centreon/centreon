@@ -112,6 +112,8 @@ final class HostResource
 
     public DataProcessingOutput $dataProcessing;
 
+    public ?HostIconOutput $icon = null;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,

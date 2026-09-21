@@ -339,6 +339,54 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('!warn!crit', $row['command_command_id_arg2']);
     }
 
+    public function testItMapsAHostWithoutAnIconToANullIconId(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->createHost('no-icon-host', $pollerId);
+
+        $host = iterator_to_array($this->repository->findAll())[0];
+
+        self::assertNull($host->iconId);
+    }
+
+    public function testItMapsAHostIconIdFromExtendedHostInformation(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $imgId = $this->createImage('server.png');
+        $this->createHost('iconed-host', $pollerId, iconId: $imgId);
+
+        $host = iterator_to_array($this->repository->findAll())[0];
+
+        self::assertNotNull($host->iconId);
+        self::assertSame($imgId, $host->iconId->value);
+    }
+
+    public function testItStillReturnsAHostMissingItsExtendedInformationRow(): void
+    {
+        // Legacy always inserts this companion row today, but nothing guarantees every host in
+        // every real database has it (pre-existing data, a non-standard insert path). The join
+        // must stay a LEFT JOIN so such a host still appears, just without an icon, instead of
+        // silently vanishing from the listing.
+        $pollerId = $this->createPoller('Central');
+        $this->connection->insert('host', [
+            'host_name' => 'no-extended-info-host',
+            'host_address' => '127.0.0.1',
+            'host_activate' => '1',
+            'host_register' => '1',
+        ]);
+        $hostId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('ns_host_relation', [
+            'host_host_id' => $hostId,
+            'nagios_server_id' => $pollerId,
+        ]);
+
+        $hosts = iterator_to_array($this->repository->findAll());
+
+        self::assertCount(1, $hosts);
+        self::assertSame($hostId, $hosts[0]->id()->value);
+        self::assertNull($hosts[0]->iconId);
+    }
+
     public function testIsNameUsedByHostOrTemplateFindsAHostByExactName(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -385,6 +433,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ?string $alias = null,
         string $address = '127.0.0.1',
         bool $activated = true,
+        ?int $iconId = null,
     ): int {
         $this->connection->insert('host', [
             'host_name' => $name,
@@ -398,6 +447,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->connection->insert('ns_host_relation', [
             'host_host_id' => $hostId,
             'nagios_server_id' => $pollerId,
+        ]);
+
+        // Every registered host always has a companion row here in practice (see
+        // DbalHostRepository::add()'s own comment), so this helper mirrors that by default.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
         ]);
 
         return $hostId;
@@ -424,6 +480,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
             'host_host_id' => $hostId,
             'hostgroup_hg_id' => $groupId,
         ]);
+    }
+
+    private function createImage(string $name): int
+    {
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function linkHostToAcl(int $hostId, int $groupId): void

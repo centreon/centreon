@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -50,6 +51,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
         public readonly DataProcessing $dataProcessing = new DataProcessing(),
+        public readonly ?MediaId $iconId = null,
     ) {
         parent::__construct($id);
     }
