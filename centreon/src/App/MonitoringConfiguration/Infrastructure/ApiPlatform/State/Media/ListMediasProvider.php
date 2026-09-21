@@ -70,7 +70,7 @@ final readonly class ListMediasProvider implements ProviderInterface
         $criteria = new MediaCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
-            if ($itemsPerPage == 0) {
+            if ($itemsPerPage === 0) {
                 throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
             }
             $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);

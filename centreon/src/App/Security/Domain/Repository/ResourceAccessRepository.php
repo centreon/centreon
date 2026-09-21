@@ -101,8 +101,8 @@ interface ResourceAccessRepository
 
     /**
      * @return Collection<MediaDirectoryId>|null null means no restriction applies (the user can
-     *                                        access all image folders); an empty Collection means
-     *                                        the user can access none
+     *                                           access all image folders); an empty Collection means
+     *                                           the user can access none
      */
     public function findAccessibleImageFolderIds(UserId $userId): ?Collection;
 }

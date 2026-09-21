@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
