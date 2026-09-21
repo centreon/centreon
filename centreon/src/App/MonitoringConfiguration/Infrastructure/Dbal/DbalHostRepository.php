@@ -52,6 +52,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   poller_id: int,
  *   template_ids: string|null,
  *   group_ids: string|null,
+ *   icon_id: int|null,
  * }
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
@@ -156,8 +157,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
             ->leftJoin('h', 'host_template_relation', 'htpl', 'htpl.host_host_id = h.host_id')
             ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
             ->andWhere("h.host_register = '1'")
-            ->groupBy('h.host_id', 'nsr.nagios_server_id')
+            ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image')
             ->orderBy('h.host_id'); // required for deterministic pagination
 
         if ($accessibleHostIds !== null) {
@@ -211,6 +213,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'nsr.nagios_server_id AS poller_id',
             'GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids',
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
+            'ehi.ehi_icon_image AS icon_id',
         ];
     }
 
