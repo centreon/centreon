@@ -35,11 +35,16 @@ on:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   performance-test:
     needs: [dependency-scan]
     runs-on: centreon-perf-testing
+    permissions:
+      contents: read
     defaults:
       run:
         shell: bash

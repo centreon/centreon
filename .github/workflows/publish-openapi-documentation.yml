@@ -22,6 +22,8 @@ env:
 jobs:
   check-inputs:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -45,6 +47,8 @@ jobs:
   build-openapi-documentation:
     needs: [check-inputs]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
     steps:
@@ -61,6 +65,8 @@ jobs:
   publish-openapi-documentation:
     needs: [check-inputs, build-openapi-documentation]
     runs-on: documentation
+    permissions:
+      contents: read
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

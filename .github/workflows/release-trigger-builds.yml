@@ -19,12 +19,18 @@ on:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   release-trigger-builds:
     needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     env:
       DISPATCH_TARGET_RELEASE_BRANCH: ${{ inputs.dispatch_target_release_branch }}
       DISPATCH_CONTENT: ${{ inputs.dispatch_content }}

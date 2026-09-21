@@ -38,6 +38,8 @@ on:
 jobs:
   cypress-component-test-list:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       specs: ${{ steps.list-specs.outputs.specs }}
 
@@ -60,6 +62,8 @@ jobs:
   cypress-component-test-run:
     needs: [cypress-component-test-list]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -174,6 +178,9 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -262,6 +269,9 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -334,6 +344,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

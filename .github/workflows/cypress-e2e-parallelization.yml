@@ -99,6 +99,8 @@ on:
 jobs:
   cypress-e2e-test-list:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       features: ${{ steps.list-features.outputs.specs }}
       has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
@@ -353,6 +355,8 @@ jobs:
   # Import the cucumber results into Xray and link them to the Test Plan. Skipped for
   # callers still on the legacy flow (those that do not pass jira_test_plan_key).
   xray-api-import-results:
+    permissions:
+      contents: read
     needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
@@ -387,6 +391,9 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -460,6 +467,8 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

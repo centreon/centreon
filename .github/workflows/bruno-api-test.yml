@@ -70,6 +70,8 @@ on:
 jobs:
   bruno-test-list-collections-workspace:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
     outputs:
       collections: ${{ steps.set_collections.outputs.collections }}
@@ -95,6 +97,8 @@ jobs:
     needs: bruno-test-list-collections-workspace
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -341,6 +345,8 @@ jobs:
     needs: [bruno-run-collection]
     if: ${{ ! cancelled() && inputs.upload_artifacts == 'true' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - name: Merge deprecation logs
         uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -355,6 +361,8 @@ jobs:
   # Import the JUnit results into Xray and link them to the Test Plan. Skipped for
   # callers still on the legacy flow (those that do not pass jira_test_plan_key).
   xray-api-import-results:
+    permissions:
+      contents: read
     needs: [bruno-run-collection]
     if: ${{ ! cancelled() && inputs.jira_test_plan_key != '' }}
     uses: ./.github/workflows/xray-api-import-results.yml

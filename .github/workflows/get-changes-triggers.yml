@@ -70,6 +70,8 @@ on:
 jobs:
   get-triggers:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       trigger_backend_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_backend_testing || steps.get_triggers.outputs.trigger_backend_testing || 'true' }}
       trigger_frontend_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_frontend_testing || steps.get_triggers.outputs.trigger_frontend_testing || 'true' }}

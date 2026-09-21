@@ -32,12 +32,17 @@ on:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   check-inputs:
     needs: [dependency-scan]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     env:
       RELEASE_BRANCH: ${{ inputs.release_branch }}
       RELEASE_NUMBER: ${{ inputs.release_number }}
@@ -91,6 +96,8 @@ jobs:
     needs: [check-inputs]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     outputs:
       new_release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
     env:

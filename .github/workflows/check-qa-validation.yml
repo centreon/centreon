@@ -25,6 +25,9 @@ jobs:
   check-qa-validation:
     if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout sources

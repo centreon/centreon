@@ -9,6 +9,9 @@ on:
 
 jobs:
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: .version.centreon-web
@@ -20,6 +23,8 @@ jobs:
     needs: [get-environment]
 
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
     env:
       PACKAGE_DIRECTORY: ${{ inputs.package_directory }}
@@ -95,6 +100,9 @@ jobs:
         working-directory: ${{ env.PACKAGE_DIRECTORY }}
 
   set-skip-label:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [get-environment, publish-package]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&

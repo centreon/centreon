@@ -52,6 +52,9 @@ env:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   dispatch-to-maintenance-branches:
@@ -60,6 +63,9 @@ jobs:
       github.event_name == 'schedule' &&
       github.ref_name == 'develop'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -71,6 +77,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
@@ -79,6 +88,8 @@ jobs:
       labels: ${{ inputs.labels || '' }}
 
   changes:
+    permissions:
+      contents: read
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
@@ -162,6 +173,8 @@ jobs:
 
   check-version-consistency:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -266,6 +279,8 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -294,6 +309,8 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -334,6 +351,9 @@ jobs:
       )
     # needed to deliver sources
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/centreon/delivery-tooling/translation:${{ needs.get-environment.outputs.major_version }}
 
@@ -370,6 +390,9 @@ jobs:
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -388,6 +411,8 @@ jobs:
 
   frontend-type-check:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -403,6 +428,9 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -446,6 +474,10 @@ jobs:
           path: "centreon/junit.xml"
 
   frontend-component-test:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -467,6 +499,9 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -516,6 +551,8 @@ jobs:
 
   backend-integration-test:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment, changes, backend-unit-test]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -600,6 +637,8 @@ jobs:
 
   backend-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_backend_testing == 'true' &&
@@ -787,6 +826,8 @@ jobs:
 
   gherkin-lint:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
@@ -801,6 +842,9 @@ jobs:
 
   e2e-lint:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      checks: write
     needs: [get-environment, changes]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
@@ -850,6 +894,9 @@ jobs:
 
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.operating_system }}
 
@@ -1149,6 +1196,8 @@ jobs:
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
 
   xray-prepare-test-plan:
+    permissions:
+      contents: read
     name: xray-prepare-test-plan
     needs: [get-environment, changes]
     if: |
@@ -1169,6 +1218,8 @@ jobs:
       XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
   bruno-api-test:
+    permissions:
+      contents: read
     needs: [get-environment, changes, xray-prepare-test-plan, dockerize]
     if: |
       needs.changes.outputs.trigger_api_testing == 'true' &&
@@ -1206,6 +1257,10 @@ jobs:
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
+    permissions:
+      contents: read
+      packages: read
+      checks: write
     needs:
       [
         get-environment,
@@ -1968,6 +2023,8 @@ jobs:
 
   deliver-sources:
     runs-on: centreon-common
+    permissions:
+      contents: read
     needs: [get-environment, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -2003,6 +2060,8 @@ jobs:
 
   build-openapi-documentation:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     needs: [get-environment]
     outputs:
       doc_version: ${{ steps.build-openapi-documentation.outputs.doc_version }}
@@ -2022,6 +2081,8 @@ jobs:
 
   publish-openapi-documentation:
     runs-on: documentation
+    permissions:
+      contents: read
     needs: [get-environment, build-openapi-documentation]
     steps:
       - name: Checkout sources
@@ -2125,6 +2186,9 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   set-skip-label:
+    permissions:
+      contents: read
+      pull-requests: write
     needs: [get-environment, deliver, promote]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -2135,6 +2199,9 @@ jobs:
 
   clear-branch-cache:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write
     needs: [get-environment, deliver]
     env:
       GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == true && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
@@ -2161,6 +2228,9 @@ jobs:
 
   create-jira-nightly-ticket:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
     needs: [
       get-environment,
       deliver
