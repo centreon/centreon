@@ -1,10 +1,4 @@
-export const defaultSelectedColumnIds = [
-  'name',
-  'alias',
-  'address',
-  'poller',
-  'is_activated'
-];
+export const defaultSelectedColumnIds = ['name', 'alias', 'address', 'poller'];
 
 export const filtersInitialValues = {
   name: ''

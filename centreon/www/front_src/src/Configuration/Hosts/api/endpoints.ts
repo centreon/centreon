@@ -8,10 +8,13 @@
  * that allowlist, and `FindHostsRoute.yaml` still answers there with the legacy
  * `{ result, meta }` envelope. Calling `./api` directly reaches the API
  * Platform resource we actually want.
+ *
+ * This base applies to the LISTING ONLY. API Platform exposes just `Post` and
+ * `GetCollection` for hosts — there is no single-host operation. `GetHost`,
+ * `PartialUpdateHost` and `DeleteHost` exist only as legacy routes under
+ * `/api/{version}`, so any future `getOne`/`update`/`delete` endpoint must keep
+ * the default `./api/latest` base rather than inherit this one.
  */
 export const hostsBaseEndpoint = './api';
 
 export const hostsListEndpoint = '/configuration/hosts';
-
-export const getHostEndpoint = ({ id }: { id: number | string }): string =>
-  `${hostsListEndpoint}/${id}`;

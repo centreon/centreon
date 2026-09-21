@@ -109,6 +109,10 @@ export interface APIType {
    * bare `/api`; an allowlist re-exposes some API Platform operations under
    * `/api/latest`. A resource that is not on that allowlist — and whose legacy
    * route still exists — is only reachable at `./api`.
+   *
+   * Applies to `getAll` only. The other hooks intentionally keep the default,
+   * because a resource migrated to API Platform for its collection may still
+   * have only legacy routes for its single-item operations.
    */
   baseEndpoint?: string;
   decoders?: {

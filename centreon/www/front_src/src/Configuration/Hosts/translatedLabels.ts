@@ -1,5 +1,4 @@
 export const labelHosts = 'Hosts';
-export const labelHost = 'Host';
 export const labelName = 'Name';
 export const labelAlias = 'Alias';
 export const labelIpAddress = 'IP Address / DNS';

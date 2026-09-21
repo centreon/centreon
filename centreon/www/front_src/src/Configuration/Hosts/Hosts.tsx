@@ -37,10 +37,14 @@ const Hosts = () => {
     <ConfigurationBase<Filters>
       /**
        * `edit` drives `canCreate` on the empty state, so it is what surfaces the
-       * create button. Hardcoded to true for now: there is no host write
-       * permission to gate it on — `FindUserPermissions` exposes
-       * `configuration_host_group_write` but no host equivalent, and the create
-       * flow itself lands with the form ticket.
+       * create button the empty state requires. Hardcoded because there is no host
+       * write permission exposed by `FindUserPermissions` to gate it on.
+       *
+       * It also mounts the shared edit Modal and the row-click handler, neither of
+       * which can work here: no `getOne` endpoint and no `adapter` are declared.
+       * Both are unreachable while the page is dark-launched, and the form ticket
+       * replaces that Modal with a side panel, so they are left as-is rather than
+       * worked around.
        */
       actions={{ edit: true }}
       api={api}

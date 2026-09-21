@@ -1,8 +1,4 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import {
-  platformFeaturesAtom,
-  userPermissionsAtom
-} from '@centreon/ui-context';
 
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
@@ -14,31 +10,16 @@ import { hostsListEndpoint } from '../api/endpoints';
 import { emptyListingResponse, getListingResponse } from './utils';
 
 interface Props {
-  hasWriteAccess?: boolean;
-  isCloudPlatform?: boolean;
   isEmpty?: boolean;
 }
 
-const initialize = ({
-  isEmpty = false,
-  isCloudPlatform = false,
-  hasWriteAccess = true
-}: Props): void => {
+const initialize = ({ isEmpty = false }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
 
   const store = createStore();
-
-  store.set(platformFeaturesAtom, {
-    featureFlags: {},
-    isCloudPlatform
-  });
-
-  store.set(userPermissionsAtom, {
-    configuration_host_write: hasWriteAccess
-  });
 
   cy.interceptAPIRequest({
     alias: 'getAllHosts',
