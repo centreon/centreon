@@ -70,14 +70,15 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
             $this->filterByCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
             return $this->createTimePeriods($rows);
         }
 
-        $this->paginate($qb, $criteria);
+        $this->applyPagination($qb, $pagination);
 
         // total across all pages: countMatching clones $qb and strips its sort/pagination,
         // so it is unaffected by the pagination applied above.
@@ -89,8 +90,8 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
         return new InMemoryPaginator(
             items: $this->createTimePeriods($rows),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -125,15 +126,5 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
             ),
             TimePeriod::class
         );
-    }
-
-    private function paginate(QueryBuilder $qb, TimePeriodCriteria $criteria): void
-    {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
-            return;
-        }
-
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
     }
 }
