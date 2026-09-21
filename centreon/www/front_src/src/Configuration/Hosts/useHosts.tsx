@@ -10,20 +10,17 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
+const api: APIType = {
+  apiFormat: 'JSON-LD',
+  baseEndpoint: hostsBaseEndpoint,
+  decoders: { getAll: hostsListDecoder },
+  endpoints: {
+    getAll: hostsListEndpoint
+  }
+};
+
 const useHosts = (): UseHostsState => {
   const { t } = useTranslation();
-
-  const api: APIType = useMemo(
-    () => ({
-      apiFormat: 'JSON-LD',
-      baseEndpoint: hostsBaseEndpoint,
-      decoders: { getAll: hostsListDecoder },
-      endpoints: {
-        getAll: hostsListEndpoint
-      }
-    }),
-    []
-  );
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
