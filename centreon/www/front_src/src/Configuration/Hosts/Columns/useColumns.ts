@@ -9,6 +9,7 @@ import {
   labelMonitoringServer,
   labelName
 } from '../translatedLabels';
+import Name from './Name';
 
 interface Props {
   columns: Array<Column>;
@@ -21,13 +22,13 @@ const useColumns = (): Props => {
 
   const columns: Array<Column> = [
     {
+      Component: Name,
       disablePadding: false,
-      getFormattedString: ({ name }: Record<string, unknown>) => name as string,
       id: 'name',
       label: t(labelName),
       sortable: true,
       sortField: 'name',
-      type: ColumnType.string
+      type: ColumnType.component
     },
     {
       disablePadding: false,
