@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Media\ImageFolderId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
@@ -90,7 +90,7 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
             $qb->andWhere($qb->expr()->in(
                 'dir.dir_id',
                 $qb->createNamedParameter(
-                    array_map(static fn (ImageFolderId $id): int => $id->value, iterator_to_array($accessibleFolderIds)),
+                    array_map(static fn (MediaDirectoryId $id): int => $id->value, iterator_to_array($accessibleFolderIds)),
                     ArrayParameterType::INTEGER
                 )
             ));

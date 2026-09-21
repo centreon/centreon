@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\ImageFolderId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -40,7 +40,7 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var ?Collection<HostGroupId> null means unrestricted, matching the real contract */
     public ?Collection $accessibleHostGroupIds = null;
 
-    /** @var ?Collection<ImageFolderId> null means unrestricted, matching the real contract */
+    /** @var ?Collection<MediaDirectoryId> null means unrestricted, matching the real contract */
     public ?Collection $accessibleImageFolderIds = null;
 
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */

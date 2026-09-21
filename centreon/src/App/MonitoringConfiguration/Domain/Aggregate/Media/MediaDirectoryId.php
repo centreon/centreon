@@ -28,7 +28,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Media;
  * allowed to see; folder management (create/rename/delete) isn't a feature here, so this
  * doesn't need its own identity beyond that.
  */
-final readonly class ImageFolderId
+final readonly class MediaDirectoryId
 {
     public function __construct(
         public int $value,

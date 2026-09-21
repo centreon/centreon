@@ -45,6 +45,18 @@ final class MediaNameTest extends TestCase
         self::assertSame($name, (new MediaName($name))->value);
     }
 
+    public function testTrimsLeadingAndTrailingWhitespace(): void
+    {
+        self::assertSame('logo.png', (new MediaName('  logo.png  '))->value);
+    }
+
+    public function testRejectsANameThatIsOnlyWhitespace(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new MediaName('   ');
+    }
+
     public function testRejectsAnEmptyName(): void
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -31,7 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\ImageFolderId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
@@ -417,7 +417,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
         self::assertNotNull($accessibleFolderIds);
-        self::assertEquals([301], array_map(static fn (ImageFolderId $id): int => $id->value, iterator_to_array($accessibleFolderIds)));
+        self::assertEquals([301], array_map(static fn (MediaDirectoryId $id): int => $id->value, iterator_to_array($accessibleFolderIds)));
     }
 
     /**

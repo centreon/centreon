@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\ImageFolderId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
@@ -339,8 +339,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
         return new Collection(
-            array_map(static fn (array $row): ImageFolderId => new ImageFolderId((int) $row['dir_id']), $rows),
-            ImageFolderId::class,
+            array_map(static fn (array $row): MediaDirectoryId => new MediaDirectoryId((int) $row['dir_id']), $rows),
+            MediaDirectoryId::class,
         );
     }
 

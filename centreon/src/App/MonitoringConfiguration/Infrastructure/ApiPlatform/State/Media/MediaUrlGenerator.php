@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -33,16 +34,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 final readonly class MediaUrlGenerator
 {
-    private const IMG_FOLDER_PATH = '/img/media/';
-
     public function __construct(
+        #[Autowire('%shared.media_img_folder_path%')]
+        private string $imgFolderPath,
         private RequestStack $requestStack,
     ) {
     }
 
     public function generate(Media $media): string
     {
-        return $this->basePath() . self::IMG_FOLDER_PATH
+        return $this->basePath() . $this->imgFolderPath
             . rawurlencode($media->directory->value) . '/' . rawurlencode($media->name->value);
     }
 
