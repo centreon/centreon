@@ -108,6 +108,18 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
             : acc;
         }
 
+        if (equals(filter.fieldType, FieldType.SingleConnectedAutocomplete)) {
+          return isNotNil(filterValue)
+            ? [
+                ...acc,
+                {
+                  field: fieldName,
+                  values: { $eq: filterValue.id }
+                }
+              ]
+            : acc;
+        }
+
         return filterValue
           ? [...acc, { field: fieldName, values: { $rg: filterValue } }]
           : acc;
