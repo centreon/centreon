@@ -13,8 +13,7 @@ import type { Filters } from './models';
 import {
   labelAddHost,
   labelHosts,
-  labelWelcomeToHosts,
-  labelWelcomeToHostsDescription
+  labelWelcomeToHosts
 } from './translatedLabels';
 import useHosts from './useHosts';
 import {
@@ -53,7 +52,6 @@ const Hosts = () => {
           actions: {
             create: t(labelAddHost)
           },
-          description: t(labelWelcomeToHostsDescription),
           title: t(labelWelcomeToHosts)
         }
       }}

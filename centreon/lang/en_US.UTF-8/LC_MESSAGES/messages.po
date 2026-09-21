@@ -18550,6 +18550,10 @@ msgid "Welcome to the host groups page"
 msgstr "Welcome to the host groups page"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the hosts page"
+msgstr "Welcome to the hosts page"
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
 msgstr "Welcome to the notifications interface"
 
