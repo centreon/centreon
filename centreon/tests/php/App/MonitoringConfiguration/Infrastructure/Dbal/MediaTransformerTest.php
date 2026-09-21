@@ -21,30 +21,23 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Infrastructure\Dbal\MediaTransformer;
+use PHPUnit\Framework\TestCase;
 
-final class HostCollectionOutput
+final class MediaTransformerTest extends TestCase
 {
-    public HostPollerOutput $poller;
+    public function testTransformMapsARowToTheAggregate(): void
+    {
+        $media = (new MediaTransformer())->transform([
+            'id' => 42,
+            'name' => 'logo.png',
+            'directory' => 'general',
+        ]);
 
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    public ?HostIconOutput $icon = null;
-
-    public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
-
-        public string $name,
-
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
-    ) {
+        self::assertSame(42, $media->id()->value);
+        self::assertSame('logo.png', $media->name->value);
+        self::assertSame('general', $media->directory->value);
     }
 }

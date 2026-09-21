@@ -21,30 +21,28 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media;
 
-use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Media\MediaResource;
+use App\Shared\Infrastructure\TransformerInterface;
 
-final class HostCollectionOutput
+/**
+ * @implements TransformerInterface<Media, MediaResource>
+ */
+final readonly class MediaResourceTransformer implements TransformerInterface
 {
-    public HostPollerOutput $poller;
-
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    public ?HostIconOutput $icon = null;
-
     public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
-
-        public string $name,
-
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
+        private MediaUrlGenerator $urlGenerator,
     ) {
+    }
+
+    public function transform(mixed $from): MediaResource
+    {
+        return new MediaResource(
+            id: $from->id()->value,
+            name: $from->name->value,
+            url: $this->urlGenerator->generate($from),
+        );
     }
 }

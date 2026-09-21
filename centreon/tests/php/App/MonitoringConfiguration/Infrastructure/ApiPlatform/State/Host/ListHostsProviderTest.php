@@ -103,6 +103,40 @@ final class ListHostsProviderTest extends ApiTestCase
         ]);
     }
 
+    public function testItIncludesTheHostIconWhenSet(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $imgId = $this->insertImage('server.png');
+        $this->linkImageToFolder($imgId, $dirId);
+        $this->insertHost('iconed-host', $pollerId, iconId: $imgId);
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'member' => [
+                ['icon' => ['id' => $imgId, 'name' => 'server.png', 'url' => '/img/media/dir/server.png']],
+            ],
+        ]);
+    }
+
+    public function testItOmitsTheIconKeyWhenTheHostHasNoIcon(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('no-icon-host', $pollerId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array<string, mixed>> $member */
+        $member = $response->toArray()['member'];
+        self::assertArrayNotHasKey('icon', $member[0]);
+    }
+
     public function testItOmitsTheAliasKeyWhenTheHostHasNoAlias(): void
     {
         // ApiPlatform's skip_null_values defaults to true and drops a null field from the
@@ -335,8 +369,13 @@ final class ListHostsProviderTest extends ApiTestCase
         return (int) $this->connection->lastInsertId();
     }
 
-    private function insertHost(string $name, int $pollerId, ?string $alias = null, bool $activated = true): int
-    {
+    private function insertHost(
+        string $name,
+        int $pollerId,
+        ?string $alias = null,
+        bool $activated = true,
+        ?int $iconId = null,
+    ): int {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_alias' => $alias,
@@ -351,7 +390,35 @@ final class ListHostsProviderTest extends ApiTestCase
             'nagios_server_id' => $pollerId,
         ]);
 
+        // Every registered host always has a companion row here, even an empty one.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
+        ]);
+
         return $hostId;
+    }
+
+    private function insertImage(string $name): int
+    {
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertImageFolder(string $name): int
+    {
+        $this->connection->insert('view_img_dir', ['dir_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkImageToFolder(int $imgId, int $dirId): void
+    {
+        $this->connection->insert('view_img_dir_relation', [
+            'dir_dir_parent_id' => $dirId,
+            'img_img_id' => $imgId,
+        ]);
     }
 
     private function linkHostToTemplate(int $hostId, int $templateId): void
