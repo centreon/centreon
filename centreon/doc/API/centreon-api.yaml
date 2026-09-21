@@ -149,6 +149,9 @@ tags:
   -
     name: Timezone
     description: "Resource 'Timezone' operations."
+  -
+    name: ContactGroup
+    description: "Resource 'ContactGroup' operations."
 security:
   -
     Token: []
