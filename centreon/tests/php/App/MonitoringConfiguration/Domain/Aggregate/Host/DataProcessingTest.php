@@ -32,22 +32,22 @@ final class DataProcessingTest extends TestCase
 {
     public function testDefaultsToUseDefaultAndNulls(): void
     {
-        $dp = new DataProcessing();
+        $dataProcessing = new DataProcessing();
 
-        self::assertSame(TriStateEnum::UseDefault, $dp->checkFreshness);
-        self::assertSame(TriStateEnum::UseDefault, $dp->flapDetectionEnabled);
-        self::assertSame(TriStateEnum::UseDefault, $dp->eventHandlerEnabled);
-        self::assertNull($dp->acknowledgmentTimeout);
-        self::assertNull($dp->freshnessThreshold);
-        self::assertNull($dp->lowFlapThreshold);
-        self::assertNull($dp->highFlapThreshold);
-        self::assertNull($dp->eventHandlerCommandId);
-        self::assertSame([], $dp->eventHandlerArgs);
+        self::assertSame(TriStateEnum::UseDefault, $dataProcessing->checkFreshness);
+        self::assertSame(TriStateEnum::UseDefault, $dataProcessing->flapDetectionEnabled);
+        self::assertSame(TriStateEnum::UseDefault, $dataProcessing->eventHandlerEnabled);
+        self::assertNull($dataProcessing->acknowledgmentTimeout);
+        self::assertNull($dataProcessing->freshnessThreshold);
+        self::assertNull($dataProcessing->lowFlapThreshold);
+        self::assertNull($dataProcessing->highFlapThreshold);
+        self::assertNull($dataProcessing->eventHandlerCommandId);
+        self::assertSame([], $dataProcessing->eventHandlerArgs);
     }
 
     public function testAcceptsValidValues(): void
     {
-        $dp = new DataProcessing(
+        $dataProcessing = new DataProcessing(
             checkFreshness: TriStateEnum::True,
             acknowledgmentTimeout: 1,
             freshnessThreshold: 0,
@@ -57,11 +57,11 @@ final class DataProcessingTest extends TestCase
             eventHandlerArgs: ['warn', 'crit'],
         );
 
-        self::assertSame(1, $dp->acknowledgmentTimeout);
-        self::assertSame(0, $dp->freshnessThreshold);
-        self::assertSame(100, $dp->highFlapThreshold);
-        self::assertSame(42, $dp->eventHandlerCommandId?->value);
-        self::assertSame(['warn', 'crit'], $dp->eventHandlerArgs);
+        self::assertSame(1, $dataProcessing->acknowledgmentTimeout);
+        self::assertSame(0, $dataProcessing->freshnessThreshold);
+        self::assertSame(100, $dataProcessing->highFlapThreshold);
+        self::assertSame(42, $dataProcessing->eventHandlerCommandId?->value);
+        self::assertSame(['warn', 'crit'], $dataProcessing->eventHandlerArgs);
     }
 
     public function testRejectsAcknowledgmentTimeoutBelowOne(): void
@@ -94,9 +94,9 @@ final class DataProcessingTest extends TestCase
 
     public function testAcceptsFlapThresholdBoundaries(): void
     {
-        $dp = new DataProcessing(lowFlapThreshold: 0, highFlapThreshold: 100);
+        $dataProcessing = new DataProcessing(lowFlapThreshold: 0, highFlapThreshold: 100);
 
-        self::assertSame(0, $dp->lowFlapThreshold);
-        self::assertSame(100, $dp->highFlapThreshold);
+        self::assertSame(0, $dataProcessing->lowFlapThreshold);
+        self::assertSame(100, $dataProcessing->highFlapThreshold);
     }
 }

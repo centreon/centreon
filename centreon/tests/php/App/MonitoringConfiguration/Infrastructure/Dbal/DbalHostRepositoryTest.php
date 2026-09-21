@@ -330,10 +330,11 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('1', $row['host_check_freshness']);
         self::assertSame('0', $row['host_flap_detection_enabled']);
         self::assertSame('2', $row['host_event_handler_enabled']);
-        self::assertSame(15, (int) $row['host_acknowledgement_timeout']);
-        self::assertSame(120, (int) $row['host_freshness_threshold']);
-        self::assertSame(10, (int) $row['host_low_flap_threshold']);
-        self::assertSame(60, (int) $row['host_high_flap_threshold']);
+        // Numeric columns are returned as strings by the driver, like the directive columns above.
+        self::assertSame('15', $row['host_acknowledgement_timeout']);
+        self::assertSame('120', $row['host_freshness_threshold']);
+        self::assertSame('10', $row['host_low_flap_threshold']);
+        self::assertSame('60', $row['host_high_flap_threshold']);
         self::assertNull($row['command_command_id2']);
         self::assertSame('!warn!crit', $row['command_command_id_arg2']);
     }

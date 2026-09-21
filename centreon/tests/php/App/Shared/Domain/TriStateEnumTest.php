@@ -28,23 +28,50 @@ use PHPUnit\Framework\TestCase;
 
 final class TriStateEnumTest extends TestCase
 {
-    public function testBackingValuesAreTheContractStrings(): void
+    /**
+     * @return iterable<string, array{string, TriStateEnum}>
+     */
+    public static function contractValueProvider(): iterable
     {
-        self::assertSame('false', TriStateEnum::False->value);
-        self::assertSame('true', TriStateEnum::True->value);
-        self::assertSame('use_default', TriStateEnum::UseDefault->value);
+        yield 'false' => ['false', TriStateEnum::False];
+
+        yield 'true' => ['true', TriStateEnum::True];
+
+        yield 'use_default' => ['use_default', TriStateEnum::UseDefault];
     }
 
-    public function testFromContractString(): void
+    /**
+     * @dataProvider contractValueProvider
+     */
+    public function testBackingValueIsTheContractString(string $contractValue, TriStateEnum $case): void
     {
-        self::assertSame(TriStateEnum::UseDefault, TriStateEnum::from('use_default'));
-        self::assertSame(TriStateEnum::True, TriStateEnum::from('true'));
+        self::assertSame($contractValue, $case->value);
     }
 
-    public function testTryFromRejectsUnknownOrRawColumnValues(): void
+    /**
+     * @dataProvider contractValueProvider
+     */
+    public function testFromContractString(string $contractValue, TriStateEnum $case): void
     {
-        self::assertNull(TriStateEnum::tryFrom('maybe'));
+        self::assertSame($case, TriStateEnum::from($contractValue));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nonContractValueProvider(): iterable
+    {
+        yield 'unknown word' => ['maybe'];
+
         // The database column values ('0'/'1'/'2') are a persistence detail, not contract values.
-        self::assertNull(TriStateEnum::tryFrom('2'));
+        yield 'raw column value' => ['2'];
+    }
+
+    /**
+     * @dataProvider nonContractValueProvider
+     */
+    public function testTryFromRejectsUnknownOrRawColumnValues(string $rawValue): void
+    {
+        self::assertNull(TriStateEnum::tryFrom($rawValue));
     }
 }

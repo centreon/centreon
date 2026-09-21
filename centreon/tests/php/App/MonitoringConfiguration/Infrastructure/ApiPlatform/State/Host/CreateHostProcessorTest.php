@@ -142,7 +142,6 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'high_flap_threshold' => 60,
                 'event_handler_enabled' => 'use_default',
                 'acknowledgment_timeout' => 15,
-                'event_handler' => null,
             ],
         ]);
     }
