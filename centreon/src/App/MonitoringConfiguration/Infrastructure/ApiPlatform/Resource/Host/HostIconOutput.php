@@ -23,28 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use ApiPlatform\Metadata\ApiProperty;
-
-final class HostCollectionOutput
+final readonly class HostIconOutput
 {
-    public HostPollerOutput $poller;
-
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    public ?HostIconOutput $icon = null;
-
     public function __construct(
-        #[ApiProperty(identifier: true)]
         public int $id,
-
         public string $name,
-
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
+        public string $url,
     ) {
     }
 }
