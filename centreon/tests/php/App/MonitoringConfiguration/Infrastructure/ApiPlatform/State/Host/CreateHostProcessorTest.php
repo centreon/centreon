@@ -146,6 +146,44 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
     }
 
+    public function testItCreatesAHostWithAnEventHandlerCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $this->connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'event-handler',
+            'command_line' => '$USER1$/handle',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.7',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'event_handler_enabled' => 'true',
+                    'event_handler_command_id' => 2,
+                    'event_handler_args' => ['-w', '80'],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'data_processing' => [
+                'event_handler_enabled' => 'true',
+                'event_handler' => ['id' => 2, 'name' => 'event-handler'],
+                'event_handler_args' => ['-w', '80'],
+            ],
+        ]);
+    }
+
     public function testItRejectsAFlapThresholdAboveOneHundred(): void
     {
         $this->login();

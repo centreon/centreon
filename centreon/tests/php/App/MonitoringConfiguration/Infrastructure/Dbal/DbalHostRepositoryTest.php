@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
@@ -338,6 +339,47 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame(60, $row['host_high_flap_threshold']);
         self::assertNull($row['command_command_id2']);
         self::assertSame('!warn!crit', $row['command_command_id_arg2']);
+    }
+
+    public function testAddPersistsTheEventHandlerCommandAndEscapesArgs(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'event-handler',
+            'command_line' => '$USER1$/handle',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-eh'),
+            alias: null,
+            address: new HostAddress('10.0.0.3'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            dataProcessing: new DataProcessing(
+                eventHandlerCommandId: new CommandId(2),
+                eventHandlerArgs: ["a\nb", "c\td", "e\rf"],
+            ),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array<string, mixed> $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id2, command_command_id_arg2 FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        self::assertSame(2, $row['command_command_id2']);
+        // Each arg is prefixed with "!"; newlines/tabs/carriage-returns escape to #BR#/#T#/#R#.
+        self::assertSame('!a#BR#b!c#T#d!e#R#f', $row['command_command_id_arg2']);
     }
 
     public function testItMapsAHostWithoutAnIconToANullIconId(): void
