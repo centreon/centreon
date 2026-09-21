@@ -321,6 +321,8 @@ jobs:
 
   translation-build:
     needs: [get-environment, changes]
+    permissions:
+      contents: read
     if: |
       (
         needs.changes.outputs.trigger_packaging == 'true' &&
@@ -367,6 +369,13 @@ jobs:
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
+
+      - name: Check French translations completeness
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.is_targeting_feature_branch == 'false'
+        run: bash .github/scripts/translation/check-french-translations.sh
+        shell: bash
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
