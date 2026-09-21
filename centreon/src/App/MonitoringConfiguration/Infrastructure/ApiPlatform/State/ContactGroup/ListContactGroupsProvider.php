@@ -27,12 +27,11 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Application\Query\ListContactGroupsQuery;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\Security\Infrastructure\Security\CredentialUser;
-use App\Shared\Application\Query\QueryBus;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -54,7 +53,7 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
     public function __construct(
         #[Autowire(service: ContactGroupResourceTransformer::class)]
         private TransformerInterface $transformer,
-        private QueryBus $queryBus,
+        private ContactGroupRepository $repository,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -91,9 +90,7 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
             ? $criteria
             : $criteria->withViewerId($credentialUser->credential->userId);
 
-        $contactGroups = $this->queryBus->ask(new ListContactGroupsQuery($criteria));
-        Assert::isInstanceOf($contactGroups, \IteratorAggregate::class);
-        /** @var \IteratorAggregate<int, ContactGroup>&\Countable $contactGroups */
+        $contactGroups = $this->repository->findAll($criteria);
         $resources = [];
         foreach ($contactGroups as $contactGroup) {
             $resources[] = $this->transformer->transform($contactGroup);

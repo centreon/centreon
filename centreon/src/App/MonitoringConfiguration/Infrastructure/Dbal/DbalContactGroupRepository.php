@@ -30,6 +30,7 @@ use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -89,9 +90,8 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         }
         $this->filterByCriteria($qb, $criteria);
 
-        $page = $criteria->getPage();
-        $itemsPerPage = $criteria->getItemsPerPage();
-        if ($page === null || $itemsPerPage === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -101,7 +101,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
             );
         }
 
-        $this->paginate($qb, $page, $itemsPerPage);
+        $this->paginate($qb, $pagination);
 
         // total across all pages: countMatching clones $qb and strips its sort/pagination,
         // so it is unaffected by the pagination applied above.
@@ -116,8 +116,8 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 ContactGroup::class
             ),
             totalItems: $count,
-            currentPage: $page,
-            itemsPerPage: $itemsPerPage,
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -194,9 +194,9 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         return array_values(array_unique($ids));
     }
 
-    private function paginate(QueryBuilder $qb, int $page, int $itemsPerPage): void
+    private function paginate(QueryBuilder $qb, Pagination $pagination): void
     {
-        $qb->setFirstResult(($page - 1) * $itemsPerPage)
-            ->setMaxResults($itemsPerPage);
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 }

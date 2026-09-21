@@ -45,10 +45,11 @@ final class ContactGroupCriteriaTest extends TestCase
 
         $new = $criteria->withPagination(2, 10);
 
-        self::assertNull($criteria->getPage());
-        self::assertNull($criteria->getItemsPerPage());
-        self::assertSame(2, $new->getPage());
-        self::assertSame(10, $new->getItemsPerPage());
+        self::assertNull($criteria->getPagination());
+        $pagination = $new->getPagination();
+        self::assertNotNull($pagination);
+        self::assertSame(2, $pagination->page);
+        self::assertSame(10, $pagination->itemsPerPage);
     }
 
     public function testWithViewerIdLeavesTheOriginalUnchanged(): void
