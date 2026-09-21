@@ -330,6 +330,7 @@ msgstr "Gestion des groupes d'accès"
 msgid "Access List"
 msgstr "Liste d'accès"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 msgid "Access group"
 msgstr "Groupe d'accès"
@@ -495,6 +496,10 @@ msgstr "Nom de l'action"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Action URL"
 msgstr "URL d'action"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr "Accès aux actions"
 
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
@@ -2054,6 +2059,10 @@ msgstr "Bas"
 msgid "Breadcrumb copied"
 msgstr "Fil d'Ariane copié"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
+msgstr "Broker"
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
 msgstr "Commande de lancement du module"
@@ -3000,6 +3009,7 @@ msgstr "Couleurs"
 msgid "Columns"
 msgstr "Colonnes"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/install/front_translate.php
@@ -3508,6 +3518,7 @@ msgstr "Contacts hérités additionnels"
 msgid "Contact already exists"
 msgstr "Le contact existe déjà"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Contact group"
@@ -3673,6 +3684,10 @@ msgstr ""
 "Impossible de trouver le répertoire de configuration '%s' pour le moteur de "
 "supervision '%s'.\n"
 "Veuillez vérifier son chemin ou le créer"
+
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "Could not load the SNMP trap. Please try again."
+msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
 
 #: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
@@ -5990,6 +6005,10 @@ msgstr "Heure de fin"
 msgid "Ends at"
 msgstr "Se termine à"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr "Engine"
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr "Répertoires de l'ordonnanceur"
@@ -7000,6 +7019,7 @@ msgstr "Hôtes escaladés"
 msgid "Escalated Services"
 msgstr "Services escaladés"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Escalation"
 msgstr "Escalade de notification"
@@ -8365,6 +8385,7 @@ msgstr "Horizontal"
 msgid "Horizontal bar chart"
 msgstr "Diagramme à barres horizontales"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -8414,6 +8435,7 @@ msgstr "Hôte/service requis"
 msgid "Host Acknowledgement"
 msgstr "Acquitter un hôte"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -8487,6 +8509,7 @@ msgstr "Intervalle contrôle de la fraicheur du résultat de l'hôte"
 msgid "Host Freshness Check Option"
 msgstr "Option de contrôle de la fraicheur du résultat de l'hôte"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
@@ -8630,6 +8653,7 @@ msgstr "Options de contrôle de l'hôte"
 msgid "Host commands and shortcuts"
 msgstr "Commandes et racourcis d'hôte"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dépendance d'hôte"
@@ -8647,6 +8671,10 @@ msgstr "Groupe d'hôtes"
 #, php-format
 msgid "Host group (%s) not found"
 msgstr "Groupe d'hôte (%s) non trouvé"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr "Dépendance de groupe d'hôtes"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -8746,6 +8774,7 @@ msgstr "Notifications d'hôte"
 msgid "Host severities"
 msgstr "Sévérités des hôtes"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/install/front_translate.php
@@ -10661,6 +10690,7 @@ msgstr "Rafraîchir uniquement manuellement"
 msgid "Manually request to synchronize this contact with his LDAP"
 msgstr "Demande de synchronisation LDAP du contact"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/menu_translation.php
 msgid "Manufacturer"
 msgstr "Constructeur"
@@ -10807,6 +10837,7 @@ msgstr "Membre du groupe d'hôtes"
 msgid "Memory file"
 msgstr "Fichier de cache"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Menu access"
 msgstr "Accès aux menus"
@@ -10833,6 +10864,7 @@ msgstr "Message tronqué (dépassant les %s caractères)"
 msgid "Meta Host %d not found"
 msgstr "Le métahôte %d n'a pas été trouvé"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -13276,6 +13308,7 @@ msgid "Plugins Directory"
 msgstr "Répertoire des sondes"
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
@@ -14201,6 +14234,10 @@ msgstr "Nom de la ressource"
 msgid "Resource Type"
 msgstr "Type de ressource"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr "Accès aux ressources"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr "Nom de la règle d'accès aux ressources"
@@ -14233,6 +14270,7 @@ msgstr "Type de ressource"
 msgid "Resource used by one of the instances"
 msgstr "Ressource utilisée par une des instances"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
@@ -14518,6 +14556,7 @@ msgstr "Communauté SNMP"
 msgid "SNMP Trap Generation"
 msgstr "Génération des traps SNMP"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/menu_translation.php
@@ -15133,6 +15172,7 @@ msgstr "Port de connexion"
 msgid "Server type"
 msgstr "Type de serveur"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -15183,6 +15223,7 @@ msgstr "Acquitter un service"
 msgid "Service Basic Information"
 msgstr "Informations sur le service"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -15252,6 +15293,7 @@ msgstr "Intervalle de contrôle de la fraicheur du résultat du service"
 msgid "Service Freshness Check Option"
 msgstr "Option de contrôle de la fraicheur du résultat du service"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/install/front_translate.php
@@ -15352,6 +15394,7 @@ msgstr "Ce nom de catégorie de services existe déjà"
 msgid "Service check latency"
 msgstr "Latence du contrôle du service"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Service dependency"
 msgstr "Dépendance de service"
@@ -15372,6 +15415,10 @@ msgstr "Graphiques de services"
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr "Groupe de services"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
+msgstr "Dépendance de groupe de services"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
@@ -15411,6 +15458,7 @@ msgstr "Notifications de service"
 msgid "Service severities"
 msgstr "Sévérités des services"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/front_translate.php
@@ -17370,6 +17418,10 @@ msgstr "Cette adresse IP existe déjà"
 msgid "This Month"
 msgstr "Ce mois ci"
 
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "This SNMP trap no longer exists."
+msgstr "Ce trap SNMP n'existe plus."
+
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
 msgid "This SNMP version (%s) is not allowed"
@@ -17395,6 +17447,14 @@ msgstr "Cette action est irréversible."
 #, php-format
 msgid "This active checks status (%d) is not allowed"
 msgstr "Le statut de contrôles actifs %d n'est pas autorisé"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Ce groupe de contacts n'est pas disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Ce contact n'est pas disponible"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid ""
@@ -17668,6 +17728,7 @@ msgstr "Fuseau horaire"
 msgid "Time format"
 msgstr "Format d'heure"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/monitoring/recurrentDowntime/ajaxForms.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/install/front_translate.php

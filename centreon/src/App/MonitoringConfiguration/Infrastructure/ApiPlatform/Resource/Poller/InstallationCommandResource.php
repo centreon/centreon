@@ -68,7 +68,7 @@ final class InstallationCommandResource
     public function __construct(
         #[ApiProperty(
             description: 'Poller Installation Command',
-            openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
+            openapiContext: ['example' => 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
         )]
         #[Sensitive]
         public string $installationCommand,

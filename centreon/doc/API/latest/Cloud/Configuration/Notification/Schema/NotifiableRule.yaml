@@ -7,8 +7,9 @@ properties:
     type: object
     properties:
       email:
-        type: object
-        nullable: true
+        type:
+          - object
+          - 'null'
         properties:
           contacts:
             type: array
@@ -28,8 +29,9 @@ properties:
             type: string
             example: "This is a formatted message"
       slack:
-        type: object
-        nullable: true
+        type:
+          - object
+          - 'null'
         properties:
           slack_channel:
             type: string
@@ -38,8 +40,9 @@ properties:
             type: string
             example: "This is a Slack message"
       sms:
-        type: object
-        nullable: true
+        type:
+          - object
+          - 'null'
         properties:
           phone_number:
             type: string
