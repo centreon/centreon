@@ -27,6 +27,8 @@ require_once __DIR__ . '/../www/class/centreonStatistics.class.php';
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 $shortopts  = 'd';
 $longopts  = ['debug'];
 $options = getopt($shortopts, $longopts);

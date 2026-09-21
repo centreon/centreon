@@ -21,6 +21,8 @@
 
 require_once realpath(__DIR__ . '/../www/class/centreonPurgeEngine.class.php');
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 echo '[' . date(DATE_RFC822) . "] PURGE STARTED\n";
 
 try {
