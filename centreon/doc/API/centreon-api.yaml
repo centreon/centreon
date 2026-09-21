@@ -11061,6 +11061,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HostGroupOutput'
+        data_processing:
+          $ref: '#/components/schemas/DataProcessingOutput'
         id:
           type: integer
         name:
@@ -11098,6 +11100,12 @@ components:
           type: array
           items:
             type: integer
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/DataProcessingInput'
+            -
+              type: 'null'
     Host.jsonld:
       allOf:
         -
@@ -11115,6 +11123,8 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HostGroupOutput.jsonld'
+            data_processing:
+              $ref: '#/components/schemas/DataProcessingOutput.jsonld'
             id:
               type: integer
             name:
@@ -11177,3 +11187,180 @@ components:
               type: integer
             name:
               type: string
+    DataProcessingInput:
+      type: object
+      properties:
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        acknowledgment_timeout:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    DataProcessingOutput:
+      type: object
+      properties:
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostEventHandlerCommandOutput'
+            -
+              type: 'null'
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    DataProcessingOutput.jsonld:
+      type: object
+      properties:
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostEventHandlerCommandOutput.jsonld'
+            -
+              type: 'null'
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    HostEventHandlerCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostEventHandlerCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -45,6 +46,7 @@ final readonly class CreateHostCommand
         public Collection $hostGroupIds,
         public int $creatorId,
         public ?UserId $viewerId = null,
+        public DataProcessing $dataProcessing = new DataProcessing(),
     ) {
     }
 }

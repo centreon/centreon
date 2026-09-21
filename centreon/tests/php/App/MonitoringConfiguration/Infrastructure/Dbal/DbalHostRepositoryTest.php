@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
@@ -35,6 +36,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\TriStateEnum;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -286,6 +288,54 @@ final class DbalHostRepositoryTest extends KernelTestCase
             [$host->id()->value],
         );
         self::assertSame(1, (int) $extendedInfoCount);
+    }
+
+    public function testAddPersistsTheDataProcessingColumns(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-dp'),
+            alias: null,
+            address: new HostAddress('10.0.0.2'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            dataProcessing: new DataProcessing(
+                checkFreshness: TriStateEnum::True,
+                flapDetectionEnabled: TriStateEnum::False,
+                eventHandlerEnabled: TriStateEnum::UseDefault,
+                acknowledgmentTimeout: 15,
+                freshnessThreshold: 120,
+                lowFlapThreshold: 10,
+                highFlapThreshold: 60,
+                eventHandlerArgs: ['warn', 'crit'],
+            ),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array<string, mixed> $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_check_freshness, host_flap_detection_enabled, host_event_handler_enabled,
+                    host_acknowledgement_timeout, host_freshness_threshold, host_low_flap_threshold,
+                    host_high_flap_threshold, command_command_id2, command_command_id_arg2
+               FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        // Three-state directives are stored as the DB column values '0'/'1'/'2'.
+        self::assertSame('1', $row['host_check_freshness']);
+        self::assertSame('0', $row['host_flap_detection_enabled']);
+        self::assertSame('2', $row['host_event_handler_enabled']);
+        self::assertSame(15, (int) $row['host_acknowledgement_timeout']);
+        self::assertSame(120, (int) $row['host_freshness_threshold']);
+        self::assertSame(10, (int) $row['host_low_flap_threshold']);
+        self::assertSame(60, (int) $row['host_high_flap_threshold']);
+        self::assertNull($row['command_command_id2']);
+        self::assertSame('!warn!crit', $row['command_command_id_arg2']);
     }
 
     public function testIsNameUsedByHostOrTemplateFindsAHostByExactName(): void

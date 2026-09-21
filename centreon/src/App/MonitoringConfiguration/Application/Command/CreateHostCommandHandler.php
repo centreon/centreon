@@ -86,6 +86,7 @@ final readonly class CreateHostCommandHandler
             pollerId: $command->pollerId,
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: $command->hostGroupIds,
+            dataProcessing: $command->dataProcessing,
         );
 
         $this->repository->add($host);

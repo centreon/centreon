@@ -108,6 +108,93 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertTrue($repository->isNameUsedByHostOrTemplate(new HostName($name)));
     }
 
+    public function testItCreatesAHostWithDataProcessing(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.5',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'flap_detection_enabled' => 'false',
+                    'low_flap_threshold' => 10,
+                    'high_flap_threshold' => 60,
+                    'event_handler_enabled' => 'use_default',
+                    'acknowledgment_timeout' => 15,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'data_processing' => [
+                'check_freshness' => 'true',
+                'freshness_threshold' => 120,
+                'flap_detection_enabled' => 'false',
+                'low_flap_threshold' => 10,
+                'high_flap_threshold' => 60,
+                'event_handler_enabled' => 'use_default',
+                'acknowledgment_timeout' => 15,
+                'event_handler' => null,
+            ],
+        ]);
+    }
+
+    public function testItRejectsAFlapThresholdAboveOneHundred(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.6',
+                'poller_id' => $pollerId,
+                'data_processing' => ['low_flap_threshold' => 101],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAZeroAcknowledgmentTimeout(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.7',
+                'poller_id' => $pollerId,
+                'data_processing' => ['acknowledgment_timeout' => 0],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownEventHandlerCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.8',
+                'poller_id' => $pollerId,
+                'data_processing' => ['event_handler_command_id' => 999999999],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * A repeated host_group_id is tolerated (matches legacy's array_unique(), see
      * CreateHostProcessor), not rejected — but must not produce more than one

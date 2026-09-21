@@ -32,6 +32,7 @@ use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\TriStateEnum;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -75,6 +76,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
+        $dataProcessing = $host->dataProcessing;
+
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
             ->values([
@@ -83,11 +86,29 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_alias' => ':alias',
                 'host_activate' => ':is_activated',
                 'host_register' => "'1'",
+                'host_acknowledgement_timeout' => ':ackTimeout',
+                'host_check_freshness' => ':checkFreshness',
+                'host_freshness_threshold' => ':freshnessThreshold',
+                'host_flap_detection_enabled' => ':flapDetectionEnabled',
+                'host_low_flap_threshold' => ':lowFlapThreshold',
+                'host_high_flap_threshold' => ':highFlapThreshold',
+                'host_event_handler_enabled' => ':eventHandlerEnabled',
+                'command_command_id2' => ':eventHandlerCommandId',
+                'command_command_id_arg2' => ':eventHandlerArgs',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
             ->setParameter('alias', $host->alias?->value)
             ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
+            ->setParameter('checkFreshness', $this->triStateToColumn($dataProcessing->checkFreshness))
+            ->setParameter('freshnessThreshold', $dataProcessing->freshnessThreshold, ParameterType::INTEGER)
+            ->setParameter('flapDetectionEnabled', $this->triStateToColumn($dataProcessing->flapDetectionEnabled))
+            ->setParameter('lowFlapThreshold', $dataProcessing->lowFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
+            ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
+            ->setParameter('eventHandlerArgs', $this->joinCommandArgs($dataProcessing->eventHandlerArgs))
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -212,6 +233,34 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids',
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
         ];
+    }
+
+    private function triStateToColumn(TriStateEnum $state): string
+    {
+        return match ($state) {
+            TriStateEnum::False => '0',
+            TriStateEnum::True => '1',
+            TriStateEnum::UseDefault => '2',
+        };
+    }
+
+    /**
+     * Reproduce legacy storage for the event-handler command arguments: each argument prefixed
+     * with "!" and concatenated, newlines/tabs/carriage-returns escaped as #BR#/#T#/#R#; an empty
+     * list stores NULL.
+     *
+     * @param list<string> $args
+     */
+    private function joinCommandArgs(array $args): ?string
+    {
+        if ($args === []) {
+            return null;
+        }
+
+        return implode('', array_map(
+            static fn (string $arg): string => '!' . str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $arg),
+            $args,
+        ));
     }
 
     /**
