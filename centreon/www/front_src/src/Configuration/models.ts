@@ -77,6 +77,7 @@ export interface ConfigurationBase<TFilters> {
     label: string;
     link: string;
   }>;
+  filtersPanelWidth?: number;
 }
 
 export enum FieldType {
@@ -134,4 +135,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
+  filtersPanelWidth?: number;
 }
