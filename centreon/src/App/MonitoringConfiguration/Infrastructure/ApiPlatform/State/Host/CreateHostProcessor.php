@@ -117,12 +117,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             maxCheckAttempts: $schedulingOptionsInput?->maxCheckAttempts,
             normalCheckInterval: $schedulingOptionsInput?->normalCheckInterval,
             retryCheckInterval: $schedulingOptionsInput?->retryCheckInterval,
-            activeCheckEnabled: $schedulingOptionsInput?->activeCheckEnabled !== null
-                ? $schedulingOptionsInput->activeCheckEnabled
-                : TriStateEnum::UseDefault,
-            passiveCheckEnabled: $schedulingOptionsInput?->passiveCheckEnabled !== null
-                ? $schedulingOptionsInput->passiveCheckEnabled
-                : TriStateEnum::UseDefault,
+            activeCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->activeCheckEnabled),
+            passiveCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->passiveCheckEnabled),
         );
 
         $command = new CreateHostCommand(
@@ -176,6 +172,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
 
         return $resource;
+    }
+
+    private function triStateOrDefault(?TriStateEnum $value): TriStateEnum
+    {
+        return $value ?? TriStateEnum::UseDefault;
     }
 
     private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?HostTimePeriodOutput
