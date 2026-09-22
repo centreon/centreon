@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\NotificationContactPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\TimePeriodPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Permission;
@@ -73,6 +74,8 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_RW' => ContactGroupPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R' => NotificationContactPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_RW' => NotificationContactPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_USERS_TIME_PERIODS_R' => TimePeriodPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_USERS_TIME_PERIODS_RW' => TimePeriodPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
