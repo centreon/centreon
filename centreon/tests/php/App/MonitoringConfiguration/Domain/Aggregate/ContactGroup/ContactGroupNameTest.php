@@ -46,11 +46,23 @@ final class ContactGroupNameTest extends TestCase
         self::assertSame('0', (new ContactGroupName('0'))->value);
     }
 
+    public function testTrimsSurroundingWhitespace(): void
+    {
+        self::assertSame('Supervisors', (new ContactGroupName("  Supervisors\t"))->value);
+    }
+
     public function testRejectsAnEmptyName(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
         new ContactGroupName('');
+    }
+
+    public function testRejectsAWhitespaceOnlyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new ContactGroupName('   ');
     }
 
     public function testRejectsANameOverTheMaxLength(): void

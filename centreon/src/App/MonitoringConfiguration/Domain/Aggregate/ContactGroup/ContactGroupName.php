@@ -29,11 +29,15 @@ final readonly class ContactGroupName
 {
     private const MAX_LENGTH = 255;
 
-    public function __construct(
-        public string $value,
-    ) {
-        // stringNotEmpty (not notEmpty) so a legitimate name of "0" is not wrongly rejected.
+    public string $value;
+
+    public function __construct(string $value)
+    {
+        $value = trim($value);
+        // stringNotEmpty (not notEmpty) so a legitimate name of "0" is not wrongly rejected;
+        // trim() first so a whitespace-only name is rejected too and surrounding spaces are dropped.
         Assert::stringNotEmpty($value);
         Assert::maxLength($value, self::MAX_LENGTH);
+        $this->value = $value;
     }
 }
