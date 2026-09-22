@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalMediaRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\MediaTransformer;
@@ -62,6 +63,26 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->tag = Uuid::v4()->toRfc4122();
         $this->connection->insert('view_img_dir', ['dir_name' => "dir-{$this->tag}"]);
         $this->defaultDirId = (int) $this->connection->lastInsertId();
+    }
+
+    public function testExistsOneReturnsTrueForAnExistingMedia(): void
+    {
+        $imgId = $this->insertMedia("existing-{$this->tag}.png", $this->defaultDirId);
+
+        self::assertTrue($this->repository->existsOne(new MediaId($imgId)));
+    }
+
+    public function testExistsOneReturnsFalseForAnUnknownMedia(): void
+    {
+        self::assertFalse($this->repository->existsOne(new MediaId(999999)));
+    }
+
+    public function testExistsOneReturnsFalseForAMediaWithNoDirectoryRelation(): void
+    {
+        $this->connection->insert('view_img', ['img_name' => "orphan-{$this->tag}.png", 'img_path' => "orphan-{$this->tag}.png"]);
+        $imgId = (int) $this->connection->lastInsertId();
+
+        self::assertFalse($this->repository->existsOne(new MediaId($imgId)));
     }
 
     public function testFindAllReturnsAllMediaWithoutAViewer(): void

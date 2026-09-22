@@ -152,8 +152,8 @@ final readonly class ListHostsProvider implements ProviderInterface
             foreach ($host->templateIds as $templateId) {
                 $templateIds[$templateId->value] = $templateId;
             }
-            if ($host->iconId !== null) {
-                $iconIds[$host->iconId->value] = $host->iconId;
+            if ($host->extendedInformations?->iconId !== null) {
+                $iconIds[$host->extendedInformations->iconId->value] = $host->extendedInformations->iconId;
             }
         }
 
@@ -179,7 +179,8 @@ final readonly class ListHostsProvider implements ProviderInterface
             $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
             $resource->templates = $templates;
 
-            $icon = $host->iconId !== null ? $icons[$host->iconId->value] ?? null : null;
+            $iconId = $host->extendedInformations?->iconId;
+            $icon = $iconId !== null ? $icons[$iconId->value] ?? null : null;
             $resource->icon = $icon instanceof Media
                 ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
                 : null;
