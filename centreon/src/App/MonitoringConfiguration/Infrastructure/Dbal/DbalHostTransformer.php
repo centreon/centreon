@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
@@ -69,7 +70,9 @@ final readonly class DbalHostTransformer implements TransformerInterface
             pollerId: new PollerId((int) $from['poller_id']),
             templateIds: new Collection($templateIds, HostTemplateId::class),
             hostGroupIds: new Collection($groupIds, HostGroupId::class),
-            iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
+            extendedInformations: new ExtendedInformations(
+                iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
+            ),
         );
     }
 }
