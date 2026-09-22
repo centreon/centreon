@@ -25,7 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
-use App\Shared\Domain\TriStateEnum;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use PHPUnit\Framework\TestCase;
 
 final class DataProcessingTest extends TestCase

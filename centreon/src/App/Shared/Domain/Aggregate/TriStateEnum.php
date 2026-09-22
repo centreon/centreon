@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain;
+namespace App\Shared\Domain\Aggregate;
 
 /**
  * Three-valued flag for a monitoring directive that can be explicitly on, explicitly off, or left

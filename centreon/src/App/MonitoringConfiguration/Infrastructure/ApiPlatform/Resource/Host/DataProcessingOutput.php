@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use App\Shared\Domain\TriStateEnum;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 
 /**
  * The `data_processing` sub-object of the Host output. On a Cloud platform the on-premise-only

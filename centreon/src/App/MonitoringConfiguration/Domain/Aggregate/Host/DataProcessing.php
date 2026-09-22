@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
-use App\Shared\Domain\TriStateEnum;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use Webmozart\Assert\Assert;
 
 /**

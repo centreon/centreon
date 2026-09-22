@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidEventHandlerCommand;
-use App\Shared\Domain\TriStateEnum;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 

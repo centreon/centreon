@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Domain;
+namespace Tests\App\Shared\Domain\Aggregate;
 
-use App\Shared\Domain\TriStateEnum;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use PHPUnit\Framework\TestCase;
 
 final class TriStateEnumTest extends TestCase

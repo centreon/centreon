@@ -45,8 +45,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPol
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
-use App\Shared\Domain\TriStateEnum;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
