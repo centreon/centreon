@@ -561,7 +561,7 @@ check_slave() {
             ocf_log warn "MariaDB Slave IO threads currently not running."
 
             # Sanity check, are we at least on the right master
-            new_master=$($CRM_ATTR_REPL_INFO --query  -q)
+            new_master=$($CRM_ATTR_REPL_INFO --query  -q | awk -F\. '{ print $1 }')
 
             if [ "$master_host" != "$new_master" ]; then
                # Not pointing to the right master, not good, removing the VIPs
@@ -600,7 +600,7 @@ check_slave() {
 }
 
 set_master() {
-    local new_master=$($CRM_ATTR_REPL_INFO --query  -q)
+    local new_master=$($CRM_ATTR_REPL_INFO --query  -q | awk -F\. '{ print $1 }')
 
     # Informs the MariaDB server of the master to replicate
     # from. Accepts one mandatory argument which must contain the host
@@ -714,7 +714,7 @@ get_local_ip() {
    local IP
    IP=$($CRM_ATTR -l forever -n ${INSTANCE_ATTR_NAME}_mysql_master_IP -q -G 2>/dev/null)
    if [ ! $? -eq 0 ]; then
-      uname -n
+      uname -n | awk -F\. '{ print $1 }'
    else
       echo $IP
    fi
