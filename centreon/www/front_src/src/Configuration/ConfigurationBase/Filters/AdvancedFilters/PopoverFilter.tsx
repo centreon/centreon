@@ -26,7 +26,7 @@ const PopoverFilter = <TFilters,>({
   areAdvancedFiltersVisible
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useFilterStyles();
+  const { classes } = useFilterStyles({});
 
   const { changedFiltersCount } = useCoutChangedFilters({ filtersAtom });
 

@@ -104,10 +104,12 @@ export const mockModalRequests = (resourceType): void => {
 
 const initialize = ({
   resourceType = ResourceType.Host,
-  filters = filtersConfiguration
+  filters = filtersConfiguration,
+  filtersPanelWidth
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
+  filtersPanelWidth?: number;
 }): void => {
   const resource = resourceType.replace(' ', '_');
 
@@ -157,6 +159,7 @@ const initialize = ({
                   filtersAtomKey={filtersAtomKey}
                   filtersConfiguration={filters}
                   filtersInitialValues={filtersInitialValues}
+                  filtersPanelWidth={filtersPanelWidth}
                   form={{
                     defaultValues: {
                       alias: '',
