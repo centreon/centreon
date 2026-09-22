@@ -24,9 +24,16 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
@@ -111,6 +118,7 @@ final class CreateHostProcessorTest extends ApiTestCase
     public function testItCreatesAHostWithDataProcessing(): void
     {
         $this->login();
+        $this->forceOnPremPlatform();
         $pollerId = $this->insertPoller('Central');
         $name = $this->uniqueName('server');
 
@@ -182,6 +190,43 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'event_handler_args' => ['-w', '80'],
             ],
         ]);
+    }
+
+    public function testItOmitsTheOnPremiseOnlyDataProcessingFieldsOnCloud(): void
+    {
+        $this->login();
+        $this->forceCloudPlatform();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.8',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'event_handler_enabled' => 'use_default',
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        $dataProcessing = $response->toArray()['data_processing'];
+        self::assertIsArray($dataProcessing);
+        // Members available on every platform are returned.
+        self::assertSame('true', $dataProcessing['check_freshness']);
+        self::assertSame(120, $dataProcessing['freshness_threshold']);
+        self::assertSame('use_default', $dataProcessing['event_handler_enabled']);
+        // The nullable on-premise-only members are dropped from the Cloud contract.
+        self::assertArrayNotHasKey('acknowledgment_timeout', $dataProcessing);
+        self::assertArrayNotHasKey('flap_detection_enabled', $dataProcessing);
+        self::assertArrayNotHasKey('low_flap_threshold', $dataProcessing);
+        self::assertArrayNotHasKey('high_flap_threshold', $dataProcessing);
+        // event_handler_args is a non-nullable array, so it stays as an empty list on Cloud.
+        self::assertSame([], $dataProcessing['event_handler_args']);
     }
 
     public function testItRejectsAFlapThresholdAboveOneHundred(): void
@@ -705,6 +750,53 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
+    }
+
+    private function forceCloudPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: true);
+    }
+
+    private function forceOnPremPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: false);
+    }
+
+    /**
+     * The data_processing output shaping reads CreateHostProcessor's own $isCloudPlatform (bound
+     * from IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by
+     * replacing the container's processor with one built with the desired value, reusing its real
+     * dependencies. Must run before the request is made.
+     */
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var CommandBus $commandBus */
+        $commandBus = $container->get(CommandBus::class);
+        /** @var HostResourceTransformer $transformer */
+        $transformer = $container->get(HostResourceTransformer::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var PollerRepository $pollerRepository */
+        $pollerRepository = $container->get(PollerRepository::class);
+        /** @var HostGroupRepository $hostGroupRepository */
+        $hostGroupRepository = $container->get(HostGroupRepository::class);
+        /** @var CommandRepository $commandRepository */
+        $commandRepository = $container->get(CommandRepository::class);
+
+        $container->set(
+            CreateHostProcessor::class,
+            new CreateHostProcessor(
+                $commandBus,
+                $transformer,
+                $security,
+                $pollerRepository,
+                $hostGroupRepository,
+                $commandRepository,
+                $isCloudPlatform,
+            ),
+        );
     }
 
     private function uniqueName(string $prefix = 'host'): string
