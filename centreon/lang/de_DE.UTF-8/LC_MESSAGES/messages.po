@@ -4467,6 +4467,10 @@ msgstr "Service bereitstellen"
 msgid "Deploy configuration"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Deploy services"
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/install/dashboard_widgets.php
 msgid "Descending"
@@ -7237,6 +7241,10 @@ msgid "Failed to delete the selected resource access rules"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Failed to deploy services"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Failed to disable"
 msgstr ""
 
@@ -7869,6 +7877,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Go to performance page"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Go to services"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -15286,6 +15298,10 @@ msgstr "Services nach Host"
 #: centreon/www/install/menu_translation.php
 msgid "Services by host group"
 msgstr "Services nach Hostgruppen"
+
+#: centreon/www/install/front_translate.php
+msgid "Services deployed"
+msgstr ""
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
 #: centreon/www/include/monitoring/status/Services/serviceSummaryJS.php
