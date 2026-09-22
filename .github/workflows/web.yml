@@ -1348,9 +1348,6 @@ jobs:
   # docker-config-wiring-test).
   package-centreon-trap:
     needs: [get-environment, changes]
-    # No stability == 'stable' fallback here (unlike frontend-web-build et al.):
-    # the only consumer of this package, dockerize-trapd-image, already skips on
-    # stable, so running this unconditionally there would just be wasted work.
     if: |
       needs.changes.outputs.trigger_trapd == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false'
@@ -1393,8 +1390,6 @@ jobs:
 
   package-perl-libs:
     needs: [get-environment, changes]
-    # Same reasoning as package-centreon-trap above: only dockerize-trapd-image
-    # consumes this, and it already skips on stable.
     if: |
       needs.changes.outputs.trigger_trapd == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false'
