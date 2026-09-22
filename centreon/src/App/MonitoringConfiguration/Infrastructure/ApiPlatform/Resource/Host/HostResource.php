@@ -112,6 +112,8 @@ final class HostResource
 
     public ?HostIconOutput $icon = null;
 
+    public ?HostExtendedInformationsOutput $extendedInformations = null;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,

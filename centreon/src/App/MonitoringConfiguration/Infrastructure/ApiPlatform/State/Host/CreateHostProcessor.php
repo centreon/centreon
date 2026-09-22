@@ -26,17 +26,25 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Collection;
@@ -60,6 +68,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private Security $security,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
+        private MediaRepository $mediaRepository,
+        private MediaUrlGenerator $mediaUrlGenerator,
     ) {
     }
 
@@ -76,6 +86,19 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             HostGroupId::class,
         );
 
+        $extendedInformationsInput = $data->extendedInformations;
+        $extendedInformations = new ExtendedInformations(
+            noteUrl: $extendedInformationsInput?->noteUrl,
+            note: $extendedInformationsInput?->note,
+            actionUrl: $extendedInformationsInput?->actionUrl,
+            iconId: $extendedInformationsInput?->iconId !== null ? new MediaId($extendedInformationsInput->iconId) : null,
+            altIcon: $extendedInformationsInput?->altIcon,
+            comment: $extendedInformationsInput?->comment,
+            geoCoordinates: $extendedInformationsInput?->geoCoordinates !== null
+                ? GeoCoordinates::fromString($extendedInformationsInput->geoCoordinates)
+                : null,
+        );
+
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -83,6 +106,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             hostGroupIds: $hostGroupIds,
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            extendedInformations: $extendedInformations,
         );
 
         $host = $this->commandBus->execute($command);
@@ -98,11 +122,38 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             }
         }
 
+        $icon = $this->resolveIcon($host->extendedInformations?->iconId);
+
         $resource = $this->transformer->transform($host);
         $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
         $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
         $resource->groups = $groups;
+        $resource->icon = $icon;
+        $resource->extendedInformations = new HostExtendedInformationsOutput(
+            noteUrl: $host->extendedInformations?->noteUrl,
+            note: $host->extendedInformations?->note,
+            actionUrl: $host->extendedInformations?->actionUrl,
+            icon: $icon,
+            altIcon: $host->extendedInformations?->altIcon,
+            comment: $host->extendedInformations?->comment,
+            geoCoordinates: $host->extendedInformations?->geoCoordinates !== null
+                ? (string) $host->extendedInformations->geoCoordinates
+                : null,
+        );
 
         return $resource;
+    }
+
+    private function resolveIcon(?MediaId $iconId): ?HostIconOutput
+    {
+        if ($iconId === null) {
+            return null;
+        }
+
+        $icon = $this->mediaRepository->findByIds(new Collection([$iconId], MediaId::class))->toArray()[$iconId->value] ?? null;
+
+        return $icon instanceof Media
+            ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
+            : null;
     }
 }

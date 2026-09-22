@@ -76,6 +76,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
+        $extendedInformations = $host->extendedInformations;
+
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
             ->values([
@@ -84,11 +86,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_alias' => ':alias',
                 'host_activate' => ':is_activated',
                 'host_register' => "'1'",
+                'geo_coords' => ':geoCoords',
+                'host_comment' => ':comment',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
             ->setParameter('alias', $host->alias?->value)
             ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates !== null ? (string) $extendedInformations->geoCoordinates : null)
+            ->setParameter('comment', $extendedInformations?->comment)
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -98,13 +104,25 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         $this->setId($host, new HostId($hostId));
 
-        // Every host row has a companion row here, even an entirely empty one: legacy always
-        // inserts it (DbWriteHostRepository::addExtendedInformations()), and other parts of the
-        // application already assume it exists.
+        // Every host row has a companion row here, even when Extended Informations were left
+        // empty: legacy always inserts it (DbWriteHostRepository::addExtendedInformations()), and
+        // other parts of the application already assume it exists.
         $this->connection->createQueryBuilder()
             ->insert('extended_host_information')
-            ->values(['host_host_id' => ':hostId'])
+            ->values([
+                'host_host_id' => ':hostId',
+                'ehi_notes_url' => ':noteUrl',
+                'ehi_notes' => ':note',
+                'ehi_action_url' => ':actionUrl',
+                'ehi_icon_image' => ':iconId',
+                'ehi_icon_image_alt' => ':iconAlternative',
+            ])
             ->setParameter('hostId', $hostId)
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value)
+            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
             ->executeStatement();
 
         $this->connection->createQueryBuilder()
