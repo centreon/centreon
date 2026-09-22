@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
@@ -105,4 +107,24 @@ interface ResourceAccessRepository
      *                                           the user can access none
      */
     public function findAccessibleImageFolderIds(UserId $userId): ?Collection;
+
+    /**
+     * Contacts are not ACL *resources*: unlike pollers or host groups, they carry no
+     * `acl_resources_*` relation and no "all contacts" flag. Their visibility comes from Access
+     * Group membership instead — a restricted user sees the contacts attached to one of their
+     * Access Groups, directly or through a contact group. There is therefore no "no restriction
+     * applies" case to signal, and this returns a plain Collection rather than a nullable one.
+     *
+     * @return Collection<NotificationContactId> empty means the user can access no contact at all
+     */
+    public function findAccessibleContactIds(UserId $userId): Collection;
+
+    /**
+     * Same Access-Group-membership model as {@see self::findAccessibleContactIds()}: a restricted
+     * user sees the contact groups attached to one of their Access Groups, plus the ones they are
+     * themselves a member of.
+     *
+     * @return Collection<ContactGroupId> empty means the user can access no contact group at all
+     */
+    public function findAccessibleContactGroupIds(UserId $userId): Collection;
 }

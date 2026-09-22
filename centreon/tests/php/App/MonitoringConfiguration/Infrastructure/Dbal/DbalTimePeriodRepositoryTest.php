@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodTransformer;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -132,6 +134,35 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
         self::assertSame([$name], $names);
     }
 
+    public function testFindNamesByIdsReturnsEachRequestedNameIndexedById(): void
+    {
+        $firstId = $this->insertTimePeriod("tp-first-{$this->tag}");
+        $secondId = $this->insertTimePeriod("tp-second-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds($this->ids($firstId, $secondId))->toArray();
+
+        self::assertCount(2, $names);
+        self::assertSame("tp-first-{$this->tag}", $names[$firstId]->value);
+        self::assertSame("tp-second-{$this->tag}", $names[$secondId]->value);
+    }
+
+    public function testFindNamesByIdsOmitsAnUnknownId(): void
+    {
+        $knownId = $this->insertTimePeriod("tp-known-{$this->tag}");
+
+        // an id absent from the result is what tells the caller the time period no longer exists
+        $names = $this->repository->findNamesByIds($this->ids($knownId, 2147483647))->toArray();
+
+        self::assertSame([$knownId], array_keys($names));
+    }
+
+    public function testFindNamesByIdsQueriesNothingForAnEmptyList(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], TimePeriodId::class));
+
+        self::assertCount(0, $names);
+    }
+
     /**
      * @param \IteratorAggregate<int, TimePeriod>&\Countable $result
      *
@@ -143,6 +174,17 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
             static fn (TimePeriod $timePeriod): string => $timePeriod->name->value,
             iterator_to_array($result)
         ));
+    }
+
+    /**
+     * @return Collection<TimePeriodId>
+     */
+    private function ids(int ...$ids): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): TimePeriodId => new TimePeriodId($id), $ids),
+            TimePeriodId::class,
+        );
     }
 
     private function insertTimePeriod(string $name): int

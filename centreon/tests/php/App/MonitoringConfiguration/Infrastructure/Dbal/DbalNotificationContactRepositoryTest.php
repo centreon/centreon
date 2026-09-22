@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContact;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationContactRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationContactTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
+use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -53,7 +56,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->repository = new DbalNotificationContactRepository(
             $this->connection,
             new NotificationContactTransformer(),
-            new DbalAccessGroupRepository($this->connection),
+            new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection)),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded contacts
@@ -228,6 +231,47 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         self::assertSame(1, array_count_values($names)[$name] ?? 0, 'A contact matching both ACL branches at once must still appear exactly once.');
     }
 
+    public function testFindNamesByIdsReturnsEachRequestedNameIndexedById(): void
+    {
+        $firstId = $this->insertContact("first-{$this->tag}");
+        $secondId = $this->insertContact("second-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds($this->ids($firstId, $secondId))->toArray();
+
+        self::assertCount(2, $names);
+        self::assertSame("first-{$this->tag}", $names[$firstId]->value);
+        self::assertSame("second-{$this->tag}", $names[$secondId]->value);
+    }
+
+    public function testFindNamesByIdsOmitsAnUnknownId(): void
+    {
+        $knownId = $this->insertContact("known-{$this->tag}");
+
+        // an id absent from the result is what tells the caller the contact no longer exists
+        $names = $this->repository->findNamesByIds($this->ids($knownId, 2147483647))->toArray();
+
+        self::assertSame([$knownId], array_keys($names));
+    }
+
+    public function testFindNamesByIdsOmitsAnUnregisteredContact(): void
+    {
+        $registeredId = $this->insertContact("registered-{$this->tag}");
+        $unregisteredId = $this->insertContact("unregistered-{$this->tag}", registered: false);
+
+        // a contact template is not a notifiable contact: linking one must be rejected upstream,
+        // which only works if it reads as non-existent here too
+        $names = $this->repository->findNamesByIds($this->ids($registeredId, $unregisteredId))->toArray();
+
+        self::assertSame([$registeredId], array_keys($names));
+    }
+
+    public function testFindNamesByIdsQueriesNothingForAnEmptyList(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], NotificationContactId::class));
+
+        self::assertCount(0, $names);
+    }
+
     /**
      * @param \IteratorAggregate<int, NotificationContact>&\Countable $result
      *
@@ -239,6 +283,17 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
             static fn (NotificationContact $contact): string => $contact->name->value,
             iterator_to_array($result)
         ));
+    }
+
+    /**
+     * @return Collection<NotificationContactId>
+     */
+    private function ids(int ...$ids): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $ids),
+            NotificationContactId::class,
+        );
     }
 
     private function insertContact(string $name, ?string $alias = null, bool $registered = true): int

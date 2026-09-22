@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\Shared\Domain\Collection;
@@ -31,6 +33,7 @@ use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -56,6 +59,29 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
         #[Autowire(service: DbalTimePeriodTransformer::class)]
         private TransformerInterface $transformer,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (TimePeriodId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], TimePeriodName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('tp_id', 'tp_name')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('tp_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{tp_id: int|string, tp_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['tp_id']] = new TimePeriodName($row['tp_name']);
+        }
+
+        return new Collection($names, TimePeriodName::class);
     }
 
     public function findAll(?TimePeriodCriteria $criteria = null): \IteratorAggregate&\Countable

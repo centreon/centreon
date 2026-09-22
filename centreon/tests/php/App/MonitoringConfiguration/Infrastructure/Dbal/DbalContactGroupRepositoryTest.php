@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -222,6 +224,47 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertSame(0, $paginated->getTotalItems());
     }
 
+    public function testFindNamesByIdsReturnsEachRequestedNameIndexedById(): void
+    {
+        $firstId = $this->insertContactGroup('cg-first-' . uniqid());
+        $secondId = $this->insertContactGroup('cg-second-' . uniqid());
+
+        $names = $this->repository->findNamesByIds($this->ids($firstId, $secondId))->toArray();
+
+        self::assertCount(2, $names);
+        self::assertArrayHasKey($firstId, $names);
+        self::assertArrayHasKey($secondId, $names);
+    }
+
+    public function testFindNamesByIdsOmitsAnUnknownId(): void
+    {
+        $knownId = $this->insertContactGroup('cg-known-' . uniqid());
+
+        // an id absent from the result is what tells the caller the contact group no longer exists
+        $names = $this->repository->findNamesByIds($this->ids($knownId, 2147483647))->toArray();
+
+        self::assertSame([$knownId], array_keys($names));
+    }
+
+    public function testFindNamesByIdsOmitsARowWithAnEmptyName(): void
+    {
+        // cg_name is nullable/emptyable in DB while ContactGroupName requires a non-empty value:
+        // such a row must read as non-existent instead of turning the lookup into a 500
+        $this->connection->insert('contactgroup', ['cg_name' => '', 'cg_alias' => 'empty-' . uniqid(), 'cg_type' => 'local', 'cg_activate' => '1']);
+        $emptyNameId = (int) $this->connection->lastInsertId();
+
+        $names = $this->repository->findNamesByIds($this->ids($emptyNameId))->toArray();
+
+        self::assertSame([], $names);
+    }
+
+    public function testFindNamesByIdsQueriesNothingForAnEmptyList(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], ContactGroupId::class));
+
+        self::assertCount(0, $names);
+    }
+
     /**
      * @return list<string>
      */
@@ -266,6 +309,17 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         );
 
         return is_numeric($count) ? (int) $count : 0;
+    }
+
+    /**
+     * @return Collection<ContactGroupId>
+     */
+    private function ids(int ...$ids): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $ids),
+            ContactGroupId::class,
+        );
     }
 
     private function insertContactGroup(string $name): int

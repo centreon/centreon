@@ -27,11 +27,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -78,7 +81,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function add(Host $host): void
     {
         $extendedInformations = $host->extendedInformations;
+        $notifications = $host->notifications;
 
+        // An absent Notifications block writes exactly what legacy writes for a payload carrying
+        // no notification field: the Default tri-state, false flags, and NULL everywhere else.
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
             ->values([
@@ -89,6 +95,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_register' => "'1'",
                 'geo_coords' => ':geoCoords',
                 'host_comment' => ':comment',
+                'host_notifications_enabled' => ':notificationsEnabled',
+                'host_notification_options' => ':notificationOptions',
+                'host_notification_interval' => ':notificationInterval',
+                'timeperiod_tp_id2' => ':notificationPeriodId',
+                'host_first_notification_delay' => ':firstNotificationDelay',
+                'host_recovery_notification_delay' => ':recoveryNotificationDelay',
+                'contact_additive_inheritance' => ':contactAdditiveInheritance',
+                'cg_additive_inheritance' => ':contactGroupAdditiveInheritance',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -96,6 +110,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('is_activated', $host->activated ? '1' : '0')
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
+            ->setParameter('notificationsEnabled', $this->triStateToLegacy($notifications instanceof Notifications ? $notifications->enabled : TriStateEnum::UseDefault))
+            ->setParameter('notificationOptions', $this->notificationOptionsToLegacy($notifications instanceof Notifications ? $notifications->options : []))
+            ->setParameter('notificationInterval', $notifications?->interval, ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notifications?->periodId?->value, ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notifications?->firstDelay, ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notifications?->recoveryDelay, ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notifications instanceof Notifications && $notifications->contactAdditiveInheritance, ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notifications instanceof Notifications && $notifications->contactGroupAdditiveInheritance, ParameterType::BOOLEAN)
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -140,6 +162,26 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('groupId', $hostGroupId->value)
                 ->setParameter('hostId', $hostId)
                 ->executeStatement();
+        }
+
+        if ($notifications instanceof Notifications) {
+            foreach ($notifications->contactIds as $contactId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contact_host_relation')
+                    ->values(['contact_id' => ':contactId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactId', $contactId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+
+            foreach ($notifications->contactGroupIds as $contactGroupId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contactgroup_host_relation')
+                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactGroupId', $contactGroupId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
         }
     }
 
@@ -234,6 +276,44 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
+    }
+
+    /**
+     * The `host` table stores the tri-state directives as enum('0','1','2') — see TriStateEnum,
+     * whose own backing values are the API contract, not the storage format.
+     */
+    private function triStateToLegacy(TriStateEnum $value): string
+    {
+        return match ($value) {
+            TriStateEnum::False => '0',
+            TriStateEnum::True => '1',
+            TriStateEnum::UseDefault => '2',
+        };
+    }
+
+    /**
+     * `host_notification_options` stores the engine's own single-letter, comma-separated format.
+     * An empty list writes NULL, as legacy does (DbWriteHostRepository::bindHostValues()).
+     *
+     * @param list<NotificationOptionEnum> $options
+     */
+    private function notificationOptionsToLegacy(array $options): ?string
+    {
+        if ($options === []) {
+            return null;
+        }
+
+        return implode(',', array_map(
+            static fn (NotificationOptionEnum $option): string => match ($option) {
+                NotificationOptionEnum::Down => 'd',
+                NotificationOptionEnum::Unreachable => 'u',
+                NotificationOptionEnum::Recovery => 'r',
+                NotificationOptionEnum::Flapping => 'f',
+                NotificationOptionEnum::DowntimeScheduled => 's',
+                NotificationOptionEnum::None => 'n',
+            },
+            $options,
+        ));
     }
 
     /**

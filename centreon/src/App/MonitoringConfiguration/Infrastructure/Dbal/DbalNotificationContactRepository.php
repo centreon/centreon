@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContact;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -60,15 +61,42 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         #[Autowire(service: NotificationContactTransformer::class)]
         private TransformerInterface $transformer,
 
-        private AccessGroupRepository $accessGroupRepository,
+        private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (NotificationContactId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], NotificationContactName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('contact_id', 'contact_name')
+            ->from(self::TABLE_NAME)
+            ->where("contact_register = '1'")
+            ->andWhere($qb->expr()->in('contact_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{contact_id: int|string, contact_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['contact_id']] = new NotificationContactName($row['contact_name']);
+        }
+
+        return new Collection($names, NotificationContactName::class);
     }
 
     public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $accessibleContactIds = null;
         if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleContactIds = $this->findAccessibleContactIds($viewerId);
+            $accessibleContactIds = array_map(
+                static fn (NotificationContactId $id): int => $id->value,
+                $this->resourceAccessRepository->findAccessibleContactIds($viewerId)->toArray(),
+            );
             if ($accessibleContactIds === []) {
                 return $this->emptyResult($criteria);
             }
@@ -140,75 +168,6 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
-    }
-
-    /**
-     * An Access Group can grant a viewer visibility on a contact in two independent ways: the
-     * contact is listed in the group directly, or the contact belongs to a contact group that is
-     * itself listed in the group. Neither implies the other, so the accessible set is their union.
-     * Each branch is its own simple, obviously-correct query, merged here rather than joined into
-     * one query with an OR: a single multi-join query would fan out one row per (direct-link ×
-     * contact-group-link) combination for a contact matching both, relying on the caller's own
-     * DISTINCT/GROUP BY to collapse it back down instead of being correct on its own.
-     *
-     * @return list<int>
-     */
-    private function findAccessibleContactIds(UserId $viewerId): array
-    {
-        $groupIds = array_values(array_map(
-            static fn (AccessGroupId $id): int => $id->value,
-            iterator_to_array($this->accessGroupRepository->findActiveGroupIdsForUser($viewerId)),
-        ));
-
-        if ($groupIds === []) {
-            return [];
-        }
-
-        return array_values(array_unique([
-            ...$this->findContactIdsDirectlyLinkedToAccessGroups($groupIds),
-            ...$this->findContactIdsLinkedViaContactGroupToAccessGroups($groupIds),
-        ]));
-    }
-
-    /**
-     * @param list<int> $groupIds
-     *
-     * @return list<int>
-     */
-    private function findContactIdsDirectlyLinkedToAccessGroups(array $groupIds): array
-    {
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select('DISTINCT c.contact_id')
-            ->from(self::TABLE_NAME, 'c')
-            ->innerJoin('c', 'acl_group_contacts_relations', 'agcr', 'agcr.contact_contact_id = c.contact_id')
-            ->where("c.contact_register = '1'")
-            ->andWhere($qb->expr()->in('agcr.acl_group_id', $qb->createNamedParameter($groupIds, ArrayParameterType::INTEGER)));
-
-        /** @var list<array{contact_id: int|string}> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
-    }
-
-    /**
-     * @param list<int> $groupIds
-     *
-     * @return list<int>
-     */
-    private function findContactIdsLinkedViaContactGroupToAccessGroups(array $groupIds): array
-    {
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select('DISTINCT c.contact_id')
-            ->from(self::TABLE_NAME, 'c')
-            ->innerJoin('c', 'contactgroup_contact_relation', 'ccr', 'ccr.contact_contact_id = c.contact_id')
-            ->innerJoin('ccr', 'acl_group_contactgroups_relations', 'agccgr', 'agccgr.cg_cg_id = ccr.contactgroup_cg_id')
-            ->where("c.contact_register = '1'")
-            ->andWhere($qb->expr()->in('agccgr.acl_group_id', $qb->createNamedParameter($groupIds, ArrayParameterType::INTEGER)));
-
-        /** @var list<array{contact_id: int|string}> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
     }
 
     private function filterByCriteria(QueryBuilder $qb, NotificationContactCriteria $criteria): void

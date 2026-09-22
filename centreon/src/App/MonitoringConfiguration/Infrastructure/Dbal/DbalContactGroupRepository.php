@@ -24,11 +24,12 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -59,8 +60,32 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         private Connection $connection,
         #[Autowire(service: ContactGroupTransformer::class)]
         private TransformerInterface $transformer,
-        private AccessGroupRepository $accessGroupRepository,
+        private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (ContactGroupId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], ContactGroupName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('cg_id', 'cg_name')
+            ->from(self::TABLE_NAME)
+            ->where("cg_name IS NOT NULL AND cg_name != ''")
+            ->andWhere($qb->expr()->in('cg_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{cg_id: int|string, cg_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['cg_id']] = new ContactGroupName($row['cg_name']);
+        }
+
+        return new Collection($names, ContactGroupName::class);
     }
 
     public function findAll(ContactGroupCriteria $criteria): \IteratorAggregate&\Countable
@@ -77,7 +102,10 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         // ACL data-scoping: a non-admin viewer only sees the contact groups reachable through
         // their access groups or their own membership. An admin passes a null viewerId (no scoping).
         if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
-            $accessibleIds = $this->findAccessibleContactGroupIds($viewerId);
+            $accessibleIds = array_map(
+                static fn (ContactGroupId $id): int => $id->value,
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId)->toArray(),
+            );
             if ($accessibleIds === []) {
                 // No accessible contact group: match nothing, but keep the normal (paginator) shape.
                 $qb->andWhere('1 = 0');
@@ -143,55 +171,6 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 $names
             )));
         }
-    }
-
-    /**
-     * Reproduce the legacy ACL data-scoping: a non-admin sees the contact groups reachable through
-     * their active access groups (`acl_group_contactgroups_relations`) union the ones they belong
-     * to directly (`contactgroup_contact_relation`, registered contacts only).
-     *
-     * @return list<int>
-     */
-    private function findAccessibleContactGroupIds(UserId $userId): array
-    {
-        $accessGroupIds = array_map(
-            static fn (AccessGroupId $id): int => $id->value,
-            iterator_to_array($this->accessGroupRepository->findActiveGroupIdsForUser($userId)),
-        );
-
-        $ids = [];
-
-        if ($accessGroupIds !== []) {
-            $qb = $this->connection->createQueryBuilder();
-            $qb->select('DISTINCT gcgr.cg_cg_id AS id')
-                ->from('acl_group_contactgroups_relations', 'gcgr')
-                ->where($qb->expr()->in(
-                    'gcgr.acl_group_id',
-                    $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)
-                ));
-
-            /** @var list<array{id: int|string}> $rows */
-            $rows = $qb->executeQuery()->fetchAllAssociative();
-            foreach ($rows as $row) {
-                $ids[] = (int) $row['id'];
-            }
-        }
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select('DISTINCT ccr.contactgroup_cg_id AS id')
-            ->from('contactgroup_contact_relation', 'ccr')
-            ->innerJoin('ccr', 'contact', 'c', 'c.contact_id = ccr.contact_contact_id')
-            ->where('ccr.contact_contact_id = :userId')
-            ->andWhere($qb->expr()->eq('c.contact_register', $qb->createNamedParameter('1')))
-            ->setParameter('userId', $userId->value);
-
-        /** @var list<array{id: int|string}> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-        foreach ($rows as $row) {
-            $ids[] = (int) $row['id'];
-        }
-
-        return array_values(array_unique($ids));
     }
 
     private function paginate(QueryBuilder $qb, Pagination $pagination): void
