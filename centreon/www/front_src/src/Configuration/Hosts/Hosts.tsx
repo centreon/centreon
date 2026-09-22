@@ -11,7 +11,7 @@ import useColumns from './Columns/useColumns';
 import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import type { Filters } from './models';
 import {
-  labelAddHost,
+  labelCreateHost,
   labelHosts,
   labelWelcomeToHosts
 } from './translatedLabels';
@@ -50,7 +50,7 @@ const Hosts = () => {
         title: t(labelHosts),
         welcomePage: {
           actions: {
-            create: t(labelAddHost)
+            create: t(labelCreateHost)
           },
           title: t(labelWelcomeToHosts)
         }

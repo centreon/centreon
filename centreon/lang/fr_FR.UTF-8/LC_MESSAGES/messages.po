@@ -3844,6 +3844,10 @@ msgid "Create a dashboard"
 msgstr "Créer un tableau de bord"
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr "Créer un hôte"
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr "Créer une nouvelle règle d'accès aux ressources"
 
@@ -18965,6 +18969,10 @@ msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
+msgstr "Bienvenue dans l'interface des hôtes !"
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the additional configurations page"
 msgstr "Bienvenue sur la page des configurations additionnelles"
 
@@ -18979,10 +18987,6 @@ msgstr "Bienvenue sur la page des jetons d'authentification"
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the host groups page"
 msgstr "Bienvenue sur la page des groupes d'hôtes"
-
-#: centreon/www/install/front_translate.php
-msgid "Welcome to the hosts page"
-msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the notifications interface"
