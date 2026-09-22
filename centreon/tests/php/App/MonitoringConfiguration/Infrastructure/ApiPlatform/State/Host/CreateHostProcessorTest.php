@@ -169,7 +169,9 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertSame('https://example.com/notes', $extendedInfoRow['ehi_notes_url']);
         self::assertSame('a free-text note', $extendedInfoRow['ehi_notes']);
         self::assertSame('https://example.com/actions', $extendedInfoRow['ehi_action_url']);
-        self::assertSame($imgId, (int) $extendedInfoRow['ehi_icon_image']);
+        /** @var int|string $iconImage */
+        $iconImage = $extendedInfoRow['ehi_icon_image'];
+        self::assertSame($imgId, (int) $iconImage);
         self::assertSame('server icon', $extendedInfoRow['ehi_icon_image_alt']);
     }
 
