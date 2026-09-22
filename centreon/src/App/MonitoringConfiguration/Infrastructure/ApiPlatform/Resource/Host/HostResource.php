@@ -110,6 +110,8 @@ final class HostResource
     /** @var list<HostGroupOutput> */
     public array $groups;
 
+    public ?HostExtendedInformationsOutput $extendedInformations = null;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,

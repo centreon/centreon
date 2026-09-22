@@ -3844,6 +3844,10 @@ msgid "Create a dashboard"
 msgstr "Créer un tableau de bord"
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr "Créer un hôte"
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr "Créer une nouvelle règle d'accès aux ressources"
 
@@ -18965,6 +18969,10 @@ msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
+msgstr "Bienvenue dans l'interface des hôtes !"
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the additional configurations page"
 msgstr "Bienvenue sur la page des configurations additionnelles"
 
@@ -25284,3 +25292,104 @@ msgstr "Ce groupe de contacts n'est pas disponible"
 #: centreon/www/include/configuration/configObject/contact/displayNotification.php
 msgid "This contact is not available"
 msgstr "Ce contact n'est pas disponible"
+
+#: centreon/www/install/front_translate.php
+msgid "1,000+"
+msgstr "1 000+"
+
+#: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
+msgid "An error occurred during session logout"
+msgstr "Une erreur est survenue lors de la déconnexion de la session"
+
+#: centreon/www/install/front_translate.php
+msgid "Computing exact count…"
+msgstr "Calcul du nombre exact…"
+
+#: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
+msgid "Could not copy VMWare configuration file"
+msgstr "Impossible de copier le fichier de configuration VMWare"
+
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "Could not load the SNMP trap. Please try again."
+msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
+
+#: centreon/www/install/front_translate.php
+msgid "Current status of the hosts being monitored"
+msgstr "Statut actuel des hôtes supervisés"
+
+#: centreon/www/install/front_translate.php
+msgid "Current status of the pollers and monitoring engines"
+msgstr "Statut actuel des collecteurs et des moteurs de supervision"
+
+#: centreon/www/install/front_translate.php
+msgid "Current status of the services being monitored"
+msgstr "Statut actuel des services supervisés"
+
+#: centreon/www/install/front_translate.php
+msgid "Enter your poller's information"
+msgstr "Saisissez les informations de votre collecteur"
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to close the ticket"
+msgstr "Échec de la fermeture du ticket"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Host ID"
+msgstr "ID de l'hôte"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"More than 1,000 resources match your search. Click to compute the exact "
+"count."
+msgstr ""
+"Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
+"calculer le nombre exact."
+
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host group(s)."
+msgstr ""
+"Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un "
+"service avec la même description existe déjà sur le ou les groupes d'hôtes "
+"cibles."
+
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host(s)."
+msgstr ""
+"Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un "
+"service avec la même description existe déjà sur le ou les hôtes cibles."
+
+#: centreon/www/install/front_translate.php
+msgid "Pending status hosts"
+msgstr "Hôtes au statut \"En attente\""
+
+#: centreon/www/install/front_translate.php
+msgid "Pending status services"
+msgstr "Services au statut \"En attente\""
+
+#: centreon/www/install/react_translation.php
+msgid "Prerequisite: configure the central to accept pullwss connections"
+msgstr "Prérequis : configurer le central pour accepter les connexions pullwss"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Service ID"
+msgstr "ID du service"
+
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "This SNMP trap no longer exists."
+msgstr "Ce trap SNMP n'existe plus."
+
+#: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
+msgid "Unable to revert passwords"
+msgstr "Impossible de restaurer les mots de passe"
+
+#: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
+msgid "Vault is not available"
+msgstr "Le coffre-fort n'est pas disponible"
+
+#: centreon/www/install/front_translate.php
+msgid "{{count}} resources"
+msgstr "{{count}} ressources"

@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
@@ -288,6 +291,104 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame(1, (int) $extendedInfoCount);
     }
 
+    public function testAddPersistsExtendedInformations(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $imgId = $this->createImage('server.png');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-02'),
+            alias: null,
+            address: new HostAddress('10.0.0.2'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            extendedInformations: new ExtendedInformations(
+                noteUrl: 'https://example.com/notes',
+                note: 'a free-text note',
+                actionUrl: 'https://example.com/actions',
+                iconId: new MediaId($imgId),
+                altIcon: 'server icon',
+                comment: 'internal comment',
+                geoCoordinates: GeoCoordinates::fromString('48.8566,2.3522'),
+            ),
+        );
+
+        $this->repository->add($host);
+
+        $hostRow = $this->connection->fetchAssociative(
+            'SELECT host_comment, geo_coords FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($hostRow);
+        self::assertSame('internal comment', $hostRow['host_comment']);
+        self::assertSame('48.8566,2.3522', $hostRow['geo_coords']);
+
+        $extendedInfoRow = $this->connection->fetchAssociative(
+            'SELECT ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt
+             FROM extended_host_information WHERE host_host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($extendedInfoRow);
+        self::assertSame('https://example.com/notes', $extendedInfoRow['ehi_notes_url']);
+        self::assertSame('a free-text note', $extendedInfoRow['ehi_notes']);
+        self::assertSame('https://example.com/actions', $extendedInfoRow['ehi_action_url']);
+        /** @var int|string $iconImage */
+        $iconImage = $extendedInfoRow['ehi_icon_image'];
+        self::assertSame($imgId, (int) $iconImage);
+        self::assertSame('server icon', $extendedInfoRow['ehi_icon_image_alt']);
+    }
+
+    public function testItMapsAHostWithoutAnIconToANullIconId(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->createHost('no-icon-host', $pollerId);
+
+        $host = iterator_to_array($this->repository->findAll())[0];
+
+        self::assertNull($host->extendedInformations?->iconId);
+    }
+
+    public function testItMapsAHostIconIdFromExtendedHostInformation(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $imgId = $this->createImage('server.png');
+        $this->createHost('iconed-host', $pollerId, iconId: $imgId);
+
+        $host = iterator_to_array($this->repository->findAll())[0];
+
+        self::assertNotNull($host->extendedInformations?->iconId);
+        self::assertSame($imgId, $host->extendedInformations->iconId->value);
+    }
+
+    public function testItStillReturnsAHostMissingItsExtendedInformationRow(): void
+    {
+        // Legacy always inserts this companion row today, but nothing guarantees every host in
+        // every real database has it (pre-existing data, a non-standard insert path). The join
+        // must stay a LEFT JOIN so such a host still appears, just without an icon, instead of
+        // silently vanishing from the listing.
+        $pollerId = $this->createPoller('Central');
+        $this->connection->insert('host', [
+            'host_name' => 'no-extended-info-host',
+            'host_address' => '127.0.0.1',
+            'host_activate' => '1',
+            'host_register' => '1',
+        ]);
+        $hostId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('ns_host_relation', [
+            'host_host_id' => $hostId,
+            'nagios_server_id' => $pollerId,
+        ]);
+
+        $hosts = iterator_to_array($this->repository->findAll());
+
+        self::assertCount(1, $hosts);
+        self::assertSame($hostId, $hosts[0]->id()->value);
+        self::assertNull($hosts[0]->extendedInformations?->iconId);
+    }
+
     public function testIsNameUsedByHostOrTemplateFindsAHostByExactName(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -334,6 +435,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ?string $alias = null,
         string $address = '127.0.0.1',
         bool $activated = true,
+        ?int $iconId = null,
     ): int {
         $this->connection->insert('host', [
             'host_name' => $name,
@@ -347,6 +449,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->connection->insert('ns_host_relation', [
             'host_host_id' => $hostId,
             'nagios_server_id' => $pollerId,
+        ]);
+
+        // Every registered host always has a companion row here in practice (see
+        // DbalHostRepository::add()'s own comment), so this helper mirrors that by default.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
         ]);
 
         return $hostId;
@@ -373,6 +482,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
             'host_host_id' => $hostId,
             'hostgroup_hg_id' => $groupId,
         ]);
+    }
+
+    private function createImage(string $name): int
+    {
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function linkHostToAcl(int $hostId, int $groupId): void
