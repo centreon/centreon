@@ -148,14 +148,30 @@ jobs:
         "centreon/tests/clapi_export/**"
         "centreon/tests/e2e/**"
         "centreon/tests/performance/**"
-        ".github/docker/centreon-snmptrapd/**"
-        ".github/docker/centreon-centreontrapd/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
       translation_paths: |
         "centreon/lang/**"
+      trapd_paths: |
+        ".github/docker/centreon-snmptrapd/**"
+        ".github/docker/centreon-centreontrapd/**"
+        ".github/docker/centreon-trapd/**"
+        ".github/scripts/centreon-trapd-docker-boot-test.sh"
+        ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
+        ".github/scripts/lib/centreon-trapd-common.sh"
+        "centreon/snmptrapd/**"
+        "centreon/bin/centreontrapd*"
+        "centreon/packaging/centreon-trap.yaml"
+        "centreon/packaging/scripts/centreon-trap-postinstall.sh"
+        "centreon/packaging/scripts/centreon-trap-preremove.sh"
+        "centreon/tmpl/install/systemd/centreontrapd.rpm.systemd"
+        "centreon/tmpl/install/systemd/centreontrapd.deb.systemd"
+        "centreon/tmpl/install/systemd/centreontrapd.sysconfig"
+        "centreon/logrotate/centreontrapd"
+        ".version"
+        ".version.centreon-web"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -1331,8 +1347,13 @@ jobs:
   # below for the actual validation gate (docker-boot-test/
   # docker-config-wiring-test).
   package-centreon-trap:
-    needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    needs: [get-environment, changes]
+    # No stability == 'stable' fallback here (unlike frontend-web-build et al.):
+    # the only consumer of this package, dockerize-trapd-image, already skips on
+    # stable, so running this unconditionally there would just be wasted work.
+    if: |
+      needs.changes.outputs.trigger_trapd == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -1371,8 +1392,12 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
 
   package-perl-libs:
-    needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    needs: [get-environment, changes]
+    # Same reasoning as package-centreon-trap above: only dockerize-trapd-image
+    # consumes this, and it already skips on stable.
+    if: |
+      needs.changes.outputs.trigger_trapd == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -1431,11 +1456,12 @@ jobs:
     # value. This job alone doesn't guarantee the resulting image is validated:
     # docker-boot-test/docker-config-wiring-test below are what actually gate
     # version_tag and promote-docker-tag/promote-docker-to-ghcr.
-    needs: [get-environment, package-centreon-trap, package-perl-libs]
+    needs: [get-environment, changes, package-centreon-trap, package-perl-libs]
     # stability != 'stable' matches the dockerize job's own gate above, so this
     # runs on canary/feature branches the same way centreon-web images do,
     # instead of the narrower testing/unstable-only allowlist this job used to have.
     if: |
+      needs.changes.outputs.trigger_trapd == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
