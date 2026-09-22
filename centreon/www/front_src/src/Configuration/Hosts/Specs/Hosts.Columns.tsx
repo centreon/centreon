@@ -46,11 +46,14 @@ export default () => {
     });
 
     it('falls back to the default host icon when the host has no icon', () => {
-      // `icon` is absent from host 1, and host 0 is the only row carrying one,
-      // so exactly one default icon is left once host 0's image has loaded.
       cy.findByTestId('server.png').should('have.attr', 'src', hostIcon);
 
-      cy.findAllByTestId('HostIcon').should('have.length', 1);
+      // Scoped to the row: a page-wide count passes for the wrong reason and
+      // breaks whenever a fixture row is added.
+      cy.contains('host 1')
+        .closest('[role="row"]')
+        .findByTestId('HostIcon')
+        .should('exist');
 
       cy.makeSnapshot();
     });
@@ -66,10 +69,14 @@ export default () => {
     });
 
     it('leaves the templates cell empty when the host inherits from none', () => {
-      cy.contains('host 1').should('be.visible');
+      cy.contains('host 1')
+        .closest('[role="row"]')
+        .find('[data-testid^="host-template-link_"]')
+        .should('not.exist');
 
+      // The links exist elsewhere, so the row above is empty for the right
+      // reason rather than because the column is missing.
       cy.findByTestId('host-template-link_5').should('exist');
-      cy.get('[data-testid^="host-template-link_"]').should('have.length', 2);
     });
   });
 };

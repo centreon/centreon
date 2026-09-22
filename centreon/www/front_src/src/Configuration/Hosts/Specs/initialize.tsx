@@ -71,11 +71,25 @@ const initialize = ({
     response: {}
   });
 
-  // Enable and disable are a partial update of the host.
+  // Enable and disable are a partial update of the host, one request per host.
   cy.interceptAPIRequest({
     alias: 'patchHost',
     method: Method.PATCH,
     path: `**${getHostEndpoint({ id: 0 })}`,
+    response: {}
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchHost1',
+    method: Method.PATCH,
+    path: `**${getHostEndpoint({ id: 1 })}`,
+    response: {}
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'patchHost2',
+    method: Method.PATCH,
+    path: `**${getHostEndpoint({ id: 2 })}`,
     response: {}
   });
 

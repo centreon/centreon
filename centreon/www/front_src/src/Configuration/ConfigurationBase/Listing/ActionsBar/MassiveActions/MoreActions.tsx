@@ -54,40 +54,50 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
     ]
   );
 
+  // `massive` may name the operations a module supports; `true` means all four,
+  // as it did before this was honoured. An entry whose endpoint does not exist
+  // is worse than an absent one — it gets found and reported as a bug.
+  const massive = configuration?.actions?.massive;
+  const supports = (operation: string): boolean =>
+    massive === true || !!massive?.[operation];
+
+  const sharedActions = [
+    supports('duplicate') && {
+      disable: isMutating,
+      Icon: DuplicateIcon,
+      label: t(labelDuplicate),
+      onClick: pipe(openDuplicateModal, close)
+    },
+    supports('enable') && {
+      disable: isMutating,
+      Icon: EnableIcon,
+      label: t(labelEnable),
+      onClick: pipe(enable, close),
+      variant: 'success'
+    },
+    supports('disable') && {
+      disable: isMutating,
+      Icon: DisableIcon,
+      label: t(labelDisable),
+      onClick: pipe(disable, close),
+      variant: 'error'
+    },
+    supports('delete') && {
+      disable: isMutating,
+      Icon: DeleteIcon,
+      label: t(labelDelete),
+      onClick: pipe(openDeleteModal, close),
+      variant: 'error'
+    }
+  ].filter(Boolean);
+
   return (
     <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
       <ActionsList
         actions={[
-          {
-            disable: isMutating,
-            Icon: DuplicateIcon,
-            label: t(labelDuplicate),
-            onClick: pipe(openDuplicateModal, close)
-          },
-          ActionsListActionDivider.divider,
-          {
-            disable: isMutating,
-            Icon: EnableIcon,
-            label: t(labelEnable),
-            onClick: pipe(enable, close),
-            variant: 'success'
-          },
-          ActionsListActionDivider.divider,
-          {
-            disable: isMutating,
-            Icon: DisableIcon,
-            label: t(labelDisable),
-            onClick: pipe(disable, close),
-            variant: 'error'
-          },
-          ActionsListActionDivider.divider,
-          {
-            disable: isMutating,
-            Icon: DeleteIcon,
-            label: t(labelDelete),
-            onClick: pipe(openDeleteModal, close),
-            variant: 'error'
-          },
+          ...sharedActions.flatMap((action, index) =>
+            index === 0 ? [action] : [ActionsListActionDivider.divider, action]
+          ),
           ...(isEmpty(extraActions) ? [] : extraActions)
         ]}
         className={classes.ActionsList}

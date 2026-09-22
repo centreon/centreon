@@ -42,11 +42,11 @@ const useDeployServices = (): UseDeployServicesState => {
       )
     )
       .then((responses) => {
-        // `customFetch` resolves with an error shape rather than rejecting, so
-        // a failed deploy never reaches the catch below.
+        // `customFetch` resolves with an error shape rather than rejecting, and
+        // `useMutationQuery` has already shown the API's own message — staying
+        // quiet here avoids stacking a second snackbar on the same failure, as
+        // the other ConfigurationBase mutations do.
         if (any(propEq(true, 'isError'), responses as Array<ResponseError>)) {
-          showErrorMessage(t(labelFailedToDeployServices));
-
           return;
         }
 

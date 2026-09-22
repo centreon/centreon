@@ -30,7 +30,7 @@ export const bulkDeleteHostsEndpoint = '/configuration/hosts/_delete';
 export const bulkDuplicateHostsEndpoint = '/configuration/hosts/_duplicate';
 
 type SearchParameter = {
-  conditions?: Array<{ values?: { $lk?: string } }>;
+  conditions?: Array<{ values?: { $lk?: string; $ni?: Array<string> } }>;
 };
 
 // The connected autocomplete hands us its own search/page state; API Platform
@@ -38,11 +38,19 @@ type SearchParameter = {
 const getSelectorEndpoint =
   (baseEndpoint: string) =>
   ({ search, page }: { search?: SearchParameter; page?: number }): string => {
+    // Once a value is selected the autocomplete prepends a `$ni` condition
+    // excluding it, so the typed text is not necessarily the first one.
+    const searchedValue = search?.conditions?.find(
+      (condition) => condition?.values?.$lk
+    )?.values?.$lk;
+
     const customQueryParameters = search
       ? [
           {
             name: 'name[lk]',
-            value: search.conditions?.[0]?.values?.$lk?.slice(1, -1) ?? ''
+            // The autocomplete wraps the typed text in `%`; this endpoint adds
+            // its own wildcards.
+            value: searchedValue?.slice(1, -1) ?? ''
           }
         ]
       : [];

@@ -26,14 +26,19 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const configuration = useAtomValue(configurationAtom);
   const actions = configuration?.actions;
 
-  // A module that declares `enableDisable` owns this column, so the toggle stays
-  // on screen when the predicate says no — disabled, which is what a read-only
-  // user is meant to see. A module that declares nothing gets no column at all.
   if (!actions?.enableDisable) {
     return;
   }
 
   const canChange = actions.enableDisable(row);
+
+  // A module that opts into per-row affordances without write access keeps the
+  // toggle on screen, disabled — what a read-only user is meant to see. Without
+  // that opt-in the cell renders nothing, as it did before: commands uses a
+  // per-row predicate and expects the toggle gone, not greyed.
+  if (!canChange && !actions.rowActionsWithoutWriteAccess) {
+    return;
+  }
 
   return (
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>

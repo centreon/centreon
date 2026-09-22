@@ -1,15 +1,23 @@
 import {
   labelDelete,
+  labelDisable,
   labelDuplicate,
+  labelEnable,
   labelEnableDisable,
   labelMoreActions
 } from '../../ConfigurationBase/translatedLabels';
 import { labelDeployServices } from '../translatedLabels';
 import initialize from './initialize';
 
-const selectFirstRow = (): void => {
-  cy.get('input[type="checkbox"]').eq(1).click();
+// A deactivated row is not selectable, so indexing the enabled checkboxes is
+// what actually maps to "the nth selectable host". Index 0 is select-all.
+const selectSelectableRow = (index: number): void => {
+  cy.get('input[type="checkbox"]:not([disabled])')
+    .eq(index + 1)
+    .click();
 };
+
+const selectFirstRow = (): void => selectSelectableRow(0);
 
 export default () => {
   describe('Actions: ', () => {
@@ -45,18 +53,17 @@ export default () => {
       cy.makeSnapshot();
     });
 
-    it('duplicates a host through the confirmation modal', () => {
+    it('offers no duplicate action, which has no endpoint on hosts', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
 
-      cy.findByTestId(`${labelDuplicate}_0`).click();
+      cy.findByTestId(`${labelDuplicate}_0`).should('not.exist');
 
-      cy.findByTestId('confirm').click();
+      selectFirstRow();
+      cy.findByTestId(labelMoreActions).click();
 
-      cy.waitForRequest('@duplicateHosts');
-
-      cy.makeSnapshot();
+      cy.contains(labelDuplicate).should('not.exist');
     });
 
     it('disables an activated host from the row toggle', () => {
@@ -87,7 +94,7 @@ export default () => {
       cy.makeSnapshot();
     });
 
-    it('does not offer massive change, which is not implemented yet', () => {
+    it('offers exactly the massive actions that have a working endpoint', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -96,9 +103,41 @@ export default () => {
 
       cy.findByTestId(labelMoreActions).click();
 
-      cy.contains('Massive change').should('not.exist');
+      // A positive assertion on the whole menu: it fails both when an entry
+      // without an endpoint creeps back in and when massive change is added
+      // before its own ticket lands.
+      cy.get('[role="menu"]')
+        .findAllByRole('menuitem')
+        .should('have.length', 3)
+        .then((entries) => {
+          expect([...entries].map((entry) => entry.textContent)).to.deep.equal([
+            labelEnable,
+            labelDisable,
+            labelDeployServices
+          ]);
+        });
 
       cy.makeSnapshot();
+    });
+
+    it('disables every selected host, not just the first', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      // Select-all takes every selectable row — hosts 0 and 2; host 1 is
+      // deactivated and cannot be selected.
+      cy.get('input[type="checkbox"]').eq(0).click();
+
+      cy.findByTestId(labelMoreActions).click();
+      cy.get('[role="menu"]').contains(labelDisable).click();
+
+      // Waiting on the second host is the whole point: patching only `ids[0]`
+      // while reporting the entire selection as done is the bug this pins, and
+      // it is invisible if you assert on the first host.
+      cy.waitForRequest('@patchHost2').then(({ request }) => {
+        expect(request.body).to.deep.equal({ is_activated: false });
+      });
     });
 
     describe('Read-only ACL user: ', () => {

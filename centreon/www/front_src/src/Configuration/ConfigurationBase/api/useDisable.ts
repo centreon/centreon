@@ -4,7 +4,7 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, propEq } from 'ramda';
 
 import { configurationAtom } from '../atoms';
 
@@ -30,11 +30,17 @@ const useDisable = (): UseDisableProps => {
   });
 
   const disableMutation = ({ ids }: { ids: Array<number> }) => {
+    // PATCH is a single-resource operation, so a selection has to fan out —
+    // patching `ids[0]` alone reported the whole selection as done.
     if (equals(method, Method.PATCH)) {
-      return mutateAsync({
-        _meta: { id: ids[0] },
-        payload: { is_activated: false }
-      });
+      return Promise.all(
+        ids.map((id) =>
+          mutateAsync({
+            _meta: { id },
+            payload: { is_activated: false }
+          })
+        )
+      ).then((responses) => responses.find(propEq(true, 'isError')) ?? {});
     }
 
     return mutateAsync({

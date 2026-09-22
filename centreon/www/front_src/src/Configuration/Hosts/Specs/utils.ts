@@ -29,9 +29,20 @@ export const getListingResponse = () => ({
       name: 'host 1',
       poller: { id: 1, name: 'Central' },
       templates: []
+    },
+    // A second activated host: a deactivated row is not selectable, so without
+    // this there is only one row a massive action can act on.
+    {
+      activated: true,
+      address: '10.0.0.2',
+      alias: 'alias for host 2',
+      id: 2,
+      name: 'host 2',
+      poller: { id: 1, name: 'Central' },
+      templates: []
     }
   ],
-  totalItems: 2
+  totalItems: 3
 });
 
 export const emptyListingResponse = {

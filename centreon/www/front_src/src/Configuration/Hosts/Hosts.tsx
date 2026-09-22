@@ -52,10 +52,14 @@ const Hosts = () => {
   const actions: Actions = useMemo(
     () => ({
       delete: () => canEdit,
-      duplicate: () => canEdit,
       edit: canEdit,
       enableDisable: () => canEdit,
-      massive: canEdit,
+      // Duplicate is left out entirely: hosts have no duplicate endpoint at all,
+      // single or bulk, so the icon and the menu entry would only ever 404. Bulk
+      // delete is missing too, so More actions offers only what works — enable,
+      // disable and deploy services. Restoring them is one line here once the
+      // endpoints ship; the mocked specs are already written against them.
+      massive: canEdit && { disable: true, enable: true },
       massiveActions: [
         {
           dataTestId: 'deploy-services',

@@ -23,8 +23,8 @@ export const columnsAtomKey = 'columns_hosts';
 
 // Host templates are not migrated yet: both the listing column and the form
 // input point at the legacy configuration page.
-export const getHostTemplateConfigurationUrl = (id: number | string): string =>
-  `${centreonBaseURL}/main.php?p=60103&o=c&host_id=${id}`;
+export const getHostTemplateConfigurationUrl = (id: number): string =>
+  `${centreonBaseURL}/main.php?p=60103&o=c&host_id=${encodeURIComponent(id)}`;
 
 // The legacy services-by-host listing reads its host filter from `search`
 // (`listServiceByHost.php` maps it to `searchH`), and matches on the name.
