@@ -2,7 +2,7 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 
-import type { HostListItem, Icon } from '../models';
+import type { HostListItem, Icon, NamedEntity } from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -41,4 +41,13 @@ export const hostsListDecoder = buildListingDecoder({
   entityDecoder: hostsDecoder,
   entityDecoderName: 'Host',
   listingDecoderName: 'Hosts List'
+});
+
+// The host group and host template selectors answer in Hydra like the listing
+// does, so the filter autocompletes need the same mapping.
+export const namedEntitiesListDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
+  entityDecoder: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Entity'),
+  entityDecoderName: 'Entity',
+  listingDecoderName: 'Entity List'
 });

@@ -26,9 +26,14 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const configuration = useAtomValue(configurationAtom);
   const actions = configuration?.actions;
 
-  if (!actions?.enableDisable?.(row)) {
+  // A module that declares `enableDisable` owns this column, so the toggle stays
+  // on screen when the predicate says no — disabled, which is what a read-only
+  // user is meant to see. A module that declares nothing gets no column at all.
+  if (!actions?.enableDisable) {
     return;
   }
+
+  const canChange = actions.enableDisable(row);
 
   return (
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
@@ -38,7 +43,7 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
         className={classes.switch}
         color="primary"
         data-testid={`${labelEnableDisable}_${row.id}`}
-        disabled={isMutating}
+        disabled={isMutating || !canChange}
         onClick={change}
         size="small"
       />

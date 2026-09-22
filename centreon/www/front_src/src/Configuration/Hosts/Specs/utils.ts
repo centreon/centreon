@@ -41,3 +41,23 @@ export const emptyListingResponse = {
   member: [],
   totalItems: 0
 };
+
+const toCollection = (member: Array<object>) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration',
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
+});
+
+export const getHostGroupsResponse = () =>
+  toCollection([
+    { id: 1, name: 'Linux servers' },
+    { id: 2, name: 'Windows servers' }
+  ]);
+
+export const getHostTemplatesResponse = () =>
+  toCollection([
+    { id: 5, name: 'generic-active-host' },
+    { id: 6, name: 'generic-passive-host' }
+  ]);

@@ -10,15 +10,18 @@ import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
-import { pipe } from 'ramda';
+import { useAtomValue } from 'jotai';
+import { isEmpty, pipe } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { configurationAtom } from '../../../atoms';
 import {
   labelDelete,
   labelDisable,
   labelDuplicate,
   labelEnable
 } from '../../../translatedLabels';
+import { selectedRowsAtom } from '../../atoms';
 import { useActionsStyles } from '../Actions.styles';
 import useMassiveActions from './useMassiveActions';
 
@@ -33,6 +36,23 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
 
   const { openDeleteModal, openDuplicateModal, enable, disable, isMutating } =
     useMassiveActions();
+
+  const selectedRows = useAtomValue(selectedRowsAtom);
+  const configuration = useAtomValue(configurationAtom);
+  const massiveActions = configuration?.actions?.massiveActions ?? [];
+
+  const extraActions = massiveActions.flatMap(
+    ({ Icon, dataTestId, label, onClick }) => [
+      ActionsListActionDivider.divider,
+      {
+        'data-testid': dataTestId,
+        disable: isMutating,
+        Icon,
+        label: t(label),
+        onClick: pipe(() => onClick(selectedRows), close)
+      }
+    ]
+  );
 
   return (
     <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
@@ -67,7 +87,8 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
             label: t(labelDelete),
             onClick: pipe(openDeleteModal, close),
             variant: 'error'
-          }
+          },
+          ...(isEmpty(extraActions) ? [] : extraActions)
         ]}
         className={classes.ActionsList}
       />

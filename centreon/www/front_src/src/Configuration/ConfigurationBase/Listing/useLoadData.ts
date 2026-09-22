@@ -130,18 +130,44 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     return [...statusCondition, ...(otherConditions || [])];
   }, [configuration?.filtersConfiguration, filters]);
 
+  // The status filter carries no `fieldName`, and the query parameter is not
+  // spelled the same on every endpoint — `is_activated` on commands, `activated`
+  // on hosts — so a module may name it through the filter configuration.
+  const getStatusQueries = () => {
+    if (!isStatusFilterApplied) {
+      return [];
+    }
+
+    const fieldName =
+      configuration?.filtersConfiguration?.find((filter) =>
+        equals(filter.fieldType, FieldType.Status)
+      )?.fieldName ?? 'is_activated';
+
+    return [{ name: fieldName, value: filters?.enabled }];
+  };
+
+  const getSingleConnectedAutocompleteQueries = () =>
+    (configuration?.filtersConfiguration ?? [])
+      .filter((filter) =>
+        equals(filter.fieldType, FieldType.SingleConnectedAutocomplete)
+      )
+      .flatMap((filter) => {
+        const filterValue = filters?.[filter.fieldName as string];
+
+        return isNotNil(filterValue)
+          ? [{ name: filter.fieldName as string, value: filterValue.id }]
+          : [];
+      });
+
   const getCustomQueryParameters = (): Array<QueryParameter> => {
     if (!equals(apiFormat, 'JSON-LD')) {
       return [];
     }
 
-    const statusQueryParam = isStatusFilterApplied
-      ? [{ name: 'is_activated', value: filters?.enabled }]
-      : [];
-
     const customQueryParameters = [
       { name: 'name[lk]', value: filters?.name },
-      ...statusQueryParam,
+      ...getStatusQueries(),
+      ...getSingleConnectedAutocompleteQueries(),
       ...getCheckboxesQueries(),
       ...getCheckboxQueries()
     ];
