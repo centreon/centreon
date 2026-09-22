@@ -29,7 +29,7 @@ export default () => {
       cy.contains('Central').should('be.visible');
     });
 
-    it('decodes a host with a null alias and no icon', () => {
+    it('decodes a host whose optional fields are absent from the response', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');

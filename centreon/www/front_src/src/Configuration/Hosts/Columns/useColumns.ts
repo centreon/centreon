@@ -7,9 +7,11 @@ import {
   labelAlias,
   labelIpAddress,
   labelMonitoringServer,
-  labelName
+  labelName,
+  labelTemplates
 } from '../translatedLabels';
 import Name from './Name';
+import Templates from './Templates';
 
 interface Props {
   columns: Array<Column>;
@@ -57,6 +59,16 @@ const useColumns = (): Props => {
       id: 'poller',
       label: t(labelMonitoringServer),
       type: ColumnType.string
+    },
+    {
+      Component: Templates,
+      // The template links navigate on their own; the cell must not also open
+      // the host panel.
+      clickable: true,
+      disablePadding: false,
+      id: 'templates',
+      label: t(labelTemplates),
+      type: ColumnType.component
     }
   ];
 
