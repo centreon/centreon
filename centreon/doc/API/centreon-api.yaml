@@ -62,6 +62,7 @@ tags:
   - name: 'Host severity'
   - name: 'Host template'
   - name: Media
+    description: "Resource 'Media' operations."
   - name: 'Monitoring server'
   - name: Proxy
   - name: Service
@@ -5490,6 +5491,77 @@ paths:
             maximum: 30
           style: form
           explode: true
+  /api/configuration/medias:
+    get:
+      operationId: api_configurationmedias_get_collection
+      tags:
+        - Media
+      responses:
+        '200':
+          description: 'Media collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Media.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Media.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Media'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of Media resources.'
+      description: 'Retrieves the collection of Media resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by media name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -10651,6 +10723,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateOutput'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
@@ -10675,6 +10753,12 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            icon:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
@@ -10728,6 +10812,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HostGroupOutput'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
         id:
           type: integer
         name:
@@ -10781,6 +10871,12 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HostGroupOutput.jsonld'
+            icon:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                -
+                  type: 'null'
             id:
               type: integer
             name:
@@ -10840,4 +10936,44 @@ components:
             id:
               type: integer
             name:
+              type: string
+    HostIconOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    HostIconOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+    Media.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            url:
               type: string
