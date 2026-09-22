@@ -73,6 +73,9 @@ final readonly class CreateHostInput
             new Assert\Count(min: 1, minMessage: 'Host groups are mandatory when creating a host on a Cloud platform.'),
         ])]
         public array $hostGroupIds = [],
+
+        #[Assert\Valid]
+        public ?CreateHostExtendedInformationsInput $extendedInformations = null,
     ) {
     }
 }
