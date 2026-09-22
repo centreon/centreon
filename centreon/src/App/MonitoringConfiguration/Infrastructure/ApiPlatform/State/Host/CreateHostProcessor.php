@@ -135,7 +135,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             icon: $icon,
             altIcon: $host->extendedInformations?->altIcon,
             comment: $host->extendedInformations?->comment,
-            geoCoordinates: $host->extendedInformations?->geoCoordinates !== null
+            geoCoordinates: $host->extendedInformations?->geoCoordinates instanceof GeoCoordinates
                 ? (string) $host->extendedInformations->geoCoordinates
                 : null,
         );
@@ -145,7 +145,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput
     {
-        if ($iconId === null) {
+        if (! $iconId instanceof MediaId) {
             return null;
         }
 
