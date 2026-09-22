@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\Vault;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\VaultInterface;
 
 /**
@@ -32,7 +33,11 @@ use App\Shared\Domain\VaultInterface;
  * name). A value may be plaintext, an empty string, or already a vault reference (`secret::…`).
  * This is the single currency exchanged with {@see \App\Shared\Application\Vault\VaultCredentialWriter}
  * and {@see \App\Shared\Application\Vault\VaultCredentialReader}.
+ *
+ * The values may be plaintext secrets, so the whole object is masked when it flows through the
+ * logging pipeline.
  */
+#[Sensitive]
 final readonly class VaultCredentials
 {
     /**

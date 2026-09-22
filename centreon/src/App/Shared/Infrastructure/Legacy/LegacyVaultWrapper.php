@@ -102,6 +102,9 @@ final readonly class LegacyVaultWrapper implements VaultInterface
             }
         }
 
-        return $paths;
+        // The underlying repository returns a path for every key stored under the UUID (including
+        // pre-existing ones when writing to an existing entry); the contract only exposes the keys
+        // that were requested, so surplus paths never leak onto the calling resource.
+        return array_intersect_key($paths, $secrets);
     }
 }

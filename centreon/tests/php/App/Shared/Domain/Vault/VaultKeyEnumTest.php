@@ -27,8 +27,12 @@ use App\Shared\Domain\Vault\VaultKeyEnum;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Guards the literal key values against drift from Core
- * (`Core\Security\Vault\Domain\Model\VaultConfiguration`), which App cannot import.
+ * Pins the enum's literal values so an accidental App-side edit fails loudly.
+ *
+ * These literals are transcribed by hand from Core
+ * (`Core\Security\Vault\Domain\Model\VaultConfiguration`), which App cannot import across the
+ * deptrac boundary. This test cannot observe Core, so it does not detect a Core-side change on its
+ * own — the two sides must be kept in sync manually until the endpoints move from Core to App.
  */
 final class VaultKeyEnumTest extends TestCase
 {
