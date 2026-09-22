@@ -27,10 +27,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -274,6 +276,133 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'data_processing' => ['event_handler_command_id' => 999999999],
             ],
         ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * extended_informations is a nested sub-object in the request payload, not a set of flat
+     * fields on the root — matches the endpoint's output shape (see MON-208990).
+     */
+    public function testItCreatesAHostWithExtendedInformations(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $imgId = $this->createImage('server.png');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.20',
+                'poller_id' => $pollerId,
+                'extended_informations' => [
+                    'note_url' => 'https://example.com/notes',
+                    'note' => 'a free-text note',
+                    'action_url' => 'https://example.com/actions',
+                    'icon_id' => $imgId,
+                    'alt_icon' => 'server icon',
+                    'comment' => 'internal comment',
+                    'geo_coordinates' => '48.8566,2.3522',
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'extended_informations' => [
+                'note_url' => 'https://example.com/notes',
+                'note' => 'a free-text note',
+                'action_url' => 'https://example.com/actions',
+                'icon' => ['id' => $imgId, 'name' => 'server.png'],
+                'alt_icon' => 'server icon',
+                'comment' => 'internal comment',
+                'geo_coordinates' => '48.8566,2.3522',
+            ],
+        ]);
+
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_comment, geo_coords FROM host WHERE host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($row);
+        self::assertSame('internal comment', $row['host_comment']);
+        self::assertSame('48.8566,2.3522', $row['geo_coords']);
+
+        $extendedInfoRow = $this->connection->fetchAssociative(
+            'SELECT ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt
+             FROM extended_host_information ehi
+             INNER JOIN host h ON h.host_id = ehi.host_host_id
+             WHERE h.host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($extendedInfoRow);
+        self::assertSame('https://example.com/notes', $extendedInfoRow['ehi_notes_url']);
+        self::assertSame('a free-text note', $extendedInfoRow['ehi_notes']);
+        self::assertSame('https://example.com/actions', $extendedInfoRow['ehi_action_url']);
+        /** @var int|string $iconImage */
+        $iconImage = $extendedInfoRow['ehi_icon_image'];
+        self::assertSame($imgId, (int) $iconImage);
+        self::assertSame('server icon', $extendedInfoRow['ehi_icon_image_alt']);
+    }
+
+    /**
+     * Every field is null here, and the serializer omits null properties rather than emitting
+     * them (same convention as the top-level `icon`/`alias`) — so `extended_informations` itself
+     * stays present, but comes back with none of its own sub-keys.
+     */
+    public function testItCreatesAHostWithoutExtendedInformations(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.21',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertSame([], $response->toArray()['extended_informations']);
+    }
+
+    public function testItRejectsAMalformedGeoCoordinatesInExtendedInformations(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.22',
+                'poller_id' => $pollerId,
+                'extended_informations' => [
+                    'geo_coordinates' => 'not-a-valid-pair',
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownIconIdInExtendedInformations(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.23',
+                'poller_id' => $pollerId,
+                'extended_informations' => [
+                    'icon_id' => 999999,
+                ],
+            ],
+        ]);
+
         self::assertResponseStatusCodeSame(422);
     }
 
@@ -784,6 +913,10 @@ final class CreateHostProcessorTest extends ApiTestCase
         $hostGroupRepository = $container->get(HostGroupRepository::class);
         /** @var CommandRepository $commandRepository */
         $commandRepository = $container->get(CommandRepository::class);
+        /** @var MediaRepository $mediaRepository */
+        $mediaRepository = $container->get(MediaRepository::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
 
         $container->set(
             CreateHostProcessor::class,
@@ -794,6 +927,8 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $pollerRepository,
                 $hostGroupRepository,
                 $commandRepository,
+                $mediaRepository,
+                $mediaUrlGenerator,
                 $isCloudPlatform,
             ),
         );
@@ -820,6 +955,24 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->connection->insert('hostgroup', ['hg_name' => $name]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function createImage(string $name): int
+    {
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+        $imgId = (int) $this->connection->lastInsertId();
+
+        // MediaRepository::findByIds() inner-joins the directory relation, so a media row with
+        // no folder is invisible to it (though still visible to the plain existsOne() check used
+        // by input validation) — link it, matching legacy's "every media belongs to a folder".
+        $this->connection->insert('view_img_dir', ['dir_name' => 'dir']);
+        $dirId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('view_img_dir_relation', [
+            'dir_dir_parent_id' => $dirId,
+            'img_img_id' => $imgId,
+        ]);
+
+        return $imgId;
     }
 
     private function insertHost(string $name, int $pollerId): int

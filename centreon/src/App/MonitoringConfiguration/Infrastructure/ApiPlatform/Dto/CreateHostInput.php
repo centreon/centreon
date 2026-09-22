@@ -76,6 +76,8 @@ final readonly class CreateHostInput
 
         #[Assert\Valid]
         public ?DataProcessingInput $dataProcessing = null,
+        #[Assert\Valid]
+        public ?CreateHostExtendedInformationsInput $extendedInformations = null,
     ) {
     }
 }

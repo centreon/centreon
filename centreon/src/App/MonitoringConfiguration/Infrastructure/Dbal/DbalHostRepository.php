@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
@@ -78,6 +79,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function add(Host $host): void
     {
         $dataProcessing = $host->dataProcessing;
+        $extendedInformations = $host->extendedInformations;
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
@@ -96,6 +98,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_event_handler_enabled' => ':eventHandlerEnabled',
                 'command_command_id2' => ':eventHandlerCommandId',
                 'command_command_id_arg2' => ':eventHandlerArgs',
+                'geo_coords' => ':geoCoords',
+                'host_comment' => ':comment',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -110,6 +114,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
             ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
             ->setParameter('eventHandlerArgs', $this->joinCommandArgs($dataProcessing->eventHandlerArgs))
+            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
+            ->setParameter('comment', $extendedInformations?->comment)
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -119,13 +125,25 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         $this->setId($host, new HostId($hostId));
 
-        // Every host row has a companion row here, even an entirely empty one: legacy always
-        // inserts it (DbWriteHostRepository::addExtendedInformations()), and other parts of the
-        // application already assume it exists.
+        // Every host row has a companion row here, even when Extended Informations were left
+        // empty: legacy always inserts it (DbWriteHostRepository::addExtendedInformations()), and
+        // other parts of the application already assume it exists.
         $this->connection->createQueryBuilder()
             ->insert('extended_host_information')
-            ->values(['host_host_id' => ':hostId'])
+            ->values([
+                'host_host_id' => ':hostId',
+                'ehi_notes_url' => ':noteUrl',
+                'ehi_notes' => ':note',
+                'ehi_action_url' => ':actionUrl',
+                'ehi_icon_image' => ':iconId',
+                'ehi_icon_image_alt' => ':iconAlternative',
+            ])
             ->setParameter('hostId', $hostId)
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value)
+            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
             ->executeStatement();
 
         $this->connection->createQueryBuilder()

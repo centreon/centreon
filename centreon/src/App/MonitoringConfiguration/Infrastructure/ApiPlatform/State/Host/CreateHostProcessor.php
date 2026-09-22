@@ -28,21 +28,29 @@ use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEventHandlerCommandOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -68,6 +76,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
         private CommandRepository $commandRepository,
+        private MediaRepository $mediaRepository,
+        private MediaUrlGenerator $mediaUrlGenerator,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -99,6 +109,19 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             eventHandlerArgs: array_values($dpInput->eventHandlerArgs),
         );
 
+        $extendedInformationsInput = $data->extendedInformations;
+        $extendedInformations = new ExtendedInformations(
+            noteUrl: $extendedInformationsInput?->noteUrl,
+            note: $extendedInformationsInput?->note,
+            actionUrl: $extendedInformationsInput?->actionUrl,
+            iconId: $extendedInformationsInput?->iconId !== null ? new MediaId($extendedInformationsInput->iconId) : null,
+            altIcon: $extendedInformationsInput?->altIcon,
+            comment: $extendedInformationsInput?->comment,
+            geoCoordinates: $extendedInformationsInput?->geoCoordinates !== null
+                ? GeoCoordinates::fromString($extendedInformationsInput->geoCoordinates)
+                : null,
+        );
+
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -107,6 +130,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             dataProcessing: $dataProcessing,
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            extendedInformations: $extendedInformations,
         );
 
         $host = $this->commandBus->execute($command);
@@ -122,11 +146,24 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             }
         }
 
+        $icon = $this->resolveIcon($host->extendedInformations?->iconId);
+
         $resource = $this->transformer->transform($host);
         $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
         $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
         $resource->groups = $groups;
         $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
+        $resource->extendedInformations = new HostExtendedInformationsOutput(
+            noteUrl: $host->extendedInformations?->noteUrl,
+            note: $host->extendedInformations?->note,
+            actionUrl: $host->extendedInformations?->actionUrl,
+            icon: $icon,
+            altIcon: $host->extendedInformations?->altIcon,
+            comment: $host->extendedInformations?->comment,
+            geoCoordinates: $host->extendedInformations?->geoCoordinates instanceof GeoCoordinates
+                ? (string) $host->extendedInformations->geoCoordinates
+                : null,
+        );
 
         return $resource;
     }
@@ -151,5 +188,18 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             highFlapThreshold: $this->isCloudPlatform ? null : $dataProcessing->highFlapThreshold,
             eventHandlerArgs: $this->isCloudPlatform ? [] : $dataProcessing->eventHandlerArgs,
         );
+    }
+
+    private function resolveIcon(?MediaId $iconId): ?HostIconOutput
+    {
+        if (! $iconId instanceof MediaId) {
+            return null;
+        }
+
+        $icon = $this->mediaRepository->findByIds(new Collection([$iconId], MediaId::class))->toArray()[$iconId->value] ?? null;
+
+        return $icon instanceof Media
+            ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
+            : null;
     }
 }
