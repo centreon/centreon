@@ -57,7 +57,7 @@ function _installParseArguments() {
         http://*) CENTRAL_URL_SSL="false" ;;
       esac
       local _url_no_scheme
-      _url_no_scheme=$(echo "${CENTRAL_URL}" | sed 's|^https\?://||')
+      _url_no_scheme=$(echo "${CENTRAL_URL}" | sed -E 's|^https?://||')
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
       # Explicit port only; the per-mode default is applied in _installDeriveCentral.
       CENTRAL_PORT=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
