@@ -25,14 +25,17 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -49,15 +52,18 @@ use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\GlobalOptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGlobalOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
@@ -76,6 +82,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     private FakeResourceAccessRepository $resourceAccessRepository;
 
+    private FakeGlobalOptionRepository $globalOptionRepository;
+
     private EventBusSpy $eventBus;
 
     /**
@@ -92,12 +100,14 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->globalOptionRepository = new FakeGlobalOptionRepository();
         $this->eventBus = new EventBusSpy();
 
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
+        $container->set(GlobalOptionRepository::class, $this->globalOptionRepository);
         $container->set(EventBus::class, $this->eventBus);
 
         /** @var CreateHostCommandHandler $handler */
@@ -290,6 +300,82 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
             viewerId: new UserId(7),
         ));
+    }
+
+    public function testItStoresTheNotificationsOnTheHost(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertSame(TriStateEnum::True, $host->notifications->enabled);
+    }
+
+    /**
+     * Legacy drops the additive-inheritance flags whenever the platform option is off, which is
+     * the shipped default: honouring them regardless would change the generated configuration of
+     * every host created through the API on such a platform.
+     */
+    public function testItForcesTheAdditiveInheritanceFlagsOffWhenTheOptionIsDisabled(): void
+    {
+        $this->globalOptionRepository->additiveInheritanceEnabled = false;
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertFalse($host->notifications->contactAdditiveInheritance);
+        self::assertFalse($host->notifications->contactGroupAdditiveInheritance);
+        // everything else must survive the rebuild
+        self::assertSame(TriStateEnum::True, $host->notifications->enabled);
+        self::assertCount(1, $host->notifications->contactIds);
+    }
+
+    public function testItKeepsTheAdditiveInheritanceFlagsWhenTheOptionIsEnabled(): void
+    {
+        $this->globalOptionRepository->additiveInheritanceEnabled = true;
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertTrue($host->notifications->contactAdditiveInheritance);
+        self::assertTrue($host->notifications->contactGroupAdditiveInheritance);
+    }
+
+    private function notifications(
+        bool $contactAdditiveInheritance = false,
+        bool $contactGroupAdditiveInheritance = false,
+    ): Notifications {
+        return new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId(7)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(9)], ContactGroupId::class),
+            contactAdditiveInheritance: $contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $contactGroupAdditiveInheritance,
+        );
     }
 
     private function addPoller(FakePollerRepository $repository, int $id): Poller

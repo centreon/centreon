@@ -24,12 +24,14 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\GlobalOptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
@@ -46,6 +48,7 @@ final readonly class CreateHostCommandHandler
         private HostRepository $repository,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
+        private GlobalOptionRepository $globalOptionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private EventBus $eventBus,
     ) {
@@ -87,6 +90,7 @@ final readonly class CreateHostCommandHandler
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: $command->hostGroupIds,
             extendedInformations: $command->extendedInformations,
+            notifications: $this->applyInheritanceMode($command->notifications),
         );
 
         $this->repository->add($host);
@@ -94,6 +98,39 @@ final readonly class CreateHostCommandHandler
         $this->eventBus->fire(new HostCreated($host, $command->creatorId));
 
         return $host;
+    }
+
+    /**
+     * The additive-inheritance flags only mean something when the platform's `inheritance_mode`
+     * option enables them; otherwise legacy silently drops whatever the client asked for
+     * (`NewHostFactory::create()`), and a fresh install ships that option disabled.
+     */
+    private function applyInheritanceMode(?Notifications $notifications): ?Notifications
+    {
+        if (! $notifications instanceof Notifications) {
+            return null;
+        }
+
+        if (! $notifications->contactAdditiveInheritance && ! $notifications->contactGroupAdditiveInheritance) {
+            return $notifications;
+        }
+
+        if ($this->globalOptionRepository->isAdditiveInheritanceEnabled()) {
+            return $notifications;
+        }
+
+        return new Notifications(
+            enabled: $notifications->enabled,
+            contactIds: $notifications->contactIds,
+            contactGroupIds: $notifications->contactGroupIds,
+            options: $notifications->options,
+            interval: $notifications->interval,
+            periodId: $notifications->periodId,
+            firstDelay: $notifications->firstDelay,
+            recoveryDelay: $notifications->recoveryDelay,
+            contactAdditiveInheritance: false,
+            contactGroupAdditiveInheritance: false,
+        );
     }
 
     /**
