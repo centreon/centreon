@@ -41,7 +41,7 @@ final class VaultCredentialWriterTest extends TestCase
             'already' => 'secret::vault::monitoring/hosts/uuid::already',
         ]);
 
-        $result = $writer->persist(VaultPathEnum::MonitoringHosts, $credentials);
+        $result = $writer->write(VaultPathEnum::MonitoringHosts, $credentials);
 
         self::assertSame($credentials->toArray(), $result);
         self::assertSame([], $vault->writeManyCalls);
@@ -61,7 +61,7 @@ final class VaultCredentialWriterTest extends TestCase
             'already' => 'secret::vault::monitoring/hosts/uuid::already',
         ]);
 
-        $result = $writer->persist(VaultPathEnum::MonitoringHosts, $credentials);
+        $result = $writer->write(VaultPathEnum::MonitoringHosts, $credentials);
 
         // Vaulted key replaced with its path; empty + already-vaulted values passed through untouched.
         self::assertSame([
@@ -82,7 +82,7 @@ final class VaultCredentialWriterTest extends TestCase
         $vault = new FakeVault();
         $writer = new VaultCredentialWriter($vault);
 
-        $writer->persist(
+        $writer->write(
             VaultPathEnum::MonitoringHosts,
             VaultCredentials::fromArray(['MACRO' => 'value']),
             'existing-uuid',
@@ -100,6 +100,6 @@ final class VaultCredentialWriterTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
 
-        $writer->persist(VaultPathEnum::MonitoringHosts, VaultCredentials::fromArray(['MACRO' => 'value']));
+        $writer->write(VaultPathEnum::MonitoringHosts, VaultCredentials::fromArray(['MACRO' => 'value']));
     }
 }

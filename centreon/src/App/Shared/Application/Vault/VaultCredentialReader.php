@@ -39,9 +39,6 @@ final readonly class VaultCredentialReader
     {
     }
 
-    /**
-     * @throws \Throwable when a credential cannot be resolved
-     */
     public function resolveAll(VaultCredentials $credentials): VaultCredentials
     {
         $resolved = [];

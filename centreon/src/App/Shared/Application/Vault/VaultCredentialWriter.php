@@ -47,11 +47,9 @@ final readonly class VaultCredentialWriter
      * @param VaultCredentials $credentials the resource's credentials (plaintext, empty, or paths)
      * @param string|null $uuid null mints a fresh vault entry; an existing UUID adds to that entry
      *
-     * @throws \Throwable when a credential cannot be written
-     *
      * @return array<string, string> name => value to persist on the resource
      */
-    public function persist(VaultPathEnum $path, VaultCredentials $credentials, ?string $uuid = null): array
+    public function write(VaultPathEnum $path, VaultCredentials $credentials, ?string $uuid = null): array
     {
         $toVault = $credentials->plaintextOnly();
 
