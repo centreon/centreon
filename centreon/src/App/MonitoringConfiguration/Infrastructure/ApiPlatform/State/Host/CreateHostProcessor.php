@@ -31,22 +31,29 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimePeriodOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -70,6 +77,9 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private HostGroupRepository $hostGroupRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
+        private TimePeriodRepository $timePeriodRepository,
+        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
+        private bool $isCloudPlatform = false,
     ) {
     }
 
@@ -99,6 +109,22 @@ final readonly class CreateHostProcessor implements ProcessorInterface
                 : null,
         );
 
+        $schedulingOptionsInput = $data->schedulingOptions;
+        $schedulingOptions = new SchedulingOptions(
+            checkTimeperiodId: $schedulingOptionsInput?->checkTimeperiodId !== null
+                ? new TimePeriodId($schedulingOptionsInput->checkTimeperiodId)
+                : null,
+            maxCheckAttempts: $schedulingOptionsInput?->maxCheckAttempts,
+            normalCheckInterval: $schedulingOptionsInput?->normalCheckInterval,
+            retryCheckInterval: $schedulingOptionsInput?->retryCheckInterval,
+            activeCheckEnabled: $schedulingOptionsInput?->activeCheckEnabled !== null
+                ? $schedulingOptionsInput->activeCheckEnabled
+                : TriStateEnum::UseDefault,
+            passiveCheckEnabled: $schedulingOptionsInput?->passiveCheckEnabled !== null
+                ? $schedulingOptionsInput->passiveCheckEnabled
+                : TriStateEnum::UseDefault,
+        );
+
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -107,6 +133,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
             extendedInformations: $extendedInformations,
+            schedulingOptions: $schedulingOptions,
         );
 
         $host = $this->commandBus->execute($command);
@@ -139,8 +166,31 @@ final readonly class CreateHostProcessor implements ProcessorInterface
                 ? (string) $host->extendedInformations->geoCoordinates
                 : null,
         );
+        $resource->schedulingOptions = new HostSchedulingOptionsOutput(
+            checkPeriod: $this->resolveCheckPeriod($host->schedulingOptions->checkTimeperiodId),
+            maxCheckAttempts: $host->schedulingOptions->maxCheckAttempts,
+            normalCheckInterval: $host->schedulingOptions->normalCheckInterval,
+            retryCheckInterval: $host->schedulingOptions->retryCheckInterval,
+            activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
+            passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
+        );
 
         return $resource;
+    }
+
+    private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?HostTimePeriodOutput
+    {
+        if (! $checkTimeperiodId instanceof TimePeriodId) {
+            return null;
+        }
+
+        $name = $this->timePeriodRepository
+            ->findNamesByIds(new Collection([$checkTimeperiodId], TimePeriodId::class))
+            ->toArray()[$checkTimeperiodId->value] ?? null;
+
+        return $name instanceof TimePeriodName
+            ? new HostTimePeriodOutput($checkTimeperiodId->value, $name->value)
+            : null;
     }
 
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput

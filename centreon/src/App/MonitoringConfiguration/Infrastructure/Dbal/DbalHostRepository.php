@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -78,6 +79,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function add(Host $host): void
     {
         $extendedInformations = $host->extendedInformations;
+        $schedulingOptions = $host->schedulingOptions;
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
@@ -89,6 +91,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_register' => "'1'",
                 'geo_coords' => ':geoCoords',
                 'host_comment' => ':comment',
+                'timeperiod_tp_id' => ':checkTimeperiodId',
+                'host_max_check_attempts' => ':maxCheckAttempts',
+                'host_check_interval' => ':normalCheckInterval',
+                'host_retry_check_interval' => ':retryCheckInterval',
+                'host_active_checks_enabled' => ':activeCheckEnabled',
+                'host_passive_checks_enabled' => ':passiveCheckEnabled',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -96,6 +104,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('is_activated', $host->activated ? '1' : '0')
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
+            ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
+            ->setParameter('maxCheckAttempts', $schedulingOptions->maxCheckAttempts, ParameterType::INTEGER)
+            ->setParameter('normalCheckInterval', $schedulingOptions->normalCheckInterval, ParameterType::INTEGER)
+            ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
+            ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
+            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -234,6 +248,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
+    }
+
+    private function triStateToColumn(TriStateEnum $state): string
+    {
+        return match ($state) {
+            TriStateEnum::False => '0',
+            TriStateEnum::True => '1',
+            TriStateEnum::UseDefault => '2',
+        };
     }
 
     /**

@@ -29,14 +29,17 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
@@ -341,6 +344,80 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('server icon', $extendedInfoRow['ehi_icon_image_alt']);
     }
 
+    public function testAddPersistsTheSchedulingOptionsColumns(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $timePeriodId = $this->createTimePeriod('24x7');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-scheduling'),
+            alias: null,
+            address: new HostAddress('10.0.0.3'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            schedulingOptions: new SchedulingOptions(
+                checkTimeperiodId: new TimePeriodId($timePeriodId),
+                maxCheckAttempts: 3,
+                normalCheckInterval: 5,
+                retryCheckInterval: 1,
+                activeCheckEnabled: TriStateEnum::True,
+                passiveCheckEnabled: TriStateEnum::False,
+            ),
+        );
+
+        $this->repository->add($host);
+
+        $row = $this->connection->fetchAssociative(
+            'SELECT timeperiod_tp_id, host_max_check_attempts, host_check_interval,
+                    host_retry_check_interval, host_active_checks_enabled, host_passive_checks_enabled
+               FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($row);
+        self::assertSame($timePeriodId, $row['timeperiod_tp_id']);
+        self::assertSame(3, $row['host_max_check_attempts']);
+        self::assertSame(5, $row['host_check_interval']);
+        self::assertSame(1, $row['host_retry_check_interval']);
+        // Three-state directives are stored as the DB column values '0'/'1'/'2'.
+        self::assertSame('1', $row['host_active_checks_enabled']);
+        self::assertSame('0', $row['host_passive_checks_enabled']);
+    }
+
+    public function testAddPersistsTheDefaultSchedulingOptions(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-scheduling-default'),
+            alias: null,
+            address: new HostAddress('10.0.0.4'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $this->repository->add($host);
+
+        $row = $this->connection->fetchAssociative(
+            'SELECT timeperiod_tp_id, host_max_check_attempts, host_check_interval,
+                    host_retry_check_interval, host_active_checks_enabled, host_passive_checks_enabled
+               FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($row);
+        self::assertNull($row['timeperiod_tp_id']);
+        self::assertNull($row['host_max_check_attempts']);
+        self::assertNull($row['host_check_interval']);
+        self::assertNull($row['host_retry_check_interval']);
+        self::assertSame('2', $row['host_active_checks_enabled']);
+        self::assertSame('2', $row['host_passive_checks_enabled']);
+    }
+
     public function testItMapsAHostWithoutAnIconToANullIconId(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -487,6 +564,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
     private function createImage(string $name): int
     {
         $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function createTimePeriod(string $name): int
+    {
+        $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
 
         return (int) $this->connection->lastInsertId();
     }

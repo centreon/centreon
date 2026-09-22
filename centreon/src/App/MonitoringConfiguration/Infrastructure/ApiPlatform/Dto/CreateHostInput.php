@@ -76,6 +76,9 @@ final readonly class CreateHostInput
 
         #[Assert\Valid]
         public ?CreateHostExtendedInformationsInput $extendedInformations = null,
+
+        #[Assert\Valid]
+        public ?CreateHostSchedulingOptionsInput $schedulingOptions = null,
     ) {
     }
 }
