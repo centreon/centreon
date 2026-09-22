@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
@@ -523,6 +524,63 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('2', $row['host_passive_checks_enabled']);
     }
 
+    public function testAddPersistsTheCheckCommandAndItsEncodedArguments(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $commandId = $this->createCheckCommand('check_ping');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-check'),
+            alias: null,
+            address: new HostAddress('10.0.0.2'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(new CommandId($commandId), ['-H 10.0.0.2', "line1\nline2"]),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array{command_command_id: int, command_command_id_arg1: string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        self::assertSame($commandId, (int) $row['command_command_id']);
+        // Bang-joined, with the newline stored as #BR# (legacy CentreonHost::insert encoding).
+        self::assertSame('!-H 10.0.0.2!line1#BR#line2', $row['command_command_id_arg1']);
+    }
+
+    public function testAddLeavesTheCheckCommandNullWhenNoneIsSet(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-nocheck'),
+            alias: null,
+            address: new HostAddress('10.0.0.5'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array{command_command_id: ?int, command_command_id_arg1: ?string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        self::assertNull($row['command_command_id']);
+        self::assertNull($row['command_command_id_arg1']);
+    }
+
     public function testItMapsAHostWithoutAnIconToANullIconId(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -936,6 +994,17 @@ final class DbalHostRepositoryTest extends KernelTestCase
     private function createHostGroup(string $name): int
     {
         $this->connection->insert('hostgroup', ['hg_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function createCheckCommand(string $name): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => '$USER1$/check_ping -H $HOSTADDRESS$',
+            'command_type' => 2, // check
+        ]);
 
         return (int) $this->connection->lastInsertId();
     }

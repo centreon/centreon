@@ -112,6 +112,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_retry_check_interval' => ':retryCheckInterval',
                 'host_active_checks_enabled' => ':activeCheckEnabled',
                 'host_passive_checks_enabled' => ':passiveCheckEnabled',
+                'command_command_id' => ':check_command_id',
+                'command_command_id_arg1' => ':check_command_args',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -138,6 +140,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
             ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
+            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
+            ->setParameter('check_command_args', $this->encodeCheckCommandArguments($host->checkOptions->args))
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -389,6 +393,27 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         // the '!' delimiter nor the \n\t\r characters the legacy codec would encode, so a plain
         // '!'-prefixed join is unambiguous and round-trips through the reader.
         return '!' . implode('!', $args);
+    }
+
+    /**
+     * Renders the check-command arguments the way legacy stores them in `host.command_command_id_arg1`:
+     * bang-joined (`!arg1!arg2`) with newlines, tabs and carriage returns escaped as `#BR#`/`#T#`/`#R#`
+     * so the single column round-trips multi-line arguments (CentreonHost::insert()). No arguments
+     * yields NULL, exactly like legacy when the field is left empty.
+     *
+     * @param list<string> $args
+     */
+    private function encodeCheckCommandArguments(array $args): ?string
+    {
+        if ($args === []) {
+            return null;
+        }
+
+        return str_replace(
+            ["\n", "\t", "\r"],
+            ['#BR#', '#T#', '#R#'],
+            '!' . implode('!', $args),
+        );
     }
 
     /**
