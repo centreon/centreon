@@ -92,9 +92,6 @@ tags:
     name: Severity
     description: 'Endpoints to manage severities'
   -
-    name: 'Time period'
-    description: 'Endpoints to manage time periods'
-  -
     name: Topology
     description: 'Endpoints to manage topologies'
   -
@@ -149,6 +146,12 @@ tags:
   -
     name: Timezone
     description: "Resource 'Timezone' operations."
+  -
+    name: TimePeriod
+    description: "Resource 'TimePeriod' operations."
+  -
+    name: ContactGroup
+    description: "Resource 'ContactGroup' operations."
 security:
   -
     Token: []
@@ -5836,6 +5839,150 @@ paths:
             maximum: 30
           style: form
           explode: true
+  /api/configuration/timeperiods:
+    get:
+      operationId: api_configurationtimeperiods_get_collection
+      tags:
+        - TimePeriod
+      responses:
+        '200':
+          description: 'TimePeriod collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'TimePeriod.TimePeriodCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/TimePeriod.TimePeriodCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimePeriod.TimePeriodCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of TimePeriod resources.'
+      description: 'Retrieves the collection of TimePeriod resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by time period name using a partial, case-insensitive match'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  /api/configuration/contact_groups:
+    get:
+      operationId: api_configurationcontact_groups_get_collection
+      tags:
+        - ContactGroup
+      responses:
+        '200':
+          description: 'ContactGroup collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'ContactGroup.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/ContactGroup.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactGroup'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of ContactGroup resources.'
+      description: 'Retrieves the collection of ContactGroup resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -11313,3 +11460,43 @@ components:
               type: string
             url:
               type: string
+    TimePeriod.TimePeriodCollectionOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    TimePeriod.TimePeriodCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    ContactGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          description: 'The contact group name'
+          type: string
+          example: Supervisors
+    ContactGroup.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              description: 'The contact group name'
+              type: string
+              example: Supervisors
