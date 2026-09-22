@@ -21,7 +21,10 @@
 
 declare(strict_types=1);
 
+use App\Shared\Infrastructure\Legacy\LegacyValidationStatusListener;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
@@ -41,4 +44,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             __DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php',
             __DIR__ . '/../../src/App/Shared/Infrastructure/Logging/SanitizingProcessor.php',
         ]);
+
+    // NameConverterInterface has no autowiring alias; bind the listener to the very
+    // converter ApiPlatform is configured with (config.new/packages/api_platform.yaml)
+    // so /api/latest validation errors report snake_case property paths.
+    $services->set(LegacyValidationStatusListener::class)
+        ->arg('$nameConverter', service('serializer.name_converter.camel_case_to_snake_case'));
 };
