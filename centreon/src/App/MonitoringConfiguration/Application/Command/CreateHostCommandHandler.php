@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
@@ -44,6 +45,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -73,6 +75,7 @@ final readonly class CreateHostCommandHandler
         private HostCategoryRepository $hostCategoryRepository,
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
+        private CommandRepository $commandRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private EventBus $eventBus,
         private VaultInterface $vault,
@@ -113,6 +116,14 @@ final readonly class CreateHostCommandHandler
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
+        // Validate the referenced check command exists before the name lookup, like the other
+        // references above. getById() throws CommandNotFoundException (→404) when it doesn't exist.
+        // The command being of type "check" is an input rule enforced at the API boundary (→422),
+        // not here, since a domain exception has no 422 mapping in this codebase.
+        if ($command->checkOptions->checkCommandId instanceof CommandId) {
+            $this->commandRepository->getById($command->checkOptions->checkCommandId);
+        }
+
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
@@ -136,6 +147,7 @@ final readonly class CreateHostCommandHandler
             severityId: $command->severityId,
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
+            checkOptions: $command->checkOptions,
         );
 
         $this->repository->add($host);
