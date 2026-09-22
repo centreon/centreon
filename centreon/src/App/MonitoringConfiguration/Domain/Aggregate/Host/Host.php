@@ -50,6 +50,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
         public readonly ?ExtendedInformations $extendedInformations = null,
+        public readonly ?Notifications $notifications = null,
     ) {
         parent::__construct($id);
     }
