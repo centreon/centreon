@@ -77,6 +77,14 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         self::assertFalse($this->repository->existsOne(new MediaId(999999)));
     }
 
+    public function testExistsOneReturnsFalseForAMediaWithNoDirectoryRelation(): void
+    {
+        $this->connection->insert('view_img', ['img_name' => "orphan-{$this->tag}.png", 'img_path' => "orphan-{$this->tag}.png"]);
+        $imgId = (int) $this->connection->lastInsertId();
+
+        self::assertFalse($this->repository->existsOne(new MediaId($imgId)));
+    }
+
     public function testFindAllReturnsAllMediaWithoutAViewer(): void
     {
         $name = "media-{$this->tag}.png";

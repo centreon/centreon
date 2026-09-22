@@ -128,7 +128,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
         $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
         $resource->groups = $groups;
-        $resource->icon = $icon;
         $resource->extendedInformations = new HostExtendedInformationsOutput(
             noteUrl: $host->extendedInformations?->noteUrl,
             note: $host->extendedInformations?->note,

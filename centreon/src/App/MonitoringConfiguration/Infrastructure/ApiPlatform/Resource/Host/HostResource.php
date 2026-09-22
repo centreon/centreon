@@ -110,8 +110,6 @@ final class HostResource
     /** @var list<HostGroupOutput> */
     public array $groups;
 
-    public ?HostIconOutput $icon = null;
-
     public ?HostExtendedInformationsOutput $extendedInformations = null;
 
     public function __construct(

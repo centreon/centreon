@@ -32,8 +32,7 @@ use Webmozart\Assert\Assert;
  * scalar properties directly on {@see Host}.
  *
  * `altIcon` and `comment` are on-prem only (legacy builds them for Cloud too but never renders
- * them there — see MON-208990/MON-208474) — enforced at the input layer (`CreateHostInput`), not
- * here: this VO stays a plain data holder, agnostic of which platform is running.
+ * them there — see MON-208990/MON-208474).
  */
 final readonly class ExtendedInformations
 {
