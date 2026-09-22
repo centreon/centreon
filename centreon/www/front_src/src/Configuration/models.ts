@@ -77,6 +77,7 @@ export interface ConfigurationBase<TFilters> {
     label: string;
     link: string;
   }>;
+  filtersPanelWidth?: number;
 }
 
 export enum FieldType {
@@ -103,6 +104,8 @@ export interface Endpoints {
 
 export interface APIType {
   endpoints: Endpoints | null;
+  // Overrides the default `./api/latest` of `customFetch`. Applies to `getAll`.
+  baseEndpoint?: string;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;
@@ -132,4 +135,5 @@ export interface Configuration {
   filtersInitialValues: Filters;
   defaultSelectedColumnIds: Array<string>;
   actions?: Actions;
+  filtersPanelWidth?: number;
 }
