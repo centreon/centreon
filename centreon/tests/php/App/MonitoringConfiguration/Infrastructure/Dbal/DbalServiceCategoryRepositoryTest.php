@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
+
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceCategoryRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalServiceCategoryRepositoryTest extends KernelTestCase
 {
     private DbalServiceCategoryRepository $repository;

@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
+
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class CreateServiceCategoryProcessorTest extends ApiTestCase
 {
     public function testCreateServiceCategory(): void

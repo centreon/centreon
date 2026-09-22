@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
+
 use App\MonitoringConfiguration\Domain\Exception\PlatformMetadataNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PlatformMetadataRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalPlatformMetadataRepositoryTest extends KernelTestCase
 {
     private PlatformMetadataRepository $repository;

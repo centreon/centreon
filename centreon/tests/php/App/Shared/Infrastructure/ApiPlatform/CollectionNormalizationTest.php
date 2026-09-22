@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\ApiPlatform;
 
 use App\Shared\Domain\Collection;
+
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
  * Ensures that collections normalized properly by API Platform.
  */
+#[Group('integration')]
 final class CollectionNormalizationTest extends KernelTestCase
 {
     public function testNormalizeCollection(): void

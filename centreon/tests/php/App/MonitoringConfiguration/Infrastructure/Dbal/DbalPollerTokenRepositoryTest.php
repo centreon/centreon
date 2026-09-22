@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
+
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalPollerTokenRepositoryTest extends KernelTestCase
 {
     private PollerTokenRepository $repository;

@@ -24,15 +24,18 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use ApiPlatform\State\Pagination\Pagination;
+
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\PollerCollectionOutputTransformer;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
+#[Group('integration')]
 final class ListPollersProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/pollers';
