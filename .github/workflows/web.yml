@@ -23,6 +23,12 @@ on:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/centreon-snmptrapd/**"
+      - ".github/docker/centreon-centreontrapd/**"
+      - ".github/docker/centreon-trapd/**"
+      - ".github/scripts/centreon-trapd-docker-boot-test.sh"
+      - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
+      - ".github/scripts/lib/centreon-trapd-common.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -35,6 +41,12 @@ on:
       - "release-[2-9][0-9].[0-9][0-9]-next"
       - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
+      - ".github/docker/centreon-snmptrapd/**"
+      - ".github/docker/centreon-centreontrapd/**"
+      - ".github/docker/centreon-trapd/**"
+      - ".github/scripts/centreon-trapd-docker-boot-test.sh"
+      - ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
+      - ".github/scripts/lib/centreon-trapd-common.sh"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -128,14 +140,30 @@ jobs:
         "centreon/tests/clapi_export/**"
         "centreon/tests/e2e/**"
         "centreon/tests/performance/**"
-        ".github/docker/centreon-snmptrapd/**"
-        ".github/docker/centreon-centreontrapd/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/packaging/**"
         "centreon/tests/e2e/features/Platform-upgrade-update/**"
       translation_paths: |
         "centreon/lang/**"
+      trapd_paths: |
+        ".github/docker/centreon-snmptrapd/**"
+        ".github/docker/centreon-centreontrapd/**"
+        ".github/docker/centreon-trapd/**"
+        ".github/scripts/centreon-trapd-docker-boot-test.sh"
+        ".github/scripts/centreon-trapd-docker-config-wiring-test.sh"
+        ".github/scripts/lib/centreon-trapd-common.sh"
+        "centreon/snmptrapd/**"
+        "centreon/bin/centreontrapd*"
+        "centreon/packaging/centreon-trap.yaml"
+        "centreon/packaging/scripts/centreon-trap-postinstall.sh"
+        "centreon/packaging/scripts/centreon-trap-preremove.sh"
+        "centreon/tmpl/install/systemd/centreontrapd.rpm.systemd"
+        "centreon/tmpl/install/systemd/centreontrapd.deb.systemd"
+        "centreon/tmpl/install/systemd/centreontrapd.sysconfig"
+        "centreon/logrotate/centreontrapd"
+        ".version"
+        ".version.centreon-web"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -1311,8 +1339,10 @@ jobs:
   # was skipped (no e2e-relevant changes), never after a real e2e-test failure,
   # instead of racing ahead of it as the old standalone workflow did.
   package-centreon-trap:
-    needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_trapd == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -1351,8 +1381,10 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
 
   package-perl-libs:
-    needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_trapd == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -1411,8 +1443,9 @@ jobs:
     # guarantee the resulting image is validated: docker-boot-test/
     # docker-config-wiring-test below are what actually gate version_tag and
     # promote-docker-tag/promote-docker-to-ghcr.
-    needs: [get-environment, package-centreon-trap, package-perl-libs, e2e-test]
+    needs: [get-environment, changes, package-centreon-trap, package-perl-libs, e2e-test]
     if: |
+      needs.changes.outputs.trigger_trapd == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       ! cancelled() &&
