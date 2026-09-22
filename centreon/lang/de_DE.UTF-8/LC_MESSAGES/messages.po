@@ -3646,6 +3646,10 @@ msgid "Create a dashboard"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr ""
 
@@ -18586,6 +18590,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
