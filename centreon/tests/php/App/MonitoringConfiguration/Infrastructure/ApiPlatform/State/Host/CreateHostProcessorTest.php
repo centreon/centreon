@@ -292,10 +292,18 @@ final class CreateHostProcessorTest extends ApiTestCase
             [$name],
         );
         self::assertIsArray($row);
-        self::assertSame($timePeriodId, $row['timeperiod_tp_id']);
-        self::assertSame(3, $row['host_max_check_attempts']);
-        self::assertSame(5, $row['host_check_interval']);
-        self::assertSame(1, $row['host_retry_check_interval']);
+        /** @var int|string $timeperiodTpId */
+        $timeperiodTpId = $row['timeperiod_tp_id'];
+        /** @var int|string $maxCheckAttempts */
+        $maxCheckAttempts = $row['host_max_check_attempts'];
+        /** @var int|string $checkInterval */
+        $checkInterval = $row['host_check_interval'];
+        /** @var int|string $retryCheckInterval */
+        $retryCheckInterval = $row['host_retry_check_interval'];
+        self::assertSame($timePeriodId, (int) $timeperiodTpId);
+        self::assertSame(3, (int) $maxCheckAttempts);
+        self::assertSame(5, (int) $checkInterval);
+        self::assertSame(1, (int) $retryCheckInterval);
         self::assertSame('1', $row['host_active_checks_enabled']);
         self::assertSame('0', $row['host_passive_checks_enabled']);
     }

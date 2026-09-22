@@ -32,10 +32,10 @@ use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
-use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
@@ -60,6 +60,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
     use DbalCriteriaApplierTrait;
+    use TriStateColumnTrait;
     public const TABLE_NAME = 'host';
 
     /**
@@ -248,15 +249,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
-    }
-
-    private function triStateToColumn(TriStateEnum $state): string
-    {
-        return match ($state) {
-            TriStateEnum::False => '0',
-            TriStateEnum::True => '1',
-            TriStateEnum::UseDefault => '2',
-        };
     }
 
     /**
