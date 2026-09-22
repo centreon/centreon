@@ -116,10 +116,10 @@ final readonly class CreateHostCommandHandler
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
-        // Validate the referenced check command exists before the name lookup, like the other
-        // references above. getById() throws CommandNotFoundException (→404) when it doesn't exist.
-        // The command being of type "check" is an input rule enforced at the API boundary (→422),
-        // not here, since a domain exception has no 422 mapping in this codebase.
+        // Authoritative existence guard for the referenced check command, like the poller check
+        // above: existence and the "must be a check command" rule are validated at the API boundary
+        // (CheckCommandTypeValidator, →422), but this getById() stays as the last word so a command
+        // deleted between validation and execution surfaces as a 404 rather than a broken write.
         if ($command->checkOptions->checkCommandId instanceof CommandId) {
             $this->commandRepository->getById($command->checkOptions->checkCommandId);
         }

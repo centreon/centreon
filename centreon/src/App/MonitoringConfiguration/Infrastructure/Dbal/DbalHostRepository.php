@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Infrastructure\Service\CheckCommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
@@ -141,7 +142,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
             ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
-            ->setParameter('check_command_args', $this->encodeCheckCommandArguments($host->checkOptions->args))
+            ->setParameter('check_command_args', CheckCommandArgumentsFormatter::format($host->checkOptions->args))
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -393,27 +394,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         // the '!' delimiter nor the \n\t\r characters the legacy codec would encode, so a plain
         // '!'-prefixed join is unambiguous and round-trips through the reader.
         return '!' . implode('!', $args);
-    }
-
-    /**
-     * Renders the check-command arguments the way legacy stores them in `host.command_command_id_arg1`:
-     * bang-joined (`!arg1!arg2`) with newlines, tabs and carriage returns escaped as `#BR#`/`#T#`/`#R#`
-     * so the single column round-trips multi-line arguments (CentreonHost::insert()). No arguments
-     * yields NULL, exactly like legacy when the field is left empty.
-     *
-     * @param list<string> $args
-     */
-    private function encodeCheckCommandArguments(array $args): ?string
-    {
-        if ($args === []) {
-            return null;
-        }
-
-        return str_replace(
-            ["\n", "\t", "\r"],
-            ['#BR#', '#T#', '#R#'],
-            '!' . implode('!', $args),
-        );
     }
 
     /**

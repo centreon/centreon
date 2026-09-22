@@ -171,7 +171,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $checkOptionsInput = $data->checkOptions;
         $checkOptions = new CheckOptions(
             $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
-            $checkOptionsInput instanceof CheckOptionsInput ? array_values($checkOptionsInput->args) : [],
+            $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
         );
 
         $alias = $this->trimmedOrNull($data->alias);

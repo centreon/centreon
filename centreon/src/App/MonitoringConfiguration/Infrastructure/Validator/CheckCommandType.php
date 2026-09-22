@@ -28,5 +28,5 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class CheckCommandType extends Constraint
 {
-    public string $message = 'This command is not a check command.';
+    public string $message = 'This command does not exist or is not a check command.';
 }

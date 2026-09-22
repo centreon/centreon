@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
+use App\MonitoringConfiguration\Infrastructure\Service\CheckCommandArgumentsFormatter;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -52,6 +53,28 @@ final readonly class CheckOptionsInput
         // the 500 the value object's assertion would otherwise produce for an API client.
         if ($this->commandId === null && $this->args !== []) {
             $context->buildViolation('Check command arguments require a check command to be set.')
+                ->atPath('args')
+                ->addViolation();
+        }
+    }
+
+    #[Assert\Callback]
+    public function validateFormattedArgumentsFitStorage(ExecutionContextInterface $context): void
+    {
+        // No per-argument or count limit: only the single string the repository ultimately stores
+        // in the TEXT column `host.command_command_id_arg1` is bounded. Reuse the exact formatter
+        // the repository uses so the measured length is precisely what will be persisted.
+        $args = array_values(array_filter($this->args, 'is_string'));
+        if (count($args) !== count($this->args)) {
+            // Non-string entries are already reported by the Assert\All(Type) constraint above.
+            return;
+        }
+
+        $formatted = CheckCommandArgumentsFormatter::format($args);
+        // Byte length ('8bit'), not character count: the TEXT column limit is in bytes, so a
+        // multi-byte argument must be measured as the bytes it will actually occupy.
+        if ($formatted !== null && \mb_strlen($formatted, '8bit') > CheckCommandArgumentsFormatter::MAX_STORAGE_LENGTH) {
+            $context->buildViolation('The check command arguments are too long.')
                 ->atPath('args')
                 ->addViolation();
         }

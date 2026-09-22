@@ -1947,8 +1947,10 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    public function testItReturns404WhenTheCheckCommandDoesNotExist(): void
+    public function testItRejectsAnUnknownCheckCommand(): void
     {
+        // Existence is validated at the API boundary (→422), mirroring an unknown poller_id — not
+        // deferred to the handler's 404, which only guards the delete-between-validation-and-write race.
         $this->login();
         $pollerId = $this->insertPoller('Central');
 
@@ -1961,7 +1963,29 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.25',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    // One argument longer than the TEXT column can hold once formatted.
+                    'args' => [str_repeat('a', 65536)],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testItRejectsCheckCommandArgumentsWithoutACommand(): void
