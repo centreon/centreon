@@ -104,6 +104,8 @@ export interface Endpoints {
 
 export interface APIType {
   endpoints: Endpoints | null;
+  // Overrides the default `./api/latest` of `customFetch`. Applies to `getAll`.
+  baseEndpoint?: string;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;

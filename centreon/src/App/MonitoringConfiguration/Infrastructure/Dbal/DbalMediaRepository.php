@@ -37,6 +37,7 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -66,6 +67,19 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
 
         private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function existsOne(MediaId $id): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME, 'img')
+            ->innerJoin('img', self::DIR_RELATION_TABLE_NAME, 'rel', 'rel.img_img_id = img.img_id')
+            ->innerJoin('rel', self::DIR_TABLE_NAME, 'dir', 'dir.dir_id = rel.dir_dir_parent_id')
+            ->where($qb->expr()->eq('img.img_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->setMaxResults(1);
+
+        return (bool) $qb->executeQuery()->fetchOne();
     }
 
     public function findAll(?MediaCriteria $criteria = null): \IteratorAggregate&\Countable

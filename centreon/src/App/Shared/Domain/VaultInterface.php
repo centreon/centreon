@@ -29,8 +29,6 @@ interface VaultInterface
      * Prefix identifying a value that is a vault reference rather than a plaintext secret.
      */
     public const VAULT_PATH_PREFIX = 'secret::';
-    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
-    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
 
     /**
      * Whether the vault is enabled and configured for the given feature flag
@@ -74,4 +72,19 @@ interface VaultInterface
      * @throws \Throwable when the secret cannot be written
      */
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string;
+
+    /**
+     * Store several secrets under a single vault entry (one UUID) and return each key's
+     * `secret::` path.
+     *
+     * A null $uuid mints a fresh vault entry; pass an existing UUID to add the keys to it.
+     *
+     * @param string $customPath vault sub-path of the owning domain (e.g. 'monitoring/hosts')
+     * @param array<string, string> $secrets key => plaintext value
+     *
+     * @throws \Throwable when a secret cannot be written
+     *
+     * @return array<string, string> key => `secret::` path
+     */
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array;
 }

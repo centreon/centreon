@@ -30,6 +30,8 @@ use App\Shared\Domain\Collection;
 
 interface MediaRepository
 {
+    public function existsOne(MediaId $id): bool;
+
     /**
      * @return \IteratorAggregate<int, Media>&\Countable
      */
