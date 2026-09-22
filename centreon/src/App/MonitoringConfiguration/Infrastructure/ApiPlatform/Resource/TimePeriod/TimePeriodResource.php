@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePe
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\TimePeriodPermissionEnum;
@@ -41,6 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\TimePeriod\List
             security: '
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access time periods',
+            itemUriTemplate: '/configuration/timeperiods/{id}',
             output: TimePeriodChoicesOutput::class,
             provider: ListTimePeriodsChoicesProvider::class,
         ),
@@ -62,9 +64,12 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\TimePeriod\List
                 is_granted("' . TimePeriodPermissionEnum::CanReadAndWrite->value . '")',
             // legacy TimePeriodException::accessNotAllowed() message, kept verbatim
             securityMessage: 'You are not allowed to access time periods',
+            itemUriTemplate: '/configuration/timeperiods/{id}',
             output: TimePeriodCollectionOutput::class,
             provider: ListTimePeriodsCollectionProvider::class,
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/timeperiods/{id}'),
     ],
 )]
 final class TimePeriodResource
