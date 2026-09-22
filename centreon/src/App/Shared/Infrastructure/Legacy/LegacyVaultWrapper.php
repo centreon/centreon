@@ -88,13 +88,23 @@ final readonly class LegacyVaultWrapper implements VaultInterface
 
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
     {
-        $this->writeRepository->setCustomPath($customPath);
-        $paths = $this->writeRepository->upsert($uuid, [$key => $value], []);
+        return $this->writeMany($customPath, [$key => $value], $uuid)[$key];
+    }
 
-        if (! isset($paths[$key])) {
-            throw new \RuntimeException(sprintf('Unable to write vault credential "%s"', $key));
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
+    {
+        $this->writeRepository->setCustomPath($customPath);
+        $paths = $this->writeRepository->upsert($uuid, $secrets, []);
+
+        foreach (array_keys($secrets) as $key) {
+            if (! isset($paths[$key])) {
+                throw new \RuntimeException(sprintf('Unable to write vault credential "%s"', $key));
+            }
         }
 
-        return $paths[$key];
+        // The underlying repository returns a path for every key stored under the UUID (including
+        // pre-existing ones when writing to an existing entry); the contract only exposes the keys
+        // that were requested, so surplus paths never leak onto the calling resource.
+        return array_intersect_key($paths, $secrets);
     }
 }
