@@ -25,16 +25,23 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
 use App\MonitoringConfiguration\Infrastructure\Validator\UniqueHostName;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
+use App\Shared\Infrastructure\Validator\Constraints\WhenVault;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateHostInput
 {
+    private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
+
     /**
      * @param list<int> $hostGroupIds
      */
@@ -73,6 +80,25 @@ final readonly class CreateHostInput
             new Assert\Count(min: 1, minMessage: 'Host groups are mandatory when creating a host on a Cloud platform.'),
         ])]
         public array $hostGroupIds = [],
+
+        // Legacy asserts maxLength on the trimmed value only, so a blank alias is valid there.
+        #[Assert\Length(max: HostAlias::MAX_LENGTH, normalizer: 'trim')]
+        // Stricter than legacy, deliberately: config generation writes this straight into a
+        // `.cfg` line (object.class.php), so an embedded newline would inject a directive.
+        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, match: false, message: 'This value must not contain control characters.')]
+        public ?string $alias = null,
+
+        public ?SnmpVersionEnum $snmpVersion = null,
+
+        // Bounded only without a vault: legacy measures the substituted path, not the plaintext,
+        // and only what lands in the column is bounded.
+        #[ApiProperty(description: 'Write-only. Stored in the vault when one is configured, and never returned.')]
+        #[WhenVault(forVault: false, constraints: [
+            new Assert\Length(max: SnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
+        ])]
+        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, match: false, message: 'This value must not contain control characters.')]
+        #[Sensitive]
+        public ?string $snmpCommunity = null,
 
         #[Assert\Valid]
         public ?DataProcessingInput $dataProcessing = null,
