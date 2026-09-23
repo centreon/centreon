@@ -1868,11 +1868,13 @@ final class CreateHostProcessorTest extends ApiTestCase
             ]);
         }
     }
+
     public function testItCreatesAHostWithACheckCommandAndArguments(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
-        $commandId = $this->insertCommand($this->uniqueName('check'), 2); // check
+        $commandName = $this->uniqueName('check');
+        $commandId = $this->insertCommand($commandName, 2); // check
         $name = $this->uniqueName('server');
 
         $response = $this->request('POST', self::BASE_ENDPOINT, [
@@ -1889,9 +1891,10 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(201);
         self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        // The resolved command name must reach the response, not just its id.
         self::assertJsonContains([
             'check_options' => [
-                'command' => ['id' => $commandId],
+                'command' => ['id' => $commandId, 'name' => $commandName],
                 'args' => ['-w', '5'],
             ],
         ]);

@@ -538,7 +538,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             pollerId: new PollerId($pollerId),
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: new Collection([], HostGroupId::class),
-            checkOptions: new CheckOptions(new CommandId($commandId), ['-H 10.0.0.2', "line1\nline2"]),
+            checkOptions: new CheckOptions(new CommandId($commandId), ['-H 10.0.0.2', "line1\nline2\tcol\rret"]),
         );
 
         $this->repository->add($host);
@@ -550,8 +550,8 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
 
         self::assertSame($commandId, (int) $row['command_command_id']);
-        // Bang-joined, with the newline stored as #BR# (legacy CentreonHost::insert encoding).
-        self::assertSame('!-H 10.0.0.2!line1#BR#line2', $row['command_command_id_arg1']);
+        // Bang-joined, with newline/tab/carriage-return stored as #BR#/#T#/#R# (legacy CentreonHost::insert).
+        self::assertSame('!-H 10.0.0.2!line1#BR#line2#T#col#R#ret', $row['command_command_id_arg1']);
     }
 
     public function testAddLeavesTheCheckCommandNullWhenNoneIsSet(): void
