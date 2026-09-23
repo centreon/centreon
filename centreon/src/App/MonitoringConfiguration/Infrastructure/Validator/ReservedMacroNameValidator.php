@@ -36,6 +36,9 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  */
 final class ReservedMacroNameValidator extends ConstraintValidator
 {
+    /** @var list<string>|null reserved macro names from nagios_macro, fetched once per request */
+    private ?array $reservedNames = null;
+
     public function __construct(
         private readonly StandardMacroRepository $standardMacroRepository,
     ) {
@@ -53,13 +56,25 @@ final class ReservedMacroNameValidator extends ConstraintValidator
 
         $storageName = '$_HOST' . mb_strtoupper(trim($value)) . '$';
 
-        /** @var StandardMacro $reservedMacro */
-        foreach ($this->standardMacroRepository->findAll() as $reservedMacro) {
-            if ($reservedMacro->name->value === $storageName) {
-                $this->context->buildViolation($constraint->message)->addViolation();
-
-                return;
-            }
+        if (in_array($storageName, $this->reservedNames(), true)) {
+            $this->context->buildViolation($constraint->message)->addViolation();
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function reservedNames(): array
+    {
+        if ($this->reservedNames === null) {
+            $names = [];
+            /** @var StandardMacro $reservedMacro */
+            foreach ($this->standardMacroRepository->findAll() as $reservedMacro) {
+                $names[] = $reservedMacro->name->value;
+            }
+            $this->reservedNames = $names;
+        }
+
+        return $this->reservedNames;
     }
 }

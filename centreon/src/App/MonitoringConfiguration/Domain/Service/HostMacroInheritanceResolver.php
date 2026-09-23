@@ -38,7 +38,8 @@ final readonly class HostMacroInheritanceResolver
 {
     /**
      * @param list<HostMacro> $submitted the macros the client sent
-     * @param list<HostMacro> $inherited the macros resolved from templates + the check command
+     * @param array<HostMacro> $inherited the macros resolved from templates + the check command
+     *                                    (order irrelevant — indexed by name here)
      *
      * @return list<HostMacro>
      */

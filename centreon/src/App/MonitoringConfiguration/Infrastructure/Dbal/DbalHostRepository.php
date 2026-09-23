@@ -233,7 +233,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('macroValue', $macro->value)
                 // Legacy stores 1 for a password macro and NULL otherwise, never 0.
                 ->setParameter('isPassword', $macro->isPassword ? 1 : null)
-                ->setParameter('description', $macro->description)
+                // Legacy coerces a missing description to '' (never NULL) in this column.
+                ->setParameter('description', $macro->description ?? '')
                 ->setParameter('hostId', $hostId)
                 ->setParameter('macroOrder', $macroOrder)
                 ->executeStatement();

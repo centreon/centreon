@@ -54,7 +54,7 @@ final class DbalInheritedHostMacroRepositoryTest extends KernelTestCase
         $macros = $this->repository->findInheritedMacros(
             new Collection([], HostTemplateId::class),
             new CommandId($commandId),
-        );
+        )->toArray();
 
         $names = array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros);
         self::assertSame(['FOO', 'BAR'], $names);
@@ -70,7 +70,7 @@ final class DbalInheritedHostMacroRepositoryTest extends KernelTestCase
         $macros = $this->repository->findInheritedMacros(
             new Collection([new HostTemplateId($templateId)], HostTemplateId::class),
             null,
-        );
+        )->toArray();
 
         self::assertCount(1, $macros);
         self::assertSame('TPLMACRO', $macros[0]->name->value);
@@ -80,7 +80,7 @@ final class DbalInheritedHostMacroRepositoryTest extends KernelTestCase
 
     public function testItReturnsNothingWithoutTemplatesOrCommand(): void
     {
-        self::assertSame([], $this->repository->findInheritedMacros(new Collection([], HostTemplateId::class), null));
+        self::assertSame([], $this->repository->findInheritedMacros(new Collection([], HostTemplateId::class), null)->toArray());
     }
 
     private function createCommand(string $commandLine): int

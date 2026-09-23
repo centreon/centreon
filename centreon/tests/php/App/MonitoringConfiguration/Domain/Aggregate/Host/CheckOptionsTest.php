@@ -94,4 +94,14 @@ final class CheckOptionsTest extends TestCase
         self::assertSame([$macro], $options->macros);
         self::assertSame([], $options->args);
     }
+
+    public function testItKeepsOnlyTheFirstOfTwoMacrosWithTheSameName(): void
+    {
+        $first = new HostMacro(new HostMacroName('dup'), 'first', isPassword: false);
+        $second = new HostMacro(new HostMacroName('dup'), 'second', isPassword: false);
+
+        $options = new CheckOptions(null, macros: [$first, $second]);
+
+        self::assertSame([$first], $options->macros);
+    }
 }

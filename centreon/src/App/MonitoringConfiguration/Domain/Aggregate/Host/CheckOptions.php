@@ -64,6 +64,28 @@ final readonly class CheckOptions
         }
 
         $this->args = array_values($args);
-        $this->macros = array_values($macros);
+        // A host cannot hold two macros with the same name: keep the first, matching legacy
+        // insertMacro() which skips any later duplicate (the table has no unique constraint).
+        $this->macros = $this->deduplicateByName(array_values($macros));
+    }
+
+    /**
+     * @param list<HostMacro> $macros
+     *
+     * @return list<HostMacro>
+     */
+    private function deduplicateByName(array $macros): array
+    {
+        $seen = [];
+        $unique = [];
+        foreach ($macros as $macro) {
+            if (isset($seen[$macro->name->value])) {
+                continue;
+            }
+            $seen[$macro->name->value] = true;
+            $unique[] = $macro;
+        }
+
+        return $unique;
     }
 }

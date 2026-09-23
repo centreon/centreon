@@ -38,7 +38,7 @@ interface InheritedHostMacroRepository
      * @param Collection<HostTemplateId> $templateIds the host's template chain, in order
      * @param ?CommandId $checkCommandId the host's check command, if any
      *
-     * @return list<HostMacro>
+     * @return Collection<HostMacro>
      */
-    public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): array;
+    public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): Collection;
 }

@@ -197,7 +197,7 @@ final readonly class CreateHostCommandHandler
         $inherited = $this->inheritedHostMacroRepository->findInheritedMacros(
             $templateIds,
             $checkOptions->checkCommandId,
-        );
+        )->toArray();
         $macros = $this->hostMacroInheritanceResolver->keepOverridesOnly($checkOptions->macros, $inherited);
         $macros = $this->vaultizePasswordMacros($macros);
 

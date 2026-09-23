@@ -33,8 +33,8 @@ final class FakeInheritedHostMacroRepository implements InheritedHostMacroReposi
     /** @var list<HostMacro> */
     public array $inheritedMacros = [];
 
-    public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): array
+    public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): Collection
     {
-        return $this->inheritedMacros;
+        return new Collection($this->inheritedMacros, HostMacro::class);
     }
 }

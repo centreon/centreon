@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -44,7 +45,7 @@ final readonly class DbalInheritedHostMacroRepository implements InheritedHostMa
     ) {
     }
 
-    public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): array
+    public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): Collection
     {
         $macros = $this->findTemplateMacros($templateIds);
 
@@ -54,7 +55,7 @@ final readonly class DbalInheritedHostMacroRepository implements InheritedHostMa
             }
         }
 
-        return $macros;
+        return new Collection($macros, HostMacro::class);
     }
 
     /**
@@ -110,7 +111,10 @@ final readonly class DbalInheritedHostMacroRepository implements InheritedHostMa
             ->select('command_line')
             ->from('command')
             ->where('command_id = :id')
+            // Only a check command (type 2) contributes inherited macros, like legacy getMacroByIdAndType().
+            ->andWhere('command_type = :type')
             ->setParameter('id', $checkCommandId->value)
+            ->setParameter('type', CommandTypeEnum::Check->value)
             ->executeQuery()
             ->fetchOne();
 
