@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Dbal;
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Dbal\DbalModuleRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -34,8 +36,6 @@ final class DbalModuleRepositoryTest extends TestCase
 {
     private Connection&MockObject $configConnection;
 
-    private Connection&MockObject $realtimeConnection;
-
     private Filesystem $filesystem;
 
     private string $modulesDir;
@@ -45,7 +45,6 @@ final class DbalModuleRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->configConnection = $this->createMock(Connection::class);
-        $this->realtimeConnection = $this->createMock(Connection::class);
         $this->filesystem = new Filesystem();
 
         $baseTmpDir = sys_get_temp_dir() . '/centreon-module-test-' . uniqid();
@@ -55,8 +54,10 @@ final class DbalModuleRepositoryTest extends TestCase
 
         $this->repository = new DbalModuleRepository(
             $this->configConnection,
-            $this->realtimeConnection,
             $this->modulesDir,
+            new LegacyConnectionFactory(
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage')
+            ),
             '/usr/share/centreon/',
             new NullLogger(),
         );
