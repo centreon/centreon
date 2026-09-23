@@ -90,6 +90,9 @@ function _installParseArguments() {
     --no-start)
       START_STACK=0
       ;;
+    --overwrite)
+      OVERWRITE=1
+      ;;
     --with-vmware)
       WITH_VMWARE=1
       ;;
