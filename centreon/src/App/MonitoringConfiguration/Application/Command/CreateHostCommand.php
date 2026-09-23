@@ -26,12 +26,15 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 final readonly class CreateHostCommand
 {
@@ -49,6 +52,11 @@ final readonly class CreateHostCommand
         public int $creatorId,
         public ?UserId $viewerId = null,
         public DataProcessing $dataProcessing = new DataProcessing(),
+        public ?HostAlias $alias = null,
+        public ?SnmpVersionEnum $snmpVersion = null,
+        // Plaintext until the handler vaults it, and LoggingMiddleware logs every payload.
+        #[Sensitive]
+        public ?string $snmpCommunity = null,
         public ?ExtendedInformations $extendedInformations = null,
         public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
     ) {

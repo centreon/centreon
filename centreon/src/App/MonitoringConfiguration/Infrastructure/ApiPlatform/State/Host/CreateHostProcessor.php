@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -141,6 +142,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             passiveCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->passiveCheckEnabled),
         );
 
+        $alias = $this->trimmedOrNull($data->alias);
+
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -149,6 +152,9 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             dataProcessing: $dataProcessing,
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            alias: $alias !== null ? new HostAlias($alias) : null,
+            snmpVersion: $data->snmpVersion,
+            snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
         );
@@ -249,5 +255,16 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         return $icon instanceof Media
             ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
             : null;
+    }
+
+    private function trimmedOrNull(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+
+        return $trimmed === '' ? null : $trimmed;
     }
 }

@@ -100,6 +100,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_event_handler_enabled' => ':eventHandlerEnabled',
                 'command_command_id2' => ':eventHandlerCommandId',
                 'command_command_id_arg2' => ':eventHandlerArgs',
+                'host_snmp_version' => ':snmpVersion',
+                'host_snmp_community' => ':snmpCommunity',
                 'geo_coords' => ':geoCoords',
                 'host_comment' => ':comment',
                 'timeperiod_tp_id' => ':checkTimeperiodId',
@@ -111,6 +113,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
+            // NULL where legacy stores '': config generation skips both identically.
             ->setParameter('alias', $host->alias?->value)
             ->setParameter('is_activated', $host->activated ? '1' : '0')
             ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
@@ -122,6 +125,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
             ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
             ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
+            ->setParameter('snmpVersion', $host->snmpVersion?->value)
+            ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
             ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)

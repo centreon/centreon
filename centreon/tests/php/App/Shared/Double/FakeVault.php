@@ -45,12 +45,16 @@ final class FakeVault implements VaultInterface
 
     public bool $vaultEnabled = true;
 
+    public int $isEnabledCalls = 0;
+
     public bool $writeThrows = false;
 
     public bool $resolveThrows = false;
 
     public function isEnabled(string $featureFlag = 'vault'): bool
     {
+        ++$this->isEnabledCalls;
+
         return $this->vaultEnabled;
     }
 

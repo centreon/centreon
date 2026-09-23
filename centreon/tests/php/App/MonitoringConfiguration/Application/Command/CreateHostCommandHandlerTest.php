@@ -28,7 +28,10 @@ use App\MonitoringConfiguration\Application\Command\CreateHostCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
@@ -57,12 +60,14 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeVault;
 
 final class CreateHostCommandHandlerTest extends KernelTestCase
 {
@@ -77,6 +82,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     private FakeResourceAccessRepository $resourceAccessRepository;
 
     private EventBusSpy $eventBus;
+
+    private FakeVault $vault;
 
     /**
      * Boots the real container and swaps only the repositories and the event bus for fakes, so
@@ -93,12 +100,15 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->eventBus = new EventBusSpy();
+        $this->vault = new FakeVault();
+        $this->vault->vaultEnabled = false;
 
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(EventBus::class, $this->eventBus);
+        $container->set(VaultInterface::class, $this->vault);
 
         /** @var CreateHostCommandHandler $handler */
         $handler = $container->get(CreateHostCommandHandler::class);
@@ -290,6 +300,112 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
             viewerId: new UserId(7),
         ));
+    }
+
+    public function testItKeepsTheSnmpCommunityInPlaintextWhenNoVaultIsConfigured(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = false;
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), 'public'));
+
+        self::assertSame('public', $host->snmpCommunity?->value);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItStoresTheSnmpCommunityInTheVaultWhenOneIsConfigured(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY] = 'secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY';
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), 'public'));
+
+        self::assertSame('secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY', $host->snmpCommunity?->value);
+    }
+
+    public function testItDoesNotTouchTheVaultWhenNoSnmpCommunityIsGiven(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), null));
+
+        self::assertNull($host->snmpCommunity);
+        self::assertSame(0, $this->vault->isEnabledCalls);
+    }
+
+    /**
+     * With a vault the column receives the `secret::` reference, so the plaintext is never
+     * measured against the column width — as in legacy, which substitutes before asserting.
+     */
+    public function testItVaultsACommunityTooLongForTheColumn(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY] = 'secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY';
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), str_repeat('a', SnmpCommunity::MAX_LENGTH + 1)));
+
+        self::assertSame('secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY', $host->snmpCommunity?->value);
+    }
+
+    public function testItRefusesACommunityTooLongForTheColumnWithoutAVault(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = false;
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        ($this->handler)($this->snmpCommand($poller->id(), str_repeat('a', SnmpCommunity::MAX_LENGTH + 1)));
+    }
+
+    /**
+     * The vault write happens before the host is persisted, so a failure must leave no host at all
+     * rather than one whose SNMP community was silently dropped.
+     */
+    public function testAVaultFailureLeavesNoHostBehind(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+
+        try {
+            ($this->handler)($this->snmpCommand($poller->id(), 'public'));
+            self::fail('The vault failure should have propagated.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertFalse($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('snmp-host')));
+    }
+
+    public function testItStoresTheAlias(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            alias: new HostAlias('Web server'),
+        ));
+
+        self::assertSame('Web server', $host->alias?->value);
+    }
+
+    private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand
+    {
+        return new CreateHostCommand(
+            name: new HostName('snmp-host'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $pollerId,
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: $snmpCommunity,
+        );
     }
 
     private function addPoller(FakePollerRepository $repository, int $id): Poller
