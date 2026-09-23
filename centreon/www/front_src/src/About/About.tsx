@@ -1,7 +1,4 @@
-import {
-  platformFeaturesAtom,
-  platformVersionsAtom
-} from '@centreon/ui-context';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import type { ReactElement } from 'react';
@@ -10,24 +7,17 @@ import Hero from './Hero';
 import Row from './Row';
 import Copyright from './Sections/Copyright';
 import Credits from './Sections/Credits';
-import EditionsUpsell from './Sections/EditionsUpsell';
 import ResourcesGrid from './Sections/ResourcesGrid';
 import SecurityNotice from './Sections/SecurityNotice';
 import { labelProjectAndContributors, labelSecurity } from './translatedLabels';
 
 const About = (): ReactElement => {
   const platformVersion = useAtomValue(platformVersionsAtom);
-  const platformFeatures = useAtomValue(platformFeaturesAtom);
-
-  const isCloudPlatform = Boolean(platformFeatures?.isCloudPlatform);
 
   return (
     <div className="px-4">
       <div className="rounded bg-background-paper shadow">
-        <Hero
-          showOpenSourceEditionTag={!isCloudPlatform}
-          version={platformVersion?.web.version}
-        />
+        <Hero version={platformVersion?.web.version} />
         <div className="px-8 py-1">
           <Row label={labelProjectAndContributors} withTopDivider={false}>
             <Credits />
@@ -36,7 +26,6 @@ const About = (): ReactElement => {
             <SecurityNotice />
           </Row>
           <ResourcesGrid />
-          {!isCloudPlatform && <EditionsUpsell />}
           <Copyright />
         </div>
       </div>

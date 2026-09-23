@@ -1,5 +1,4 @@
 export const labelCentreon = 'Centreon';
-export const labelOpenSourceEdition = 'Open source edition';
 export const labelPlatformTagline =
   'Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure';
 export const labelStarOnGithub = 'Star on GitHub';
@@ -36,11 +35,6 @@ export const labelEditionsAndCloud = 'Editions & Cloud licenses';
 export const labelEditionsAndCloudDescription =
   'Auto-discovery, BAM, MBI reporting and support.';
 export const labelCompareEditions = 'Compare Edition licenses';
-
-export const labelScalingBeyondOpenSource = 'Scaling beyond open source?';
-export const labelEditionsUpsellDescription =
-  'Edition licenses add auto-discovery, BAM, advanced reporting and SLAs.';
-export const labelStartFreeTrial = 'Start free trial';
 
 export const labelMadeWithCare =
   'Made with care by the Centreon team & community';
