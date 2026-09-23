@@ -92,7 +92,12 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
   ].filter(Boolean);
 
   return (
-    <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
+    <Menu
+      anchorEl={anchor}
+      onClose={close}
+      open={Boolean(anchor)}
+      slotProps={{ paper: { className: classes.moreActionsMenu } }}
+    >
       <ActionsList
         actions={[
           ...sharedActions.flatMap((action, index) =>
@@ -100,7 +105,6 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
           ),
           ...(isEmpty(extraActions) ? [] : extraActions)
         ]}
-        className={classes.ActionsList}
       />
     </Menu>
   );
