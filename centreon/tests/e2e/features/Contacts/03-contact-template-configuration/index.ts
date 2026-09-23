@@ -1,12 +1,16 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import contactTemplates from '../../../fixtures/users/contact.json';
 
-const checkFirstContactTemplateFromListing = () => {
+const checkContactTemplateFromListing = (contactTemplateName: string) => {
   cy.visit(PAGES.configuration.contactTemplatesLegacy);
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
+  cy.getIframeBody()
+    .contains('tr', contactTemplateName)
+    .find('div.md-checkbox.md-checkbox-inline')
+    .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
@@ -20,19 +24,19 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_timeperiod}*`
   }).as('getTimePeriods');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_command*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_command}*`
   }).as('getNotCommands');
 });
 
@@ -133,7 +137,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured contact template', () => {
-  checkFirstContactTemplateFromListing();
+  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -194,7 +198,7 @@ Then('a new contact template is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact template', () => {
-  checkFirstContactTemplateFromListing();
+  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
   cy.getIframeBody().find('select[name="o1"').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();

@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { MemoizedListing as Listing } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';

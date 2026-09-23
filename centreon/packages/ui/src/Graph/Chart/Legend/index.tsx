@@ -151,7 +151,10 @@ const MainLegend = ({
               label: labelAvg,
               value: line.average_value
             }
-          ].filter(Boolean);
+          ].filter(Boolean) as Array<{
+            label: string;
+            value: number | null;
+          }>;
 
           return (
             <li
@@ -166,7 +169,7 @@ const MainLegend = ({
               onMouseLeave={(): void => clearHighlight()}
             >
               <div
-                className="h-full rounded-sm w-1 min-h-5"
+                className="h-full rounded-sm w-1 min-h-4"
                 data-icon
                 style={{ backgroundColor: markerColor }}
               />
@@ -183,7 +186,12 @@ const MainLegend = ({
                 {!shouldDisplayLegendInCompactMode && !isListMode && (
                   <div>
                     <div className="flex flex-wrap gap-1 whitespace-nowrap">
-                      {minMaxAvg.map(({ label, value }) => (
+                      {(
+                        minMaxAvg as Array<{
+                          label: string;
+                          value: number | null;
+                        }>
+                      ).map(({ label, value }) => (
                         <LegendContent
                           data={getMetricValue({ unit: line.unit, value })}
                           key={label}

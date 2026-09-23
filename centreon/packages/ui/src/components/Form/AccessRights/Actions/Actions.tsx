@@ -8,7 +8,10 @@ import { useActionsStyles } from './Actions.styles';
 import { useActions } from './useActions';
 
 interface Props {
-  cancel?: ({ dirty, values }) => void;
+  cancel?: (params: {
+    dirty: boolean;
+    values: Array<AccessRightInitialValues>;
+  }) => void;
   clear: () => void;
   isSubmitting?: boolean;
   labels: Labels['actions'];
@@ -32,7 +35,7 @@ const Actions = ({
   });
 
   const onCancel = (): void => {
-    cancel({ dirty, values: formattedValues });
+    cancel?.({ dirty, values: formattedValues });
   };
 
   return (

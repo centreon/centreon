@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use DateTime;
 use DateTimeImmutable;
 
+#[Sensitive]
 class NewProviderToken
 {
     /**

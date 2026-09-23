@@ -189,9 +189,14 @@ it(
     'should throw an exception when host address does not respect format',
     fn () => ($this->createHost)(['address' => 'hello world'])
 )->throws(
-    InvalidArgumentException::class,
-    AssertionException::ipOrDomain('hello world', 'NewHost::address')->getMessage()
+    \InvalidArgumentException::class,
+    '[NewHost::address] The value "hello world" was expected to be a valid IP address or hostname'
 );
+
+it('should accept an address containing underscores (NETBIOS / Active Directory)', function (): void {
+    $host = ($this->createHost)(['address' => 'netbios_name.local']);
+    expect($host->getAddress())->toBe('netbios_name.local');
+});
 
 // name and conmmands args should be formated
 it('should return trimmed and formatted name field after construct', function (): void {

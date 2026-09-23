@@ -83,6 +83,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
         $concatenator->defineWhere(
             <<<'SQL'
                 WHERE contact.contact_register = '1'
+                    AND contact.contact_email IS NOT NULL
+                    AND contact.contact_email <> ''
                 SQL
         );
 
@@ -147,6 +149,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                 INNER JOIN `:db`.`acl_group_contacts_relations` acl_c_rel
                     ON acl_c_rel.contact_contact_id = contact.contact_id
                 WHERE contact.contact_register = '1'
+                    AND contact.contact_email IS NOT NULL
+                    AND contact.contact_email <> ''
                     AND acl_c_rel.acl_group_id IN ({$subRequest})
                 UNION
                 SELECT /* Finds users belonging to associated contact groups in ACL group rules */
@@ -160,6 +164,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                 INNER JOIN `:db`.`acl_group_contactgroups_relations` acl_cg_rel
                     ON acl_cg_rel.cg_cg_id = c_cg_rel.contactgroup_cg_id
                 WHERE contact.contact_register = '1'
+                    AND contact.contact_email IS NOT NULL
+                    AND contact.contact_email <> ''
                     AND acl_cg_rel.acl_group_id IN ({$subRequest})
                 UNION
                 SELECT /* Finds users belonging to the same contact groups as the user */
@@ -177,6 +183,8 @@ class DbReadUserRepository extends AbstractRepositoryRDB implements ReadUserRepo
                 WHERE c_cg_rel.contact_contact_id  = :user_id
                     AND contact.contact_register = '1'
                     AND contact2.contact_register = '1'
+                    AND contact2.contact_email IS NOT NULL
+                    AND contact2.contact_email <> ''
                 GROUP BY contact2.contact_id
             ) as contact
             SQL;

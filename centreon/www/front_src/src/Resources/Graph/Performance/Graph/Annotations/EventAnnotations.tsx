@@ -6,7 +6,7 @@ import AreaAnnotation from './Annotation/Area';
 import LineAnnotation from './Annotation/Line';
 
 interface Props {
-  Icon: (props) => JSX.Element;
+  Icon: (props: Record<string, unknown>) => JSX.Element;
   ariaLabel: string;
   color: string;
   graphHeight: number;

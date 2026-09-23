@@ -30,10 +30,11 @@ use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFact
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Model\LocalProvider;
 use Security\Encryption;
 
@@ -46,16 +47,16 @@ class AuthenticateApi
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
     public function __construct(
-        private WriteTokenRepositoryInterface $writeTokenRepository,
-        private ProviderAuthenticationFactoryInterface $providerFactory,
+        private readonly WriteTokenRepositoryInterface $writeTokenRepository,
+        private readonly ProviderAuthenticationFactoryInterface $providerFactory,
     ) {
     }
 
     /**
      * @param AuthenticateApiRequest $request
      * @param AuthenticateApiResponse $response
-     * @throws AuthenticationException
-     * @throws ProviderException
+     *
+     * @throws \Exception
      */
     public function execute(AuthenticateApiRequest $request, AuthenticateApiResponse $response): void
     {
@@ -100,6 +101,8 @@ class AuthenticateApi
      *
      * @param ProviderAuthenticationInterface $localProvider
      * @param AuthenticateApiRequest $request
+     *
+     * @throws SSOAuthenticationException
      */
     private function authenticateOrFail(
         ProviderAuthenticationInterface $localProvider,

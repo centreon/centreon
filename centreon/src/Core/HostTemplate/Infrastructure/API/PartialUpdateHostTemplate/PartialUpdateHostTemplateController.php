@@ -280,7 +280,9 @@ final class PartialUpdateHostTemplateController extends AbstractController
          *      note_url?: null|string,
          *      note?: null|string,
          *      action_url?: null|string,
-         *      icon_id?: null|int
+         *      icon_id?: null|int,
+         *      freshness_checked?: int,
+         *      freshness_threshold?: null|int
          * } $data
          */
         $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/PartialUpdateHostTemplateSaasSchema.json');
@@ -343,6 +345,12 @@ final class PartialUpdateHostTemplateController extends AbstractController
         }
         if (\array_key_exists('icon_id', $data)) {
             $dto->iconId = $data['icon_id'];
+        }
+        if (\array_key_exists('freshness_checked', $data)) {
+            $dto->freshnessChecked = $data['freshness_checked'];
+        }
+        if (\array_key_exists('freshness_threshold', $data)) {
+            $dto->freshnessThreshold = $data['freshness_threshold'];
         }
 
         return $dto;

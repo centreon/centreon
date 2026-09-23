@@ -13,10 +13,6 @@
 				<td class="FormRowValue" style='padding-left:15px;'>{$form.start.html}&nbsp;{$form.start_time.html}</td>
 			</tr>
 			<tr>
-				<td  class="FormRowField" style='padding-left:15px;'>{$form.host_or_centreon_time.label}</td>
-				<td  class="FormRowField" style='padding-left:15px;'>{$form.host_or_centreon_time.html}</td>
-			</tr>
-			<tr>
 				<td class="FormRowField" style='padding-left:15px;'>{$form.end.label}</td>
 				<td class="FormRowValue" style='padding-left:15px;'>{$form.end.html}&nbsp;{$form.end_time.html}</td>
 			</tr>
@@ -47,7 +43,6 @@
 			{$form.hidden}
 		</table>
 		<div id="validForm">
-			<p>{$form.action.html}</p>
 			<p>{$form.submit.html}&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
 		</div>
 	</div>

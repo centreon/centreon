@@ -38,6 +38,13 @@ trait CheckListOfIdsTrait
         string $tableName,
         string $columnNameOfIdentificator,
     ): bool {
+        if (preg_match('/^[a-zA-Z0-9_$][a-zA-Z0-9_$-]*$/', $tableName) !== 1) {
+            throw new \InvalidArgumentException("Invalid table name: {$tableName}");
+        }
+        if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $columnNameOfIdentificator) !== 1) {
+            throw new \InvalidArgumentException("Invalid column name: {$columnNameOfIdentificator}");
+        }
+
         $count = count($ids);
 
         $collector = new StatementCollector();

@@ -79,12 +79,15 @@ const AcknowledgeHoverChip = ({
 
 const StateColumn = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyles();
+  const typedRow = row as unknown as Resource & {
+    is_in_flapping?: boolean;
+  };
 
   return (
     <div className={classes.container}>
-      {row.is_in_downtime && <DowntimeHoverChip resource={row} />}
-      {row.is_acknowledged && <AcknowledgeHoverChip resource={row} />}
-      {row.is_in_flapping && <FlappingChip />}
+      {typedRow.is_in_downtime && <DowntimeHoverChip resource={typedRow} />}
+      {typedRow.is_acknowledged && <AcknowledgeHoverChip resource={typedRow} />}
+      {typedRow.is_in_flapping && <FlappingChip />}
     </div>
   );
 };

@@ -63,8 +63,8 @@ const FloatingLinkEditor = ({
   const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
   const acceptOrCancelNewLinkValue = useCallback(
-    (event): void => {
-      const { value } = event.target;
+    (event: React.KeyboardEvent<HTMLInputElement>): void => {
+      const { value } = event.target as HTMLInputElement;
 
       event.preventDefault();
 
@@ -90,21 +90,24 @@ const FloatingLinkEditor = ({
     setEditMode(true);
   }, [linkUrl, setEditMode]);
 
-  const changeValue = useCallback((event): void => {
-    const { value } = event.target;
+  const changeValue = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      const { value } = event.target;
 
-    const matched = value.match(/https?:\/\//g);
+      const matched = value.match(/https?:\/\//g);
 
-    if (gt(matched.length, 1)) {
-      setEditedUrl(
-        replace(matched.join(''), matched[dec(matched.length)], value)
-      );
+      if (matched && gt(matched.length, 1)) {
+        setEditedUrl(
+          replace(matched.join(''), matched[dec(matched.length)], value)
+        );
 
-      return;
-    }
+        return;
+      }
 
-    setEditedUrl(value);
-  }, []);
+      setEditedUrl(value);
+    },
+    []
+  );
 
   useEffect(() => {
     const isPositioned =

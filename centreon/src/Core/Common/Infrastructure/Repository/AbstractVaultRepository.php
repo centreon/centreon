@@ -63,6 +63,8 @@ abstract class AbstractVaultRepository
 
     protected string $customPath = '';
 
+    private ?string $cachedAuthToken = null;
+
     public function __construct(
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
         protected AmpHttpClient $httpClient,
@@ -99,6 +101,10 @@ abstract class AbstractVaultRepository
      */
     public function getAuthenticationToken(): string
     {
+        if ($this->cachedAuthToken !== null) {
+            return $this->cachedAuthToken;
+        }
+
         try {
             $vaultConfiguration = $this->vaultConfiguration ?? throw new \LogicException();
         } catch (\LogicException $exception) {
@@ -131,7 +137,9 @@ abstract class AbstractVaultRepository
             throw new \Exception('Unable to authenticate to Vault');
         }
 
-        return $content['auth']['client_token'];
+        $this->cachedAuthToken = $content['auth']['client_token'];
+
+        return $this->cachedAuthToken;
     }
 
     protected function buildUrl(string $uuid): string

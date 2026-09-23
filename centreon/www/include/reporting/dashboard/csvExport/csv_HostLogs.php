@@ -88,7 +88,7 @@ $hostName = getHostNameFromId($hostId);
 header('Cache-Control: public');
 header('Pragma: public');
 header('Content-Type: application/octet-stream');
-header('Content-disposition: filename=' . $hostName . '.csv');
+header('Content-Disposition: attachment; filename="' . str_replace(['"', "\r", "\n"], '', $hostName) . '.csv"');
 
 echo _('Host') . ';'
     . _('Begin date') . '; '

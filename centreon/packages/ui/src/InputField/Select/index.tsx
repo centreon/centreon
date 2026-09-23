@@ -7,6 +7,7 @@ import {
   ListSubheader,
   MenuItem,
   Select,
+  type SelectChangeEvent,
   type SelectProps,
   type Theme
 } from '@mui/material';
@@ -59,7 +60,7 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: Array<SelectEntry>;
   selectedOptionId: number | string;
-  formControlProps: FormControlProps;
+  formControlProps?: FormControlProps;
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
@@ -78,13 +79,13 @@ const SelectField = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
-  const getOption = (id): SelectEntry => {
+  const getOption = (id: unknown): SelectEntry => {
     return options.find(propEq(id, 'id')) as SelectEntry;
   };
 
-  const changeOption = (event): void => {
+  const changeOption = (event: SelectChangeEvent<unknown>): void => {
     if (!isNil(event.target.value)) {
-      onChange(event);
+      onChange(event as unknown as React.ChangeEvent<HTMLInputElement>);
     }
   };
 
@@ -112,9 +113,9 @@ const SelectField = ({
               [classes.noLabelInput]: !label && !compact,
               [classes.compact]: compact
             }),
-            'data-testid': dataTestId,
             id: getNormalizedId(dataTestId || ''),
-            ...inputProps
+            ...inputProps,
+            ...({ 'data-testid': dataTestId } as Record<string, string>)
           }
         }}
         value={selectedOptionId}

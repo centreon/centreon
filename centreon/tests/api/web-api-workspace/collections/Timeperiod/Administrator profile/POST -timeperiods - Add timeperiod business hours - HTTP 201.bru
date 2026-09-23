@@ -1,0 +1,43 @@
+meta {
+  name: POST /timeperiods - Add timeperiod business hours - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Timeperiod2Name}}",
+    "alias": "{{Timeperiod2Alias}}",
+    "days": [
+      {"day": 1, "time_range": "08:00-18:00"},
+      {"day": 2, "time_range": "08:00-18:00"},
+      {"day": 3, "time_range": "08:00-18:00"},
+      {"day": 4, "time_range": "08:00-18:00"},
+      {"day": 5, "time_range": "08:00-18:00"}
+    ],
+    "templates": [],
+    "exceptions": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Timeperiod 2 (business hours) has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Timeperiod2Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

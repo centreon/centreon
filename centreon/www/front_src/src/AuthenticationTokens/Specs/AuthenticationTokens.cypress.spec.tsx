@@ -1,6 +1,7 @@
 import {
   labelAdd,
   labelCreateAuthenticationToken,
+  labelCreator,
   labelDeleteToken,
   labelDisabled,
   labelDisableToken,
@@ -218,5 +219,63 @@ describe('Authentication tokens', () => {
     cy.contains(labelDone).click();
 
     cy.findByText(labelCreateAuthenticationToken).should('not.exist');
+  });
+
+  it('adds a new Poller token and verifies the form submission', () => {
+    cy.waitForRequest('@listToken');
+
+    cy.findByTestId(labelAdd).click();
+
+    cy.contains(labelCreateAuthenticationToken);
+
+    cy.findByTestId('submit').should('be.disabled');
+
+    cy.findAllByTestId(labelName).eq(1).type('token 1');
+
+    cy.findByTestId(labelType).click();
+    cy.findByRole('option', { name: 'Poller' }).click();
+
+    cy.findByTestId(labelUser).should('not.exist');
+
+    cy.makeSnapshot('Poller token form (before)');
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@addToken');
+
+    cy.findByTestId('tokenInput').should('be.visible');
+
+    cy.makeSnapshot('Poller token form (after)');
+
+    cy.contains(labelDone).click();
+
+    cy.findByText(labelCreateAuthenticationToken).should('not.exist');
+  });
+});
+
+describe('Authentication tokens with a deleted creator', () => {
+  beforeEach(() => {
+    initilize('authenticationTokens/listTokensWithDeletedCreator');
+  });
+
+  it('lists every token when the creator of one of them has been deleted', () => {
+    cy.waitForRequest('@listToken');
+
+    cy.contains('a-token');
+    cy.contains('b-token');
+    cy.contains('c-token');
+
+    cy.contains('Deleted Creator');
+  });
+
+  it('does not offer a deleted creator in the creator filter', () => {
+    cy.waitForRequest('@listToken');
+
+    cy.findByTestId(labelFilters).click();
+
+    cy.findByTestId(labelCreator).click();
+
+    cy.findByRole('option', { name: 'Jane Doe' }).should('exist');
+    cy.findByRole('option', { name: 'Deleted Creator' }).should('not.exist');
   });
 });

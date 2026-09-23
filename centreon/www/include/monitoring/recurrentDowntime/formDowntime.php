@@ -82,9 +82,11 @@ function testDowntimeNameExistence($downtimeName = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dt_id');
     }
-    $res = $pearDB->query("SELECT dt_id FROM downtime WHERE dt_name = '" . $pearDB->escape($downtimeName) . "'");
-    $d = $res->fetchRow();
-    $nbRes = $res->rowCount();
+    $statement = $pearDB->prepare('SELECT dt_id FROM downtime WHERE dt_name = :dtName');
+    $statement->bindValue(':dtName', $downtimeName, PDO::PARAM_STR);
+    $statement->execute();
+    $d = $statement->fetch();
+    $nbRes = $statement->rowCount();
     if ($nbRes && $d['dt_id'] == $id) {
         return true;
     }

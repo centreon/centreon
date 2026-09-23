@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Legacy_API_v1", "type": "collection", "ignore": ["node_modules", ".git"] }

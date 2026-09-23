@@ -30,6 +30,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplateResponse;
 use Core\ServiceTemplate\Application\UseCase\FindServiceTemplates\FindServiceTemplatesPresenterInterface;
+use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
 
 class FindServiceTemplatesSaasPresenter extends AbstractPresenter implements FindServiceTemplatesPresenterInterface
 {
@@ -63,6 +64,8 @@ class FindServiceTemplatesSaasPresenter extends AbstractPresenter implements Fin
                     'note_url' => $dto->noteUrl,
                     'action_url' => $dto->actionUrl,
                     'severity_id' => $dto->severityId,
+                    'freshness_checked' => YesNoDefaultConverter::toInt($dto->checkFreshness),
+                    'freshness_threshold' => $dto->freshnessThreshold,
                     'host_templates' => $dto->hostTemplateIds,
                     'is_locked' => $dto->isLocked,
                 ];

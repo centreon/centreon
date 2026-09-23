@@ -71,7 +71,7 @@ export default ({
     },
     env: {
       ...env,
-      DATABASE_IMAGE: 'bitnamilegacy/mariadb:10.11',
+      DATABASE_IMAGE: 'bitnamilegacy/mariadb:11.8',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       STABILITY: 'unstable',

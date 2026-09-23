@@ -1,0 +1,77 @@
+meta {
+  name: POST /hosts/templates - Create HT by editor - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate4Name}}",
+    "alias": "{{HostTemplate4Alias}}",
+    "snmp_version": "1",
+    "snmp_community": "",
+    "categories": [ {{HostCategory1Id}} ],
+    "templates": [ {{HostTemplate1Id}} ],
+    "macros": [
+      {
+        "name": "Coucou",
+        "value": "Oh no",
+        "is_password": true,
+        "description": "null"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host template has been successfully created, with name '{{HostTemplate4Name}}' and alias '{{HostTemplate4Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostTemplate4Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostTemplate4Name"),
+      "alias": bru.getEnvVar("HostTemplate4Alias"),
+      "snmp_version": "1",
+      "timezone_id": null,
+      "severity_id": null,
+      "check_timeperiod_id": null,
+      "note_url": null,
+      "note": null,
+      "action_url": null,
+      "max_check_attempts": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "icon_id": null,
+      "is_locked": false
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostCategory1Id")),
+      "name": bru.getEnvVar("HostCategory1Name")
+    });
+    expect(body.templates[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostTemplate1Id")),
+      "name": bru.getEnvVar("HostTemplate1Name")
+    });
+    expect(body.macros[0]).to.include({
+      "name": "COUCOU",
+      "value": null,
+      "is_password": true,
+      "description": "null"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

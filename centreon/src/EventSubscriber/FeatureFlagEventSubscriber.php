@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace EventSubscriber;
 
 use Core\Common\Infrastructure\FeatureFlags;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -33,7 +33,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @see FeatureFlags
  */
-class FeatureFlagEventSubscriber implements EventSubscriberInterface
+class FeatureFlagEventSubscriber
 {
     /**
      * @param FeatureFlags $featureFlags
@@ -44,24 +44,11 @@ class FeatureFlagEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Returns an array of event names this subscriber wants to listen to.
-     *
-     * @return mixed[] The event names to listen to
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::REQUEST => [
-                ['defineFeaturesInAttributes', 40],
-            ],
-        ];
-    }
-
-    /**
      * We inject in the request a TRUE attribute for each enabled feature of the feature flags system.
      *
      * @param RequestEvent $event
      */
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 40)]
     public function defineFeaturesInAttributes(RequestEvent $event): void
     {
         foreach ($this->featureFlags->getEnabled() as $name) {

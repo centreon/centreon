@@ -17,8 +17,10 @@ import {
   filtersConfiguration,
   filtersInitialValues,
   getEndpoints,
+  getHostTemplatesResponse,
   getListingResponse,
   groups,
+  hostTemplatesEndpoint,
   inputs,
   resourceDecoderListDecoder
 } from './utils';
@@ -48,7 +50,7 @@ export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'enable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).enable}`,
+    path: `**${getEndpoints(resourceType).enable?.()}`,
     response: {
       results: [{ href: '/resources/1', message: null, status: 204 }]
     }
@@ -57,7 +59,7 @@ export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'disable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).disable}`,
+    path: `**${getEndpoints(resourceType).disable?.()}`,
     response: {
       results: [{ href: '/resources/1', message: null, status: 204 }]
     }
@@ -71,6 +73,13 @@ const mockListingRequests = (resourceType): void => {
     path: `**${getEndpoints(resourceType).getAll}?**`,
     response: getListingResponse(resourceType)
   });
+
+  cy.interceptAPIRequest({
+    alias: 'getHostTemplates',
+    method: Method.GET,
+    path: `**${hostTemplatesEndpoint}**`,
+    response: getHostTemplatesResponse()
+  });
 };
 
 export const mockModalRequests = (resourceType): void => {
@@ -83,7 +92,7 @@ export const mockModalRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'getDetails',
     method: Method.GET,
-    path: `**${getEndpoints(resourceType).getOne({ id: 1 })}`,
+    path: `**${getEndpoints(resourceType).getOne?.({ id: 1 })}`,
     response
   });
 
@@ -97,17 +106,21 @@ export const mockModalRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'update',
     method: Method.PUT,
-    path: `**${getEndpoints(resourceType).update({ id: 1 })}`,
+    path: `**${getEndpoints(resourceType).update?.({ id: 1 })}`,
     response: {}
   });
 };
 
 const initialize = ({
   resourceType = ResourceType.Host,
-  filters = filtersConfiguration
+  filters = filtersConfiguration,
+  initialValues = filtersInitialValues,
+  filtersPanelWidth
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
+  initialValues?: Record<string, unknown>;
+  filtersPanelWidth?: number;
 }): void => {
   const resource = resourceType.replace(' ', '_');
 
@@ -119,7 +132,7 @@ const initialize = ({
   });
 
   const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
-  const filtersAtom = atomWithStorage(filtersAtomKey, filtersInitialValues);
+  const filtersAtom = atomWithStorage(filtersAtomKey, initialValues);
   const isWelcomePageDisplayedAtom = atom(false);
 
   const store = createStore();
@@ -133,10 +146,10 @@ const initialize = ({
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
                   actions={{
-                    delete: true,
-                    duplicate: true,
+                    delete: () => true,
+                    duplicate: () => true,
                     edit: true,
-                    enableDisable: true,
+                    enableDisable: () => true,
                     massive: true,
                     viewDetails: true
                   }}
@@ -156,7 +169,8 @@ const initialize = ({
                   filtersAtom={filtersAtom}
                   filtersAtomKey={filtersAtomKey}
                   filtersConfiguration={filters}
-                  filtersInitialValues={filtersInitialValues}
+                  filtersInitialValues={initialValues}
+                  filtersPanelWidth={filtersPanelWidth}
                   form={{
                     defaultValues: {
                       alias: '',

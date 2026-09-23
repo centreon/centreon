@@ -43,10 +43,16 @@ const NumberField = ({
         T,
         always(
           clamp(
-            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.min ||
-              Number.NEGATIVE_INFINITY,
-            textFieldSlotsAndSlotProps?.slotProps?.htmlInput?.max ||
-              Number.POSITIVE_INFINITY,
+            (
+              textFieldSlotsAndSlotProps?.slotProps?.htmlInput as
+                | Record<string, number>
+                | undefined
+            )?.min || Number.NEGATIVE_INFINITY,
+            (
+              textFieldSlotsAndSlotProps?.slotProps?.htmlInput as
+                | Record<string, number>
+                | undefined
+            )?.max || Number.POSITIVE_INFINITY,
             number
           )
         )

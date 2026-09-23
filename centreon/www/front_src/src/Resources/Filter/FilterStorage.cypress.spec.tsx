@@ -362,6 +362,10 @@ describe('Filter storage', () => {
       response: emptyListData
     });
 
+    cy.window().then((win) =>
+      win.history.pushState({}, '', win.location.pathname)
+    );
+
     cy.mount({
       Component: <FilterWithProvider />
     });

@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import { Form, Group, InputProps } from '@centreon/ui';
 import { FormActions, FormActionsProps } from '@centreon/ui/components';
 
-import { useFormikContext } from 'formik';
+import { FormikHelpers, useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect } from 'react';
@@ -18,28 +18,30 @@ import { useFormStyles } from './Form.styles';
 export type HostGroupFormProps = {
   id?: number;
   onSubmit?: (
-    values,
-    {
-      setSubmitting
-    }: {
-      setSubmitting;
-    }
+    values: Record<string, unknown>,
+    helpers: FormikHelpers<Record<string, unknown>>
   ) => void;
   mode?: 'add' | 'edit';
   inputs: Array<InputProps>;
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
-  initialValues;
+  initialValues: Record<string, unknown>;
   isLoading: boolean;
   hasWriteAccess: boolean;
 } & Pick<FormActionsProps, 'onCancel'>;
 
 export type ConnectorFormLabels = {
   actions: FormActionsProps['labels'];
-  entity;
+  entity: Record<string, unknown>;
 };
 
-const Actions = ({ onCancel, mode }): JSX.Element => {
+const Actions = ({
+  onCancel,
+  mode
+}: {
+  onCancel: FormActionsProps['onCancel'];
+  mode?: 'add' | 'edit';
+}): JSX.Element => {
   const { t } = useTranslation();
 
   const setIsDirty = useSetAtom(isFormDirtyAtom);

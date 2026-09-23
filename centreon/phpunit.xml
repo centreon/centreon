@@ -24,12 +24,14 @@
     <!-- ###+ nelmio/cors-bundle ### -->
     <env name="CORS_ALLOW_ORIGIN" value="^https?://localhost(:[0-9]+)?$"/>
     <!-- ###- nelmio/cors-bundle ### -->
+    <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;quiet[]=indirect&amp;quiet[]=other&amp;ignoreFile=tests/php/deprecations.ignore"/>
   </php>
   <testsuites>
     <testsuite name="Symfony Test Suite">
       <directory>./tests/php/*/</directory>
       <directory>./src/*/Tests/</directory>
       <exclude>./tests/php/App</exclude>
+      <exclude>./tests/php/Core/Integration</exclude>
     </testsuite>
   </testsuites>
   <groups>
@@ -38,6 +40,9 @@
       <group>intl-data</group>
     </exclude>
   </groups>
+  <extensions>
+    <bootstrap class="Symfony\Bridge\PhpUnit\SymfonyExtension"/>
+  </extensions>
   <logging/>
   <source>
     <include>

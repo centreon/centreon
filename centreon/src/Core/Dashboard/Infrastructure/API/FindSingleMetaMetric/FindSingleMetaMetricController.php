@@ -29,7 +29,7 @@ use Core\Dashboard\Application\UseCase\FindSingleMetaMetric\FindSingleMetaMetric
 use Core\Dashboard\Application\UseCase\FindSingleMetaMetric\FindSingleMetaMetricRequest;
 use Core\Security\Infrastructure\Voters\ApiRealtimeVoter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(

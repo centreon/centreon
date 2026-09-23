@@ -50,13 +50,21 @@ class CentreonConfigEngine
      */
     public function insertBrokerDirectives($serverId, $directives = []): void
     {
-        $this->db->query('DELETE FROM cfg_nagios_broker_module
-                WHERE cfg_nagios_id = ' . $this->db->escape($serverId));
+        $deleteStmt = $this->db->prepare(
+            'DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :serverId'
+        );
+        $deleteStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+        $deleteStmt->execute();
 
+        $insertStmt = $this->db->prepare(
+            'INSERT INTO cfg_nagios_broker_module (broker_module, cfg_nagios_id)
+            VALUES (:brokerModule, :serverId)'
+        );
         foreach ($directives as $value) {
             if ($value != '') {
-                $this->db->query("INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) 
-                                VALUES ('" . $this->db->escape($value) . "', " . $this->db->escape($serverId) . ')');
+                $insertStmt->bindValue(':brokerModule', $value, PDO::PARAM_STR);
+                $insertStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
         }
     }
@@ -74,10 +82,12 @@ class CentreonConfigEngine
         $arr = [];
         $i = 0;
         if (! isset($_REQUEST['in_broker']) && $serverId) {
-            $res = $this->db->query('SELECT broker_module
-                                FROM cfg_nagios_broker_module
-                                WHERE cfg_nagios_id = ' . $this->db->escape($serverId));
-            while ($row = $res->fetchRow()) {
+            $stmt = $this->db->prepare(
+                'SELECT broker_module FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :serverId'
+            );
+            $stmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
+            $stmt->execute();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $arr[$i]['in_broker_#index#'] = $row['broker_module'];
                 $i++;
             }
@@ -105,19 +115,22 @@ class CentreonConfigEngine
             return $timezone;
         }
 
-        $query = 'SELECT timezone FROM ('
+        $stmt = $this->db->prepare(
+            'SELECT timezone FROM ('
             . 'SELECT timezone_name as timezone '
             . 'FROM cfg_nagios, timezone '
-            . 'WHERE nagios_id = ' . $this->db->escape($engineId) . ' '
+            . 'WHERE nagios_id = :engineId '
             . 'AND use_timezone = timezone_id '
             . 'UNION '
             . 'SELECT timezone_name as timezone '
             . 'FROM options, timezone '
             . "WHERE options.key = 'gmt' "
             . 'AND options.value = timezone_id '
-            . ') as t LIMIT 1';
-        $result = $this->db->query($query);
-        if ($row = $result->fetchRow()) {
+            . ') as t LIMIT 1'
+        );
+        $stmt->bindValue(':engineId', (int) $engineId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $timezone = $row['timezone'];
         }
 

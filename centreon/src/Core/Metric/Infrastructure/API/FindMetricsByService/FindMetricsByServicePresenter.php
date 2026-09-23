@@ -51,6 +51,8 @@ final class FindMetricsByServicePresenter extends AbstractPresenter implements F
                 'warning_low_threshold' => $metric->warningLowThreshold,
                 'critical_high_threshold' => $metric->criticalHighThreshold,
                 'critical_low_threshold' => $metric->criticalLowThreshold,
+                'min' => $metric->min,
+                'max' => $metric->max,
             ], $response->metricsDto));
         }
     }

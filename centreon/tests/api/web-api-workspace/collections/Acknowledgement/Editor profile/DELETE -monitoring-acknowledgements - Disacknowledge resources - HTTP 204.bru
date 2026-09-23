@@ -1,0 +1,41 @@
+meta {
+  name: DELETE /monitoring/acknowledgements - Disacknowledge resources - HTTP 204
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledgements
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "disacknowledgement": {
+      "with_services": true
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The acknowledgement has been successfully removed by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

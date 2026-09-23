@@ -1,14 +1,27 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { platformVersionsAtom } from 'packages/ui-context/src';
-import { has } from 'ramda';
-import { ReactElement, useEffect, useMemo } from 'react';
+import {
+  acknowledgementAtom,
+  aclAtom,
+  downtimeAtom,
+  isOnPublicPageAtom,
+  platformVersionsAtom,
+  userAtom
+} from '@centreon/ui-context';
 
-import { openTicketAtom } from './atom';
-import { OpenTicketContext, ResourcesTableProps } from './models';
+import { useAtomValue } from 'jotai';
+import { has } from 'ramda';
+import { type ReactElement, useMemo } from 'react';
+
+import type { OpenTicketContext, ResourcesTableProps } from './models';
 import ResourcesTable from './ResourcesTable';
+import { WidgetProvider } from './WidgetContext';
 
 const Widget = (props: ResourcesTableProps): ReactElement => {
+  const acl = useAtomValue(aclAtom);
   const platform = useAtomValue(platformVersionsAtom);
+  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const acknowledgement = useAtomValue(acknowledgementAtom);
+  const downtime = useAtomValue(downtimeAtom);
+  const user = useAtomValue(userAtom);
 
   const openTicketContext = useMemo(
     (): OpenTicketContext => ({
@@ -34,13 +47,19 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
     ]
   );
 
-  const setOpenTicket = useSetAtom(openTicketAtom);
-
-  useEffect(() => {
-    setOpenTicket(openTicketContext);
-  }, [JSON.stringify(openTicketContext), setOpenTicket]);
-
-  return <ResourcesTable {...props} />;
+  return (
+    <WidgetProvider
+      acknowledgement={acknowledgement}
+      acl={acl}
+      downtime={downtime}
+      isOnPublicPage={isOnPublicPage}
+      openTicketContext={openTicketContext}
+      platform={platform}
+      user={user}
+    >
+      <ResourcesTable {...props} />
+    </WidgetProvider>
+  );
 };
 
 export default Widget;

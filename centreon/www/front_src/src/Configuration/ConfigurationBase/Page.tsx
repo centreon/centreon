@@ -1,7 +1,7 @@
 import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 
-import { useAtom, useSetAtom } from 'jotai';
+import { PrimitiveAtom, useAtom, useSetAtom } from 'jotai';
 import { isNil, isNotEmpty, or } from 'ramda';
 import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
@@ -13,16 +13,28 @@ import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilte
 import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
 import { Modal } from './Modal';
+import Navbar from './NavBar';
+
+interface WelcomePageProps {
+  labels: ConfigurationBase<unknown>['labels']['welcomePage'];
+  dataTestId: string;
+  onCreate: () => void;
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  filtersAtom: PrimitiveAtom<any>;
+  filtersAtomKey: string;
+  isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
+  hasWriteAccess: boolean;
+}
 
 const WelcomePage = ({
-  hasWriteAccess,
   labels,
   dataTestId,
   onCreate,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
-}) => {
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
+}: WelcomePageProps) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
@@ -58,7 +70,8 @@ const Page = <TFilters,>({
   selectedColumnIdsAtom,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -70,6 +83,7 @@ const Page = <TFilters,>({
   | 'filtersAtom'
   | 'filtersAtomKey'
   | 'isWelcomePageDisplayedAtom'
+  | 'navbar'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -95,6 +109,11 @@ const Page = <TFilters,>({
           <PageHeader.Main>
             <PageHeader.Title title={labels.title} />
           </PageHeader.Main>
+          {!!navbar && (
+            <PageHeader.Actions>
+              <Navbar navbar={navbar} />
+            </PageHeader.Actions>
+          )}
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>

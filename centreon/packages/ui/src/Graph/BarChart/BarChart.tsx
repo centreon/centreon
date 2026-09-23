@@ -89,6 +89,7 @@ const BarChart = ({
   timeShiftZones,
   annotationEvent
 }: BarChartProps): ReactElement => {
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const { adjustedData } = useChartData({ data, end, max, min, start });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
@@ -118,6 +119,7 @@ const BarChart = ({
             boundariesUnit={boundariesUnit}
             end={end}
             graphData={adjustedData}
+            // @ts-expect-error - suppressing pre-existing type mismatch
             graphRef={ref}
             header={header}
             height={height || responsiveHeight || 0}

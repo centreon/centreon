@@ -16,5 +16,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: docker run -i --entrypoint /src/.github/scripts/${{ inputs.module_name }}/debian/${{ inputs.module_name }}-packaging.sh -v "$PWD:/src" docker.centreon.com/centreon/${{ inputs.module_name }}-package-${{ inputs.distrib }}:${{ inputs.image_version }} ${{ inputs.params }}
+    - env:
+        MODULE_NAME: ${{ inputs.module_name }}
+        DISTRIB: ${{ inputs.distrib }}
+        IMAGE_VERSION: ${{ inputs.image_version }}
+        PARAMS: ${{ inputs.params }}
+      run: docker run -i --entrypoint "/src/.github/scripts/$MODULE_NAME/debian/$MODULE_NAME-packaging.sh" -v "$PWD:/src" "docker.centreon.com/centreon/$MODULE_NAME-package-$DISTRIB:$IMAGE_VERSION" $PARAMS
       shell: bash

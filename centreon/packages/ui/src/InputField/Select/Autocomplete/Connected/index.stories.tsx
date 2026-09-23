@@ -36,6 +36,7 @@ const getEndpoint = ({ endpoint, parameters }): string =>
 
 const mockSearch = (page: number): object => ({
   delay: 1000,
+  headers: { 'Content-Type': 'application/json' },
   method: 'GET',
   response: (request): Listing<SelectEntry> => {
     const { searchParams } = request;

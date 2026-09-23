@@ -18,7 +18,7 @@ interface Props {
 const useColumns = (): Props => {
   const { t } = useTranslation();
 
-  const columns = [
+  const columns: Array<Column> = [
     {
       Component: Name,
       disablePadding: false,
@@ -30,8 +30,8 @@ const useColumns = (): Props => {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ alias }) =>
-        truncate({ content: alias, maxLength: 50 }),
+      getFormattedString: ({ alias }: Record<string, unknown>) =>
+        truncate({ content: alias as string, maxLength: 50 }),
       id: 'alias',
       label: t(labelAlias),
       sortable: true,

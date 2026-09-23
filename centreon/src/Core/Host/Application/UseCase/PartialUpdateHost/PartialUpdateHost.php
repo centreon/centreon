@@ -47,7 +47,9 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -69,9 +71,13 @@ use Core\Macro\Domain\Model\MacroDifference;
 use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Utility\Difference\BasicDifference;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class PartialUpdateHost
 {
@@ -85,6 +91,7 @@ final class PartialUpdateHost
     public function __construct(
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
@@ -100,7 +107,12 @@ final class PartialUpdateHost
         private readonly PartialUpdateHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
+        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
+        private readonly WriteServiceRepositoryInterface $writeServiceRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -128,14 +140,14 @@ final class PartialUpdateHost
                 return;
             }
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $this->accessGroups;
             }
 
             if (
                 (
-                    ! $this->user->isAdmin()
+                    ! $this->adminResolver->isAdmin($this->user)
                     && ! $this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups)
                 )
                 || ! ($host = $this->readHostRepository->findById($hostId))
@@ -160,7 +172,7 @@ final class PartialUpdateHost
                 }
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (AssertionFailedException $ex) {
+        } catch (AssertionFailedException|InvalidArgumentException $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
@@ -174,17 +186,23 @@ final class PartialUpdateHost
         try {
             $this->dataStorageEngine->startTransaction();
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveHostUuidFromVault($host);
             }
 
             $previousMonitoringServer = $host->getMonitoringServerId();
             $this->updateHost($request, $host);
             $this->updateHostCategories($request, $host);
-            $this->updateHostGroups($request, $host);
+            $hostGroupsChanged = $this->updateHostGroups($request, $host);
             $this->updateParentTemplates($request, $host);
             // Note: parent templates must be updated before macros for macro inheritance resolution
             $this->updateMacros($request, $host);
+
+            if ($hostGroupsChanged) {
+                $this->adminResolver->isAdmin($this->user)
+                    ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                    : $this->writeAccessGroupRepository->updateAclGroupsFlag($this->accessGroups);
+            }
 
             $this->writeMonitoringServerRepository->notifyConfigurationChange($host->getMonitoringServerId());
             if ($previousMonitoringServer !== $host->getMonitoringServerId()) {
@@ -435,17 +453,27 @@ final class PartialUpdateHost
         }
 
         $categoryIds = array_unique($dto->categories);
-        $this->validation->assertAreValidCategories($categoryIds);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
+            $accessibleCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
             $originalCategories = $this->readHostCategoryRepository->findByHost($host->getId());
         } else {
+            // For non-admin users, filter submitted IDs to only those the user can access.
+            // Categories outside the user's ACL scope are silently preserved (not touched by the diff).
+            $accessibleCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
             $originalCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
                 $host->getId(),
                 $this->accessGroups
             );
         }
-
+        $droppedIds = array_diff($categoryIds, $accessibleCategoryIds);
+        if ($droppedIds !== []) {
+            $this->warning(
+                'PartialUpdateHost: submitted category IDs not found, they will be ignored',
+                ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+            );
+        }
+        $categoryIds = array_values(array_intersect($categoryIds, $accessibleCategoryIds));
         $originalCategoryIds = array_map(
             static fn (HostCategory $category): int => $category->getId(),
             $originalCategories
@@ -466,7 +494,7 @@ final class PartialUpdateHost
      * @throws HostException
      * @throws \Throwable
      */
-    private function updateHostGroups(PartialUpdateHostRequest $dto, Host $host): void
+    private function updateHostGroups(PartialUpdateHostRequest $dto, Host $host): bool
     {
         $this->info(
             'PartialUpdateHost: update groups',
@@ -476,21 +504,31 @@ final class PartialUpdateHost
         if ($dto->groups instanceof NoValue) {
             $this->info('Groups not provided, nothing to update');
 
-            return;
+            return false;
         }
 
         $groupIds = array_unique($dto->groups);
-        $this->validation->assertAreValidGroups($groupIds);
-
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
+            $accessibleGroupIds = $this->readHostGroupRepository->exist($groupIds);
             $originalGroups = $this->readHostGroupRepository->findByHost($host->getId());
         } else {
+            // For non-admin users, filter submitted IDs to only those the user can access.
+            // Groups outside the user's ACL scope are silently preserved (not touched by the diff).
+            $accessibleGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $this->accessGroups);
             $originalGroups = $this->readHostGroupRepository->findByHostAndAccessGroups(
                 $host->getId(),
                 $this->accessGroups
             );
         }
 
+        $droppedIds = array_diff($groupIds, $accessibleGroupIds);
+        if ($droppedIds !== []) {
+            $this->warning(
+                'PartialUpdateHost: submitted group IDs not found, they will be ignored',
+                ['dropped_group_ids' => $droppedIds, 'host_id' => $host->getId()]
+            );
+        }
+        $groupIds = array_values(array_intersect($groupIds, $accessibleGroupIds));
         $originalGroupIds = array_map(
             static fn (HostGroup $group): int => $group->getId(),
             $originalGroups
@@ -502,6 +540,8 @@ final class PartialUpdateHost
 
         $this->writeHostGroupRepository->linkToHost($host->getId(), $addedGroups);
         $this->writeHostGroupRepository->unlinkFromHost($host->getId(), $removedGroups);
+
+        return $addedGroups !== [] || $removedGroups !== [];
     }
 
     /**
@@ -527,6 +567,18 @@ final class PartialUpdateHost
         $parentTemplateIds = array_unique($dto->templates);
         $this->validation->assertAreValidTemplates($parentTemplateIds, $host->getId());
 
+        // Read current DIRECT parent templates BEFORE deleting them, to compute which were removed.
+        // findParents() returns the full inheritance chain, so we filter to direct parents only
+        // (rows where child_id matches the host) to avoid false positives with indirect ancestors.
+        $currentParents = $this->readHostRepository->findParents($host->getId());
+        $currentDirectParentIds = [];
+        foreach ($currentParents as $parent) {
+            if ((int) $parent['child_id'] === $host->getId()) {
+                $currentDirectParentIds[] = (int) $parent['parent_id'];
+            }
+        }
+        $currentDirectParentIds = array_values(array_unique($currentDirectParentIds));
+
         $this->info('Remove parent templates from a host', ['host_id' => $host->getId()]);
         $this->writeHostRepository->deleteParents($host->getId());
 
@@ -536,6 +588,105 @@ final class PartialUpdateHost
             ]);
             $this->writeHostRepository->addParent($host->getId(), $templateId, $order);
         }
+
+        $this->cleanServicesFromRemovedTemplates($host->getId(), $currentDirectParentIds, $parentTemplateIds);
+    }
+
+    /**
+     * Clean up services from templates that were removed from a host.
+     *
+     * @param int $hostId
+     * @param int[] $previousDirectParentIds Direct parent template IDs before the update
+     * @param int[] $newDirectParentIds Direct parent template IDs after the update
+     */
+    private function cleanServicesFromRemovedTemplates(
+        int $hostId,
+        array $previousDirectParentIds,
+        array $newDirectParentIds,
+    ): void {
+        $removedTemplateIds = array_values(array_diff($previousDirectParentIds, $newDirectParentIds));
+        if ($removedTemplateIds === []) {
+            return;
+        }
+
+        $this->info('Clean up services from removed templates', [
+            'host_id' => $hostId,
+            'removed_template_ids' => $removedTemplateIds,
+        ]);
+
+        // Expand remaining templates to include their full inheritance chains
+        $allRemainingIds = $this->expandTemplateChain($newDirectParentIds);
+
+        // Process each removed template and its inheritance chain
+        $visited = [];
+        foreach ($removedTemplateIds as $removedTemplateId) {
+            $this->deleteServicesFromTemplate($hostId, $removedTemplateId, $allRemainingIds, $visited);
+        }
+    }
+
+    /**
+     * Recursively process a template and its parents to delete services
+     * that are no longer provided by any remaining template.
+     *
+     * @param int $hostId
+     * @param int $templateId
+     * @param int[] $allRemainingIds Expanded remaining template IDs
+     * @param array<int, bool> $visited Anti-loop tracker
+     */
+    private function deleteServicesFromTemplate(
+        int $hostId,
+        int $templateId,
+        array $allRemainingIds,
+        array &$visited,
+    ): void {
+        if (isset($visited[$templateId])) {
+            return;
+        }
+        $visited[$templateId] = true;
+
+        // Find service templates linked to this host template
+        $serviceTemplateIds = $this->readServiceTemplateRepository->findIdsByHostTemplateId($templateId);
+
+        foreach ($serviceTemplateIds as $serviceTemplateId) {
+            // Only delete if this service template is not provided by any remaining template
+            if (! $this->readServiceTemplateRepository->isLinkedToAnyHostTemplate($serviceTemplateId, $allRemainingIds)) {
+                $this->writeServiceRepository->deleteByHostIdAndServiceTemplateId($hostId, $serviceTemplateId);
+            }
+        }
+
+        // Recursively process this template's own parent templates
+        $parentChain = $this->readHostRepository->findParents($templateId);
+        $directParentIds = [];
+        foreach ($parentChain as $row) {
+            if ((int) $row['child_id'] === $templateId) {
+                $directParentIds[] = (int) $row['parent_id'];
+            }
+        }
+
+        foreach ($directParentIds as $parentId) {
+            $this->deleteServicesFromTemplate($hostId, $parentId, $allRemainingIds, $visited);
+        }
+    }
+
+    /**
+     * Expand a list of template IDs to include their full inheritance chains.
+     *
+     * @param int[] $templateIds
+     *
+     * @return int[]
+     */
+    private function expandTemplateChain(array $templateIds): array
+    {
+        $allIds = [];
+        foreach ($templateIds as $templateId) {
+            $allIds[] = $templateId;
+            $parentChain = $this->readHostRepository->findParents($templateId);
+            foreach ($parentChain as $row) {
+                $allIds[] = (int) $row['parent_id'];
+            }
+        }
+
+        return array_values(array_unique($allIds));
     }
 
     /**
@@ -628,9 +779,11 @@ final class PartialUpdateHost
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($host->getCheckCommandId() !== null) {
+        $effectiveCommandId = $host->getCheckCommandId()
+            ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $host->getCheckCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
@@ -638,10 +791,10 @@ final class PartialUpdateHost
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
@@ -681,7 +834,7 @@ final class PartialUpdateHost
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixedName = '_HOST' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
@@ -753,7 +906,7 @@ final class PartialUpdateHost
         }
 
         // If vault is not configured, just set the value directly
-        if (! $this->writeVaultRepository->isVaultConfigured()) {
+        if (! $this->vaultEligibilityService->shouldUseVault()) {
             $host->setSnmpCommunity($snmpCommunity ?? '');
 
             return;

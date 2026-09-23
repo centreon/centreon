@@ -29,7 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -53,19 +53,15 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Exceptions\VaultException;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentials;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\MigrateAllCredentialsResponse;
 use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\Migrator\VmWareV6CredentialMigrator;
-use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Security\Interfaces\EncryptionInterface;
 
 beforeEach(function (): void {
-    $this->encryption = $this->createMock(EncryptionInterface::class);
     $this->useCase = new MigrateAllCredentials(
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
-        $this->readVaultConfigurationRepository = $this->createMock(ReadVaultConfigurationRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
@@ -84,39 +80,26 @@ beforeEach(function (): void {
         $this->writeBrokerInputOutputRepository = $this->createMock(WriteBrokerInputOutputRepositoryInterface::class),
         $this->readAccRepository = $this->createMock(ReadAccRepositoryInterface::class),
         $this->writeAccRepository = $this->createMock(WriteAccRepositoryInterface::class),
-        $this->flags = new FeatureFlags(false, ''),
         $this->accCredentialMigrators = new \ArrayIterator([$this->createMock(VmWareV6CredentialMigrator::class)]),
     );
 });
 
 it('should present an Error Response when no vault are configured', function (): void {
-    $this->readVaultConfigurationRepository
+    $this->vaultEligibilityService
         ->expects($this->once())
-        ->method('find')
-        ->willReturn(null);
+        ->method('shouldUseVault')
+        ->willReturn(false);
     $presenter = new MigrateAllCredentialsPresenterStub();
     ($this->useCase)($presenter);
 
     expect($presenter->response)->toBeInstanceOf(ErrorResponse::class)
-        ->and($presenter->response->getMessage())->toBe(VaultException::noVaultConfigured()->getMessage());
+        ->and($presenter->response->getMessage())->toBe(VaultException::vaultNotAvailable()->getMessage());
 });
 
 it('should present a MigrateAllCredentialsResponse when no error occurs', function (): void {
-    $vaultConfiguration = new VaultConfiguration(
-        encryption: $this->encryption,
-        name: 'vault',
-        address: '127.0.0.1',
-        port: 443,
-        rootPath: 'mystorage',
-        encryptedRoleId: 'role-id',
-        encryptedSecretId: 'secret-id',
-        salt: 'labaleine'
-    );
-
-    $this->readVaultConfigurationRepository
-        ->expects($this->once())
-        ->method('find')
-        ->willReturn($vaultConfiguration);
+    $this->vaultEligibilityService
+        ->method('shouldUseVault')
+        ->willReturn(true);
 
     $customConfiguration = new CustomConfiguration([
         'is_active' => true,

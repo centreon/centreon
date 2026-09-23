@@ -1,0 +1,29 @@
+meta {
+  name: GET /hosts/categories - Get categories filtered by HG1 and HG2 - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/categories?search={ "$and":[{"hostgroup.id":{{HostGroup1Id}}},{"hostgroup.id":{{HostGroup2Id}}}]}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The list is empty — no host category is linked to a host in both HG1 and HG2 simultaneously.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body.result.length).to.eql(0);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

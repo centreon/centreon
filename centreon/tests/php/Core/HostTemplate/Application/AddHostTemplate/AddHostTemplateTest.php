@@ -40,7 +40,9 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -69,6 +71,7 @@ beforeEach(function (): void {
     $this->useCase = new AddHostTemplate(
         $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class),
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
@@ -81,7 +84,8 @@ beforeEach(function (): void {
         $this->validation = $this->createMock(AddHostTemplateValidation::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
-        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class)
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 
     $this->inheritanceModeOption = new Option();

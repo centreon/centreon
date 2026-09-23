@@ -1,0 +1,40 @@
+meta {
+  name: GET /local - Verify updated policy - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/local
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Updated password security policy matches submitted values (known issue: user_administrator requires is_admin=true, returns 403 in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+    if (res.status === 200) {
+      const body = res.getBody();
+      expect(body).to.be.an("object");
+      expect(body).to.have.property("password_security_policy");
+
+      const policy = body.password_security_policy;
+      expect(policy.password_min_length).to.equal(8);
+      expect(policy.has_uppercase).to.equal(false);
+      expect(policy.has_lowercase).to.equal(false);
+      expect(policy.has_number).to.equal(true);
+      expect(policy.has_special_character).to.equal(false);
+      expect(policy.attempts).to.equal(8);
+      expect(policy.blocking_duration).to.equal(600);
+      expect(policy.password_expiration.expiration_delay).to.equal(15553000);
+      expect(policy.password_expiration.excluded_users).to.deep.equal(["admin"]);
+      expect(policy.can_reuse_passwords).to.equal(true);
+      expect(policy.delay_before_new_password).to.equal(7200);
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

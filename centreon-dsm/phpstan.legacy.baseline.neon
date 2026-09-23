@@ -42,7 +42,7 @@ parameters:
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) rq must contain 3 or more characters\.$#'
-			count: 3
+			count: 4
 			path: www/modules/centreon-dsm/core/configuration/services/listSlot.php
 
 		-

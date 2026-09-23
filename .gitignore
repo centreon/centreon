@@ -21,9 +21,7 @@ centreon/Crashpad
 centreon/**/.X*
 centreon/www/widgets/**/static
 centreon/.com.google.Chrome*
-centreon/centreon-frontend.code-workspace
 **/build-storybook.log
-centreon/centreon-frontend.code-workspace
 
 # Php-CS-Fixer cache + output file
 .php-cs-fixer.cache
@@ -35,6 +33,9 @@ checkstyle.core.xml
 **/coverage-report/
 **/centreon-build/
 **/build/
+
+# locally generated self-signed certificates
+**/certs/
 
 # Mac Os cache files
 .DS_Store

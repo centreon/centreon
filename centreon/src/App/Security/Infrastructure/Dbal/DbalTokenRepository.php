@@ -26,7 +26,7 @@ namespace App\Security\Infrastructure\Dbal;
 use App\Security\Domain\Aggregate\Token;
 use App\Security\Domain\Aggregate\TokenId;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
-use App\Security\Domain\Exception\TokenDoesNotExistException;
+use App\Security\Domain\Exception\TokenNotFoundException;
 use App\Security\Domain\Repository\TokenRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use Doctrine\DBAL\Connection;
@@ -54,7 +54,7 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
         /** @var array{id:int, token: string, type: string, expiresAt: ?int, pc_name: string}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
-            throw new TokenDoesNotExistException(['token' => $token]);
+            throw new TokenNotFoundException(['token' => $token]);
         }
 
         return $this->createToken($row);
@@ -74,7 +74,7 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
         /** @var array{id:int, token: string, type: string, expiresAt: ?int, pc_name: string}|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
-            throw new TokenDoesNotExistException(['token' => $token]);
+            throw new TokenNotFoundException(['token' => $token]);
         }
 
         return $this->createToken($row);

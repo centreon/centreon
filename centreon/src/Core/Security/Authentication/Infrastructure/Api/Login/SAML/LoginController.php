@@ -24,11 +24,15 @@ declare(strict_types=1);
 namespace Core\Security\Authentication\Infrastructure\Api\Login\SAML;
 
 use Centreon\Application\Controller\AbstractController;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Infrastructure\Common\Api\HttpUrlTrait;
 use Core\Security\Authentication\Application\UseCase\Login\ThirdPartyLoginForm;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
+use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Infrastructure\Provider\ProviderAuthenticationFactory;
 use Core\Security\Authentication\Infrastructure\Provider\SAML;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
 final class LoginController extends AbstractController
@@ -45,10 +49,23 @@ final class LoginController extends AbstractController
     ) {
     }
 
+    /**
+     * @param Request $request
+     *
+     * @throws BadRequestException
+     * @throws ProviderException
+     * @throws SamlException
+     */
     public function __invoke(Request $request): void
     {
-        /** @var SAML $provider */
-        $provider = $this->providerAuthenticationFactory->create(Provider::SAML);
-        $provider->login($this->thirdPartyLoginForm->getReturnUrlBeforeAuth($request));
+        try {
+            /** @var SAML $provider */
+            $provider = $this->providerAuthenticationFactory->create(Provider::SAML);
+            $provider->login($this->thirdPartyLoginForm->getReturnUrlBeforeAuth($request));
+        } catch (BadRequestException|ProviderException|SamlException $e) {
+            ExceptionLogger::create()->log($e);
+
+            throw $e; // TODO: improve error handling to have a response and not an exception
+        }
     }
 }

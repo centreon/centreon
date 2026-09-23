@@ -135,6 +135,7 @@ interface Props {
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
   groupsClassName?: string;
+  inputsClassName?: string;
   inputs: Array<InputProps>;
   isCollapsible: boolean;
   isLoading?: boolean;
@@ -147,7 +148,8 @@ const Inputs = ({
   isCollapsible,
   groupDirection,
   groupsClassName,
-  areGroupsOpen
+  areGroupsOpen,
+  inputsClassName
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ groupDirection });
   const formikContext = useFormikContext<FormikValues>();
@@ -226,7 +228,7 @@ const Inputs = ({
                 hasGroupTitle={hasGroupTitle}
                 isCollapsible={isCollapsible}
               >
-                <div className={classes.inputs}>
+                <div className={cx(classes.inputs, inputsClassName)}>
                   {groupedInputs.map((inputProps) => {
                     const key =
                       isNotNil(inputProps.label) || isNotEmpty(inputProps.label)
@@ -234,13 +236,18 @@ const Inputs = ({
                         : inputProps.additionalLabel;
 
                     if (isLoading) {
-                      return <LoadingSkeleton input={inputProps} key={key} />;
+                      return (
+                        <LoadingSkeleton
+                          input={inputProps}
+                          key={key as string}
+                        />
+                      );
                     }
 
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div className={classes.inputWrapper} key={key}>
+                      <div className={classes.inputWrapper} key={key as string}>
                         {inputProps.additionalLabel && (
                           <Typography
                             className={cx(

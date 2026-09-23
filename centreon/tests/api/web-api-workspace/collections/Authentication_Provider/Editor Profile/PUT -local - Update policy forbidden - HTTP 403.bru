@@ -1,0 +1,46 @@
+meta {
+  name: PUT /local - Update policy forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrlWeb}}/administration/authentication/providers/local
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "password_security_policy": {
+      "password_min_length": 8,
+      "has_uppercase": false,
+      "has_lowercase": false,
+      "has_number": true,
+      "has_special_character": false,
+      "attempts": 8,
+      "blocking_duration": 600,
+      "password_expiration": {
+        "expiration_delay": 15553000,
+        "excluded_users": ["admin"]
+      },
+      "can_reuse_passwords": true,
+      "delay_before_new_password": 7200
+    }
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot update the local authentication provider.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

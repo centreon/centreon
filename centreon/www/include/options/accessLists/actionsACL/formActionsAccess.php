@@ -185,6 +185,17 @@ echo $ams1->getElementJs(false);
 $form->addElement('header', 'administration', _('Administration'));
 $form->addElement('checkbox', 'manage_tokens', _('Manage API tokens'));
 
+// Command configuration
+$form->addElement('header', 'configuration_command', _('Configuration'));
+$form->addElement('checkbox', 'see_check_commands', _('See check commands'));
+$form->addElement('checkbox', 'manage_check_commands', _('Manage check commands'));
+$form->addElement('checkbox', 'see_notification_commands', _('See notification commands'));
+$form->addElement('checkbox', 'manage_notification_commands', _('Manage notification commands'));
+$form->addElement('checkbox', 'see_discovery_commands', _('See discovery commands'));
+$form->addElement('checkbox', 'manage_discovery_commands', _('Manage discovery commands'));
+$form->addElement('checkbox', 'see_miscellaneous_commands', _('See miscellaneous commands'));
+$form->addElement('checkbox', 'manage_miscellaneous_commands', _('Manage miscellaneous commands'));
+
 // Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
 $groupActivation[] = $form->createElement('radio', 'acl_action_activate', null, _('Enabled'), '1');

@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Service_Category", "type": "collection", "ignore": ["node_modules", ".git"] }

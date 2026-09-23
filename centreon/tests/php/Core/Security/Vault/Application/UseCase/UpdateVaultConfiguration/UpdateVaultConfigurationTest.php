@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Vault\Application\UseCase\UpdateVaultConfiguration;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
@@ -126,10 +125,10 @@ it('should present InvalidArgumentResponse when one parameter is not valid', fun
 
     expect($presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
     expect($presenter->getResponseStatus()?->getMessage())->toBe(
-        AssertionException::ipOrDomain(
-            $invalidAddress,
-            'VaultConfiguration::address'
-        )->getMessage()
+        sprintf(
+            '[VaultConfiguration::address] The value "%s" was expected to be a valid IP address or hostname',
+            $invalidAddress
+        )
     );
 });
 

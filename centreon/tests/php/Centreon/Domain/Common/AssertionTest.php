@@ -151,16 +151,6 @@ $failDataProvider = [
         AssertionException::matchRegex('1234', '/^\d+$/', $propertyPath)->getMessage(),
         AssertionException::INVALID_REGEX,
     ],
-    'ipOrDomain("")' => [
-        fn () => Assertion::ipOrDomain('', $propertyPath),
-        AssertionException::ipOrDomain('', $propertyPath)->getMessage(),
-        AssertionException::INVALID_IP_OR_DOMAIN,
-    ],
-    'ipOrDomain("not:valid")' => [
-        fn () => Assertion::ipOrDomain('not:valid', $propertyPath),
-        AssertionException::ipOrDomain('not:valid', $propertyPath)->getMessage(),
-        AssertionException::INVALID_IP_OR_DOMAIN,
-    ],
     'ipAddress("any-hostname")' => [
         fn () => Assertion::ipAddress('any-hostname', $propertyPath),
         AssertionException::ipAddressNotValid('any-hostname', $propertyPath)->getMessage(),
@@ -315,12 +305,6 @@ $successDataProvider = [
     ],
     'regex("1234", "/^\d+$/")' => [
         fn () => Assertion::regex('1234', '/^\d+$/', $propertyPath),
-    ],
-    'ipOrDomain("1.2.3.4")' => [
-        fn () => Assertion::ipOrDomain('1.2.3.4', $propertyPath),
-    ],
-    'ipOrDomain("any-hostname")' => [
-        fn () => Assertion::ipOrDomain('any-hostname', $propertyPath),
     ],
     'ipAddress("2.3.4.5")' => [
         fn () => Assertion::ipAddress('2.3.4.5', $propertyPath),

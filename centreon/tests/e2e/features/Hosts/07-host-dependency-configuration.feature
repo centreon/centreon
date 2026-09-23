@@ -8,17 +8,17 @@ Feature: Hosts dependency configuration
     And some hosts and services are configured
     And a host dependency is configured
 
-  @TEST_MON-156456
+  @MON-156456
   Scenario: Change the properties of a host dependency
     When the user changes the properties of a host dependency
     Then the properties are updated
 
-  @TEST_MON-156457
+  @MON-156457
   Scenario: Duplicate one existing host dependency
     When the user duplicates a host dependency
     Then the new host dependency has the same properties
 
-  @TEST_MON-156459
+  @MON-156459
   Scenario: Delete one existing host dependency
     When the user deletes a host dependency
     Then the deleted host dependency is not displayed in the list

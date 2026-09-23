@@ -5,7 +5,10 @@ import { cond, equals, has } from 'ramda';
 
 import { CriteriaNames } from '../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';
-import { defaultSelectedColumnIdsforViewByHost } from '../../Listing/columns/index';
+import {
+  defaultSelectedColumnIds,
+  defaultSelectedColumnIdsforViewByHost
+} from '../../Listing/columns/index';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import { ResourceListing, Visualization } from '../../models';
 import { selectedVisualizationAtom } from '../actionsAtoms';
@@ -68,6 +71,7 @@ const useVisualization = ({ type }: Props): State => {
 
       return;
     }
+    setSelectedColumnIds(defaultSelectedColumnIds);
   };
 
   const updateSearchAndSortValues = (): void => {

@@ -25,43 +25,52 @@ use App\Kernel;
 use Centreon\Application\Validation\Constraints\RepositoryCallback;
 use Centreon\Application\Validation\Validator\Interfaces\CentreonValidatorInterface;
 use Centreon\ServiceProvider;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
-use Symfony\Component\Validator\Constraints\CallbackValidator;
+use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-class RepositoryCallbackValidator extends CallbackValidator implements CentreonValidatorInterface
+class RepositoryCallbackValidator extends ConstraintValidator implements CentreonValidatorInterface
 {
+    private ?ContainerInterface $container = null;
+
     /**
      * {@inheritDoc}
-     * @return void
      */
-    public function validate($object, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (! $constraint instanceof RepositoryCallback) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__ . '\RepositoryCallback');
+            throw new UnexpectedTypeException($constraint, RepositoryCallback::class);
         }
 
-        $method = $constraint->repoMethod;
-
-        $repository = (Kernel::createForWeb())
-            ->getContainer()
-            ->get($constraint->repository);
-
         $fieldAccessor = $constraint->fieldAccessor;
-        $value = $object->{$fieldAccessor}();
-        $field = $constraint->fields;
+        if (
+            $value === null
+            || ! (
+                is_object($value)
+                && method_exists($value, $fieldAccessor)
+            )
+        ) {
+            return;
+        }
 
-        if (! method_exists($constraint->repository, $method)) {
+        $repository = $this->getContainer()->get($constraint->repository);
+        $method = $constraint->repositoryMethod;
+        if (! method_exists($repository, $method)) {
             throw new ConstraintDefinitionException(sprintf(
                 '%s targeted by Callback constraint is not a valid callable in the repository',
                 json_encode($method)
             ));
         }
-        if ($object !== null && ! $repository->{$method}($object)) {
-            $this->context->buildViolation($constraint->message)
+
+        $fieldValue = $value->{$fieldAccessor}();
+        $field = $constraint->field;
+
+        if (! $repository->{$method}($value)) {
+            $this->context->buildViolation($constraint->errorMessage)
                 ->atPath($field)
-                ->setInvalidValue($value)
+                ->setInvalidValue($fieldValue)
                 ->setCode(RepositoryCallback::NOT_VALID_REPO_CALLBACK)
                 ->setCause('Not Satisfying method:' . $method)
                 ->addViolation();
@@ -78,5 +87,14 @@ class RepositoryCallbackValidator extends CallbackValidator implements CentreonV
         return [
             ServiceProvider::CENTREON_DB_MANAGER,
         ];
+    }
+
+    private function getContainer(): ContainerInterface
+    {
+        if (! $this->container instanceof ContainerInterface) {
+            $this->container = (Kernel::createForWeb())->getContainer();
+        }
+
+        return $this->container;
     }
 }

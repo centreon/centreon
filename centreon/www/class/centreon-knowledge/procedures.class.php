@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 define('PROCEDURE_SIMPLE_MODE', 0);
 define('PROCEDURE_INHERITANCE_MODE', 1);
 require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wikiApi.class.php';
@@ -84,31 +87,27 @@ class procedures
     {
         $tplArr = [];
 
-        $dbResult = $this->centreon_DB->query(
-            'SELECT service_description, service_template_model_stm_id '
+        $query = 'SELECT service_description, service_template_model_stm_id '
             . 'FROM service '
-            . "WHERE service_id = '" . $service_id . "' LIMIT 1"
+            . 'WHERE service_id = :service_id LIMIT 1';
+        $row = $this->centreon_DB->fetchAssociative(
+            $query,
+            QueryParameters::create([QueryParameter::int('service_id', (int) $service_id)])
         );
-        $row = $dbResult->fetch();
-        if (isset($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != '') {
-            $dbResult->closeCursor();
+        if ($row !== false && isset($row['service_template_model_stm_id']) && $row['service_template_model_stm_id'] != '') {
             $service_id = $row['service_template_model_stm_id'];
             if ($row['service_description']) {
                 $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
             }
             while (1) {
-                $dbResult = $this->centreon_DB->query(
-                    'SELECT service_description, service_template_model_stm_id '
-                    . 'FROM service '
-                    . "WHERE service_id = '" . $service_id . "' LIMIT 1"
+                $row = $this->centreon_DB->fetchAssociative(
+                    $query,
+                    QueryParameters::create([QueryParameter::int('service_id', (int) $service_id)])
                 );
-                $row = $dbResult->fetch();
-                $dbResult->closeCursor();
-                if ($row['service_description']) {
-                    $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
-                } else {
+                if ($row === false || ! $row['service_description']) {
                     break;
                 }
+                $tplArr[$service_id] = html_entity_decode($row['service_description'], ENT_QUOTES);
                 if ($row['service_template_model_stm_id']) {
                     $service_id = $row['service_template_model_stm_id'];
                 } else {
@@ -135,24 +134,23 @@ class procedures
         }
 
         $tplArr = [];
-        $dbResult = $this->centreon_DB->query(
+        $templateRelations = $this->centreon_DB->fetchAllAssociative(
             'SELECT host_tpl_id '
             . 'FROM `host_template_relation` '
-            . "WHERE host_host_id = '" . $host_id . "' "
-            . 'ORDER BY `order`'
+            . 'WHERE host_host_id = :host_id '
+            . 'ORDER BY `order`',
+            QueryParameters::create([QueryParameter::int('host_id', (int) $host_id)])
         );
-        $statement = $this->centreon_DB->prepare(
-            'SELECT host_name '
-            . 'FROM host '
-            . 'WHERE host_id = :host_id LIMIT 1'
-        );
-        while ($row = $dbResult->fetch()) {
-            $statement->bindValue(':host_id', $row['host_tpl_id'], PDO::PARAM_INT);
-            $statement->execute();
-            $hTpl = $statement->fetch(PDO::FETCH_ASSOC);
-            $tplArr[$row['host_tpl_id']] = html_entity_decode($hTpl['host_name'], ENT_QUOTES);
+        $hostNameQuery = 'SELECT host_name FROM host WHERE host_id = :host_id LIMIT 1';
+        foreach ($templateRelations as $row) {
+            $hTpl = $this->centreon_DB->fetchAssociative(
+                $hostNameQuery,
+                QueryParameters::create([QueryParameter::int('host_id', (int) $row['host_tpl_id'])])
+            );
+            if ($hTpl !== false) {
+                $tplArr[$row['host_tpl_id']] = html_entity_decode($hTpl['host_name'], ENT_QUOTES);
+            }
         }
-        unset($row, $hTpl);
 
         return $tplArr;
     }

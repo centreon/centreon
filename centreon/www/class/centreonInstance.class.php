@@ -250,7 +250,6 @@ class CentreonInstance
     {
         global $centreon;
 
-        $selectedInstances = '';
         $items = [];
 
         if (empty($values)) {
@@ -262,28 +261,33 @@ class CentreonInstance
             $pollerAcl = $centreon->user->access->getPollers();
         }
 
-        $listValues = '';
-        $queryValues = [];
-        foreach ($values as $k => $v) {
-            $multipleValues = explode(',', $v);
-            foreach ($multipleValues as $item) {
-                $listValues .= ':pId_' . $item . ', ';
-                $queryValues['pId_' . $item] = (int) $item;
+        $pollerIdPlaceholders = [];
+        $instanceIdPlaceholders = [];
+        $boundInstanceIds = [];
+        $index = 0;
+        foreach ($values as $value) {
+            foreach (explode(',', $value) as $instanceId) {
+                $pollerIdPlaceholder = ':pollerId_' . $index;
+                $instanceIdPlaceholder = ':instanceId_' . $index;
+                $pollerIdPlaceholders[] = $pollerIdPlaceholder;
+                $instanceIdPlaceholders[] = $instanceIdPlaceholder;
+                $boundInstanceIds[$pollerIdPlaceholder] = (int) $instanceId;
+                $boundInstanceIds[$instanceIdPlaceholder] = (int) $instanceId;
+                $index++;
             }
         }
-        $listValues = rtrim($listValues, ', ');
-        $selectedInstances .= " AND rel.instance_id IN ({$listValues}) ";
 
         $query = 'SELECT DISTINCT p.name as name, p.id  as id FROM cfg_resource r, nagios_server p, '
             . 'cfg_resource_instance_relations rel '
             . ' WHERE r.resource_id = rel.resource_id'
             . ' AND p.id = rel.instance_id '
-            . ' AND p.id IN (' . $listValues . ')' . $selectedInstances
+            . ' AND p.id IN (' . implode(', ', $pollerIdPlaceholders) . ')'
+            . ' AND rel.instance_id IN (' . implode(', ', $instanceIdPlaceholders) . ') '
             . ' ORDER BY p.name';
 
         $stmt = $this->db->prepare($query);
-        foreach ($queryValues as $key => $id) {
-            $stmt->bindValue(':' . $key, $id, PDO::PARAM_INT);
+        foreach ($boundInstanceIds as $placeholder => $id) {
+            $stmt->bindValue($placeholder, $id, PDO::PARAM_INT);
         }
         $stmt->execute();
         while ($data = $stmt->fetch()) {

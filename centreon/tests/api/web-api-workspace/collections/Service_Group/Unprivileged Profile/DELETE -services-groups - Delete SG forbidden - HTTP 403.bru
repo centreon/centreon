@@ -1,0 +1,27 @@
+meta {
+  name: DELETE /services/groups - Delete SG forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/groups/{{ServiceGroup2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to delete a service group.", function () {
+    const body = res.getBody();
+    expect(body.message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

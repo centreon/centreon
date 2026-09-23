@@ -41,7 +41,9 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -74,6 +76,7 @@ beforeEach(function (): void {
 
     $this->useCase = new PartialUpdateHostTemplate(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),
@@ -87,7 +90,8 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
-        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class)
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -199,7 +203,7 @@ beforeEach(function (): void {
     $this->macroA->setOrder(0);
     $this->macroB = new Macro(null, $this->hostTemplateId, 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
-    $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
+    $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'COMMANDMACRONAME');
     $this->commandMacros = [
         $this->commandMacro->getName() => $this->commandMacro,
     ];
@@ -797,6 +801,169 @@ it('should present a NoContentResponse on success', function (): void {
     $this->writeHostCategoryRepository
         ->expects($this->once())
         ->method('unlinkFromHost');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should load command macros from an inherited check command when the host template defines none', function (): void {
+    $this->request->checkCommandId = null;
+    $inheritedCommandId = 42;
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->readCommandRepository
+        ->expects($this->never())
+        ->method('findById');
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Parent templates
+    $this->validation->expects($this->once())->method('assertAreValidTemplates');
+    $this->writeHostTemplateRepository->expects($this->once())->method('deleteParents');
+    $this->writeHostTemplateRepository->expects($this->exactly(2))->method('addParent');
+
+    // Macros: host template has no checkCommandId; InheritanceManager resolves it from a parent
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($this->inheritanceLineIds);
+    $this->readHostMacroRepository
+        ->expects($this->once())
+        ->method('findByHostIds')
+        ->willReturn($this->hostMacros);
+    $this->inheritanceManager
+        ->expects($this->once())
+        ->method('findInheritedCheckCommandId')
+        ->willReturn($inheritedCommandId);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Host)
+        ->willReturn($this->commandMacros);
+    $this->writeHostMacroRepository->expects($this->once())->method('delete');
+    $this->writeHostMacroRepository->expects($this->once())->method('add');
+    $this->writeHostMacroRepository->expects($this->once())->method('update');
+
+    // Categories
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([$this->categoryA]);
+    $this->writeHostCategoryRepository->expects($this->once())->method('linkToHost');
+    $this->writeHostCategoryRepository->expects($this->once())->method('unlinkFromHost');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should delete a command macro from an inherited check command when its value is cleared', function (): void {
+    // Host template has no own check command — it inherits one from a parent template.
+    // A macro from that command was previously saved on the host template with a value.
+    // When the user clears the value, the macro must be deleted (step 8).
+    $this->request->checkCommandId = null;
+    $inheritedCommandId = 42;
+
+    $savedCommandMacro = new Macro(null, $this->hostTemplateId, 'commandMacroName', 'somevalue');
+
+    $this->request->macros = [
+        ['name' => 'commandMacroName', 'value' => '', 'is_password' => false, 'description' => null],
+    ];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->readCommandRepository
+        ->expects($this->never())
+        ->method('findById');
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->writeHostTemplateRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Parent templates
+    $this->validation->expects($this->once())->method('assertAreValidTemplates');
+    $this->writeHostTemplateRepository->expects($this->once())->method('deleteParents');
+    $this->writeHostTemplateRepository->expects($this->exactly(2))->method('addParent');
+
+    // Macros: host template has no checkCommandId; commandMacroName was previously saved with a value
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($this->inheritanceLineIds);
+    $this->readHostMacroRepository
+        ->expects($this->once())
+        ->method('findByHostIds')
+        ->willReturn([$savedCommandMacro]);
+    $this->inheritanceManager
+        ->expects($this->once())
+        ->method('findInheritedCheckCommandId')
+        ->willReturn($inheritedCommandId);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Host)
+        ->willReturn($this->commandMacros);
+
+    // Clearing the value must delete the macro, not update it
+    $this->writeHostMacroRepository->expects($this->once())->method('delete');
+    $this->writeHostMacroRepository->expects($this->never())->method('add');
+    $this->writeHostMacroRepository->expects($this->never())->method('update');
+
+    // Categories
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([$this->categoryA]);
+    $this->writeHostCategoryRepository->expects($this->once())->method('linkToHost');
+    $this->writeHostCategoryRepository->expects($this->once())->method('unlinkFromHost');
 
     ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
 

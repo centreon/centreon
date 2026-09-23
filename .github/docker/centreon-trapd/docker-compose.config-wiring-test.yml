@@ -1,0 +1,38 @@
+# Service definitions for the trap-forwarding wiring test on the
+# centreon-centreontrapd / centreon-snmptrapd product images. Driven by
+# .github/scripts/centreon-trapd-docker-config-wiring-test.sh — this file
+# only declares the services.
+#
+# Both containers mount the same named volume at /var/spool/centreontrapd:
+# snmptrapd's centreontrapdforward writes trap files there, centreontrapd
+# watches it - this reproduces the real production wiring.
+services:
+  centreontrapd:
+    image: ${CENTREONTRAPD_IMAGE}
+    # Override the image's default --severity=error so the "Processing
+    # file: ..." trace (and everything else) shows up in `docker compose
+    # logs` - the test greps for it as direct proof centreontrapd picked up
+    # the trap, not just that it later vanished from the spool.
+    command: [
+      "/usr/bin/perl", "/usr/share/centreon/bin/centreontrapd",
+      "--logfile=/dev/stdout", "--severity=debug",
+      "--config=/etc/centreon/conf.pm", "--config-extra=/etc/centreon/centreontrapd.pm"
+    ]
+    volumes:
+      - trap-spool:/var/spool/centreontrapd
+      # Seeded by centreon-trapd-docker-config-wiring-test.sh - see
+      # fixtures/centreontrapd-sdb.sql for why this is required.
+      - ${CENTREONTRAPD_SDB_FIXTURE}:/etc/snmp/centreon_traps/centreontrapd.sdb
+
+  snmptrapd:
+    image: ${SNMPTRAPD_IMAGE}
+    # Required for the non-root (uid 900) daemon to bind UDP/162.
+    cap_add:
+      - NET_BIND_SERVICE
+    volumes:
+      - trap-spool:/var/spool/centreontrapd
+    ports:
+      - "1620:162/udp"
+
+volumes:
+  trap-spool:

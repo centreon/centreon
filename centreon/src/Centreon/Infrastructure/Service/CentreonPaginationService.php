@@ -184,7 +184,6 @@ class CentreonPaginationService
      * Set pagination order
      *
      * @param array $extras
-     * @throws RuntimeException
      * @return CentreonPaginationService
      */
     public function setExtras($extras): self

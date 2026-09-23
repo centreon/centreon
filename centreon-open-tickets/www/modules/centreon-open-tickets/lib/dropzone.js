@@ -26,7 +26,7 @@
  */
 
 (function() {
-  var Dropzone, Emitter, ExifRestore, camelize, contentLoaded, detectVerticalSquash, drawImageIOSFix, noop, without,
+  var Dropzone, Emitter, ExifRestore, camelize, contentLoaded, detectVerticalSquash, drawImageIOSFix, escapeHtml, noop, sanitizeElement, without,
     slice = [].slice,
     extend1 = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -301,7 +301,7 @@
             node.innerHTML = this.filesize(file.size);
           }
           if (this.options.addRemoveLinks) {
-            file._removeLink = Dropzone.createElement("<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + this.options.dictRemoveFile + "</a>");
+            file._removeLink = Dropzone.createElement("<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + escapeHtml(this.options.dictRemoveFile) + "</a>");
             file.previewElement.appendChild(file._removeLink);
           }
           removeFileEvent = (function(_this) {
@@ -576,7 +576,7 @@
         this.element.setAttribute("enctype", "multipart/form-data");
       }
       if (this.element.classList.contains("dropzone") && !this.element.querySelector(".dz-message")) {
-        this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>" + this.options.dictDefaultMessage + "</span></div>"));
+        this.element.appendChild(Dropzone.createElement("<div class=\"dz-default dz-message\"><span>" + escapeHtml(this.options.dictDefaultMessage) + "</span></div>"));
       }
       if (this.clickableElements.length) {
         setupHiddenFileInput = (function(_this) {
@@ -774,12 +774,12 @@
       }
       fieldsString = "<div class=\"dz-fallback\">";
       if (this.options.dictFallbackText) {
-        fieldsString += "<p>" + this.options.dictFallbackText + "</p>";
+        fieldsString += "<p>" + escapeHtml(this.options.dictFallbackText) + "</p>";
       }
-      fieldsString += "<input type=\"file\" name=\"" + (this._getParamName(0)) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
+      fieldsString += "<input type=\"file\" name=\"" + escapeHtml(this._getParamName(0)) + "\" " + (this.options.uploadMultiple ? 'multiple="multiple"' : void 0) + " /><input type=\"submit\" value=\"Upload!\"></div>";
       fields = Dropzone.createElement(fieldsString);
       if (this.element.tagName !== "FORM") {
-        form = Dropzone.createElement("<form action=\"" + this.options.url + "\" enctype=\"multipart/form-data\" method=\"" + this.options.method + "\"></form>");
+        form = Dropzone.createElement("<form action=\"" + escapeHtml(this.options.url) + "\" enctype=\"multipart/form-data\" method=\"" + escapeHtml(this.options.method) + "\"></form>");
         form.appendChild(fields);
       } else {
         this.element.setAttribute("enctype", "multipart/form-data");
@@ -1657,10 +1657,48 @@
     });
   };
 
+  escapeHtml = function(str) {
+    return String(str).replace(/[&<>"']/g, function(char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char];
+    });
+  };
+
+  sanitizeElement = function(root) {
+    var attr, el, i, j, name, ref, scripts, value;
+    scripts = root.querySelectorAll("script");
+    for (i = 0; i < scripts.length; i++) {
+      scripts[i].parentNode.removeChild(scripts[i]);
+    }
+    ref = root.querySelectorAll("*");
+    for (j = 0; j < ref.length; j++) {
+      el = ref[j];
+      i = el.attributes.length - 1;
+      while (i >= 0) {
+        attr = el.attributes[i];
+        name = attr.name.toLowerCase();
+        value = attr.value.replace(/[\t\r\n]/g, "");
+        if (name.indexOf("on") === 0 || name === "srcdoc") {
+          el.removeAttribute(attr.name);
+        } else if ((name === "href" || name === "src" || name === "xlink:href") && /^\s*javascript:/i.test(value)) {
+          el.removeAttribute(attr.name);
+        }
+        i--;
+      }
+    }
+    return root;
+  };
+
   Dropzone.createElement = function(string) {
     var div;
     div = document.createElement("div");
     div.innerHTML = string;
+    sanitizeElement(div);
     return div.childNodes[0];
   };
 

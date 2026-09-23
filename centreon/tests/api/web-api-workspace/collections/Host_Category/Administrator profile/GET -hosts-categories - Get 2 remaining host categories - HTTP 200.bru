@@ -1,0 +1,48 @@
+meta {
+  name: GET /hosts/categories - Get 2 remaining host categories - HTTP 200
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host categories are listed with all of their parameters, HC1 is absent.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const hc1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostCategory1Id")));
+    const hc2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostCategory2Id")));
+    const hc3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostCategory3Id")));
+
+    expect(hc1).to.be.undefined;
+    expect(hc2).to.eql({
+      "id": parseInt(bru.getEnvVar("HostCategory2Id")),
+      "name": bru.getEnvVar("HostCategory2Name"),
+      "alias": bru.getEnvVar("HostCategory2Alias"),
+      "is_activated": true,
+      "comment": null
+    });
+    expect(hc3).to.eql({
+      "id": parseInt(bru.getEnvVar("HostCategory3Id")),
+      "name": bru.getEnvVar("HostCategory3Name"),
+      "alias": bru.getEnvVar("HostCategory3Alias"),
+      "is_activated": false,
+      "comment": "Transformmattiooonnnnnn!!!!!"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

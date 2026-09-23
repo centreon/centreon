@@ -27,7 +27,9 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
+use Core\Resources\Application\Repository\FindResourcesResult;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResources;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
@@ -36,11 +38,15 @@ use Mockery;
 
 beforeEach(function (): void {
     $this->presenter = new FindResourcesPresenterStub();
+    $this->accessGroupRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
+    $this->contact = Mockery::mock(ContactInterface::class);
+    $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class);
     $this->useCase = new FindResources(
-        $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class),
-        $this->contact = Mockery::mock(ContactInterface::class),
-        $this->accessGroupRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class),
-        new \ArrayObject([])
+        $this->resourcesRepository,
+        $this->contact,
+        $this->accessGroupRepository,
+        new \ArrayObject([]),
+        new AdminResolver($this->accessGroupRepository, isCloudPlatform: false),
     );
 });
 
@@ -68,7 +74,7 @@ it(
         $this->contact->shouldReceive('isAdmin')->once()->andReturn(true);
         $this->resourcesRepository
             ->shouldReceive('findResources')
-            ->andReturn([]);
+            ->andReturn(new FindResourcesResult(resources: [], isApproximate: false));
         $this->accessGroupRepository->shouldReceive('findByContact')->never();
 
         ($this->useCase)($this->presenter, new ResourceFilter());
@@ -86,7 +92,7 @@ it(
             ->andReturn([]);
         $this->resourcesRepository
             ->shouldReceive('findResourcesByAccessGroupIds')
-            ->andReturn([]);
+            ->andReturn(new FindResourcesResult(resources: [], isApproximate: false));
 
         ($this->useCase)($this->presenter, new ResourceFilter());
 

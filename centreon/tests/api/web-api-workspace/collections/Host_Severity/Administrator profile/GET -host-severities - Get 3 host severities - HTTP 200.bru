@@ -1,0 +1,37 @@
+meta {
+  name: GET /host-severities - Get 3 host severities - HTTP 200
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Three host severities are listed.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const ids = [
+      parseInt(bru.getEnvVar("HostSeverity1Id")),
+      parseInt(bru.getEnvVar("HostSeverity2Id")),
+      parseInt(bru.getEnvVar("HostSeverity3Id"))
+    ];
+    ids.forEach(id => {
+      expect(body.result.some(r => r.id === id)).to.be.true;
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

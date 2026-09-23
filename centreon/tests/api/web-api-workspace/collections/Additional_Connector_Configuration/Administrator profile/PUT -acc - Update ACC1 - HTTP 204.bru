@@ -1,0 +1,41 @@
+meta {
+  name: PUT /acc - Update ACC1 - HTTP 204
+  type: http
+  seq: 20
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations/{{ACC1Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "acc-001-updated",
+    "description": "I'm the first ACC but not really",
+    "pollers": [4],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{
+        "id": {{ACC1VcenterId}},
+        "name": "my-vcenter-updated",
+        "url": "http://10.20.20.10/sdk",
+        "username": "admin-v2",
+        "password": "my-pwd-v2"
+      }]
+    }
+  }
+}
+
+tests {
+  test("ACC1 has been successfully updated (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([204, 404, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

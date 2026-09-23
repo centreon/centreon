@@ -59,7 +59,7 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool
     {
         throw RepositoryException::notYetImplemented();
     }
@@ -214,6 +214,46 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
      * @inheritDoc
      */
     public function findNameById(int $serviceId): ?string
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames, array $pollerIds = [], array $hostIds = []): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsLinkedToHostIds(array $hostIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsLinkedToHostsThroughHostGroups(array $hostIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParentsByServiceIds(array $serviceIds): array
     {
         throw RepositoryException::notYetImplemented();
     }

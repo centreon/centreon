@@ -1,0 +1,42 @@
+meta {
+  name: GET /hosts/groups - Get HGs filtered by HC1 or HC2 - HTTP 200
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/groups?search={ "$or":[{"hostcategory.id":{{HostCategory1Id}}},{"hostcategory.id":{{HostCategory2Id}}}]}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Host groups filtered by HC1 or HC2 are retrieved with all their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body.result.length).to.eql(1);
+
+    const hg2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup2Id")));
+    expect(hg2).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup2Id")),
+      "name": bru.getEnvVar("HostGroup2Name"),
+      "alias": null,
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "enabled_hosts_count": 1,
+      "disabled_hosts_count": 0
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

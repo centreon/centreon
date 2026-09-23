@@ -133,7 +133,8 @@ final class FindDashboardContactGroups
      *
      * OnPremise
      *
-     * Retrieve contact groups to which belongs the current user and having access to Dashboard.
+     * Retrieve contact groups that are linked to ACL Access Groups that the current user belongs to.
+     * This allows sharing with any contact group in a common ACL Access Group.
      *
      * @throws \Throwable
      *
@@ -148,9 +149,12 @@ final class FindDashboardContactGroups
             );
         }
 
-        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByUserAndRequestParameters(
+        $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
+        $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+
+        return $this->readDashboardShareRepository->findContactGroupsWithAccessRightByACLGroupsAndRequestParameters(
             $this->requestParameters,
-            $this->contact->getId()
+            $accessGroupIds
         );
     }
 

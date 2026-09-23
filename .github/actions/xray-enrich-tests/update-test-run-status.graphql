@@ -1,0 +1,4 @@
+# Mutation to force a Test Run status (used to mark unfinished runs as ABORTED).
+mutation UpdateTestRunStatus($id: String!, $status: String!) {
+  updateTestRunStatus(id: $id, status: $status)
+}

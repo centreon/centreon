@@ -15,6 +15,7 @@ import type {
   ConditionsSearchParameter,
   GetConditionsSearchQueryParameterValueState,
   GetListsSearchQueryParameterValueProps,
+  ListsSearchParameter,
   RegexSearchParameter,
   RegexSearchQueryParameterValue,
   SearchMatch,
@@ -64,7 +65,7 @@ const getRegexSearchQueryParameterValue = (
 };
 
 const getListsSearchQueryParameterValue = (
-  lists
+  lists: Array<ListsSearchParameter> | undefined
 ): GetListsSearchQueryParameterValueProps | undefined => {
   if (lists === undefined) {
     return undefined;
@@ -110,14 +111,16 @@ const getConditionsSearchQueryParameterValue = (
             ];
           }
 
-          return toPairs(values || {}).map(([operator, operatorValue]) => ({
+          return (toPairs as (obj: object) => Array<[string, unknown]>)(
+            values || {}
+          ).map(([operator, operatorValue]) => ({
             [listField]: {
               [operator]: operatorValue
             }
           }));
         })
       )
-    };
+    } as { $or: Array<Record<string, unknown>> };
   };
 
   return {

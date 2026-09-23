@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /users/filters/events-view/{filterId} - Delete user filter by editor - HTTP 204
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrlWeb}}/users/filters/events-view/{{UserFilter2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("User filter has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

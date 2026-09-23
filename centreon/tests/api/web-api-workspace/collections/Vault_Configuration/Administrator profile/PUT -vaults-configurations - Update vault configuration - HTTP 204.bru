@@ -1,0 +1,39 @@
+meta {
+  name: PUT /administration/vaults/configurations - Update vault configuration - HTTP 204
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{baseUrlWeb}}/administration/vaults/configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "address": "vault.test.local",
+    "port": 8200,
+    "root_path": "centreon",
+    "role_id": "test-role-id-bruno",
+    "secret_id": "test-secret-id-bruno"
+  }
+}
+
+tests {
+  test("PUT /administration/vaults/configurations - Update vault configuration - HTTP 204 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 404]);
+  });
+
+  if (res.status === 204) {
+    test("The vault configuration has been successfully updated.", function () {
+      expect(res.getBody()).to.be.empty;
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

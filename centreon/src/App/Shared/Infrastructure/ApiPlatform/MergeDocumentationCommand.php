@@ -57,7 +57,7 @@ final readonly class MergeDocumentationCommand
 
         /**
          * @var array{
-         *   paths: array<string, mixed>,
+         *   paths: array<string, array<string, mixed>>,
          *   tags: array<array{name: string, ...}>,
          *   components: array{
          *     parameters: array<string, mixed>,
@@ -70,7 +70,7 @@ final readonly class MergeDocumentationCommand
 
         /**
          * @var array{
-         *   paths: array{paths: array<string, mixed>},
+         *   paths: array<string, array<string, mixed>>,
          *   tags: array<array{name: string, ...}>,
          *   components: array{
          *     parameters: array<string, mixed>,
@@ -79,19 +79,32 @@ final readonly class MergeDocumentationCommand
          *   },
          * }
          */
-        $newDoc = $this->normalizer->normalize(($this->openApiFactory)());
-
+        $newDoc = $this->normalizer->normalize(($this->openApiFactory)(), 'json', ['spec_version' => '3.1.0']);
+        /** @var array{paths: array<string, array<string, mixed>>, tags: array<array{name: string, ...}>, components: array{parameters: array<string, mixed>, responses: array<string, mixed>, schemas: array<string, mixed>}} $newDoc */
+        $newDoc = $this->removeEmptyLinks($newDoc);
+        /** @var array{paths: array<string, array<string, mixed>>, tags: array<array{name: string, ...}>, components: array{parameters: array<string, mixed>, responses: array<string, mixed>, schemas: array<string, mixed>}} $newDoc */
         $io->section('Paths...');
-        foreach ($newDoc['paths']['paths'] as $url => $path) {
-            /** @var string $url */
-            $url = preg_replace('#/api/latest#', '', (string) $url);
+        foreach ($newDoc['paths'] as $url => $path) {
+            // Keep the canonical bare `/api` prefix emitted by API Platform (see #11078); the doc's
+            // server base is `/centreon`, so `/api/...` paths resolve to `/centreon/api/...`.
+            $url = (string) $url;
             $io->text($url);
 
-            if (! $override && isset($doc['paths'][$url]) && ! $this->askOverride($io, $url)) {
+            if (! isset($doc['paths'][$url])) {
+                $doc['paths'][$url] = $path;
                 continue;
             }
 
-            $doc['paths'][$url] = $path;
+            foreach ($path as $method => $operation) {
+                $label = mb_strtoupper((string) $method) . ' ' . $url;
+                $io->text('  ' . $label);
+
+                if (! $override && isset($doc['paths'][$url][$method]) && ! $this->askOverride($io, $label)) {
+                    continue;
+                }
+
+                $doc['paths'][$url][$method] = $operation;
+            }
         }
 
         $io->section('Tags...');
@@ -163,5 +176,32 @@ final readonly class MergeDocumentationCommand
     private function askOverride(SymfonyStyle $io, string $subject): bool
     {
         return $io->choice(\sprintf('"%s" already exist.', $subject), ['skip', 'override'], 'override') === 'override';
+    }
+
+    /**
+     * Remove empty `links` entries from the generated spec.
+     *
+     * ApiPlatform emits `links: []` on operation responses that declare no links. The OpenAPI
+     * Response Object requires `links` to be a map, so an empty array is invalid — drop it.
+     *
+     * @param array<mixed> $node
+     *
+     * @return array<mixed>
+     */
+    private function removeEmptyLinks(array $node): array
+    {
+        foreach ($node as $key => $value) {
+            if ($key === 'links' && $value === []) {
+                unset($node[$key]);
+
+                continue;
+            }
+
+            if (\is_array($value)) {
+                $node[$key] = $this->removeEmptyLinks($value);
+            }
+        }
+
+        return $node;
     }
 }

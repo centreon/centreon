@@ -3,7 +3,7 @@ import { TimePeriods, useRequest } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
 import { listResources } from '../../../Listing/api';
@@ -24,7 +24,9 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
   );
 
   const { sendRequest, sending } = useRequest({
-    request: listResources
+    request: listResources as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ListingModel<Resource>>
   });
 
   const limit = 6;
@@ -52,9 +54,12 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
     });
   };
 
-  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
-    setGraphTimeParameters(data);
-  };
+  const getTimePeriodsParameters = useCallback(
+    (data: GraphTimeParameters): void => {
+      setGraphTimeParameters(data);
+    },
+    []
+  );
 
   return (
     <InfiniteScroll<Resource>

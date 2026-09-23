@@ -66,6 +66,15 @@ export const adaptResourceAccessRule = ({
   description,
   isActivated,
   name
+}: {
+  allContactGroups: boolean;
+  allContacts: boolean;
+  contactGroups: Array<Resource>;
+  contacts: Array<Resource>;
+  datasetFilters: Array<Array<Dataset>>;
+  description: string;
+  isActivated: boolean;
+  name: string;
 }): object => ({
   contact_groups: {
     all: allContactGroups,

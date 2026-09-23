@@ -62,7 +62,7 @@ const standardFilterById = {
 };
 
 const isCustom = ({ id }: Filter): boolean => {
-  return isNil(standardFilterById[id]);
+  return isNil((standardFilterById as Record<string, unknown>)[id]);
 };
 
 export {

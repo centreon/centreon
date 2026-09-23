@@ -4,6 +4,7 @@ import {
   Then,
   When
 } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
@@ -48,52 +49,52 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getLastestUserFilters');
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/downtime'
+    url: `${INTERCEPTORS.api.monitor_resources}/downtime`
   }).as('postSaveDowntime');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone&action=list*'
+    url: `${INTERCEPTORS.pages.centreon_configuration_timezone}&action=list*`
   }).as('getTimezonesList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/hosts/*/services/*/acknowledgements?limit=1'
+    url: `${INTERCEPTORS.api.host_services}/*/acknowledgements?limit=1`
   }).as('getAckToolTip');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_configuration_service&action=list&e=enable&page_limit=60&page=1'
+    url: `${INTERCEPTORS.api.centreon_configuration_service}&action=list&e=enable&page_limit=60&page=1`
   }).as('getServices');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users/current/parameters'
+    url: INTERCEPTORS.api.users_parameters
   }).as('getUserParameters');
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+    url: `${INTERCEPTORS.api.monitor_resources}/acknowledge`
   }).as('postAcknowledgments');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service&action=list&q=*&page_limit=20&page=1'
+    url: `${INTERCEPTORS.pages.centreon_performance_service}&action=list&q=*&page_limit=20&page=1`
   }).as('getCharts');
 });
 

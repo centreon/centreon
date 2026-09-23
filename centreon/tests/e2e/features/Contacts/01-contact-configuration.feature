@@ -3,7 +3,7 @@ Feature: ContactConfiguration
   I want to manage contacts
   To configure them
 
-  @TEST_MON-151165
+  @MON-151165
   Scenario Outline: Edit one existing contact
     Given a <userType> user is logged in a Centreon server
     And a contact is configured
@@ -15,7 +15,7 @@ Feature: ContactConfiguration
       | "admin"      |
       | "non-admin"  |
 
-  @TEST_MON-151166
+  @MON-151166
   Scenario Outline: Duplicate one existing contact
     Given a <userType> user is logged in a Centreon server
     And a contact is configured
@@ -27,7 +27,7 @@ Feature: ContactConfiguration
       | "admin"      |
       | "non-admin"  |
 
-  @TEST_MON-151167
+  @MON-151167
   Scenario Outline: Delete one existing contact
     Given a <userType> user is logged in a Centreon server
     And a contact is configured
@@ -39,7 +39,7 @@ Feature: ContactConfiguration
       | "admin"     |
       | "non-admin"  |
 
-  @TEST_MON-184141
+  @MON-184141
   Scenario Outline: Missing required field during the creation of a contact
     Given a <userType> user is logged in a Centreon server
     And the contact configuration page is displayed
@@ -58,7 +58,7 @@ Feature: ContactConfiguration
       | "non-admin"| "Full Name"      | Compulsory Name   |
       | "non-admin"| "Email"          | Valid Email       |
 
-  @TEST_MON-184160
+  @MON-184160
   Scenario Outline: Error during the update of a contact
     Given a <userType> user is logged in a Centreon server
     And a contact is configured
@@ -73,7 +73,7 @@ Feature: ContactConfiguration
       | "admin"     |
       | "non-admin"  |
 
-  @TEST_MON-184168
+  @MON-184168
   Scenario: Check the list of contacts
     Given a non-admin user with READ ONLY rights is configured by the admin
     And a contact is configured

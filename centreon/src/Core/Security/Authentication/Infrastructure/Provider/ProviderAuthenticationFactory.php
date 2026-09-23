@@ -26,9 +26,9 @@ namespace Core\Security\Authentication\Infrastructure\Provider;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Security\Domain\Authentication\Exceptions\ProviderException;
 
 readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInterface
 {
@@ -51,13 +51,13 @@ readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFa
             Provider::OPENID => $this->openId,
             Provider::WEB_SSO => $this->webSSO,
             Provider::SAML => $this->saml,
-            default => throw ProviderException::providerConfigurationNotFound($providerType),
+            default => throw ProviderException::unexpectedProvider($providerType),
         };
 
         try {
             $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
         } catch (RepositoryException $e) {
-            throw ProviderException::findProviderConfiguration($providerType, $e);
+            throw ProviderException::errorWhileSearchingConfiguration($providerType, $e);
         }
 
         return $provider;

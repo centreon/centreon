@@ -42,6 +42,8 @@ if (($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) && $co
     $compo = $stmt->fetchRow();
 }
 
+$isDefaultTemplate = isset($compo['default_tpl1']) && $compo['default_tpl1'] == '1';
+
 // Graphs comes from DB -> Store in $graphs Array
 $graphs = [];
 $stmt = $pearDB->query('SELECT graph_id, name FROM giv_graphs_template ORDER BY name');
@@ -190,7 +192,13 @@ $form->addElement(
         '3' => 3,
     ]
 );
-$form->addElement('text', 'ds_legend', _('Legend Name'), $attrsText);
+$legendAttrs = $isDefaultTemplate
+    ? array_merge($attrsText, [
+        'disabled' => 'disabled',
+        'style' => 'background-color: var(--color-alto-5, #e0e0e0);',
+    ])
+    : $attrsText;
+$form->addElement('text', 'ds_legend', _('Legend Name'), $legendAttrs);
 $form->addElement('checkbox', 'ds_hidecurve', _('Display Only The Legend'));
 $form->addElement(
     'select',
@@ -263,6 +271,9 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         _('Modify'),
         ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&compo_id=' . $compo_id . "'"]
     );
+    if ($isDefaultTemplate) {
+        $compo['ds_legend'] = '';
+    }
     $form->setDefaults($compo);
     $form->freeze();
 } elseif ($o === MODIFY_COMPONENT_TEMPLATE) {
@@ -281,6 +292,9 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
             'class' => 'btc bt_default',
         ]
     );
+    if ($isDefaultTemplate) {
+        $compo['ds_legend'] = '';
+    }
     $form->setDefaults($compo);
 } elseif ($o === ADD_COMPONENT_TEMPLATE) {
     // add
@@ -353,6 +367,9 @@ $tpl->assign('sort2', _('Graphs'));
 // prepare help texts
 $helptext = '';
 include_once 'help.php';
+if ($isDefaultTemplate) {
+    $help['tip_legend_name'] = _('Legend is disabled for the default template because it cannot be displayed in the graph. Metric name will be displayed by default.');
+}
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>';
 }

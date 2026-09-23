@@ -24,12 +24,17 @@ declare(strict_types=1);
 namespace App\Security\Domain\Aggregate;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
+/**
+ * @extends AggregateRoot<TokenId>
+ */
 final class Token extends AggregateRoot
 {
     public function __construct(
         ?TokenId $id,
         public readonly TokenIdpEnum $idp,
+        #[Sensitive]
         public string $token,
         public \DateTimeImmutable $expiresAt,
         public readonly bool $auto,
@@ -44,6 +49,7 @@ final class Token extends AggregateRoot
 
     public function willExpireIn(int $seconds): void
     {
-        $this->expiresAt = (new \DateTimeImmutable())->add(new \DateInterval("PT{$seconds}S"));
+        $now = new \DateTimeImmutable();
+        $this->expiresAt = $now->add(new \DateInterval("PT{$seconds}S"));
     }
 }

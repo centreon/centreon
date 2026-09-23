@@ -27,6 +27,7 @@ use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateServiceCategoryProcessorTest extends ApiTestCase
@@ -42,7 +43,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('POST', '/api/latest/configuration/services/categories', [
+        $response = $this->request('POST', '/api/configuration/services/categories', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
@@ -71,7 +72,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -81,7 +82,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -96,9 +97,34 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
     {
         $this->login();
 
+        $this->request('POST', '/api/configuration/services/categories', [
+            'json' => [
+                'name' => '',
+                'alias' => '',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[name] This value is too short. It should have 1 character or more.\n"
+                . "[alias] This value is too short. It should have 1 character or more.\n",
+        ]);
+    }
+
+    /**
+     * /api/latest/configuration/services/categories is a backward-compatible alias for this same
+     * operation (see LegacyApiPrefixAliasLoader) — its clients must keep getting 400 for a
+     * validation error, unlike the bare /api prefix above, which now answers 422.
+     */
+    public function testCannotCreateServiceCategoryWithInvalidValuesOnTheLegacyPrefixReturns400(): void
+    {
+        $this->login();
+
         $this->request('POST', '/api/latest/configuration/services/categories', [
             'json' => [
                 'name' => '',
+                'alias' => '',
             ],
         ]);
 
@@ -106,7 +132,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'code' => 400,
             'message' => "[name] This value is too short. It should have 1 character or more.\n"
-                . "[alias] This value should not be null.\n",
+                . "[alias] This value is too short. It should have 1 character or more.\n",
         ]);
     }
 
@@ -114,7 +140,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => true,
                 'alias' => 0,
@@ -122,9 +148,9 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
-            'code' => 400,
+            'code' => 422,
             'message' => "[name] This value should be of type string.\n"
                 . "[alias] This value should be of type string.\n"
                 . "[is_activated] This value should be of type bool.\n",
@@ -133,7 +159,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
     public function testCannotCreateServiceCategoryIfNotLogged(): void
     {
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -146,10 +172,14 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
     public function testCannotCreateServiceCategoryIfNotEnoughPermission(): void
     {
-        $this->createApiUser($username = bin2hex(random_bytes(8)));
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -168,11 +198,10 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         /** @var ActivityLogRepository $repository */
         $repository = self::getContainer()->get(ActivityLogRepository::class);
 
-        self::assertSame(0, $repository->count());
-
+        $count = $repository->count();
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
@@ -185,6 +214,6 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertSame(1, $repository->count());
+        self::assertSame($count + 1, $repository->count());
     }
 }

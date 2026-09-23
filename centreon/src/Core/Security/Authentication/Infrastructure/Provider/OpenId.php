@@ -23,14 +23,16 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\Authentication\Domain\Exception\OpenIdException;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -48,8 +50,6 @@ use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
 {
-    use LoggerTrait;
-
     /** @var string */
     private string $username;
 
@@ -59,9 +59,9 @@ class OpenId implements ProviderAuthenticationInterface
      * @param OpenIdProvider $provider
      */
     public function __construct(
-        private Container $dependencyInjector,
-        private RequestStack $requestStack,
-        private OpenIdProviderInterface $provider,
+        private readonly Container $dependencyInjector,
+        private readonly RequestStack $requestStack,
+        private readonly OpenIdProviderInterface $provider,
     ) {
     }
 
@@ -89,17 +89,17 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($user === null) {
-            $this->info('User not found');
+            Logger::create(LogChannelEnum::WEB)->info('User not found');
             if (! $this->isAutoImportEnabled()) {
                 throw new NotFoundException('User could not be created');
             }
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             $user = $this->getAuthenticatedUser();
             if ($user === null) {
                 throw new NotFoundException('User not found');
             }
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
         }
 
         return $user;
@@ -129,10 +129,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             $user = $this->findUserOrFail();
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
         }
     }
 
@@ -144,10 +144,10 @@ class OpenId implements ProviderAuthenticationInterface
     {
         $user = $this->provider->getUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->provider->createUser();
             if ($user = $this->provider->getUser()) {
-                $this->info('User imported: ' . $user->getName());
+                Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
             }
         }
     }
@@ -246,7 +246,7 @@ class OpenId implements ProviderAuthenticationInterface
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
             if (! in_array($claimValue, $this->provider->getAclConditionsMatches(), true)) {
-                $this->info(
+                Logger::create(LogChannelEnum::WEB)->info(
                     'Configured claim value not found in user claims',
                     ['claim_value' => $claimValue]
                 );
@@ -318,6 +318,9 @@ class OpenId implements ProviderAuthenticationInterface
         return $this->provider->getAclConditionsMatches();
     }
 
+    /**
+     * @throws SSOAuthenticationException
+     */
     public function getTokenForSession(): ?string
     {
         return $this->provider->getTokenForSession();
@@ -327,16 +330,16 @@ class OpenId implements ProviderAuthenticationInterface
      * Redirect the user to the OIDC end-session endpoint
      *
      * @param string $idToken
+     * @param bool $stay
      *
-     * @throws Exception
-     *
+     * @throws OpenIdException
      * @return string|null
      */
     public function logout(string $idToken, bool $stay = false): string|null
     {
         $request = $this->requestStack->getCurrentRequest();
         if ($request === null) {
-            throw new Exception('Request is not available for OpenID logout');
+            throw new OpenIdException('Request is not available for OpenID logout');
         }
 
         /** @var CustomConfiguration $customConfig */
@@ -345,7 +348,7 @@ class OpenId implements ProviderAuthenticationInterface
         $endSessionEndpoint = $customConfig->getEndSessionEndpoint();
 
         if (empty($baseUrl) || empty($endSessionEndpoint)) {
-            throw new Exception('Missing required OpenID configuration for logout');
+            throw new OpenIdException('Missing required OpenID configuration for logout');
         }
 
         $endSessionUrl = $baseUrl . $endSessionEndpoint;
@@ -370,8 +373,12 @@ class OpenId implements ProviderAuthenticationInterface
             }
 
             exit;
-        } catch (Exception $e) {
-            throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage(), previous: $e);
+        } catch (Throwable $e) {
+            throw new OpenIdException(
+                message: 'Failed to redirect to logout URL: ' . $e->getMessage(),
+                context: ['logout_url' => $logoutUrl],
+                previous: $e
+            );
         }
     }
 }

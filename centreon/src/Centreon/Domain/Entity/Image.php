@@ -22,7 +22,7 @@
 namespace Centreon\Domain\Entity;
 
 use ReflectionClass;
-use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 class Image
 {

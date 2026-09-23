@@ -1,0 +1,46 @@
+meta {
+  name: POST /inputs - Add IPv4 input forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/inputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "input-operator-1",
+    "type": 3,
+    "parameters": {
+      "port": 5671,
+      "host": "localhost",
+      "protocol": "bbdo",
+      "tls": "no",
+      "private_key": null,
+      "tls_hostname": null,
+      "public_cert": null,
+      "ca_certificate": null,
+      "negotiation": "no",
+      "one_peer_retention_mode": "yes",
+      "filters_category": ["neb"]
+    }
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot create a broker input.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

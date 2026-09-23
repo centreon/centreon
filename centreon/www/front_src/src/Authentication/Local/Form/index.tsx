@@ -1,6 +1,7 @@
 import type { Group } from '@centreon/ui';
 import { Form, useRequest, useSnackbar } from '@centreon/ui';
 
+import type { FormikHelpers } from 'formik';
 import { useTranslation } from 'react-i18next';
 
 import { putPasswordPasswordSecurityPolicy } from '../../api';
@@ -48,12 +49,14 @@ const PasswordSecurityPolicyForm = ({
 
   const { sendRequest } = useRequest({
     defaultFailureMessage: t(labelFailedToSavePasswordPasswordSecurityPolicy),
-    request: putPasswordPasswordSecurityPolicy
+    request: putPasswordPasswordSecurityPolicy as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
 
   const submit = (
     values: PasswordSecurityPolicy,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<PasswordSecurityPolicy>
   ): Promise<void> =>
     sendRequest(values)
       .then(() => {

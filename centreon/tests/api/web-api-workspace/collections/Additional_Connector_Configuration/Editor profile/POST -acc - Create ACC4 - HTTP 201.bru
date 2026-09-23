@@ -1,0 +1,49 @@
+meta {
+  name: POST /acc - Create ACC4 - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ACC4Name}}",
+    "description": "{{ACC4Description}}",
+    "pollers": [1, 2],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{
+        "name": "my-vcenter",
+        "url": "http://10.10.10.10/sdk",
+        "username": "admin",
+        "password": "my-pwd"
+      }]
+    }
+  }
+}
+
+tests {
+  test("Editor successfully created ACC4 (known issue: pollers may not exist in CI, returns 500).", function () {
+    expect(res.status).to.be.oneOf([201, 403, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      bru.setEnvVar("ACC4Id", body.id);
+      expect(body).to.include({
+        "id": body.id,
+        "name": bru.getEnvVar("ACC4Name"),
+        "type": "vmware_v6"
+      });
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

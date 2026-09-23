@@ -1,0 +1,27 @@
+meta {
+  name: GET /openid - Get OpenID configuration forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/openid
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot read the OpenID provider configuration.", function () {
+
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,6 +1,7 @@
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { FormikHelpers } from 'formik';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +18,10 @@ import { resourceAccessRuleEndpoint } from '../api/endpoints';
 interface UseFormState {
   submit: (
     values: Omit<ResourceAccessRule, 'id'>,
-    { setSubmitting }
+    helpers: Pick<
+      FormikHelpers<Omit<ResourceAccessRule, 'id'>>,
+      'setSubmitting'
+    >
   ) => Promise<object>;
 }
 
@@ -50,7 +54,9 @@ const useFormSubmit = (): UseFormState => {
 
   const submit = (
     values: Omit<ResourceAccessRule, 'id'>,
-    { setSubmitting }
+    {
+      setSubmitting
+    }: Pick<FormikHelpers<Omit<ResourceAccessRule, 'id'>>, 'setSubmitting'>
   ): Promise<object> => {
     const payload = adaptResourceAccessRule({ ...values });
 

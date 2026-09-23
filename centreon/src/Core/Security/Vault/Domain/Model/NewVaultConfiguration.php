@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Domain\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Security\Interfaces\EncryptionInterface;
@@ -72,7 +73,7 @@ class NewVaultConfiguration
         Assertion::maxLength($name, self::NAME_MAX_LENGTH, 'NewVaultConfiguration::name');
         Assertion::regex($name, self::NAME_VALIDATION_REGEX, 'VaultConfiguration::name');
         Assertion::minLength($address, self::MIN_LENGTH, 'NewVaultConfiguration::address');
-        Assertion::ipOrDomain($address, 'NewVaultConfiguration::address');
+        CentreonAssert::ipOrHostname($address, 'NewVaultConfiguration::address');
         Assertion::max($port, self::MAX_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::min($port, self::MIN_PORT_VALUE, 'NewVaultConfiguration::port');
         Assertion::minLength($rootPath, self::MIN_LENGTH, 'NewVaultConfiguration::rootPath');

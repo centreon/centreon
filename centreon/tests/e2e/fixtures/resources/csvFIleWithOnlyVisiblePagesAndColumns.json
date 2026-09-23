@@ -6,13 +6,13 @@
     "Parent Resource Type": "Host",
     "Parent Resource Name": "host1",
     "Parent Resource Status": "Pending",
-    "Last Check": "\"1m 27s\"",
+    "Last Check": "1m 27s",
     "Information": "submit_status_2",
     "Notes": "",
     "Action": "",
     "FQDN / Address": "",
-    "Notif": "\"Notifications disabled\"",
-    "Check": "\"Only passive checks are enabled\""
+    "Notif": "Notifications disabled",
+    "Check": "Only passive checks are enabled"
   },
   {
     "Status": "Critical",
@@ -21,13 +21,13 @@
     "Parent Resource Type": "Host",
     "Parent Resource Name": "host1",
     "Parent Resource Status": "Pending",
-    "Last Check": "\"1m 27s\"",
+    "Last Check": "1m 27s",
     "Information": "submit_status_2",
     "Notes": "",
     "Action": "",
     "FQDN / Address": "",
-    "Notif": "\"Notifications disabled\"",
-    "Check": "\"Only passive checks are enabled\""
+    "Notif": "Notifications disabled",
+    "Check": "Only passive checks are enabled"
   },
   {
     "Status": "Critical",
@@ -36,12 +36,12 @@
     "Parent Resource Type": "Host",
     "Parent Resource Name": "host1",
     "Parent Resource Status": "Pending",
-    "Last Check": "\"1m 27s\"",
+    "Last Check": "1m 27s",
     "Information": "submit_status_2",
     "Notes": "",
     "Action": "",
     "FQDN / Address": "",
-    "Notif": "\"Notifications disabled\"",
-    "Check": "\"Only passive checks are enabled\""
+    "Notif": "Notifications disabled",
+    "Check": "Only passive checks are enabled"
   }
 ]

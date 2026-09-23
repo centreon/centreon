@@ -65,6 +65,34 @@ class InheritanceManager
     }
 
     /**
+     * Return the check command ID of the first ancestor that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    public function findInheritedCheckCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readHostTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCheckCommandId() !== null) {
+                return $indexed[$parentId]->getCheckCommandId();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Return false if a circular inheritance is detected, true otherwise.
      *
      * @param int $hostId

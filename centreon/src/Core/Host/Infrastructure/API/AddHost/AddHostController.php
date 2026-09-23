@@ -228,7 +228,9 @@ final class AddHostController extends AbstractController
              *     event_handler_enabled?: int,
              *     event_handler_command_id?: null|int,
              *     check_command_args?: string[],
-             *     check_command_id?: null|int
+             *     check_command_id?: null|int,
+             *     freshness_checked?: int,
+             *     freshness_threshold?: null|int
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostSaasSchema.json');
@@ -260,6 +262,8 @@ final class AddHostController extends AbstractController
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
             $dto->checkCommandArgs = $data['check_command_args'] ?? [];
             $dto->checkCommandId = $data['check_command_id'] ?? null;
+            $dto->freshnessChecked = $data['freshness_checked'] ?? 2;
+            $dto->freshnessThreshold = $data['freshness_threshold'] ?? null;
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {

@@ -48,7 +48,7 @@ $datasetRoutes = [
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $hostId,
     'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
-    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $hostId,
+    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id&id=' . $hostId,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $hostId,
@@ -1013,13 +1013,13 @@ if ($valid) {
     $tpl->assign('cloneSetMacro', $cloneSetMacro);
     $tpl->assign('cloneSetTemplate', $cloneSetTemplate);
     $tpl->assign('centreon_path', $centreon->optGen['oreon_path']);
+    $tpl->assign('seconds', _('seconds'));
     if (! $isCloudPlatform) {
         $tpl->assign('Freshness_Control_options', _('Freshness Control options'));
         $tpl->assign('Flapping_Options', _('Flapping options'));
         $tpl->assign('Perfdata_Options', _('Perfdata Options'));
         $tpl->assign('History_Options', _('History Options'));
         $tpl->assign('Event_Handler', _('Event Handler'));
-        $tpl->assign('seconds', _('seconds'));
         $tpl->assign('isHostTemplate', 1);
         $tpl->display('formHostOnPrem.ihtml');
     } else {

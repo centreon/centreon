@@ -1,11 +1,12 @@
 import { SelectEntry } from '@centreon/ui';
 
-import { useFormikContext } from 'formik';
+import { FormikErrors, FormikTouched, useFormikContext } from 'formik';
 import { equals, isEmpty, isNil } from 'ramda';
 import { ChangeEvent, useCallback, useMemo } from 'react';
 
 import {
   AgentConfigurationForm,
+  CMAConfiguration,
   ConnectionMode,
   HostConfiguration
 } from '../../../models';
@@ -16,18 +17,18 @@ interface UseHostConfigurationProps {
 }
 
 interface UseHostConfigurationState {
-  selectHost: (_, entry: SelectEntry & { address: string }) => void;
+  selectHost: (_: unknown, entry: SelectEntry & { address: string }) => void;
   changeAddress: (event: ChangeEvent<HTMLInputElement>) => void;
   changePort: (newValue: number) => void;
   changeStringInput: (
     property: string
   ) => (event: ChangeEvent<HTMLInputElement>) => void;
-  hostErrors: Partial<HostConfiguration> | undefined;
-  hostTouched: Partial<HostConfiguration> | undefined;
+  hostErrors: FormikErrors<HostConfiguration> | undefined;
+  hostTouched: FormikTouched<HostConfiguration> | undefined;
   isInsecureMode: boolean;
   isSecureMode: boolean;
-  changeCMAToken: (_, tokens: Array<SelectEntry>) => void;
-  token: { id: string; name: string };
+  changeCMAToken: (_: unknown, tokens: Array<SelectEntry>) => void;
+  token: { id: string; name: string } | undefined | null;
 }
 
 export const useHostConfiguration = ({
@@ -44,7 +45,7 @@ export const useHostConfiguration = ({
   } = useFormikContext<AgentConfigurationForm>();
 
   const selectHost = useCallback(
-    (_, { id, name, address }) => {
+    (_: unknown, { id, name, address }: SelectEntry & { address: string }) => {
       setFieldTouched(`configuration.hosts.${index}.address`, true, false);
       setFieldTouched(`configuration.hosts.${index}.port`, true, false);
 
@@ -74,13 +75,14 @@ export const useHostConfiguration = ({
         return;
       }
 
+      const cmaConf = values.configuration as CMAConfiguration;
       const newAddress = value.replace(port[0], '');
       setFieldTouched(`configuration.hosts.${index}.address`, true, false);
       setFieldTouched(`configuration.hosts.${index}.port`, true, false);
       setFieldError(`configuration.hosts.${index}.address`, undefined);
       setFieldError(`configuration.hosts.${index}.port`, undefined);
       setFieldValue(`configuration.hosts.${index}`, {
-        ...values.configuration.hosts[index],
+        ...cmaConf.hosts[index],
         address: newAddress,
         port: port[0].substring(1)
       });
@@ -105,21 +107,27 @@ export const useHostConfiguration = ({
   );
 
   const token = useMemo(
-    () => values.configuration?.hosts[index].token,
+    () => (values.configuration as CMAConfiguration)?.hosts?.[index]?.token,
     [values.configuration]
   );
 
-  const changeCMAToken = (_, token: Array<SelectEntry>): void => {
+  const changeCMAToken = (_: unknown, token: Array<SelectEntry>): void => {
     setFieldValue(`configuration.hosts.${index}.token`, token);
   };
 
   const hostErrors = useMemo(
-    () => errors.configuration?.hosts?.[index],
+    () =>
+      (errors.configuration as FormikErrors<CMAConfiguration>)?.hosts?.[
+        index
+      ] as FormikErrors<HostConfiguration> | undefined,
     [errors, index]
   );
 
   const hostTouched = useMemo(
-    () => touched.configuration?.hosts?.[index],
+    () =>
+      (touched.configuration as FormikTouched<CMAConfiguration>)?.hosts?.[
+        index
+      ] as FormikTouched<HostConfiguration> | undefined,
     [touched, index]
   );
 

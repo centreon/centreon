@@ -10,8 +10,10 @@ import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 
 export interface SelectActionListingHeaderCellProps {
-  onSelectAllClick: (event) => void;
-  onSelectRowsWithCondition: (condition) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectRowsWithCondition: (
+    condition: (row: Record<string, unknown>) => boolean
+  ) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
@@ -33,7 +35,7 @@ const SelectActionListingHeaderCell = ({
     >
       <Checkbox
         checked={hasRows && selectedRowCount === rowCount}
-        className="text-white"
+        className="text-text-primary"
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
@@ -42,20 +44,20 @@ const SelectActionListingHeaderCell = ({
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
-          className="text-white"
+          className="text-text-primary"
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
-          {({ close }): JSX.Element => (
+          {(props: { close?: () => void } | undefined): JSX.Element => (
             <PredefinedSelectionList
-              close={close}
+              close={props?.close ?? ((): void => undefined)}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
               predefinedRowsSelection={predefinedRowsSelection}
             />
           )}
         </PopoverMenu>
       ) : (
-        <div className="text-white" />
+        <div className="text-text-primary" />
       )}
     </TableCell>
   );

@@ -25,8 +25,13 @@ const CustomTimePeriod = ({
   const changeCustomTimePeriod = useSetAtom(changeCustomTimePeriodDerivedAtom);
 
   const debouncedChangeDate = useDebounce({
-    functionToDebounce: ({ property, date }): void =>
-      changeCustomTimePeriod({ date, property }),
+    functionToDebounce: (...args: Array<unknown>): void => {
+      const { property, date } = args[0] as {
+        property: string;
+        date: Date;
+      };
+      changeCustomTimePeriod({ date, property });
+    },
     wait: 500
   });
 

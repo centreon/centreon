@@ -1,6 +1,12 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import { atom, useAtom } from 'jotai';
-import { type ReactElement, useCallback, useEffect, useRef } from 'react';
+import {
+  type ReactElement,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef
+} from 'react';
 
 import { useResizeObserver } from '../../../utils/useResizeObserver';
 import { Tooltip, type TooltipProps } from '../Tooltip';
@@ -81,7 +87,7 @@ const TextOverflowTooltip = ({
 
   useResizeObserver({
     onResize,
-    ref: elRef
+    ref: elRef as RefObject<HTMLElement>
   });
 
   useEffect(() => {

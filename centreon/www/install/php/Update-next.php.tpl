@@ -21,6 +21,7 @@
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Log\LoggerUpgrade;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -36,6 +37,8 @@ $errorMessage = '';
 // TODO add your functions here
 
 try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
@@ -43,35 +46,35 @@ try {
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
+    $errorMessage = 'Unable to start the configuration database transaction';
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
     // TODO add your function calls to update the configuration database data here
 
+    $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
 
-} catch (Throwable $throwable) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $throwable
-    );
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
+} catch (Throwable $throwable) {
     try {
         if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
             $pearDB->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            exception: $rollbackException
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $rollbackException
         );
 
         throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            previous: $rollbackException
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
         );
     }
 

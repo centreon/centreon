@@ -79,7 +79,7 @@ $dependencyInjector[CentreonI18n::class] = function ($container) {
     if (! str_contains($lang, '.UTF-8')) {
         $lang .= '.UTF-8';
     }
-    $translationFile = _CENTREON_PATH_ . "www/locale/{$lang}/LC_MESSAGES/messages.ser";
+    $translationFile = _CENTREON_PATH_ . "www/locale/{$lang}/LC_MESSAGES/messages.json";
     $translation = new CentreonI18n();
     $translation->setFilesGenerationPath($translationFile);
 

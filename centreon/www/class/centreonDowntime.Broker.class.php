@@ -23,6 +23,9 @@ require_once _CENTREON_PATH_ . 'www/class/centreonDowntime.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonHost.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -98,31 +101,42 @@ class CentreonDowntimeBroker extends CentreonDowntime
      * @param int $start_time The timestamp for starting downtime
      * @param int $dt_id The downtime id
      * @param string $oname2 The second object name (service_name), is null if search a host
-     * @return int
+     * @return int|null
      */
     public function getDowntimeInternalId($oname1, $start_time, $dt_id, $oname2 = null)
     {
+        $hasService = isset($oname2) && $oname2 != '';
+
         $query = 'SELECT d.internal_id as internal_downtime_id
         		  FROM downtimes d, hosts h ';
-        if (isset($oname2) && $oname2 != '') {
+        if ($hasService) {
             $query .= ', services s ';
         }
         $query .= 'WHERE d.host_id = h.host_id
-        		  AND d.start_time = ' . $this->dbb->escape($start_time) . "
-        		  AND d.comment_data = '[Downtime cycle #" . $dt_id . "]'
-        		  AND h.name = '" . $this->dbb->escape($oname1) . "' ";
-        if (isset($oname2) && $oname2 != '') {
+        		  AND d.start_time = :start_time
+        		  AND d.comment_data = :comment_data
+        		  AND h.name = :host_name ';
+        if ($hasService) {
             $query .= ' AND h.host_id = s.host_id ';
-            $query .= " AND s.description = '" . $this->dbb->escape($oname2) . "' ";
+            $query .= ' AND s.description = :service_description ';
         }
-        try {
-            $res = $this->dbb->query($query);
-        } catch (PDOException $e) {
-            return false;
-        }
-        $row = $res->fetch();
 
-        return $row['internal_downtime_id'];
+        $parameters = [
+            QueryParameter::int('start_time', (int) $start_time),
+            QueryParameter::string('comment_data', '[Downtime cycle #' . (int) $dt_id . ']'),
+            QueryParameter::string('host_name', (string) $oname1),
+        ];
+        if ($hasService) {
+            $parameters[] = QueryParameter::string('service_description', (string) $oname2);
+        }
+
+        try {
+            $row = $this->dbb->fetchAssociative($query, QueryParameters::create($parameters));
+        } catch (Throwable $e) {
+            return null;
+        }
+
+        return $row !== false ? $row['internal_downtime_id'] : null;
     }
 
     /**
@@ -322,20 +336,29 @@ class CentreonDowntimeBroker extends CentreonDowntime
      */
     public function insertCache($downtime): void
     {
+        $hasService = $downtime['service_id'] != '';
+
         $query = 'INSERT INTO downtime_cache '
             . '(downtime_id, start_timestamp, end_timestamp, '
             . 'start_hour, end_hour, host_id, service_id) '
-            . 'VALUES ( '
-            . $downtime['dt_id'] . ', '
-            . $downtime['start_timestamp'] . ', '
-            . $downtime['end_timestamp'] . ', '
-            . '"' . $downtime['start_hour'] . '", '
-            . '"' . $downtime['end_hour'] . '", '
-            . $downtime['host_id'] . ', ';
-        $query .= ($downtime['service_id'] != '') ? $downtime['service_id'] . ' ' : 'NULL ';
-        $query .= ') ';
+            . 'VALUES (:downtime_id, :start_timestamp, :end_timestamp, '
+            . ':start_hour, :end_hour, :host_id, '
+            . ($hasService ? ':service_id' : 'NULL')
+            . ')';
 
-        $res = $this->db->query($query);
+        $parameters = [
+            QueryParameter::int('downtime_id', (int) $downtime['dt_id']),
+            QueryParameter::int('start_timestamp', (int) $downtime['start_timestamp']),
+            QueryParameter::int('end_timestamp', (int) $downtime['end_timestamp']),
+            QueryParameter::string('start_hour', (string) $downtime['start_hour']),
+            QueryParameter::string('end_hour', (string) $downtime['end_hour']),
+            QueryParameter::int('host_id', (int) $downtime['host_id']),
+        ];
+        if ($hasService) {
+            $parameters[] = QueryParameter::int('service_id', (int) $downtime['service_id']);
+        }
+
+        $this->db->executeStatement($query, QueryParameters::create($parameters));
     }
 
     /**
@@ -344,8 +367,12 @@ class CentreonDowntimeBroker extends CentreonDowntime
      */
     public function purgeCache(): void
     {
-        $query = 'DELETE FROM downtime_cache WHERE start_timestamp < ' . time();
-        $this->db->query($query);
+        $this->db->executeStatement(
+            'DELETE FROM downtime_cache WHERE start_timestamp < :now',
+            QueryParameters::create([
+                QueryParameter::int('now', time()),
+            ])
+        );
     }
 
     /**
@@ -356,24 +383,29 @@ class CentreonDowntimeBroker extends CentreonDowntime
      */
     public function isScheduled($downtime)
     {
-        $isScheduled = false;
+        $hasService = $downtime['service_id'] != '';
 
         $query = 'SELECT downtime_cache_id '
             . 'FROM downtime_cache '
-            . 'WHERE downtime_id = ' . $downtime['dt_id'] . ' '
-            . 'AND start_timestamp = ' . $downtime['start_timestamp'] . ' '
-            . 'AND end_timestamp = ' . $downtime['end_timestamp'] . ' '
-            . 'AND host_id = ' . $downtime['host_id'] . ' ';
-        $query .= ($downtime['service_id'] != '')
-            ? 'AND service_id = ' . $downtime['service_id'] . ' '
-            : 'AND service_id IS NULL';
+            . 'WHERE downtime_id = :downtime_id '
+            . 'AND start_timestamp = :start_timestamp '
+            . 'AND end_timestamp = :end_timestamp '
+            . 'AND host_id = :host_id '
+            . ($hasService ? 'AND service_id = :service_id' : 'AND service_id IS NULL');
 
-        $res = $this->db->query($query);
-        if ($res->rowCount()) {
-            $isScheduled = true;
+        $parameters = [
+            QueryParameter::int('downtime_id', (int) $downtime['dt_id']),
+            QueryParameter::int('start_timestamp', (int) $downtime['start_timestamp']),
+            QueryParameter::int('end_timestamp', (int) $downtime['end_timestamp']),
+            QueryParameter::int('host_id', (int) $downtime['host_id']),
+        ];
+        if ($hasService) {
+            $parameters[] = QueryParameter::int('service_id', (int) $downtime['service_id']);
         }
 
-        return $isScheduled;
+        $row = $this->db->fetchAssociative($query, QueryParameters::create($parameters));
+
+        return $row !== false;
     }
 
     /**

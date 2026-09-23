@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import contacts from '../../../fixtures/users/contact.json';
 
@@ -35,15 +36,15 @@ beforeEach(() => {
     );
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list*'
+    url: `${INTERCEPTORS.pages.centreon_administration_aclgroup}&action=list*`
   }).as('getAclGroups');
 });
 
@@ -235,8 +236,9 @@ Then(
 );
 
 Then('the contact is not created', () => {
-  // Return to the contacts listing page
-  cy.getIframeBody().contains('a', 'Contacts / Users').click();
+  // Return to the contacts listing page via the top-banner breadcrumb
+  // (the legacy in-iframe breadcrumb has been removed).
+  cy.get('[data-cy="breadcrumb"]').contains('a', 'Contacts / Users').click();
   cy.wait('@getTimeZone');
   // Check that the contact is not present in the listing
   cy.getIframeBody().contains('a', contacts.default.name).should('not.exist');
@@ -266,8 +268,9 @@ Then('the {string} sees an error displayed in the form', () => {
 });
 
 Then('the contact is not updated', () => {
-  // Return to the contacts listing page
-  cy.getIframeBody().contains('a', 'Contacts / Users').click();
+  // Return to the contacts listing page via the top-banner breadcrumb
+  // (the legacy in-iframe breadcrumb has been removed).
+  cy.get('[data-cy="breadcrumb"]').contains('a', 'Contacts / Users').click();
   cy.wait('@getTimeZone');
   // Check that the contact alias is not updated
   cy.waitForElementInIframe(

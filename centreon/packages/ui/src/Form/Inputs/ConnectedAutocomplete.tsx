@@ -1,4 +1,4 @@
-import { type FormikValues, useFormikContext } from 'formik';
+import { FormikValues, useFormikContext } from 'formik';
 import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,8 +8,10 @@ import {
   SingleConnectedAutocompleteField,
   useMemoComponent
 } from '../..';
+import type { SelectEntry } from '../../InputField/Select';
+import type { GetEndpointParams } from '../../InputField/Select/Autocomplete/Connected';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
-import { type InputPropsWithoutGroup, InputType } from './models';
+import { InputPropsWithoutGroup, InputType } from './models';
 
 const defaultFilterKey = 'name';
 
@@ -42,10 +44,28 @@ const ConnectedAutocomplete = ({
 
   const isMultiple = equals(type, InputType.MultiConnectedAutocomplete);
 
-  const getEndpoint = (parameters): string =>
-    buildListingEndpoint({
+  const getEndpoint = (parameters: GetEndpointParams): string => {
+    const nameQueryParameters =
+      connectedAutocomplete?.useNewAPIFormat && parameters?.search
+        ? [
+            {
+              name: 'name[lk]',
+              value: (
+                parameters.search.conditions?.[0].values?.$lk as string
+              ).slice(1, -1)
+            }
+          ]
+        : [];
+
+    return buildListingEndpoint({
+      apiFormat: connectedAutocomplete?.useNewAPIFormat
+        ? 'JSON-LD'
+        : 'Standard',
       baseEndpoint: connectedAutocomplete?.endpoint,
-      customQueryParameters: connectedAutocomplete?.customQueryParameters || [],
+      customQueryParameters: [
+        ...(connectedAutocomplete?.customQueryParameters || []),
+        ...nameQueryParameters
+      ],
       parameters: {
         ...parameters,
         search: {
@@ -58,11 +78,18 @@ const ConnectedAutocomplete = ({
         sort: { [filterKey]: 'ASC' }
       }
     });
+  };
 
   const fieldNamePath = split('.', fieldName);
 
   const changeAutocomplete = useCallback(
-    (_, value): void => {
+    (
+      _: React.SyntheticEvent,
+      value:
+        | NonNullable<string | SelectEntry>
+        | Array<string | SelectEntry>
+        | null
+    ): void => {
       if (change) {
         change({
           setFieldTouched,
@@ -79,32 +106,30 @@ const ConnectedAutocomplete = ({
       setFieldTouched(fieldName, true, false);
       setFieldValue(fieldName, value);
     },
-    [
-      fieldName,
-      change,
-      setFieldTouched,
-      setFieldValue,
-      setTouched,
-      setValues,
-      values
-    ]
+    [fieldName, touched, additionalMemoProps]
   );
 
-  const blur = (): void => setFieldTouched(fieldName, true);
+  const blur = (): void => void setFieldTouched(fieldName, true);
 
   const isOptionEqualToValue = useCallback(
-    (option, value): boolean => {
+    (option: SelectEntry, value: SelectEntry): boolean => {
       return isEmpty(value)
         ? false
-        : equals(option[filterKey], value[filterKey]);
+        : equals(
+            option[filterKey as keyof SelectEntry],
+            value[filterKey as keyof SelectEntry]
+          );
     },
     [filterKey]
   );
 
-  const value = path(fieldNamePath, values);
+  const value = path(fieldNamePath, values) as
+    | Record<string, unknown>
+    | Array<Record<string, unknown>>
+    | undefined;
 
   const error = path(fieldNamePath, touched)
-    ? path(fieldNamePath, errors)
+    ? (path(fieldNamePath, errors) as string | undefined)
     : undefined;
 
   const disabled = getDisabled?.(values) || false;
@@ -118,8 +143,11 @@ const ConnectedAutocomplete = ({
     [isMultiple]
   );
 
-  const deleteItem = (_, option): void => {
-    const newValue = reject(propEq(option.id, 'id'), value);
+  const deleteItem = (_: React.SyntheticEvent, option: SelectEntry): void => {
+    const newValue = reject(
+      propEq(option.id, 'id'),
+      (value ?? []) as Array<unknown> as Array<{ id: string | number }>
+    );
 
     setFieldTouched(fieldName, true, false);
     setFieldValue(fieldName, newValue);
@@ -130,9 +158,14 @@ const ConnectedAutocomplete = ({
     onDelete: deleteItem
   };
 
+  const TypedAutocompleteField =
+    AutocompleteField as unknown as React.ComponentType<
+      Record<string, unknown>
+    >;
+
   return useMemoComponent({
     Component: (
-      <AutocompleteField
+      <TypedAutocompleteField
         chipProps={chipProps}
         dataTestId={dataTestId}
         decoder={connectedAutocomplete?.decoder}
@@ -145,6 +178,7 @@ const ConnectedAutocomplete = ({
         getEndpoint={getEndpoint}
         getOptionLabel={connectedAutocomplete?.getOptionLabel}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
+        helperText={connectedAutocomplete?.helperText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}

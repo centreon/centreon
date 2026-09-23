@@ -8,7 +8,7 @@ import {
   TestQueryProvider,
   ThemeProvider
 } from '@centreon/ui';
-import { userPermissionsAtom } from '@centreon/ui-context';
+import { browserLocaleAtom, userPermissionsAtom } from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
 import { mergeDeepRight } from 'ramda';
@@ -245,12 +245,20 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
 
   const store = createStore();
 
+  // Pin the locale so the clock renders deterministically regardless of the
+  // runner's system locale (the clock formatting falls back to the browser
+  // locale, which is English on CI but the local machine's language otherwise).
+  store.set(browserLocaleAtom, 'en');
+
   store.set(userPermissionsAtom, {
     poller_statistics: true,
     top_counter: true
   });
 
-  store.set(navigationAtom, allowedPages);
+  store.set(
+    navigationAtom,
+    (stubs.navigationList || allowedPages) as Navigation
+  );
 
   const generateClassName = createGenerateClassName({
     seed: 'seedName'

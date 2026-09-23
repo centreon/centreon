@@ -52,6 +52,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * @phpstan-import-type _RoleMapping from UpdateOpenIdConfigurationRequest
@@ -130,7 +131,7 @@ class UpdateOpenIdConfiguration
 
             $this->info('Updating OpenID Provider');
             $this->repository->updateConfiguration($configuration);
-        } catch (AssertionException|AssertionFailedException|ConfigurationException $ex) {
+        } catch (AssertionException|AssertionFailedException|ConfigurationException|InvalidArgumentException $ex) {
             $this->error(
                 'Unable to create OpenID Provider because one or several parameters are invalid',
                 [

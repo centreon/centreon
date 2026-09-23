@@ -121,9 +121,15 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
             }
         }
 
-        if (! empty($ordering['field'])) {
+        if (
+            ! empty($ordering['field'])
+            && isset(self::CONCORDANCE_ARRAY[$ordering['field']])
+        ) {
+            $direction = strtoupper((string) ($ordering['order'] ?? 'ASC')) === 'DESC'
+                ? 'DESC'
+                : 'ASC';
             $sql .= ' ORDER BY `' . self::CONCORDANCE_ARRAY[$ordering['field']] . '` '
-                . $ordering['order'];
+                . $direction;
         } else {
             $sql .= ' ORDER BY `name` ASC';
         }

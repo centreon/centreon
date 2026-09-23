@@ -1240,7 +1240,8 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function getItilCategories()
     {
         // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/itilCategory';
+        // ITILCategory is the canonical itemtype casing accepted by every GLPI version (9.1 -> 11)
+        $info['query_endpoint'] = '/ITILCategory';
         $info['method'] = 0;
         // set headers
         $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];

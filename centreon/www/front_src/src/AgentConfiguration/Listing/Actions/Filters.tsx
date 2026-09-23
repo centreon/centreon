@@ -1,4 +1,5 @@
 import { capitalize } from '@mui/material';
+import type { ChipProps } from '@mui/material/Chip';
 
 import {
   MultiAutocompleteField,
@@ -64,23 +65,33 @@ const Filters = (): JSX.Element => {
       <MultiAutocompleteField
         chipProps={{
           color: 'primary',
-          onDelete: deleteType
+          onDelete: deleteType as ChipProps['onDelete']
         }}
         label={t(labelAgentType)}
-        onChange={changeTypes}
+        onChange={
+          changeTypes as unknown as Parameters<
+            typeof MultiAutocompleteField
+          >[0]['onChange']
+        }
         options={agentTypeOptions}
         value={filters.type}
       />
       <MultiConnectedAutocompleteField
-        chipProps={{
+        ChipProps={{
           color: 'primary',
-          onDelete: deletePoller
+          onDelete: deletePoller as ChipProps['onDelete']
         }}
         dataTestId={labelPoller}
         field="name"
-        getEndpoint={getPollersEndpoint}
+        getEndpoint={
+          getPollersEndpoint as unknown as (params: unknown) => string
+        }
         label={t(labelPoller)}
-        onChange={changerPollers}
+        onChange={
+          changerPollers as unknown as Parameters<
+            typeof MultiConnectedAutocompleteField
+          >[0]['onChange']
+        }
         value={filters['poller.id']}
       />
 

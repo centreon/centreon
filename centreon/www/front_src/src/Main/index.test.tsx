@@ -265,6 +265,7 @@ describe('Main', () => {
       );
     });
 
+    // biome-ignore lint: test purpose
     expect(window.location.href).toBe('http://localhost/login');
 
     await waitFor(() => {
@@ -301,6 +302,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/install/install.php'
       );
     });
@@ -330,6 +332,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/install/upgrade.php'
       );
     });
@@ -359,6 +362,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/monitoring/resources'
       );
     });
@@ -433,6 +437,7 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(window.location.href).toBe(
+        // biome-ignore lint: test purpose
         'http://localhost/monitoring/resources'
       );
     });

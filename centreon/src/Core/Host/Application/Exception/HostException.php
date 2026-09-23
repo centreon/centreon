@@ -203,4 +203,12 @@ class HostException extends \Exception
     {
         return new self(_('Error while retrieving host statuses distribution'));
     }
+
+    /**
+     * @return self
+     */
+    public static function accessNotAllowed(): self
+    {
+        return new self(_('You are not allowed to access hosts'));
+    }
 }

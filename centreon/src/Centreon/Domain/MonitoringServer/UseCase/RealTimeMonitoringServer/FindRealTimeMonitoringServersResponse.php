@@ -45,7 +45,6 @@ class FindRealTimeMonitoringServersResponse
                 'id' => $realTimeMonitoringServer->getId(),
                 'name' => $realTimeMonitoringServer->getName(),
                 'address' => $realTimeMonitoringServer->getAddress(),
-                'description' => $realTimeMonitoringServer->getDescription(),
                 'last_alive' => $realTimeMonitoringServer->getLastAlive(),
                 'is_running' => $realTimeMonitoringServer->isRunning(),
                 'version' => $realTimeMonitoringServer->getVersion(),

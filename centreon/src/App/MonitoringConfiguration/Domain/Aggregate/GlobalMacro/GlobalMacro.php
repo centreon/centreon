@@ -27,6 +27,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
+/**
+ * @extends AggregateRoot<GlobalMacroId>
+ */
 final class GlobalMacro extends AggregateRoot
 {
     /**

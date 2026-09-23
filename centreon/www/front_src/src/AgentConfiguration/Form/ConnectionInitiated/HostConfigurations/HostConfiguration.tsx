@@ -60,16 +60,20 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
     >
       <SingleConnectedAutocompleteField
         field="name"
-        getEndpoint={getHostsEndpoint}
+        getEndpoint={getHostsEndpoint as unknown as (params: unknown) => string}
         label={t(labelSelectHost)}
-        onChange={selectHost}
+        onChange={
+          selectHost as unknown as Parameters<
+            typeof SingleConnectedAutocompleteField
+          >[0]['onChange']
+        }
         required
         value={{ id: host.id, name: host.name }}
       />
       <TextField
         className={classes.input}
         dataTestId={labelDNSIP}
-        error={hostTouched?.address && hostErrors?.address}
+        error={(hostTouched?.address && hostErrors?.address) || undefined}
         fullWidth
         label={t(labelDNSIP)}
         onChange={changeAddress}
@@ -86,7 +90,11 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
       <NumberField
         className={classes.input}
         dataTestId={labelPort}
-        error={hostTouched?.port && hostErrors?.port}
+        error={
+          (hostTouched?.port &&
+            (hostErrors?.port ? String(hostErrors.port) : undefined)) ||
+          undefined
+        }
         fullWidth
         label={t(labelPort)}
         onChange={changePort}
@@ -100,7 +108,7 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
             }
           }
         }}
-        value={host.port.toString()}
+        value={host.port !== undefined ? host.port.toString() : ''}
       />
 
       <Box className="flex flex-col">
@@ -108,11 +116,21 @@ const HostConfiguration = ({ index, host }: Props): ReactElement => {
           dataTestId={labelSelectExistingCMAToken}
           decoder={listTokensDecoder}
           disableClearable={false}
-          error={(hostTouched?.token && hostErrors?.token) || undefined}
+          error={
+            hostTouched?.token && hostErrors?.token
+              ? String(hostErrors.token)
+              : undefined
+          }
           field="token_name"
-          getEndpoint={getTokensEndpoint}
+          getEndpoint={
+            getTokensEndpoint as unknown as (params: unknown) => string
+          }
           label={t(labelSelectExistingCMAToken)}
-          onChange={changeCMAToken}
+          onChange={
+            changeCMAToken as unknown as Parameters<
+              typeof SingleConnectedAutocompleteField
+            >[0]['onChange']
+          }
           required
           value={token || null}
         />

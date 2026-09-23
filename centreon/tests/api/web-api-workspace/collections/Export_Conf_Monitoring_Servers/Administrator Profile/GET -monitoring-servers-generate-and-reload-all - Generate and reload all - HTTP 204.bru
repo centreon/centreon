@@ -1,0 +1,26 @@
+meta {
+  name: GET /monitoring-servers/generate-and-reload - Generate and reload all - HTTP 204
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/monitoring-servers/generate-and-reload
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Administrator can generate and reload all monitoring servers configurations.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

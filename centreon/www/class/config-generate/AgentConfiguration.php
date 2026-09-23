@@ -123,12 +123,14 @@ class AgentConfiguration extends AbstractObjectJSON
     private function formatCmaConfiguration(array $data, ConnectionModeEnum $connectionMode): array
     {
         $tokens = $this->filterTokens($data['tokens'] ?? []);
-        $configuration = [
-            'otel_server' => $this->formatOtelConfiguration($data, $tokens, $connectionMode),
-            'centreon_agent' => [
-                'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
-                'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
-            ],
+        $configuration = [];
+        if ($data['agent_initiated'] === true) {
+            $configuration['otel_server'] = $this->formatOtelConfiguration($data, $tokens, $connectionMode);
+        }
+        $configuration['centreon_agent'] = [
+            'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
+            'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
+            'create_host_auto' => $data['create_host_auto'] ?? false,
         ];
 
         if ($data['poller_initiated'] === true) {

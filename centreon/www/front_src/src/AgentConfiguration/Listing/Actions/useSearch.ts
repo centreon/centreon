@@ -1,20 +1,22 @@
 import debounce from '@mui/utils/debounce';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useRef } from 'react';
 
-import { filtersAtom } from '../../atoms';
+import { changeFilterAtom, filtersAtom } from '../../atoms';
+import { FiltersState } from '../../utils';
 
 interface UseSearch {
-  onChange: (event) => void;
-  filters;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  filters: FiltersState;
 }
 
 export const useSearch = (): UseSearch => {
   const queryClient = useQueryClient();
 
-  const [filters, setFilters] = useAtom(filtersAtom);
+  const filters = useAtomValue(filtersAtom);
+  const changeFilter = useSetAtom(changeFilterAtom);
 
   const reload = (): void => {
     queryClient.invalidateQueries({ queryKey: ['listAgentConfigurations'] });
@@ -26,8 +28,8 @@ export const useSearch = (): UseSearch => {
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
-    setFilters({ ...filters, name: target.value });
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
+    changeFilter({ field: 'name', newEntries: target.value });
 
     searchDebounced.current(target.value);
   };

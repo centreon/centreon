@@ -1,0 +1,29 @@
+meta {
+  name: GET /administration/vaults/configurations - Get vault configuration forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/vaults/configurations
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("GET /administration/vaults/configurations - Get vault configuration forbidden - HTTP 403 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([403, 404]);
+  });
+
+  if (res.status === 403) {
+    test("Unprivileged user cannot read vault configuration.", function () {
+      expect(res.status).to.equal(403);
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

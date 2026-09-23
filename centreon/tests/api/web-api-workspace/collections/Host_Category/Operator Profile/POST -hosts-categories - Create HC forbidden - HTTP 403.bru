@@ -1,0 +1,35 @@
+meta {
+  name: POST /hosts/categories - Create HC forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Test_H_Category_6",
+    "alias": "I will not be created!",
+    "comment": "My user can't create me"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The user does not have the correct rights to create host categories.", function () {
+    const body = res.getBody();
+    expect(body.message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

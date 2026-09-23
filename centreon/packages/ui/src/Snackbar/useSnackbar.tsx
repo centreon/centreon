@@ -1,6 +1,10 @@
 import { Typography } from '@mui/material';
 
-import { useSnackbar as useNotistackSnackbar } from 'notistack';
+import {
+  type SnackbarKey,
+  type SnackbarMessage,
+  useSnackbar as useNotistackSnackbar
+} from 'notistack';
 
 import { sanitizedHTML } from '../utils';
 import Snackbar from '.';
@@ -34,9 +38,15 @@ const useSnackbar = (): UseSnackbar => {
   const notistackHookProps = useNotistackSnackbar();
 
   const snackbarContent =
-    (severity) =>
-    (key: string | number, message): JSX.Element => {
-      return <Snackbar id={key} message={message} severity={severity} />;
+    (severity: Severity) =>
+    (key: SnackbarKey, message?: SnackbarMessage): JSX.Element => {
+      return (
+        <Snackbar
+          id={key}
+          message={message as string | JSX.Element}
+          severity={severity}
+        />
+      );
     };
 
   const showMessage = ({ message, severity }: ShowMessageProps): void => {

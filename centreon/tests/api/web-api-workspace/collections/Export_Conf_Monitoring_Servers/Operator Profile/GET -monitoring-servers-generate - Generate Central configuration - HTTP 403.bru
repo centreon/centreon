@@ -1,0 +1,26 @@
+meta {
+  name: GET /monitoring-servers/1/generate - Generate Central configuration - HTTP 403
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/monitoring-servers/1/generate
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot generate monitoring server configuration.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

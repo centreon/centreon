@@ -95,7 +95,7 @@ const Authentication = (): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
   const [tab, setTab] = useAtom(tabAtom);
 
-  const changeTab = (_, newTab: Provider): void => {
+  const changeTab = (_: React.SyntheticEvent, newTab: Provider): void => {
     setTab(newTab);
   };
 

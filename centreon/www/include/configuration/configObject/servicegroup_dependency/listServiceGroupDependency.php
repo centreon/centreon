@@ -54,12 +54,19 @@ $rq .= ' WHERE ((SELECT DISTINCT COUNT(*)
                     FROM dependency_servicegroupChild_relation dsgpr
                     WHERE dsgpr.dependency_dep_id = dep.dep_id ' . $aclCond . ') > 0)';
 // Search Case
+$searchBindValues = [];
 if ($search) {
-    $rq .= " AND (dep_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8')
-        . "%' OR dep_description LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%')";
+    $rq .= ' AND (dep_name LIKE :searchName OR dep_description LIKE :searchDesc)';
+    $searchBindValues[':searchName'] = '%' . $search . '%';
+    $searchBindValues[':searchDesc'] = '%' . $search . '%';
 }
-$rq .= ' ORDER BY dep_name, dep_description LIMIT ' . $num * $limit . ', ' . $limit;
-$dbResult = $pearDB->query($rq);
+$rq .= ' ORDER BY dep_name, dep_description LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit;
+$stmt = $pearDB->prepare($rq);
+foreach ($searchBindValues as $param => $value) {
+    $stmt->bindValue($param, $value);
+}
+$stmt->execute();
+$dbResult = $stmt;
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
 include './include/common/checkPagination.php';

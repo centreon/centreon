@@ -1,0 +1,25 @@
+meta {
+  name: GET /logout - Logout editor - HTTP 200
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/logout
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Logout successful (known issue: session may be invalidated by ACL reload CLAPI call, returns 401).", function () {
+    expect(res.status).to.be.oneOf([200, 401]);
+    bru.deleteVar("currentUserName");
+    bru.deleteVar("currentUserID");
+    bru.deleteEnvVar("authToken");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

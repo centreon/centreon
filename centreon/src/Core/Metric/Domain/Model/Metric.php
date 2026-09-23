@@ -37,6 +37,10 @@ class Metric
 
     private ?float $criticalLowThreshold = null;
 
+    private ?float $min = null;
+
+    private ?float $max = null;
+
     /**
      * @param int $id
      * @param string $name
@@ -131,5 +135,29 @@ class Metric
     public function getCriticalLowThreshold(): ?float
     {
         return $this->criticalLowThreshold;
+    }
+
+    public function setMin(?float $min): self
+    {
+        $this->min = $min;
+
+        return $this;
+    }
+
+    public function getMin(): ?float
+    {
+        return $this->min;
+    }
+
+    public function setMax(?float $max): self
+    {
+        $this->max = $max;
+
+        return $this;
+    }
+
+    public function getMax(): ?float
+    {
+        return $this->max;
     }
 }

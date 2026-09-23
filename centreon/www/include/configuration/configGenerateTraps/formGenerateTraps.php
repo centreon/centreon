@@ -37,7 +37,9 @@ $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row'    => 'name', 'order'      => ['name'], 'keys'       => ['id'], 'conditions' => ['ns_activate' => 1]]);
 
 // Sort the list of poller server
-$pollersId = isset($_GET['poller']) ? explode(',', $_GET['poller']) : [];
+// A query string can carry any type (e.g. ?poller[]=1) while explode() only
+// accepts a string: discard anything else instead of raising a TypeError.
+$pollersId = is_string($_GET['poller'] ?? null) ? explode(',', $_GET['poller']) : [];
 
 foreach ($tab_nagios_server as $key => $name) {
     if (in_array($key, $pollersId)) {
@@ -74,7 +76,7 @@ $options = [null => null, 'RELOADCENTREONTRAPD' => _('Reload'), 'RESTARTCENTREON
 $form->addElement('select', 'signal', _('Send signal'), $options);
 
 // Set checkbox checked.
-$form->setDefaults(['generate' => '1', 'generate' => '1', 'opt' => '1']);
+$form->setDefaults(['generate' => '1', 'opt' => '1']);
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
@@ -125,7 +127,9 @@ if ($form->validate()) {
                 $output = [];
                 $returnVal = 0;
                 exec(
-                    escapeshellcmd(_CENTREON_PATH_ . "/bin/generateSqlLite '{$host['id']}' '{$filename}'") . ' 2>&1',
+                    _CENTREON_PATH_ . '/bin/generateSqlLite '
+                    . escapeshellarg((string) $host['id']) . ' '
+                    . escapeshellarg($filename) . ' 2>&1',
                     $output,
                     $returnVal
                 );
@@ -139,11 +143,12 @@ if ($form->validate()) {
         if (isset($ret['apply']) && $ret['apply'] && $returnVal == 0) {
             $msg_generate .= sprintf('<strong>%s</strong><br/>', _('Centcore commands'));
             foreach ($tab_server as $host) {
-                passthru(
-                    escapeshellcmd("echo 'SYNCTRAP:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
-                    $return
+                $return = file_put_contents(
+                    $centcore_pipe,
+                    'SYNCTRAP:' . (int) $host['id'] . "\n",
+                    FILE_APPEND | LOCK_EX
                 );
-                if ($return) {
+                if ($return === false) {
                     $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): SYNCTRAP sent to centcore.cmd<br/>";
@@ -152,11 +157,12 @@ if ($form->validate()) {
         }
         if (isset($ret['signal']) && in_array($ret['signal'], ['RELOADCENTREONTRAPD', 'RESTARTCENTREONTRAPD'])) {
             foreach ($tab_server as $host) {
-                passthru(
-                    escapeshellcmd("echo '{$ret['signal']}:{$host['id']}'") . ' >> ' . escapeshellcmd($centcore_pipe),
-                    $return
+                $return = file_put_contents(
+                    $centcore_pipe,
+                    $ret['signal'] . ':' . (int) $host['id'] . "\n",
+                    FILE_APPEND | LOCK_EX
                 );
-                if ($return) {
+                if ($return === false) {
                     $msg_generate .= "Error while writing into {$centcore_pipe}<br/>";
                 } else {
                     $msg_generate .= "Poller (id:{$host['id']}): {$ret['signal']} sent to centcore.cmd<br/>";

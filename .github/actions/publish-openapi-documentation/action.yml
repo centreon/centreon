@@ -1,0 +1,56 @@
+name: "publish-openapi-documentation"
+description: "Publish OpenAPI documentation"
+
+inputs:
+  doc_version:
+    description: The version of the documentation on the s3
+    required: true
+  module_name:
+    description: "The package module name"
+    required: true
+  openapi_file_reference:
+    description: "Reference (tag or branch) on which the files are fetched"
+    required: false
+  cloudfront_role_doc_production:
+    description: "cloudfront_role_doc_production secret"
+    required: true
+  cloudfront_id_doc_api:
+    description: "cloudfront_id_doc_api secret"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download built artifacts
+      uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+      with:
+        name: openapi-doc-${{ inputs.module_name }}-${{ inputs.openapi_file_reference || github.ref_name }}
+
+    - uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+      with:
+        aws-region: eu-west-1
+        role-to-assume: ${{ inputs.cloudfront_role_doc_production }}
+        role-session-name: InvalidDocCache
+        role-skip-session-tagging: true
+        role-duration-seconds: 900
+
+    - name: Copy to AWS S3 centreon-documentation-api
+      env:
+        MODULE_NAME: ${{ inputs.module_name }}
+        DOC_VERSION: ${{ inputs.doc_version }}
+      run: |
+        if [[ $MODULE_NAME == "centreon-web" ]] && [[ $DOC_VERSION == "cloud" ]]; then
+          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME-$DOC_VERSION"
+        else
+          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME/$DOC_VERSION"
+        fi
+        ls -lah
+        aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+        aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+      shell: bash
+
+    - name: Invalidate AWS Cloudfront cache
+      env:
+        CLOUDFRONT_ID: ${{ inputs.cloudfront_id_doc_api }}
+      run: aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/*"
+      shell: bash

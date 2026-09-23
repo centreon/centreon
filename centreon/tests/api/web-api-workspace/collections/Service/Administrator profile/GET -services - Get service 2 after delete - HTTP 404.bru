@@ -1,0 +1,20 @@
+meta {
+  name: GET /services - Get service 2 after delete - HTTP 404
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/{{Service2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,5 +1,8 @@
 #!@PHP_BIN@
 <?php
+
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
+
 require_once realpath(dirname(__FILE__) . "/../config/centreon.config.php");
 
 define("OK", 0);
@@ -30,7 +33,7 @@ try {
     $mysql_user = $conf_centreon["user"];
     $mysql_password = $conf_centreon["password"];
     $db_centreon = new PDO("mysql:dbname=pdo;host=" . $mysql_host . ";port=" . $mysql_port . ";dbname=" . $mysql_database,
-    $mysql_user, $mysql_password);
+    $mysql_user, $mysql_password, DatabaseTLSResolver::getTLSOptions());
     $db_centreon->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Get pollers

@@ -168,7 +168,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
 
         $this->sqlRequestTranslator->addSearchValue('host_id', [\PDO::PARAM_INT => $hostId]);
 
-        return $this->processListingRequest($request);
+        return $this->processListingRequest($request, false);
     }
 
     /**
@@ -205,7 +205,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
         $this->sqlRequestTranslator->addSearchValue('host_id', [\PDO::PARAM_INT => $hostId]);
         $this->sqlRequestTranslator->addSearchValue('service_id', [\PDO::PARAM_INT => $serviceId]);
 
-        return $this->processListingRequest($request);
+        return $this->processListingRequest($request, false);
     }
 
     /**
@@ -402,7 +402,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
             . $accessGroupFilter
             . 'WHERE ack.service_id ' . (($type === Acknowledgement::TYPE_HOST_ACKNOWLEDGEMENT) ? ' = 0' : ' != 0');
 
-        return $this->processListingRequest($request);
+        return $this->processListingRequest($request, false);
     }
 
     /**
@@ -522,12 +522,12 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
      * @throws \Exception
      * @return Acknowledgement[]
      */
-    private function processListingRequest(string $request): array
+    private function processListingRequest(string $request, bool $prependWhere = true): array
     {
         $request = $this->translateDbName($request);
 
         // Search
-        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql($prependWhere);
         $request .= ! is_null($searchRequest) ? $searchRequest : '';
 
         // Sort

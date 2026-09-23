@@ -23,9 +23,9 @@ require_once __DIR__ . '/../bootstrap.php';
 
 // Set logging options
 if (defined('E_DEPRECATED')) {
-    ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+    ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 } else {
-    ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_STRICT);
+    ini_set('error_reporting', E_ALL & ~E_NOTICE);
 }
 
 // Purge Values
@@ -268,10 +268,12 @@ if (! $centreon->user->showDiv('menu_2')) {
 ?>
     <section class="main section-expand" style="padding-top: 4px;">
 <?php
-// Display PathWay
-if ($min != 1) {
-    include_once './include/core/pathway/pathway.php';
-}
+// The legacy breadcrumb (pathway.php) used to initialize the global $basePath,
+// which legacy pages rely on when saving through the API (e.g. host update).
+// The breadcrumb now lives in the React top banner, so set $basePath here to
+// preserve that behavior.
+$basePath = '/' . trim(explode('main.get.php', $_SERVER['REQUEST_URI'])[0], '/');
+$basePath = htmlspecialchars($basePath, ENT_QUOTES, 'UTF-8');
 
 if (isset($url) && $url) {
     include_once $url;

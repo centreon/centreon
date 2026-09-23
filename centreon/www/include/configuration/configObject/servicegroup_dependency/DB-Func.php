@@ -34,16 +34,15 @@ function testServiceGroupDependencyExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $query = "SELECT dep_name, dep_id FROM dependency WHERE dep_name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $dep = $dbResult->fetch();
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $dep['dep_id'] == $id) {
+    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->execute();
+    $dep = $statement->fetch();
+    if ($dep === false) {
         return true;
-    } // Duplicate entry
+    }
 
-    return ! ($dbResult->rowCount() >= 1 && $dep['dep_id'] != $id);
+    return $dep['dep_id'] == $id;
 }
 
 function testServiceGroupDependencyCycle($childs = null)
@@ -69,83 +68,104 @@ function testServiceGroupDependencyCycle($childs = null)
 function deleteServiceGroupDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
-    foreach ($dependencies as $key => $value) {
-        $dbResult2 = $pearDB->query("SELECT dep_name FROM `dependency` WHERE `dep_id` = '" . $key . "' LIMIT 1");
-        $row = $dbResult2->fetch();
+    $selectStatement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
+    $deleteStatement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
+    foreach (array_keys($dependencies) as $key) {
+        $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStatement->execute();
+        $row = $selectStatement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
-        $pearDB->query("DELETE FROM dependency WHERE dep_id = '" . $key . "'");
+        $deleteStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $deleteStatement->execute();
         $oreon->CentreonLogAction->insertLog('servicegroup dependency', $key, $row['dep_name'], 'd');
     }
 }
 
 function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
-    foreach ($dependencies as $key => $value) {
-        global $pearDB, $oreon;
-        $dbResult = $pearDB->query("SELECT * FROM dependency WHERE dep_id = '" . $key . "' LIMIT 1");
-        $row = $dbResult->fetch();
-        $row['dep_id'] = null;
+    global $pearDB, $oreon;
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1'
+    );
+    $selectParentStmt = $pearDB->prepare(
+        'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupParent_relation '
+        . 'WHERE dependency_dep_id = :dep_id'
+    );
+    $insertParentStmt = $pearDB->prepare(
+        'INSERT INTO dependency_servicegroupParent_relation (dependency_dep_id, servicegroup_sg_id) '
+        . 'VALUES (:depId, :servicegroupId)'
+    );
+    $selectChildStmt = $pearDB->prepare(
+        'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupChild_relation '
+        . 'WHERE dependency_dep_id = :dep_id'
+    );
+    $insertChildStmt = $pearDB->prepare(
+        'INSERT INTO dependency_servicegroupChild_relation (dependency_dep_id, servicegroup_sg_id) '
+        . 'VALUES (:depId, :servicegroupId)'
+    );
+
+    foreach (array_keys($dependencies) as $key) {
+        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+        unset($row['dep_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+        $originalName = $row['dep_name'];
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
+            $dep_name = $originalName . '_' . $i;
+            $fields = [];
             foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'dep_name') {
-                    $dep_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val
-                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                if ($key2 != 'dep_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($dep_name)) {
-                    $fields['dep_name'] = $dep_name;
-                }
+                $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
             }
-            if (isset($dep_name) && testServiceGroupDependencyExistence($dep_name)) {
-                $rq = $val ? 'INSERT INTO dependency VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
-                $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
-                $maxId = $dbResult->fetch();
-                if (isset($maxId['MAX(dep_id)'])) {
-                    $query = 'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupParent_relation '
-                        . "WHERE dependency_dep_id = '" . $key . "'";
-                    $dbResult = $pearDB->query($query);
+            if (testServiceGroupDependencyExistence($dep_name)) {
+                $row['dep_name'] = $dep_name;
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId > 0) {
+                    $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectParentStmt->execute();
                     $fields['dep_sgParents'] = '';
-                    $query = 'INSERT INTO dependency_servicegroupParent_relation '
-                             . 'VALUES (:dep_id, :servicegroup_sg_id)';
-                    $statement = $pearDB->prepare($query);
-                    while ($sg = $dbResult->fetch()) {
-                        $statement->bindValue(':dep_id', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
-                        $statement->bindValue(':servicegroup_sg_id', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                        $statement->execute();
+                    while ($sg = $selectParentStmt->fetch()) {
+                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                        $insertParentStmt->execute();
                         $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
                     }
                     $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
-                    $dbResult->closeCursor();
-                    $query = 'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupChild_relation '
-                        . "WHERE dependency_dep_id = '" . $key . "'";
-                    $dbResult = $pearDB->query($query);
+                    $selectParentStmt->closeCursor();
+                    $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectChildStmt->execute();
                     $fields['dep_sgChilds'] = '';
-                    $query = 'INSERT INTO dependency_servicegroupChild_relation '
-                             . 'VALUES (:dep_id, :servicegroup_sg_id)';
-                    $statement = $pearDB->prepare($query);
-                    while ($sg = $dbResult->fetch()) {
-                        $statement->bindValue(':dep_id', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
-                        $statement->bindValue(':servicegroup_sg_id', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                        $statement->execute();
+                    while ($sg = $selectChildStmt->fetch()) {
+                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                        $insertChildStmt->execute();
                         $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
                     }
+                    $selectChildStmt->closeCursor();
                     $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
                     $oreon->CentreonLogAction->insertLog(
                         'servicegroup dependency',
-                        $maxId['MAX(dep_id)'],
+                        $lastId,
                         $dep_name,
                         'a',
                         $fields
                     );
-                    $dbResult->closeCursor();
                 }
             }
         }
@@ -200,20 +220,19 @@ function insertServiceGroupDependency($ret = []): int
     $statement->bindValue(':depComment', $resourceValues['dep_comment'], PDO::PARAM_STR);
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
-    $depId = $dbResult->fetch();
+    $depId = (int) $pearDB->lastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($resourceValues);
     $centreon->CentreonLogAction->insertLog(
         'servicegroup dependency',
-        $depId['MAX(dep_id)'],
+        $depId,
         $resourceValues['dep_name'],
         'a',
         $fields
     );
 
-    return (int) $depId['MAX(dep_id)'];
+    return $depId;
 }
 
 /**
@@ -310,21 +329,23 @@ function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = 
     if (! count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $rq = 'DELETE FROM dependency_servicegroupParent_relation ';
-    $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
-    $pearDB->query($rq);
+    $statement = $pearDB->prepare('DELETE FROM dependency_servicegroupParent_relation WHERE dependency_dep_id = :dep_id');
+    $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+    $statement->execute();
     if (isset($ret['dep_sgParents'])) {
         $ret = $ret['dep_sgParents'];
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_sgParents');
     }
+    $statement = $pearDB->prepare(
+        'INSERT INTO dependency_servicegroupParent_relation (dependency_dep_id, servicegroup_sg_id)
+        VALUES (:dep_id, :sg_id)'
+    );
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
-        $rq = 'INSERT INTO dependency_servicegroupParent_relation ';
-        $rq .= '(dependency_dep_id, servicegroup_sg_id) ';
-        $rq .= 'VALUES ';
-        $rq .= "('" . $dep_id . "', '" . $ret[$i] . "')";
-        $pearDB->query($rq);
+        $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+        $statement->bindValue(':sg_id', (int) $ret[$i], PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -338,20 +359,22 @@ function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = [
     if (! count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $rq = 'DELETE FROM dependency_servicegroupChild_relation ';
-    $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
-    $pearDB->query($rq);
+    $statement = $pearDB->prepare('DELETE FROM dependency_servicegroupChild_relation WHERE dependency_dep_id = :dep_id');
+    $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+    $statement->execute();
     if (isset($ret['dep_sgChilds'])) {
         $ret = $ret['dep_sgChilds'];
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_sgChilds');
     }
+    $statement = $pearDB->prepare(
+        'INSERT INTO dependency_servicegroupChild_relation (dependency_dep_id, servicegroup_sg_id)
+        VALUES (:dep_id, :sg_id)'
+    );
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
-        $rq = 'INSERT INTO dependency_servicegroupChild_relation ';
-        $rq .= '(dependency_dep_id, servicegroup_sg_id) ';
-        $rq .= 'VALUES ';
-        $rq .= "('" . $dep_id . "', '" . $ret[$i] . "')";
-        $pearDB->query($rq);
+        $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+        $statement->bindValue(':sg_id', (int) $ret[$i], PDO::PARAM_INT);
+        $statement->execute();
     }
 }

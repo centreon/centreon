@@ -27,7 +27,7 @@ export const useColorSelector = ({
   );
 
   const selectColor = useCallback(
-    (newColor: string) => (event) => {
+    (newColor: string) => (event: MouseEvent) => {
       setFieldValue(`options.${propertyName}`, newColor);
       toggle(event);
     },

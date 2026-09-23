@@ -36,7 +36,7 @@ export interface SuccessCallback {
 }
 export interface Data {
   listOptions: ListOptions;
-  stateCheckActionAtom?;
+  stateCheckActionAtom?: unknown;
   successCallback: SuccessCallback;
 }
 

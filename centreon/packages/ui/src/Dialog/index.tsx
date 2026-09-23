@@ -48,7 +48,10 @@ export type Props = {
   labelTitle?: ReactNode;
   onCancel?: () => void;
   onClose?: () => void;
-  onConfirm: (event, value?) => void;
+  onConfirm: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    value?: unknown
+  ) => void;
   open: boolean;
   restCancelButtonProps?: ButtonProps;
   restConfirmButtonProps?: ButtonProps;

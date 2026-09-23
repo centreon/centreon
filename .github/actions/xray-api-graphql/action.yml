@@ -1,0 +1,31 @@
+name: "Xray API GraphQL"
+description: "Execute a GraphQL query/mutation against Xray API"
+
+inputs:
+  graphql_operation:
+    description: "GraphQL operation to execute (get-test-plan, create-test-plan, etc.)"
+    required: true
+  variables:
+    description: "Variables to send with the GraphQL request"
+    required: true
+  xray_token:
+    description: "Xray API Bearer token"
+    required: true
+
+outputs:
+  response:
+    description: "JSON response from Xray API"
+    value: ${{ steps.graphql-request.outputs.response }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Execute GraphQL request
+      id: graphql-request
+      shell: bash
+      env:
+        XRAY_TOKEN: ${{ inputs.xray_token }}
+        GRAPHQL_FILE: ".github/actions/xray-api-graphql/${{ inputs.graphql_operation }}.graphql"
+        INPUT_VARIABLES: ${{ inputs.variables }}
+      run: |
+        "${{ github.action_path }}/xray-graphql-call.sh"

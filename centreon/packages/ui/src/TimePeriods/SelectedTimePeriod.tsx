@@ -85,7 +85,7 @@ const SelectedTimePeriod = ({
               }
             >
               {
-                cond<number, string>([
+                cond<[number], string>([
                   [lte(theme.breakpoints.values.md), always(largeName)],
                   [T, always(name)]
                 ])(width) as string

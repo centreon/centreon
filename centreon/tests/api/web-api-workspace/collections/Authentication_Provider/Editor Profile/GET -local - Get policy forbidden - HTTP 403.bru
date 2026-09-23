@@ -1,0 +1,26 @@
+meta {
+  name: GET /local - Get policy forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/local
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot read the local authentication provider.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

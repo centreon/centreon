@@ -21,7 +21,7 @@ import { AgentConfigurationListing } from '../models';
 import { useListingQueryKey } from './useListingQueryKey';
 
 interface UseGetAgentConfigurationsState {
-  data;
+  data: ListingModel<AgentConfigurationListing> | undefined;
   isLoading: boolean;
 }
 
@@ -96,7 +96,13 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
           limit,
           page: page + 1,
           search: {
-            conditions
+            conditions: conditions as NonNullable<
+              NonNullable<
+                Parameters<
+                  typeof buildListingEndpoint
+                >[0]['parameters']['search']
+              >['conditions']
+            >
           },
           sort: {
             [sortField]: sortOrder

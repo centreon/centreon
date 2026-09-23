@@ -3,6 +3,7 @@ import debounce from '@mui/utils/debounce';
 import { SearchField } from '@centreon/ui';
 
 import { useSetAtom } from 'jotai';
+import { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { resourceAccessManagementSearchAtom } from '../atom';
@@ -20,7 +21,7 @@ const Filter = (): JSX.Element => {
     500
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: ChangeEvent<HTMLInputElement>): void => {
     searchDebounced(target.value);
   };
 

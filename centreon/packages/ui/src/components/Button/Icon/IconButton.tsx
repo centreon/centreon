@@ -21,7 +21,7 @@ const muiColorMap: Record<
 type IconButtonProps = {
   disabled?: boolean;
   icon?: string | ReactNode;
-  onClick?: (e) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   size?: 'small' | 'medium' | 'large';
   variant?: 'primary' | 'secondary' | 'ghost';
 } & AriaLabelingAttributes &

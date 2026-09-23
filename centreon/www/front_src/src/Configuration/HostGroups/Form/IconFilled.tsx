@@ -18,7 +18,7 @@ const IconFiled = ({ disabled }: { disabled: boolean }): JSX.Element => {
 
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
-  const changeIcon = (_, value): void => {
+  const changeIcon = (_: unknown, value: unknown): void => {
     setFieldValue('icon', value);
   };
 

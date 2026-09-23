@@ -1,0 +1,27 @@
+meta {
+  name: GET /platform/versions - Get platform version - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/platform/versions
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Unprivileged user can read platform version.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

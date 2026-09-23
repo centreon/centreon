@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/acls/acl-data.json';
@@ -81,11 +82,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -497,6 +498,10 @@ Then('the links with the acl groups are broken', () => {
     cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();
 
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'a:contains("Authorizations information")'
+    );
     cy.getIframeBody().contains('a', 'Authorizations information').click();
 
     cy.getIframeBody()

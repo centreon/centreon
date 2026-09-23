@@ -3,6 +3,7 @@
 import { Typography } from '@mui/material';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import type { LexicalEditor } from 'lexical';
 import { isEmpty, isNil } from 'ramda';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +60,7 @@ interface Props {
   error?: string;
   hasInitialTextContent?: boolean;
   initialEditorState?: string;
-  initialize?: (editor) => void;
+  initialize?: (editor: LexicalEditor) => void;
   inputClassname?: string;
   minInputHeight: number;
   namespace: string;
@@ -145,10 +146,12 @@ const ContentEditable = ({
 
   const isTextEmpty =
     isEmpty(root) &&
+    // @ts-expect-error - suppressing pre-existing type mismatch
     !editor.getEditorState().toJSON().root.children?.[0]?.children?.length;
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
     setFocused(false);
+    // @ts-expect-error - suppressing pre-existing type mismatch
     onBlur?.(event);
   };
 

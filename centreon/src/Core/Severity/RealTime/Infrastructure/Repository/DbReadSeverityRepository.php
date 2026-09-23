@@ -172,9 +172,9 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
                 return $this->findAllByTypeId($typeId);
             }
 
-            $severitiesAcls = <<<'SQL'
-                INNER JOIN `:db`.acl_resources_sc_relations arsr
-                    ON s.id = arsr.sc_id
+            $severitiesAclSubRequest = <<<'SQL'
+                SELECT arsr.sc_id
+                FROM `:db`.acl_resources_sc_relations arsr
                 INNER JOIN `:db`.acl_resources res
                     ON arsr.acl_res_id = res.acl_res_id
                 INNER JOIN `:db`.acl_res_group_relations argr
@@ -190,9 +190,9 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
                 return $this->findAllByTypeId($typeId);
             }
 
-            $severitiesAcls = <<<'SQL'
-                INNER JOIN `:db`.acl_resources_hc_relations arhr
-                    ON s.id = arhr.hc_id
+            $severitiesAclSubRequest = <<<'SQL'
+                SELECT arhr.hc_id
+                FROM `:db`.acl_resources_hc_relations arhr
                 INNER JOIN `:db`.acl_resources res
                     ON arhr.acl_res_id = res.acl_res_id
                 INNER JOIN `:db`.acl_res_group_relations argr
@@ -202,7 +202,7 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
                 SQL;
         }
 
-        $request = <<<SQL
+        $request = <<<'SQL'
             SELECT SQL_CALC_FOUND_ROWS
                 1 AS REALTIME,
                 severity_id,
@@ -222,7 +222,6 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
                 ON imgdr.img_img_id = img.img_id
             INNER JOIN `:db`.view_img_dir imgd
                 ON imgd.dir_id = imgdr.dir_dir_parent_id
-            {$severitiesAcls}
             SQL;
 
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
@@ -232,7 +231,8 @@ class DbReadSeverityRepository extends AbstractRepositoryDRB implements ReadSeve
         foreach ($accessGroupIds as $key => $id) {
             $bindValues[":access_group_id_{$key}"] = $id;
         }
-        $request .= ' AND ag.acl_group_id IN (' . implode(', ', array_keys($bindValues)) . ')';
+        $request .= ' AND s.id IN (' . $severitiesAclSubRequest
+            . ' WHERE ag.acl_group_id IN (' . implode(', ', array_keys($bindValues)) . '))';
 
         // Handle sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();

@@ -510,18 +510,15 @@ class CentreonWidget
             if ($str != '') {
                 $str .= ',';
             }
-            $str .= '(:viewId, :widgetId' . $widgetId . ')';
-            $queryValues['widgetId' . $widgetId] = (int) $widgetId;
+            $str .= '(?, ?)';
+            $queryValues[] = (int) $viewId;
+            $queryValues[] = (int) $widgetId;
         }
 
         if ($str != '') {
             $query = 'INSERT INTO widget_views (custom_view_id, widget_id) VALUES ' . $str;
             $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':viewId', $viewId, PDO::PARAM_INT);
-            foreach ($queryValues as $widgetId) {
-                $stmt->bindValue(':widgetId' . $widgetId, $widgetId, PDO::PARAM_INT);
-            }
-            $dbResult = $stmt->execute();
+            $dbResult = $stmt->execute($queryValues);
             if (! $dbResult) {
                 throw new Exception('An error occured');
             }

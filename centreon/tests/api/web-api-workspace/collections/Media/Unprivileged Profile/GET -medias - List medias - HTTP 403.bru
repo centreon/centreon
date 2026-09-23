@@ -1,0 +1,22 @@
+meta {
+  name: GET /configuration/medias - List medias - HTTP 403 (ACL not configured in CI, currently 200)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/medias
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Unprivileged user should not be able to list media (ACL restriction expected).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

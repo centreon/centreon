@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
+use Core\Contact\Domain\Model\ContactGroup;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto;
@@ -166,7 +167,7 @@ final class FindDashboardContacts
     /**
      * Find contacts with their Dashboards roles.
      * Cloud - Return users that are part of the same contact groups as the current user.
-     * OnPrem - Return users that are part of the same access groups as the current user.
+     * OnPrem - Return users that are part of the same access groups or contact groups as the current user.
      *
      * @throws \Throwable
      *
@@ -185,10 +186,16 @@ final class FindDashboardContacts
 
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $accessGroupIds = array_map(static fn (AccessGroup $accessGroup): int => $accessGroup->getId(), $accessGroups);
+        $contactGroups = $this->readContactGroupRepository->findAllByUserId($this->contact->getId());
+        $contactGroupIds = array_map(
+            static fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+            $contactGroups
+        );
 
         return $this->readDashboardShareRepository->findContactsWithAccessRightByACLGroupsAndRequestParameters(
             $this->requestParameters,
-            $accessGroupIds
+            $accessGroupIds,
+            $contactGroupIds
         );
     }
 

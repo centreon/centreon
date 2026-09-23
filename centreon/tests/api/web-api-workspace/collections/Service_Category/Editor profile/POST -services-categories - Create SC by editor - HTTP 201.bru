@@ -1,0 +1,44 @@
+meta {
+  name: POST /services/categories - Create SC by editor - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceCategory4Name}}",
+    "alias": "{{ServiceCategory4Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service category has been successfully created by editor, with name '{{ServiceCategory4Name}}' and alias '{{ServiceCategory4Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceCategory4Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceCategory4Name"),
+      "alias": bru.getEnvVar("ServiceCategory4Alias"),
+      "is_activated": true
+    });
+  });
+
+  test("The Location parameter is in the header.", function () {
+    expect(res.getHeaders()).to.have.property("location");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

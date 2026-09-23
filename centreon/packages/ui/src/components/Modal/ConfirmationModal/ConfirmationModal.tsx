@@ -42,29 +42,34 @@ export const ConfirmationModal = <TAtom,>({
   disabled,
   size
 }: ConfirmationModalProps<TAtom>): JSX.Element => {
-  const [atomData, setAtomData] = useAtom<TAtom | null>(atom);
+  const [atomData, setAtomData] = useAtom(atom);
+
+  const typedAtomData = atomData as Awaited<TAtom> | null;
 
   const closeModal = (): void => {
-    onClose?.(atomData);
+    onClose?.(typedAtomData);
     setAtomData(null);
   };
 
   const formattedLabels = useMemo(() => {
     return {
-      cancel: getLabel({ atomData, label: labels.cancel }),
-      confirm: getLabel({ atomData, label: labels.confirm }),
-      description: getLabel({ atomData, label: labels.description }),
-      title: getLabel({ atomData, label: labels.title })
+      cancel: getLabel({ atomData: typedAtomData, label: labels.cancel }),
+      confirm: getLabel({ atomData: typedAtomData, label: labels.confirm }),
+      description: getLabel({
+        atomData: typedAtomData,
+        label: labels.description
+      }),
+      title: getLabel({ atomData: typedAtomData, label: labels.title })
     };
-  }, [labels, atomData]);
+  }, [labels, typedAtomData]);
 
   const confirm = (): void => {
-    onConfirm?.(atomData);
+    onConfirm?.(typedAtomData);
     setAtomData(null);
   };
 
   const cancel = (): void => {
-    onCancel?.(atomData);
+    onCancel?.(typedAtomData);
     setAtomData(null);
   };
 

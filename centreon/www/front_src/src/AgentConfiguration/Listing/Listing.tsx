@@ -7,6 +7,7 @@ import { labelCollapse, labelExpand } from '../translatedLabels';
 import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
+import InstallationCommandModal from './InstallationCommandModal';
 import { useListing } from './useListing';
 
 interface Props {
@@ -37,7 +38,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   return (
     <>
       <Listing
-        actions={<Actions />}
+        actions={<Actions rows={rows} />}
         columnConfiguration={{
           selectedColumnIds,
           sortable: true
@@ -46,15 +47,15 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         currentPage={page}
         limit={limit}
         loading={isLoading}
-        onLimitChange={setLimit}
+        onLimitChange={setLimit as (limit: string | number) => void}
         onPaginate={setPage}
         onResetColumns={resetColumns}
-        onRowClick={updateAgentConfiguration}
+        onRowClick={updateAgentConfiguration as (row: unknown) => void}
         onSelectColumns={selectColumns}
         onSort={changeSort}
-        rows={rows}
+        rows={rows as unknown as Parameters<typeof Listing>[0]['rows']}
         sortField={sortField}
-        sortOrder={sortOrder}
+        sortOrder={sortOrder as 'asc' | 'desc'}
         subItems={{
           canCheckSubItems: false,
           enable: true,
@@ -65,6 +66,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         totalRows={total}
       />
       <DeleteModal />
+      <InstallationCommandModal />
     </>
   );
 };

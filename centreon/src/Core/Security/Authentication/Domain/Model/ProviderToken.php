@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use DateTimeImmutable;
 
 class ProviderToken extends NewProviderToken
 {
     public function __construct(
         private int $id,
+        #[Sensitive]
         private string $token,
         private DateTimeImmutable $creationDate,
         private ?DateTimeImmutable $expirationDate = null,

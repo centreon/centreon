@@ -38,13 +38,26 @@ export interface UseFetchQueryProps<T> {
   useLongCache?: boolean;
 }
 
+export interface PrefetchQueryParams {
+  endpointParams?: PrefetchEndpointParams;
+  queryKey: QueryKey;
+}
+
+export interface PrefetchPageParams {
+  getPrefetchQueryKey: (page: number) => QueryKey;
+  page: number;
+}
+
 export type UseFetchQueryState<T> = {
   data?: T;
   error: Omit<ResponseError, 'isError'> | null;
   fetchQuery: () => Promise<T | ResponseError>;
-  prefetchNextPage: ({ page, getPrefetchQueryKey }) => void;
-  prefetchPreviousPage: ({ page, getPrefetchQueryKey }) => void;
-  prefetchQuery: ({ endpointParams, queryKey }) => void;
+  prefetchNextPage: ({ page, getPrefetchQueryKey }: PrefetchPageParams) => void;
+  prefetchPreviousPage: ({
+    page,
+    getPrefetchQueryKey
+  }: PrefetchPageParams) => void;
+  prefetchQuery: ({ endpointParams, queryKey }: PrefetchQueryParams) => void;
 } & Omit<QueryObserverBaseResult, 'data' | 'error'>;
 
 export interface PrefetchEndpointParams {
@@ -69,7 +82,11 @@ const useFetchQuery = <T extends object>({
 
   const { showErrorMessage } = useSnackbar();
 
-  const isCypressTest = equals(window.Cypress?.testingType, 'component');
+  const isCypressTest = equals(
+    (window as Window & { Cypress?: { testingType: string } }).Cypress
+      ?.testingType,
+    'component'
+  );
 
   const cacheOptions =
     !isCypressTest && useLongCache ? { gcTime: 60 * 1000 } : {};
@@ -107,7 +124,10 @@ const useFetchQuery = <T extends object>({
     }
   };
 
-  const prefetchQuery = ({ endpointParams, queryKey }): void => {
+  const prefetchQuery = ({
+    endpointParams,
+    queryKey
+  }: PrefetchQueryParams): void => {
     queryClient.prefetchQuery({
       queryFn: ({ signal }): Promise<T | ResponseError> =>
         customFetch<T>({
@@ -123,7 +143,10 @@ const useFetchQuery = <T extends object>({
     });
   };
 
-  const prefetchNextPage = ({ page, getPrefetchQueryKey }): void => {
+  const prefetchNextPage = ({
+    page,
+    getPrefetchQueryKey
+  }: PrefetchPageParams): void => {
     if (!isPaginated) {
       return;
     }
@@ -136,7 +159,10 @@ const useFetchQuery = <T extends object>({
     });
   };
 
-  const prefetchPreviousPage = ({ page, getPrefetchQueryKey }): void => {
+  const prefetchPreviousPage = ({
+    page,
+    getPrefetchQueryKey
+  }: PrefetchPageParams): void => {
     if (!isPaginated) {
       return;
     }

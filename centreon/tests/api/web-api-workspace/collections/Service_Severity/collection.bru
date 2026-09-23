@@ -1,0 +1,20 @@
+meta {
+  name: Service_Severity
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  ServiceSeverity1Id:
+  ServiceSeverity2Id:
+  ServiceSeverity3Id:
+  ServiceSeverity4Id:
+}

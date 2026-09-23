@@ -26,7 +26,7 @@ $resultat = [
 
 // We get Host or Service
 $selected_values = explode(',', $get_information['form']['selection']);
-$db_storage = new CentreonDBManager('centstorage');
+$db_storage = new CentreonDB('centstorage');
 
 $problems = [];
 
@@ -49,16 +49,22 @@ foreach ($selected_values as $value) {
     }
 }
 
+$accessGroupIds = '';
+if (! $centreon_bg->is_admin) {
+    $ids = $centreon_bg->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
+}
+
 $query = '(SELECT DISTINCT services.description, hosts.name as host_name, hosts.instance_id FROM services, hosts
     WHERE (' . $selected_str . ') AND services.host_id = hosts.host_id';
 if (! $centreon_bg->is_admin) {
-    $query .= ' AND EXISTS(
-        SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ('
-            . $centreon_bg->grouplistStr . '
-        )
-        AND hosts.host_id = centreon_acl.host_id
-        AND services.service_id = centreon_acl.service_id
-    )';
+    $query .= <<<SQL
+            AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+                AND services.service_id = centreon_acl.service_id
+            )
+        SQL;
 }
 $query .= ') UNION ALL (
     SELECT DISTINCT NULL as description, hosts.name as host_name, hosts.instance_id
@@ -67,14 +73,14 @@ $query .= ') UNION ALL (
         . $hosts_selected_str . '
     )';
 if (! $centreon_bg->is_admin) {
-    $query .= ' AND EXISTS(
-        SELECT * FROM centreon_acl
-        WHERE centreon_acl.group_id IN ('
-            . $centreon_bg->grouplistStr . '
-        )
-        AND hosts.host_id = centreon_acl.host_id
-    )';
+    $query .= <<<SQL
+            AND EXISTS (
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+            )
+        SQL;
 }
+
 $query .= ') ORDER BY `host_name`, `description`';
 
 $hosts_done = [];

@@ -10,7 +10,7 @@ import { labelLess, labelMore } from '../../../translatedLabels';
 import Card from './Card';
 import { ChangeExpandedCardsProps, ExpandAction } from './SortableCards/models';
 
-const Line = (line, index): JSX.Element => (
+const Line = (line: string, index: number): JSX.Element => (
   <Typography component="p" key={`${line}-${index}`} variant="body2">
     {line}
   </Typography>

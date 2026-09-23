@@ -27,6 +27,8 @@ parameters:
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
               - { type: classNameRegex, value: '#^Doctrine\\#' }
+              - { type: classNameRegex, value: '#^Godruoyi\\#' }
+              - { type: classNameRegex, value: '#^Monolog\\#' }
               - { type: classNameRegex, value: '#^Psr\\#' }
               - { type: classNameRegex, value: '#^Symfony\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\#' }
@@ -45,12 +47,21 @@ parameters:
           collectors:
               - { type: classNameRegex, value: '#TypeAlias$#' }
 
+        - name: PhpNative # PHP built-in attributes and classes
+          collectors:
+              - { type: classNameRegex, value: '#^Deprecated$#' }
+              - { type: classNameRegex, value: '#^Random\\#' }
+
+        - name: AdaptationLog # hexagonal-arch adapters for logging
+          collectors:
+              - { type: classNameRegex, value: '#^Adaptation\\Log\\#' }
+
     ruleset:
-        ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases ]
-        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases ]
-        Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases ]
-        Shared: [ Vendors, TypeAliases ]
-        Legacy: [ Vendors, TypeAliases ]
+        ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases, PhpNative ]
+        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases, PhpNative, AdaptationLog ]
+        Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases, PhpNative ]
+        Shared: [ Vendors, TypeAliases, PhpNative ]
+        Legacy: [ Vendors, TypeAliases, PhpNative ]
 
     skip_violations:
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
@@ -61,5 +72,11 @@ parameters:
             - Centreon\Domain\Exception\EntityNotFoundException
         App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
+            - Core\Common\Application\Repository\WriteVaultRepositoryInterface
+            - Core\Common\Application\VaultEligibilityService
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGorgoneNodesSynchronizer:
+            - Centreon\Domain\Gorgone\Command\NodesSync
+            - Centreon\Domain\Gorgone\GorgoneException
+            - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface

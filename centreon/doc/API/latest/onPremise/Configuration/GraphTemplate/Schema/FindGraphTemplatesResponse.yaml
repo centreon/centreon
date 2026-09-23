@@ -28,13 +28,15 @@ properties:
     type: object
     properties:
       lower_limit:
-        type: number
-        nullable: true
+        type:
+          - number
+          - 'null'
         description: "Lower limit of the grid"
         example: 115
       upper_limit:
-        type: number
-        nullable: true
+        type:
+          - number
+          - 'null'
         description: "Upper limit of the grid"
         example: 115
       is_upper_limit_sized_to_max:

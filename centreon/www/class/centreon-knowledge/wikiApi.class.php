@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once realpath(__DIR__ . '/../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreon-knowledge/wiki.class.php';
@@ -62,9 +65,6 @@ class WikiApi
     /** @var array */
     private $tokens;
 
-    /** @var mixed */
-    private $noSslCertificate;
-
     /**
      * WikiApi constructor.
      */
@@ -76,7 +76,6 @@ class WikiApi
         $this->url = $config['kb_wiki_url'] . '/api.php';
         $this->username = $config['kb_wiki_account'];
         $this->password = $config['kb_wiki_password'];
-        $this->noSslCertificate = $config['kb_wiki_certificate'];
         $this->curl = $this->getCurl();
         $this->version = $this->getWikiVersion();
     }
@@ -381,22 +380,22 @@ class WikiApi
      */
     public function updateLinkForHost($hostName): void
     {
-        $resHost = $this->db->query(
-            "SELECT host_id FROM host WHERE host_name LIKE '" . $hostName . "'"
+        $hostRow = $this->db->fetchAssociative(
+            'SELECT host_id FROM host WHERE host_name LIKE :hostName',
+            QueryParameters::create([QueryParameter::string('hostName', $hostName)])
         );
-
-        $hostRow = $resHost->fetch();
 
         if ($hostRow !== false) {
             $url = self::PROXY_URL . '?host_name=$HOSTNAME$';
-            $statement = $this->db->prepare(
+            $this->db->executeStatement(
                 'UPDATE extended_host_information '
                 . 'SET ehi_notes_url = :url '
-                . 'WHERE host_host_id = :hostId'
+                . 'WHERE host_host_id = :hostId',
+                QueryParameters::create([
+                    QueryParameter::string('url', $url),
+                    QueryParameter::int('hostId', (int) $hostRow['host_id']),
+                ])
             );
-            $statement->bindValue(':url', $url, PDO::PARAM_STR);
-            $statement->bindValue(':hostId', $hostRow['host_id'], PDO::PARAM_INT);
-            $statement->execute();
         }
     }
 
@@ -408,26 +407,30 @@ class WikiApi
      */
     public function updateLinkForService($hostName, $serviceDescription): void
     {
-        $resService = $this->db->query(
+        $serviceRow = $this->db->fetchAssociative(
             'SELECT service_id '
             . 'FROM service, host, host_service_relation '
-            . "WHERE host.host_name LIKE '" . $hostName . "' "
-            . "AND service.service_description LIKE '" . $serviceDescription . "' "
+            . 'WHERE host.host_name LIKE :hostName '
+            . 'AND service.service_description LIKE :serviceDescription '
             . 'AND host_service_relation.host_host_id = host.host_id '
-            . 'AND host_service_relation.service_service_id = service.service_id '
+            . 'AND host_service_relation.service_service_id = service.service_id ',
+            QueryParameters::create([
+                QueryParameter::string('hostName', $hostName),
+                QueryParameter::string('serviceDescription', $serviceDescription),
+            ])
         );
-        $serviceRow = $resService->fetch();
 
         if ($serviceRow !== false) {
             $url = self::PROXY_URL . '?host_name=$HOSTNAME$&service_description=$SERVICEDESC$';
-            $statement = $this->db->prepare(
+            $this->db->executeStatement(
                 'UPDATE extended_service_information '
                 . 'SET esi_notes_url = :url '
-                . 'WHERE service_service_id = :serviceId'
+                . 'WHERE service_service_id = :serviceId',
+                QueryParameters::create([
+                    QueryParameter::string('url', $url),
+                    QueryParameter::int('serviceId', (int) $serviceRow['service_id']),
+                ])
             );
-            $statement->bindValue(':url', $url, PDO::PARAM_STR);
-            $statement->bindValue(':serviceId', $serviceRow['service_id'], PDO::PARAM_INT);
-            $statement->execute();
         }
     }
 
@@ -438,22 +441,23 @@ class WikiApi
      */
     public function updateLinkForServiceTemplate($serviceName): void
     {
-        $resService = $this->db->query(
+        $serviceTemplateRow = $this->db->fetchAssociative(
             'SELECT service_id FROM service '
-            . "WHERE service_description LIKE '" . $serviceName . "' "
+            . 'WHERE service_description LIKE :serviceName ',
+            QueryParameters::create([QueryParameter::string('serviceName', $serviceName)])
         );
-        $serviceTemplateRow = $resService->fetch();
 
         if ($serviceTemplateRow !== false) {
             $url = self::PROXY_URL . '?host_name=$HOSTNAME$&service_description=$SERVICEDESC$';
-            $statement = $this->db->prepare(
+            $this->db->executeStatement(
                 'UPDATE extended_service_information '
                 . 'SET esi_notes_url = :url '
-                . 'WHERE service_service_id = :serviceId'
+                . 'WHERE service_service_id = :serviceId',
+                QueryParameters::create([
+                    QueryParameter::string('url', $url),
+                    QueryParameter::int('serviceId', (int) $serviceTemplateRow['service_id']),
+                ])
             );
-            $statement->bindValue(':url', $url, PDO::PARAM_STR);
-            $statement->bindValue(':serviceId', $serviceTemplateRow['service_id'], PDO::PARAM_INT);
-            $statement->execute();
         }
     }
 
@@ -467,10 +471,6 @@ class WikiApi
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_COOKIEFILE, '');
-        if ($this->noSslCertificate == 1) {
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        }
 
         return $curl;
     }

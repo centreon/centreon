@@ -31,12 +31,18 @@ const usePickersStartEndDate = ({
 
   const setError = useSetAtom(errorTimePeriodAtom);
 
-  const changeDate = ({ property, date }): void => {
-    const currentDate = customTimePeriod[property];
+  const changeDate = ({
+    property,
+    date
+  }: {
+    property: CustomTimePeriodProperty | string;
+    date: Date;
+  }): void => {
+    const currentDate = customTimePeriod[property as keyof CustomTimePeriod];
     cond([
       [equals(CustomTimePeriodProperty?.start), (): void => setStart(date)],
       [equals(CustomTimePeriodProperty?.end), (): void => setEnd(date)]
-    ])(property);
+    ])(property as CustomTimePeriodProperty);
 
     if (dayjs(date).isSame(dayjs(currentDate)) || !dayjs(date).isValid()) {
       return;

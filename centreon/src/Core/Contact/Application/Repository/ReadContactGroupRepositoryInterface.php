@@ -54,6 +54,21 @@ interface ReadContactGroupRepositoryInterface
     public function findAllByUserId(int $userId): array;
 
     /**
+     * Get contact group ids reachable from $user, considering both the user's
+     * ACL groups (cloud and on-prem) and the user's own contact group
+     * membership. Mirrors {@see ReadContactRepositoryInterface::findContactIdsByUser()}
+     * for contact groups so the same one-method "scope of this user" lookup
+     * works for either dimension.
+     *
+     * @param ContactInterface $user
+     *
+     * @throws RepositoryException
+     *
+     * @return int[]
+     */
+    public function findContactGroupIdsByUser(ContactInterface $user): array;
+
+    /**
      * Get a Contact Group.
      *
      * @param int $contactGroupId

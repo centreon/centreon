@@ -6,8 +6,8 @@ import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 
 interface UseButtonGroupState {
-  isButtonSelected: (id) => boolean;
-  selectOption: (id) => () => void;
+  isButtonSelected: (id: string) => boolean;
+  selectOption: (id: string) => () => void;
   value?: string;
 }
 
@@ -22,12 +22,12 @@ export const useButtonGroup = ({
   );
 
   const isButtonSelected = useCallback(
-    (id): boolean => equals(value, id),
+    (id: string): boolean => equals(value, id),
     [value]
   );
 
   const selectOption = useCallback(
-    (id) => (): void => {
+    (id: string) => (): void => {
       setFieldValue(`options.${propertyName}`, id);
     },
     []

@@ -816,7 +816,8 @@ class CentreonGraphNg
             if (is_null($this->dsDefault)) {
                 $stmt = $this->db->prepare(
                     "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total,
-                        ds_tickness, ds_color_line_mode, ds_color_line, ds_invert
+                        ds_tickness, ds_color_line_mode, ds_color_line, ds_color_area,
+                        ds_invert, ds_filled, ds_transparency, ds_stack, ds_order, ds_legend
                      FROM giv_components_template WHERE default_tpl1 = '1'"
                 );
                 $stmt->execute();
@@ -825,7 +826,28 @@ class CentreonGraphNg
             $dsData = $this->dsDefault;
         }
 
-        if ($dsData['ds_color_line_mode'] == '1') {
+        if (! is_array($dsData) || $dsData === []) {
+            $dsData = [
+                'ds_min' => '0',
+                'ds_max' => '0',
+                'ds_minmax_int' => '0',
+                'ds_last' => '1',
+                'ds_average' => '1',
+                'ds_total' => '0',
+                'ds_tickness' => '1',
+                'ds_color_line_mode' => '1',
+                'ds_color_line' => '#000000',
+                'ds_color_area' => '#FFFFFF',
+                'ds_invert' => '0',
+                'ds_filled' => '0',
+                'ds_transparency' => '80',
+                'ds_stack' => '0',
+                'ds_order' => '0',
+                'ds_legend' => '',
+            ];
+        }
+
+        if (isset($dsData['ds_color_line_mode']) && $dsData['ds_color_line_mode'] == '1') {
             $dsData['ds_color_line'] = $this->getOVDColor($metric['index_id'], $metric['metric_id']);
         }
 

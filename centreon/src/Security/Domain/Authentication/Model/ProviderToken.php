@@ -23,12 +23,15 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
 class ProviderToken
 {
     /** @var int|null */
     private $id;
 
     /** @var string */
+    #[Sensitive]
     private $token;
 
     /** @var \DateTime */

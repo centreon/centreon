@@ -74,6 +74,74 @@ $resourceController = $kernel->getContainer()->get(
 $queryValues = [];
 $queryValues2 = [];
 
+$groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
+
+// Pre-fetch allowed service group IDs from config DB for non-admin users
+$sgFilter = '';
+if (! $obj->is_admin) {
+    if ($groupStr === '') {
+        $sgFilter = 'AND 1=0 ';
+    } else {
+        $allServiceGroupsAllowed = false;
+        $query = <<<SQL
+                SELECT
+                    1
+                FROM acl_resources ar
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = ar.acl_res_id
+                WHERE
+                    argr.acl_group_id IN ({$groupStr})
+                    AND ar.all_servicegroups = '1'
+                    AND ar.acl_res_activate = '1'
+                LIMIT 1
+            SQL;
+
+        try {
+            $allServiceGroupsAllowed = $obj->DB->fetchAssociative($query) !== false;
+        } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+            throw new Core\Common\Domain\Exception\RepositoryException(
+                message: 'Error while checking if all service groups are allowed: ' . $e->getMessage(),
+                context: [
+                    'query' => $query,
+                    'grouplistStr' => $grouplistStr,
+                ],
+                previous: $e
+            );
+        }
+
+        if (! $allServiceGroupsAllowed) {
+            $allowedSgIds = [];
+            $query = <<<SQL
+                    SELECT DISTINCT
+                        arsr.sg_id
+                    FROM acl_resources_sg_relations arsr
+                    INNER JOIN acl_res_group_relations argr
+                        ON argr.acl_res_id = arsr.acl_res_id
+                    WHERE argr.acl_group_id IN ({$groupStr})
+                SQL;
+
+            try {
+                foreach ($obj->DB->iterateAssociative($query) as $row) {
+                    $allowedSgIds[] = (int) $row['sg_id'];
+                }
+            } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+                throw new Core\Common\Domain\Exception\RepositoryException(
+                    message: 'Error while fetching allowed service group IDs: ' . $e->getMessage(),
+                    context: [
+                        'query' => $query,
+                        'grouplistStr' => $grouplistStr,
+                    ],
+                    previous: $e
+                );
+            }
+
+            $sgFilter = $allowedSgIds === []
+                ? 'AND 1=0 '
+                : 'AND sg.servicegroup_id IN (' . implode(',', $allowedSgIds) . ') ';
+        }
+    }
+}
+
 // Backup poller selection
 $obj->setInstanceHistory($instance);
 
@@ -97,13 +165,19 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.servicegroup_id,
     FROM servicegroups sg
     INNER JOIN services_servicegroups sgm ON sg.servicegroup_id = sgm.servicegroup_id
     INNER JOIN services s ON s.service_id = sgm.service_id
-    INNER JOIN  hosts h ON sgm.host_id = h.host_id AND h.host_id = s.host_id '
-    . $obj->access->getACLHostsTableJoin($obj->DBC, 'h.host_id')
-    . $obj->access->getACLServicesTableJoin($obj->DBC, 's.service_id')
-    . ' WHERE 1 = 1  ';
+    INNER JOIN  hosts h ON sgm.host_id = h.host_id AND h.host_id = s.host_id ';
+
+if (! $obj->is_admin && $groupStr !== '') {
+    $query .= 'INNER JOIN centreon_acl
+        ON centreon_acl.host_id = h.host_id
+        AND centreon_acl.service_id = s.service_id
+        AND centreon_acl.group_id IN (' . $groupStr . ') ';
+}
+
+$query .= 'WHERE 1 = 1 ';
 
 // Servicegroup ACL
-$query .= $obj->access->queryBuilder('AND', 'sg.servicegroup_id', $obj->access->getServiceGroupsString('ID'));
+$query .= $sgFilter;
 
 // Servicegroup search
 if ($sgSearch != '') {
@@ -184,11 +258,27 @@ $buildServicesUri = function (string $hostname, array $statuses) use ($resourceC
     return $resourceController->buildListingUri([
         'filter' => json_encode([
             'criterias' => [
-                'search' => 'h.name:^' . $hostname . '$',
-                'resourceTypes' => [$buildParameter('service', 'Service')],
-                'statuses' => $statuses,
+                [
+                    'name' => 'search',
+                    'object_type' => null,
+                    'type' => 'text',
+                    'value' => 'h.name:^' . $hostname . '$',
+                ],
+                [
+                    'name' => 'resource_types',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => [$buildParameter('service', 'Service')],
+                ],
+                [
+                    'name' => 'statuses',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $statuses,
+                ],
             ],
         ]),
+        'fromTopCounter' => 'true',
     ]);
 };
 
@@ -224,6 +314,19 @@ if ($numRows > 0) {
         ];
     }
 
+    $aclFromJoin = '';
+    $aclWhereCondition = '';
+    if (! $obj->is_admin) {
+        if ($groupStr !== '') {
+            $aclFromJoin = ', centreon_acl';
+            $aclWhereCondition = 'AND centreon_acl.host_id = h.host_id
+            AND centreon_acl.service_id = s.service_id
+            AND centreon_acl.group_id IN (' . $groupStr . ') ';
+        } else {
+            $aclWhereCondition = 'AND 1=0 ';
+        }
+    }
+
     $query2 = 'SELECT SQL_CALC_FOUND_ROWS
         1 AS REALTIME,
         count(s.state) as count_state,
@@ -232,14 +335,14 @@ if ($numRows > 0) {
         h.state AS host_state,
         h.icon_image, h.host_id, s.state,
         (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
-        FROM servicegroups sg, services_servicegroups sgm, services s, hosts h
+        FROM servicegroups sg, services_servicegroups sgm, services s, hosts h' . $aclFromJoin . '
         WHERE h.host_id = s.host_id AND s.host_id = sgm.host_id AND s.service_id=sgm.service_id
         AND sg.servicegroup_id=sgm.servicegroup_id '
         . $s_search
         . $sg_search
         . $h_search
-        . $obj->access->queryBuilder('AND', 'sg.servicegroup_id', $obj->access->getServiceGroupsString('ID'))
-        . $obj->access->queryBuilder('AND', 's.service_id', $obj->access->getServicesString('ID', $obj->DBC))
+        . $sgFilter
+        . $aclWhereCondition
         . ' GROUP BY sg_name,host_name,host_state,icon_image,host_id, s.state ORDER BY tri ASC ';
 
     $dbResult = $obj->DBC->prepare($query2);
@@ -297,9 +400,15 @@ if ($numRows > 0) {
                     : $resourceController->buildListingUri([
                         'filter' => json_encode([
                             'criterias' => [
-                                'search' => 'h.name:^' . $host_name . '$',
+                                [
+                                    'name' => 'search',
+                                    'object_type' => null,
+                                    'type' => 'text',
+                                    'value' => 'h.name:^' . $host_name . '$',
+                                ],
                             ],
                         ]),
+                        'fromTopCounter' => 'true',
                     ])
             );
             $obj->XML->writeElement(

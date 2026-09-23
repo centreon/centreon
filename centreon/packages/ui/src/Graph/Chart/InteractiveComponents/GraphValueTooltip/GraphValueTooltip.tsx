@@ -29,6 +29,7 @@ const GraphValueTooltip = ({
           tooltip: classes.tooltip
         }}
         placement="top-start"
+        // @ts-expect-error - suppressing pre-existing type mismatch
         title={<Typography>{thresholdTooltip?.thresholdLabel}</Typography>}
       >
         {children}
@@ -42,11 +43,13 @@ const GraphValueTooltip = ({
         tooltip: cx(classes.tooltip, classes.tooltipDisablePadding)
       }}
       placement="top-start"
+      // @ts-expect-error - suppressing pre-existing type mismatch
       title={
         equals('hidden', tooltip?.mode) ? null : (
           <GraphValueTooltipContent
             base={baseAxis}
             isSingleMode={equals('single', tooltip?.mode)}
+            // @ts-expect-error - suppressing pre-existing type mismatch
             sortOrder={tooltip?.sortOrder}
           />
         )

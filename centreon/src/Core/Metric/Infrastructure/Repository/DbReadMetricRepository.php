@@ -261,7 +261,9 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      *    warn: float|null,
      *    warn_low: float|null,
      *    crit: float|null,
-     *    crit_low: float|null
+     *    crit_low: float|null,
+     *    min: float|null,
+     *    max: float|null
      *  }
      * > $records
      *
@@ -358,7 +360,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     {
         $query = <<<'SQL'
             SELECT DISTINCT metric_id as id, metric_name as name, unit_name, current_value, warn,
-            warn_low, crit, crit_low
+            warn_low, crit, crit_low, `min`, `max`
             FROM  `:dbstg`.metrics m
                 INNER JOIN  `:dbstg`.index_data id ON m.index_id =  id.id
             SQL;

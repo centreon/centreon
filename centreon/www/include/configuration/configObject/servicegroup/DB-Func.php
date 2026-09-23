@@ -94,17 +94,22 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_servicegroupParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')
-              GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
+    $statement = $pearDB->prepare(
+        'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
+         FROM dependency_servicegroupParent_relation
+         WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
+                                    WHERE servicegroup_sg_id = :sg_id)
+         GROUP BY dependency_dep_id'
+    );
+    $statement->bindValue(':sg_id', $servicegroupId, PDO::PARAM_INT);
+    $statement->execute();
+    $result = $statement->fetch();
 
     // is last parent
     if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $pearDB->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
+        $deleteStmt = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
+        $deleteStmt->bindValue(':dep_id', $result['id'], PDO::PARAM_INT);
+        $deleteStmt->execute();
     }
 }
 
@@ -281,6 +286,12 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
 
     $ruleIds = $submittedValues['resource_access_rules'];
 
+    /**
+     * Before linking a service group to ACL resources, we must remove all previous relationships.
+     * @see linkServiceGroupToDataset
+     */
+    deleteServiceGroupFromDataset($serviceGroupId);
+
     foreach ($ruleIds as $ruleId) {
         $datasets = findDatasetsByRuleId($ruleId);
 
@@ -320,11 +331,19 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
             try {
                 linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
                 // Expend the existing hostgroup dataset_filter
-                $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
+                $existingResourceIds = explode(',', $serviceGroupDatasetFilters[0]['dataset_filter_resources']);
+                /**
+                 * Removes duplicates that the code may have introduced before correction.
+                 * This way, the dataset_filters.resource_ids column no longer has duplicates.
+                 */
+                $existingResourceIds = array_unique($existingResourceIds);
+                if (! in_array($serviceGroupId, $existingResourceIds)) {
+                    $existingResourceIds[] = $serviceGroupId;
+                }
 
                 updateDatasetFiltersResourceIds(
                     datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
-                    resourceIds: $expendedResourceIds
+                    resourceIds: implode(',', $existingResourceIds)
                 );
                 $pearDB->commit();
             } catch (Throwable $exception) {
@@ -351,6 +370,20 @@ function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceI
     $statement = $pearDB->prepare($request);
     $statement->bindValue(':datasetFilterId', $datasetFilterId, PDO::PARAM_INT);
     $statement->bindValue(':resourceIds', $resourceIds, PDO::PARAM_STR);
+    $statement->execute();
+}
+
+/**
+ * @param int $serviceGroupId
+ *
+ * @return void
+ */
+function deleteServiceGroupFromDataset(int $serviceGroupId): void
+{
+    global $pearDB;
+    $request = 'DELETE FROM acl_resources_sg_relations WHERE sg_id = :serviceGroupId';
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':serviceGroupId', $serviceGroupId, PDO::PARAM_INT);
     $statement->execute();
 }
 

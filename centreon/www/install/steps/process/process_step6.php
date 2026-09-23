@@ -24,6 +24,7 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
 require __DIR__ . '/../../../include/common/common-Func.php';
 
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use CentreonLegacy\Core\Install\Step\Step6;
 
 define('SQL_ERROR_CODE_ACCESS_DENIED', 1698);
@@ -75,7 +76,8 @@ try {
     $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
-        $parameters['root_password']
+        $parameters['root_password'],
+        DatabaseTLSResolver::getTLSOptions()
     );
     checkMariaDBPrerequisite($link);
     $link = null;

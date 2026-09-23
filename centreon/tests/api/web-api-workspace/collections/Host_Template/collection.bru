@@ -1,0 +1,24 @@
+meta {
+  name: Host_Template
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  HostSeverity1Id:
+  HostCategory1Id:
+  HostCategory2Id:
+  HostTemplate0Id:
+  HostTemplate1Id:
+  HostTemplate2Id:
+  HostTemplate3Id:
+  HostTemplate4Id:
+}

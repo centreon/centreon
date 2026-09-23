@@ -56,4 +56,17 @@ final class EventBusSpy implements EventBus
     {
         return ! $this->shouldHaveDispatched($eventClass);
     }
+
+    /**
+     * @template T of EventInterface
+     *
+     * @param class-string<T> $eventClass
+     *
+     * @return list<T>
+     */
+    public function getDispatchedEvents(string $eventClass): array
+    {
+        /** @var list<T> */
+        return array_values(array_filter($this->events, static fn ($event): bool => $event::class === $eventClass));
+    }
 }

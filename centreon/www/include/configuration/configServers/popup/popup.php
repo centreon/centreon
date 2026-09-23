@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'bootstrap.php';
@@ -26,6 +29,17 @@ require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonRestHttp.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 $pearDB = $dependencyInjector['configuration_db'];
+
+/**
+ * Make a value safe for a double-quoted YAML scalar: strip control characters
+ * (a newline or a trailing #-comment would otherwise inject keys into the
+ * document the operator is told to paste on the poller), escape backslashes
+ * and double quotes.
+ */
+function escapeYamlQuotedScalar(string $value): string
+{
+    return addcslashes((string) preg_replace('/[\x00-\x1F\x7F]/', '', $value), '\\"');
+}
 
 // Check Session
 CentreonSession::start(1);
@@ -66,11 +80,15 @@ $dbResult->closeCursor();
 // get poller informations
 $statement = $pearDB->prepare(
     "SELECT ns.`id`, ns.`name`, ns.`gorgone_port`, ns.`ns_ip_address`, ns.`localhost`, ns.remote_id,
-      remote_server_use_as_proxy, cn.`command_file`, GROUP_CONCAT( pr.`remote_server_id` ) AS list_remote_server_id
+      ns.`gorgone_communication_type`,
+      remote_server_use_as_proxy, cn.`command_file`,
+      GROUP_CONCAT(DISTINCT pr.`remote_server_id`) AS list_remote_server_id,
+      MAX(pt.`central_address`) AS `central_address`
     FROM nagios_server AS ns
     LEFT JOIN remote_servers AS rs ON rs.server_id = ns.id
     LEFT JOIN cfg_nagios AS cn ON cn.`nagios_id` = ns.`id`
     LEFT JOIN rs_poller_relation AS pr ON pr.`poller_server_id` = ns.`id`
+    LEFT JOIN platform_topology AS pt ON pt.`server_id` = ns.`id`
     WHERE ns.ns_activate = '1'
     AND ns.`id` = :server_id"
 );
@@ -130,6 +148,63 @@ if ($server['localhost'] === '1') {
         ],
         $config
     );
+} elseif (
+    $server['gorgone_communication_type'] === '4'
+    && ! in_array($server['ns_ip_address'], $remotesServerIPs)
+) {
+    // config for poller in pullwss mode (no thumbprints needed);
+    // remote servers keep the remote template below, whatever their communication type.
+    // Mirrors DbalPollerTokenRepository::getFirstValidPollerToken(): oldest valid token first,
+    // deliberately. Keep both in sync.
+    $tokenRow = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT `token_name`, `token_string`
+            FROM `authentication_tokens`
+            WHERE `type` = 'poller'
+            AND `is_revoked` = 0
+            AND (`expiration_date` IS NULL OR `expiration_date` > :nowEpoch)
+            ORDER BY `creation_date` ASC
+            LIMIT 1
+            SQL,
+        QueryParameters::create([QueryParameter::int('nowEpoch', time())])
+    );
+
+    $centralAddress = $server['central_address'] ?? '';
+
+    if ($tokenRow === false) {
+        $gorgoneError = true;
+        $config = 'No valid poller token found. Please create one before generating the configuration.';
+    } elseif ($centralAddress === '') {
+        $gorgoneError = true;
+        $config = 'No central address is configured for this poller.'
+            . ' Please set the central address reachable from the poller before generating the configuration.';
+    } else {
+        $template = file_get_contents(__DIR__ . '/poller_pullwss.yaml');
+        if ($template === false) {
+            $gorgoneError = true;
+            $config = 'Unable to read the pullwss configuration template.';
+        } else {
+            $config = str_replace(
+                [
+                    '__SERVERNAME__',
+                    '__SERVERID__',
+                    '__GORGONEPORT__',
+                    '__COMMAND__',
+                    '__TOKEN__',
+                    '__CENTRALADDRESS__',
+                ],
+                [
+                    $server['name'],
+                    $server['id'],
+                    $server['gorgone_port'],
+                    $server['command_file'],
+                    escapeYamlQuotedScalar($tokenRow['token_name'] . ':' . $tokenRow['token_string']),
+                    escapeYamlQuotedScalar($centralAddress),
+                ],
+                $template
+            );
+        }
+    }
 } else {
     $gorgoneService = $kernel->getContainer()->get(Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface::class);
     $thumbprints = '';
@@ -202,8 +277,43 @@ if ($server['localhost'] === '1') {
             ],
             $config
         );
+    } elseif ($server['gorgone_communication_type'] === '3') {
+        // config for poller in pull mode
+        $centralAddress = $server['central_address'] ?? '';
+
+        if ($centralAddress === '') {
+            $gorgoneError = true;
+            $config = 'No central address is configured for this poller.'
+                . ' Please set the central address reachable from the poller before generating the configuration.';
+        } else {
+            $template = file_get_contents(__DIR__ . '/poller_pull.yaml');
+            if ($template === false) {
+                $gorgoneError = true;
+                $config = 'Unable to read the pull configuration template.';
+            } else {
+                $config = str_replace(
+                    [
+                        '__SERVERNAME__',
+                        '__SERVERID__',
+                        '__GORGONEPORT__',
+                        '__THUMBPRINT__',
+                        '__COMMAND__',
+                        '__CENTRALADDRESS__',
+                    ],
+                    [
+                        $server['name'],
+                        $server['id'],
+                        $server['gorgone_port'],
+                        $thumbprints,
+                        $server['command_file'],
+                        escapeYamlQuotedScalar($centralAddress),
+                    ],
+                    $template
+                );
+            }
+        }
     } else {
-        // config for poller
+        // config for poller (zmq/ssh)
         $config = file_get_contents('./poller.yaml');
         $config = str_replace(
             [

@@ -38,6 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/configuration/services/categories',
             processor: CreateServiceCategoryProcessor::class,
             openapi: new Model\Operation(
+                tags: ['Service Category'],
                 responses: [
                     409 => new Model\Response('ServiceCategory resource already exists'),
                 ],
@@ -50,16 +51,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ServiceCategoryResource
 {
     public function __construct(
+        #[Assert\Length(min: 1, max: 255)]
+        public string $name,
+
+        #[Assert\Length(min: 1, max: 255)]
+        public string $alias,
+
         #[ApiProperty(identifier: true, writable: false)]
         public ?int $id = null,
-
-        #[Assert\NotNull]
-        #[Assert\Length(min: 1, max: 255)]
-        public ?string $name = null,
-
-        #[Assert\NotNull]
-        #[Assert\Length(min: 1, max: 255)]
-        public ?string $alias = null,
 
         public bool $isActivated = true,
     ) {

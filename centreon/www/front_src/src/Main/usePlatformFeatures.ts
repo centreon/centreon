@@ -14,7 +14,9 @@ interface UsePlatformFeaturesState {
 const usePlatformFeatures = (): UsePlatformFeaturesState => {
   const { sendRequest: sendPlatformFeatures } = useRequest<PlatformFeatures>({
     decoder: platformFeaturesDecoder,
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<PlatformFeatures>
   });
 
   const setPlatformFeatures = useSetAtom(platformFeaturesAtom);

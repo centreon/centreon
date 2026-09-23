@@ -40,7 +40,8 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 
 final class AddAcc
 {
@@ -56,8 +57,9 @@ final class AddAcc
      * @param AccFactory $factory
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param ContactInterface $user
-     * @param FeatureFlags $flags
+     * @param VaultEligibilityService $vaultEligibilityService
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
+     * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
      */
     public function __construct(
         private readonly ReadAccRepositoryInterface $readAccRepository,
@@ -66,8 +68,9 @@ final class AddAcc
         private readonly AccFactory $factory,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
-        private readonly FeatureFlags $flags,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         \Traversable $writeVaultAccRepositories,
+        private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
     ) {
         $this->writeVaultAccRepositories = iterator_to_array($writeVaultAccRepositories);
     }
@@ -100,7 +103,7 @@ final class AddAcc
                 description: $request->description,
             );
 
-            if ($this->flags->isEnabled('vault_gorgone')) {
+            if ($this->vaultEligibilityService->shouldUseVault('vault_gorgone')) {
                 $parameters = $newAcc->getParameters();
 
                 foreach ($this->writeVaultAccRepositories as $repository) {
@@ -155,6 +158,8 @@ final class AddAcc
 
             $newAccId = $this->writeAccRepository->add($acc);
             $this->writeAccRepository->linkToPollers($newAccId, $pollers);
+
+            $this->writeMonitoringServerRepository->notifyVmwareConfigurationChange(...$pollers);
 
             $this->dataStorageEngine->commitTransaction();
         } catch (\Throwable $ex) {

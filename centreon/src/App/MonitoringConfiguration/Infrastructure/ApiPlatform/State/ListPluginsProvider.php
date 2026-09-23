@@ -30,20 +30,20 @@ use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PluginRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * @implements ProviderInterface<PluginResource>
+ * @implements ProviderInterface<ListPluginResource>
  */
 final readonly class ListPluginsProvider implements ProviderInterface
 {
     /**
-     * @param TransformerInterface<Plugin,PluginResource> $transformer
+     * @param TransformerInterface<Plugin,ListPluginResource> $transformer
      */
     public function __construct(
-        #[Autowire(service: ResourcePluginTransformer::class)]
+        #[Autowire(service: ResourceListPluginTransformer::class)]
         private TransformerInterface $transformer,
         private PluginRepository $pluginRepository,
         private OptionRepository $optionRepository,
@@ -52,7 +52,7 @@ final readonly class ListPluginsProvider implements ProviderInterface
     }
 
     /**
-     * @return iterable<PluginResource>
+     * @return iterable<ListPluginResource>
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {

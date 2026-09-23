@@ -20,7 +20,7 @@ import { maskedPassword } from '../../../utils';
 interface UsePasswordFieldState {
   disabled: boolean;
   className: string;
-  changePasswordValue: (event) => void;
+  changePasswordValue: (event: React.ChangeEvent<HTMLInputElement>) => void;
   clearPassword: () => void;
   resetPassword: () => void;
   passwordRef: RefObject<HTMLInputElement | null>;
@@ -46,7 +46,9 @@ export const usePasswordField = ({
   const { setFieldValue } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
-  const changePasswordValue = (event): void => {
+  const changePasswordValue = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setFieldValue(`parameters.vcenters.${index}.Password`, event.target.value);
   };
 

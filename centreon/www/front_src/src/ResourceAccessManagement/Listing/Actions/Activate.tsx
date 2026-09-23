@@ -29,7 +29,7 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   }, [row?.isActivated]);
 
   const { mutateAsync } = useMutationQuery({
-    getEndpoint: () => resourceAccessRuleEndpoint({ id: row.id }),
+    getEndpoint: () => resourceAccessRuleEndpoint({ id: row.id as number }),
     method: Method.PATCH,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['resource-access-rules'] })
@@ -48,7 +48,7 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>
       <Switch
         aria-label={t(labelActiveOrInactive)}
-        checked={checked}
+        checked={Boolean(checked)}
         className={classes.switch}
         color="success"
         onClick={onClick}

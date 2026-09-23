@@ -30,7 +30,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
   const getLineByMetric = (metric_id: number): Line =>
     find(propEq(metric_id, 'metric_id'), lines) as Line;
 
-  const toggleMetricLine = (metric_id): void => {
+  const toggleMetricLine = (metric_id: number): void => {
     const data = lines.map((line) => ({
       ...line,
       display: equals(line.metric_id, metric_id) ? !line.display : line.display
@@ -39,7 +39,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
     setLinesGraph(data);
   };
 
-  const highlightLine = (metric_id): void => {
+  const highlightLine = (metric_id: number): void => {
     const data = lines.map((line) => ({
       ...line,
       highlight: equals(line.metric_id, metric_id)

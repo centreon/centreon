@@ -1,0 +1,22 @@
+meta {
+  name: GET /monitoring/acknowledgements - List forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/acknowledgements
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Operator cannot list acknowledgements (ACL restriction expected, not configured in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

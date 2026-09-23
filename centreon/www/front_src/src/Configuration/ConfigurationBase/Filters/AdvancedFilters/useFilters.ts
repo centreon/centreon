@@ -11,9 +11,15 @@ interface UseFilters {
   isClearDisabled: boolean;
   reload: () => void;
   filtersConfiguration: Array<FilterConfiguration>;
+  filtersPanelWidth?: number;
 }
 
-const useFilters = ({ filters, setFilters }): UseFilters => {
+interface UseFiltersProps {
+  filters: Filters;
+  setFilters: (filters: Filters) => void;
+}
+
+const useFilters = ({ filters, setFilters }: UseFiltersProps): UseFilters => {
   const queryClient = useQueryClient();
 
   const [isClearClicked, setIsClearClicked] = useState(false);
@@ -24,6 +30,8 @@ const useFilters = ({ filters, setFilters }): UseFilters => {
     configuration?.filtersConfiguration as Array<FilterConfiguration>;
 
   const initialValues = configuration?.filtersInitialValues as Filters;
+
+  const filtersPanelWidth = configuration?.filtersPanelWidth;
 
   const isClearDisabled = equals(filters, initialValues);
 
@@ -45,6 +53,7 @@ const useFilters = ({ filters, setFilters }): UseFilters => {
 
   return {
     filtersConfiguration,
+    filtersPanelWidth,
     isClearDisabled,
     reload,
     reset

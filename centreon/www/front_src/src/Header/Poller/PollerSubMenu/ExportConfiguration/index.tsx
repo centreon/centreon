@@ -2,7 +2,7 @@ import { Button, Typography } from '@mui/material';
 
 import { Dialog, getData, useRequest, useSnackbar } from '@centreon/ui';
 
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { exportAndReloadConfigurationEndpoint } from '../../../api/endpoints';
@@ -21,13 +21,15 @@ interface Props {
   closeSubMenu: () => void;
 }
 
-const ExportConfiguration = ({ closeSubMenu }: Props): JSX.Element | null => {
+const ExportConfiguration = ({ closeSubMenu }: Props): ReactElement | null => {
   const { t } = useTranslation();
   const [askingBeforeExportConfiguration, setAskingBeforeExportConfiguration] =
     useState(false);
   const { sendRequest, sending } = useRequest({
     defaultFailureMessage: t(labelFailedToExportAndReloadConfiguration),
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<unknown>
   });
   const { showInfoMessage, showSuccessMessage } = useSnackbar();
 

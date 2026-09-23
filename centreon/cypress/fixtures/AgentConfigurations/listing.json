@@ -24,11 +24,13 @@
     {
       "id": 2,
       "name": "AC 2",
-      "type": "telegraf",
+      "type": "centreon-agent",
+      "is_agent_initiated": true,
       "pollers": [
         {
           "id": 1,
-          "name": "poller 1"
+          "name": "Central",
+          "is_central": true
         },
         {
           "id": 2,
@@ -39,15 +41,18 @@
     {
       "id": 3,
       "name": "AC 3",
-      "type": "telegraf",
+      "type": "centreon-agent",
+      "is_agent_initiated": false,
       "pollers": [
         {
           "id": 1,
-          "name": "poller 1"
+          "name": "poller 1",
+          "is_central": true
         },
         {
           "id": 2,
-          "name": "poller 2"
+          "name": "poller 2",
+          "is_central": true
         }
       ]
     },

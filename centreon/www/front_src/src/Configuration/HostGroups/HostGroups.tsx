@@ -41,10 +41,10 @@ const HostGroups = () => {
   return (
     <ConfigurationBase<Filters>
       actions={{
-        delete: true,
-        duplicate: true,
+        delete: () => true,
+        duplicate: () => true,
         edit: canEdit,
-        enableDisable: true,
+        enableDisable: () => true,
         massive: true,
         viewDetails: true
       }}

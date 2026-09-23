@@ -14,7 +14,9 @@ const useUser = (): (() => null | Promise<void>) => {
   const { sendRequest: getUser } = useRequest<User>({
     decoder: userDecoder,
     httpCodesBypassErrorSnackbar: [403, 401],
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<User>
   });
 
   const [areUserParametersLoaded, setAreUserParametersLoaded] = useAtom(

@@ -96,33 +96,82 @@ const getCentreonStableMinorVersions = (
   });
 };
 
-const installDatabase = (): void => {
-  if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    cy.execInContainer({
-      command: [
-        'dnf module enable -y mariadb:10.11',
-        'dnf install -y mariadb-server mariadb'
-      ],
-      name: 'web'
-    });
-  } else {
-    let osType = 'debian';
-    let osVersion = '12';
-    if (Cypress.env('WEB_IMAGE_OS') === 'jammy') {
-      osType = 'ubuntu';
-      osVersion = 'jammy';
-    }
-    cy.execInContainer({
-      command: [
-        `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
-EOF`,
-        'apt-get update',
-        'apt-get install -y mariadb-server mariadb-client'
-      ],
-      name: 'web'
-    });
+interface DatabaseEngine {
+  type: 'mariadb' | 'mysql';
+  version: string;
+}
+
+const getDatabaseEngine = (): DatabaseEngine => {
+  const image = Cypress.env('DATABASE_IMAGE') || '';
+  const match = image.match(/(mariadb|mysql):([\d.]+)/);
+
+  if (match === null) {
+    throw new Error(
+      `Cannot determine the database from DATABASE_IMAGE "${image}". Expected a value like ".../mariadb:11.8" or ".../mysql:8.0".`
+    );
   }
+
+  return { type: match[1] as DatabaseEngine['type'], version: match[2] };
+};
+
+const isAlma = (): boolean => Cypress.env('WEB_IMAGE_OS').includes('alma');
+
+const mysqlRootGrant = `mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'centreon'; GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION"`;
+const mariadbRootGrant = `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`;
+
+const rootGrantCommand = (engine: DatabaseEngine): string =>
+  engine.type === 'mysql' ? mysqlRootGrant : mariadbRootGrant;
+
+const getDebianRepoTarget = (): { osType: string; osVersion: string } => {
+  switch (Cypress.env('WEB_IMAGE_OS')) {
+    case 'trixie':
+      return { osType: 'debian', osVersion: '13' };
+    default:
+      throw new Error(
+        `Unsupported OS "${Cypress.env('WEB_IMAGE_OS')}" for the database APT repository.`
+      );
+  }
+};
+
+const installDatabase = (): void => {
+  const { type, version } = getDatabaseEngine();
+  let command: Array<string>;
+
+  if (type === 'mysql') {
+    if (isAlma()) {
+      command = ['dnf install -y mysql-server mysql'];
+    } else {
+      command = [
+        'curl -fsSLO https://dev.mysql.com/get/mysql-apt-config_0.8.34-1_all.deb',
+        `echo "mysql-apt-config mysql-apt-config/select-server select mysql-${version}-lts" | debconf-set-selections`,
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y ./mysql-apt-config_0.8.34-1_all.deb',
+        'curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor > /usr/share/keyrings/mysql-apt-config.gpg',
+        'apt-get update',
+        'apt-get install -y mysql-server mysql-common'
+      ];
+    }
+  } else if (isAlma()) {
+    // el10+ dropped DNF modules; MariaDB ships as versioned packages instead.
+    const almaMajor = Number(Cypress.env('WEB_IMAGE_OS').replace('alma', ''));
+    command =
+      almaMajor >= 10
+        ? [`dnf install -y mariadb${version}-server mariadb${version}`]
+        : [
+            `dnf module enable -y mariadb:${version}`,
+            'dnf install -y mariadb-server mariadb'
+          ];
+  } else {
+    const { osType, osVersion } = getDebianRepoTarget();
+    command = [
+      `bash -e <<EOF
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-${version}"
+EOF`,
+      'apt-get update',
+      'apt-get install -y mariadb-server mariadb-client'
+    ];
+  }
+
+  cy.execInContainer({ command, name: 'web' });
 };
 
 const installCentreon = (version: string): Cypress.Chainable => {
@@ -133,6 +182,15 @@ const installCentreon = (version: string): Cypress.Chainable => {
     throw new Error('Cannot parse version number.');
   }
 
+  const databaseEngine = getDatabaseEngine();
+  // Below 24.10 the dependencies container ships MariaDB (we don't install it).
+  const databaseInstalled =
+    Number(versionMatches[1]) > 24 ||
+    (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10);
+  const activeEngine: DatabaseEngine = databaseInstalled
+    ? databaseEngine
+    : { type: 'mariadb', version: databaseEngine.version };
+
   cy.execInContainer({
     command: [
       'mkdir -p /usr/lib/centreon/plugins',
@@ -141,11 +199,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
     name: 'web'
   });
 
-  if (
-    Number(versionMatches[1]) > 24 ||
-    (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) >= 10)
-  ) {
-    // database is not installed in dependencies containers > 24.10
+  if (databaseInstalled) {
     installDatabase();
   }
 
@@ -156,11 +210,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `dnf install -y centreon-web-${version}`,
         'dnf install -y centreon-broker-cbd',
         "echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini",
-        'systemctl start mariadb',
+        `systemctl start ${activeEngine.type === 'mysql' ? 'mysqld' : 'mariadb'}`,
         'mkdir -p /run/php-fpm',
         'systemctl restart php-fpm',
         'systemctl restart httpd',
-        "mysql -e \"GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION\"",
+        rootGrantCommand(activeEngine),
         "dnf config-manager --set-enabled 'centreon-*'"
       ],
       name: 'web'
@@ -191,11 +245,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
     }
 
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
+    // centreon-perl-libs is left to apt: it follows the gorgone release cadence
     const packagesToInstall = [
       `centreon-poller='${packageVersionSuffix}'`,
       `centreon-web='${packageVersionSuffix}'`,
-      `centreon-trap='${packageVersionSuffix}'`,
-      `centreon-perl-libs='${packageVersionSuffix}'`
+      `centreon-trap='${packageVersionSuffix}'`
     ];
     if (
       Number(versionMatches[1]) < 24 ||
@@ -223,12 +277,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
         'mkdir -p /usr/lib/centreon-connector',
         `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
         `phpenmod -v ${phpVersion} timezone`,
-        `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
-        'service mysql start',
+        `systemctl start ${activeEngine.type === 'mysql' ? 'mysql' : 'mariadb'}`,
         'mkdir -p /run/php',
         `systemctl restart php${phpVersion}-fpm`,
         'systemctl restart apache2',
-        `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`,
+        rootGrantCommand(activeEngine),
         'mv /etc/apt/sources.list.d/centreon-unstable.list.bak /etc/apt/sources.list.d/centreon-unstable.list',
         'mv /etc/apt/sources.list.d/centreon-testing.list.bak /etc/apt/sources.list.d/centreon-testing.list',
         'apt-get update',
@@ -379,6 +432,14 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;
+        case 'alma10':
+          // el10 ships php 8.4 in the official repositories (no dnf module)
+          installCommands = [
+            ...installCommands,
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
         default:
           installCommands = [
             ...installCommands,
@@ -404,9 +465,10 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
+  // stderr is merged into the output, drop the apt CLI stability warning
   const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? `rpm -qa | grep centreon-web | cut -d '-' -f3 | tr -d '\n'`
-    : `apt list --installed centreon-web | awk '{ print $2 }' | cut -d '-' -f1 | tr -d '\n'`;
+    : `apt list --installed centreon-web 2>/dev/null | awk '{ print $2 }' | cut -d '-' -f1 | tr -d '\n'`;
 
   return cy
     .execInContainer({
@@ -447,7 +509,7 @@ const insertResources = (): Cypress.Chainable => {
 
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
-    const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
+    let targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
 
     // Check if the version-specific file already exists
     return cy
@@ -456,13 +518,18 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         name: 'web'
       })
       .then((fileCheckResult) => {
-        // If version-specific file already exists, no action needed
+        let targetMinor = minor_version;
+        // If version-specific file already exists, increment minor version for testing purposes (to make sure Update-next.php content is tested)
         if (!fileCheckResult.output.includes('File not found')) {
           cy.log(
             `Version-specific update file already exists in container: ${targetUpdateFile}`
           );
-          return cy.wrap(null);
+          cy.log('Incrementing minor version to test Update-next.php content');
+
+          targetMinor = (Number.parseInt(minor_version, 10) + 1).toString();
+          targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
+        Cypress.env('upgrade_target_minor_version', targetMinor);
 
         // If version-specific file does not exist => copy content from Update-next.php
         return cy
@@ -498,7 +565,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
 
                     // Change version in the file
                     return cy.execInContainer({
-                      command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+                      command: `sed -i "s/version = '';/version = '${major_version}.${targetMinor}';/g" ${targetUpdateFile}`,
                       name: 'web'
                     });
                   });
@@ -535,8 +602,10 @@ When('administrator runs the update procedure', () => {
 
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
         cy.contains(
-          `upgraded from version ${installedVersion} to ${major_version}.${minor_version}`
+          `upgraded from version ${installedVersion} to ${major_version}.${targetMinorVersion}`
         ).should('be.visible');
       });
     }
@@ -595,7 +664,11 @@ Then(
     cy.visit('/');
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
-        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
+        cy.contains(`${major_version}.${targetMinorVersion}`).should(
+          'be.visible'
+        );
       });
     }
     cy.loginByTypeOfUser({

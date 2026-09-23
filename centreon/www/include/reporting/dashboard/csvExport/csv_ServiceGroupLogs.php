@@ -87,7 +87,7 @@ $servicegroupName = getServiceGroupNameFromId($servicegroupId);
 header('Cache-Control: public');
 header('Pragma: public');
 header('Content-Type: application/octet-stream');
-header('Content-disposition: filename=' . $servicegroupName . '.csv');
+header('Content-Disposition: attachment; filename="' . str_replace(['"', "\r", "\n"], '', $servicegroupName) . '.csv"');
 
 echo _('ServiceGroup') . ';'
     . _('Begin date') . '; '

@@ -1,0 +1,39 @@
+meta {
+  name: PUT /web-sso - Update WebSSO configuration - HTTP 204
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrlWeb}}/administration/authentication/providers/web-sso
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_active": false,
+    "is_forced": false,
+    "trusted_client_addresses": [],
+    "blacklist_client_addresses": [],
+    "login_header_attribute": "",
+    "pattern_matching_login": "",
+    "pattern_replace_login": ""
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("WebSSO configuration updated successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

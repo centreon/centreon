@@ -1,7 +1,8 @@
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { isNil } from 'ramda';
 import type { MutableRefObject } from 'react';
 
+import { Axis, AxisYRight } from '../../../common/Axes/models';
 import {
   getDates,
   getTimeSeriesForLines,
@@ -35,11 +36,17 @@ interface Props extends GlobalAreaLines {
   scaleLogarithmicBase?: number;
   timeSeries: Array<TimeValue>;
   width: number;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number>;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
   lineStyle: LineStyle | Array<LineStyle>;
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  firstUnit?: string;
+  secondUnit?: string;
+  axis?: {
+    axisYLeft?: Axis;
+    axisYRight?: AxisYRight;
+  };
 }
 
 const Lines = ({
@@ -58,7 +65,10 @@ const Lines = ({
   scaleLogarithmicBase,
   lineStyle,
   hasSecondUnit,
-  maxLeftAxisCharacters
+  maxLeftAxisCharacters,
+  firstUnit,
+  secondUnit,
+  axis
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -84,6 +94,17 @@ const Lines = ({
     maxLeftAxisCharacters,
     xScale
   };
+  // @ts-expect-error - suppressing pre-existing type mismatch
+  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
+  // @ts-expect-error - suppressing pre-existing type mismatch
+  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const hasUnitDisplayed =
+    Boolean(firstUnit || secondUnit) ||
+    Boolean(
+      axis?.axisYLeft?.unit ||
+        axis?.axisYLeft?.displayUnit ||
+        (axis?.axisYRight?.unit && axis?.axisYRight?.displayUnit)
+    );
 
   return (
     <g>
@@ -91,6 +112,11 @@ const Lines = ({
         <GuidingLines
           graphHeight={height}
           graphWidth={width}
+          hasUnit={hasUnitDisplayed}
+          leftScale={leftScale}
+          lines={displayedLines}
+          maxLeftAxisCharacters={maxLeftAxisCharacters}
+          rightScale={rightScale}
           timeSeries={timeSeries}
           xScale={xScale}
         />
@@ -103,10 +129,12 @@ const Lines = ({
               const [, unit] = stackedKey.split('-');
               const yScale =
                 unit === '' && yScalesPerUnit[unit] === undefined
-                  ? yScalesPerUnit[undefined]
+                  ? // @ts-expect-error - suppressing pre-existing type mismatch
+                    yScalesPerUnit[undefined]
                   : yScalesPerUnit[unit];
 
               return (
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 <StackedLines
                   key={`stacked-${unit}`}
                   lineStyle={lineStyle}
@@ -122,6 +150,7 @@ const Lines = ({
             ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
               const [, unit] = stackedKey.split('-');
               return (
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 <StackedLines
                   key={`invert-stacked-${unit}`}
                   lineStyle={lineStyle}
@@ -131,6 +160,7 @@ const Lines = ({
                     invert: '1',
                     scale,
                     scaleLogarithmicBase,
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     unit:
                       unit === '' && yScalesPerUnit[unit] === undefined
                         ? undefined
@@ -196,6 +226,7 @@ const Lines = ({
 
               const style = getStyle({
                 metricId: metric_id,
+                // @ts-expect-error - suppressing pre-existing type mismatch
                 style: lineStyle
               }) as LineStyle;
 
@@ -203,13 +234,10 @@ const Lines = ({
                 <g key={metric_id}>
                   {displayGuidingLines && (
                     <RegularAnchorPoint
-                      areaColor={areaColor || lineColor}
-                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
                       maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
                       timeSeries={relatedTimeSeries}
-                      transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
                     />
@@ -219,9 +247,7 @@ const Lines = ({
                       <Point
                         key={timeTick.toString()}
                         lineColor={lineColor}
-                        metric_id={metric_id}
                         radius={getPointRadius(style?.lineWidth)}
-                        timeSeries={relatedTimeSeries}
                         timeTick={timeTick}
                         xScale={xScale}
                         yPoint={getYAnchorPoint({
@@ -230,7 +256,6 @@ const Lines = ({
                           timeTick,
                           yScale
                         })}
-                        yScale={yScale}
                       />
                     ))}
                   <RegularLine

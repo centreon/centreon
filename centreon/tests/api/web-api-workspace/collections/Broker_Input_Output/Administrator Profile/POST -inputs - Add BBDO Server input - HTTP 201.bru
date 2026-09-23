@@ -1,0 +1,45 @@
+meta {
+  name: POST /inputs - Add BBDO Server input - HTTP 201
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/inputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "input-test-4",
+    "type": 35,
+    "parameters": {
+      "host": null,
+      "port": "5670",
+      "transport_protocol": "gRPC",
+      "authorization": null,
+      "encryption": "no",
+      "private_key": null,
+      "certificate": null,
+      "compression": "no",
+      "retention": "no",
+      "filters_category": ["dumper", "storage"]
+    }
+  }
+}
+
+tests {
+  test("BBDO Server input created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

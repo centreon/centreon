@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import hostMacros from '../../../fixtures/macros/hosts.json';
 
@@ -6,6 +7,22 @@ const clickToAddHost = () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
+};
+
+/**
+ * A multi-select keeps its dropdown open after a pick, and its overlay swallows
+ * the next click — which is the one meant for the control underneath (this ate
+ * the first of the two macro-add clicks with no error from Cypress). Close it
+ * and prove it is gone before moving on.
+ */
+const pickAclResourceGroup = (): void => {
+  cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
+  cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+  // select2 drops the placeholder from its search field once a value is held,
+  // so the field cannot be re-queried by placeholder here. Any mousedown
+  // outside the widget closes the dropdown: a neutral text field does.
+  cy.getIframeBody().find('input[name="host_name"]').click();
+  cy.getIframeBody().find('.select2-container--open').should('not.exist');
 };
 
 before(() => {
@@ -18,15 +35,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('exportConf');
 });
 
@@ -58,8 +75,7 @@ When('the non-admin user fills in all mandatory fields', () => {
     .find('input[name="host_address"]')
     .clear()
     .type(hostMacros.default_host.address);
-  cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
-  cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+  pickAclResourceGroup();
 });
 
 When('the non-admin user adds one normal macro and one password macro', () => {
@@ -355,8 +371,7 @@ When(
       .find('input[name="host_address"]')
       .clear()
       .type(hostMacros.default_host.address);
-    cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
-    cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+    pickAclResourceGroup();
     cy.getIframeBody().find('#template_add').click();
     cy.getIframeBody().find('span[role="presentation"]').eq(1).click();
     cy.getIframeBody().find(`div[title="${hostTemplate}"]`).click();

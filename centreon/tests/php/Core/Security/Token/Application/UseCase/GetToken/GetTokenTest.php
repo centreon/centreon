@@ -33,6 +33,7 @@ use Core\Security\Token\Application\UseCase\GetToken\GetToken;
 use Core\Security\Token\Application\UseCase\GetToken\GetTokenResponse;
 use Core\Security\Token\Domain\Model\ApiToken;
 use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\PollerToken;
 
 beforeEach(function (): void {
     $this->useCase = new GetToken(
@@ -66,6 +67,16 @@ beforeEach(function (): void {
         encodingKey: 'encodingKey',
         tokenString: $this->tokenString,
     );
+
+    $this->tokenPoller = new PollerToken(
+        name: new TrimmedString($this->tokenName),
+        creatorId: $this->creator['id'],
+        creatorName: new TrimmedString($this->creator['name']),
+        creationDate: $this->creationDate,
+        expirationDate: $this->expirationDate,
+        isRevoked: false,
+        tokenString: $this->tokenString,
+    );
 });
 
 it('should present an ErrorResponse when a generic exception is thrown', function (): void {
@@ -82,7 +93,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBe(TokenException::errorWhileRetrievingObject()->getMessage());
 });
 
-it('should return a NotFoundResponse when token is not of type CMA', function (): void {
+it('should return a NotFoundResponse when token is not of type CMA or POLLER', function (): void {
     $this->readTokenRepository
         ->expects($this->once())
         ->method('findByNameAndUserId')
@@ -95,7 +106,7 @@ it('should return a NotFoundResponse when token is not of type CMA', function ()
         ->toBe((new NotFoundResponse('Token'))->getMessage());
 });
 
-it('should return created object on success', function (): void {
+it('should return created object on success (CMA)', function (): void {
     $this->readTokenRepository
         ->expects($this->once())
         ->method('findByNameAndUserId')
@@ -106,6 +117,21 @@ it('should return created object on success', function (): void {
     expect($response)->toBeInstanceOf(GetTokenResponse::class)
         ->and($response->token)
         ->toBe($this->tokenCma)
+        ->and($response->tokenString)
+        ->toBe($this->tokenString);
+});
+
+it('should return created object on success (POLLER)', function (): void {
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->willReturn($this->tokenPoller);
+
+    $response = ($this->useCase)($this->tokenName, $this->linkedUser['id']);
+
+    expect($response)->toBeInstanceOf(GetTokenResponse::class)
+        ->and($response->token)
+        ->toBe($this->tokenPoller)
         ->and($response->tokenString)
         ->toBe($this->tokenString);
 });

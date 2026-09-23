@@ -56,14 +56,14 @@ $attrsTextarea = ['rows' => '5', 'cols' => '40'];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
     . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=list';
 $attrServices = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $route,
     'multiple' => true,
     'linkedObject' => 'centreonService',
 ];
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicetemplate&action=list&l=1';
+$route = BASE_ROUTE . '?object=centreon_configuration_servicetemplate&action=list&l=1';
 $attrServicetemplates = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $route,
@@ -71,7 +71,7 @@ $attrServicetemplates = [
     'linkedObject' => 'centreonServicetemplates',
     'defaultDatasetOptions' => ['withHosttemplate' => true],
 ];
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list&t=hostgroup';
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=list&t=hostgroup';
 $attrHostgroups = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $route,
@@ -105,24 +105,21 @@ $form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 $form->addElement('header', 'relation', _('Relations'));
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service'
-    . '&action=defaultValues&target=servicegroups&field=sg_hServices&id=' . $serviceGroupId;
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=defaultValues&target=servicegroups&field=sg_hServices&id=' . $serviceGroupId;
 $attrService1 = array_merge(
     $attrServices,
     ['defaultDatasetRoute' => $route]
 );
 $form->addElement('select2', 'sg_hServices', _('Linked Host Services'), [], $attrService1);
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_service'
-    . '&action=defaultValues&target=servicegroups&field=sg_hgServices&id=' . $serviceGroupId;
+$route = BASE_ROUTE . '?object=centreon_configuration_service&action=defaultValues&target=servicegroups&field=sg_hgServices&id=' . $serviceGroupId;
 $attrHostgroup1 = array_merge(
     $attrHostgroups,
     ['defaultDatasetRoute' => $route]
 );
 $form->addElement('select2', 'sg_hgServices', _('Linked Host Group Services'), [], $attrHostgroup1);
 
-$route = './include/common/webServices/rest/internal.php?object=centreon_configuration_servicetemplate'
-    . '&action=defaultValues&target=servicegroups&field=sg_tServices&id=' . $serviceGroupId;
+$route = BASE_ROUTE . '?object=centreon_configuration_servicetemplate&action=defaultValues&target=servicegroups&field=sg_tServices&id=' . $serviceGroupId;
 $attrServicetemplate1 = array_merge(
     $attrServicetemplates,
     ['defaultDatasetRoute' => $route]
@@ -139,7 +136,7 @@ $form->setDefaults(['sg_activate' => '1']);
 $form->addElement('textarea', 'sg_comment', _('Comments'), $attrsTextarea);
 
 if (
-    $o === SERVICE_GROUP_ADD
+    in_array($o, [SERVICE_GROUP_ADD, SERVICE_GROUP_MODIFY])
     && $isCloudPlatform === true
 ) {
     $form->addElement(
@@ -150,7 +147,7 @@ if (
         [
             'datasourceOrigin' => 'ajax',
             'availableDatasetRoute' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list&use_ram=true',
-            'defaultDataset' => [],
+            'defaultDatasetRoute' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=selectedValues&use_ram=true&serviceGroupId=' . $serviceGroupId,
             'multiple' => true,
         ]
     );
@@ -162,7 +159,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
 
 // Form Rules
 function myReplace()

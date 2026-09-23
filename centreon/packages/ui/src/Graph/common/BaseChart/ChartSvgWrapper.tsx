@@ -1,6 +1,7 @@
 import { Group } from '@visx/visx';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals } from 'ramda';
-import type { MutableRefObject, ReactElement } from 'react';
+import type { MutableRefObject, ReactElement, ReactNode } from 'react';
 
 import { margin } from '../../Chart/common';
 import type { ChartAxis } from '../../Chart/models';
@@ -14,20 +15,22 @@ interface Props {
   allUnits: Array<string>;
   axis?: ChartAxis;
   base?: number;
-  children: JSX.Element;
+  children: ReactNode;
   displayedLines: Array<Line>;
   graphHeight: number;
   graphWidth: number;
   gridLinesType?: string;
-  leftScale;
+  leftScale: ScaleLinear<number, number>;
   orientation?: 'horizontal' | 'vertical';
-  rightScale;
+  rightScale: ScaleLinear<number, number>;
   showGridLines: boolean;
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
-  xScale;
-  maxAxisCharacters?: number;
-  hasSecondUnit?: boolean;
+  xScale:
+    | ScaleTime<number, number>
+    | ScaleLinear<number, number>
+    | ScaleBand<number>;
+  maxLeftAxisCharacters?: number;
   title?: string;
 }
 
@@ -47,11 +50,15 @@ const ChartSvgWrapper = ({
   children,
   orientation = 'horizontal',
   allUnits,
-  maxAxisCharacters = 0,
-  hasSecondUnit,
+  maxLeftAxisCharacters = 0,
   title
 }: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
+  const hasValidLeftScale = Boolean(leftScale);
+  const hasValidXScale = Boolean(xScale);
+  const canRenderAxes = hasValidLeftScale && hasValidXScale;
+  const canRenderGridRows = Boolean(isHorizontal ? leftScale : xScale);
+  const canRenderGridColumns = Boolean(isHorizontal ? xScale : leftScale);
 
   const marginTop = useMarginTop({ title, units: allUnits });
 
@@ -64,14 +71,12 @@ const ChartSvgWrapper = ({
     >
       <title>chart</title>
       <Group.Group
-        left={computeGElementMarginLeft({
-          hasSecondUnit,
-          maxCharacters: maxAxisCharacters
-        })}
+        left={computeGElementMarginLeft(maxLeftAxisCharacters)}
         top={marginTop}
       >
-        {showGridLines && (
+        {showGridLines && (canRenderGridRows || canRenderGridColumns) && (
           <Grids
+            // @ts-expect-error - suppressing pre-existing type mismatch
             gridLinesType={gridLinesType}
             height={graphHeight - margin.bottom}
             leftScale={isHorizontal ? leftScale : xScale}
@@ -79,21 +84,23 @@ const ChartSvgWrapper = ({
             xScale={isHorizontal ? xScale : leftScale}
           />
         )}
-        <Axes
-          allUnits={allUnits}
-          data={{
-            baseAxis: base,
-            lines: displayedLines,
-            timeSeries,
-            ...axis
-          }}
-          height={graphHeight}
-          leftScale={leftScale}
-          orientation={orientation}
-          rightScale={rightScale}
-          width={graphWidth}
-          xScale={xScale}
-        />
+        {canRenderAxes && (
+          <Axes
+            allUnits={allUnits}
+            data={{
+              baseAxis: base,
+              lines: displayedLines,
+              timeSeries,
+              ...axis
+            }}
+            height={graphHeight}
+            leftScale={leftScale}
+            orientation={orientation}
+            rightScale={rightScale}
+            width={graphWidth}
+            xScale={xScale}
+          />
+        )}
         {children}
       </Group.Group>
     </svg>

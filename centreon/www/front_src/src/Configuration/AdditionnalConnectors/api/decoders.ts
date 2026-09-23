@@ -20,15 +20,16 @@ const additionalConnectorsDecoder =
     {
       ...namedEntityDecoder,
       createdAt: JsonDecoder.string,
-      createdBy: JsonDecoder.object<NamedEntity>(
-        namedEntityDecoder,
-        'Created By'
+      createdBy: JsonDecoder.optional(
+        JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
       ),
       description: JsonDecoder.nullable(JsonDecoder.string),
       type: JsonDecoder.string,
       updatedAt: JsonDecoder.nullable(JsonDecoder.string),
-      updatedBy: JsonDecoder.nullable(
-        JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+      updatedBy: JsonDecoder.optional(
+        JsonDecoder.nullable(
+          JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+        )
       )
     },
     'Additional connector',
@@ -46,8 +47,9 @@ export const additionalConnectorsListDecoder = buildListingDecoder({
   listingDecoderName: 'Additional connectors List'
 });
 
-const vcenterDecoder = JsonDecoder.object<Parameter>(
+const vcenterDecoder = JsonDecoder.object<Parameter & { id: number | null }>(
   {
+    id: JsonDecoder.nullable(JsonDecoder.number),
     [ParameterKeys.name]: JsonDecoder.string,
     [ParameterKeys.url]: JsonDecoder.string,
     [ParameterKeys.username]: JsonDecoder.nullable(JsonDecoder.string),

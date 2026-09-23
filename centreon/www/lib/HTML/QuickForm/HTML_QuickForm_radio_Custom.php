@@ -48,21 +48,22 @@ class HTML_QuickForm_radio_Custom extends HTML_QuickForm_radio
             return $values[$elementName];
         }
         if (strpos($elementName, '[')) {
-            $myVar = "['" . str_replace(
-                ['\\', '\'', ']', '['],
-                ['\\\\', '\\\'', '', "']['"],
-                $elementName
-            ) . "']";
-
-            // patch for centreon
             if (preg_match('/\[(.+)\]$/', $elementName, $matches)) {
                 if (isset($values[$matches[1]]) && ! isset($values[$matches[1]][$matches[1]])) {
                     return $values[$matches[1]];
                 }
             }
-            // end of patch
 
-            return eval("return (isset(\$values{$myVar})) ? \$values{$myVar} : null;");
+            $keys = explode('[', str_replace(']', '', $elementName));
+            $current = $values;
+            foreach ($keys as $key) {
+                if (! is_array($current) || ! array_key_exists($key, $current)) {
+                    return null;
+                }
+                $current = $current[$key];
+            }
+
+            return $current;
         }
 
         return null;

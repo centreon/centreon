@@ -27,7 +27,6 @@ use LogicException;
 
 beforeEach(function (): void {
     $this->logFilePath = __DIR__ . '/log';
-    $this->logFileName = 'test.log';
     $this->logPathFileName = $this->logFilePath . '/test.log';
 
     if (! file_exists($this->logFilePath)) {
@@ -45,163 +44,48 @@ afterEach(function (): void {
     }
 });
 
-it('test a log with debug level without context without exception', function (): void {
-    $this->logger->debug('debug_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.DEBUG: debug_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
+it('writes a record without context or exception for every PSR-3 level', function (string $method, string $rendered): void {
+    $this->logger->{$method}("{$method}_message");
+    expect(file_exists($this->logPathFileName))->toBeTrue()
+        ->and(file_get_contents($this->logPathFileName))
+        ->toContain("test_logger.{$rendered}: {$method}_message [] []");
+})->with([
+    ['debug', 'DEBUG'],
+    ['info', 'INFO'],
+    ['notice', 'NOTICE'],
+    ['warning', 'WARNING'],
+    ['error', 'ERROR'],
+    ['critical', 'CRITICAL'],
+    ['alert', 'ALERT'],
+    ['emergency', 'EMERGENCY'],
+]);
 
-it('test a log with debug level with a context without exception', function (): void {
-    $this->logger->debug('debug_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.DEBUG: debug_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
+it('forwards the caller context as-is for every PSR-3 level', function (string $method, string $rendered): void {
+    $this->logger->{$method}("{$method}_message", ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
+    expect(file_exists($this->logPathFileName))->toBeTrue()
+        ->and(file_get_contents($this->logPathFileName))
+        ->toContain("test_logger.{$rendered}: {$method}_message {\"contact\":1,\"name\":\"John Doe\",\"is_admin\":true} []");
+})->with([
+    ['debug', 'DEBUG'],
+    ['info', 'INFO'],
+    ['notice', 'NOTICE'],
+    ['warning', 'WARNING'],
+    ['error', 'ERROR'],
+    ['critical', 'CRITICAL'],
+    ['alert', 'ALERT'],
+    ['emergency', 'EMERGENCY'],
+]);
 
-it('test a log with info level without context without exception', function (): void {
-    $this->logger->info('info_message');
+it('keeps the Throwable under context.exception so the platform processor can format it', function (): void {
+    $this->logger->error('error_message', [
+        'contact' => 1,
+        'name' => 'John Doe',
+        'is_admin' => true,
+        'exception' => new LogicException('exception_message', 99),
+    ]);
     expect(file_exists($this->logPathFileName))->toBeTrue();
     $contentLog = file_get_contents($this->logPathFileName);
     expect($contentLog)->toContain(
-        'test_logger.INFO: info_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with info level with a context without exception', function (): void {
-    $this->logger->info('info_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.INFO: info_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with notice level without context without exception', function (): void {
-    $this->logger->notice('notice_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.NOTICE: notice_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with notice level with a context without exception', function (): void {
-    $this->logger->notice('notice_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.NOTICE: notice_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with warning level without context without exception', function (): void {
-    $this->logger->warning('warning_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.WARNING: warning_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with warning level with a context without exception', function (): void {
-    $this->logger->warning('warning_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.WARNING: warning_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with error level without context without exception', function (): void {
-    $this->logger->error('error_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.ERROR: error_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with error level with a context without exception', function (): void {
-    $this->logger->error('error_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.ERROR: error_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with critical level without context without exception', function (): void {
-    $this->logger->critical('critical_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.CRITICAL: critical_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with critical level with a context without exception', function (): void {
-    $this->logger->critical('critical_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.CRITICAL: critical_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with alert level without context without exception', function (): void {
-    $this->logger->alert('alert_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.ALERT: alert_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with alert level with a context without exception', function (): void {
-    $this->logger->alert('alert_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.ALERT: alert_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with emergency level without context without exception', function (): void {
-    $this->logger->emergency('emergency_message');
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.EMERGENCY: emergency_message {"custom":null,"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with emergency level with a context without exception', function (): void {
-    $this->logger->emergency('emergency_message', ['contact' => 1, 'name' => 'John Doe', 'is_admin' => true]);
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.EMERGENCY: emergency_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":null,"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
-    );
-});
-
-it('test a log with exception', function (): void {
-    $this->logger->error(
-        'error_message',
-        [
-            'contact' => 1,
-            'name' => 'John Doe',
-            'is_admin' => true,
-            'exception' => new LogicException('exception_message', 99),
-        ]
-    );
-    expect(file_exists($this->logPathFileName))->toBeTrue();
-    $contentLog = file_get_contents($this->logPathFileName);
-    expect($contentLog)->toContain(
-        'test_logger.ERROR: error_message {"custom":{"contact":1,"name":"John Doe","is_admin":true},"exception":"[object] (LogicException(code: 99): exception_message at ' . __FILE__ . ':' . (__LINE__ - 6) . ')","default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
+        'test_logger.ERROR: error_message {"contact":1,"name":"John Doe","is_admin":true,"exception":"[object] (LogicException(code: 99): exception_message at ' . __FILE__ . ':' . (__LINE__ - 5) . ')"} []'
     );
 });

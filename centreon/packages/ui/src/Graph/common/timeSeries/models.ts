@@ -135,5 +135,5 @@ export interface TimeValueProps {
   marginLeft?: number;
   timeSeries: Array<TimeValue>;
   x?: number;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number> | ScaleLinear<number, number>;
 }

@@ -21,7 +21,7 @@ type Props = {
   ariaLabel?: string;
   dataTestid?: string;
   className?: string;
-  onClick: (event) => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   title?: string | JSX.Element;
   tooltipClassName?: string;
   tooltipPlacement?:

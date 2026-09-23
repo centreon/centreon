@@ -68,6 +68,38 @@ final readonly class Credential
 
     public function isPermissionGranted(Permission $permission): bool
     {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
         return $this->permissions->contains($permission);
+    }
+
+    /**
+     * Centreon-staff-level administrator
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles->contains(new Role('ROLE_SUPER_ADMIN'));
+    }
+
+    /**
+     * Top-level administrator of a Cloud tenant
+     */
+    public function isCloudAdmin(): bool
+    {
+        return $this->roles->contains(new Role('ROLE_CLOUD_ADMIN'));
+    }
+
+    /**
+     * Whether the user escapes ACL resource scoping, i.e. sees every resource on the platform.
+     */
+    public function hasUnrestrictedResourceAccess(): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->isCloudAdmin();
     }
 }

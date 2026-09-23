@@ -44,6 +44,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -94,6 +95,7 @@ final class PartialUpdateServiceTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -172,7 +174,7 @@ final class PartialUpdateServiceTemplate
             'service_template_id' => $request->id,
             'host_templates' => $request->hostTemplates,
         ]);
-        $this->writeRepository->linkToHosts($request->id, $request->hostTemplates);
+        $this->writeRepository->linkToHosts($request->id, array_values(array_unique($request->hostTemplates)));
     }
 
     /**
@@ -282,7 +284,7 @@ final class PartialUpdateServiceTemplate
         $this->debug('Start transaction');
         $this->storageEngine->startTransaction();
         try {
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveServiceUuidFromVault($serviceTemplate->getId());
             }
 
@@ -393,9 +395,10 @@ final class PartialUpdateServiceTemplate
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($checkCommandId !== null) {
+        $effectiveCommandId = $checkCommandId ?? $this->findInheritedCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $checkCommandId,
+                $effectiveCommandId,
                 CommandMacroType::Service
             );
 
@@ -403,14 +406,42 @@ final class PartialUpdateServiceTemplate
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
         ];
+    }
+
+    /**
+     * Return the command ID of the first ancestor service template that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    private function findInheritedCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readServiceTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCommandId() !== null) {
+                return $indexed[$parentId]->getCommandId();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -651,7 +682,7 @@ final class PartialUpdateServiceTemplate
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixName = '_SERVICE' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,

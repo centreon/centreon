@@ -63,6 +63,7 @@ const ResponsiveGauge = ({
 
   const pieColor = getColorFromDataAndTresholds({
     baseColor,
+    // @ts-expect-error - suppressing pre-existing type mismatch
     data: metric.data[0],
     theme,
     thresholds
@@ -88,6 +89,7 @@ const ResponsiveGauge = ({
         classes={{
           tooltip: classes.tooltip
         }}
+        // @ts-expect-error - suppressing pre-existing type mismatch
         label={tooltipData}
         open={thresholds.enabled && tooltipOpen}
         placement="top"

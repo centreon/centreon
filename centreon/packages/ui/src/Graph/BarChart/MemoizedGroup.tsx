@@ -54,6 +54,7 @@ const MemoizedGroup = ({
   }
 
   return (
+    // @ts-expect-error - suppressing pre-existing type mismatch
     <Group left={barGroup.x0} top={barGroup.y0}>
       {barGroup.bars.map((bar) => {
         const isStackedBar = bar.key.startsWith('stacked-');
@@ -74,7 +75,8 @@ const MemoizedGroup = ({
           : (linesBar as Line).unit;
         const yScale =
           unit === '' && yScalesPerUnit[unit] === undefined
-            ? yScalesPerUnit[undefined]
+            ? // @ts-expect-error - suppressing pre-existing type mismatch
+              yScalesPerUnit[undefined]
             : yScalesPerUnit[unit];
 
         return isStackedBar ? (
@@ -112,14 +114,35 @@ const MemoizedGroup = ({
   );
 };
 
-export default memo(
-  MemoizedGroup,
-  (prevProps, nextProps) =>
+export default memo(MemoizedGroup, (prevProps, nextProps) => {
+  const prevBarValues = prevProps.barGroup.bars.map(({ key, value }) => {
+    if (key.startsWith('stacked-')) {
+      const timeValueBar =
+        prevProps.stackedLinesTimeSeriesPerStackKeyAndUnit[key].timeSeries[
+          prevProps.barIndex
+        ];
+
+      return timeValueBar;
+    }
+
+    return value;
+  });
+  const nextBarValues = nextProps.barGroup.bars.map(({ key, value }) => {
+    if (key.startsWith('stacked-')) {
+      const timeValueBar =
+        nextProps.stackedLinesTimeSeriesPerStackKeyAndUnit[key].timeSeries[
+          nextProps.barIndex
+        ];
+
+      return timeValueBar;
+    }
+
+    return value;
+  });
+
+  return (
     equals(prevProps.barGroup, nextProps.barGroup) &&
-    equals(
-      prevProps.stackedLinesTimeSeriesPerStackKeyAndUnit,
-      nextProps.stackedLinesTimeSeriesPerStackKeyAndUnit
-    ) &&
+    equals(prevBarValues, nextBarValues) &&
     equals(prevProps.notStackedLines, nextProps.notStackedLines) &&
     equals(prevProps.notStackedTimeSeries, nextProps.notStackedTimeSeries) &&
     equals(prevProps.isHorizontal, nextProps.isHorizontal) &&
@@ -127,4 +150,5 @@ export default memo(
     equals(prevProps.isTooltipHidden, nextProps.isTooltipHidden) &&
     equals(prevProps.neutralValue, nextProps.neutralValue) &&
     equals(prevProps.barIndex, nextProps.barIndex)
-);
+  );
+});

@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import type { ScaleLinear } from 'd3-scale';
+import { ReactElement, useMemo } from 'react';
 
 import type { AdditionalLineProps } from '../models';
 
 interface Props extends AdditionalLineProps {
   graphWidth: number;
-  yScale;
+  yScale?: ScaleLinear<number, number>;
 }
 
 const AdditionalLine = ({
@@ -13,8 +14,12 @@ const AdditionalLine = ({
   text,
   graphWidth,
   yScale
-}: Props): JSX.Element => {
-  const positionY = useMemo(() => yScale(yValue), [yValue, yScale]);
+}: Props): ReactElement | null => {
+  const positionY = useMemo(() => yScale?.(yValue), [yValue, yScale]);
+
+  if (positionY === undefined) {
+    return null;
+  }
 
   return (
     <g>

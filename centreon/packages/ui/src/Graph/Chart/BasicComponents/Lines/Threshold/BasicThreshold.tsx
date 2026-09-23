@@ -39,6 +39,7 @@ const BasicThreshold = ({
       }}
       clipAboveTo={0}
       clipBelowTo={graphHeight}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       curve={curve}
       data={timeSeries}
       id={id}

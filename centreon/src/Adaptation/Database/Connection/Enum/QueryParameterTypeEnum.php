@@ -28,7 +28,7 @@ namespace Adaptation\Database\Connection\Enum;
  *
  * @class   QueryParameterTypeEnum
  */
-enum QueryParameterTypeEnum
+enum QueryParameterTypeEnum implements \JsonSerializable
 {
     /**
      * Represents the SQL NULL data type.
@@ -54,4 +54,9 @@ enum QueryParameterTypeEnum
      * Represents a boolean data type.
      */
     case BOOLEAN;
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->name;
+    }
 }

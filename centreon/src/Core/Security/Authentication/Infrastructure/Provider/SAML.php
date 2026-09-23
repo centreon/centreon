@@ -23,19 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Adaptation\Log\Enum\AuthProviderEnum;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+use Adaptation\Log\LoggerAuthentication;
 use Assert\AssertionFailedException;
 use Centreon;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use CentreonSession;
 use Core\Application\Configuration\User\Repository\WriteUserRepositoryInterface;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Domain\Configuration\User\Model\NewUser;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
 use Core\Security\Authentication\Application\UseCase\Login\LoginRequest;
 use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
+use Core\Security\Authentication\Domain\Exception\SamlException;
 use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
@@ -64,13 +71,8 @@ use Throwable;
 
 class SAML implements ProviderAuthenticationInterface
 {
-    use LoggerTrait;
-
     /** @var Configuration */
     private Configuration $configuration;
-
-    /** @var Centreon */
-    private Centreon $legacySession;
 
     /** @var string */
     private string $username;
@@ -81,16 +83,6 @@ class SAML implements ProviderAuthenticationInterface
     /** @var Auth|null */
     private ?Auth $auth = null;
 
-    /**
-     * @param Container $dependencyInjector
-     * @param ContactRepositoryInterface $contactRepository
-     * @param LoginLoggerInterface $loginLogger
-     * @param WriteUserRepositoryInterface $userRepository
-     * @param Conditions $conditions
-     * @param RolesMapping $rolesMapping
-     * @param GroupsMappingSecurityAccess $groupsMapping
-     * @param SettingsFormatterInterface $formatter
-     */
     public function __construct(
         private readonly Container $dependencyInjector,
         private readonly ContactRepositoryInterface $contactRepository,
@@ -100,6 +92,8 @@ class SAML implements ProviderAuthenticationInterface
         private readonly RolesMapping $rolesMapping,
         private readonly GroupsMappingSecurityAccess $groupsMapping,
         private readonly SettingsFormatterInterface $formatter,
+        private readonly WriteSessionRepositoryInterface $writeSessionRepository,
+        private readonly SamlAuthFactoryInterface $authFactory,
     ) {
     }
 
@@ -117,12 +111,18 @@ class SAML implements ProviderAuthenticationInterface
         $this->loginLogger->info(Provider::SAML, 'authenticate the user through SAML');
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->auth = new Auth($this->formatter->format($customConfiguration));
+        $this->auth = $this->authFactory->create($this->formatter->format($customConfiguration));
         $auth = $this->auth;
         $auth->processResponse($_SESSION['AuthNRequestID'] ?? null);
         $errors = $auth->getErrors();
         if (! empty($errors)) {
             $ex = ProcessAuthenticationResponseException::create();
+            LoggerAuthentication::create()->loginFailure(
+                'Failed to process SAML authentication response',
+                null,
+                AuthProviderEnum::SAML,
+                $ex
+            );
             $this->loginLogger->error(Provider::SAML, $ex->getMessage(), ['context' => (string) json_encode($errors), 'error' => $this->auth->getLastErrorReason()]);
 
             throw $ex;
@@ -130,6 +130,12 @@ class SAML implements ProviderAuthenticationInterface
 
         if (! $auth->isAuthenticated()) {
             $ex = UserNotAuthenticatedException::create();
+            LoggerAuthentication::create()->loginFailure(
+                'User not authenticated by SAML provider',
+                null,
+                AuthProviderEnum::SAML,
+                $ex
+            );
             $this->loginLogger->error(Provider::SAML, $ex->getMessage());
 
             throw $ex;
@@ -140,7 +146,13 @@ class SAML implements ProviderAuthenticationInterface
         $errors = $settings->validateMetadata($metadata);
         if (! empty($errors)) {
             $ex = InvalidMetadataException::create();
-            $this->info($ex->getMessage(), ['errors' => $errors]);
+            LoggerAuthentication::create()->loginFailure(
+                'Invalid SAML metadata',
+                null,
+                AuthProviderEnum::SAML,
+                $ex
+            );
+            Logger::create(LogChannelEnum::WEB)->info($ex->getMessage(), ['errors' => $errors]);
 
             throw $ex;
         }
@@ -149,7 +161,7 @@ class SAML implements ProviderAuthenticationInterface
             Provider::SAML,
             'User information: ' . json_encode($auth->getAttributes())
         );
-        $this->info('User information: ', $auth->getAttributes());
+        Logger::create(LogChannelEnum::WEB)->info('User information: ', $auth->getAttributes());
 
         $attrs = $auth->getAttribute($customConfiguration->getUserIdAttribute());
         if (! is_array($attrs) || ! is_string($attrs[0] ?? null)) {
@@ -157,12 +169,17 @@ class SAML implements ProviderAuthenticationInterface
         }
 
         $this->username = $attrs[0];
+
         CentreonSession::writeSessionClose('saml', [
             'samlSessionIndex' => $auth->getSessionIndex(),
             'samlNameId' => $auth->getNameId(),
+            'samlNameIdFormat' => $auth->getNameIdFormat() ?: null,
+            'samlNameIdNameQualifier' => $auth->getNameIdNameQualifier() ?: null,
+            'samlNameIdSPNameQualifier' => $auth->getNameIdSPNameQualifier() ?: null,
         ]);
 
         $this->loginLogger->info(Provider::SAML, 'checking security access rules');
+
         $this->conditions->validate($this->configuration, $auth->getAttributes());
         $this->rolesMapping->validate($this->configuration, $auth->getAttributes());
         $this->groupsMapping->validate($this->configuration, $auth->getAttributes());
@@ -170,6 +187,7 @@ class SAML implements ProviderAuthenticationInterface
 
     /**
      * @throws SSOAuthenticationException
+     * @throws Exception
      *
      * @return ContactInterface
      */
@@ -187,7 +205,7 @@ class SAML implements ProviderAuthenticationInterface
      */
     public function getUser(): ?ContactInterface
     {
-        $this->info('Searching user : ' . $this->username);
+        Logger::create(LogChannelEnum::WEB)->info('Searching user : ' . $this->username);
 
         return $this->contactRepository->findByName($this->username)
             ?? $this->contactRepository->findByEmail($this->username);
@@ -220,11 +238,11 @@ class SAML implements ProviderAuthenticationInterface
     {
         $user = $this->getUser();
         if ($this->isAutoImportEnabled() && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->loginLogger->info($this->configuration->getType(), 'start auto import');
             $this->createUser();
             $user = $this->findUserOrFail();
-            $this->info('User imported: ' . $user->getName());
+            Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
             $this->loginLogger->info(
                 $this->configuration->getType(),
                 'user imported',
@@ -241,10 +259,10 @@ class SAML implements ProviderAuthenticationInterface
     {
         $user = $this->getAuthenticatedUser();
         if ($this->isAutoImportEnabled() === true && $user === null) {
-            $this->info('Start auto import');
+            Logger::create(LogChannelEnum::WEB)->info('Start auto import');
             $this->createUser();
             if ($user = $this->getAuthenticatedUser()) {
-                $this->info('User imported: ' . $user->getName());
+                Logger::create(LogChannelEnum::WEB)->info('User imported: ' . $user->getName());
             }
         }
     }
@@ -281,9 +299,8 @@ class SAML implements ProviderAuthenticationInterface
         ];
 
         $this->authenticatedUser = $user;
-        $this->legacySession = new Centreon($sessionUserInfos);
 
-        return $this->legacySession;
+        return new Centreon($sessionUserInfos);
     }
 
     /**
@@ -345,7 +362,7 @@ class SAML implements ProviderAuthenticationInterface
         foreach ($customConfiguration->getACLConditions()->getRelations() as $authorizationRule) {
             $claimValue = $authorizationRule->getClaimValue();
             if (! in_array($claimValue, $claims, true)) {
-                $this->info(
+                Logger::create(LogChannelEnum::WEB)->info(
                     'Configured claim value not found in user claims',
                     ['claim_value' => $claimValue]
                 );
@@ -409,45 +426,152 @@ class SAML implements ProviderAuthenticationInterface
     /**
      * @param string $returnTo
      *
-     * @throws Error
+     * @throws SamlException
      */
     public function login(string $returnTo = ''): void
     {
-        $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        $auth->login($returnTo ?: null);
+        try {
+            $auth = $this->authFactory->create($this->formatter->format($this->configuration->getCustomConfiguration()));
+        } catch (Throwable $e) {
+            throw new SamlException(
+                message: 'SAML Auth initialization failed: ' . $e->getMessage(),
+                context: [
+                    'configuration_id' => $this->configuration->getId(),
+                    'configuration_name' => $this->configuration->getName(),
+                    'configuration_type' => $this->configuration->getType(),
+                ],
+                previous: $e
+            );
+        }
+        try {
+            $auth->login($returnTo ?: null);
+        } catch (Throwable $e) {
+            throw new SamlException(
+                message: 'SAML login failed: ' . $e->getMessage(),
+                context: [
+                    'configuration_id' => $this->configuration->getId(),
+                    'configuration_name' => $this->configuration->getName(),
+                    'configuration_type' => $this->configuration->getType(),
+                    'return_to' => $returnTo,
+                ],
+                previous: $e
+            );
+        }
     }
 
     /**
-     * @throws Error
+     * @throws SamlException
+     * @return void
      */
     public function logout(): void
     {
         $returnTo = '/login';
-        $parameters = [];
-        $nameId = null;
-        $sessionIndex = null;
 
-        if (isset($_SESSION['saml']['samlNameId'])) {
-            $nameId = $_SESSION['saml']['samlNameId'];
+        $samlNameId = $_SESSION['saml']['samlNameId'] ?? null;
+        $samlSessionIndex = $_SESSION['saml']['samlSessionIndex'] ?? null;
+        $samlNameIdFormat = $_SESSION['saml']['samlNameIdFormat'] ?? null;
+        $samlNameIdNameQualifier = $_SESSION['saml']['samlNameIdNameQualifier'] ?? null;
+        $samlNameIdSPNameQualifier = $_SESSION['saml']['samlNameIdSPNameQualifier'] ?? null;
+
+        $this->loginLogger->info(Provider::SAML, 'logout from SAML and redirect');
+
+        try {
+            $auth = $this->authFactory->create($this->formatter->format($this->configuration->getCustomConfiguration()));
+        } catch (Throwable $e) {
+            throw new SamlException(
+                message: 'SAML Auth initialization failed: ' . $e->getMessage(),
+                context: [
+                    'configuration_id' => $this->configuration->getId(),
+                    'configuration_name' => $this->configuration->getName(),
+                    'configuration_type' => $this->configuration->getType(),
+                ],
+                previous: $e
+            );
         }
 
-        if (isset($_SESSION['saml']['samlSessionIndex'])) {
-            $sessionIndex = $_SESSION['saml']['samlSessionIndex'];
+        try {
+            $auth->logout(
+                returnTo: $returnTo,
+                nameId: $samlNameId,
+                sessionIndex: $samlSessionIndex,
+                nameIdFormat: $samlNameIdFormat,
+                nameIdNameQualifier: $samlNameIdNameQualifier,
+                nameIdSPNameQualifier: $samlNameIdSPNameQualifier
+            );
+        } catch (Throwable $e) {
+            throw new SamlException(
+                message: 'SAML logout failed: ' . $e->getMessage(),
+                context: [
+                    'configuration_id' => $this->configuration->getId(),
+                    'configuration_name' => $this->configuration->getName(),
+                    'configuration_type' => $this->configuration->getType(),
+                    'saml_name_id' => $samlNameId,
+                    'saml_session_index' => $samlSessionIndex,
+                    'saml_name_id_format' => $samlNameIdFormat,
+                    'saml_name_id_name_qualifier' => $samlNameIdNameQualifier,
+                    'saml_name_id_sp_name_qualifier' => $samlNameIdSPNameQualifier,
+                ],
+                previous: $e
+            );
         }
-
-        $this->info('logout from SAML and redirect');
-        $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
-        $auth->logout($returnTo, $parameters, $nameId, $sessionIndex);
     }
 
+    /**
+     * @throws SamlException
+     * @return void
+     */
     public function handleCallbackLogoutResponse(): void
     {
-        $this->info('SAML SLS invoked');
+        Logger::create(LogChannelEnum::WEB)->info('SAML SLS invoked');
 
-        $auth = new Auth($this->formatter->format($this->configuration->getCustomConfiguration()));
+        try {
+            $auth = $this->authFactory->create($this->formatter->format($this->configuration->getCustomConfiguration()));
+        } catch (Throwable $e) {
+            throw new SamlException(
+                message: 'SAML Auth initialization failed: ' . $e->getMessage(),
+                context: [
+                    'configuration_id' => $this->configuration->getId(),
+                    'configuration_name' => $this->configuration->getName(),
+                    'configuration_type' => $this->configuration->getType(),
+                ],
+                previous: $e
+            );
+        }
+
         $requestID = isset($_SESSION, $_SESSION['LogoutRequestID']) ? $_SESSION['LogoutRequestID'] : null;
 
-        $auth->processSLO(true, $requestID, false, null, true);
+        try {
+            $auth->processSLO(
+                keepLocalSession: false,
+                requestId: $requestID,
+                cbDeleteSession: function (): void {
+                    try {
+                        $this->writeSessionRepository->invalidate();
+                    } catch (RepositoryException $e) {
+                        ExceptionLogger::create()->log(
+                            throwable: $e,
+                            context: [
+                                'user_id' => $this->getAuthenticatedUser()?->getId() ?? 'unknown',
+                                'provider' => Provider::SAML,
+                                'action' => 'Invalidate session failed during SAML SLS logout',
+                            ]
+                        );
+                    }
+                },
+                stay: true
+            );
+        } catch (Throwable $e) {
+            throw new SamlException(
+                message: 'SAML SLS processing failed: ' . $e->getMessage(),
+                context: [
+                    'configuration_id' => $this->configuration->getId(),
+                    'configuration_name' => $this->configuration->getName(),
+                    'configuration_type' => $this->configuration->getType(),
+                    'request_id' => $requestID,
+                ],
+                previous: $e
+            );
+        }
 
         // Avoid 'Open Redirect' attacks
         if (isset($_GET['RelayState']) && Utils::getSelfURL() !== $_GET['RelayState']) {
@@ -471,7 +595,7 @@ class SAML implements ProviderAuthenticationInterface
     {
         /** @var CustomConfiguration $customConfiguration */
         $customConfiguration = $this->configuration->getCustomConfiguration();
-        $this->info('Auto import starting...', ['user' => $this->username]);
+        Logger::create(LogChannelEnum::WEB)->info('Auto import starting...', ['user' => $this->username]);
         $this->loginLogger->info(
             $this->configuration->getType(),
             'auto import starting...',
@@ -495,7 +619,7 @@ class SAML implements ProviderAuthenticationInterface
         }
         $user->setContactTemplate($customConfiguration->getContactTemplate());
         $this->userRepository->create($user);
-        $this->info('Auto import complete', [
+        Logger::create(LogChannelEnum::WEB)->info('Auto import complete', [
             'user_alias' => $alias,
             'user_fullname' => $fullname,
             'user_email' => $email,

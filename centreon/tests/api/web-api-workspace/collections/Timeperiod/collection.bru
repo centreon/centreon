@@ -1,0 +1,20 @@
+meta {
+  name: Timeperiod
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  Timeperiod1Id:
+  Timeperiod2Id:
+  Timeperiod3Id:
+  Timeperiod4Id:
+}

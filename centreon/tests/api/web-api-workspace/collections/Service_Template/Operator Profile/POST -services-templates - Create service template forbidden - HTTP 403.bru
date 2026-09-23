@@ -1,0 +1,33 @@
+meta {
+  name: POST /services/templates - Create service template forbidden - HTTP 403
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "service-template-forbidden",
+    "alias": "I should not be created"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The service template has not been created, because the user does not have the correct rights.", function () {
+    expect(res.getBody().message).to.match(/not allowed/i);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

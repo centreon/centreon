@@ -9,19 +9,19 @@ const Name = ({
 }: ComponentColumnProps): JSX.Element => {
   const { classes } = useNameStyles({
     isHovered,
-    isRowDisabled: row.isActivated
+    isRowDisabled: Boolean(row.isActivated)
   });
 
   const name = renderEllipsisTypography?.({
     className: classes.resourceNameText,
-    formattedString: truncate({ content: row.name, maxLength: 50 })
+    formattedString: truncate({ content: row.name as string, maxLength: 50 })
   });
+
+  const icon = row?.icon as { name: string; url: string } | undefined;
 
   return (
     <div className={classes.container}>
-      {row?.icon && (
-        <img alt={row.icon.name} height={16} src={row.icon.url} width={16} />
-      )}
+      {icon && <img alt={icon.name} height={16} src={icon.url} width={16} />}
       {name}
     </div>
   );

@@ -15,11 +15,15 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
         - tests/php/bootstrap.php
         - tests/php/polyfill.php
+        # Legacy helpers: required explicitly by their consumers, so they are
+        # outside the Composer classmap and unknown to the analysis otherwise.
+        - www/include/common/common-Func.php
 
     paths:
         - tests/php/Centreon
         - tests/php/CentreonLegacy
         - tests/php/CentreonRemote
+        - tests/php/EventSubscriber
         - tests/php/mock
         - tests/php/Security
         - tests/php/Utility
@@ -34,4 +38,8 @@ parameters:
                 - '#^Undefined variable: \$this$#'
                 - '#^Call to an undefined method Pest#'
                 - '#^Access to an undefined property PHPUnit#'
+                - '#^Call to protected method .+\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+                - '#^Access to private property PHPUnit\\Framework\\TestCase::\$\w+\.$#'
+                - '#^Call to an undefined method PHPUnit\\Framework\\TestCase::\w+\(\)\.$#'
+                - '#^Method PHPUnit\\Framework\\TestCase::\w+\(\) invoked with \d+ parameters?, \d+ required\.$#'
 

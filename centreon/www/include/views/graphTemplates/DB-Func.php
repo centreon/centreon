@@ -31,16 +31,18 @@ function testExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('graph_id');
     }
-    $query = "SELECT graph_id, name FROM giv_graphs_template WHERE name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $res = $pearDB->query($query);
-    $graph = $res->fetch();
+    $stmt = $pearDB->prepare(
+        'SELECT graph_id, name FROM giv_graphs_template WHERE name = :name'
+    );
+    $stmt->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    $stmt->execute();
+    $graph = $stmt->fetch();
     // Modif case
-    if ($res->rowCount() >= 1 && $graph['graph_id'] == $id) {
+    if ($stmt->rowCount() >= 1 && $graph['graph_id'] == $id) {
         return true;
     }
 
-    return ! ($res->rowCount() >= 1 && $graph['graph_id'] != $id);
+    return ! ($stmt->rowCount() >= 1 && $graph['graph_id'] != $id);
     // duplicate entry
 
 }
@@ -55,8 +57,8 @@ function deleteGraphTemplateInDB($graphs = []): void
 {
     global $pearDB;
 
+    $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
     foreach ($graphs as $key => $value) {
-        $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
         $stmt->bindValue(':graphTemplateId', $key, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -81,23 +83,24 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
             $stmt->bindValue(':graphTemplateId', $key, PDO::PARAM_INT);
             $stmt->execute();
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $row['graph_id'] = '';
+                unset($row['graph_id']);
                 $row['default_tpl1'] = '0';
+                $columns = array_keys($row);
+                $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+                $insertStmt = $pearDB->prepare(
+                    'INSERT INTO giv_graphs_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+                );
+
+                $originalName = $row['name'];
                 for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-                    $val = null;
-                    foreach ($row as $key2 => $value2) {
-                        $value2 = is_int($value2) ? (string) $value2 : $value2;
-                        if ($key2 == 'name') {
-                            $name = $value2 . '_' . $i;
-                            $value2 = $value2 . '_' . $i;
-                        }
-                        $val
-                            ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                            : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                    }
+                    $name = $originalName . '_' . $i;
+                    $row['name'] = $name;
+
                     if (testExistence($name)) {
-                        $rq = $val ? 'INSERT INTO giv_graphs_template VALUES (' . $val . ')' : null;
-                        $pearDB->query($rq);
+                        foreach ($columns as $col) {
+                            $insertStmt->bindValue(':' . $col, $row[$col], $row[$col] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                        }
+                        $insertStmt->execute();
                     }
                 }
             }
@@ -156,7 +159,7 @@ function insertGraphTemplate(): int
             `scaled`, `stacked` , `comment`,
             `split_component`
         ) VALUES (
-            :name, :vertical_label, :width, :height, :base, :lower_limit, :upper_limit, :size_to_max, :default_tpl1, 
+            :name, :vertical_label, :width, :height, :base, :lower_limit, :upper_limit, :size_to_max, :default_tpl1,
             :scaled, :stacked, :comment, null
         )
         SQL;

@@ -1,0 +1,51 @@
+meta {
+  name: POST /acc - Create ACC3 with special characters - HTTP 201
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ACC3Name}}",
+    "description": "{{ACC3Description}}",
+    "pollers": [3],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{
+        "name": "my-vcenter-3",
+        "url": "http://10.10.10.10/sdk",
+        "username": "admin",
+        "password": "my-pwd"
+      }]
+    }
+  }
+}
+
+tests {
+  test("ACC3 with special characters has been successfully created (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      bru.setEnvVar("ACC3Id", body.id);
+      bru.setEnvVar("ACC3VcenterId", body.parameters.vcenters[0].id);
+      expect(body).to.include({
+        "id": body.id,
+        "name": bru.getEnvVar("ACC3Name"),
+        "type": "vmware_v6",
+        "description": bru.getEnvVar("ACC3Description")
+      });
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

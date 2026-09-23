@@ -1,0 +1,22 @@
+meta {
+  name: DELETE /timeperiods - Delete timeperiod by editor - HTTP 204
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/timeperiods/{{Timeperiod4Id}}
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("Timeperiod 4 deleted by editor (404 expected when creation failed in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 404]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

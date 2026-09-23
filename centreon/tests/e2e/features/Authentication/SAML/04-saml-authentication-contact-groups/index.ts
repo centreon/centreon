@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import { configureProviderAcls, getUserContactId } from '../../../../commons';
 import {
@@ -18,27 +19,27 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('getSAMLProvider');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/administration/authentication/providers/saml'
+    url: `${INTERCEPTORS.api.authentication_provider}/saml`
   }).as('updateSAMLProvider');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentification');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/contacts/groups?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D'
+    url: `${INTERCEPTORS.api.contacts_groups}?page=1&sort_by=%7B%22name%22%3A%22ASC%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D`
   }).as('getListContactGroups');
 });
 

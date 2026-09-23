@@ -1,0 +1,31 @@
+meta {
+  name: GET /services/groups - Get 2 service groups - HTTP 200
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Two service groups remain after editor deletion.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const deletedId = parseInt(bru.getEnvVar("ServiceGroup4Id"));
+    expect(body.result.some(r => r.id === deletedId)).to.be.false;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

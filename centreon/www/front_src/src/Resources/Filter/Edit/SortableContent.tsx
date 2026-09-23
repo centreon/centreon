@@ -2,18 +2,18 @@ import MoveIcon from '@mui/icons-material/UnfoldMore';
 import { Paper } from '@mui/material';
 
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
-import { RefObject } from 'react';
+import React, { RefObject } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { Filter } from '../models';
 import EditFilterCard from './EditFilterCard';
 
 interface ContentProps extends Filter {
-  attributes;
+  attributes: Record<string, unknown>;
   isDragging: boolean;
   itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: React.CSSProperties;
 }
 
 const useStyles = makeStyles<Pick<ContentProps, 'isDragging'>>()(

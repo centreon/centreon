@@ -1,0 +1,48 @@
+meta {
+  name: POST /monitoring/resources/check - Schedule check - HTTP 204
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/check
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "check": {
+      "is_forced": true
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      },
+      {
+        "type": "service",
+        "id": {{Service1Id}},
+        "parent": {
+          "id": {{Host1Id}}
+        }
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Administrator can schedule a check on resources.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

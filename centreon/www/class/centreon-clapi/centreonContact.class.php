@@ -68,6 +68,7 @@ class CentreonContact extends CentreonObject
     public const UNKNOWN_TIMEZONE = 'Invalid timezone';
     public const CONTACT_LOCATION = 'timezone';
     public const UNKNOWN_NOTIFICATION_OPTIONS = 'Invalid notifications options';
+    public const EMAIL_CANNOT_BE_EMPTY = 'Contact email cannot be empty';
 
     /** @var string[] */
     public static $aDepends = ['CONTACTTPL', 'CMD', 'TP'];
@@ -282,7 +283,7 @@ class CentreonContact extends CentreonObject
                     $params[2] = $completeLanguage;
                 } elseif ($params[1] === 'password') {
                     $params[1] = 'passwd';
-                    if (password_needs_rehash($params[2], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+                    if (! $this->isPasswordAlreadyHashed((string) $params[2])) {
                         $contact = new \CentreonContact($this->db);
                         try {
                             $contact->respectPasswordPolicyOrFail($params[2], $objectId);
@@ -324,6 +325,13 @@ class CentreonContact extends CentreonObject
             }
 
             if ($regularParam == true) {
+                if (
+                    $this->register === 1
+                    && $params[1] === 'contact_email'
+                    && trim((string) $params[2]) === ''
+                ) {
+                    throw new CentreonClapiException(static::EMAIL_CANNOT_BE_EMPTY);
+                }
                 $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
 
@@ -455,12 +463,17 @@ class CentreonContact extends CentreonObject
      *
      * @param array<int,mixed> $params
      *
+     * @throws CentreonClapiException
      * @throws PDOException
      */
     protected function initUserInformation(array $params): void
     {
         $this->addParams['contact_name'] = $this->checkIllegalChar($params[static::ORDER_NAME]);
-        $this->addParams['contact_email'] = $params[static::ORDER_MAIL];
+        $email = trim((string) ($params[static::ORDER_MAIL] ?? ''));
+        if ((int) $this->register === 1 && $email === '') {
+            throw new CentreonClapiException(static::EMAIL_CANNOT_BE_EMPTY);
+        }
+        $this->addParams['contact_email'] = $email;
     }
 
     /**
@@ -472,7 +485,7 @@ class CentreonContact extends CentreonObject
      */
     protected function initPassword(array $params): void
     {
-        if (password_needs_rehash($params[static::ORDER_PASS], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+        if (! $this->isPasswordAlreadyHashed((string) $params[static::ORDER_PASS])) {
             $contact = new \CentreonContact($this->db);
             try {
                 $contact->respectPasswordPolicyOrFail($params[static::ORDER_PASS], null);
@@ -581,6 +594,24 @@ class CentreonContact extends CentreonObject
         foreach ($cmdIds as $cmdId) {
             $relObj->insert($contactId, $cmdId);
         }
+    }
+
+    /**
+     * Whether the value is already a hash (e.g. from a CLAPI export) rather than plaintext.
+     *
+     * Not password_needs_rehash(): it also flags a valid hash whose cost differs from the
+     * current default, which would hash the value twice and break authentication.
+     *
+     * @param string $password
+     *
+     * @return bool
+     */
+    private function isPasswordAlreadyHashed(string $password): bool
+    {
+        // password_get_info() returns a null algorithm for plaintext.
+        $algorithm = password_get_info($password)['algo'];
+
+        return $algorithm !== null && $algorithm !== 0;
     }
 
     /**

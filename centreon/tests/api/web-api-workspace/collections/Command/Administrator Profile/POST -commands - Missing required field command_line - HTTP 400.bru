@@ -1,0 +1,31 @@
+meta {
+  name: POST /commands - Missing required field command_line - HTTP 400
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"name": "{{CommandName}}", "type": "{{CommandType}}", "is_shell_enabled": true}
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("Command creation refused: missing command_line.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(400);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

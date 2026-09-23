@@ -26,7 +26,9 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
   const { sendRequest: getPlatformInstallationStatus } =
     useRequest<PlatformInstallationStatus>({
       decoder: platformInstallationStatusDecoder,
-      request: getData
+      request: getData as unknown as (
+        token: import('axios').CancelToken
+      ) => (params?: unknown) => Promise<PlatformInstallationStatus>
     });
   const { showErrorMessage } = useSnackbar();
 

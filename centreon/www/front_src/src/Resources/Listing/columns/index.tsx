@@ -41,7 +41,7 @@ import ActionUrlColumn from './Url/Action';
 import NotesUrlColumn from './Url/Notes';
 
 export interface ColumnProps {
-  actions;
+  actions: Record<string, (row: unknown) => void>;
   featureFlags?: FeatureFlags | null;
   t: (value: string) => string;
   visualization?: Visualization;
@@ -149,7 +149,8 @@ export const getColumns = ({
       type: ColumnType.component
     },
     {
-      getFormattedString: ({ duration }): string => duration,
+      getFormattedString: ({ duration }: { duration: string }): string =>
+        duration,
       id: 'duration',
       label: t(labelDuration),
       sortable: true,
@@ -158,7 +159,7 @@ export const getColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ tries }): string => tries,
+      getFormattedString: ({ tries }: { tries: string }): string => tries,
       id: 'tries',
       label: t(labelTries),
       sortable: true,
@@ -166,7 +167,8 @@ export const getColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ last_check }): string => last_check,
+      getFormattedString: ({ last_check }: { last_check: string }): string =>
+        last_check,
       id: 'last_check',
       label: t(labelLastCheck),
       sortable: true,
@@ -179,7 +181,7 @@ export const getColumns = ({
         split('\n'),
         head,
         (information: string) => truncate({ content: information })
-      ) as (row) => string,
+      ) as (row: unknown) => string,
       id: 'information',
       label: t(labelInformation),
       rowMemoProps: ['information'],
@@ -229,7 +231,7 @@ export const getColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ alias }): string => alias,
+      getFormattedString: ({ alias }: { alias: string }): string => alias,
       id: 'alias',
       label: t(labelAlias),
       sortable: true,
@@ -240,7 +242,11 @@ export const getColumns = ({
       ? []
       : [
           {
-            getFormattedString: ({ parent }): string => parent?.alias,
+            getFormattedString: ({
+              parent
+            }: {
+              parent?: { alias: string };
+            }): string => parent?.alias as string,
             id: 'parent_alias',
             label: t(labelParentAlias),
             rowMemoProps: ['parent'],
@@ -251,7 +257,7 @@ export const getColumns = ({
           }
         ]),
     {
-      getFormattedString: ({ fqdn }): string => fqdn,
+      getFormattedString: ({ fqdn }: { fqdn: string }): string => fqdn,
       id: 'fqdn',
       label: t(labelFqdn),
       sortable: true,
@@ -259,8 +265,11 @@ export const getColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ monitoring_server_name }): string =>
-        monitoring_server_name,
+      getFormattedString: ({
+        monitoring_server_name
+      }: {
+        monitoring_server_name: string;
+      }): string => monitoring_server_name,
       id: 'monitoring_server_name',
       label: t(labelMonitoringServer),
       sortable: true,
@@ -291,5 +300,5 @@ export const getColumns = ({
     }
   ];
 
-  return columns;
+  return columns as unknown as Array<Column>;
 };

@@ -29,7 +29,7 @@ const MacrosButton = ({ disabled }: Props): JSX.Element => {
 
   const insertMacrosCommand: LexicalCommand<string> = createCommand();
 
-  const onClick = (macro): void => {
+  const onClick = (macro: string): void => {
     editor.dispatchCommand(insertMacrosCommand, macro);
   };
 

@@ -71,7 +71,13 @@ const getSeverityCodeFromMonitoringStatus = ({
   ])(status);
 };
 
-const getSeverityCodeName = ({ resourceType, severityCode }): string => {
+const getSeverityCodeName = ({
+  resourceType,
+  severityCode
+}: {
+  resourceType: string;
+  severityCode: number;
+}): string => {
   const isService = equals(resourceType, 'service');
 
   return cond([

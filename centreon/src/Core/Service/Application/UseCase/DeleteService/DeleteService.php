@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
@@ -66,6 +67,7 @@ final class DeleteService
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -109,7 +111,7 @@ final class DeleteService
                 $monitoringServerId = $this->readRepository->findMonitoringServerId($serviceId);
                 $this->info("Delete service #{$serviceId}");
 
-                if ($this->writeVaultRepository->isVaultConfigured()) {
+                if ($this->vaultEligibilityService->shouldUseVault()) {
                     $this->retrieveServiceUuidFromVault($serviceId);
                     if ($this->uuid !== null) {
                         $this->writeVaultRepository->delete($this->uuid);

@@ -47,7 +47,9 @@ const RegexpHelpTooltip = ({
   urlTip,
   labelUrlTip
 }: TooltipProps): JSX.Element => {
-  const displayElement = (element): ((prop) => ReactElement | null) =>
+  const displayElement = (
+    element: ReactElement
+  ): ((prop: unknown) => ReactElement | null) =>
     ifElse(isNil, always(null), always(element));
 
   const content = (

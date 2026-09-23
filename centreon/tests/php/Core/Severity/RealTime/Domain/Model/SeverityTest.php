@@ -53,13 +53,24 @@ it('should throw an exception when severity name is too long', function (): void
     )->getMessage()
 );
 
-it('should throw an exception when severity level is lower than 0', function (): void {
-    new Severity(1, 'name', -1, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
-})->throws(\Assert\InvalidArgumentException::class, AssertionException::min(-1, 0, 'Severity::level')->getMessage());
+it('should throw an exception when severity level is lower than the minimum', function (): void {
+    new Severity(1, 'name', Severity::MIN_LEVEL - 1, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::min(Severity::MIN_LEVEL - 1, Severity::MIN_LEVEL, 'Severity::level')->getMessage()
+);
 
-it('should throw an exception when severity level is greater than 100', function (): void {
-    new Severity(1, 'name', 200, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
-})->throws(\Assert\InvalidArgumentException::class, AssertionException::max(200, 100, 'Severity::level')->getMessage());
+it('should throw an exception when severity level is greater than the maximum', function (): void {
+    new Severity(1, 'name', Severity::MAX_LEVEL + 1, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
+})->throws(
+    \Assert\InvalidArgumentException::class,
+    AssertionException::max(Severity::MAX_LEVEL + 1, Severity::MAX_LEVEL, 'Severity::level')->getMessage()
+);
+
+it('should accept a severity level up to the maximum allowed by configuration', function (): void {
+    $severity = new Severity(1, 'name', Severity::MAX_LEVEL, Severity::HOST_SEVERITY_TYPE_ID, $this->icon);
+    expect($severity->getLevel())->toBe(Severity::MAX_LEVEL);
+});
 
 it('should throw an exception when severity type is not handled', function (): void {
     new Severity(1, 'name', 60, 2, $this->icon);

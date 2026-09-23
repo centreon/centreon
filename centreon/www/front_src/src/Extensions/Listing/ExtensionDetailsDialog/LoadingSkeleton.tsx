@@ -24,7 +24,7 @@ const BaseSkeleton = ({
 export const SliderSkeleton = ({
   animate = true,
   width
-}: Props & { width }): JSX.Element => {
+}: Props & { width: number | string }): JSX.Element => {
   const theme = useTheme();
 
   return (

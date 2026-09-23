@@ -1,4 +1,6 @@
-import type { CounterProps, SelectEntry, SubMenuProps } from '@centreon/ui';
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import type { CounterProps, SelectEntry } from '@centreon/ui';
 import { SeverityCode } from '@centreon/ui';
 
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
@@ -25,6 +27,7 @@ import {
   labelOk,
   labelOkStatusServices,
   labelPending,
+  labelPendingStatusServices,
   labelServices,
   labelUnknown,
   labelUnknownStatusServices,
@@ -33,10 +36,10 @@ import {
 } from './translatedLabels';
 
 export interface ServicesPropsAdapterOutput {
+  allLink: string;
+  allOnClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   buttonLabel: string;
   counters: CounterProps['counters'];
-  hasPending: boolean;
-  items: SubMenuProps['items'];
 }
 
 type GetServicePropsAdapter = Adapter<
@@ -195,7 +198,8 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       }),
       severityCode: SeverityCode.Pending,
       shortCount: data.pending,
-      to: pendingServicesLink
+      to: pendingServicesLink,
+      topCounterAriaLabel: t(labelPendingStatusServices)
     },
     unknown: {
       count: formatUnhandledOverTotal(
@@ -230,29 +234,26 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   };
 
   return {
+    allLink: servicesLink,
+    allOnClick: config.all.onClick,
     buttonLabel: t(labelServices),
-    counters: ['critical', 'warning', 'unknown', 'ok'].map((statusName) => {
-      const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
-        config[statusName];
-
-      return {
-        ariaLabel: topCounterAriaLabel,
-        count: shortCount,
-        onClick,
-        severityCode,
-        to
-      };
-    }),
-    hasPending: Number(data.pending) > 0,
-    items: ['critical', 'warning', 'unknown', 'ok', 'pending', 'all'].map(
-      (status) => {
-        const { onClick, severityCode, count, label, to } = config[status];
+    counters: ['critical', 'warning', 'unknown', 'ok', 'pending'].map(
+      (statusName) => {
+        const {
+          to,
+          shortCount,
+          count,
+          topCounterAriaLabel,
+          onClick,
+          severityCode
+        } = config[statusName as keyof typeof config];
 
         return {
+          ariaLabel: topCounterAriaLabel,
+          count: shortCount,
+          detail: count,
           onClick,
           severityCode,
-          submenuCount: count,
-          submenuTitle: label,
           to
         };
       }

@@ -98,7 +98,7 @@ class ActionLog
      * @param int $objectId
      * @param string $objectName
      * @param string $actionType
-     * @param int $contactId
+     * @param int|null $contactId
      * @param \DateTime|null $creationDate
      */
     public function __construct(
@@ -106,7 +106,7 @@ class ActionLog
         private readonly int $objectId,
         private readonly string $objectName,
         private readonly string $actionType,
-        private readonly int $contactId,
+        private readonly ?int $contactId,
         ?\DateTime $creationDate = null,
     ) {
         if ($creationDate === null) {
@@ -175,9 +175,9 @@ class ActionLog
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getContactId(): int
+    public function getContactId(): ?int
     {
         return $this->contactId;
     }

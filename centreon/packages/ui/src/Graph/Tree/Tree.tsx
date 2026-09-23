@@ -28,7 +28,13 @@ export const Tree = <TData extends BaseProp>({
   );
 
   const toggleTreeNodesExpanded = useCallback(
-    ({ currentTree, targetNode }): Node<TData> => {
+    ({
+      currentTree,
+      targetNode
+    }: {
+      currentTree: Node<TData>;
+      targetNode: Node<TData>;
+    }): Node<TData> => {
       return updateNodeFromTree({
         callback: (subTree) => {
           if (isNil(subTree.isExpanded) && isNil(node.isDefaultExpanded)) {
@@ -98,6 +104,7 @@ export const Tree = <TData extends BaseProp>({
             <DescendantNodes
               descendants={subTree.descendants()}
               expandCollapseNode={expandCollapseNode}
+              // @ts-expect-error - suppressing pre-existing type mismatch
               getExpanded={getExpanded}
               nodeSize={{
                 height: node.height,

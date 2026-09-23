@@ -111,9 +111,9 @@ if ($index !== false) {
 
     header('Content-Type: application/csv-tab-delimited-table');
     if (isset($hName, $sName)) {
-        header('Content-disposition: filename=' . $hName . '_' . $sName . '.csv');
+        header('Content-Disposition: attachment; filename="' . str_replace(['"', "\r", "\n"], '', $hName . '_' . $sName) . '.csv"');
     } else {
-        header('Content-disposition: filename=' . $index . '.csv');
+        header('Content-Disposition: attachment; filename="' . $index . '.csv"');
     }
 
     if ($start === false || $end === false) {

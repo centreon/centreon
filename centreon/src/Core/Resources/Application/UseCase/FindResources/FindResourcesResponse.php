@@ -30,10 +30,12 @@ final class FindResourcesResponse
     /**
      * @param ResourceResponseDto[] $resources
      * @param array<string, array<mixed, mixed>> $extraData
+     * @param bool $isCountApproximate
      */
     public function __construct(
         public array $resources = [],
         public array $extraData = [],
+        public bool $isCountApproximate = false,
     ) {
     }
 }

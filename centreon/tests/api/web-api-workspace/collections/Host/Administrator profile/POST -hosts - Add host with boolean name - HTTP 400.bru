@@ -1,0 +1,73 @@
+meta {
+  name: POST /hosts - Add host with boolean name - HTTP 400
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": "{{Host1Alias}}",
+    "address": "127.0.0.1",
+    "monitoring_server_id": 1,
+    "snmp_version": "2c",
+    "timezone_id": 1,
+    "severity_id": {{HostSeverity1Id}},
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl-value",
+    "note": "note-value",
+    "action_url": "actionUrl-value",
+    "max_check_attempts": 3,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "categories": [ {{HostCategory1Id}}
+    ],
+    "templates": [ {{HostTemplate1Id}}
+    ],
+    "geo_coords": "48.51,2.20",
+    "groups": [ {{HostGroup1Id}}
+    ],
+    "macros": [
+      {
+        "name": "nameC",
+        "value": "valueC",
+        "is_password": false,
+        "description": "some text"
+      },
+      {
+        "name": "nameD",
+        "value": "valueD",
+        "is_password": true,
+        "description": null
+      }
+    ],
+    "is_activated": true
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("name must be a string format", function () {
+    const body = res.getBody();
+  
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("code").that.is.a("number");
+    expect(body).to.have.property("message").that.includes("string is required");
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

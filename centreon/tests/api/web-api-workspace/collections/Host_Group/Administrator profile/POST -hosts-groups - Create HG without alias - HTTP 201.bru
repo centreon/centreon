@@ -1,0 +1,43 @@
+meta {
+  name: POST /hosts/groups - Create HG without alias - HTTP 201
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostGroup3Name}}",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host group has been successfully created without alias, with name '{{HostGroup3Name}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostGroup3Id", body.id);
+    expect(body).to.eql({
+      "id": body.id,
+      "name": bru.getEnvVar("HostGroup3Name"),
+      "alias": null,
+      "icon_id": null,
+      "geo_coords": null,
+      "comment": null,
+      "hosts": []
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

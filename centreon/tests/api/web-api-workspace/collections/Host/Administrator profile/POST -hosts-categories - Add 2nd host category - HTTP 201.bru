@@ -1,0 +1,39 @@
+meta {
+  name: POST /hosts/categories - Add 2nd host category - HTTP 201
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "name": "{{HostCategory2Name}}",
+      "alias": "{{HostCategory2Alias}}",
+      "is_activated": true,
+      "comment": "Created by Admin"
+  }
+}
+
+tests {
+  test("Response schema is valid", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("id").that.is.a("number");
+    expect(body).to.have.property("name").that.is.a("string");
+    expect(body).to.have.property("alias").that.is.an("string");
+    expect(body).to.have.property("is_activated").that.is.an("boolean");
+    expect(body).to.have.property("comment").that.is.an("string");
+    
+    bru.setEnvVar("HostCategory2Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,6 +1,7 @@
 import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
+import type { FormikHelpers } from 'formik';
 import { useTranslation } from 'react-i18next';
 
 import { adaptSAMLConfigurationToAPI } from '../../api/adapters';
@@ -42,7 +43,7 @@ const SAMLForm = ({
 
   const submit = (
     formikValues: SAMLConfiguration,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<SAMLConfiguration>
   ): Promise<void> =>
     mutateAsync({
       payload: adaptSAMLConfigurationToAPI(formikValues)

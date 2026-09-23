@@ -1,0 +1,20 @@
+meta {
+  name: GET /monitoring/servers - List monitoring servers forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/servers
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

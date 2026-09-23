@@ -1,0 +1,33 @@
+meta {
+  name: POST /notifications/_delete - Bulk delete notification2 - HTTP 200
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/notifications/_delete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "ids": [{{Notification2Id}}]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Bulk delete endpoint returns a MultiStatus payload.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("results").that.is.an("array").with.lengthOf(1);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

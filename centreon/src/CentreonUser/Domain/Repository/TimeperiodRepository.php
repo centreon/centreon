@@ -105,7 +105,15 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
         }
 
         if (! empty($ordering['field'])) {
-            $sql .= ' ORDER BY `' . $ordering['field'] . '` ' . $ordering['order'];
+            // ORDER BY column and direction cannot be bound as parameters, so they
+            // must be validated against a fixed allowlist to prevent SQL injection.
+            $allowedFields = ['tp_id', 'tp_name', 'tp_alias'];
+            $field = (string) $ordering['field'];
+
+            if (in_array($field, $allowedFields, true)) {
+                $order = mb_strtoupper((string) ($ordering['order'] ?? 'ASC')) === 'DESC' ? 'DESC' : 'ASC';
+                $sql .= ' ORDER BY `' . $field . '` ' . $order;
+            }
         }
 
         if ($limit !== null) {

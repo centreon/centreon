@@ -68,6 +68,8 @@ class FindHostTemplatesSaasPresenter extends AbstractPresenter implements FindHo
                     'note' => $this->emptyStringAsNull($hostTemplate['note']),
                     'action_url' => $this->emptyStringAsNull($hostTemplate['actionUrl']),
                     'icon_id' => $hostTemplate['iconId'],
+                    'freshness_checked' => $hostTemplate['freshnessChecked'],
+                    'freshness_threshold' => $hostTemplate['freshnessThreshold'],
                     'is_locked' => $hostTemplate['isLocked'],
                 ];
             }

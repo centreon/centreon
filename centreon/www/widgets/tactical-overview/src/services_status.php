@@ -48,12 +48,28 @@ $buildServiceUri = function (array $states, array $statuses) use ($resourceContr
             'filter' => json_encode(
                 [
                     'criterias' => [
-                        'resourceTypes' => [$buildParameter('service', 'Service')],
-                        'states' => $states,
-                        'statuses' => $statuses,
+                        [
+                            'name' => 'resource_types',
+                            'object_type' => null,
+                            'type' => 'multi_select',
+                            'value' => [$buildParameter('service', 'Service')],
+                        ],
+                        [
+                            'name' => 'states',
+                            'object_type' => null,
+                            'type' => 'multi_select',
+                            'value' => $states,
+                        ],
+                        [
+                            'name' => 'statuses',
+                            'object_type' => null,
+                            'type' => 'multi_select',
+                            'value' => $statuses,
+                        ],
                     ],
                 ]
             ),
+            'fromTopCounter' => 'true',
         ]
     );
 };

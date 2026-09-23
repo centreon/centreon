@@ -46,7 +46,9 @@ const staticCriteriaValuesByName = {
 export const getSelectableCriteriasByName = (
   name: string
 ): Array<{ id: string; name: string }> => {
-  return staticCriteriaValuesByName[name];
+  return staticCriteriaValuesByName[
+    name as keyof typeof staticCriteriaValuesByName
+  ];
 };
 
 export const staticCriteriaNames = Object.keys(staticCriteriaValuesByName);

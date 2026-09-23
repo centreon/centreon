@@ -27,7 +27,6 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Host\Application\Exception\HostException;
@@ -89,12 +88,11 @@ final class FindRealTimeHostStatusesCount
             );
 
             $presenter->presentResponse($this->createResponse($statuses));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (\Throwable $exception) {
-            $presenter->presentResponse(new ErrorResponse(HostException::errorWhileRetrievingHostStatusesCount()));
-            $this->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        } catch (\Exception $exception) {
+            $presenter->presentResponse(new ErrorResponse(
+                message: $exception->getMessage(),
+                exception: $exception,
+            ));
         }
     }
 

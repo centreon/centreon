@@ -1,0 +1,46 @@
+meta {
+  name: POST /hosts/categories - Create HC by editor - HTTP 201
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostCategory4Name}}",
+    "alias": "{{HostCategory4Alias}}",
+    "comment": "I was created by the Read/Write user"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host category has been successfully created by editor, with name '{{HostCategory4Name}}' and alias '{{HostCategory4Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostCategory4Id", body.id);
+    expect(body).to.eql({
+      "id": body.id,
+      "name": bru.getEnvVar("HostCategory4Name"),
+      "alias": bru.getEnvVar("HostCategory4Alias"),
+      "is_activated": true,
+      "comment": "I was created by the Read/Write user"
+    });
+  });
+
+  test("The Location parameter is in the header.", function () {
+    expect(res.getHeaders()).to.have.property("location");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

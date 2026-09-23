@@ -63,8 +63,14 @@ module.exports = ({
           }
 
           // Save the testRetries object to a file in the e2e/results directory
+          const projectRoot = path.resolve(process.cwd());
+          const resolvedFolder = path.resolve(mainCypressFolder);
+          if (resolvedFolder !== projectRoot && !resolvedFolder.startsWith(projectRoot + path.sep)) {
+            throw new Error('mainCypressFolder is outside of the project directory');
+          }
+
           const resultFilePath = path.join(
-            mainCypressFolder,
+            resolvedFolder,
             'results',
             'retries.json'
           );

@@ -32,8 +32,9 @@ properties:
           description: "Indicates that the rule should be applied to all current / future contact groups"
           example: true
   description:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Short description of the rule"
     example: "Rule dedicated for users with limited rights"
   is_enabled:

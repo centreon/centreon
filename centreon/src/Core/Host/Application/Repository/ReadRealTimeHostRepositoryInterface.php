@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Core\Host\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Host\Domain\Model\HostStatusesCount;
 
 interface ReadRealTimeHostRepositoryInterface
 {
     /**
      * @param RequestParametersInterface $requestParameters
+     *
+     * @throws RepositoryException
      *
      * @return HostStatusesCount
      */
@@ -38,6 +41,8 @@ interface ReadRealTimeHostRepositoryInterface
     /**
      * @param RequestParametersInterface $requestParameters
      * @param int[] $accessGroupIds
+     *
+     * @throws RepositoryException
      *
      * @return HostStatusesCount
      */

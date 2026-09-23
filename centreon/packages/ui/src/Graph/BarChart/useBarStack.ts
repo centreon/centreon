@@ -1,7 +1,9 @@
 import { scaleOrdinal } from '@visx/scale';
 import { BarStack, BarStackHorizontal } from '@visx/shape';
+import type { ScaleBand, ScaleLinear, ScaleOrdinal } from 'd3-scale';
 import { useSetAtom } from 'jotai';
 import { equals, keys, omit } from 'ramda';
+import type { ComponentType } from 'react';
 import { useCallback, useMemo } from 'react';
 
 import { useDeepMemo } from '../../utils';
@@ -17,14 +19,18 @@ export interface UseBarStackProps {
   isHorizontal: boolean;
   lines: Array<Line>;
   timeSeries: Array<TimeValue>;
-  xScale;
-  yScale;
+  xScale: ScaleBand<number> | ScaleLinear<number, number>;
+  yScale: ScaleBand<number> | ScaleLinear<number, number>;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: scale union with visx
+type CommonBarStackProps = Record<string, any>;
+
 interface UseBarStackState {
-  BarStackComponent: typeof BarStack | typeof BarStackHorizontal;
-  colorScale;
-  commonBarStackProps;
+  // biome-ignore lint/suspicious/noExplicitAny: visx BarStack/BarStackHorizontal union
+  BarStackComponent: ComponentType<any>;
+  colorScale: ScaleOrdinal<number, string>;
+  commonBarStackProps: CommonBarStackProps;
   exitBar: () => void;
   hoverBar: (props: HoverBarProps) => () => void;
   lineKeys: Array<number>;
@@ -40,7 +46,9 @@ export const useBarStack = ({
   const setTooltipData = useSetAtom(tooltipDataAtom);
 
   const BarStackComponent = useMemo(
-    () => (isHorizontal ? BarStack : BarStackHorizontal),
+    () =>
+      // biome-ignore lint/suspicious/noExplicitAny: visx BarStack/BarStackHorizontal union
+      (isHorizontal ? BarStack : BarStackHorizontal) as ComponentType<any>,
     [isHorizontal]
   );
 
@@ -70,13 +78,13 @@ export const useBarStack = ({
 
   const commonBarStackProps = isHorizontal
     ? {
-        x: (d) => d.timeTick,
+        x: (d: TimeValue) => d.timeTick,
         xScale,
         yScale
       }
     : {
         xScale: yScale,
-        y: (d) => d.timeTick,
+        y: (d: TimeValue) => d.timeTick,
         yScale: xScale
       };
 

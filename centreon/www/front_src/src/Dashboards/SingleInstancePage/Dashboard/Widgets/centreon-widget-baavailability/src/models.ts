@@ -22,4 +22,5 @@ interface PanelOptions {
 export interface WidgetProps extends CommonWidgetProps<PanelOptions> {
   panelData: Data;
   panelOptions: PanelOptions;
+  isInViewport: boolean;
 }

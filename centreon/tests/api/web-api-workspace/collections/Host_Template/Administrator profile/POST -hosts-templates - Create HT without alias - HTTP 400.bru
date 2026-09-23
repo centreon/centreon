@@ -1,0 +1,60 @@
+meta {
+  name: POST /hosts/templates - Create HT without alias - HTTP 400
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "host template 123",
+    "snmp_version": "2c",
+    "snmp_community": "   snmpCommunity-test",
+    "timezone_id": 1,
+    "severity_id": {{HostSeverity1Id}},
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl-value",
+    "note": "note-value",
+    "action_url": "actionUrl-value",
+    "max_check_attempts": 3,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "categories": [ {{HostCategory1Id}} ],
+    "templates": [4],
+    "macros": [
+      {
+        "name": "nameA",
+        "value": "valueA",
+        "is_password": false,
+        "description": "some text"
+      },
+      {
+        "name": "nameB",
+        "value": "valueB",
+        "is_password": true,
+        "description": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host template has not been created, because the alias is mandatory.", function () {
+    expect(res.getBody().message).to.eql("[alias] The property alias is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

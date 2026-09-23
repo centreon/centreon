@@ -51,6 +51,10 @@ if ($rawSearch !== null) {
 // Calculate offset
 $offset = $num * $limit;
 
+// Defaults so an early DB failure in the try below still renders the error page cleanly
+$hostCategories = [];
+$totalRows = 0;
+
 try {
     // Build main query
     $queryBuilder = $pearDB->createQueryBuilder()
@@ -59,7 +63,7 @@ try {
 
     $parameters = [];
 
-    if ($search !== '') {
+    if (($search ?? '') !== '') {
         $queryBuilder->andWhere(
             $queryBuilder->expr()->or(
                 $queryBuilder->expr()->like('hc.hc_name', ':search'),
@@ -203,18 +207,19 @@ try {
     $msg->setText('Error fetching host categories counts');
 }
 // Populate rows
+$searchEncoded = urlencode((string) $search);
 foreach ($hostCategories as $hc) {
     // selection checkbox + action links
     $selectedElements = $form->addElement('checkbox', "select[{$hc['hc_id']}]");
     $moptions = '';
     if ($hc['hc_activate']) {
         $moptions .= "<a href='main.php?p={$p}&hc_id={$hc['hc_id']}&o=u"
-                  . "&limit={$limit}&num={$num}&search={$search}&centreon_token={$centreonToken}'>"
+                  . "&limit={$limit}&num={$num}&search={$searchEncoded}&centreon_token={$centreonToken}'>"
                   . "<img src='img/icons/disabled.png' class='ico-14 margin_right' border='0' alt='"
                   . _('Disabled') . "'></a>";
     } else {
         $moptions .= "<a href='main.php?p={$p}&hc_id={$hc['hc_id']}&o=s"
-                  . "&limit={$limit}&num={$num}&search={$search}&centreon_token={$centreonToken}'>"
+                  . "&limit={$limit}&num={$num}&search={$searchEncoded}&centreon_token={$centreonToken}'>"
                   . "<img src='img/icons/enabled.png' class='ico-14 margin_right' border='0' alt='"
                   . _('Enabled') . "'></a>";
     }

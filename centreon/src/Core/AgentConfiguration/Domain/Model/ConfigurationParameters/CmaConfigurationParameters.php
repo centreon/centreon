@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
@@ -35,6 +36,7 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
  *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
+ *      create_host_auto: bool,
  *      port: int,
  *      poller_initiated: bool,
  *		hosts: array<array{
@@ -106,7 +108,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         } else {
             foreach ($this->parameters['hosts'] as $key => $host) {
                 Assertion::positiveInt($host['id'], 'configuration.hosts[].id');
-                Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
+                CentreonAssert::ipOrHostname($host['address'], 'configuration.hosts[].address');
                 Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
                 $this->parameters['hosts'][$key]['poller_ca_certificate'] = $this->validateCertificatePath(
                     $host['poller_ca_certificate'],

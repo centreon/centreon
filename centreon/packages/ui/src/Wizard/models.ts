@@ -12,7 +12,7 @@ export interface Step {
   skipFormChangeCheck?: boolean;
   stepName: string;
   validate?: (values: FormikValues) => FormikErrors<FormikValues>;
-  validationSchema?;
+  validationSchema?: unknown;
 }
 
 interface ActionsBarLabels {

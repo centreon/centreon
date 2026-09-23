@@ -120,7 +120,7 @@ class CentreonLdapSynchro extends CentreonWebService
             $result = true;
         } catch (PDOException $e) {
             $this->centreonLog->insertLog(
-                2, // sql-error.log
+                2, // prod.web.log
                 'LDAP MANUAL SYNC : Error - unable to read or update the contact data in the DB.'
             );
             $this->pearDB->rollBack();

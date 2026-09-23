@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Box } from '@mui/material';
 
 import { Gauge, GraphText, SingleBar, Thresholds } from '@centreon/ui';
@@ -12,7 +14,7 @@ import { SingleMetricGraphType } from './models';
 interface Props {
   graphProps: {
     baseColor?: string;
-    data?;
+    data?: unknown;
     displayAsRaw?: boolean;
     thresholds: Thresholds;
   };

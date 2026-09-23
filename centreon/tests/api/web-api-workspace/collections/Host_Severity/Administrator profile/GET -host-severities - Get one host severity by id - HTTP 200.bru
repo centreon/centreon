@@ -1,0 +1,34 @@
+meta {
+  name: GET /host-severities - Get one host severity by id - HTTP 200
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/severities/{{HostSeverity1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host severity retrieved is listed with all of its parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("HostSeverity1Id")),
+      "name": bru.getEnvVar("HostSeverity1Name"),
+      "alias": bru.getEnvVar("HostSeverity1Alias"),
+      "level": 10,
+      "icon_id": 1,
+      "is_activated": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

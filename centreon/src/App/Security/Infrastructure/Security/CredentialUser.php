@@ -38,10 +38,6 @@ final readonly class CredentialUser implements UserInterface
         return array_map('strval', $this->credential->roles->toArray());
     }
 
-    public function eraseCredentials(): void
-    {
-    }
-
     public function getUserIdentifier(): string
     {
         return $this->credential->identifier->value;

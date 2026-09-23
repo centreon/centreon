@@ -25,11 +25,66 @@ namespace App\Shared\Domain;
 
 interface VaultInterface
 {
-    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
-    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
+    /**
+     * Prefix identifying a value that is a vault reference rather than a plaintext secret.
+     */
+    public const VAULT_PATH_PREFIX = 'secret::';
+
+    /**
+     * Whether the vault is enabled and configured for the given feature flag
+     * (the flag is enabled AND a vault configuration exists).
+     *
+     * When false, callers must treat secrets as plaintext and must not resolve
+     * from or write to the vault.
+     */
+    public function isEnabled(string $featureFlag = 'vault'): bool;
 
     /**
      * @return array<string, mixed>
      */
     public function read(string $path): array;
+
+    /**
+     * Whether $value is a vault reference (starts with the `secret::` prefix) rather
+     * than a plaintext secret.
+     */
+    public function isVaultPath(string $value): bool;
+
+    /**
+     * Resolve a single-value vault path to its plaintext secret.
+     *
+     * Returns $value unchanged when it is not a vault path. Otherwise the credential is
+     * read from the vault and addressed by the trailing `::<key>` path segment (same
+     * addressing as the underlying read).
+     *
+     * @throws \Throwable when the vault cannot be read, or the credential is missing
+     */
+    public function resolve(string $value): string;
+
+    /**
+     * Store $value in the vault under a new credential and return its `secret::` path.
+     *
+     * A null $uuid mints a fresh vault entry (a new UUID); pass an existing UUID to add
+     * $key to that same entry.
+     *
+     * @param string $customPath vault sub-path of the owning domain (e.g. 'configuration/broker')
+     *
+     * @throws \Throwable when the secret cannot be written
+     */
+    public function write(string $customPath, string $key, string $value, ?string $uuid = null): string;
+
+    /**
+     * Store several secrets under a single vault entry (one UUID) and return each key's
+     * `secret::` path.
+     *
+     * A null $uuid mints a fresh vault entry; pass an existing UUID to add the keys to it.
+     *
+     * @param string $customPath vault sub-path of the owning domain (e.g. 'monitoring/hosts')
+     * @param array<string, string> $secrets key => plaintext value
+     *
+     * @throws \Throwable when a secret cannot be written
+     *
+     * @return array<string, string> key => `secret::` path
+     */
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array;
 }

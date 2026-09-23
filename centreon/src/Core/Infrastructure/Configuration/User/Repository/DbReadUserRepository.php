@@ -91,7 +91,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
         // Search
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
         $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
-        $request .= 'contact_register = 1';
+        $request .= "contact_register = 1 AND contact_email IS NOT NULL AND contact_email <> ''";
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();
@@ -154,7 +154,8 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
         $searchRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
         $request .= $searchRequest !== null ? $searchRequest . ' AND ' : ' WHERE ';
         $request .= 'cg.contactgroup_cg_id IN (SELECT contactgroup_cg_id FROM `:db`.contactgroup_contact_relation '
-            . 'WHERE contact_contact_id = :contactId) AND contact_register = 1';
+            . 'WHERE contact_contact_id = :contactId) AND contact_register = 1'
+            . " AND contact_email IS NOT NULL AND contact_email <> ''";
 
         // Sort
         $sortRequest = $this->sqlRequestTranslator->translateSortParameterToSql();

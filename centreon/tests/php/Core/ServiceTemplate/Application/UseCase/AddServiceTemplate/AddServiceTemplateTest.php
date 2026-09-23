@@ -898,3 +898,57 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         ]]
     );
 });
+
+it('should pass deduplicated host template IDs to add() when host_templates contains duplicates', function (): void {
+    $request = createAddServiceTemplateRequest();
+    $request->hostTemplateIds = [1, 1];
+    $newServiceTemplateId = 99;
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap([[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]]);
+
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('add')
+        ->with($this->callback(fn ($serviceTemplate) => $serviceTemplate->getHostTemplateIds() === [1]))
+        ->willReturn($newServiceTemplateId);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->with($newServiceTemplateId)
+        ->willReturn(new ServiceTemplate($newServiceTemplateId, 'fake_name', 'fake_alias'));
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn([]);
+
+    $this->readServiceMacroRepository
+        ->expects($this->exactly(2))
+        ->method('findByServiceIds')
+        ->willReturn([]);
+
+    $this->readServiceCategoryRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->with($newServiceTemplateId)
+        ->willReturn([]);
+
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->with($newServiceTemplateId)
+        ->willReturn([]);
+
+    ($this->addUseCase)($request, $this->useCasePresenter);
+
+    expect($this->useCasePresenter->response)->toBeInstanceOf(AddServiceTemplateResponse::class);
+});

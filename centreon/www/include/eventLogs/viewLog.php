@@ -720,6 +720,14 @@ if (isset($search_service) && $search_service) {
             /* initializing datepicker and the alternative format field */
             initDatepicker("datepicker", "mm/dd/yy", null);
 
+            // Filter service dropdown by selected host(s)
+            var serviceSelect2Data = jQuery("#service_filter").data("centreonSelect2");
+            if (serviceSelect2Data) {
+                serviceSelect2Data.internal.settings.additionnalFilters = {
+                    'host[]': '#host_filter'
+                };
+            }
+
             jQuery("#service_group_filter, #host_filter, #service_filter, #host_group_filter").change(
                 function (event, infos) {
                     var argArray = getArgsForHost();

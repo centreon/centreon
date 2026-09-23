@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -80,8 +81,8 @@ const PickerDateWithLabel = ({
         changeDate={changeDate}
         date={date}
         disabled={disabled}
-        maxDate={maxDate}
-        minDate={minDate}
+        maxDate={maxDate as (Date & Dayjs) | undefined}
+        minDate={minDate as (Date & Dayjs) | undefined}
         property={property}
       />
     </div>

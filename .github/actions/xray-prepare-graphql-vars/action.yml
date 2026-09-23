@@ -1,0 +1,36 @@
+name: "Prepare GraphQL variables for Xray GraphQL actions"
+description: "Prepare GraphQL variables JSON for Xray GraphQL actions"
+
+inputs:
+  project_key:
+    description: "Jira project key"
+    required: true
+  summary:
+    description: "Summary (Test Plan / Test Execution / etc.)"
+    required: true
+  limit:
+    description: "Limit for GET operations"
+    required: false
+    default: "1"
+  issue_type:
+    description: "Issue type (e.g., Test Plan, Test Execution)"
+    required: false
+
+outputs:
+  graphql_vars:
+    description: "Prepared GraphQL variables JSON"
+    value: ${{ steps.prepare.outputs.graphql_vars }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Prepare GraphQL variables
+      id: prepare
+      shell: bash
+      env:
+        PROJECT_KEY: ${{ inputs.project_key }}
+        SUMMARY: ${{ inputs.summary }}
+        LIMIT: ${{ inputs.limit }}
+        ISSUE_TYPE: ${{ inputs.issue_type }}
+      run: |
+        "${{ github.action_path }}/prepare-graphql.sh"

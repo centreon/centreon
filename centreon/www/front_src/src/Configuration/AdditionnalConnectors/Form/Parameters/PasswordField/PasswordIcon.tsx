@@ -16,13 +16,21 @@ import {
   labelRevertToPreviousPassword
 } from '../../../translatedLabels';
 
+interface PasswordIconProps {
+  state: PasswordActionState;
+  setState: (state: PasswordActionState) => void;
+  isEmpty: boolean;
+  clearPassword: () => void;
+  resetPassword: () => void;
+}
+
 const PasswordIcon = ({
   state,
   setState,
   isEmpty,
   clearPassword,
   resetPassword
-}): ReactElement => {
+}: PasswordIconProps): ReactElement => {
   const { t } = useTranslation();
 
   const changePasswordState =

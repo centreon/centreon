@@ -9,14 +9,14 @@ Feature: Delete Authentication Token
     And Authentication tokens with predefined details are created
     And I am on the Authentication tokens page
 
-  @TEST_MON-36703
+  @MON-36703
   Scenario: Delete Authentication Token with confirmation
     When I locate the Authentication token to delete
     And I click on the "delete token" icon for that token
     And I confirm the deletion in the confirmation dialog
     Then the token is deleted successfully
 
-  @TEST_MON-38499
+  @MON-38499
   Scenario: Discard deletion of an Authentication Token
     When I locate the Authentication token to delete
     And I click on the "delete token" icon for that token

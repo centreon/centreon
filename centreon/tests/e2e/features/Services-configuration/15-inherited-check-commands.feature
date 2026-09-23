@@ -7,7 +7,7 @@ Feature: Manage inherited check commands
     Given an admin user is logged in Centreon
     And a service template with check commands is configured
 
-  @TEST_MON-194172
+  @MON-194172
   Scenario: Create a service by host using a template with inherited check command
     Given a host is configured
     When the admin adds a new service linked to the configured host
@@ -15,7 +15,7 @@ Feature: Manage inherited check commands
     And the admin saves the configuration
     Then the service is successfully created
 
-  @TEST_MON-194175
+  @MON-194175
   Scenario: Create a service by host group using a template with inherited check command
     Given a host group is configured
     When the admin adds a new service by host group linked to the configured host group

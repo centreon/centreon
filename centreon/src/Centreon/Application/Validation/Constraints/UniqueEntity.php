@@ -23,6 +23,7 @@ namespace Centreon\Application\Validation\Constraints;
 
 use Centreon\Application\Validation\Validator\UniqueEntityValidator;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 
 class UniqueEntity extends Constraint
 {
@@ -35,32 +36,24 @@ class UniqueEntity extends Constraint
         self::NOT_UNIQUE_ERROR => 'NOT_UNIQUE_ERROR',
     ];
 
-    /** @var string */
     public string $validatorClass = UniqueEntityValidator::class;
 
-    /** @var string */
-    public $message = 'This value is already used.';
-
-    /** @var string */
-    public $entityIdentificatorMethod = 'getId';
-
-    /** @var string */
-    public $entityIdentificatorColumn = 'id';
-
-    /** @var mixed */
-    public $repository = null;
-
-    /** @var string */
-    public $repositoryMethod = 'findOneBy';
-
-    /** @var array<mixed> */
-    public $fields = [];
-
-    /** @var string|null */
-    public $errorPath = null;
-
-    /** @var bool */
-    public $ignoreNull = true;
+    public function __construct(
+        public string $field,
+        public string $repository,
+        ?array $groups = null,
+        mixed $payload = null,
+    ) {
+        $this->field = trim($this->field);
+        if ($this->field === '') {
+            throw new ConstraintDefinitionException('The field name cannot be empty.');
+        }
+        $this->repository = trim($this->repository);
+        if ($this->repository === '') {
+            throw new ConstraintDefinitionException('The repository name cannot be empty.');
+        }
+        parent::__construct(groups: $groups, payload: $payload);
+    }
 
     /**
      * {@inheritDoc}
@@ -71,17 +64,7 @@ class UniqueEntity extends Constraint
     }
 
     /**
-     * @return string
-     */
-    public function getDefaultOption(): string
-    {
-        return 'fields';
-    }
-
-    /**
-     * The validator class name.
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function validatedBy(): string
     {

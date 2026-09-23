@@ -45,6 +45,7 @@ class SmartyBC extends Smarty
         'json_encode',
         'strtotime',
         'number_format',
+        'is_string',
     ];
     /**
      * Forbidden tags in Smarty templates.

@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Domain\Model\JwtToken;
+use Core\Security\Token\Domain\Model\PollerToken;
 use Core\Security\Token\Domain\Model\TokenTypeEnum;
 
 final class GetToken
@@ -53,13 +54,13 @@ final class GetToken
 
             if (
                 $token === null
-                || $token->getType() !== TokenTypeEnum::CMA
+                || ! in_array($token->getType(), [TokenTypeEnum::CMA, TokenTypeEnum::POLLER], true)
             ) {
 
                 return new NotFoundResponse('Token');
             }
 
-            /** @var JwtToken $token */
+            /** @var JwtToken|PollerToken $token */
             return new GetTokenResponse($token, $token->getToken());
         } catch (\Throwable $ex) {
             $this->error(

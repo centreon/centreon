@@ -7,6 +7,7 @@ const routeMap = {
   authenticationDenied: '/authentication-denied',
   authTokens: '/administration/authentication-token',
   cloudNotificationConfiguration: '/configuration/notifications',
+  commands: '/configuration/commands',
   dashboard: '/home/dashboards/library/:dashboardId',
   dashboards: '/home/dashboards/library',
   extensionsManagerPage: '/administration/extensions/manager',

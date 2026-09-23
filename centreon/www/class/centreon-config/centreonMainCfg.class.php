@@ -141,13 +141,20 @@ class CentreonMainCfg
             return false;
         }
 
-        $query = "SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = '" . $iId . "'";
-        $dbResult = $this->DB->query($query);
-        if ($dbResult->rowCount() == 0) {
-            $sQuery = "INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) VALUES ('"
-                . $this->aDefaultBrokerDirective[$source] . "', " . $iId . ')';
+        $stmt = $this->DB->prepare(
+            'SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = :cfgNagiosId'
+        );
+        $stmt->bindValue(':cfgNagiosId', $iId, PDO::PARAM_INT);
+        $stmt->execute();
+        if ($stmt->rowCount() == 0) {
             try {
-                $res = $this->DB->query($sQuery);
+                $insertStmt = $this->DB->prepare(
+                    'INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`)
+                    VALUES (:brokerModule, :cfgNagiosId)'
+                );
+                $insertStmt->bindValue(':brokerModule', $this->aDefaultBrokerDirective[$source], PDO::PARAM_STR);
+                $insertStmt->bindValue(':cfgNagiosId', $iId, PDO::PARAM_INT);
+                $insertStmt->execute();
             } catch (PDOException $e) {
                 return false;
             }
@@ -223,7 +230,9 @@ class CentreonMainCfg
             return false;
         }
 
-        $res = $this->DB->query('SELECT * FROM cfg_nagios WHERE  nagios_server_id = ' . $source);
+        $res = $this->DB->prepare('SELECT * FROM cfg_nagios WHERE nagios_server_id = :serverId');
+        $res->bindValue(':serverId', $source, PDO::PARAM_INT);
+        $res->execute();
         $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
         $rq = 'INSERT INTO `cfg_nagios` (
@@ -379,7 +388,10 @@ class CentreonMainCfg
      */
     public function getBrokerModules($id)
     {
-        $dbResult = $this->DB->query('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ' . $id);
+        $dbResult = $this->DB->prepare('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :cfgNagiosId');
+        $dbResult->bindValue(':cfgNagiosId', $id, PDO::PARAM_INT);
+        $dbResult->execute();
+        $entries = [];
         while ($row = $dbResult->fetch()) {
             $entries[] = $row;
         }

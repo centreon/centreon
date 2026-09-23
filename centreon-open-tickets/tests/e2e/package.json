@@ -11,7 +11,7 @@
     "lint": "biome check ./features",
     "lint:fix": "pnpm lint --fix",
     "lint:ci": "biome ci ./features --error-on-warnings",
-    "gherkinlint": "pnpm gherkin-lint -c ../../../.github/actions/gherkin-lint/.gherkin-lintrc ./features/"
+    "gherkin:lint": "pnpm gplint -c ../../../.github/actions/gherkin-lint/.gherkin-lintrc ./features/"
   },
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^23.2.1",
@@ -26,8 +26,6 @@
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
     "@types/node": "^24.10.0",
     "@types/ramda": "0.31.1",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
     "cross-env": "^10.1.0",
     "cypress": "~15.5.0",
     "cypress-cucumber-preprocessor": "^4.3.1",
@@ -37,7 +35,7 @@
     "cypress-terminal-report": "^7.3.3",
     "cypress-wait-until": "^3.0.2",
     "dotenv": "^17.2.3",
-    "gherkin-lint": "^4.2.4",
+    "gplint": "^2.5.2",
     "mochawesome": "^7.1.4",
     "mysql2": "^3.15.3",
     "path": "^0.12.7",

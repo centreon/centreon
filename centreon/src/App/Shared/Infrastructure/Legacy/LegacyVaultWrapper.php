@@ -25,22 +25,100 @@ namespace App\Shared\Infrastructure\Legacy;
 
 use App\Shared\Domain\VaultInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Webmozart\Assert\Assert;
 
 final readonly class LegacyVaultWrapper implements VaultInterface
 {
-    private ReadVaultRepositoryInterface $repository;
+    /**
+     * Resolved per call, never in the constructor: `LegacyContainer` is a `#[Lazy]` proxy that
+     * boots a second Symfony kernel on first touch, which would then happen for every consumer of
+     * VaultInterface. Same arrangement as LegacyGorgoneNodesSynchronizer.
+     */
+    public function __construct(
+        private LegacyContainer $legacyContainer,
+    ) {
+    }
 
-    public function __construct(LegacyContainer $legacyContainer)
+    public function isEnabled(string $featureFlag = 'vault'): bool
     {
-        $repository = $legacyContainer->get(ReadVaultRepositoryInterface::class);
-        Assert::isInstanceOf($repository, ReadVaultRepositoryInterface::class);
-
-        $this->repository = $repository;
+        return $this->eligibilityService()->shouldUseVault($featureFlag);
     }
 
     public function read(string $path): array
     {
-        return $this->repository->findFromPath($path);
+        return $this->readRepository()->findFromPath($path);
+    }
+
+    public function isVaultPath(string $value): bool
+    {
+        return str_starts_with($value, self::VAULT_PATH_PREFIX);
+    }
+
+    public function resolve(string $value): string
+    {
+        if (! $this->isVaultPath($value)) {
+            return $value;
+        }
+
+        $segments = explode('::', $value);
+        $key = end($segments);
+
+        $data = $this->read($value);
+
+        if (! isset($data[$key]) || ! is_string($data[$key])) {
+            throw new \RuntimeException(sprintf('Unable to resolve vault credential "%s"', $key));
+        }
+
+        return $data[$key];
+    }
+
+    public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
+    {
+        return $this->writeMany($customPath, [$key => $value], $uuid)[$key];
+    }
+
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
+    {
+        $writeRepository = $this->writeRepository();
+        $writeRepository->setCustomPath($customPath);
+
+        $paths = $writeRepository->upsert($uuid, $secrets, []);
+
+        foreach (array_keys($secrets) as $key) {
+            if (! isset($paths[$key])) {
+                throw new \RuntimeException(sprintf('Unable to write vault credential "%s"', $key));
+            }
+        }
+
+        // The underlying repository returns a path for every key stored under the UUID (including
+        // pre-existing ones when writing to an existing entry); the contract only exposes the keys
+        // that were requested, so surplus paths never leak onto the calling resource.
+        return array_intersect_key($paths, $secrets);
+    }
+
+    private function readRepository(): ReadVaultRepositoryInterface
+    {
+        $repository = $this->legacyContainer->get(ReadVaultRepositoryInterface::class);
+        Assert::isInstanceOf($repository, ReadVaultRepositoryInterface::class);
+
+        return $repository;
+    }
+
+    private function writeRepository(): WriteVaultRepositoryInterface
+    {
+        $repository = $this->legacyContainer->get(WriteVaultRepositoryInterface::class);
+        Assert::isInstanceOf($repository, WriteVaultRepositoryInterface::class);
+
+        return $repository;
+    }
+
+    private function eligibilityService(): VaultEligibilityService
+    {
+        $service = $this->legacyContainer->get(VaultEligibilityService::class);
+        Assert::isInstanceOf($service, VaultEligibilityService::class);
+
+        return $service;
     }
 }

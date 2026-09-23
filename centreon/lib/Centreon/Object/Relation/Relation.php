@@ -178,13 +178,13 @@ abstract class Centreon_Object_Relation
             if ($fString != '') {
                 $fString .= ',';
             }
-            $fString .= $this->firstObject->getTableName() . '.' . $fparams;
+            $fString .= $this->firstObject->getTableName() . '.' . $this->sanitizeIdentifier($fparams);
         }
         foreach ($secondTableParams as $sparams) {
             if ($fString != '' || $sString != '') {
                 $sString .= ',';
             }
-            $sString .= $this->secondObject->getTableName() . '.' . $sparams;
+            $sString .= $this->secondObject->getTableName() . '.' . $this->sanitizeIdentifier($sparams);
         }
         $sql = 'SELECT ' . $fString . $sString . ' FROM ' . $this->firstObject->getTableName() . ','
             . $this->secondObject->getTableName() . ',' . $this->relationTable
@@ -192,30 +192,45 @@ abstract class Centreon_Object_Relation
             . $this->firstObject->getPrimaryKey() . ' = ' . $this->relationTable . '.' . $this->firstKey
             . ' AND ' . $this->relationTable . '.' . $this->secondKey . ' = ' . $this->secondObject->getTableName()
             . '.' . $this->secondObject->getPrimaryKey();
-        $filterTab = [];
+        $bindParams = [];
+        $filterIndex = 0;
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
+                $key = $this->sanitizeIdentifier($key);
                 if (is_array($rawvalue)) {
-                    $sql .= " {$filterType} {$key} IN (" . str_repeat('?,', count($rawvalue) - 1) . '?) ';
-                    $filterTab = array_merge($filterTab, $rawvalue);
+                    $inPlaceholders = [];
+                    foreach ($rawvalue as $inValue) {
+                        $paramName = ':filter_' . $filterIndex++;
+                        $inPlaceholders[] = $paramName;
+                        $bindParams[$paramName] = $inValue;
+                    }
+                    $sql .= " {$filterType} {$key} IN (" . implode(',', $inPlaceholders) . ') ';
                 } else {
-                    $sql .= " {$filterType} {$key} LIKE ? ";
+                    $paramName = ':filter_' . $filterIndex++;
                     $value = trim($rawvalue);
                     $value = str_replace('\\', '\\\\', $value);
                     $value = str_replace('_', "\_", $value);
                     $value = str_replace(' ', "\ ", $value);
-                    $filterTab[] = $value;
+                    $sql .= " {$filterType} {$key} LIKE {$paramName} ";
+                    $bindParams[$paramName] = $value;
                 }
             }
         }
-        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+        if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $order = $this->sanitizeIdentifier($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
 
-        return $this->getResult($sql, $filterTab);
+        $stmt = $this->db->prepare($sql);
+        foreach ($bindParams as $paramName => $paramValue) {
+            $stmt->bindValue($paramName, $paramValue);
+        }
+        $stmt->execute();
+
+        return $stmt->fetchAll();
     }
 
     /**
@@ -228,11 +243,16 @@ abstract class Centreon_Object_Relation
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
+        $targetKey = $this->sanitizeIdentifier($targetKey);
+        $sourceKey = $this->sanitizeIdentifier($sourceKey);
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
-        $sql = "SELECT {$targetKey} FROM {$this->relationTable} WHERE {$sourceKey} = ?";
-        $result = $this->getResult($sql, $sourceId);
+        $sql = "SELECT {$targetKey} FROM {$this->relationTable} WHERE {$sourceKey} = :sourceId";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':sourceId', $sourceId[0]);
+        $stmt->execute();
+        $result = $stmt->fetchAll();
         $tab = [];
         foreach ($result as $rez) {
             $tab[] = $rez[$targetKey];
@@ -259,6 +279,19 @@ abstract class Centreon_Object_Relation
     public function getSecondKey()
     {
         return $this->secondKey;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function sanitizeIdentifier(string $name): string
+    {
+        $name = trim(trim($name), '`');
+        if ($name === '' || preg_match('/[;\'"\\\\#]|--|\/\*/', $name) === 1) {
+            throw new InvalidArgumentException("Invalid identifier: {$name}");
+        }
+
+        return $name;
     }
 
     /**

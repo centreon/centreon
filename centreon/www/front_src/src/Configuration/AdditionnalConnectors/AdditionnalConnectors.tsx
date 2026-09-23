@@ -36,7 +36,7 @@ const AdditionnalConnectors = () => {
   return (
     <ConfigurationBase<Filters>
       actions={{
-        delete: true,
+        delete: () => true,
         edit: true
       }}
       api={api}
@@ -59,7 +59,7 @@ const AdditionnalConnectors = () => {
           title: t(labelWelcomeToAdditionalConfigurations)
         }
       }}
-      resourceType={ResourceType.AdditionalConfigurations}
+      resourceType={ResourceType.AdditionalConfiguration}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );

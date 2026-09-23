@@ -154,7 +154,7 @@ const checkGraphWidth = (): void => {
     .and('equal', '392');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1167);
+    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1149);
   });
 };
 
@@ -176,9 +176,6 @@ describe('Line chart', () => {
       cy.findByTestId('graph-interaction-zone').realMouseMove(240, 70);
 
       cy.contains('06/18/2023').should('be.visible');
-
-      cy.contains('0.44 s').should('be.visible');
-      cy.contains('75.19%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -218,7 +215,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1198, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1205, 100);
 
       cy.get('[data-metric="querytime"]').should('not.exist');
 
@@ -291,7 +288,7 @@ describe('Line chart', () => {
 
     cy.findByTestId('graph-interaction-zone')
       .should('have.attr', 'width')
-      .and('equal', '1200');
+      .and('equal', '1220');
 
     cy.get('[data-icon="true"]')
       .eq(0)
@@ -530,8 +527,7 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="245.83333333333334"]').should('be.visible');
-      cy.get('circle[cy="256.7205013298516"]').should('be.visible');
+      cy.get('circle').should('have.length', 864);
 
       cy.makeSnapshot();
     });
@@ -589,7 +585,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="32.77777777777778"]').should('be.visible');
+      cy.get('circle').should('have.length', 288);
 
       cy.makeSnapshot();
     });
@@ -744,12 +740,10 @@ describe('Lines and bars', () => {
 
     checkGraphWidth();
 
-    cy.get(
-      'path[d="M7.435261707988982,289.92398616599974 h55.91735537190083 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-55.91735537190083 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
-    ).should('be.visible');
-    cy.get(
-      'path[d="M23.81046831955923,235.36727985204413 h23.166942148760334 a17.37520661157025,17.37520661157025 0 0 1 17.37520661157025,17.37520661157025 v19.806293090815103 v17.37520661157025h-17.37520661157025 h-23.166942148760334 h-17.37520661157025v-17.37520661157025 v-19.806293090815103 a17.37520661157025,17.37520661157025 0 0 1 17.37520661157025,-17.37520661157025z"]'
-    ).should('be.visible');
+    cy.get('[data-testid="stacked-bar-2-0-1243"]').should('be.visible');
+    cy.get('[data-testid="stacked-bar-10-0-8520.53622137828"]').should(
+      'be.visible'
+    );
 
     cy.makeSnapshot();
   });

@@ -18,12 +18,16 @@ export const lineMargins = {
   small: 5
 };
 
+interface ShowTooltipArgs {
+  tooltipData: string;
+}
+
 interface Props extends Pick<SingleBarProps, 'direction'> {
   barHeight: number;
   hideTooltip: () => void;
   isSmall: boolean;
   label: string;
-  showTooltip: (args) => void;
+  showTooltip: (args: ShowTooltipArgs) => void;
   size: 'small' | 'medium';
   thresholdType: string;
   value: number;

@@ -8,7 +8,7 @@ import { getProperty } from '../utils';
 
 interface UseSliderState {
   changeInputValue: (newValue: number) => void;
-  changeSliderValue: (e, newValue: number) => void;
+  changeSliderValue: (e: unknown, newValue: number) => void;
   value?: number;
 }
 
@@ -33,7 +33,7 @@ export const useSlider = ({
     debounce(newValue);
   };
 
-  const changeSliderValue = (_, newValue: number): void => {
+  const changeSliderValue = (_: unknown, newValue: number): void => {
     setValue(newValue);
     debounce(newValue);
   };

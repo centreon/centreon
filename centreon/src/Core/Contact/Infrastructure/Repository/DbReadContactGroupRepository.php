@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
@@ -229,6 +231,59 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         }
 
         return $contactGroups;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactGroupIdsByUser(ContactInterface $user): array
+    {
+        // Mirrors DbReadContactRepository::findContactIdsByUser but for contact
+        // groups. Returns DISTINCT cg_id reachable from $user via either:
+        //   (1) any ACL group $user belongs to (directly via
+        //       acl_group_contacts_relations, or transitively via the user's
+        //       own contact groups → acl_group_contactgroups_relations); or
+        //   (2) any contact group $user is a member of.
+        $query = <<<'SQL'
+            SELECT DISTINCT cg.cg_id
+            FROM `:db`.contactgroup cg
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON cg.cg_id = gcgr.cg_cg_id
+            LEFT JOIN `:db`.contactgroup_contact_relation user_ccr
+                ON user_ccr.contactgroup_cg_id = cg.cg_id
+                AND user_ccr.contact_contact_id = :userId1
+            WHERE gcgr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId2
+                    UNION
+                    SELECT user_acl_cg.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg
+                        ON user_cg.contactgroup_cg_id = user_acl_cg.cg_cg_id
+                    WHERE user_cg.contact_contact_id = :userId3
+                )
+                OR user_ccr.contact_contact_id = :userId4
+            SQL;
+
+        try {
+            $userId = $user->getId();
+            $queryParameters = new QueryParameters();
+            foreach ([':userId1', ':userId2', ':userId3', ':userId4'] as $token) {
+                $queryParameters->add($token, QueryParameter::int($token, $userId));
+            }
+
+            return $this->db->fetchFirstColumn(
+                $this->translateDbName($query),
+                $queryParameters
+            );
+        } catch (\Exception $exception) {
+            throw new RepositoryException(
+                message: 'Error while searching contact group IDs by user',
+                context: ['user_id' => $user->getId()],
+                previous: $exception
+            );
+        }
     }
 
     /**

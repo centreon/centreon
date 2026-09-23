@@ -1,0 +1,31 @@
+meta {
+  name: GET /notifications - List - HTTP 200
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/notifications
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Administrator can list notifications including the two just created.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+    const names = body.result.map((n) => n.name);
+    expect(names).to.include(bru.getEnvVar("Notification1Name"));
+    expect(names).to.include(bru.getEnvVar("Notification2Name"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

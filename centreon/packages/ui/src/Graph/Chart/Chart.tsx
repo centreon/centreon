@@ -119,6 +119,8 @@ const Chart = ({
   boundariesUnit
 }: Props): ReactElement => {
   const { classes } = useChartStyles();
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
 
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -146,16 +148,6 @@ const Chart = ({
     [displayedLines]
   );
 
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      axis,
-      firstUnit,
-      graphData,
-      secondUnit,
-      thresholds,
-      thresholdUnit
-    });
-
   const allUnits = getUnits(linesGraph);
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
@@ -165,7 +157,8 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -196,6 +189,7 @@ const Chart = ({
         dataLines: linesGraph,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         isFilled: lineStyle?.showArea,
         max,
         min,
@@ -215,6 +209,7 @@ const Chart = ({
       axis?.scale,
       axis?.scaleLogarithmicBase,
       boundariesUnit,
+      // @ts-expect-error - suppressing pre-existing type mismatch
       lineStyle?.showArea,
       max,
       min,
@@ -222,8 +217,26 @@ const Chart = ({
     ]
   );
 
-  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
-  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const fallbackLeftUnit = axis?.axisYLeft?.unit ?? firstUnit ?? allUnits[0];
+  const fallbackRightUnit = axis?.axisYRight?.unit ?? secondUnit ?? allUnits[1];
+
+  const leftScale = yScalesPerUnit[fallbackLeftUnit];
+  const rightScale = yScalesPerUnit[fallbackRightUnit];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal: false,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
 
   const linesDisplayedAsLine = useMemo(
     () =>
@@ -289,17 +302,21 @@ const Chart = ({
             ...legend,
             displayLegend,
             legendHeight: legend?.height,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             mode: legend?.mode,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent,
             secondaryClick: legend?.secondaryClick,
             showCalculations: legend?.showCalculations
           }}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           legendRef={legendRef}
           limitLegend={limitLegend}
           lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           titleRef={titleRef}
         >
           <GraphValueTooltip
@@ -316,9 +333,8 @@ const Chart = ({
                 graphHeight={graphHeight}
                 graphWidth={graphWidth}
                 gridLinesType={axis?.gridLinesType}
-                hasSecondUnit={hasSecondUnit}
                 leftScale={leftScale}
-                maxAxisCharacters={maxLeftAxisCharacters}
+                maxLeftAxisCharacters={maxLeftAxisCharacters}
                 rightScale={rightScale}
                 showGridLines={showGridLines}
                 svgRef={graphSvgRef}
@@ -327,6 +343,7 @@ const Chart = ({
               >
                 {!isEmpty(linesDisplayedAsBar) && (
                   <BarGroup
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     barStyle={barStyle}
                     isTooltipHidden={false}
                     lines={linesDisplayedAsBar}
@@ -339,15 +356,19 @@ const Chart = ({
                 )}
                 {!isEmpty(linesDisplayedAsLine) && (
                   <Lines
+                    axis={axis}
                     displayAnchor={displayAnchor}
                     displayedLines={linesDisplayedAsLine}
+                    firstUnit={firstUnit}
                     graphSvgRef={graphSvgRef}
                     hasSecondUnit={hasSecondUnit}
                     height={graphHeight - marginTop}
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     lineStyle={lineStyle}
                     maxLeftAxisCharacters={maxLeftAxisCharacters}
                     scale={axis?.scale}
                     scaleLogarithmicBase={axis?.scaleLogarithmicBase}
+                    secondUnit={secondUnit}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}
@@ -357,7 +378,7 @@ const Chart = ({
                 )}
                 {additionalLines?.map((additionalLine) => (
                   <AdditionalLine
-                    key={additionalLine.yValue}
+                    key={JSON.stringify(additionalLine)}
                     {...additionalLine}
                     graphWidth={graphWidth}
                     yScale={yScalesPerUnit[additionalLine.unit]}
@@ -374,7 +395,6 @@ const Chart = ({
                     xScale,
                     yScalesPerUnit
                   }}
-                  hasSecondUnit={hasSecondUnit}
                   maxLeftAxisCharacters={maxLeftAxisCharacters}
                   timeShiftZonesData={{
                     ...timeShiftZones,

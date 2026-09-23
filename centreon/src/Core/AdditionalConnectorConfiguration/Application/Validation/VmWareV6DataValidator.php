@@ -59,5 +59,13 @@ class VmWareV6DataValidator implements TypeDataValidatorInterface
         if (count(array_unique($vcenterNames)) !== count($vcenterNames)) {
             throw AccException::duplicatesNotAllowed('parameters.vcenters[].name');
         }
+
+        if ($request instanceof UpdateAccRequest) {
+            foreach ($parameters['vcenters'] as $vcenter) {
+                if (! array_key_exists('id', $vcenter) || ($vcenter['id'] !== null && ! is_int($vcenter['id']))) {
+                    throw AccException::invalidArgument('parameters.vcenters[].id', 'int|null');
+                }
+            }
+        }
     }
 }

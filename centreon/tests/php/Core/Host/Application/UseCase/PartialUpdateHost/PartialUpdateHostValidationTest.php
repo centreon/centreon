@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Host\Application\UseCase\PartialUpdateHost;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\Host\Application\Exception\HostException;
@@ -31,8 +30,6 @@ use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\UseCase\PartialUpdateHost\PartialUpdateHostValidation;
 use Core\Host\Domain\Model\Host;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -50,10 +47,7 @@ beforeEach(function (): void {
         readHostSeverityRepository: $this->readHostSeverityRepository = $this->createMock(ReadHostSeverityRepositoryInterface::class),
         readTimezoneRepository: $this->readTimezoneRepository = $this->createMock(ReadTimezoneRepositoryInterface::class),
         readCommandRepository: $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
-        readHostCategoryRepository: $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
-        readHostGroupRepository: $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         inheritanceManager: $this->inheritanceManager = $this->createMock(InheritanceManager::class),
-        user: $this->user = $this->createMock(ContactInterface::class),
         accessGroups: $this->accessGroup = []
     );
 });
@@ -194,70 +188,6 @@ it('throws an exception when command ID does not exist for a specific type', fun
 })->throws(
     HostException::class,
     HostException::idDoesNotExist('commandId', 1)->getMessage()
-);
-
-it('throws an exception when category ID does not exist with admin user', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostCategoryRepository
-        ->expects($this->once())
-        ->method('exist')
-        ->willReturn([]);
-
-    $this->validation->assertAreValidCategories([1, 3]);
-})->throws(
-    HostException::class,
-    HostException::idsDoNotExist('categories', [1, 3])->getMessage()
-);
-
-it('throws an exception when category ID does not exist with non-admin user', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-    $this->readHostCategoryRepository
-        ->expects($this->once())
-        ->method('existByAccessGroups')
-        ->willReturn([]);
-
-    $this->validation->assertAreValidCategories([1, 3]);
-})->throws(
-    HostException::class,
-    HostException::idsDoNotExist('categories', [1, 3])->getMessage()
-);
-
-it('throws an exception when group ID does not exist with admin user', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(true);
-    $this->readHostGroupRepository
-        ->expects($this->once())
-        ->method('exist')
-        ->willReturn([]);
-
-    $this->validation->assertAreValidGroups([1, 3]);
-})->throws(
-    HostException::class,
-    HostException::idsDoNotExist('groups', [1, 3])->getMessage()
-);
-
-it('throws an exception when group ID does not exist with non-admin user', function (): void {
-    $this->user
-        ->expects($this->once())
-        ->method('isAdmin')
-        ->willReturn(false);
-    $this->readHostGroupRepository
-        ->expects($this->once())
-        ->method('existByAccessGroups')
-        ->willReturn([]);
-
-    $this->validation->assertAreValidGroups([1, 3]);
-})->throws(
-    HostException::class,
-    HostException::idsDoNotExist('groups', [1, 3])->getMessage()
 );
 
 it('throws an exception when parent template ID does not exist', function (): void {

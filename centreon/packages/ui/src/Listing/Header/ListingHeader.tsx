@@ -34,13 +34,13 @@ type Props = Pick<
 } & SelectActionListingHeaderCellProps;
 
 interface ContentProps extends Pick<Props, 'sortField' | 'sortOrder'> {
-  attributes;
+  attributes: Record<string, unknown>;
   id: string;
   isDragging: boolean;
   isInDragOverlay?: boolean;
   itemRef: React.RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: React.CSSProperties;
 }
 
 const ListingHeader = ({
@@ -159,8 +159,8 @@ const MemoizedListingHeader = memo<Props>(
     equals(prevProps.selectedRowCount, nextProps.selectedRowCount) &&
     equals(prevProps.rowCount, nextProps.rowCount) &&
     equals(
-      map(pick(columnMemoProps), prevProps.columns),
-      map(pick(columnMemoProps), nextProps.columns)
+      map(pick(columnMemoProps as Array<keyof Column>), prevProps.columns),
+      map(pick(columnMemoProps as Array<keyof Column>), nextProps.columns)
     ) &&
     equals(prevProps.checkable, nextProps.checkable) &&
     equals(prevProps.columnConfiguration, nextProps.columnConfiguration) &&

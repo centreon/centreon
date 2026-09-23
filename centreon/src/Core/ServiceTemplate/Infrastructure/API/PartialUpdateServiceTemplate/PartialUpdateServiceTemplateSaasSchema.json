@@ -77,7 +77,7 @@
             ]
         },
         "severity_id": {
-             "type": [
+            "type": [
                 "null",
                 "integer"
             ]
@@ -93,6 +93,20 @@
             "items": {
                 "type": "integer"
             }
+        },
+        "freshness_checked": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ]
+        },
+        "freshness_threshold": {
+            "type": [
+                "null",
+                "integer"
+            ]
         },
         "macros": {
             "type": "array",

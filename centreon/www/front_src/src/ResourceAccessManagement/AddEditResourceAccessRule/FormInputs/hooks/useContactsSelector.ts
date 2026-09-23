@@ -12,10 +12,16 @@ import { findContactsEndpoint } from '../../api/endpoints';
 interface UseContactsSelectorState {
   checked: boolean;
   contacts: Array<NamedEntity>;
-  deleteContactsItem: ({ contacts, option }) => void;
-  getEndpoint: () => (parameters) => string;
+  deleteContactsItem: ({
+    contacts,
+    option
+  }: {
+    contacts: Array<NamedEntity>;
+    option: NamedEntity;
+  }) => void;
+  getEndpoint: () => (parameters: Record<string, unknown>) => string;
   onCheckboxChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onMultiSelectChange: () => (_, contacts: Array<NamedEntity>) => void;
+  onMultiSelectChange: () => (_: unknown, contacts: Array<NamedEntity>) => void;
 }
 
 const useContactsSelector = (): UseContactsSelectorState => {
@@ -24,14 +30,20 @@ const useContactsSelector = (): UseContactsSelectorState => {
 
   const setAllContactsSelected = useSetAtom(allContactsSelectedAtom);
 
-  const deleteContactsItem = ({ contacts, option }): void => {
+  const deleteContactsItem = ({
+    contacts,
+    option
+  }: {
+    contacts: Array<NamedEntity>;
+    option: NamedEntity;
+  }): void => {
     const newContacts = reject(propEq(option.id, 'id'), contacts);
     setFieldValue('contacts', newContacts);
   };
 
   const getEndpoint =
     () =>
-    (parameters): string => {
+    (parameters: Record<string, unknown>): string => {
       return buildListingEndpoint({
         baseEndpoint: findContactsEndpoint,
         customQueryParameters: undefined,
@@ -47,9 +59,11 @@ const useContactsSelector = (): UseContactsSelectorState => {
     setAllContactsSelected(event.target.checked);
   };
 
-  const onMultiSelectChange = () => (_, contacts: Array<NamedEntity>) => {
-    setFieldValue('contacts', contacts);
-  };
+  const onMultiSelectChange =
+    () =>
+    (_: unknown, contacts: Array<NamedEntity>): void => {
+      setFieldValue('contacts', contacts);
+    };
 
   return {
     checked: values.allContacts,

@@ -19,8 +19,11 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerUpgrade;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -33,139 +36,253 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-/** -------------------------------------- Global macros -------------------------------------- */
-$rewordingResourceToGlobalMacro = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to update Resource to Global macros';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [global_macro] Rewording Resource to Global macros",
-    );
-    $pearDB->update(
-        <<<'SQL'
-            UPDATE topology
-            SET topology_name = 'Global macros'
-            WHERE topology_name = 'Resources'
-            SQL
-    );
-};
-/** -------------------------------------- Host Group Topology -------------------------------------- */
-$fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to fix duplicate Host Groups topology';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [topology] Fixing duplicate Host Groups menu entries",
-    );
+// TODO add your functions here
 
-    $pearDB->update(
-        <<<'SQL'
-            UPDATE `topology`
-            SET `topology_url` = '/configuration/hosts/groups',
-                `is_react` = '1',
-                `topology_show` = '1'
-            WHERE `topology_page` = 60102
-            SQL
-    );
-
-    // Remove duplicate topology entry 60105 introduced by 25.05 migration
-    $pearDB->delete(
-        <<<'SQL'
-            DELETE FROM `topology`
-            WHERE `topology_page` = 60105
-            SQL
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [topology] Successfully removed duplicate Host Groups topology entry",
-    );
-};
-
-/** -------------------------------------- Broker Instances CMA fields -------------------------------------- */
-$updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add CMA certificate fields to broker instances table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [broker instances] Adding CMA certificate fields to broker instances table",
-    );
-
-    if (
-        $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'instances',
-            'cma_certificate_sha'
-        )
-        || $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'instances',
-            'cma_certificate_cn'
-        )
-        || $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'instances',
-            'cma_certificate_peremption'
-        )
-    ) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: [broker instances] CMA certificate fields already exist in broker instances table, skipping",
-        );
+$addCentralAddressColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'platform_topology',
+        'central_address'
+    )) {
+        LoggerUpgrade::create()->info($version, 'central_address column already exists, skipping');
 
         return;
     }
 
-    $pearDBO->query(
+    $errorMessage = 'Unable to add central_address column to platform_topology';
+    LoggerUpgrade::create()->info($version, 'Adding central_address column to platform_topology');
+
+    $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `instances`
-            ADD COLUMN `cma_certificate_sha` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate fingerprint',
-            ADD COLUMN `cma_certificate_cn` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate host name',
-            ADD COLUMN `cma_certificate_peremption` INT(11) DEFAULT NULL COMMENT 'CMA certificate peremption timestamp'
+            ALTER TABLE `platform_topology`
+            ADD COLUMN `central_address` varchar(255) NULL AFTER `address`
             SQL
     );
 
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [broker instances] Successfully added CMA certificate fields to broker instances table",
+    LoggerUpgrade::create()->info($version, 'Successfully added central_address column');
+};
+
+$fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix the gorgone_communication_type column comment';
+    LoggerUpgrade::create()->info($version, 'Fixing the gorgone_communication_type column comment');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            MODIFY COLUMN `gorgone_communication_type`
+            enum('1','2','3','4') NOT NULL DEFAULT '1'
+            COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS'
+            SQL
     );
+
+    LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
+};
+
+/**
+ * Resolve central address from /etc/centreon/poller_installation (cloud only).
+ * Builds address as: {orga}.{region}.{domain}/{site}
+ */
+$resolveCloudCentralAddress = function () use ($version): ?string {
+    $filePath = _CENTREON_ETC_ . '/poller_installation';
+
+    if (! is_readable($filePath)) {
+        LoggerUpgrade::create()->warning(
+            $version,
+            "Cloud platform: {$filePath} not found or not readable"
+        );
+
+        return null;
+    }
+
+    $content = file_get_contents($filePath);
+
+    if ($content === false) {
+        LoggerUpgrade::create()->warning(
+            $version,
+            "Cloud platform: could not read {$filePath}"
+        );
+
+        return null;
+    }
+
+    $hasAllFields = preg_match('/CLOUD_REGION="([^"]+)"/', $content, $regionMatch)
+        && preg_match('/CLOUD_DOMAIN="([^"]+)"/', $content, $domainMatch)
+        && preg_match('/\binstall\b.*-o\s+([^\s;]+)/s', $content, $orgaMatch)
+        && preg_match('/\binstall\b.*-s\s+([^\s;]+)/s', $content, $siteMatch);
+
+    if (! $hasAllFields) {
+        LoggerUpgrade::create()->warning(
+            $version,
+            "Cloud platform: could not extract CLOUD_REGION, CLOUD_DOMAIN, -o or -s from {$filePath}"
+        );
+
+        return null;
+    }
+
+    return "{$orgaMatch[1]}.{$regionMatch[1]}.{$domainMatch[1]}/{$siteMatch[1]}";
+};
+
+/**
+ * Resolve central address from broker output configs (on-prem).
+ * Looks for IPv4 or BBDO Client outputs with a non-empty host.
+ * When multiple outputs exist, takes the highest `config_group_id` (the index of a flow inside
+ * its broker configuration), `config_id` only breaking ties. Ordering by `config_id` first would
+ * be wrong: a platform owns two or three broker configurations, and among the matching outputs
+ * the highest `config_id` is the module one, which dials the local broker rather than the central.
+ *
+ * @param array{server_id: ?int} $platform
+ */
+$resolveOnPremCentralAddress = function (array $platform) use ($pearDB): ?string {
+    if ($platform['server_id'] === null) {
+        return null;
+    }
+
+    $host = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT cbi_host.config_value
+            FROM cfg_centreonbroker_info cbi_host
+            JOIN cfg_centreonbroker_info cbi_type
+                ON cbi_type.config_id = cbi_host.config_id
+                AND cbi_type.config_group = cbi_host.config_group
+                AND cbi_type.config_group_id = cbi_host.config_group_id
+                AND cbi_type.config_key = 'type'
+                AND cbi_type.config_value IN ('ipv4', 'bbdo_client')
+            JOIN cfg_centreonbroker cb
+                ON cb.config_id = cbi_host.config_id
+            WHERE cb.ns_nagios_server = :serverId
+                AND cbi_host.config_group = 'output'
+                AND cbi_host.config_key = 'host'
+                AND TRIM(cbi_host.config_value) != ''
+            ORDER BY cbi_host.config_group_id DESC, cbi_host.config_id DESC
+            LIMIT 1
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('serverId', (int) $platform['server_id']),
+        ])
+    );
+
+    return is_string($host) && trim($host) !== '' ? trim($host) : null;
+};
+
+$populateCentralAddress = function () use ($pearDB, &$errorMessage, $version, $resolveCloudCentralAddress, $resolveOnPremCentralAddress): void {
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+        FILTER_VALIDATE_BOOL,
+        FILTER_NULL_ON_FAILURE
+    ) === true;
+
+    $errorMessage = 'Unable to populate central_address for central servers';
+    LoggerUpgrade::create()->info($version, 'Setting central_address = address for central servers');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `platform_topology`
+            SET `central_address` = `address`
+            WHERE `type` = 'central'
+            SQL
+    );
+
+    $errorMessage = 'Unable to fetch non-central platforms';
+    $platforms = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `id`, `server_id`, `address`, `type`
+            FROM `platform_topology`
+            WHERE `type` != 'central'
+            SQL
+    );
+
+    $cloudCentralAddress = $isCloudPlatform ? $resolveCloudCentralAddress() : null;
+
+    foreach ($platforms as $platform) {
+        if ($isCloudPlatform) {
+            $centralAddress = $cloudCentralAddress ?? $platform['address'];
+        } else {
+            $centralAddress = $resolveOnPremCentralAddress($platform) ?? $platform['address'];
+        }
+
+        if ($centralAddress === $platform['address']) {
+            $reason = $isCloudPlatform
+                ? 'Could not resolve central address from /etc/centreon/poller_installation'
+                : "No broker output host found (server_id={$platform['server_id']})";
+
+            LoggerUpgrade::create()->warning(
+                $version,
+                "{$reason} for platform id={$platform['id']}, "
+                . "falling back to address '{$centralAddress}'. "
+                . 'Please verify this value is correct.'
+            );
+        }
+
+        $errorMessage = "Unable to update central_address for platform id={$platform['id']}";
+        $pearDB->executeStatement(
+            <<<'SQL'
+                UPDATE `platform_topology`
+                SET `central_address` = :centralAddress
+                WHERE `id` = :platformId
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('centralAddress', $centralAddress),
+                QueryParameter::int('platformId', (int) $platform['id']),
+            ])
+        );
+    }
+
+    LoggerUpgrade::create()->info($version, 'Successfully populated central_address for all platforms');
+};
+
+$realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to realign command audit logs to the 'command' object type";
+    LoggerUpgrade::create()->info($version, "Realigning command audit logs from 'commands' to 'command'");
+
+    // The ActivityLogging system used to store command changes under the plural
+    // 'commands' token, which the Administration > Logs Type filter (bound on the
+    // canonical singular 'command') could never match. Realign the existing rows.
+    $pearDBO->update(
+        <<<'SQL'
+            UPDATE `log_action` SET `object_type` = 'command' WHERE `object_type` = 'commands'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Successfully realigned command audit logs to 'command'");
 };
 
 try {
-    // DDL statements for real time database
-    $updateInstancesTable();
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
-    // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $addCentralAddressColumn();
+    $fixGorgoneCommunicationTypeComment();
 
-    // Transactional queries for configuration database
+    $realignCommandActionLogObjectType();
+
+    $errorMessage = 'Unable to start the configuration database transaction';
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
-    $rewordingResourceToGlobalMacro();
-    $fixDuplicateHostGroupTopology();
+    $populateCentralAddress();
 
+    $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
 
-} catch (Throwable $throwable) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $throwable
-    );
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
+} catch (Throwable $throwable) {
     try {
         if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
             $pearDB->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            exception: $rollbackException
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $rollbackException
         );
 
         throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            previous: $rollbackException
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
         );
     }
 

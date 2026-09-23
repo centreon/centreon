@@ -2,7 +2,7 @@ import { SetStateAction } from 'jotai';
 import { ChangeEvent, Dispatch } from 'react';
 
 interface State {
-  change: (event) => void;
+  change: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string;
 }
 
@@ -23,7 +23,7 @@ const useText = <TFilters>({
 
   return {
     change,
-    value: filters[name]
+    value: (filters as Record<string, unknown>)[name] as string
   };
 };
 
