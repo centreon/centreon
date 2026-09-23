@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Infrastructure\Validator\ReservedMacroName;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class HostMacroInput
@@ -45,6 +46,8 @@ final readonly class HostMacroInput
         ])]
         public string $name,
 
+        // Masked in logs: may carry a password macro's plaintext (see HostMacro::$value).
+        #[Sensitive]
         #[Assert\Length(max: HostMacro::MAX_VALUE_LENGTH)]
         public string $value = '',
 

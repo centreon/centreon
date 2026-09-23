@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 final readonly class HostMacro
@@ -36,7 +37,9 @@ final readonly class HostMacro
      */
     public function __construct(
         public HostMacroName $name,
-        public string $value,
+        // Masked in logs: a password macro's value is a secret (the flag is per-macro, but the
+        // attribute is static, so every macro value is masked — safe, non-secret ones included).
+        #[Sensitive] public string $value,
         public bool $isPassword,
         public ?string $description = null,
     ) {
