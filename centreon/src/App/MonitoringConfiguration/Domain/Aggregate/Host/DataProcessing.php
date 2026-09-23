@@ -64,5 +64,8 @@ final readonly class DataProcessing
             Assert::range($highFlapThreshold, 0, 100, 'DataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         }
         Assert::allString($eventHandlerArgs);
+        // '!' is the storage delimiter (DbalHostRepository::joinCommandArgs); an argument containing
+        // it would split into several arguments on read-back, so forbid it here too.
+        Assert::allNotContains($eventHandlerArgs, '!', 'DataProcessing::eventHandlerArgs must not contain the "!" delimiter.');
     }
 }

@@ -279,6 +279,22 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItRejectsAnEventHandlerArgumentContainingTheStorageDelimiter(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'data_processing' => ['event_handler_args' => ['a!b']],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * extended_informations is a nested sub-object in the request payload, not a set of flat
      * fields on the root — matches the endpoint's output shape (see MON-208990).

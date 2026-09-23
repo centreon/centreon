@@ -99,4 +99,11 @@ final class DataProcessingTest extends TestCase
         self::assertSame(0, $dataProcessing->lowFlapThreshold);
         self::assertSame(100, $dataProcessing->highFlapThreshold);
     }
+
+    public function testRejectsAnEventHandlerArgContainingTheStorageDelimiter(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new DataProcessing(eventHandlerArgs: ['a!b']);
+    }
 }

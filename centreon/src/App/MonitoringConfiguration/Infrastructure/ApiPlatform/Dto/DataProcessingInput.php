@@ -78,7 +78,15 @@ final readonly class DataProcessingInput
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Count(max: 0, maxMessage: 'event_handler_args is not available on a Cloud platform.'),
         ])]
-        #[Assert\All([new Assert\Type('string')])]
+        #[Assert\All([
+            new Assert\Type('string'),
+            // '!' is the storage delimiter (see DbalHostRepository::joinCommandArgs); an argument
+            // containing it would corrupt the round-trip, so reject it at the boundary.
+            new Assert\Regex(
+                pattern: '/\A[^!]*\z/',
+                message: 'An event handler argument cannot contain the "!" character.',
+            ),
+        ])]
         public array $eventHandlerArgs = [],
     ) {
     }
