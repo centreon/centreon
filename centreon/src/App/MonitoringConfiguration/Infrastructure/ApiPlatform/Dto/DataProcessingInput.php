@@ -80,9 +80,9 @@ final readonly class DataProcessingInput
         ])]
         #[Assert\All([
             new Assert\Type('string'),
-            // The storage codec (DbalHostRepository::joinCommandArgs) joins on '!' and encodes
-            // \n\t\r as #BR#/#T#/#R#; the read path does not decode them, so an argument carrying the
-            // delimiter, a raw control character or a literal escape token would not round-trip.
+            // Storage joins arguments with '!' without escaping (DbalHostRepository::joinCommandArgsForLegacyColumn);
+            // the legacy read path treats '!' as the separator and #BR#/#T#/#R# as encoded \n\t\r, so an argument
+            // carrying the delimiter, a raw control character or a literal escape token would not round-trip.
             new Assert\Regex(
                 pattern: '/\A[^!\n\t\r]*\z/',
                 message: 'An event handler argument cannot contain "!", a newline, a tab or a carriage return.',

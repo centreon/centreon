@@ -64,9 +64,9 @@ final readonly class DataProcessing
             Assert::range($highFlapThreshold, 0, 100, 'DataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         }
         Assert::allString($eventHandlerArgs);
-        // The storage codec (DbalHostRepository::joinCommandArgs) joins on '!' and encodes \n\t\r as
-        // #BR#/#T#/#R#, and the read path does not decode them; an argument carrying the delimiter, a
-        // raw control character or a literal escape token would therefore not round-trip. Forbid them.
+        // Storage joins arguments with '!' without escaping (DbalHostRepository::joinCommandArgsForLegacyColumn),
+        // and the legacy read path treats '!' as the separator and #BR#/#T#/#R# as encoded \n\t\r. An argument
+        // carrying the delimiter, a raw control character or one of those tokens would not round-trip; forbid them.
         foreach (["\n", "\t", "\r", '!', '#BR#', '#T#', '#R#'] as $reserved) {
             Assert::allNotContains($eventHandlerArgs, $reserved, 'DataProcessing::eventHandlerArgs must not contain the "!" delimiter, a newline/tab/carriage-return, or a #BR#/#T#/#R# escape token.');
         }

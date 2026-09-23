@@ -121,7 +121,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
             ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
             ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
-            ->setParameter('eventHandlerArgs', $this->joinCommandArgs($dataProcessing->eventHandlerArgs))
+            ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
             ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
@@ -277,7 +277,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      *
      * @param list<string> $args
      */
-    private function joinCommandArgs(array $args): ?string
+    private function joinCommandArgsForLegacyColumn(array $args): ?string
     {
         if ($args === []) {
             return null;

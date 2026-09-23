@@ -39,11 +39,11 @@ final readonly class DataProcessingOutput
         public ?int $freshnessThreshold,
         public TriStateEnum $eventHandlerEnabled,
         public ?HostEventHandlerCommandOutput $eventHandler,
-        public ?int $acknowledgmentTimeout = null,
-        public ?TriStateEnum $flapDetectionEnabled = null,
-        public ?int $lowFlapThreshold = null,
-        public ?int $highFlapThreshold = null,
-        public array $eventHandlerArgs = [],
+        public ?int $acknowledgmentTimeout,
+        public ?TriStateEnum $flapDetectionEnabled,
+        public ?int $lowFlapThreshold,
+        public ?int $highFlapThreshold,
+        public array $eventHandlerArgs,
     ) {
     }
 }
