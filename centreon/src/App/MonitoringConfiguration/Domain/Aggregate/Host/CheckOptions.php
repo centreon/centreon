@@ -31,16 +31,23 @@ final readonly class CheckOptions
     /** @var list<string> */
     public array $args;
 
+    /** @var list<HostMacro> */
+    public array $macros;
+
     /**
      * @param ?CommandId $checkCommandId the check command to run against the host, null when none is set
      * @param array<int, string> $args ordered check-command arguments (reindexed to a list, so upstream
      *                                 filtering that leaves key gaps is tolerated); legacy stores them
      *                                 bang-joined in host.command_command_id_arg1, so the join and
      *                                 #BR#/#T#/#R# encoding belong to the persistence layer, not here
+     * @param array<int, HostMacro> $macros the host's own custom macros ($_HOST<NAME>$); unrelated to the
+     *                                      check command, they live here only because the ticket groups
+     *                                      them under check_options
      */
     public function __construct(
         public ?CommandId $checkCommandId,
         array $args = [],
+        array $macros = [],
     ) {
         // Arguments require a check command; reject them when none is set (mirrors the API-boundary check).
         if (! $checkCommandId instanceof CommandId) {
@@ -57,5 +64,6 @@ final readonly class CheckOptions
         }
 
         $this->args = array_values($args);
+        $this->macros = array_values($macros);
     }
 }

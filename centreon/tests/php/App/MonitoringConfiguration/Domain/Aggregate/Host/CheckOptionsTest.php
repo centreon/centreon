@@ -25,6 +25,8 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use PHPUnit\Framework\TestCase;
 
 final class CheckOptionsTest extends TestCase
@@ -80,5 +82,16 @@ final class CheckOptionsTest extends TestCase
         $options = new CheckOptions(new CommandId(1), ["a\nb"]);
 
         self::assertSame(["a\nb"], $options->args);
+    }
+
+    public function testItHoldsCustomMacrosIndependentlyOfTheCommand(): void
+    {
+        $macro = new HostMacro(new HostMacroName('community'), 'public', isPassword: false);
+
+        // Macros do not require a check command, unlike arguments.
+        $options = new CheckOptions(null, macros: [5 => $macro]);
+
+        self::assertSame([$macro], $options->macros);
+        self::assertSame([], $options->args);
     }
 }
