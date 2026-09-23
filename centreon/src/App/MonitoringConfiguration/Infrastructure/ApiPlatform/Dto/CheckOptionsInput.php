@@ -33,6 +33,7 @@ final readonly class CheckOptionsInput
     /**
      * @param ?int $commandId the check command to run, null when none is set
      * @param list<string> $args ordered check-command arguments; only meaningful with a command
+     * @param list<HostMacroInput> $macros the host's own custom macros
      */
     public function __construct(
         #[Assert\Sequentially([
@@ -60,6 +61,9 @@ final readonly class CheckOptionsInput
             ),
         ])]
         public array $args = [],
+
+        #[Assert\Valid]
+        public array $macros = [],
     ) {
     }
 
