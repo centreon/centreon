@@ -47,6 +47,13 @@ const PopoverFilter = <TFilters,>({
           dataTestId={labelFilters}
           icon={<TuneIcon fontSize="small" />}
           popperPlacement="bottom-end"
+          // The popper anchors to this icon, which sits 8px inside the search
+          // field's right edge, so the panel hangs 8px left of the bar it
+          // belongs to. Only visible once a listing widens the panel to the
+          // bar's own width, but wrong at every width.
+          popperProps={{
+            modifiers: [{ name: 'offset', options: { offset: [8, 0] } }]
+          }}
           title={t(labelFilters)}
         >
           {(): JSX.Element => (
