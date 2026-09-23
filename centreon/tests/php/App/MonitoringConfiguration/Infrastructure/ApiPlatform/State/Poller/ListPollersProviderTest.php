@@ -31,10 +31,12 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\PollerCo
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 use Webmozart\Assert\Assert;
 
 final class ListPollersProviderTest extends ApiTestCase
 {
+    use ClearsInstalledPlatformRows;
     private const BASE_ENDPOINT = '/api/configuration/pollers';
 
     private Connection $connection;
@@ -46,6 +48,7 @@ final class ListPollersProviderTest extends ApiTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+        $this->clearInstalledPlatformRows($this->connection, 'cfg_resource_instance_relations', 'cfg_resource', 'nagios_server');
     }
 
     public function testItRequiresAuthentication(): void
