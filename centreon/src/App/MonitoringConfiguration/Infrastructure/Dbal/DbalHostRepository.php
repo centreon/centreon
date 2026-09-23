@@ -27,14 +27,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
-use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -58,6 +56,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   group_ids: string|null,
  *   icon_id: int|null,
  * }
+ *
+ * @phpstan-import-type NotificationColumns from DbalNotificationsTransformer
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
@@ -66,6 +66,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     /**
      * @param TransformerInterface<RowTypeAlias, Host> $transformer
+     * @param TransformerInterface<?Notifications, NotificationColumns> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -74,6 +75,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         private Connection $realTimeConnection,
         #[Autowire(service: DbalHostTransformer::class)]
         private TransformerInterface $transformer,
+        #[Autowire(service: DbalNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private AccessGroupRepository $accessGroupRepository,
     ) {
     }
@@ -82,9 +85,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         $extendedInformations = $host->extendedInformations;
         $notifications = $host->notifications;
+        // The transformer owns every legacy storage format of the block, including what an absent
+        // one writes: the Default tri-state, false flags, and NULL everywhere else.
+        $notificationColumns = $this->notificationsTransformer->transform($notifications);
 
-        // An absent Notifications block writes exactly what legacy writes for a payload carrying
-        // no notification field: the Default tri-state, false flags, and NULL everywhere else.
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
             ->values([
@@ -110,14 +114,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('is_activated', $host->activated ? '1' : '0')
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
-            ->setParameter('notificationsEnabled', $this->triStateToLegacy($notifications instanceof Notifications ? $notifications->enabled : TriStateEnum::UseDefault))
-            ->setParameter('notificationOptions', $this->notificationOptionsToLegacy($notifications instanceof Notifications ? $notifications->options : []))
-            ->setParameter('notificationInterval', $notifications?->interval, ParameterType::INTEGER)
-            ->setParameter('notificationPeriodId', $notifications?->periodId?->value, ParameterType::INTEGER)
-            ->setParameter('firstNotificationDelay', $notifications?->firstDelay, ParameterType::INTEGER)
-            ->setParameter('recoveryNotificationDelay', $notifications?->recoveryDelay, ParameterType::INTEGER)
-            ->setParameter('contactAdditiveInheritance', $notifications instanceof Notifications && $notifications->contactAdditiveInheritance, ParameterType::BOOLEAN)
-            ->setParameter('contactGroupAdditiveInheritance', $notifications instanceof Notifications && $notifications->contactGroupAdditiveInheritance, ParameterType::BOOLEAN)
+            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
+            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
+            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN)
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -276,44 +280,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
-    }
-
-    /**
-     * The `host` table stores the tri-state directives as enum('0','1','2') — see TriStateEnum,
-     * whose own backing values are the API contract, not the storage format.
-     */
-    private function triStateToLegacy(TriStateEnum $value): string
-    {
-        return match ($value) {
-            TriStateEnum::False => '0',
-            TriStateEnum::True => '1',
-            TriStateEnum::UseDefault => '2',
-        };
-    }
-
-    /**
-     * `host_notification_options` stores the engine's own single-letter, comma-separated format.
-     * An empty list writes NULL, as legacy does (DbWriteHostRepository::bindHostValues()).
-     *
-     * @param list<NotificationOptionEnum> $options
-     */
-    private function notificationOptionsToLegacy(array $options): ?string
-    {
-        if ($options === []) {
-            return null;
-        }
-
-        return implode(',', array_map(
-            static fn (NotificationOptionEnum $option): string => match ($option) {
-                NotificationOptionEnum::Down => 'd',
-                NotificationOptionEnum::Unreachable => 'u',
-                NotificationOptionEnum::Recovery => 'r',
-                NotificationOptionEnum::Flapping => 'f',
-                NotificationOptionEnum::DowntimeScheduled => 's',
-                NotificationOptionEnum::None => 'n',
-            },
-            $options,
-        ));
     }
 
     /**

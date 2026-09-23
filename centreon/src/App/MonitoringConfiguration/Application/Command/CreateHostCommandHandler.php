@@ -27,13 +27,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\GlobalOptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -44,11 +46,14 @@ use App\Shared\Domain\Event\EventBus;
 #[AsCommandHandler]
 final readonly class CreateHostCommandHandler
 {
+    private const INHERITANCE_MODE_OPTION = 'inheritance_mode';
+    private const ADDITIVE_INHERITANCE_MODE = 1;
+
     public function __construct(
         private HostRepository $repository,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
-        private GlobalOptionRepository $globalOptionRepository,
+        private OptionRepository $optionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private EventBus $eventBus,
     ) {
@@ -115,22 +120,29 @@ final readonly class CreateHostCommandHandler
             return $notifications;
         }
 
-        if ($this->globalOptionRepository->isAdditiveInheritanceEnabled()) {
+        if ($this->isAdditiveInheritanceEnabled()) {
             return $notifications;
         }
 
-        return new Notifications(
-            enabled: $notifications->enabled,
-            contactIds: $notifications->contactIds,
-            contactGroupIds: $notifications->contactGroupIds,
-            options: $notifications->options,
-            interval: $notifications->interval,
-            periodId: $notifications->periodId,
-            firstDelay: $notifications->firstDelay,
-            recoveryDelay: $notifications->recoveryDelay,
-            contactAdditiveInheritance: false,
-            contactGroupAdditiveInheritance: false,
-        );
+        return $notifications->withoutAdditiveInheritance();
+    }
+
+    /**
+     * `inheritance_mode` is a platform-wide setting of Administration > Parameters; only the
+     * value `1` turns additive inheritance on, and a fresh install ships `3`. A missing row reads
+     * as disabled, mirroring legacy's own fallback when OptionService returns nothing.
+     */
+    private function isAdditiveInheritanceEnabled(): bool
+    {
+        try {
+            $option = $this->optionRepository->getByName(new OptionName(self::INHERITANCE_MODE_OPTION));
+        } catch (OptionDoesNotExistException) {
+            return false;
+        }
+
+        // Cast rather than compared as a string: the column is a varchar and legacy reads it
+        // with (int) too (AddHost::createHost()), so a stored '01' must not flip the answer.
+        return (int) $option->value->value === self::ADDITIVE_INHERITANCE_MODE;
     }
 
     /**

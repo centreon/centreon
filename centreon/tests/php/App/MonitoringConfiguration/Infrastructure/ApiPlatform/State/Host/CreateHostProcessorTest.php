@@ -854,7 +854,8 @@ final class CreateHostProcessorTest extends ApiTestCase
         );
 
         self::assertSame('0', $details['host_notifications_enabled'] ?? null);
-        self::assertSame('unreachable', $details['host_notification_options'] ?? null);
+        // the engine's letter format, matching the column the log entry is named after
+        self::assertSame('u', $details['host_notification_options'] ?? null);
         self::assertSame((string) $contactId, $details['host_cs'] ?? null);
     }
 

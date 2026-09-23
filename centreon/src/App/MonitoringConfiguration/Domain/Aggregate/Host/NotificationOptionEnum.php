@@ -26,18 +26,21 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 /**
  * The host state transitions that trigger a notification.
  *
- * Backing values are the API-contract strings; the mapping to the `host_notification_options`
- * column's single-letter legacy format (`d`, `u`, `r`, `f`, `s`, `n`) lives in the DBAL layer.
+ * Deliberately not backed: neither the API contract strings nor the engine's single-letter
+ * storage format (`d`, `u`, `r`, `f`, `s`, `n`) belong to the domain. Both mappings live in the
+ * transformers — {@see \App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer}
+ * for the wire format, {@see \App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer}
+ * for storage.
  *
  * {@see self::None} is exclusive: it means "notify on nothing" and cannot be combined with any
  * other case (enforced by {@see Notifications}).
  */
-enum NotificationOptionEnum: string
+enum NotificationOptionEnum
 {
-    case Down = 'down';
-    case Unreachable = 'unreachable';
-    case Recovery = 'recovery';
-    case Flapping = 'flapping';
-    case DowntimeScheduled = 'downtime_scheduled';
-    case None = 'none';
+    case Down;
+    case Unreachable;
+    case Recovery;
+    case Flapping;
+    case DowntimeScheduled;
+    case None;
 }

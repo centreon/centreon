@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContacts;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExclusiveNotificationOption;
@@ -59,7 +59,7 @@ final readonly class CreateHostNotificationsInput
 
         #[ApiProperty(description: 'State transitions triggering a notification. "none" is exclusive.')]
         #[Assert\Sequentially([
-            new Assert\All([new Assert\Choice(callback: [self::class, 'notificationOptions'])]),
+            new Assert\All([new Assert\Choice(callback: [HostNotificationsTransformer::class, 'apiOptions'])]),
             new ExclusiveNotificationOption(),
         ])]
         public array $options = [],
@@ -82,13 +82,5 @@ final readonly class CreateHostNotificationsInput
         #[ApiProperty(description: "Ignored unless the platform's inheritance mode enables additive inheritance.")]
         public bool $contactGroupAdditiveInheritance = Notifications::DEFAULT_ADDITIVE_INHERITANCE,
     ) {
-    }
-
-    /**
-     * @return list<string>
-     */
-    public static function notificationOptions(): array
-    {
-        return array_map(static fn (NotificationOptionEnum $option): string => $option->value, NotificationOptionEnum::cases());
     }
 }

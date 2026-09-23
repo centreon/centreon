@@ -67,25 +67,50 @@ final readonly class Notifications
         public ?TimePeriodId $periodId = null,
         public ?int $firstDelay = null,
         public ?int $recoveryDelay = null,
-        public bool $contactAdditiveInheritance = false,
-        public bool $contactGroupAdditiveInheritance = false,
+        public bool $contactAdditiveInheritance = self::DEFAULT_ADDITIVE_INHERITANCE,
+        public bool $contactGroupAdditiveInheritance = self::DEFAULT_ADDITIVE_INHERITANCE,
     ) {
+        // Normalised to the enum's own declaration order, which is the order legacy can only ever
+        // produce: it round-trips the options through a bit flag, so `host_notification_options`
+        // always comes out as `d,u,r,f,s`. Keeping the client's order would let this endpoint write
+        // column values no legacy write path could, for no engine-visible benefit.
         $uniqueOptions = [];
         foreach ($options as $option) {
-            $uniqueOptions[$option->value] = $option;
+            $uniqueOptions[$option->name] = $option;
         }
-        $this->options = array_values($uniqueOptions);
+        $this->options = array_values(array_filter(
+            NotificationOptionEnum::cases(),
+            static fn (NotificationOptionEnum $option): bool => isset($uniqueOptions[$option->name]),
+        ));
 
         Assert::false(
             in_array(NotificationOptionEnum::None, $this->options, true) && count($this->options) > 1,
-            sprintf(
-                'Notifications::options cannot combine "%s" with any other option.',
-                NotificationOptionEnum::None->value,
-            ),
+            'Notifications::options cannot combine the "none" option with any other option.',
         );
 
         Assert::nullOrGreaterThanEq($interval, self::MIN_INTERVAL);
         Assert::nullOrGreaterThanEq($firstDelay, self::MIN_FIRST_DELAY);
         Assert::nullOrGreaterThanEq($recoveryDelay, self::MIN_RECOVERY_DELAY);
+    }
+
+    /**
+     * Both additive-inheritance flags forced off, every other field untouched — for a platform
+     * whose `inheritance_mode` option does not enable them. Lives here rather than in the caller
+     * so adding a field to this value object cannot silently reset it to its default.
+     */
+    public function withoutAdditiveInheritance(): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $this->contactIds,
+            contactGroupIds: $this->contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: false,
+            contactGroupAdditiveInheritance: false,
+        );
     }
 }

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -45,7 +46,7 @@ final class ExclusiveNotificationOptionValidator extends ConstraintValidator
             return;
         }
 
-        if (in_array(NotificationOptionEnum::None->value, $value, true)) {
+        if (in_array(HostNotificationsTransformer::optionToApi(NotificationOptionEnum::None), $value, true)) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

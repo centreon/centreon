@@ -23,15 +23,23 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-use App\MonitoringConfiguration\Domain\Repository\GlobalOptionRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
+use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
+use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 
-final class FakeGlobalOptionRepository implements GlobalOptionRepository
+final class FakeOptionRepository implements OptionRepository
 {
-    /** Off by default, like a fresh install (the `inheritance_mode` option ships as '3'). */
-    public bool $additiveInheritanceEnabled = false;
+    /** @var array<string, string> */
+    public array $options = [];
 
-    public function isAdditiveInheritanceEnabled(): bool
+    public function getByName(OptionName $name): Option
     {
-        return $this->additiveInheritanceEnabled;
+        if (! isset($this->options[$name->value])) {
+            throw new OptionDoesNotExistException(['option_name' => $name->value]);
+        }
+
+        return new Option($name, new OptionValue($this->options[$name->value]));
     }
 }

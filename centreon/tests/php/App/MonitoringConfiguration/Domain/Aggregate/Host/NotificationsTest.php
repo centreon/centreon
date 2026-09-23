@@ -89,6 +89,54 @@ final class NotificationsTest extends TestCase
         self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $notifications->options);
     }
 
+    /**
+     * Legacy round-trips the options through a bit flag, so the column can only ever hold the
+     * enum's declaration order — this endpoint must not be able to write an order legacy cannot.
+     */
+    public function testItNormalisesTheOptionOrder(): void
+    {
+        $notifications = $this->createNotifications(options: [
+            NotificationOptionEnum::DowntimeScheduled,
+            NotificationOptionEnum::Down,
+            NotificationOptionEnum::Recovery,
+        ]);
+
+        self::assertSame(
+            [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery, NotificationOptionEnum::DowntimeScheduled],
+            $notifications->options,
+        );
+    }
+
+    public function testWithoutAdditiveInheritanceKeepsEveryOtherField(): void
+    {
+        $periodId = new TimePeriodId(5);
+        $notifications = new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId(1)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(3)], ContactGroupId::class),
+            options: [NotificationOptionEnum::Down],
+            interval: 30,
+            periodId: $periodId,
+            firstDelay: 10,
+            recoveryDelay: 20,
+            contactAdditiveInheritance: true,
+            contactGroupAdditiveInheritance: true,
+        );
+
+        $stripped = $notifications->withoutAdditiveInheritance();
+
+        self::assertFalse($stripped->contactAdditiveInheritance);
+        self::assertFalse($stripped->contactGroupAdditiveInheritance);
+        self::assertSame(TriStateEnum::True, $stripped->enabled);
+        self::assertSame($notifications->contactIds, $stripped->contactIds);
+        self::assertSame($notifications->contactGroupIds, $stripped->contactGroupIds);
+        self::assertSame([NotificationOptionEnum::Down], $stripped->options);
+        self::assertSame(30, $stripped->interval);
+        self::assertSame($periodId, $stripped->periodId);
+        self::assertSame(10, $stripped->firstDelay);
+        self::assertSame(20, $stripped->recoveryDelay);
+    }
+
     public function testItAcceptsNoneAsTheOnlyOption(): void
     {
         $notifications = $this->createNotifications(options: [NotificationOptionEnum::None]);
@@ -99,7 +147,7 @@ final class NotificationsTest extends TestCase
     public function testItRejectsNoneCombinedWithAnotherOption(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('cannot combine "none"');
+        $this->expectExceptionMessage('cannot combine the "none" option');
 
         $this->createNotifications(options: [NotificationOptionEnum::None, NotificationOptionEnum::Down]);
     }

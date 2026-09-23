@@ -52,9 +52,9 @@ use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\GlobalOptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -63,9 +63,9 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGlobalOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
@@ -82,7 +82,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     private FakeResourceAccessRepository $resourceAccessRepository;
 
-    private FakeGlobalOptionRepository $globalOptionRepository;
+    private FakeOptionRepository $optionRepository;
 
     private EventBusSpy $eventBus;
 
@@ -100,14 +100,14 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
-        $this->globalOptionRepository = new FakeGlobalOptionRepository();
+        $this->optionRepository = new FakeOptionRepository();
         $this->eventBus = new EventBusSpy();
 
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
-        $container->set(GlobalOptionRepository::class, $this->globalOptionRepository);
+        $container->set(OptionRepository::class, $this->optionRepository);
         $container->set(EventBus::class, $this->eventBus);
 
         /** @var CreateHostCommandHandler $handler */
@@ -326,7 +326,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
      */
     public function testItForcesTheAdditiveInheritanceFlagsOffWhenTheOptionIsDisabled(): void
     {
-        $this->globalOptionRepository->additiveInheritanceEnabled = false;
+        // '3' is what a fresh install ships: anything but '1' means additive inheritance is off
+        $this->optionRepository->options['inheritance_mode'] = '3';
         $poller = $this->addPoller($this->pollerRepository, 1);
 
         $host = ($this->handler)(new CreateHostCommand(
@@ -348,7 +349,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     public function testItKeepsTheAdditiveInheritanceFlagsWhenTheOptionIsEnabled(): void
     {
-        $this->globalOptionRepository->additiveInheritanceEnabled = true;
+        $this->optionRepository->options['inheritance_mode'] = '1';
         $poller = $this->addPoller($this->pollerRepository, 1);
 
         $host = ($this->handler)(new CreateHostCommand(

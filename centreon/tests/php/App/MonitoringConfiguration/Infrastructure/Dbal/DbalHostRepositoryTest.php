@@ -41,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -75,6 +76,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             $this->connection,
             $this->realTimeConnection,
             new DbalHostTransformer(),
+            new DbalNotificationsTransformer(),
             $this->accessGroupRepository,
         );
     }

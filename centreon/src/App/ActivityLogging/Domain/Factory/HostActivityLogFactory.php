@@ -75,6 +75,12 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
      * entry above: Administration > Logs renders these rows as-is, so a reader has to recognise
      * what they see in the host form.
      *
+     * The two format mappings are spelled out here rather than reused from
+     * MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer, which owns them
+     * on the write side: this factory lives in Domain and cannot depend on an Infrastructure
+     * class. Any change to a storage format has to be made in both places — the same constraint
+     * `host_activate` above is already under.
+     *
      * @return array<string, string>
      */
     private function notificationDetails(?Notifications $notifications): array
@@ -90,7 +96,14 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
                 TriStateEnum::UseDefault => '2',
             },
             'host_notification_options' => implode(',', array_map(
-                static fn (NotificationOptionEnum $option): string => $option->value,
+                static fn (NotificationOptionEnum $option): string => match ($option) {
+                    NotificationOptionEnum::Down => 'd',
+                    NotificationOptionEnum::Unreachable => 'u',
+                    NotificationOptionEnum::Recovery => 'r',
+                    NotificationOptionEnum::Flapping => 'f',
+                    NotificationOptionEnum::DowntimeScheduled => 's',
+                    NotificationOptionEnum::None => 'n',
+                },
                 $notifications->options,
             )),
             'host_notification_interval' => (string) $notifications->interval,

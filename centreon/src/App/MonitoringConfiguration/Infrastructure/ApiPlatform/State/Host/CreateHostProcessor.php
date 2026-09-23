@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
@@ -40,20 +39,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
-use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationContactGroupOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationContactOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationPeriodOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
@@ -74,6 +67,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 {
     /**
      * @param TransformerInterface<Host, HostResource> $transformer
+     * @param TransformerInterface<?Notifications, ?HostNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
         private CommandBus $commandBus,
@@ -83,9 +77,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
         private MediaRepository $mediaRepository,
-        private NotificationContactRepository $contactRepository,
-        private ContactGroupRepository $contactGroupRepository,
-        private TimePeriodRepository $timePeriodRepository,
+        #[Autowire(service: HostNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private MediaUrlGenerator $mediaUrlGenerator,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
@@ -165,7 +158,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
                 : null,
         );
 
-        $resource->notifications = $this->buildNotificationsOutput($host->notifications);
+        $resource->notifications = $this->notificationsTransformer->transform($host->notifications);
 
         return $resource;
     }
@@ -192,7 +185,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
                 array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), array_unique($input->contactGroups)),
                 ContactGroupId::class,
             ),
-            options: array_map(NotificationOptionEnum::from(...), $input->options),
+            options: array_map(HostNotificationsTransformer::optionFromApi(...), $input->options),
             interval: $input->interval,
             periodId: $input->period !== null ? new TimePeriodId($input->period) : null,
             firstDelay: $input->firstDelay,
@@ -200,53 +193,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             contactAdditiveInheritance: $input->contactAdditiveInheritance,
             contactGroupAdditiveInheritance: $input->contactGroupAdditiveInheritance,
         );
-    }
-
-    private function buildNotificationsOutput(?Notifications $notifications): ?HostNotificationsOutput
-    {
-        if (! $notifications instanceof Notifications) {
-            return null;
-        }
-
-        $contactNames = $this->contactRepository->findNamesByIds($notifications->contactIds)->toArray();
-        $contacts = [];
-        foreach ($notifications->contactIds as $contactId) {
-            if (isset($contactNames[$contactId->value])) {
-                $contacts[] = new HostNotificationContactOutput($contactId->value, $contactNames[$contactId->value]->value);
-            }
-        }
-
-        $contactGroupNames = $this->contactGroupRepository->findNamesByIds($notifications->contactGroupIds)->toArray();
-        $contactGroups = [];
-        foreach ($notifications->contactGroupIds as $contactGroupId) {
-            if (isset($contactGroupNames[$contactGroupId->value])) {
-                $contactGroups[] = new HostNotificationContactGroupOutput($contactGroupId->value, $contactGroupNames[$contactGroupId->value]->value);
-            }
-        }
-
-        return new HostNotificationsOutput(
-            enabled: $notifications->enabled->value,
-            contacts: $contacts,
-            contactGroups: $contactGroups,
-            options: array_map(static fn (NotificationOptionEnum $option): string => $option->value, $notifications->options),
-            interval: $notifications->interval,
-            period: $this->resolveNotificationPeriod($notifications->periodId),
-            firstDelay: $notifications->firstDelay,
-            recoveryDelay: $notifications->recoveryDelay,
-            contactAdditiveInheritance: $notifications->contactAdditiveInheritance,
-            contactGroupAdditiveInheritance: $notifications->contactGroupAdditiveInheritance,
-        );
-    }
-
-    private function resolveNotificationPeriod(?TimePeriodId $periodId): ?HostNotificationPeriodOutput
-    {
-        if (! $periodId instanceof TimePeriodId) {
-            return null;
-        }
-
-        $name = $this->timePeriodRepository->findNamesByIds(new Collection([$periodId], TimePeriodId::class))->toArray()[$periodId->value] ?? null;
-
-        return $name === null ? null : new HostNotificationPeriodOutput($periodId->value, $name->value);
     }
 
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput
