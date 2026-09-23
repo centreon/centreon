@@ -5513,6 +5513,30 @@ msgid "Drag handle"
 msgstr "Poignée de déplacement"
 
 #: centreon/www/install/front_translate.php
+msgid "Drag to reorder"
+msgstr "Faire glisser pour réorganiser"
+
+#: centreon/www/install/front_translate.php
+msgid "Picked up row {{position}}"
+msgstr "Ligne {{position}} saisie"
+
+#: centreon/www/install/front_translate.php
+msgid "Reordering cancelled, row {{position}} returned to its original position"
+msgstr "Réorganisation annulée, la ligne {{position}} a retrouvé sa position d'origine"
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} dropped at position {{newPosition}}"
+msgstr "Ligne {{position}} déposée en position {{newPosition}}"
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} moved to position {{newPosition}}"
+msgstr "Ligne {{position}} déplacée en position {{newPosition}}"
+
+#: centreon/www/install/front_translate.php
+msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
+msgstr "Pour saisir une ligne, appuyez sur Espace ou Entrée. Utilisez les flèches pour la déplacer, puis appuyez sur Espace ou Entrée pour la déposer, ou sur Échap pour annuler."
+
+#: centreon/www/install/front_translate.php
 msgid "Drop or"
 msgstr "Faire glisser ou"
 
