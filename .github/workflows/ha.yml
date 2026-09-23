@@ -141,7 +141,6 @@ jobs:
           module_name: centreon-ha
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver:
     needs: [get-environment, changes, package]

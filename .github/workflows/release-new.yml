@@ -30,6 +30,12 @@ on:
           - cloud
           - onprem
 
+# Tag pushes are not idempotent: a second run on the same train fails mid-loop, having pushed some
+# tags and not others. Never cancel-in-progress, which would strand a release between tags.
+concurrency:
+  group: release-new-${{ inputs.release_scope }}-${{ inputs.release_branch }}
+  cancel-in-progress: false
+
 jobs:
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
@@ -159,3 +165,19 @@ jobs:
           release_branch: ${{ inputs.release_branch }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           major_version: ${{ steps.build_release_bundle_tag.outputs.major_version }}
+
+  # Publishes this release's source tarballs to download.centreon.com.
+  #
+  # always(), not success(): a release job that dies after pushing some of its component tags still
+  # produced publishable tarballs, and the aggregator takes its truth from the tags that exist
+  # rather than from what release-new intended to push.
+  publish-sources:
+    needs: [release]
+    if: |
+      always() &&
+      github.repository == 'centreon/centreon' &&
+      needs.release.outputs.new_release_bundle_tag != ''
+    uses: ./.github/workflows/publish-sources-download-site.yml
+    secrets: inherit
+    with:
+      bundle_tag: ${{ needs.release.outputs.new_release_bundle_tag }}
