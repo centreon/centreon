@@ -23,13 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
 /**
  * @extends AggregateRoot<HostId>
@@ -37,8 +41,12 @@ use App\Shared\Domain\Collection;
 final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface
 {
     /**
-     * @param Collection<HostTemplateId> $templateIds
+     * @param Collection<HostTemplateId> $templateIds ordered: the position is the persisted
+     *                                                inheritance order
      * @param Collection<HostGroupId> $hostGroupIds
+     * @param Collection<HostCategoryId> $categoryIds
+     * @param Collection<HostId> $parentHostIds
+     * @param Collection<HostId> $childHostIds
      */
     public function __construct(
         ?HostId $id,
@@ -49,9 +57,33 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
+        public readonly Collection $categoryIds = new Collection([], HostCategoryId::class),
+        public readonly Collection $parentHostIds = new Collection([], HostId::class),
+        public readonly Collection $childHostIds = new Collection([], HostId::class),
+        public readonly ?SnmpVersionEnum $snmpVersion = null,
+        public readonly ?SnmpCommunity $snmpCommunity = null,
+        public readonly ?TimezoneId $timezoneId = null,
+        public readonly ?HostSeverityId $severityId = null,
         public readonly ?ExtendedInformations $extendedInformations = null,
         public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
     ) {
         parent::__construct($id);
+
+        // The only loop visible without the stored graph; the longer ones are the handler's.
+        Assert::same(
+            array_intersect($this->idValues($parentHostIds), $this->idValues($childHostIds)),
+            [],
+            'A host cannot be both a parent and a child of this host.',
+        );
+    }
+
+    /**
+     * @param Collection<HostId> $hostIds
+     *
+     * @return array<int>
+     */
+    private function idValues(Collection $hostIds): array
+    {
+        return array_map(static fn (HostId $hostId): int => $hostId->value, $hostIds->toArray());
     }
 }
