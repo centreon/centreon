@@ -11,6 +11,7 @@ interface UseFilters {
   isClearDisabled: boolean;
   reload: () => void;
   filtersConfiguration: Array<FilterConfiguration>;
+  filtersPanelWidth?: number;
 }
 
 interface UseFiltersProps {
@@ -29,6 +30,8 @@ const useFilters = ({ filters, setFilters }: UseFiltersProps): UseFilters => {
     configuration?.filtersConfiguration as Array<FilterConfiguration>;
 
   const initialValues = configuration?.filtersInitialValues as Filters;
+
+  const filtersPanelWidth = configuration?.filtersPanelWidth;
 
   const isClearDisabled = equals(filters, initialValues);
 
@@ -50,6 +53,7 @@ const useFilters = ({ filters, setFilters }: UseFiltersProps): UseFilters => {
 
   return {
     filtersConfiguration,
+    filtersPanelWidth,
     isClearDisabled,
     reload,
     reset

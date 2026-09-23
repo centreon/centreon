@@ -88,6 +88,7 @@ final readonly class CreateHostCommandHandler
             hostGroupIds: $command->hostGroupIds,
             dataProcessing: $command->dataProcessing,
             extendedInformations: $command->extendedInformations,
+            schedulingOptions: $command->schedulingOptions,
         );
 
         $this->repository->add($host);

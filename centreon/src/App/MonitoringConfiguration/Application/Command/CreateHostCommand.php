@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
@@ -49,6 +50,7 @@ final readonly class CreateHostCommand
         public ?UserId $viewerId = null,
         public DataProcessing $dataProcessing = new DataProcessing(),
         public ?ExtendedInformations $extendedInformations = null,
+        public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
     ) {
     }
 }
