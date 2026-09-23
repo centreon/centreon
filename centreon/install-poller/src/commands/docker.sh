@@ -136,12 +136,14 @@ function runDockerInstall() {
   fi
 
   _generateDotEnv "." "${suffix}"
+  _generateSmtpDotEnv "."
   _generateDockerCompose "." "${suffix}"
 
   echo ""
   consoleTitle "Files generated:"
   consoleInfo "  docker-compose.yaml${suffix}"
   consoleInfo "  .env${suffix}"
+  consoleInfo "  .env.smtp (created empty if missing, never overwritten — fill in SMTP_HOST/SMTP_PORT/SMTP_FROM/SMTP_TLS for native SMTP notifications)"
   echo ""
   consoleTitle "Services included:"
   consoleInfo "  centengine, gorgone (always)"
@@ -284,6 +286,33 @@ EOF
   logInfo "${out_file} written"
 }
 
+# .env is regenerated on re-runs (see _generateDotEnv above), so SMTP
+# credentials can't live there without being wiped out. The native-SMTP
+# notification setup (see docs) instead keeps SMTP_HOST/SMTP_PORT/SMTP_FROM/
+# SMTP_TLS in a separate .env.smtp referenced via env_file on centengine (see
+# _generateDockerCompose). Create it empty once and never touch it again on
+# subsequent runs, so user-filled values survive re-running install-poller.
+function _generateSmtpDotEnv() {
+  local dir=$1
+  local smtp_env="${dir}/.env.smtp"
+
+  if [ -f "${smtp_env}" ]; then
+    logInfo "${smtp_env} already exists, leaving it untouched"
+    return
+  fi
+
+  : > "${smtp_env}"
+
+  if [ $? -ne 0 ]; then
+    consoleError "Cannot write .env.smtp file."
+    logError "Cannot write .env.smtp file."
+    exit 1
+  fi
+
+  consoleInfo ".env.smtp written"
+  logInfo ".env.smtp written"
+}
+
 # Whether a Centreon major version (e.g. 26.10) is an on-prem release.
 # On-prem majors always end in .10; anything else is a cloud release. Same
 # heuristic as get-environment.yml's cloud/on-prem detection and
@@ -343,6 +372,9 @@ services:
 EOF
   printf '    image: "%s:${ENGINE_TAG:-${TAG}}"\n' "$(_pollerImageRepo engine)" >> "${out}"
   cat >> "${out}" <<'EOF'
+    env_file:
+      - .env
+      - .env.smtp
     container_name: "${NAME}-centengine"
     hostname: centengine
     restart: unless-stopped
