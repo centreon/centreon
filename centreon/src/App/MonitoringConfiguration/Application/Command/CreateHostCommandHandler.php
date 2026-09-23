@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -51,13 +53,18 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\HostMacroInheritanceResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Vault\VaultCredentials;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
 #[AsCommandHandler]
@@ -76,9 +83,12 @@ final readonly class CreateHostCommandHandler
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
+        private InheritedHostMacroRepository $inheritedHostMacroRepository,
+        private HostMacroInheritanceResolver $hostMacroInheritanceResolver,
         private ResourceAccessRepository $resourceAccessRepository,
-        private EventBus $eventBus,
         private VaultInterface $vault,
+        private VaultCredentialWriter $vaultCredentialWriter,
+        private EventBus $eventBus,
     ) {
     }
 
@@ -128,6 +138,14 @@ final readonly class CreateHostCommandHandler
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
 
+        // Template-based macro inheritance is deferred: the host itself stores the requested templates
+        // (below), but the inherited macro set is resolved from the check command alone for now, so an
+        // empty template collection is passed here. The resolver already handles the template chain for
+        // when it is wired in.
+        $macroTemplateIds = new Collection([], HostTemplateId::class);
+
+        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $macroTemplateIds);
+
         $host = new Host(
             id: null,
             name: $command->name,
@@ -147,7 +165,7 @@ final readonly class CreateHostCommandHandler
             severityId: $command->severityId,
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
-            checkOptions: $command->checkOptions,
+            checkOptions: $checkOptions,
         );
 
         $this->repository->add($host);
@@ -165,6 +183,59 @@ final readonly class CreateHostCommandHandler
         }
 
         return $host;
+    }
+
+    /**
+     * Drops macros the host merely inherits (from its templates or its check command) and moves any
+     * password macro's plaintext into the vault, leaving a `secret::` reference in its place, before
+     * the host is persisted.
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     */
+    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds): CheckOptions
+    {
+        $inherited = $this->inheritedHostMacroRepository->findInheritedMacros(
+            $templateIds,
+            $checkOptions->checkCommandId,
+        );
+        $macros = $this->hostMacroInheritanceResolver->keepOverridesOnly($checkOptions->macros, $inherited);
+        $macros = $this->vaultizePasswordMacros($macros);
+
+        return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
+    }
+
+    /**
+     * @param list<HostMacro> $macros
+     *
+     * @return list<HostMacro>
+     */
+    private function vaultizePasswordMacros(array $macros): array
+    {
+        if (! $this->vault->isEnabled()) {
+            return $macros;
+        }
+
+        $credentials = VaultCredentials::fromArray([]);
+        foreach ($macros as $macro) {
+            if ($macro->isPassword) {
+                // Vault key convention matches legacy: `_HOST<NAME>`, without the `$...$` wrapper.
+                $credentials = $credentials->with('_HOST' . $macro->name->value, $macro->value);
+            }
+        }
+
+        $vaultedValues = $this->vaultCredentialWriter->write(VaultPathEnum::MonitoringHosts, $credentials);
+
+        return array_map(
+            static function (HostMacro $macro) use ($vaultedValues): HostMacro {
+                $key = '_HOST' . $macro->name->value;
+                if ($macro->isPassword && isset($vaultedValues[$key])) {
+                    return new HostMacro($macro->name, $vaultedValues[$key], true, $macro->description);
+                }
+
+                return $macro;
+            },
+            $macros,
+        );
     }
 
     /**

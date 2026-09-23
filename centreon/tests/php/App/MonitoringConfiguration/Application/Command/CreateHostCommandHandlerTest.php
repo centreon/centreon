@@ -36,6 +36,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
@@ -83,13 +85,16 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -98,6 +103,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeInheritedHostMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
@@ -116,11 +122,13 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     private FakeCommandRepository $commandRepository;
 
+    private FakeInheritedHostMacroRepository $inheritedHostMacroRepository;
+
     private FakeResourceAccessRepository $resourceAccessRepository;
 
-    private EventBusSpy $eventBus;
-
     private FakeVault $vault;
+
+    private EventBusSpy $eventBus;
 
     private FakeHostCategoryRepository $hostCategoryRepository;
 
@@ -144,9 +152,10 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->commandRepository = new FakeCommandRepository();
+        $this->inheritedHostMacroRepository = new FakeInheritedHostMacroRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
-        $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
+        $this->eventBus = new EventBusSpy();
         $this->hostCategoryRepository = new FakeHostCategoryRepository();
         $this->hostSeverityRepository = new FakeHostSeverityRepository();
         $this->timezoneRepository = new FakeTimezoneRepository();
@@ -157,9 +166,12 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(CommandRepository::class, $this->commandRepository);
+        $container->set(InheritedHostMacroRepository::class, $this->inheritedHostMacroRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
-        $container->set(EventBus::class, $this->eventBus);
         $container->set(VaultInterface::class, $this->vault);
+        // Rebuild the writer on the fake vault so vaulting is driven by the test's FakeVault.
+        $container->set(VaultCredentialWriter::class, new VaultCredentialWriter($this->vault));
+        $container->set(EventBus::class, $this->eventBus);
         $container->set(HostCategoryRepository::class, $this->hostCategoryRepository);
         $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
         $container->set(TimezoneRepository::class, $this->timezoneRepository);
@@ -217,6 +229,91 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
             checkOptions: new CheckOptions(new CommandId(404)),
         ));
+    }
+
+    public function testItPersistsCustomMacros(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('community'), 'public', isPassword: false),
+            ]),
+        ));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('COMMUNITY', $host->checkOptions->macros[0]->name->value);
+        self::assertSame('public', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testItStripsMacrosIdenticalToAnInheritedOne(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9);
+        $this->inheritedHostMacroRepository->inheritedMacros = [
+            new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false),
+        ];
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(new CommandId(9), macros: [
+                new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false),
+                new HostMacro(new HostMacroName('own'), 'value', isPassword: false),
+            ]),
+        ));
+
+        // The macro identical to the inherited one is dropped; only the host's own macro remains.
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('OWN', $host->checkOptions->macros[0]->name->value);
+    }
+
+    public function testItMovesPasswordMacrosToTheVault(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('secret'), 's3cr3t', isPassword: true),
+            ]),
+        ));
+
+        self::assertStringStartsWith('secret::', $host->checkOptions->macros[0]->value);
+        self::assertStringContainsString('_HOSTSECRET', $host->checkOptions->macros[0]->value);
+        self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->writeCalls[0]['customPath']);
+    }
+
+    public function testItKeepsPasswordMacroPlaintextWhenVaultIsDisabled(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = false;
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('secret'), 's3cr3t', isPassword: true),
+            ]),
+        ));
+
+        self::assertSame('s3cr3t', $host->checkOptions->macros[0]->value);
+        self::assertSame([], $this->vault->writeCalls);
     }
 
     public function testItRejectsADuplicateName(): void
