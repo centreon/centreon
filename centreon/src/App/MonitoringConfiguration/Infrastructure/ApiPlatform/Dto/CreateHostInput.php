@@ -126,6 +126,12 @@ final readonly class CreateHostInput
         #[Assert\Valid]
         public ?DataProcessingInput $dataProcessing = null,
 
+        #[ApiProperty(description: 'Not available on a Cloud platform, where linked services are always created. Defaults to true.')]
+        #[WhenPlatform(forCloud: true, constraints: [
+            new Assert\IsNull(message: 'This field is not available on a Cloud platform.'),
+        ])]
+        public ?bool $createServicesLinkedToTemplates = null,
+
         #[Assert\Valid]
         public ?CreateHostExtendedInformationsInput $extendedInformations = null,
 
