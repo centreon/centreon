@@ -304,3 +304,79 @@ describe('Form with sections', () => {
     cy.makeSnapshot();
   });
 });
+
+const initializeExclusiveCheckboxGroup = (): void => {
+  cy.mount({
+    Component: (
+      <Form
+        initialValues={{
+          notificationOptions: ['Down', 'Recovery']
+        }}
+        inputs={[
+          {
+            checkbox: {
+              direction: 'horizontal',
+              exclusiveOptions: ['None', 'Inherit'],
+              options: ['Down', 'Unreachable', 'Recovery', 'None', 'Inherit']
+            },
+            fieldName: 'notificationOptions',
+            group: '',
+            label: 'Notification options',
+            type: InputType.CheckboxGroup
+          }
+        ]}
+        submit={cy.stub()}
+        validationSchema={object()}
+      />
+    )
+  });
+};
+
+describe('Checkbox group with exclusive options', () => {
+  beforeEach(initializeExclusiveCheckboxGroup);
+
+  it('unchecks the other options when an exclusive option is checked', () => {
+    cy.findByLabelText('Down').should('be.checked');
+    cy.findByLabelText('Recovery').should('be.checked');
+
+    cy.findByLabelText('None').click();
+
+    cy.findByLabelText('None').should('be.checked');
+    cy.findByLabelText('Down').should('not.be.checked');
+    cy.findByLabelText('Unreachable').should('not.be.checked');
+    cy.findByLabelText('Recovery').should('not.be.checked');
+    cy.findByLabelText('Inherit').should('not.be.checked');
+  });
+
+  it('unchecks the exclusive option when another option is checked', () => {
+    cy.findByLabelText('None').click();
+    cy.findByLabelText('Unreachable').click();
+
+    cy.findByLabelText('Unreachable').should('be.checked');
+    cy.findByLabelText('None').should('not.be.checked');
+    cy.findByLabelText('Down').should('not.be.checked');
+    cy.findByLabelText('Recovery').should('not.be.checked');
+  });
+
+  it('keeps exclusive options mutually exclusive with each other', () => {
+    cy.findByLabelText('None').click();
+    cy.findByLabelText('Inherit').click();
+
+    cy.findByLabelText('Inherit').should('be.checked');
+    cy.findByLabelText('None').should('not.be.checked');
+  });
+
+  it('keeps the other options when a non-exclusive option is toggled', () => {
+    cy.findByLabelText('Unreachable').click();
+
+    cy.findByLabelText('Down').should('be.checked');
+    cy.findByLabelText('Unreachable').should('be.checked');
+    cy.findByLabelText('Recovery').should('be.checked');
+
+    cy.findByLabelText('Down').click();
+
+    cy.findByLabelText('Down').should('not.be.checked');
+    cy.findByLabelText('Unreachable').should('be.checked');
+    cy.findByLabelText('Recovery').should('be.checked');
+  });
+});
