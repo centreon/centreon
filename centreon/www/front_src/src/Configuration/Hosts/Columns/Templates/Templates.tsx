@@ -18,15 +18,13 @@ const Templates = ({ row }: ComponentColumnProps): JSX.Element | null => {
   const names = templates.map(({ name }) => name).join(', ');
 
   return (
-    // The cell clips its content, so the tooltip is the only way to read a
-    // list that does not fit.
+    // The cell clips, so the tooltip is the only way to read a long list.
     <Tooltip title={names}>
       <div className="flex items-center gap-1 overflow-hidden">
         {templates.map(({ id, name }, index) => (
           <span key={id}>
             <Link
-              // Decoupled from the translated labels on purpose: Pendo keys off
-              // this attribute and the wording is still moving.
+              // Pendo keys off this, so it must not follow the labels.
               data-testid={`host-template-link_${id}`}
               href={getHostTemplateConfigurationUrl(id)}
               underline="hover"

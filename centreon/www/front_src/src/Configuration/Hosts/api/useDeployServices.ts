@@ -17,8 +17,7 @@ interface UseDeployServicesState {
   isMutating: boolean;
 }
 
-// The endpoint deploys one host at a time, so a selection fans out into one
-// request per host.
+// The endpoint takes one host, so a selection fans out into one request each.
 const useDeployServices = (): UseDeployServicesState => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
@@ -27,7 +26,6 @@ const useDeployServices = (): UseDeployServicesState => {
     object,
     { id: number | string }
   >({
-    // A Core route, so the default `./api/latest` base is the right one.
     getEndpoint: ({ id }) => getDeployServicesEndpoint({ id }),
     method: Method.POST
   });
@@ -39,18 +37,14 @@ const useDeployServices = (): UseDeployServicesState => {
       )
     )
       .then((responses) => {
-        // `customFetch` resolves with an error shape rather than rejecting, and
-        // `useMutationQuery` has already shown the API's own message — staying
-        // quiet here avoids stacking a second snackbar on the same failure, as
-        // the other ConfigurationBase mutations do.
+        // `customFetch` resolves with an error shape rather than rejecting,
+        // and `useMutationQuery` has already shown the API's message.
         if (any(propEq(true, 'isError'), responses as Array<ResponseError>)) {
           return;
         }
 
         showSuccessMessage(t(labelServicesDeployed));
       })
-      // Nothing to add: `useMutationQuery` has already shown the API's message,
-      // and this only catches what `customFetch` did not turn into a response.
       .catch(() => undefined);
   };
 

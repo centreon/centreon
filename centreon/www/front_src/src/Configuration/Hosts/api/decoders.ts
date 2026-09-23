@@ -43,8 +43,7 @@ export const hostsListDecoder = buildListingDecoder({
   listingDecoderName: 'Hosts List'
 });
 
-// The host group and host template selectors answer in Hydra like the listing
-// does, so the filter autocompletes need the same mapping.
+// The selectors answer in Hydra, which the autocomplete cannot read unmapped.
 export const namedEntitiesListDecoder = buildListingDecoder({
   apiFormat: 'JSON-LD',
   entityDecoder: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Entity'),

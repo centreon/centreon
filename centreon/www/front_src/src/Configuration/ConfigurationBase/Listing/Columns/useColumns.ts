@@ -13,8 +13,8 @@ interface Props {
   staticColumns: Array<Column>;
 }
 
-// Both cells render nothing unless the module declares the matching action, so
-// offering the column regardless would let a user pick a permanently blank one.
+// Neither cell renders anything unless the module declares the matching action,
+// so offering the column regardless means offering a blank one.
 const useColumns = (): Props => {
   const { t } = useTranslation();
 

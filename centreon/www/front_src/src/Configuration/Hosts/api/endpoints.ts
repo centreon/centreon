@@ -12,9 +12,6 @@ export const hostsListEndpoint = '/configuration/hosts';
 export const hostTemplatesEndpoint = '/configuration/host_templates';
 export const hostGroupsEndpoint = '/configuration/host_groups';
 
-// Single-host operations live on the legacy `./api/latest` prefix, not on the
-// API Platform one the listing uses: DELETE and PATCH are Core routes, and only
-// allowlisted API Platform operations are aliased across.
 export const getHostEndpoint = (params?: { id: number | string }): string =>
   `/configuration/hosts/${params?.id}`;
 
@@ -24,13 +21,6 @@ export const getDeployServicesEndpoint = ({
   id: number | string;
 }): string => `/configuration/hosts/${id}/services/deploy`;
 
-// Neither bulk endpoint exists yet; HostGroups has all four.
-//
-// Duplicate is confirmed with the backend: this path, taking a plain array of
-// ids, mirroring `/configuration/commands/_duplicate`. Not implemented yet, so
-// the action runs against a mock until it ships — nothing here changes when it
-// does. That contract is why `isSingleDuplicate` is set on the api config: it
-// sends `{ ids }` rather than `{ ids, nb_duplicates }`.
 export const bulkDeleteHostsEndpoint = '/configuration/hosts/_delete';
 export const bulkDuplicateHostsEndpoint = '/configuration/hosts/_duplicate';
 
@@ -38,8 +28,7 @@ type SearchParameter = {
   conditions?: Array<{ values?: { $lk?: string; $ni?: Array<string> } }>;
 };
 
-// The connected autocomplete hands us its own search/page state; API Platform
-// selectors take `name[lk]` rather than the `search` payload of the legacy API.
+// Selectors take `name[lk]`, not the `search` payload the autocomplete builds.
 const getSelectorEndpoint =
   (baseEndpoint: string) =>
   ({ search, page }: { search?: SearchParameter; page?: number }): string => {
@@ -53,8 +42,7 @@ const getSelectorEndpoint =
       ? [
           {
             name: 'name[lk]',
-            // The autocomplete wraps the typed text in `%`; this endpoint adds
-            // its own wildcards.
+            // The autocomplete wraps the typed text in `%`.
             value: searchedValue?.slice(1, -1) ?? ''
           }
         ]

@@ -64,16 +64,12 @@ const Hosts = () => {
           onClick: deployServices
         }
       ],
-      // Reaching a host's services is a read action: it survives the loss of
-      // write access, unlike duplicate and delete.
+      // A read action, so it survives the loss of write access.
       rowActions: [
         {
           dataTestId: ({ id }) => `go-to-services_${id}`,
-          // The same icon the top counter uses for services, as the spec asks.
           Icon: ServiceIcon,
           label: labelGoToServices,
-          // Same tab: the spec calls this a redirection to the services
-          // listing, as the legacy hosts listing does.
           onClick: ({ name }) => {
             window.open(getHostServicesUrl(name as string), '_self');
           }

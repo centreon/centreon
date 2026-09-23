@@ -8,7 +8,6 @@ export const labelHostGroup = 'Host group';
 export const labelHostTemplate = 'Host template';
 export const labelStatus = 'Status';
 
-// The legacy host listing's own label for this link, already translated.
 export const labelGoToServices = 'Display all Services for this host';
 export const labelDeployServices = 'Deploy Service';
 export const labelServicesDeployed = 'Services deployed';

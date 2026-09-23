@@ -34,9 +34,8 @@ export type Filters = {
   disabled?: boolean;
 } & Record<string, string | boolean>;
 
-// An inline action a module adds to the row, next to the shared duplicate and
-// delete icons. Unlike those, its visibility is entirely the module's call, so
-// it can stay available to a user with no write access.
+// An inline action a module adds to the row. Unlike the shared duplicate and
+// delete icons, its visibility is entirely the module's call.
 export interface RowAction {
   Icon: ComponentType<{ className?: string }>;
   dataTestId: (row: ResourceRow) => string;
@@ -45,7 +44,6 @@ export interface RowAction {
   onClick: (row: ResourceRow) => void;
 }
 
-// An entry a module appends to the More actions menu, after the shared ones.
 export interface MassiveAction {
   Icon: ComponentType;
   dataTestId: string;
@@ -69,9 +67,8 @@ export interface Actions {
   viewDetails?: boolean;
   rowActions?: Array<RowAction>;
   massiveActions?: Array<MassiveAction>;
-  // Keep the per-row actions and the enable/disable toggle on screen for a user
-  // without write access, letting each cell decide what it shows. Modules that
-  // gate their row actions on write access alone leave this off.
+  // Keep the per-row cells on screen without write access and let each decide
+  // what it shows. Modules gating on write access alone leave this off.
   rowActionsWithoutWriteAccess?: boolean;
 }
 
@@ -152,12 +149,11 @@ export interface FilterConfiguration {
   fieldType: FieldType;
   options?: Array<{ id: number | string; name: string }>;
   getEndpoint?: (parameters: Record<string, unknown>) => string;
-  // Overrides the default `./api/latest` of `customFetch`. API Platform selector
-  // endpoints are only aliased under that prefix when allowlisted, so most need
-  // `./api`.
+  // Overrides the default `./api/latest` of `customFetch`. API Platform routes
+  // are only aliased under that prefix when allowlisted, so most need `./api`.
   baseEndpoint?: string;
-  // The connected autocomplete reads `{ result, meta }`; a Hydra selector needs
-  // a decoder built with `apiFormat: 'JSON-LD'` to get there.
+  // The autocomplete reads `{ result, meta }`; a Hydra selector needs a decoder
+  // built with `apiFormat: 'JSON-LD'` to get there.
   decoder?: JsonDecoder.Decoder<unknown>;
 }
 

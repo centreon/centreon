@@ -130,9 +130,8 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     return [...statusCondition, ...(otherConditions || [])];
   }, [configuration?.filtersConfiguration, filters]);
 
-  // The status filter carries no `fieldName`, and the query parameter is not
-  // spelled the same on every endpoint — `is_activated` on commands, `activated`
-  // on hosts — so a module may name it through the filter configuration.
+  // The status filter carries no `fieldName`, and endpoints do not spell the
+  // parameter alike, so a module may name it through its filter configuration.
   const getStatusQueries = () => {
     if (!isStatusFilterApplied) {
       return [];

@@ -16,8 +16,7 @@ export interface HostListItem extends NamedEntity {
   templates: Array<NamedEntity>;
 }
 
-// The single-select filter keys are the query parameters the listing endpoint
-// expects, because that is what `useLoadData` sends them as.
+// The single-select keys are the query parameters `useLoadData` sends them as.
 export type Filters = {
   name: string;
   group_id: NamedEntity | null;

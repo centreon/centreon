@@ -34,8 +34,7 @@ const useEnable = (): UseEnableProps => {
   });
 
   const enableMutation = ({ ids }: { ids: Array<number> }) => {
-    // PATCH is a single-resource operation, so a selection has to fan out —
-    // patching `ids[0]` alone reported the whole selection as done.
+    // PATCH is a single-resource operation, so a selection has to fan out.
     if (equals(method, Method.PATCH)) {
       return Promise.all(
         ids.map((id) =>

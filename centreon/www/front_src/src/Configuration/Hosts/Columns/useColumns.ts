@@ -62,8 +62,7 @@ const useColumns = (): Props => {
     },
     {
       Component: Templates,
-      // The template links navigate on their own; the cell must not also open
-      // the host panel.
+      // The links navigate; the cell must not also open the host panel.
       clickable: true,
       disablePadding: false,
       id: 'templates',

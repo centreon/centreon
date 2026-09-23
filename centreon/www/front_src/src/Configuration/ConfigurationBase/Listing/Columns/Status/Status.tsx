@@ -32,10 +32,8 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
 
   const canChange = actions.enableDisable(row);
 
-  // A module that opts into per-row affordances without write access keeps the
-  // toggle on screen, disabled — what a read-only user is meant to see. Without
-  // that opt-in the cell renders nothing, as it did before: commands uses a
-  // per-row predicate and expects the toggle gone, not greyed.
+  // Without the opt-in a refused row renders nothing rather than a disabled
+  // toggle: commands uses a per-row predicate and expects the toggle gone.
   if (!canChange && !actions.rowActionsWithoutWriteAccess) {
     return;
   }

@@ -39,10 +39,8 @@ const api: APIType = {
     enable: getHostEndpoint,
     getAll: hostsListEndpoint
   },
-  // Confirmed with the backend: the payload is a plain array of ids, which is
-  // what `isSingleDuplicate` sends.
+  // Sends `{ ids }` rather than `{ ids, nb_duplicates }`.
   isSingleDuplicate: true,
-  // Enable and disable are a partial update of the host, as on commands.
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH
@@ -60,8 +58,7 @@ const useHosts = (): UseHostsState => {
         name: t(labelName)
       },
       {
-        // `fieldName` doubles as the query parameter, and the listing endpoint
-        // takes `group_id` / `template_id`.
+        // `fieldName` doubles as the query parameter.
         baseEndpoint: hostsBaseEndpoint,
         decoder: namedEntitiesListDecoder,
         fieldName: 'group_id',
@@ -78,8 +75,7 @@ const useHosts = (): UseHostsState => {
         name: t(labelHostTemplate)
       },
       {
-        // This endpoint spells the status parameter `activated`, not the
-        // `is_activated` the other migrated listings use.
+        // This endpoint spells it `activated`, not `is_activated`.
         fieldName: 'activated',
         fieldType: FieldType.Status,
         name: t(labelStatus)
