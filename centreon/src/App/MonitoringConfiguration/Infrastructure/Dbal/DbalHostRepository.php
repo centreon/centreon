@@ -217,6 +217,27 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         foreach ($host->childHostIds as $childHostId) {
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
         }
+
+        foreach ($host->checkOptions->macros as $macroOrder => $macro) {
+            $this->connection->createQueryBuilder()
+                ->insert('on_demand_macro_host')
+                ->values([
+                    'host_macro_name' => ':macroName',
+                    'host_macro_value' => ':macroValue',
+                    'is_password' => ':isPassword',
+                    'description' => ':description',
+                    'host_host_id' => ':hostId',
+                    'macro_order' => ':macroOrder',
+                ])
+                ->setParameter('macroName', $macro->name->toStorageName())
+                ->setParameter('macroValue', $macro->value)
+                // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+                ->setParameter('isPassword', $macro->isPassword ? 1 : null)
+                ->setParameter('description', $macro->description)
+                ->setParameter('hostId', $hostId)
+                ->setParameter('macroOrder', $macroOrder)
+                ->executeStatement();
+        }
     }
 
     /**
