@@ -11,7 +11,6 @@ import { initReactI18next } from 'react-i18next';
 
 import { PlatformVersions } from '../api/models';
 import About from './About';
-import { projectLeaders } from './Sections/Credits';
 
 const platformVersion: PlatformVersions = {
   modules: {},
@@ -66,9 +65,10 @@ describe('About page', () => {
       'https://github.com/centreon/centreon'
     );
 
-    projectLeaders.forEach((leader) => {
-      cy.contains(leader).should('be.visible');
-    });
+    cy.contains('Project leaders').should('not.exist');
+    cy.contains('See the full list on GitHub')
+      .should('have.attr', 'href')
+      .and('include', 'graphs/contributors');
 
     cy.contains('Report a vulnerability')
       .should('have.attr', 'href')

@@ -5,8 +5,6 @@ export const labelStarOnGithub = 'Star on GitHub';
 export const labelStarCentreonOnGithub = 'Star centreon/centreon on GitHub';
 
 export const labelProjectAndContributors = 'Project & contributors';
-export const labelProjectLeadersWithCount =
-  'Project leaders <count>({{total}})</count>';
 export const labelContributorsNotice =
   'Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>';
 

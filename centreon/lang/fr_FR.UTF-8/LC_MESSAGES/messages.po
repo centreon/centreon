@@ -1210,10 +1210,6 @@ msgid "Project & contributors"
 msgstr "Projet et contributeurs"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Project leaders <count>({{total}})</count>"
-msgstr "Responsables du projet <count>({{total}})</count>"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"
 msgstr "Sécurité"
 
