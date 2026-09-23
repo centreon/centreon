@@ -33,7 +33,6 @@ const api: APIType = {
   decoders: { getAll: hostsListDecoder },
   endpoints: {
     delete: bulkDeleteHostsEndpoint,
-    deleteOne: getHostEndpoint,
     disable: getHostEndpoint,
     duplicate: bulkDuplicateHostsEndpoint,
     enable: getHostEndpoint,

@@ -64,13 +64,6 @@ const initialize = ({
     response: getHostTemplatesResponse()
   });
 
-  cy.interceptAPIRequest({
-    alias: 'deleteHost',
-    method: Method.DELETE,
-    path: `**${getHostEndpoint({ id: 0 })}`,
-    response: {}
-  });
-
   // Enable and disable are a partial update of the host, one request per host.
   cy.interceptAPIRequest({
     alias: 'patchHost',

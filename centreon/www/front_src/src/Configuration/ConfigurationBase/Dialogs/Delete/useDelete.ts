@@ -11,7 +11,7 @@ import {
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
-import { equals, isEmpty, pluck } from 'ramda';
+import { equals, isEmpty, isNotNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -72,13 +72,18 @@ const useDelete = (): UseDeleteState => {
   const { deleteOneMutation, isMutating: isMutatingOne } =
     useDeleteOneRequest();
 
+  // A module that declares no `deleteOne` endpoint deletes through the bulk one
+  // whatever the count, so the action depends on a single route.
+  const deletesOneByItself =
+    equals(count, 1) && isNotNil(configuration?.api?.endpoints?.deleteOne);
+
   const handleApiResponse = (response) => {
     const { isError, results } = response as ResponseError;
     if (isError) {
       return;
     }
 
-    if (equals(count, 1)) {
+    if (deletesOneByItself) {
       showSuccessMessage(
         t(labelResourceDeleted(capitalize(labelResourceType)))
       );
@@ -100,7 +105,7 @@ const useDelete = (): UseDeleteState => {
   };
 
   const confirm = (): void => {
-    equals(count, 1)
+    deletesOneByItself
       ? deleteOneMutation({ id: ids[0] }).then(handleApiResponse)
       : deleteMutation({ ids }).then(handleApiResponse);
   };

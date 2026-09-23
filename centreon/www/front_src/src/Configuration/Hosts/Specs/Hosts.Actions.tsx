@@ -48,7 +48,11 @@ export default () => {
 
       cy.findByTestId('confirm').click();
 
-      cy.waitForRequest('@deleteHost');
+      // The row icon deletes through the bulk endpoint too: one route for the
+      // action, whatever the count.
+      cy.waitForRequest('@deleteHosts').then(({ request }) => {
+        expect(request.body).to.deep.equal({ ids: [0] });
+      });
 
       cy.makeSnapshot();
     });
