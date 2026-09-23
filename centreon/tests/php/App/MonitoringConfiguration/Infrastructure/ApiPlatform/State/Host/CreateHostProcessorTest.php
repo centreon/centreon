@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
@@ -116,6 +119,200 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var HostRepository $repository */
         $repository = self::getContainer()->get(HostRepository::class);
         self::assertTrue($repository->isNameUsedByHostOrTemplate(new HostName($name)));
+    }
+
+    public function testItCreatesAHostWithDataProcessing(): void
+    {
+        $this->login();
+        $this->forceOnPremPlatform();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.5',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'flap_detection_enabled' => 'false',
+                    'low_flap_threshold' => 10,
+                    'high_flap_threshold' => 60,
+                    'event_handler_enabled' => 'use_default',
+                    'acknowledgment_timeout' => 15,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'data_processing' => [
+                'check_freshness' => 'true',
+                'freshness_threshold' => 120,
+                'flap_detection_enabled' => 'false',
+                'low_flap_threshold' => 10,
+                'high_flap_threshold' => 60,
+                'event_handler_enabled' => 'use_default',
+                'acknowledgment_timeout' => 15,
+            ],
+        ]);
+    }
+
+    public function testItCreatesAHostWithAnEventHandlerCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $this->connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'event-handler',
+            'command_line' => '$USER1$/handle',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.7',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'event_handler_enabled' => 'true',
+                    'event_handler_command_id' => 2,
+                    'event_handler_args' => ['-w', '80'],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'data_processing' => [
+                'event_handler_enabled' => 'true',
+                'event_handler' => ['id' => 2, 'name' => 'event-handler'],
+                'event_handler_args' => ['-w', '80'],
+            ],
+        ]);
+    }
+
+    public function testItOmitsTheOnPremiseOnlyDataProcessingFieldsOnCloud(): void
+    {
+        $this->login();
+        $this->forceCloudPlatform();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.8',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'event_handler_enabled' => 'use_default',
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        $dataProcessing = $response->toArray()['data_processing'];
+        self::assertIsArray($dataProcessing);
+        // Members available on every platform are returned.
+        self::assertSame('true', $dataProcessing['check_freshness']);
+        self::assertSame(120, $dataProcessing['freshness_threshold']);
+        self::assertSame('use_default', $dataProcessing['event_handler_enabled']);
+        // The nullable on-premise-only members are dropped from the Cloud contract.
+        self::assertArrayNotHasKey('acknowledgment_timeout', $dataProcessing);
+        self::assertArrayNotHasKey('flap_detection_enabled', $dataProcessing);
+        self::assertArrayNotHasKey('low_flap_threshold', $dataProcessing);
+        self::assertArrayNotHasKey('high_flap_threshold', $dataProcessing);
+        // event_handler_args is a non-nullable array, so it stays as an empty list on Cloud.
+        self::assertSame([], $dataProcessing['event_handler_args']);
+    }
+
+    public function testItRejectsAFlapThresholdAboveOneHundred(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.6',
+                'poller_id' => $pollerId,
+                'data_processing' => ['low_flap_threshold' => 101],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAZeroAcknowledgmentTimeout(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.7',
+                'poller_id' => $pollerId,
+                'data_processing' => ['acknowledgment_timeout' => 0],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownEventHandlerCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.8',
+                'poller_id' => $pollerId,
+                'data_processing' => ['event_handler_command_id' => 999999999],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnEventHandlerArgumentContainingTheStorageDelimiter(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'data_processing' => ['event_handler_args' => ['a!b']],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnEventHandlerArgumentContainingAnEscapeToken(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'data_processing' => ['event_handler_args' => ['a#BR#b']],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
     }
 
     /**
@@ -919,6 +1116,172 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
     }
 
+    public function testItCreatesAHostWithAnAliasAndSnmpSettings(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'alias' => 'Web server',
+                'snmp_version' => '2c',
+                'snmp_community' => 'public',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['name' => $name, 'alias' => 'Web server', 'snmp_version' => '2c']);
+
+        $payload = $response->toArray();
+        // Write-only: legacy never returns it either, and with a vault configured the stored value
+        // would be a `secret::` reference.
+        self::assertArrayNotHasKey('snmp_community', $payload);
+
+        /** @var int $hostId */
+        $hostId = $payload['id'];
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_alias, host_snmp_version, host_snmp_community FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertIsArray($row);
+        self::assertSame('Web server', $row['host_alias']);
+        self::assertSame('2c', $row['host_snmp_version']);
+        self::assertSame('public', $row['host_snmp_community']);
+    }
+
+    public function testItRejectsAnUnknownSnmpVersion(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+                'snmp_version' => '4',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * Legacy asserts maxLength on the trimmed value only, so a blank value is valid there and
+     * reads as "not provided".
+     */
+    #[DataProvider('blankOptionalFieldProvider')]
+    public function testItAcceptsABlankOptionalField(string $field, string $value): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                $field => $value,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        // The serializer omits nulls platform-wide, so the key is absent rather than null.
+        self::assertArrayNotHasKey($field, $response->toArray());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function blankOptionalFieldProvider(): iterable
+    {
+        yield 'empty alias' => ['alias', ''];
+
+        yield 'whitespace alias' => ['alias', '   '];
+    }
+
+    /**
+     * Config generation writes these straight into a `.cfg` line, so an embedded newline would
+     * inject a directive. Legacy does not filter them; we do.
+     */
+    #[DataProvider('controlCharacterFieldProvider')]
+    public function testItRejectsControlCharactersInAnOptionalField(string $field): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                $field => "before\nalias_injected",
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function controlCharacterFieldProvider(): iterable
+    {
+        yield 'alias' => ['alias'];
+
+        yield 'snmp_community' => ['snmp_community'];
+    }
+
+    #[DataProvider('overlongOptionalFieldProvider')]
+    public function testItRejectsAnOverlongOptionalField(string $field, int $length): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                $field => str_repeat('a', $length),
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function overlongOptionalFieldProvider(): iterable
+    {
+        yield 'alias' => ['alias', HostAlias::MAX_LENGTH + 1];
+
+        yield 'snmp_community' => ['snmp_community', SnmpCommunity::MAX_LENGTH + 1];
+    }
+
+    public function testItMeasuresTheTrimmedLengthOfAnAlias(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'alias' => '  ' . str_repeat('a', HostAlias::MAX_LENGTH) . '  ',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['alias' => str_repeat('a', HostAlias::MAX_LENGTH)]);
+    }
+
     private function uniqueName(string $prefix = 'host'): string
     {
         return $prefix . '_' . bin2hex(random_bytes(4));
@@ -934,6 +1297,12 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->forcePlatform(isCloudPlatform: false);
     }
 
+    /**
+     * The data_processing output shaping reads CreateHostProcessor's own $isCloudPlatform (bound
+     * from IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by
+     * replacing the container's processor with one built with the desired value, reusing its real
+     * dependencies. Must run before the request is made.
+     */
     private function forcePlatform(bool $isCloudPlatform): void
     {
         $container = self::getContainer();
@@ -948,6 +1317,8 @@ final class CreateHostProcessorTest extends ApiTestCase
         $pollerRepository = $container->get(PollerRepository::class);
         /** @var HostGroupRepository $hostGroupRepository */
         $hostGroupRepository = $container->get(HostGroupRepository::class);
+        /** @var CommandRepository $commandRepository */
+        $commandRepository = $container->get(CommandRepository::class);
         /** @var MediaRepository $mediaRepository */
         $mediaRepository = $container->get(MediaRepository::class);
         /** @var MediaUrlGenerator $mediaUrlGenerator */
@@ -963,6 +1334,7 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $security,
                 $pollerRepository,
                 $hostGroupRepository,
+                $commandRepository,
                 $mediaRepository,
                 $mediaUrlGenerator,
                 $timePeriodRepository,

@@ -31,36 +31,24 @@ use Webmozart\Assert\Assert;
 
 final readonly class LegacyVaultWrapper implements VaultInterface
 {
-    private ReadVaultRepositoryInterface $readRepository;
-
-    private WriteVaultRepositoryInterface $writeRepository;
-
-    private VaultEligibilityService $eligibilityService;
-
-    public function __construct(LegacyContainer $legacyContainer)
-    {
-        $readRepository = $legacyContainer->get(ReadVaultRepositoryInterface::class);
-        Assert::isInstanceOf($readRepository, ReadVaultRepositoryInterface::class);
-
-        $writeRepository = $legacyContainer->get(WriteVaultRepositoryInterface::class);
-        Assert::isInstanceOf($writeRepository, WriteVaultRepositoryInterface::class);
-
-        $eligibilityService = $legacyContainer->get(VaultEligibilityService::class);
-        Assert::isInstanceOf($eligibilityService, VaultEligibilityService::class);
-
-        $this->readRepository = $readRepository;
-        $this->writeRepository = $writeRepository;
-        $this->eligibilityService = $eligibilityService;
+    /**
+     * Resolved per call, never in the constructor: `LegacyContainer` is a `#[Lazy]` proxy that
+     * boots a second Symfony kernel on first touch, which would then happen for every consumer of
+     * VaultInterface. Same arrangement as LegacyGorgoneNodesSynchronizer.
+     */
+    public function __construct(
+        private LegacyContainer $legacyContainer,
+    ) {
     }
 
     public function isEnabled(string $featureFlag = 'vault'): bool
     {
-        return $this->eligibilityService->shouldUseVault($featureFlag);
+        return $this->eligibilityService()->shouldUseVault($featureFlag);
     }
 
     public function read(string $path): array
     {
-        return $this->readRepository->findFromPath($path);
+        return $this->readRepository()->findFromPath($path);
     }
 
     public function isVaultPath(string $value): bool
@@ -93,8 +81,10 @@ final readonly class LegacyVaultWrapper implements VaultInterface
 
     public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
     {
-        $this->writeRepository->setCustomPath($customPath);
-        $paths = $this->writeRepository->upsert($uuid, $secrets, []);
+        $writeRepository = $this->writeRepository();
+        $writeRepository->setCustomPath($customPath);
+
+        $paths = $writeRepository->upsert($uuid, $secrets, []);
 
         foreach (array_keys($secrets) as $key) {
             if (! isset($paths[$key])) {
@@ -106,5 +96,29 @@ final readonly class LegacyVaultWrapper implements VaultInterface
         // pre-existing ones when writing to an existing entry); the contract only exposes the keys
         // that were requested, so surplus paths never leak onto the calling resource.
         return array_intersect_key($paths, $secrets);
+    }
+
+    private function readRepository(): ReadVaultRepositoryInterface
+    {
+        $repository = $this->legacyContainer->get(ReadVaultRepositoryInterface::class);
+        Assert::isInstanceOf($repository, ReadVaultRepositoryInterface::class);
+
+        return $repository;
+    }
+
+    private function writeRepository(): WriteVaultRepositoryInterface
+    {
+        $repository = $this->legacyContainer->get(WriteVaultRepositoryInterface::class);
+        Assert::isInstanceOf($repository, WriteVaultRepositoryInterface::class);
+
+        return $repository;
+    }
+
+    private function eligibilityService(): VaultEligibilityService
+    {
+        $service = $this->legacyContainer->get(VaultEligibilityService::class);
+        Assert::isInstanceOf($service, VaultEligibilityService::class);
+
+        return $service;
     }
 }
