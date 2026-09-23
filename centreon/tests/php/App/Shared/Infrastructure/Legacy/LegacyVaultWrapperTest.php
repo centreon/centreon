@@ -58,6 +58,45 @@ final class LegacyVaultWrapperTest extends TestCase
         $this->wrapper = new LegacyVaultWrapper($container);
     }
 
+    public function testItResolvesNothingUntilALegacyServiceIsActuallyNeeded(): void
+    {
+        $container = $this->createMock(LegacyContainer::class);
+        $container->expects(self::never())->method('get');
+
+        $wrapper = new LegacyVaultWrapper($container);
+
+        self::assertTrue($wrapper->isVaultPath('secret::path'));
+        self::assertFalse($wrapper->isVaultPath('plaintext'));
+    }
+
+    public function testResolvingAPlaintextValueTouchesNoLegacyService(): void
+    {
+        $container = $this->createMock(LegacyContainer::class);
+        $container->expects(self::never())->method('get');
+
+        self::assertSame('public', new LegacyVaultWrapper($container)->resolve('public'));
+    }
+
+    public function testItResolvesAVaultPathToItsSecret(): void
+    {
+        $path = 'secret::hashicorp_vault::monitoring/hosts/3f2a::_HOSTSNMPCOMMUNITY';
+        $this->readRepository->expects(self::once())
+            ->method('findFromPath')
+            ->with($path)
+            ->willReturn(['_HOSTSNMPCOMMUNITY' => 'public']);
+
+        self::assertSame('public', $this->wrapper->resolve($path));
+    }
+
+    public function testItFailsWhenTheVaultHoldsNoSecretUnderTheKey(): void
+    {
+        $this->readRepository->method('findFromPath')->willReturn([]);
+
+        $this->expectException(\RuntimeException::class);
+
+        $this->wrapper->resolve('secret::hashicorp_vault::monitoring/hosts/3f2a::_HOSTSNMPCOMMUNITY');
+    }
+
     public function testWriteManyReturnsOnlyRequestedKeysWhenEntryHoldsOthers(): void
     {
         $this->writeRepository->expects($this->once())->method('setCustomPath')->with('monitoring/hosts');
