@@ -27,12 +27,22 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\NotificationContactPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationContact\ListNotificationContactsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationContact\ListNotificationContactsProvider;
 
 #[ApiResource(
     shortName: 'NotificationContact',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/contacts',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access contacts',
+            output: NotificationContactChoicesOutput::class,
+            provider: ListNotificationContactsChoicesProvider::class,
+        ),
         new GetCollection(
             uriTemplate: '/configuration/contacts',
             provider: ListNotificationContactsProvider::class,
