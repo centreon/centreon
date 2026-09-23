@@ -79,6 +79,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
+        $dataProcessing = $host->dataProcessing;
         $extendedInformations = $host->extendedInformations;
         $schedulingOptions = $host->schedulingOptions;
 
@@ -90,6 +91,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_alias' => ':alias',
                 'host_activate' => ':is_activated',
                 'host_register' => "'1'",
+                'host_acknowledgement_timeout' => ':ackTimeout',
+                'host_check_freshness' => ':checkFreshness',
+                'host_freshness_threshold' => ':freshnessThreshold',
+                'host_flap_detection_enabled' => ':flapDetectionEnabled',
+                'host_low_flap_threshold' => ':lowFlapThreshold',
+                'host_high_flap_threshold' => ':highFlapThreshold',
+                'host_event_handler_enabled' => ':eventHandlerEnabled',
+                'command_command_id2' => ':eventHandlerCommandId',
+                'command_command_id_arg2' => ':eventHandlerArgs',
                 'geo_coords' => ':geoCoords',
                 'host_comment' => ':comment',
                 'timeperiod_tp_id' => ':checkTimeperiodId',
@@ -103,6 +113,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('address', $host->address->value)
             ->setParameter('alias', $host->alias?->value)
             ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
+            ->setParameter('checkFreshness', $this->triStateToColumn($dataProcessing->checkFreshness))
+            ->setParameter('freshnessThreshold', $dataProcessing->freshnessThreshold, ParameterType::INTEGER)
+            ->setParameter('flapDetectionEnabled', $this->triStateToColumn($dataProcessing->flapDetectionEnabled))
+            ->setParameter('lowFlapThreshold', $dataProcessing->lowFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
+            ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
+            ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
             ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
@@ -249,6 +268,25 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
+    }
+
+    /**
+     * Store the event-handler command arguments the legacy way: each argument prefixed with "!" and
+     * concatenated; an empty list stores NULL. Arguments are validated upstream to contain no "!"
+     * delimiter (nor \n\t\r), so no escaping is needed here.
+     *
+     * @param list<string> $args
+     */
+    private function joinCommandArgsForLegacyColumn(array $args): ?string
+    {
+        if ($args === []) {
+            return null;
+        }
+
+        // Arguments are validated upstream (DataProcessingInput / DataProcessing) to contain neither
+        // the '!' delimiter nor the \n\t\r characters the legacy codec would encode, so a plain
+        // '!'-prefixed join is unambiguous and round-trips through the reader.
+        return '!' . implode('!', $args);
     }
 
     /**

@@ -75,6 +75,9 @@ final readonly class CreateHostInput
         public array $hostGroupIds = [],
 
         #[Assert\Valid]
+        public ?DataProcessingInput $dataProcessing = null,
+
+        #[Assert\Valid]
         public ?CreateHostExtendedInformationsInput $extendedInformations = null,
 
         #[Assert\Valid]

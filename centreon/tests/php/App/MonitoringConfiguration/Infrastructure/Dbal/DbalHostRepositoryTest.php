@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -292,6 +294,97 @@ final class DbalHostRepositoryTest extends KernelTestCase
             [$host->id()->value],
         );
         self::assertSame(1, (int) $extendedInfoCount);
+    }
+
+    public function testAddPersistsTheDataProcessingColumns(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-dp'),
+            alias: null,
+            address: new HostAddress('10.0.0.2'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            dataProcessing: new DataProcessing(
+                checkFreshness: TriStateEnum::True,
+                flapDetectionEnabled: TriStateEnum::False,
+                eventHandlerEnabled: TriStateEnum::UseDefault,
+                acknowledgmentTimeout: 15,
+                freshnessThreshold: 120,
+                lowFlapThreshold: 10,
+                highFlapThreshold: 60,
+                eventHandlerArgs: ['warn', 'crit'],
+            ),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array<string, mixed> $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_check_freshness, host_flap_detection_enabled, host_event_handler_enabled,
+                    host_acknowledgement_timeout, host_freshness_threshold, host_low_flap_threshold,
+                    host_high_flap_threshold, command_command_id2, command_command_id_arg2
+               FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        // Three-state directives are stored as the DB column values '0'/'1'/'2'.
+        self::assertSame('1', $row['host_check_freshness']);
+        self::assertSame('0', $row['host_flap_detection_enabled']);
+        self::assertSame('2', $row['host_event_handler_enabled']);
+        // Integer columns come back as int (enum columns above come back as string); assert without
+        // a cast, which PHPStan rejects on a mixed value.
+        self::assertSame(15, $row['host_acknowledgement_timeout']);
+        self::assertSame(120, $row['host_freshness_threshold']);
+        self::assertSame(10, $row['host_low_flap_threshold']);
+        self::assertSame(60, $row['host_high_flap_threshold']);
+        self::assertNull($row['command_command_id2']);
+        self::assertSame('!warn!crit', $row['command_command_id_arg2']);
+    }
+
+    public function testAddPersistsTheEventHandlerCommandAndArgs(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'event-handler',
+            'command_line' => '$USER1$/handle',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-eh'),
+            alias: null,
+            address: new HostAddress('10.0.0.3'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            dataProcessing: new DataProcessing(
+                eventHandlerCommandId: new CommandId(2),
+                eventHandlerArgs: ['-w', '80'],
+            ),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array<string, mixed> $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id2, command_command_id_arg2 FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        self::assertSame(2, $row['command_command_id2']);
+        // Arguments (validated free of the '!' delimiter upstream) are stored as a plain '!'-join.
+        self::assertSame('!-w!80', $row['command_command_id_arg2']);
     }
 
     public function testAddPersistsExtendedInformations(): void
