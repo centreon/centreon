@@ -6,7 +6,11 @@ import {
   labelEnableDisable,
   labelMoreActions
 } from '../../ConfigurationBase/translatedLabels';
-import { labelDeployServices } from '../translatedLabels';
+import {
+  labelDeployServices,
+  labelServiceDeploymentFailed,
+  labelServicesDeployed
+} from '../translatedLabels';
 import initialize from './initialize';
 
 // A deactivated row is not selectable, so indexing the enabled checkboxes is
@@ -101,7 +105,28 @@ export default () => {
 
       cy.waitForRequest('@deployServices');
 
+      cy.contains(labelServicesDeployed).should('be.visible');
+
       cy.makeSnapshot();
+    });
+
+    it('reports a failed deployment with the agreed message, once', () => {
+      initialize({ deployFails: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      selectFirstRow();
+
+      cy.findByTestId(labelMoreActions).click();
+      cy.contains(labelDeployServices).click();
+
+      cy.waitForRequest('@deployServices');
+
+      cy.contains(labelServiceDeploymentFailed).should('be.visible');
+
+      // The API's own message is suppressed so the two do not stack.
+      cy.contains('Host not found').should('not.exist');
+      cy.contains(labelServicesDeployed).should('not.exist');
     });
 
     it('offers every massive action the ticket lists, and no massive change', () => {

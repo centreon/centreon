@@ -10,7 +10,8 @@ export const labelStatus = 'Status';
 
 export const labelGoToServices = 'Display all Services for this host';
 export const labelDeployServices = 'Deploy Service';
-export const labelServicesDeployed = 'Services deployed';
+export const labelServicesDeployed = 'Services deployed successfully!';
+export const labelServiceDeploymentFailed = 'Service deployment failed.';
 
 export const labelWelcomeToHosts = 'Welcome to the Hosts interface!';
 export const labelCreateHost = 'Create a host';

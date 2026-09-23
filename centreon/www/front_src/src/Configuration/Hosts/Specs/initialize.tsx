@@ -28,11 +28,13 @@ import {
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  deployFails?: boolean;
 }
 
 const initialize = ({
   isEmpty = false,
-  hasWriteAccess = true
+  hasWriteAccess = true,
+  deployFails = false
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -114,7 +116,8 @@ const initialize = ({
     alias: 'deployServices',
     method: Method.POST,
     path: `**${getDeployServicesEndpoint({ id: 0 })}`,
-    response: {}
+    response: deployFails ? { message: 'Host not found' } : {},
+    statusCode: deployFails ? 404 : 200
   });
 
   cy.mount({

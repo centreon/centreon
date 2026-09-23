@@ -9,7 +9,10 @@ import { any, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import type { ResourceRow } from '../../models';
-import { labelServicesDeployed } from '../translatedLabels';
+import {
+  labelServiceDeploymentFailed,
+  labelServicesDeployed
+} from '../translatedLabels';
 import { getDeployServicesEndpoint } from './endpoints';
 
 interface UseDeployServicesState {
@@ -20,13 +23,16 @@ interface UseDeployServicesState {
 // The endpoint takes one host, so a selection fans out into one request each.
 const useDeployServices = (): UseDeployServicesState => {
   const { t } = useTranslation();
-  const { showSuccessMessage } = useSnackbar();
+  const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
   const { mutateAsync, isMutating } = useMutationQuery<
     object,
     { id: number | string }
   >({
     getEndpoint: ({ id }) => getDeployServicesEndpoint({ id }),
+    // Every failure this endpoint can return, so the agreed message is the only
+    // one shown rather than stacking on the API's own.
+    httpCodesBypassErrorSnackbar: [403, 404, 500],
     method: Method.POST
   });
 
@@ -37,15 +43,16 @@ const useDeployServices = (): UseDeployServicesState => {
       )
     )
       .then((responses) => {
-        // `customFetch` resolves with an error shape rather than rejecting,
-        // and `useMutationQuery` has already shown the API's message.
+        // `customFetch` resolves with an error shape rather than rejecting.
         if (any(propEq(true, 'isError'), responses as Array<ResponseError>)) {
+          showErrorMessage(t(labelServiceDeploymentFailed));
+
           return;
         }
 
         showSuccessMessage(t(labelServicesDeployed));
       })
-      .catch(() => undefined);
+      .catch(() => showErrorMessage(t(labelServiceDeploymentFailed)));
   };
 
   return { deployServices, isMutating };
