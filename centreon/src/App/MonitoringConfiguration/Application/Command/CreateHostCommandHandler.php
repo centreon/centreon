@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
@@ -38,16 +39,22 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\VaultInterface;
 
 #[AsCommandHandler]
 final readonly class CreateHostCommandHandler
 {
+    /** Must match legacy: both address the same vault entries. */
+    public const HOST_VAULT_PATH = 'monitoring/hosts';
+    public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+
     public function __construct(
         private HostRepository $repository,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private EventBus $eventBus,
+        private VaultInterface $vault,
     ) {
     }
 
@@ -80,13 +87,15 @@ final readonly class CreateHostCommandHandler
         $host = new Host(
             id: null,
             name: $command->name,
-            alias: null,
+            alias: $command->alias,
             address: $command->address,
             activated: true,
             pollerId: $command->pollerId,
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: $command->hostGroupIds,
             dataProcessing: $command->dataProcessing,
+            snmpVersion: $command->snmpVersion,
+            snmpCommunity: $this->vaultOrPlaintext($command->snmpCommunity),
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
         );
@@ -122,5 +131,28 @@ final readonly class CreateHostCommandHandler
         if ($missingIds !== []) {
             throw new HostGroupNotFoundException(['host_group_ids' => array_values($missingIds)]);
         }
+    }
+
+    /**
+     * Legacy reuses this entry's UUID for the host's password macros: whoever migrates them must
+     * thread it through rather than mint a second secret.
+     */
+    private function vaultOrPlaintext(?string $snmpCommunity): ?SnmpCommunity
+    {
+        if ($snmpCommunity === null) {
+            return null;
+        }
+
+        // Built from what the column will hold, so its length bound measures the right value:
+        // the `secret::` reference with a vault, the plaintext without one.
+        if (! $this->vault->isEnabled()) {
+            return new SnmpCommunity($snmpCommunity);
+        }
+
+        return new SnmpCommunity($this->vault->write(
+            self::HOST_VAULT_PATH,
+            self::HOST_SNMP_COMMUNITY_KEY,
+            $snmpCommunity,
+        ));
     }
 }
