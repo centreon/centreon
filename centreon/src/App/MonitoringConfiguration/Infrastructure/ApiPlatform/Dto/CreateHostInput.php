@@ -44,6 +44,7 @@ final readonly class CreateHostInput
 
     /**
      * @param list<int> $hostGroupIds
+     * @param list<int> $categoryIds
      */
     public function __construct(
         #[Assert\Sequentially([
@@ -99,6 +100,15 @@ final readonly class CreateHostInput
         #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, match: false, message: 'This value must not contain control characters.')]
         #[Sensitive]
         public ?string $snmpCommunity = null,
+
+        #[Assert\Positive]
+        public ?int $timezoneId = null,
+
+        #[Assert\Positive]
+        public ?int $severityId = null,
+
+        #[Assert\All([new Assert\Type('integer'), new Assert\Positive()])]
+        public array $categoryIds = [],
 
         #[Assert\Valid]
         public ?DataProcessingInput $dataProcessing = null,

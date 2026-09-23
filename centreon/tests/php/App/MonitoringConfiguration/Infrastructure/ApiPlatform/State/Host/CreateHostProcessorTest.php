@@ -27,11 +27,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
@@ -1282,6 +1285,141 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertJsonContains(['alias' => str_repeat('a', HostAlias::MAX_LENGTH)]);
     }
 
+    public function testItCreatesAHostWithSimpleReferences(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $categoryId = $this->insertHostCategory($this->uniqueName('Production'));
+        $severityId = $this->insertHostSeverity($this->uniqueName('Critical'));
+        $timezoneName = $this->uniqueName('Europe/Paris');
+        $timezoneId = $this->insertTimezone($timezoneName);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'timezone_id' => $timezoneId,
+                'severity_id' => $severityId,
+                'category_ids' => [$categoryId, $categoryId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['timezone' => ['id' => $timezoneId, 'name' => $timezoneName]]);
+
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+
+        /** @var int|string $location */
+        $location = $this->connection->fetchOne('SELECT host_location FROM host WHERE host_id = ?', [$hostId]);
+        self::assertSame($timezoneId, (int) $location);
+
+        // Both land in the same table, told apart only by `hostcategories.level`, and a repeated
+        // id must not produce a second row: the table has no unique key.
+        $relations = $this->intColumn(
+            'SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?',
+            $hostId,
+        );
+        sort($relations);
+        $expected = [$categoryId, $severityId];
+        sort($expected);
+        self::assertSame($expected, $relations);
+    }
+
+    public function testItRejectsAnUnknownTimezone(): void
+    {
+        $this->assertReferenceIsRejected('timezone_id', 999999);
+    }
+
+    public function testItRejectsAnUnknownSeverity(): void
+    {
+        $this->assertReferenceIsRejected('severity_id', 999999);
+    }
+
+    public function testItRejectsAnUnknownCategory(): void
+    {
+        $this->assertReferenceIsRejected('category_ids', [999999]);
+    }
+
+    /**
+     * Severities and categories are rows of the same table, so neither may resolve as the other.
+     */
+    public function testItRejectsASeverityIdPassedAsACategory(): void
+    {
+        $this->login();
+        $severityId = $this->insertHostSeverity($this->uniqueName('Critical'));
+
+        $this->assertReferenceIsRejected('category_ids', [$severityId], login: false);
+    }
+
+    public function testItRejectsACategoryIdPassedAsASeverity(): void
+    {
+        $this->login();
+        $categoryId = $this->insertHostCategory($this->uniqueName('Production'));
+
+        $this->assertReferenceIsRejected('severity_id', $categoryId, login: false);
+    }
+
+    private function assertReferenceIsRejected(string $field, mixed $value, bool $login = true): void
+    {
+        if ($login) {
+            $this->login();
+        }
+
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.41',
+                'poller_id' => $pollerId,
+                $field => $value,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function intColumn(string $sql, int $parameter): array
+    {
+        /** @var list<int|string> $values */
+        $values = $this->connection->fetchFirstColumn($sql, [$parameter]);
+
+        return array_map(static fn (int|string $value): int => (int) $value, $values);
+    }
+
+    private function insertHostCategory(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostSeverity(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name, 'level' => 1]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * `timezone_name` is UNIQUE against the pre-seeded IANA rows; the offsets are NOT NULL.
+     */
+    private function insertTimezone(string $name): int
+    {
+        $this->connection->insert('timezone', [
+            'timezone_name' => $name,
+            'timezone_offset' => '+00:00',
+            'timezone_dst_offset' => '+00:00',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     private function uniqueName(string $prefix = 'host'): string
     {
         return $prefix . '_' . bin2hex(random_bytes(4));
@@ -1325,6 +1463,12 @@ final class CreateHostProcessorTest extends ApiTestCase
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var HostCategoryRepository $hostCategoryRepository */
+        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
+        /** @var HostSeverityRepository $hostSeverityRepository */
+        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
+        /** @var TimezoneRepository $timezoneRepository */
+        $timezoneRepository = $container->get(TimezoneRepository::class);
 
         $container->set(
             CreateHostProcessor::class,
@@ -1335,6 +1479,9 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $pollerRepository,
                 $hostGroupRepository,
                 $commandRepository,
+                $hostCategoryRepository,
+                $hostSeverityRepository,
+                $timezoneRepository,
                 $mediaRepository,
                 $mediaUrlGenerator,
                 $timePeriodRepository,

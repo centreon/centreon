@@ -21,22 +21,27 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\Shared\Domain\Collection;
 
-interface HostSeverityRepository
+final class FakeHostSeverityRepository implements HostSeverityRepository
 {
-    /**
-     * @return \IteratorAggregate<int, HostSeverity>&\Countable
-     */
-    public function findAll(?HostSeverityCriteria $criteria = null): \IteratorAggregate&\Countable;
+    /** @var array<int, HostSeverityName> indexed by host severity id */
+    public array $hostSeverities = [];
 
-    /**
-     * Never returns a category, though both share the `hostcategories` table.
-     */
-    public function findNameById(HostSeverityId $id): ?HostSeverityName;
+    public function findAll(?HostSeverityCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        return new Collection([], HostSeverity::class);
+    }
+
+    public function findNameById(HostSeverityId $id): ?HostSeverityName
+    {
+        return $this->hostSeverities[$id->value] ?? null;
+    }
 }

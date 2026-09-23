@@ -113,6 +113,13 @@ final class HostResource
 
     public DataProcessingOutput $dataProcessing;
 
+    /** @var list<HostCategoryOutput> */
+    public array $categories = [];
+
+    public ?HostTimezoneOutput $timezone = null;
+
+    public ?HostSeverityOutput $severity = null;
+
     public ?HostExtendedInformationsOutput $extendedInformations = null;
 
     public HostSchedulingOptionsOutput $schedulingOptions;

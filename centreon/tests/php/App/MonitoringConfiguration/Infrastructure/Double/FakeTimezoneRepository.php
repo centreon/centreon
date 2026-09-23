@@ -21,19 +21,27 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\Shared\Domain\Collection;
 
-interface TimezoneRepository
+final class FakeTimezoneRepository implements TimezoneRepository
 {
-    /**
-     * @return \IteratorAggregate<int, Timezone>&\Countable
-     */
-    public function findAll(?TimezoneCriteria $criteria = null): \IteratorAggregate&\Countable;
+    /** @var array<int, Timezone> */
+    public array $timezones = [];
 
-    public function findNameById(TimezoneId $id): ?TimezoneName;
+    public function findNameById(TimezoneId $id): ?TimezoneName
+    {
+        return $this->timezones[$id->value]->name ?? null;
+    }
+
+    public function findAll(?TimezoneCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        return new Collection(array_values($this->timezones), Timezone::class);
+    }
 }
