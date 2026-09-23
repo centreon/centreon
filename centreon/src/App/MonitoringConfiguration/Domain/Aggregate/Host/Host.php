@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
@@ -39,6 +42,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
     /**
      * @param Collection<HostTemplateId> $templateIds
      * @param Collection<HostGroupId> $hostGroupIds
+     * @param Collection<HostCategoryId> $categoryIds levelless `hostcategories` rows; the levelled ones are $severityId
      */
     public function __construct(
         ?HostId $id,
@@ -49,8 +53,11 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
+        public readonly Collection $categoryIds = new Collection([], HostCategoryId::class),
         public readonly ?SnmpVersionEnum $snmpVersion = null,
         public readonly ?SnmpCommunity $snmpCommunity = null,
+        public readonly ?TimezoneId $timezoneId = null,
+        public readonly ?HostSeverityId $severityId = null,
         public readonly ?ExtendedInformations $extendedInformations = null,
         public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
         public readonly DataProcessing $dataProcessing = new DataProcessing(),

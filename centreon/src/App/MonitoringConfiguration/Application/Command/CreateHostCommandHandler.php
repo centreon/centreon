@@ -25,15 +25,26 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -52,6 +63,9 @@ final readonly class CreateHostCommandHandler
         private HostRepository $repository,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
+        private HostCategoryRepository $hostCategoryRepository,
+        private HostSeverityRepository $hostSeverityRepository,
+        private TimezoneRepository $timezoneRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private EventBus $eventBus,
         private VaultInterface $vault,
@@ -80,6 +94,12 @@ final readonly class CreateHostCommandHandler
 
         $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
 
+        $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
+
+        $this->assertSeverityExists($command->severityId, $command->viewerId);
+
+        $this->assertTimezoneExists($command->timezoneId);
+
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
@@ -94,8 +114,11 @@ final readonly class CreateHostCommandHandler
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: $command->hostGroupIds,
             dataProcessing: $command->dataProcessing,
+            categoryIds: $command->categoryIds,
             snmpVersion: $command->snmpVersion,
             snmpCommunity: $this->vaultOrPlaintext($command->snmpCommunity),
+            timezoneId: $command->timezoneId,
+            severityId: $command->severityId,
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
         );
@@ -154,5 +177,76 @@ final readonly class CreateHostCommandHandler
             self::HOST_SNMP_COMMUNITY_KEY,
             $snmpCommunity,
         ));
+    }
+
+    /**
+     * Unknown and inaccessible ids are not told apart, so a restricted viewer cannot probe for
+     * resources they cannot see.
+     *
+     * @template T of \App\Shared\Domain\Aggregate\AggregateRootId
+     *
+     * @param Collection<T> $requested
+     * @param callable(Collection<T>): list<int> $resolve
+     * @param Collection<T>|null $accessible
+     *
+     * @return list<int>
+     */
+    private function missingIds(Collection $requested, callable $resolve, ?Collection $accessible = null): array
+    {
+        if (count($requested) === 0) {
+            return [];
+        }
+
+        $requestedIds = array_map(static fn (object $id): int => $id->value, $requested->toArray());
+        $missingIds = array_diff($requestedIds, $resolve($requested));
+
+        if ($accessible instanceof Collection) {
+            $accessibleIds = array_map(static fn (object $id): int => $id->value, $accessible->toArray());
+            $missingIds = array_merge($missingIds, array_diff($requestedIds, $accessibleIds));
+        }
+
+        return array_values(array_unique($missingIds));
+    }
+
+    /**
+     * @param Collection<HostCategoryId> $categoryIds
+     */
+    private function assertCategoriesExist(Collection $categoryIds, ?UserId $viewerId): void
+    {
+        $missingIds = $this->missingIds(
+            $categoryIds,
+            fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+        );
+
+        if ($missingIds !== []) {
+            throw new HostCategoryNotFoundException($missingIds);
+        }
+    }
+
+    private function assertSeverityExists(?HostSeverityId $severityId, ?UserId $viewerId): void
+    {
+        if (! $severityId instanceof HostSeverityId) {
+            return;
+        }
+
+        $missingIds = $this->missingIds(
+            new Collection([$severityId], HostSeverityId::class),
+            fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
+                ? [$severityId->value]
+                : [],
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+        );
+
+        if ($missingIds !== []) {
+            throw new HostSeverityNotFoundException($severityId->value);
+        }
+    }
+
+    private function assertTimezoneExists(?TimezoneId $timezoneId): void
+    {
+        if ($timezoneId instanceof TimezoneId && ! $this->timezoneRepository->findNameById($timezoneId) instanceof TimezoneName) {
+            throw new TimezoneNotFoundException($timezoneId->value);
+        }
     }
 }

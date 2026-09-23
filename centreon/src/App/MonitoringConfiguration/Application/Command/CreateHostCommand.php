@@ -30,8 +30,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
@@ -40,6 +43,7 @@ final readonly class CreateHostCommand
 {
     /**
      * @param Collection<HostGroupId> $hostGroupIds
+     * @param Collection<HostCategoryId> $categoryIds
      * @param ?UserId $viewerId null means the creator is unrestricted (admin); a non-null value
      *                          scopes the poller/host-group existence checks to what that user
      *                          can access, mirroring `HostCriteria::withViewerId()` on the read side
@@ -53,10 +57,13 @@ final readonly class CreateHostCommand
         public ?UserId $viewerId = null,
         public DataProcessing $dataProcessing = new DataProcessing(),
         public ?HostAlias $alias = null,
+        public Collection $categoryIds = new Collection([], HostCategoryId::class),
         public ?SnmpVersionEnum $snmpVersion = null,
         // Plaintext until the handler vaults it, and LoggingMiddleware logs every payload.
         #[Sensitive]
         public ?string $snmpCommunity = null,
+        public ?TimezoneId $timezoneId = null,
+        public ?HostSeverityId $severityId = null,
         public ?ExtendedInformations $extendedInformations = null,
         public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
     ) {

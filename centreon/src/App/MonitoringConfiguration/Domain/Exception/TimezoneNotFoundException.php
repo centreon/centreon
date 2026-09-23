@@ -21,19 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-interface TimezoneRepository
+final class TimezoneNotFoundException extends AggregateNotFoundException
 {
-    /**
-     * @return \IteratorAggregate<int, Timezone>&\Countable
-     */
-    public function findAll(?TimezoneCriteria $criteria = null): \IteratorAggregate&\Countable;
-
-    public function findNameById(TimezoneId $id): ?TimezoneName;
+    public function __construct(int $id)
+    {
+        parent::__construct(['timezoneId' => $id], 'This timezone does not exist.');
+    }
 }

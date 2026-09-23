@@ -21,27 +21,33 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
-use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\Shared\Domain\Collection;
 
-interface HostCategoryRepository
+final class FakeHostCategoryRepository implements HostCategoryRepository
 {
-    /**
-     * @return \IteratorAggregate<int, HostCategory>&\Countable
-     */
-    public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable;
+    /** @var array<int, HostCategory> */
+    public array $hostCategories = [];
 
-    /**
-     * Never returns a severity, though both share the `hostcategories` table.
-     *
-     * @param Collection<HostCategoryId> $ids
-     *
-     * @return Collection<HostCategoryName> indexed by id
-     */
-    public function findNamesByIds(Collection $ids): Collection;
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->hostCategories[$id->value])) {
+                $names[$id->value] = $this->hostCategories[$id->value]->name;
+            }
+        }
+
+        return new Collection($names, HostCategoryName::class);
+    }
+
+    public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        return new Collection(array_values($this->hostCategories), HostCategory::class);
+    }
 }
