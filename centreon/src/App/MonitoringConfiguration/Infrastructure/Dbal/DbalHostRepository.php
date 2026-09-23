@@ -278,10 +278,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return null;
         }
 
-        return implode('', array_map(
-            static fn (string $arg): string => '!' . str_replace(["\n", "\t", "\r"], ['#BR#', '#T#', '#R#'], $arg),
-            $args,
-        ));
+        // Arguments are validated upstream (DataProcessingInput / DataProcessing) to contain neither
+        // the '!' delimiter nor the \n\t\r characters the legacy codec would encode, so a plain
+        // '!'-prefixed join is unambiguous and round-trips through the reader.
+        return '!' . implode('!', $args);
     }
 
     /**

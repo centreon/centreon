@@ -344,7 +344,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('!warn!crit', $row['command_command_id_arg2']);
     }
 
-    public function testAddPersistsTheEventHandlerCommandAndEscapesArgs(): void
+    public function testAddPersistsTheEventHandlerCommandAndArgs(): void
     {
         $pollerId = $this->createPoller('Central');
         $this->connection->insert('command', [
@@ -368,7 +368,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             dataProcessing: new DataProcessing(
                 eventHandlerCommandId: new CommandId(2),
-                eventHandlerArgs: ["a\nb", "c\td", "e\rf"],
+                eventHandlerArgs: ['-w', '80'],
             ),
         );
 
@@ -381,8 +381,8 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
 
         self::assertSame(2, $row['command_command_id2']);
-        // Each arg is prefixed with "!"; newlines/tabs/carriage-returns escape to #BR#/#T#/#R#.
-        self::assertSame('!a#BR#b!c#T#d!e#R#f', $row['command_command_id_arg2']);
+        // Arguments (validated free of the '!' delimiter upstream) are stored as a plain '!'-join.
+        self::assertSame('!-w!80', $row['command_command_id_arg2']);
     }
 
     public function testAddPersistsExtendedInformations(): void
