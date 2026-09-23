@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
@@ -40,7 +41,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -57,16 +60,20 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -80,6 +87,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
@@ -108,6 +116,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     private FakeTimezoneRepository $timezoneRepository;
 
+    private FakeHostTemplateRepository $hostTemplateRepository;
+
     /**
      * Boots the real container and swaps only the repositories and the event bus for fakes, so
      * the handler itself is built by Symfony's DI exactly as it is in production — catching a
@@ -127,6 +137,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostCategoryRepository = new FakeHostCategoryRepository();
         $this->hostSeverityRepository = new FakeHostSeverityRepository();
         $this->timezoneRepository = new FakeTimezoneRepository();
+        $this->hostTemplateRepository = new FakeHostTemplateRepository();
         $this->vault->vaultEnabled = false;
 
         $container->set(HostRepository::class, $this->hostRepository);
@@ -138,6 +149,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $container->set(HostCategoryRepository::class, $this->hostCategoryRepository);
         $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
         $container->set(TimezoneRepository::class, $this->timezoneRepository);
+        $container->set(HostTemplateRepository::class, $this->hostTemplateRepository);
 
         /** @var CreateHostCommandHandler $handler */
         $handler = $container->get(CreateHostCommandHandler::class);
@@ -487,6 +499,70 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertSame(9, $host->timezoneId?->value);
     }
 
+    public function testItRejectsAnUnknownTemplate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostTemplateNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), templateIds: [404]));
+    }
+
+    public function testItRejectsAnUnknownParentHost(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [404]));
+    }
+
+    public function testItRejectsAnUnknownChildHost(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), childHostIds: [404]));
+    }
+
+    public function testItRejectsAChildThatIsAnAncestorOfAParent(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $ancestorId = $this->addRelatedHost($poller->id(), 'core-router');
+        $parentId = $this->addRelatedHost($poller->id(), 'edge-router', parentHostIds: [$ancestorId]);
+
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], childHostIds: [$ancestorId]));
+    }
+
+    /**
+     * The edge is declared from the child side, so `edge-router` names no parent of its own while
+     * `host_hostparent_relation` still records the link.
+     */
+    public function testItRejectsACycleClosedThroughAnEdgeCreatedFromTheChildSide(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $descendantId = $this->addRelatedHost($poller->id(), 'edge-router');
+        $ancestorId = $this->addRelatedHost($poller->id(), 'core-router', childHostIds: [$descendantId]);
+
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$descendantId], childHostIds: [$ancestorId]));
+    }
+
+    public function testItKeepsTheTemplateOrderOnTheAggregate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [8, 7]));
+
+        self::assertSame([8, 7], array_map(static fn (HostTemplateId $id): int => $id->value, $host->templateIds->toArray()));
+    }
+
     private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand
     {
         return new CreateHostCommand(
@@ -524,6 +600,67 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             timezoneId: $timezoneId !== null ? new TimezoneId($timezoneId) : null,
             severityId: $severityId !== null ? new HostSeverityId($severityId) : null,
         );
+    }
+
+    /**
+     * @param list<int> $templateIds
+     * @param list<int> $parentHostIds
+     * @param list<int> $childHostIds
+     */
+    private function relationCommand(
+        PollerId $pollerId,
+        array $templateIds = [],
+        array $parentHostIds = [],
+        array $childHostIds = [],
+    ): CreateHostCommand {
+        return new CreateHostCommand(
+            name: new HostName('relation-host'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $pollerId,
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection(
+                array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
+                HostTemplateId::class,
+            ),
+            parentHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $parentHostIds),
+                HostId::class,
+            ),
+            childHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $childHostIds),
+                HostId::class,
+            ),
+        );
+    }
+
+    /**
+     * @param list<int> $parentHostIds
+     * @param list<int> $childHostIds
+     */
+    private function addRelatedHost(PollerId $pollerId, string $name, array $parentHostIds = [], array $childHostIds = []): int
+    {
+        $host = new Host(
+            id: null,
+            name: new HostName($name),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: $pollerId,
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            parentHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $parentHostIds),
+                HostId::class,
+            ),
+            childHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $childHostIds),
+                HostId::class,
+            ),
+        );
+        $this->hostRepository->add($host);
+
+        return $host->id()->value;
     }
 
     private function addPoller(FakePollerRepository $repository, int $id): Poller
