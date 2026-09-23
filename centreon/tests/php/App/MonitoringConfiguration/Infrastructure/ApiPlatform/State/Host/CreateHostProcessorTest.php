@@ -24,9 +24,19 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
@@ -233,6 +243,205 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * scheduling_options is a nested sub-object in the request payload, same convention as
+     * extended_informations (see MON-208988).
+     */
+    public function testItCreatesAHostWithSchedulingOptions(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $timePeriodId = $this->insertTimePeriod('24x7');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'scheduling_options' => [
+                    'check_timeperiod_id' => $timePeriodId,
+                    'max_check_attempts' => 3,
+                    'normal_check_interval' => 5,
+                    'retry_check_interval' => 1,
+                    'active_check_enabled' => 'true',
+                    'passive_check_enabled' => 'false',
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'scheduling_options' => [
+                'check_period' => ['id' => $timePeriodId, 'name' => '24x7'],
+                'max_check_attempts' => 3,
+                'normal_check_interval' => 5,
+                'retry_check_interval' => 1,
+                'active_check_enabled' => 'true',
+                'passive_check_enabled' => 'false',
+            ],
+        ]);
+
+        $row = $this->connection->fetchAssociative(
+            'SELECT timeperiod_tp_id, host_max_check_attempts, host_check_interval,
+                    host_retry_check_interval, host_active_checks_enabled, host_passive_checks_enabled
+               FROM host WHERE host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($row);
+        /** @var int|string $timeperiodTpId */
+        $timeperiodTpId = $row['timeperiod_tp_id'];
+        /** @var int|string $maxCheckAttempts */
+        $maxCheckAttempts = $row['host_max_check_attempts'];
+        /** @var int|string $checkInterval */
+        $checkInterval = $row['host_check_interval'];
+        /** @var int|string $retryCheckInterval */
+        $retryCheckInterval = $row['host_retry_check_interval'];
+        self::assertSame($timePeriodId, (int) $timeperiodTpId);
+        self::assertSame(3, (int) $maxCheckAttempts);
+        self::assertSame(5, (int) $checkInterval);
+        self::assertSame(1, (int) $retryCheckInterval);
+        self::assertSame('1', $row['host_active_checks_enabled']);
+        self::assertSame('0', $row['host_passive_checks_enabled']);
+    }
+
+    /**
+     * Every field is null/UseDefault here, matching the same "absent sub-object still comes back
+     * present" convention already covered for extended_informations.
+     */
+    public function testItCreatesAHostWithoutSchedulingOptions(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'scheduling_options' => [
+                'active_check_enabled' => 'use_default',
+                'passive_check_enabled' => 'use_default',
+            ],
+        ]);
+    }
+
+    public function testItRejectsAnUnknownCheckTimeperiodId(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'scheduling_options' => [
+                    'check_timeperiod_id' => 999999,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideSchedulingIntervalFields(): iterable
+    {
+        yield 'max_check_attempts' => ['max_check_attempts'];
+
+        yield 'normal_check_interval' => ['normal_check_interval'];
+
+        yield 'retry_check_interval' => ['retry_check_interval'];
+    }
+
+    #[DataProvider('provideSchedulingIntervalFields')]
+    public function testItRejectsASchedulingIntervalFieldBelowOne(string $field): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'scheduling_options' => [$field => 0],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * activeCheckEnabled/passiveCheckEnabled are omitted from the response on a Cloud platform
+     * (CreateHostProcessor nulls them). IS_CLOUD_PLATFORM is fixed for the whole kernel and can't
+     * be forced per test through the env var, so the platform is forced here by replacing the
+     * container's CreateHostProcessor instance with one built with the desired value, reusing its
+     * other real dependencies (same technique as ListHostsProviderTest::forcePlatform()).
+     */
+    public function testItOmitsTheTriStateFieldsOnACloudPlatform(): void
+    {
+        $this->forceCloudPlatform();
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'scheduling_options' => ['max_check_attempts' => 3],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['scheduling_options' => ['max_check_attempts' => 3]]);
+        $schedulingOptions = $response->toArray()['scheduling_options'];
+        self::assertIsArray($schedulingOptions);
+        self::assertArrayNotHasKey('active_check_enabled', $schedulingOptions);
+        self::assertArrayNotHasKey('passive_check_enabled', $schedulingOptions);
+    }
+
+    /**
+     * Pins the on-premises platform explicitly rather than relying on the ambient
+     * IS_CLOUD_PLATFORM default (see ListHostsProviderTest::forceOnPremPlatform()).
+     */
+    public function testItKeepsTheTriStateFieldsOnAnOnPremisePlatform(): void
+    {
+        $this->forceOnPremPlatform();
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                'scheduling_options' => [
+                    'active_check_enabled' => 'true',
+                    'passive_check_enabled' => 'false',
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'scheduling_options' => [
+                'active_check_enabled' => 'true',
+                'passive_check_enabled' => 'false',
+            ],
+        ]);
     }
 
     /**
@@ -715,6 +924,53 @@ final class CreateHostProcessorTest extends ApiTestCase
         return $prefix . '_' . bin2hex(random_bytes(4));
     }
 
+    private function forceCloudPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: true);
+    }
+
+    private function forceOnPremPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: false);
+    }
+
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var CommandBus $commandBus */
+        $commandBus = $container->get(CommandBus::class);
+        /** @var HostResourceTransformer $transformer */
+        $transformer = $container->get(HostResourceTransformer::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var PollerRepository $pollerRepository */
+        $pollerRepository = $container->get(PollerRepository::class);
+        /** @var HostGroupRepository $hostGroupRepository */
+        $hostGroupRepository = $container->get(HostGroupRepository::class);
+        /** @var MediaRepository $mediaRepository */
+        $mediaRepository = $container->get(MediaRepository::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        /** @var TimePeriodRepository $timePeriodRepository */
+        $timePeriodRepository = $container->get(TimePeriodRepository::class);
+
+        $container->set(
+            CreateHostProcessor::class,
+            new CreateHostProcessor(
+                $commandBus,
+                $transformer,
+                $security,
+                $pollerRepository,
+                $hostGroupRepository,
+                $mediaRepository,
+                $mediaUrlGenerator,
+                $timePeriodRepository,
+                $isCloudPlatform,
+            ),
+        );
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -729,6 +985,13 @@ final class CreateHostProcessorTest extends ApiTestCase
     private function insertHostGroup(string $name): int
     {
         $this->connection->insert('hostgroup', ['hg_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertTimePeriod(string $name): int
+    {
+        $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
 
         return (int) $this->connection->lastInsertId();
     }
