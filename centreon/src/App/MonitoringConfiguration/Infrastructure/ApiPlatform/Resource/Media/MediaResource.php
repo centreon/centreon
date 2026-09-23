@@ -27,11 +27,21 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMediasChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMediasProvider;
 
 #[ApiResource(
     shortName: 'Media',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/medias',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access medias',
+            output: MediaChoicesOutput::class,
+            provider: ListMediasChoicesProvider::class,
+        ),
         new GetCollection(
             uriTemplate: '/configuration/medias',
             provider: ListMediasProvider::class,
