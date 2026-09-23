@@ -9,10 +9,7 @@ import { any, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import type { ResourceRow } from '../../models';
-import {
-  labelFailedToDeployServices,
-  labelServicesDeployed
-} from '../translatedLabels';
+import { labelServicesDeployed } from '../translatedLabels';
 import { getDeployServicesEndpoint } from './endpoints';
 
 interface UseDeployServicesState {
@@ -24,7 +21,7 @@ interface UseDeployServicesState {
 // request per host.
 const useDeployServices = (): UseDeployServicesState => {
   const { t } = useTranslation();
-  const { showSuccessMessage, showErrorMessage } = useSnackbar();
+  const { showSuccessMessage } = useSnackbar();
 
   const { mutateAsync, isMutating } = useMutationQuery<
     object,
@@ -52,7 +49,9 @@ const useDeployServices = (): UseDeployServicesState => {
 
         showSuccessMessage(t(labelServicesDeployed));
       })
-      .catch(() => showErrorMessage(t(labelFailedToDeployServices)));
+      // Nothing to add: `useMutationQuery` has already shown the API's message,
+      // and this only catches what `customFetch` did not turn into a response.
+      .catch(() => undefined);
   };
 
   return { deployServices, isMutating };

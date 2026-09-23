@@ -7466,10 +7466,6 @@ msgid "Failed to delete the selected resource access rules"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Failed to deploy services"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Failed to disable"
 msgstr ""
 
@@ -8100,10 +8096,6 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Go to performance page"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Go to services"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

@@ -1176,17 +1176,9 @@ msgstr "Licences Edition et Cloud"
 msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
 msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le reporting avancé et des SLA."
 
-#: centreon/www/install/front_translate.php
-msgid "Failed to deploy services"
-msgstr ""
-
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
-
-#: centreon/www/install/front_translate.php
-msgid "Go to services"
-msgstr ""
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Join The Watch"
