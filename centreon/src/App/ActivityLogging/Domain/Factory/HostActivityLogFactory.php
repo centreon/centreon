@@ -30,8 +30,13 @@ use App\ActivityLogging\Domain\Aggregate\Target;
 use App\ActivityLogging\Domain\Aggregate\TargetId;
 use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 /**
@@ -52,6 +57,7 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
             'host_name' => $aggregate->name->value,
             'host_address' => $aggregate->address->value,
             'host_activate' => $aggregate->activated ? '1' : '0',
+            ...$this->notificationDetails($aggregate->notifications),
         ];
 
         return new ActivityLog(
@@ -62,5 +68,45 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
             performedAt: $firedAt,
             details: $details,
         );
+    }
+
+    /**
+     * Keyed by legacy column name, and valued in the legacy storage format, like every other
+     * entry above: Administration > Logs renders these rows as-is, so a reader has to recognise
+     * what they see in the host form.
+     *
+     * @return array<string, string>
+     */
+    private function notificationDetails(?Notifications $notifications): array
+    {
+        if (! $notifications instanceof Notifications) {
+            return [];
+        }
+
+        return [
+            'host_notifications_enabled' => match ($notifications->enabled) {
+                TriStateEnum::False => '0',
+                TriStateEnum::True => '1',
+                TriStateEnum::UseDefault => '2',
+            },
+            'host_notification_options' => implode(',', array_map(
+                static fn (NotificationOptionEnum $option): string => $option->value,
+                $notifications->options,
+            )),
+            'host_notification_interval' => (string) $notifications->interval,
+            'timeperiod_tp_id2' => (string) $notifications->periodId?->value,
+            'host_first_notification_delay' => (string) $notifications->firstDelay,
+            'host_recovery_notification_delay' => (string) $notifications->recoveryDelay,
+            'contact_additive_inheritance' => $notifications->contactAdditiveInheritance ? '1' : '0',
+            'cg_additive_inheritance' => $notifications->contactGroupAdditiveInheritance ? '1' : '0',
+            'host_cs' => implode(',', array_map(
+                static fn (NotificationContactId $id): int => $id->value,
+                $notifications->contactIds->toArray(),
+            )),
+            'host_cgs' => implode(',', array_map(
+                static fn (ContactGroupId $id): int => $id->value,
+                $notifications->contactGroupIds->toArray(),
+            )),
+        ];
     }
 }
