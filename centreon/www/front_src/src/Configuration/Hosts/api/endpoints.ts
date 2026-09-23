@@ -11,6 +11,7 @@ export const hostsListEndpoint = '/configuration/hosts';
 
 export const hostTemplatesEndpoint = '/configuration/host_templates';
 export const hostGroupsEndpoint = '/configuration/host_groups';
+export const pollersEndpoint = '/configuration/pollers';
 
 export const getHostEndpoint = (params?: { id: number | string }): string =>
   `/configuration/hosts/${params?.id}`;
@@ -63,3 +64,4 @@ export const getHostTemplatesEndpoint = getSelectorEndpoint(
   hostTemplatesEndpoint
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
+export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);

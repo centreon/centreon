@@ -6,6 +6,7 @@ import {
 import {
   labelHostGroup,
   labelHostTemplate,
+  labelMonitoringServer,
   labelName,
   labelStatus
 } from '../translatedLabels';
@@ -26,18 +27,26 @@ const select = (label: string, option: string, alias: string): void => {
 
 export default () => {
   describe('Filters: ', () => {
-    it('offers the four filters of the listing', () => {
+    it('offers the five filters of the listing', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
 
       openAdvancedFilters();
 
-      [labelName, labelHostGroup, labelHostTemplate, labelStatus].forEach(
-        (label) => {
-          cy.contains(label).should('be.visible');
-        }
-      );
+      [
+        labelName,
+        labelHostGroup,
+        labelHostTemplate,
+        labelMonitoringServer,
+        labelStatus
+        // Scoped to the panel: "Monitoring server" is also a column header,
+        // which sits behind it.
+      ].forEach((label) => {
+        cy.get('[data-testid="advanced-filters"]')
+          .contains(label)
+          .should('be.visible');
+      });
 
       cy.makeSnapshot();
     });
@@ -73,6 +82,22 @@ export default () => {
 
       cy.waitForRequest('@getAllHosts').then(({ request }) => {
         expect(request.url.searchParams.get('template_id')).to.equal('5');
+      });
+    });
+
+    it('sends the monitoring server id as a query parameter', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      openAdvancedFilters();
+
+      select(labelMonitoringServer, 'Poller EU', '@getPollers');
+
+      cy.findByTestId(labelSearch).click();
+
+      cy.waitForRequest('@getAllHosts').then(({ request }) => {
+        expect(request.url.searchParams.get('poller_id')).to.equal('2');
       });
     });
 

@@ -67,6 +67,12 @@ export const getHostGroupsResponse = () =>
     { id: 2, name: 'Windows servers' }
   ]);
 
+export const getPollersResponse = () =>
+  toCollection([
+    { id: 1, name: 'Central' },
+    { id: 2, name: 'Poller EU' }
+  ]);
+
 export const getHostTemplatesResponse = () =>
   toCollection([
     { id: 5, name: 'generic-active-host' },

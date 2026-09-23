@@ -10,6 +10,7 @@ import {
   getHostEndpoint,
   getHostGroupsEndpoint,
   getHostTemplatesEndpoint,
+  getPollersEndpoint,
   hostsBaseEndpoint,
   hostsListDecoder,
   hostsListEndpoint,
@@ -18,6 +19,7 @@ import {
 import {
   labelHostGroup,
   labelHostTemplate,
+  labelMonitoringServer,
   labelName,
   labelStatus
 } from './translatedLabels';
@@ -72,6 +74,14 @@ const useHosts = (): UseHostsState => {
         fieldType: FieldType.SingleConnectedAutocomplete,
         getEndpoint: getHostTemplatesEndpoint,
         name: t(labelHostTemplate)
+      },
+      {
+        baseEndpoint: hostsBaseEndpoint,
+        decoder: namedEntitiesListDecoder,
+        fieldName: 'poller_id',
+        fieldType: FieldType.SingleConnectedAutocomplete,
+        getEndpoint: getPollersEndpoint,
+        name: t(labelMonitoringServer)
       },
       {
         // This endpoint spells it `activated`, not `is_activated`.

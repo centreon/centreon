@@ -15,6 +15,7 @@ export const filtersInitialValues = {
   enabled: false,
   group_id: null,
   name: '',
+  poller_id: null,
   template_id: null
 };
 

@@ -21,6 +21,7 @@ export type Filters = {
   name: string;
   group_id: NamedEntity | null;
   template_id: NamedEntity | null;
+  poller_id: NamedEntity | null;
   enabled: boolean;
   disabled: boolean;
 };

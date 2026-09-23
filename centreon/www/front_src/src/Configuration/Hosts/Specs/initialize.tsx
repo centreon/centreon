@@ -14,13 +14,15 @@ import {
   getHostEndpoint,
   hostGroupsEndpoint,
   hostsListEndpoint,
-  hostTemplatesEndpoint
+  hostTemplatesEndpoint,
+  pollersEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
   getHostGroupsResponse,
   getHostTemplatesResponse,
-  getListingResponse
+  getListingResponse,
+  getPollersResponse
 } from './utils';
 
 interface Props {
@@ -55,6 +57,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostGroupsEndpoint}?**`,
     response: getHostGroupsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getPollers',
+    method: Method.GET,
+    path: `**${pollersEndpoint}?**`,
+    response: getPollersResponse()
   });
 
   cy.interceptAPIRequest({
