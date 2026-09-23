@@ -11292,10 +11292,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HostGroupOutput'
-        icon:
+        extended_informations:
           anyOf:
             -
-              $ref: '#/components/schemas/HostIconOutput'
+              $ref: '#/components/schemas/HostExtendedInformationsOutput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostNotificationsOutput'
             -
               type: 'null'
         id:
@@ -11335,6 +11341,18 @@ components:
           type: array
           items:
             type: integer
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostNotificationsInput'
+            -
+              type: 'null'
     Host.jsonld:
       allOf:
         -
@@ -11352,10 +11370,16 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HostGroupOutput.jsonld'
-            icon:
+            extended_informations:
               anyOf:
                 -
-                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                  $ref: '#/components/schemas/HostExtendedInformationsOutput.jsonld'
+                -
+                  type: 'null'
+            notifications:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
                 -
                   type: 'null'
             id:
@@ -11500,3 +11524,284 @@ components:
               description: 'The contact group name'
               type: string
               example: Supervisors
+    CreateHostExtendedInformationsInput:
+      type: object
+      properties:
+        note_url:
+          minLength: 1
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          minLength: 1
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          minLength: 1
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          minLength: 1
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        comment:
+          minLength: 1
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    CreateHostNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'Whether notifications are enabled; "use_default" leaves the directive to the template chain.'
+          type: string
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          type: array
+          items:
+            type: integer
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        period:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+    HostExtendedInformationsOutput:
+      type: object
+      properties:
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    HostExtendedInformationsOutput.jsonld:
+      type: object
+      properties:
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput.jsonld'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    HostNotificationContactGroupOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostNotificationContactGroupOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostNotificationContactOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostNotificationContactOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostNotificationPeriodOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostNotificationPeriodOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostNotificationsOutput:
+      type: object
+      properties:
+        enabled:
+          type: string
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostNotificationContactOutput'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostNotificationContactGroupOutput'
+        options:
+          description: '{@see \App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum}'
+          type: array
+          items:
+            type: string
+        interval:
+          type:
+            - integer
+            - 'null'
+        period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostNotificationPeriodOutput'
+            -
+              type: 'null'
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+    HostNotificationsOutput.jsonld:
+      type: object
+      properties:
+        enabled:
+          type: string
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostNotificationContactOutput.jsonld'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostNotificationContactGroupOutput.jsonld'
+        options:
+          description: '{@see \App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum}'
+          type: array
+          items:
+            type: string
+        interval:
+          type:
+            - integer
+            - 'null'
+        period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostNotificationPeriodOutput.jsonld'
+            -
+              type: 'null'
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean

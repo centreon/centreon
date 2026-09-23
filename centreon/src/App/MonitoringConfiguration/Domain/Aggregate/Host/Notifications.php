@@ -41,6 +41,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class Notifications
 {
+    public const DEFAULT_ADDITIVE_INHERITANCE = false;
     public const MIN_INTERVAL = 0;
     public const MIN_FIRST_DELAY = 0;
     public const MIN_RECOVERY_DELAY = 0;
