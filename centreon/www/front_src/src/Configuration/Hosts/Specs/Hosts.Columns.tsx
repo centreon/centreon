@@ -41,8 +41,6 @@ export default () => {
       cy.findByTestId('server.png')
         .should('be.visible')
         .and('have.attr', 'src', hostIcon);
-
-      cy.makeSnapshot();
     });
 
     it('falls back to the default host icon when the host has no icon', () => {
@@ -54,8 +52,6 @@ export default () => {
         .closest('[role="row"]')
         .findByTestId('HostIcon')
         .should('exist');
-
-      cy.makeSnapshot();
     });
 
     it('links each template to its configuration page', () => {

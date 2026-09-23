@@ -13,8 +13,6 @@ export default () => {
 
       cy.contains(labelActions).should('not.exist');
       cy.contains(labelEnableDisable).should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('offers the actions column, and not the toggle, for delete alone', () => {
@@ -35,8 +33,6 @@ export default () => {
 
       cy.findByTestId(`${labelEnableDisable}_1`).should('exist');
       cy.findByTestId(`${labelEnableDisable}_2`).should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('disables those rows instead when the module keeps them without write access', () => {
@@ -56,8 +52,6 @@ export default () => {
       cy.findByTestId(`${labelEnableDisable}_2`)
         .find('input')
         .should('be.disabled');
-
-      cy.makeSnapshot();
     });
 
     it('renders a module row action, filtered by its own visibility predicate', () => {

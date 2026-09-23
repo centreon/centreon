@@ -65,8 +65,6 @@ export default () => {
       cy.waitForRequest('@getAllHosts').then(({ request }) => {
         expect(request.url.searchParams.get('group_id')).to.equal('1');
       });
-
-      cy.makeSnapshot();
     });
 
     it('sends the host template id as a query parameter', () => {
@@ -141,8 +139,6 @@ export default () => {
         expect(request.url.searchParams.get('group_id')).to.equal(null);
         expect(request.url.searchParams.get('template_id')).to.equal(null);
       });
-
-      cy.makeSnapshot();
     });
 
     it('keeps the filters in local storage so they survive navigation', () => {

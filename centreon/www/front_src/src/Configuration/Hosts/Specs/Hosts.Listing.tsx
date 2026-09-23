@@ -15,8 +15,6 @@ export default () => {
       });
 
       cy.contains(labelHosts).should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('displays the hosts returned by the API', () => {

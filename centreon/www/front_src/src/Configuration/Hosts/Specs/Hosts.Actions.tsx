@@ -76,8 +76,6 @@ export default () => {
       cy.waitForRequest('@duplicateHosts').then(({ request }) => {
         expect(request.body).to.deep.equal({ ids: [0] });
       });
-
-      cy.makeSnapshot();
     });
 
     it('disables an activated host from the row toggle', () => {
@@ -106,8 +104,6 @@ export default () => {
       cy.waitForRequest('@deployServices');
 
       cy.contains(labelServicesDeployed).should('be.visible');
-
-      cy.makeSnapshot();
     });
 
     it('reports a failed deployment with the agreed message, once', () => {
