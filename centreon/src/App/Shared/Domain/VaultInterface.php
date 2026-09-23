@@ -30,6 +30,10 @@ interface VaultInterface
      */
     public const VAULT_PATH_PREFIX = 'secret::';
 
+    /** Must match legacy: both address the same vault entries. */
+    public const HOST_VAULT_PATH = 'monitoring/hosts';
+    public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+
     /**
      * Whether the vault is enabled and configured for the given feature flag
      * (the flag is enabled AND a vault configuration exists).
