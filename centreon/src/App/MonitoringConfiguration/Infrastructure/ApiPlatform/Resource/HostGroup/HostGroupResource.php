@@ -28,11 +28,21 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListHostGroupsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListHostGroupsProvider;
 
 #[ApiResource(
     shortName: 'HostGroup',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/host_groups',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host groups',
+            output: HostGroupChoicesOutput::class,
+            provider: ListHostGroupsChoicesProvider::class,
+        ),
         new GetCollection(
             uriTemplate: '/configuration/host_groups',
             provider: ListHostGroupsProvider::class,
