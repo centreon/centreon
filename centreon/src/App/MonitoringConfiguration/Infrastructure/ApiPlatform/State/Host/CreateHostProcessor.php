@@ -30,26 +30,44 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimePeriodOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -75,6 +93,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private Security $security,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
+        private HostTemplateRepository $hostTemplateRepository,
+        private HostCategoryRepository $hostCategoryRepository,
+        private HostSeverityRepository $hostSeverityRepository,
+        private TimezoneRepository $timezoneRepository,
+        private HostRepository $hostRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
@@ -88,13 +111,13 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        // Deduplicated the same way legacy does (AddHost::linkHostGroups()): a client repeating an
-        // id is tolerated, not rejected, but must not produce one hostgroup_relation row per
-        // repetition.
-        $hostGroupIds = new Collection(
-            array_map(static fn (int $id): HostGroupId => new HostGroupId($id), array_unique($data->hostGroupIds)),
-            HostGroupId::class,
-        );
+        // Deduplicated as legacy does (AddHost::linkHostGroups()): a repeat is either a duplicate
+        // key (host_template_relation) or a duplicate row reaching config generation.
+        $hostGroupIds = $this->toIdCollection($data->hostGroupIds, HostGroupId::class);
+        $templateIds = $this->toIdCollection($data->templateIds, HostTemplateId::class);
+        $categoryIds = $this->toIdCollection($data->categoryIds, HostCategoryId::class);
+        $parentHostIds = $this->toIdCollection($data->parentHostIds, HostId::class);
+        $childHostIds = $this->toIdCollection($data->childHostIds, HostId::class);
 
         $extendedInformationsInput = $data->extendedInformations;
         $extendedInformations = new ExtendedInformations(
@@ -121,6 +144,9 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             passiveCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->passiveCheckEnabled),
         );
 
+        $alias = $this->trimmedOrNull($data->alias);
+        $snmpCommunity = $this->trimmedOrNull($data->snmpCommunity);
+
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -128,6 +154,17 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             hostGroupIds: $hostGroupIds,
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            alias: $alias !== null ? new HostAlias($alias) : null,
+            templateIds: $templateIds,
+            categoryIds: $categoryIds,
+            parentHostIds: $parentHostIds,
+            childHostIds: $childHostIds,
+            snmpVersion: $data->snmpVersion,
+            snmpCommunity: $snmpCommunity,
+            timezoneId: $data->timezoneId !== null ? new TimezoneId($data->timezoneId) : null,
+            severityId: $data->severityId !== null ? new HostSeverityId($data->severityId) : null,
+            // Absent on Cloud, where linked services are always created (MON-208474).
+            deployServicesFromTemplates: $data->createServicesLinkedToTemplates ?? true,
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
         );
@@ -135,27 +172,66 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $host = $this->commandBus->execute($command);
         Assert::isInstanceOf($host, Host::class);
 
-        $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
-        $groupNames = $this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray();
+        return $this->toResource($host);
+    }
 
-        $groups = [];
+    private function toResource(Host $host): HostResource
+    {
+        $pollerNames = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
+        $groupNames = $this->hostGroupRepository->findNamesByIds($host->hostGroupIds)->toArray();
+        $templateNames = $this->hostTemplateRepository->findNamesByIds($host->templateIds)->toArray();
+        $categoryNames = $this->hostCategoryRepository->findNamesByIds($host->categoryIds)->toArray();
+        $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
+            [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()],
+            HostId::class,
+        ))->toArray();
+
+        $resource = $this->transformer->transform($host);
+        $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
+
+        $resource->groups = [];
         foreach ($host->hostGroupIds as $groupId) {
             if (isset($groupNames[$groupId->value])) {
-                $groups[] = new HostGroupOutput($groupId->value, $groupNames[$groupId->value]->value);
+                $resource->groups[] = new HostGroupOutput($groupId->value, $groupNames[$groupId->value]->value);
             }
         }
 
-        $icon = $this->resolveIcon($host->extendedInformations?->iconId);
+        $resource->templates = [];
+        foreach ($host->templateIds as $templateId) {
+            if (isset($templateNames[$templateId->value])) {
+                $resource->templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]->value);
+            }
+        }
 
-        $resource = $this->transformer->transform($host);
-        $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
-        $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
-        $resource->groups = $groups;
+        $resource->categories = [];
+        foreach ($host->categoryIds as $categoryId) {
+            if (isset($categoryNames[$categoryId->value])) {
+                $resource->categories[] = new HostCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
+            }
+        }
+
+        $resource->parentHosts = $this->toRelatedHosts($host->parentHostIds, $relatedHostNames);
+        $resource->childHosts = $this->toRelatedHosts($host->childHostIds, $relatedHostNames);
+
+        if ($host->timezoneId instanceof TimezoneId) {
+            $timezoneName = $this->timezoneRepository->findNameById($host->timezoneId);
+            $resource->timezone = $timezoneName instanceof TimezoneName
+                ? new HostTimezoneOutput($host->timezoneId->value, $timezoneName->value)
+                : null;
+        }
+
+        if ($host->severityId instanceof HostSeverityId) {
+            $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
+            $resource->severity = $severityName instanceof HostSeverityName
+                ? new HostSeverityOutput($host->severityId->value, $severityName->value)
+                : null;
+        }
+
         $resource->extendedInformations = new HostExtendedInformationsOutput(
             noteUrl: $host->extendedInformations?->noteUrl,
             note: $host->extendedInformations?->note,
             actionUrl: $host->extendedInformations?->actionUrl,
-            icon: $icon,
+            icon: $this->resolveIcon($host->extendedInformations?->iconId),
             altIcon: $host->extendedInformations?->altIcon,
             comment: $host->extendedInformations?->comment,
             geoCoordinates: $host->extendedInformations?->geoCoordinates instanceof GeoCoordinates
@@ -192,6 +268,51 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         return $name instanceof TimePeriodName
             ? new HostTimePeriodOutput($checkTimeperiodId->value, $name->value)
             : null;
+    }
+
+    /**
+     * @param Collection<HostId> $hostIds
+     * @param array<array-key, HostName> $names indexed by host id
+     *
+     * @return list<RelatedHostOutput>
+     */
+    private function toRelatedHosts(Collection $hostIds, array $names): array
+    {
+        $related = [];
+        foreach ($hostIds as $hostId) {
+            if (isset($names[$hostId->value])) {
+                $related[] = new RelatedHostOutput($hostId->value, $names[$hostId->value]->value);
+            }
+        }
+
+        return $related;
+    }
+
+    private function trimmedOrNull(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+
+        return $trimmed === '' ? null : $trimmed;
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param list<int> $ids
+     * @param class-string<T> $className
+     *
+     * @return Collection<T>
+     */
+    private function toIdCollection(array $ids, string $className): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): object => new $className($id), array_values(array_unique($ids))),
+            $className,
+        );
     }
 
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput

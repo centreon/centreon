@@ -23,12 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
@@ -919,6 +925,553 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
     }
 
+    public function testItCreatesAHostWithEveryNonMandatoryField(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate('generic-active-host');
+        $categoryId = $this->insertHostCategory('Production');
+        $severityId = $this->insertHostSeverity('Critical');
+        $timezoneName = $this->uniqueName('Europe/Paris');
+        $timezoneId = $this->insertTimezone($timezoneName);
+        $parentId = $this->insertHost($this->uniqueName('router'), $pollerId);
+        $childId = $this->insertHost($this->uniqueName('vm'), $pollerId);
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'alias' => 'Web server',
+                'snmp_version' => '2c',
+                'snmp_community' => 'public',
+                'timezone_id' => $timezoneId,
+                'severity_id' => $severityId,
+                'template_ids' => [$templateId],
+                'category_ids' => [$categoryId],
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$childId],
+                'create_services_linked_to_templates' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'name' => $name,
+            'alias' => 'Web server',
+            'snmp_version' => '2c',
+            'timezone' => ['id' => $timezoneId, 'name' => $timezoneName],
+            'severity' => ['id' => $severityId, 'name' => 'Critical'],
+            'templates' => [['id' => $templateId, 'name' => 'generic-active-host']],
+            'categories' => [['id' => $categoryId, 'name' => 'Production']],
+        ]);
+
+        $payload = $response->toArray();
+        self::assertSame([$parentId], $this->idsOf($payload, 'parent_hosts'));
+        self::assertSame([$childId], $this->idsOf($payload, 'child_hosts'));
+
+        self::assertArrayNotHasKey('snmp_community', $payload);
+
+        /** @var int $hostId */
+        $hostId = $payload['id'];
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_alias, host_snmp_version, host_snmp_community, host_location FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertIsArray($row);
+        self::assertSame('Web server', $row['host_alias']);
+        self::assertSame('2c', $row['host_snmp_version']);
+        self::assertSame('public', $row['host_snmp_community']);
+        /** @var int|string $location */
+        $location = $row['host_location'];
+        self::assertSame($timezoneId, (int) $location);
+
+        self::assertSame(
+            [$templateId],
+            $this->intColumn('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = ?', $hostId),
+        );
+
+        // Neither table has a unique key, so a double write would go unnoticed in the response.
+        $categoryRelations = $this->intColumn('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', $hostId);
+        sort($categoryRelations);
+        $expectedRelations = [$categoryId, $severityId];
+        sort($expectedRelations);
+        self::assertSame($expectedRelations, $categoryRelations);
+        self::assertSame(
+            [$parentId],
+            $this->intColumn('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$childId],
+            $this->intColumn('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = ?', $hostId),
+        );
+    }
+
+    public function testItRejectsAnUnknownSnmpVersion(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+                'snmp_version' => '4',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownTemplate(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'template_ids' => [999999],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        // LegacyValidationExceptionNormalizer flattens violations into {code, message}.
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[template_ids] One or more host templates do not exist.\n",
+        ]);
+    }
+
+    public function testItRejectsAnUnknownCategory(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'category_ids' => [999999],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsASeverityIdPassedAsACategory(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $severityId = $this->insertHostSeverity('Critical');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'category_ids' => [$severityId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACategoryIdPassedAsASeverity(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $categoryId = $this->insertHostCategory('Production');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                'severity_id' => $categoryId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownTimezone(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.36',
+                'poller_id' => $pollerId,
+                'timezone_id' => 999999,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownParentHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.37',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [999999],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAHostTemplateUsedAsAParent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate('generic-active-host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.38',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$templateId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownChildHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.47',
+                'poller_id' => $pollerId,
+                'child_host_ids' => [999999],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[child_host_ids] One or more hosts do not exist.\n",
+        ]);
+    }
+
+    public function testItRejectsAHostNamedAsBothParentAndChild(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $otherId = $this->insertHost($this->uniqueName('router'), $pollerId);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.39',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$otherId],
+                'child_host_ids' => [$otherId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAChildThatIsAnAncestorOfAParent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $ancestorId = $this->insertHost($this->uniqueName('core'), $pollerId);
+        $parentId = $this->insertHost($this->uniqueName('edge'), $pollerId);
+        $this->linkHostToParent($parentId, $ancestorId);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$ancestorId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[parent_host_ids] These parent and child hosts would form a circular relation.\n",
+        ]);
+    }
+
+    public function testItDeduplicatesRepeatedTemplateIds(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate('generic-active-host');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.41',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId, $templateId],
+                'create_services_linked_to_templates' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['templates' => [['id' => $templateId, 'name' => 'generic-active-host']]]);
+
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        /** @var int|string $relationCount */
+        $relationCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_template_relation WHERE host_host_id = ?',
+            [$hostId],
+        );
+        self::assertSame(1, (int) $relationCount);
+    }
+
+    public function testItPreservesTheTemplateOrder(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $firstId = $this->insertHostTemplate('generic-active-host');
+        $secondId = $this->insertHostTemplate('generic-passive-host');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.42',
+                'poller_id' => $pollerId,
+                'template_ids' => [$secondId, $firstId],
+                'create_services_linked_to_templates' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        $payload = $response->toArray();
+        self::assertSame([$secondId, $firstId], $this->idsOf($payload, 'templates'));
+
+        /** @var int $hostId */
+        $hostId = $payload['id'];
+        /** @var list<array{host_tpl_id: int|string, order: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_tpl_id, `order` FROM host_template_relation WHERE host_host_id = ? ORDER BY `order`',
+            [$hostId],
+        );
+        self::assertSame(
+            [[$secondId, 0], [$firstId, 1]],
+            array_map(static fn (array $row): array => [(int) $row['host_tpl_id'], (int) $row['order']], $rows),
+        );
+    }
+
+    public function testItOmitsTheOptionalFieldsWhenNoneAreGiven(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.43',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        // Agreed divergence: legacy stores '' for an omitted alias.
+        self::assertNull($this->connection->fetchOne('SELECT host_alias FROM host WHERE host_id = ?', [$hostId]));
+
+        $payload = $response->toArray();
+        self::assertSame([], $this->idsOf($payload, 'templates'));
+        self::assertSame([], $this->idsOf($payload, 'categories'));
+        self::assertSame([], $this->idsOf($payload, 'parent_hosts'));
+        self::assertSame([], $this->idsOf($payload, 'child_hosts'));
+        // The serializer omits nulls platform-wide, so these keys are absent rather than null.
+        self::assertArrayNotHasKey('timezone', $payload);
+        self::assertArrayNotHasKey('severity', $payload);
+        self::assertArrayNotHasKey('snmp_version', $payload);
+    }
+
+    public function testItRejectsANonBooleanServiceDeploymentToggle(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.45',
+                'poller_id' => $pollerId,
+                'create_services_linked_to_templates' => 'yes',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    #[DataProvider('blankOptionalFieldProvider')]
+    public function testItAcceptsABlankOptionalField(string $field, string $value): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.48',
+                'poller_id' => $pollerId,
+                $field => $value,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testItMeasuresTheTrimmedLengthOfAnAlias(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.49',
+                'poller_id' => $pollerId,
+                'alias' => '  ' . str_repeat('a', 200) . '  ',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['alias' => str_repeat('a', 200)]);
+    }
+
+    #[DataProvider('overlongOptionalFieldProvider')]
+    public function testItRejectsAnOverlongOptionalField(string $field, int $length): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.50',
+                'poller_id' => $pollerId,
+                $field => str_repeat('a', $length),
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function overlongOptionalFieldProvider(): iterable
+    {
+        yield 'alias' => ['alias', HostAlias::MAX_LENGTH + 1];
+
+        yield 'snmp_community' => ['snmp_community', SnmpCommunity::MAX_LENGTH + 1];
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function blankOptionalFieldProvider(): iterable
+    {
+        yield 'empty alias' => ['alias', ''];
+
+        yield 'whitespace alias' => ['alias', '   '];
+
+        yield 'empty snmp_community' => ['snmp_community', ''];
+
+        yield 'whitespace snmp_community' => ['snmp_community', '   '];
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function intColumn(string $sql, int $parameter): array
+    {
+        /** @var list<int|string> $values */
+        $values = $this->connection->fetchFirstColumn($sql, [$parameter]);
+
+        return array_map(static fn (int|string $value): int => (int) $value, $values);
+    }
+
+    /**
+     * @param array<mixed> $payload
+     *
+     * @return list<int>
+     */
+    private function idsOf(array $payload, string $key): array
+    {
+        /** @var list<array{id: int}> $items */
+        $items = $payload[$key];
+
+        return array_map(static fn (array $item): int => $item['id'], $items);
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostCategory(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostSeverity(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name, 'level' => 1]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertTimezone(string $name): int
+    {
+        $this->connection->insert('timezone', [
+            'timezone_name' => $name,
+            'timezone_offset' => '+00:00',
+            'timezone_dst_offset' => '+00:00',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkHostToParent(int $hostId, int $parentId): void
+    {
+        $this->connection->insert('host_hostparent_relation', [
+            'host_host_id' => $hostId,
+            'host_parent_hp_id' => $parentId,
+        ]);
+    }
+
     private function uniqueName(string $prefix = 'host'): string
     {
         return $prefix . '_' . bin2hex(random_bytes(4));
@@ -954,6 +1507,16 @@ final class CreateHostProcessorTest extends ApiTestCase
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var HostTemplateRepository $hostTemplateRepository */
+        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
+        /** @var HostCategoryRepository $hostCategoryRepository */
+        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
+        /** @var HostSeverityRepository $hostSeverityRepository */
+        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
+        /** @var TimezoneRepository $timezoneRepository */
+        $timezoneRepository = $container->get(TimezoneRepository::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
 
         $container->set(
             CreateHostProcessor::class,
@@ -963,6 +1526,11 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $security,
                 $pollerRepository,
                 $hostGroupRepository,
+                $hostTemplateRepository,
+                $hostCategoryRepository,
+                $hostSeverityRepository,
+                $timezoneRepository,
+                $hostRepository,
                 $mediaRepository,
                 $mediaUrlGenerator,
                 $timePeriodRepository,

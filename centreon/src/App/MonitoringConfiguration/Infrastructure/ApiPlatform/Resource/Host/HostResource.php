@@ -28,6 +28,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
@@ -42,9 +43,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             input: CreateHostInput::class,
             openapi: new Model\Operation(
                 responses: [
-                    404 => new Model\Response('Poller or host group not found'),
+                    404 => new Model\Response('A referenced resource was deleted between validation and write'),
                     409 => new Model\Response('Host resource already exists'),
-                    422 => new Model\Response('Invalid input'),
+                    422 => new Model\Response('Invalid input, including an unknown or inaccessible referenced resource and parent/child hosts that would form a circular relation'),
                 ],
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
@@ -110,6 +111,19 @@ final class HostResource
     /** @var list<HostGroupOutput> */
     public array $groups;
 
+    /** @var list<HostCategoryOutput> */
+    public array $categories = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $parentHosts = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $childHosts = [];
+
+    public ?HostTimezoneOutput $timezone = null;
+
+    public ?HostSeverityOutput $severity = null;
+
     public ?HostExtendedInformationsOutput $extendedInformations = null;
 
     public HostSchedulingOptionsOutput $schedulingOptions;
@@ -125,6 +139,8 @@ final class HostResource
         public string $address,
 
         public bool $activated,
+
+        public ?SnmpVersionEnum $snmpVersion = null,
     ) {
     }
 }

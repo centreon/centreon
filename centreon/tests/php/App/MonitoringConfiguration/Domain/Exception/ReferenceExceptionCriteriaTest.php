@@ -1,0 +1,91 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Domain\Exception;
+
+use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
+use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+final class ReferenceExceptionCriteriaTest extends TestCase
+{
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('criteriaProvider')]
+    public function testTheFactoryNamesTheCriterionAfterTheInputField(
+        AggregateNotFoundException|CircularHostRelationException $exception,
+        array $expected,
+    ): void {
+        self::assertSame($expected, $exception->criteria);
+
+        // The criterion is what InvalidReferenceExceptionListener matches against the operation's
+        // input DTO to decide on a 422; a rename that misses CreateHostInput degrades it silently
+        // back to the exception's own status.
+        foreach (array_keys($expected) as $criterion) {
+            self::assertTrue(
+                property_exists(CreateHostInput::class, $criterion),
+                sprintf('"%s" must name a property of CreateHostInput.', $criterion),
+            );
+        }
+    }
+
+    /**
+     * The counterpart: a criterion that is not a payload field is what keeps a missing target
+     * aggregate answering 404 rather than 422.
+     */
+    public function testThePollerFactoryNamesNoInputField(): void
+    {
+        foreach (array_keys(new PollerNotFoundException(['id' => 1])->criteria) as $criterion) {
+            self::assertFalse(property_exists(CreateHostInput::class, (string) $criterion));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{AggregateNotFoundException|CircularHostRelationException, array<string, mixed>}>
+     */
+    public static function criteriaProvider(): iterable
+    {
+        yield 'templates' => [HostTemplateNotFoundException::forIds([1, 2]), ['templateIds' => [1, 2]]];
+
+        yield 'categories' => [HostCategoryNotFoundException::forIds([3]), ['categoryIds' => [3]]];
+
+        yield 'severity' => [HostSeverityNotFoundException::forId(4), ['severityId' => 4]];
+
+        yield 'timezone' => [TimezoneNotFoundException::forId(5), ['timezoneId' => 5]];
+
+        yield 'parent hosts' => [HostNotFoundException::forIds([6], 'parentHostIds'), ['parentHostIds' => [6]]];
+
+        yield 'child hosts' => [HostNotFoundException::forIds([7], 'childHostIds'), ['childHostIds' => [7]]];
+
+        yield 'circular relation' => [CircularHostRelationException::forIds([8]), ['parentHostIds' => [8]]];
+    }
+}
