@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Application\Command\CommandBus;
+use Symfony\Component\Messenger\Exception\DelayedMessageHandlingException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -41,7 +42,7 @@ final class MessengerCommandBus implements CommandBus
     {
         try {
             return $this->handle($command);
-        } catch (HandlerFailedException $e) {
+        } catch (HandlerFailedException|DelayedMessageHandlingException $e) {
             /** @var list<\Throwable> $exceptions */
             $exceptions = $e->getWrappedExceptions();
 
