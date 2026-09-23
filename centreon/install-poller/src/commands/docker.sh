@@ -126,6 +126,11 @@ function runDockerInstall() {
   _resolveOverwriteSuffix "."
   local suffix="${DOCKER_FILE_SUFFIX}"
   if [ "${suffix}" = ".new" ]; then
+    if [ -f "./docker-compose.yaml.new" ] || [ -f "./.env.new" ]; then
+      consoleError "docker-compose.yaml.new/.env.new already exist from a previous run. Review/merge or remove them before re-running."
+      logError "Refusing to overwrite existing docker-compose.yaml.new/.env.new."
+      exit 1
+    fi
     # Old files are untouched; starting the stack would run stale ones.
     START_STACK=0
   fi
@@ -272,6 +277,8 @@ EOF
     logError "Cannot write ${out_file} file."
     exit 1
   fi
+
+  chmod 600 "${out_file}"
 
   consoleInfo "${out_file} written"
   logInfo "${out_file} written"
