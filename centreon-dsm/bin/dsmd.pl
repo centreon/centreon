@@ -270,7 +270,7 @@ sub get_alarms {
         return 1;
     }
 
-    # 0 = host_name, 1 = instance_id, 2 = host_id, 3 = service_id, 4 = service description, 5 = service last check, 6 = service state, 7 = alarm value (=cache_id##alarm_id. can also be empty or "raw::empty" with latest version of centengine)
+    # 0 = host_name, 1 = instance_id, 2 = host_id, 3 = service_id, 4 = service description, 5 = service last check, 6 = service state, 7 = alarm value (=cache_id##alarm_id. can also be empty or "raw::empty" with latest centengine version >= 25.10)
     while (my $slot_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
         last if (scalar(@$slot_batch) == 0);
         foreach my $slot (@$slot_batch) {
