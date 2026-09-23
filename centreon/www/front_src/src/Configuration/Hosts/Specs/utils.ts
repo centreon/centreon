@@ -1,6 +1,7 @@
-import hostIcon from './assets/host-icon.jpg';
-
-export { hostIcon };
+// A 16x16 inline PNG rather than a committed fixture: `useLoadImage` only needs
+// `new Image()` to fire `onload`, which a data URI does.
+export const hostIcon =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFUlEQVR42mNg6O4mDY1qGNUwfDUAAED3FhAEZJ4nAAAAAElFTkSuQmCC';
 
 // `skip_null_values` is applied on this endpoint: an unset field is absent from
 // the JSON entirely, so host 1 carries neither `alias` nor `icon`.
