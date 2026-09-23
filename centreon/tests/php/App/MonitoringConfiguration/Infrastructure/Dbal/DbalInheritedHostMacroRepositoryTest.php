@@ -83,12 +83,26 @@ final class DbalInheritedHostMacroRepositoryTest extends KernelTestCase
         self::assertSame([], $this->repository->findInheritedMacros(new Collection([], HostTemplateId::class), null)->toArray());
     }
 
-    private function createCommand(string $commandLine): int
+    public function testItIgnoresACommandThatIsNotACheckCommand(): void
+    {
+        // A non-check command (type 1 = notification) declaring $_HOST macros contributes nothing,
+        // matching legacy getMacroByIdAndType()'s command_type = 2 guard.
+        $commandId = $this->createCommand('$USER1$/notify -x $_HOSTFOO$', type: 1);
+
+        $macros = $this->repository->findInheritedMacros(
+            new Collection([], HostTemplateId::class),
+            new CommandId($commandId),
+        )->toArray();
+
+        self::assertSame([], $macros);
+    }
+
+    private function createCommand(string $commandLine, int $type = 2): int
     {
         $this->connection->insert('command', [
-            'command_name' => 'check_' . bin2hex(random_bytes(4)),
+            'command_name' => 'cmd_' . bin2hex(random_bytes(4)),
             'command_line' => $commandLine,
-            'command_type' => 2,
+            'command_type' => $type,
         ]);
 
         return (int) $this->connection->lastInsertId();

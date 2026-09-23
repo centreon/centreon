@@ -2183,4 +2183,21 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(422);
     }
+
+    public function testItRejectsAMacroValueExceedingMaxLength(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'big', 'value' => str_repeat('a', 4097)]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
 }
