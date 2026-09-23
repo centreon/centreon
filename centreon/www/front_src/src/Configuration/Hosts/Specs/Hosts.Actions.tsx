@@ -53,17 +53,20 @@ export default () => {
       cy.makeSnapshot();
     });
 
-    it('offers no duplicate action, which has no endpoint on hosts', () => {
+    it('duplicates a host through the confirmation modal', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
 
-      cy.findByTestId(`${labelDuplicate}_0`).should('not.exist');
+      cy.findByTestId(`${labelDuplicate}_0`).click();
 
-      selectFirstRow();
-      cy.findByTestId(labelMoreActions).click();
+      cy.findByTestId('confirm').click();
 
-      cy.contains(labelDuplicate).should('not.exist');
+      // Against a mocked endpoint: `/configuration/hosts/_duplicate` does not
+      // exist yet, and the shape it will take is still open.
+      cy.waitForRequest('@duplicateHosts');
+
+      cy.makeSnapshot();
     });
 
     it('disables an activated host from the row toggle', () => {
@@ -94,7 +97,7 @@ export default () => {
       cy.makeSnapshot();
     });
 
-    it('offers exactly the massive actions that have a working endpoint', () => {
+    it('offers every massive action the ticket lists, and no massive change', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -103,16 +106,17 @@ export default () => {
 
       cy.findByTestId(labelMoreActions).click();
 
-      // A positive assertion on the whole menu: it fails both when an entry
-      // without an endpoint creeps back in and when massive change is added
-      // before its own ticket lands.
+      // A positive assertion on the whole menu: it fails if an entry goes
+      // missing and if massive change appears before its own ticket lands.
       cy.get('[role="menu"]')
         .findAllByRole('menuitem')
-        .should('have.length', 3)
+        .should('have.length', 5)
         .then((entries) => {
           expect([...entries].map((entry) => entry.textContent)).to.deep.equal([
+            labelDuplicate,
             labelEnable,
             labelDisable,
+            labelDelete,
             labelDeployServices
           ]);
         });

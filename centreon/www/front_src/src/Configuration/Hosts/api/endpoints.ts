@@ -24,8 +24,26 @@ export const getDeployServicesEndpoint = ({
   id: number | string;
 }): string => `/configuration/hosts/${id}/services/deploy`;
 
-// No bulk endpoint exists for hosts yet — HostGroups has all four. The actions
-// are built against these paths so wiring them later is one edit here.
+// Creating a host — the second half of a client-side duplicate, if that is the
+// route we end up taking.
+export const createHostEndpoint = hostsListEndpoint;
+
+// Neither bulk endpoint exists yet; HostGroups has all four.
+//
+// Duplicate is pending a backend decision, and the two answers plug in at
+// different places:
+//
+//   - a real `POST /configuration/hosts/_duplicate` taking
+//     `{ ids, nb_duplicates }` — nothing to do but keep this constant, which is
+//     already what `api.endpoints.duplicate` points at;
+//   - no endpoint, so the front reads each selected host and posts a copy —
+//     `getHostEndpoint` and `createHostEndpoint` above are what that needs, and
+//     it replaces `ConfigurationBase`'s shared `useDuplicate` rather than
+//     configuring it, since that hook assumes one request for the whole
+//     selection.
+//
+// `isSingleDuplicate` is deliberately left unset either way, so the dialog keeps
+// asking how many copies to make, as the legacy page does.
 export const bulkDeleteHostsEndpoint = '/configuration/hosts/_delete';
 export const bulkDuplicateHostsEndpoint = '/configuration/hosts/_duplicate';
 
