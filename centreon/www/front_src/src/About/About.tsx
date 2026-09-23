@@ -16,7 +16,7 @@ const About = (): ReactElement => {
 
   return (
     <div className="px-4">
-      <div className="rounded bg-background-paper shadow">
+      <div className="rounded border border-divider bg-background-paper">
         <Hero version={platformVersion?.web.version} />
         <div className="px-8 py-1">
           <Row label={labelProjectAndContributors} withTopDivider={false}>
