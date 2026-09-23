@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Double;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
@@ -43,6 +45,12 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var ?Collection<MediaDirectoryId> null means unrestricted, matching the real contract */
     public ?Collection $accessibleImageFolderIds = null;
 
+    /** @var ?Collection<HostCategoryId> null means unrestricted, matching the real contract */
+    public ?Collection $accessibleHostCategoryIds = null;
+
+    /** @var ?Collection<HostSeverityId> null means unrestricted, matching the real contract */
+    public ?Collection $accessibleHostSeverityIds = null;
+
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
@@ -60,12 +68,12 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findAccessibleHostSeverityIds(UserId $userId): ?Collection
     {
-        return null;
+        return $this->accessibleHostSeverityIds;
     }
 
     public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
     {
-        return null;
+        return $this->accessibleHostCategoryIds;
     }
 
     public function findAccessiblePollerIds(UserId $userId): ?Collection

@@ -35,20 +35,29 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEventHandlerCommandOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
@@ -56,7 +65,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIco
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimePeriodOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -83,6 +94,9 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
         private CommandRepository $commandRepository,
+        private HostCategoryRepository $hostCategoryRepository,
+        private HostSeverityRepository $hostSeverityRepository,
+        private TimezoneRepository $timezoneRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
@@ -154,7 +168,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
             alias: $alias !== null ? new HostAlias($alias) : null,
             snmpVersion: $data->snmpVersion,
+            categoryIds: $this->toIdCollection($data->categoryIds, HostCategoryId::class),
             snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
+            timezoneId: $data->timezoneId !== null ? new TimezoneId($data->timezoneId) : null,
+            severityId: $data->severityId !== null ? new HostSeverityId($data->severityId) : null,
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
         );
@@ -179,6 +196,29 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
         $resource->groups = $groups;
         $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
+
+        $categoryNames = $this->hostCategoryRepository->findNamesByIds($host->categoryIds)->toArray();
+        $resource->categories = [];
+        foreach ($host->categoryIds as $categoryId) {
+            if (isset($categoryNames[$categoryId->value])) {
+                $resource->categories[] = new HostCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
+            }
+        }
+
+        if ($host->timezoneId instanceof TimezoneId) {
+            $timezoneName = $this->timezoneRepository->findNameById($host->timezoneId);
+            $resource->timezone = $timezoneName instanceof TimezoneName
+                ? new HostTimezoneOutput($host->timezoneId->value, $timezoneName->value)
+                : null;
+        }
+
+        if ($host->severityId instanceof HostSeverityId) {
+            $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
+            $resource->severity = $severityName instanceof HostSeverityName
+                ? new HostSeverityOutput($host->severityId->value, $severityName->value)
+                : null;
+        }
+
         $resource->extendedInformations = new HostExtendedInformationsOutput(
             noteUrl: $host->extendedInformations?->noteUrl,
             note: $host->extendedInformations?->note,
@@ -266,5 +306,23 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $trimmed = trim($value);
 
         return $trimmed === '' ? null : $trimmed;
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param list<int> $ids
+     * @param class-string<T> $className
+     *
+     * @return Collection<T>
+     */
+    private function toIdCollection(array $ids, string $className): Collection
+    {
+        // Deduplicated as legacy does: hostcategories_relation has no unique key, so a repeat
+        // would reach config generation twice.
+        return new Collection(
+            array_map(static fn (int $id): object => new $className($id), array_values(array_unique($ids))),
+            $className,
+        );
     }
 }

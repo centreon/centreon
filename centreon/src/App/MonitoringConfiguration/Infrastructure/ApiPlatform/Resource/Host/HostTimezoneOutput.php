@@ -21,19 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
-
-interface TimezoneRepository
+final readonly class HostTimezoneOutput
 {
-    /**
-     * @return \IteratorAggregate<int, Timezone>&\Countable
-     */
-    public function findAll(?TimezoneCriteria $criteria = null): \IteratorAggregate&\Countable;
-
-    public function findNameById(TimezoneId $id): ?TimezoneName;
+    public function __construct(
+        public int $id,
+        public string $name,
+    ) {
+    }
 }

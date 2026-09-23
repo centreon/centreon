@@ -32,9 +32,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
@@ -48,13 +53,22 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -62,9 +76,12 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -85,6 +102,12 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     private FakeVault $vault;
 
+    private FakeHostCategoryRepository $hostCategoryRepository;
+
+    private FakeHostSeverityRepository $hostSeverityRepository;
+
+    private FakeTimezoneRepository $timezoneRepository;
+
     /**
      * Boots the real container and swaps only the repositories and the event bus for fakes, so
      * the handler itself is built by Symfony's DI exactly as it is in production — catching a
@@ -101,6 +124,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
+        $this->hostCategoryRepository = new FakeHostCategoryRepository();
+        $this->hostSeverityRepository = new FakeHostSeverityRepository();
+        $this->timezoneRepository = new FakeTimezoneRepository();
         $this->vault->vaultEnabled = false;
 
         $container->set(HostRepository::class, $this->hostRepository);
@@ -109,6 +135,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(EventBus::class, $this->eventBus);
         $container->set(VaultInterface::class, $this->vault);
+        $container->set(HostCategoryRepository::class, $this->hostCategoryRepository);
+        $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
+        $container->set(TimezoneRepository::class, $this->timezoneRepository);
 
         /** @var CreateHostCommandHandler $handler */
         $handler = $container->get(CreateHostCommandHandler::class);
@@ -395,6 +424,69 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('Web server', $host->alias?->value);
     }
 
+    public function testItRejectsAnUnknownCategory(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostCategoryNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [404]));
+    }
+
+    public function testItRejectsACategoryOutsideTheViewerScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
+        $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([], HostCategoryId::class);
+
+        $this->expectException(HostCategoryNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [7], viewerId: new UserId(9)));
+    }
+
+    public function testItRejectsAnUnknownSeverity(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostSeverityNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), severityId: 404));
+    }
+
+    public function testItRejectsASeverityOutsideTheViewerScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostSeverityRepository->hostSeverities[7] = new HostSeverityName('Critical');
+        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([], HostSeverityId::class);
+
+        $this->expectException(HostSeverityNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), severityId: 7, viewerId: new UserId(9)));
+    }
+
+    public function testItRejectsAnUnknownTimezone(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(TimezoneNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), timezoneId: 404));
+    }
+
+    public function testItKeepsTheAcceptedReferencesOnTheAggregate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
+        $this->hostSeverityRepository->hostSeverities[8] = new HostSeverityName('Critical');
+        $this->timezoneRepository->timezones[9] = new Timezone(new TimezoneId(9), new TimezoneName('Europe/Paris'));
+
+        $host = ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [7], severityId: 8, timezoneId: 9));
+
+        self::assertSame([7], array_map(static fn (HostCategoryId $id): int => $id->value, $host->categoryIds->toArray()));
+        self::assertSame(8, $host->severityId?->value);
+        self::assertSame(9, $host->timezoneId?->value);
+    }
+
     private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand
     {
         return new CreateHostCommand(
@@ -405,6 +497,32 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
             snmpVersion: SnmpVersionEnum::TwoC,
             snmpCommunity: $snmpCommunity,
+        );
+    }
+
+    /**
+     * @param list<int> $categoryIds
+     */
+    private function referenceCommand(
+        PollerId $pollerId,
+        array $categoryIds = [],
+        ?int $severityId = null,
+        ?int $timezoneId = null,
+        ?UserId $viewerId = null,
+    ): CreateHostCommand {
+        return new CreateHostCommand(
+            name: new HostName('reference-host'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $pollerId,
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            viewerId: $viewerId,
+            categoryIds: new Collection(
+                array_map(static fn (int $id): HostCategoryId => new HostCategoryId($id), $categoryIds),
+                HostCategoryId::class,
+            ),
+            timezoneId: $timezoneId !== null ? new TimezoneId($timezoneId) : null,
+            severityId: $severityId !== null ? new HostSeverityId($severityId) : null,
         );
     }
 

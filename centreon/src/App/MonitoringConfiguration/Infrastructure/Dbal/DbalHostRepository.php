@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -102,6 +103,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'command_command_id_arg2' => ':eventHandlerArgs',
                 'host_snmp_version' => ':snmpVersion',
                 'host_snmp_community' => ':snmpCommunity',
+                'host_location' => ':timezoneId', // the timezone, despite the legacy column name
                 'geo_coords' => ':geoCoords',
                 'host_comment' => ':comment',
                 'timeperiod_tp_id' => ':checkTimeperiodId',
@@ -127,6 +129,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
             ->setParameter('snmpVersion', $host->snmpVersion?->value)
             ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
+            ->setParameter('timezoneId', $host->timezoneId?->value)
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
             ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
@@ -179,6 +182,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('groupId', $hostGroupId->value)
                 ->setParameter('hostId', $hostId)
                 ->executeStatement();
+        }
+
+        // Categories and the severity share this table, told apart only by `hostcategories.level`.
+        foreach ($host->categoryIds as $categoryId) {
+            $this->linkToHostCategory($hostId, $categoryId->value);
+        }
+
+        if ($host->severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $host->severityId->value);
         }
     }
 
@@ -377,5 +389,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     private function createHost(array $row): Host
     {
         return $this->transformer->transform($row);
+    }
+
+    private function linkToHostCategory(int $hostId, int $hostCategoryId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('hostcategories_relation')
+            ->values(['hostcategories_hc_id' => ':categoryId', 'host_host_id' => ':hostId'])
+            ->setParameter('categoryId', $hostCategoryId)
+            ->setParameter('hostId', $hostId)
+            ->executeStatement();
     }
 }
