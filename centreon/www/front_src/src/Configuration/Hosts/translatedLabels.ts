@@ -9,7 +9,7 @@ export const labelHostTemplate = 'Host template';
 export const labelStatus = 'Status';
 
 export const labelGoToServices = 'Go to services';
-export const labelDeployServices = 'Deploy services';
+export const labelDeployServices = 'Deploy Service';
 export const labelServicesDeployed = 'Services deployed';
 export const labelFailedToDeployServices = 'Failed to deploy services';
 

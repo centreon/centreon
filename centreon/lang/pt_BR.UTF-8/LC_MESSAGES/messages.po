@@ -4712,10 +4712,6 @@ msgstr "Aplica Serviço"
 msgid "Deploy configuration"
 msgstr ""
 
-#: centreon/www/install/front_translate.php
-msgid "Deploy services"
-msgstr ""
-
 #: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/install/dashboard_widgets.php
 msgid "Descending"
