@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimePeriodTransformer;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -52,6 +54,42 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
 
         // unique per test run so assertions are isolated from the pre-seeded time periods
         $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    public function testExistsOneReturnsTrueForAnExistingTimePeriod(): void
+    {
+        $id = $this->insertTimePeriod("existing-{$this->tag}");
+
+        self::assertTrue($this->repository->existsOne(new TimePeriodId($id)));
+    }
+
+    public function testExistsOneReturnsFalseForAnUnknownTimePeriod(): void
+    {
+        self::assertFalse($this->repository->existsOne(new TimePeriodId(999999)));
+    }
+
+    public function testFindNamesByIdsReturnsTheNameOfEachRequestedId(): void
+    {
+        $firstId = $this->insertTimePeriod("first-{$this->tag}");
+        $secondId = $this->insertTimePeriod("second-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds(new Collection(
+            [new TimePeriodId($firstId), new TimePeriodId($secondId)],
+            TimePeriodId::class,
+        ))->toArray();
+
+        self::assertSame("first-{$this->tag}", $names[$firstId]->value);
+        self::assertSame("second-{$this->tag}", $names[$secondId]->value);
+    }
+
+    public function testFindNamesByIdsOmitsAnUnknownId(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection(
+            [new TimePeriodId(999999)],
+            TimePeriodId::class,
+        ))->toArray();
+
+        self::assertSame([], $names);
     }
 
     public function testFindAllReturnsIdAndNameOfEveryTimePeriod(): void

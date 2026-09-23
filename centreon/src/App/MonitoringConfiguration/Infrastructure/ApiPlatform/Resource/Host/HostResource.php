@@ -112,6 +112,8 @@ final class HostResource
 
     public ?HostExtendedInformationsOutput $extendedInformations = null;
 
+    public HostSchedulingOptionsOutput $schedulingOptions;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
