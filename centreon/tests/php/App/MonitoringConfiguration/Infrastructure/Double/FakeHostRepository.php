@@ -36,6 +36,14 @@ final class FakeHostRepository implements HostRepository
     /** @var array<int, Host> */
     public array $hosts = [];
 
+    /**
+     * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
+     * writes from both sides: a host created with children becomes their parent in the graph.
+     *
+     * @var array<int, list<int>>
+     */
+    private array $parentIds = [];
+
     public function add(Host $host): void
     {
         do {
@@ -47,6 +55,14 @@ final class FakeHostRepository implements HostRepository
         $reflection->setValue($host, new HostId($id));
 
         $this->hosts[$id] = $host;
+
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
     }
 
     public function isNameUsedByHostOrTemplate(HostName $name): bool
@@ -63,5 +79,40 @@ final class FakeHostRepository implements HostRepository
     public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hosts), Host::class);
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->hosts[$id->value])) {
+                $names[$id->value] = $this->hosts[$id->value]->name;
+            }
+        }
+
+        return new Collection($names, HostName::class);
+    }
+
+    public function findAncestorIds(Collection $ids): Collection
+    {
+        $seen = [];
+        $queue = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+
+        while ($queue !== []) {
+            $current = array_shift($queue);
+            if (isset($seen[$current])) {
+                continue;
+            }
+            $seen[$current] = true;
+
+            foreach ($this->parentIds[$current] ?? [] as $parentId) {
+                $queue[] = $parentId;
+            }
+        }
+
+        return new Collection(
+            array_map(static fn (int $id): HostId => new HostId($id), array_keys($seen)),
+            HostId::class,
+        );
     }
 }

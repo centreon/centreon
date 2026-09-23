@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
@@ -61,6 +62,8 @@ final readonly class DbalHostTransformer implements TransformerInterface
 
         $alias = $from['alias'] !== null ? trim($from['alias']) : '';
 
+        // Relations and scalars the list query does not select stay empty, as ExtendedInformations
+        // already does by carrying only the icon.
         return new Host(
             id: new HostId((int) $from['id']),
             name: new HostName($from['name']),
@@ -70,6 +73,9 @@ final readonly class DbalHostTransformer implements TransformerInterface
             pollerId: new PollerId((int) $from['poller_id']),
             templateIds: new Collection($templateIds, HostTemplateId::class),
             hostGroupIds: new Collection($groupIds, HostGroupId::class),
+            categoryIds: new Collection([], HostCategoryId::class),
+            parentHostIds: new Collection([], HostId::class),
+            childHostIds: new Collection([], HostId::class),
             extendedInformations: new ExtendedInformations(
                 iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
             ),

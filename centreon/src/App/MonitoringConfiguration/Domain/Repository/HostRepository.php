@@ -24,20 +24,19 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
+use App\Shared\Domain\Collection;
 
 interface HostRepository
 {
     public function add(Host $host): void;
 
     /**
-     * Looked up across hosts AND host templates (both share the same `host` table and the
-     * same name uniqueness constraint in legacy) — never scope this to real hosts only.
-     *
-     * A plain existence check, not `findOneByName(): ?Host`: a matching row can be a host
-     * template, which has no poller relation and therefore cannot be hydrated into a valid
-     * `Host` (poller is a required, non-nullable field on the aggregate).
+     * Across hosts AND host templates: they share the `host` table and its name uniqueness.
+     * A bool rather than a find, because a matching template row has no poller relation and could
+     * not be hydrated into a valid `Host`.
      */
     public function isNameUsedByHostOrTemplate(HostName $name): bool;
 
@@ -45,4 +44,22 @@ interface HostRepository
      * @return \IteratorAggregate<int, Host>&\Countable
      */
     public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Never returns a host template, though both share the `host` table.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<HostName> indexed by id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * Includes $ids themselves, minus any that is not a host.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<HostId>
+     */
+    public function findAncestorIds(Collection $ids): Collection;
 }

@@ -23,10 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -79,83 +84,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
-        $extendedInformations = $host->extendedInformations;
-        $schedulingOptions = $host->schedulingOptions;
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb->insert(self::TABLE_NAME)
-            ->values([
-                'host_name' => ':name',
-                'host_address' => ':address',
-                'host_alias' => ':alias',
-                'host_activate' => ':is_activated',
-                'host_register' => "'1'",
-                'geo_coords' => ':geoCoords',
-                'host_comment' => ':comment',
-                'timeperiod_tp_id' => ':checkTimeperiodId',
-                'host_max_check_attempts' => ':maxCheckAttempts',
-                'host_check_interval' => ':normalCheckInterval',
-                'host_retry_check_interval' => ':retryCheckInterval',
-                'host_active_checks_enabled' => ':activeCheckEnabled',
-                'host_passive_checks_enabled' => ':passiveCheckEnabled',
-            ])
-            ->setParameter('name', $host->name->value)
-            ->setParameter('address', $host->address->value)
-            ->setParameter('alias', $host->alias?->value)
-            ->setParameter('is_activated', $host->activated ? '1' : '0')
-            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
-            ->setParameter('comment', $extendedInformations?->comment)
-            ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
-            ->setParameter('maxCheckAttempts', $schedulingOptions->maxCheckAttempts, ParameterType::INTEGER)
-            ->setParameter('normalCheckInterval', $schedulingOptions->normalCheckInterval, ParameterType::INTEGER)
-            ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
-            ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
-            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
-            ->executeStatement();
-
-        $hostId = (int) $this->connection->lastInsertId();
-        if ($hostId === 0) {
-            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
-        }
-
+        $hostId = $this->insertHost($host);
         $this->setId($host, new HostId($hostId));
 
-        // Every host row has a companion row here, even when Extended Informations were left
-        // empty: legacy always inserts it (DbWriteHostRepository::addExtendedInformations()), and
-        // other parts of the application already assume it exists.
-        $this->connection->createQueryBuilder()
-            ->insert('extended_host_information')
-            ->values([
-                'host_host_id' => ':hostId',
-                'ehi_notes_url' => ':noteUrl',
-                'ehi_notes' => ':note',
-                'ehi_action_url' => ':actionUrl',
-                'ehi_icon_image' => ':iconId',
-                'ehi_icon_image_alt' => ':iconAlternative',
-            ])
-            ->setParameter('hostId', $hostId)
-            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
-            ->setParameter('note', $extendedInformations?->note)
-            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
-            ->setParameter('iconId', $extendedInformations?->iconId?->value)
-            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
-            ->executeStatement();
-
-        $this->connection->createQueryBuilder()
-            ->insert('ns_host_relation')
-            ->values(['host_host_id' => ':hostId', 'nagios_server_id' => ':pollerId'])
-            ->setParameter('hostId', $hostId)
-            ->setParameter('pollerId', $host->pollerId->value)
-            ->executeStatement();
-
-        foreach ($host->hostGroupIds as $hostGroupId) {
-            $this->connection->createQueryBuilder()
-                ->insert('hostgroup_relation')
-                ->values(['hostgroup_hg_id' => ':groupId', 'host_host_id' => ':hostId'])
-                ->setParameter('groupId', $hostGroupId->value)
-                ->setParameter('hostId', $hostId)
-                ->executeStatement();
-        }
+        $this->insertExtendedInformations($hostId, $host->extendedInformations);
+        $this->linkToPoller($hostId, $host->pollerId->value);
+        $this->linkToHostGroups($hostId, $host->hostGroupIds);
+        $this->linkToTemplates($hostId, $host->templateIds);
+        $this->linkToCategories($hostId, $host->categoryIds, $host->severityId);
+        $this->linkToRelatedHosts($hostId, $host->parentHostIds, $host->childHostIds);
     }
 
     /**
@@ -174,6 +111,68 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return (bool) $qb->executeQuery()->fetchOne();
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('host_id', 'host_name')
+            ->from(self::TABLE_NAME)
+            ->where("host_register = '1'")
+            ->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{host_id: int|string, host_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        // `host_name` is nullable; a nameless row reads as "not found".
+        $names = [];
+        foreach ($rows as $row) {
+            if (($name = (string) $row['host_name']) !== '') {
+                $names[(int) $row['host_id']] = new HostName($name);
+            }
+        }
+
+        return new Collection($names, HostName::class);
+    }
+
+    public function findAncestorIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostId::class);
+        }
+
+        // UNION, not UNION ALL: a loop already in the data cannot hang the query.
+        $sql = <<<'SQL'
+            WITH RECURSIVE ancestors (host_id) AS (
+                SELECT h.host_id
+                FROM host h
+                WHERE h.host_id IN (:ids)
+                UNION
+                SELECT hhr.host_parent_hp_id
+                FROM host_hostparent_relation hhr
+                INNER JOIN ancestors a ON a.host_id = hhr.host_host_id
+                WHERE hhr.host_parent_hp_id IS NOT NULL
+            )
+            SELECT host_id FROM ancestors
+            SQL;
+
+        /** @var list<array{host_id: int|string}> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $idValues],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        return new Collection(
+            array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
+            HostId::class,
+        );
+    }
+
     public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $accessibleHostIds = null;
@@ -189,7 +188,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->from(self::TABLE_NAME, 'h')
             ->leftJoin('h', 'ns_host_relation', 'nsr', 'nsr.host_host_id = h.host_id')
             ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
-            ->leftJoin('h', 'host_template_relation', 'htpl', 'htpl.host_host_id = h.host_id')
             ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
             ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
             ->andWhere("h.host_register = '1'")
@@ -218,7 +216,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $this->paginate($qb, $criteria);
 
         // total across all pages: countMatching clones $qb, strips its sort/pagination
-        // and resets its GROUP BY (needed here to collapse the template-relation join),
+        // and resets its GROUP BY (needed here to collapse the host-group join),
         // so the count is unaffected by the pagination applied above.
         $count = $this->countMatching($qb, 'COUNT(DISTINCT h.host_id)');
 
@@ -245,10 +243,188 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             "{$alias}.host_address AS ip_address",
             "{$alias}.host_activate AS is_activated",
             'nsr.nagios_server_id AS poller_id',
-            'GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids',
+            // A correlated subquery, not a GROUP_CONCAT over the join, because the position in
+            // this list is the inheritance order the aggregate promises.
+            "(SELECT GROUP_CONCAT(htr.host_tpl_id ORDER BY htr.`order`)
+                FROM host_template_relation htr
+                WHERE htr.host_host_id = {$alias}.host_id) AS template_ids",
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
+    }
+
+    private function insertHost(Host $host): int
+    {
+        $extendedInformations = $host->extendedInformations;
+        $schedulingOptions = $host->schedulingOptions;
+
+        // The enum columns AddHost binds to '2' stay NULL: config generation skips both alike,
+        // and the web UI writes NULL for "Default" too.
+        $qb = $this->connection->createQueryBuilder();
+        $qb->insert(self::TABLE_NAME)
+            ->values([
+                'host_name' => ':name',
+                'host_address' => ':address',
+                'host_alias' => ':alias',
+                'host_activate' => ':is_activated',
+                'host_register' => "'1'",
+                'host_snmp_version' => ':snmpVersion',
+                'host_snmp_community' => ':snmpCommunity',
+                'host_location' => ':timezoneId', // the timezone, despite the legacy column name
+                'geo_coords' => ':geoCoords',
+                'host_comment' => ':comment',
+                'timeperiod_tp_id' => ':checkTimeperiodId',
+                'host_max_check_attempts' => ':maxCheckAttempts',
+                'host_check_interval' => ':normalCheckInterval',
+                'host_retry_check_interval' => ':retryCheckInterval',
+                'host_active_checks_enabled' => ':activeCheckEnabled',
+                'host_passive_checks_enabled' => ':passiveCheckEnabled',
+            ])
+            ->setParameter('name', $host->name->value)
+            ->setParameter('address', $host->address->value)
+            // NULL where legacy stores '': config generation skips both identically.
+            ->setParameter('alias', $host->alias?->value)
+            ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->setParameter('snmpVersion', $host->snmpVersion?->value)
+            ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
+            ->setParameter('timezoneId', $host->timezoneId?->value)
+            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
+            ->setParameter('comment', $extendedInformations?->comment)
+            ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
+            ->setParameter('maxCheckAttempts', $schedulingOptions->maxCheckAttempts, ParameterType::INTEGER)
+            ->setParameter('normalCheckInterval', $schedulingOptions->normalCheckInterval, ParameterType::INTEGER)
+            ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
+            ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
+            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
+            ->executeStatement();
+
+        $hostId = (int) $this->connection->lastInsertId();
+        if ($hostId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        return $hostId;
+    }
+
+    /**
+     * Every host row has a companion row here, even when Extended Informations were left empty:
+     * legacy always inserts it (DbWriteHostRepository::addExtendedInformations()), and other parts
+     * of the application already assume it exists.
+     */
+    private function insertExtendedInformations(int $hostId, ?ExtendedInformations $extendedInformations): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('extended_host_information')
+            ->values([
+                'host_host_id' => ':hostId',
+                'ehi_notes_url' => ':noteUrl',
+                'ehi_notes' => ':note',
+                'ehi_action_url' => ':actionUrl',
+                'ehi_icon_image' => ':iconId',
+                'ehi_icon_image_alt' => ':iconAlternative',
+            ])
+            ->setParameter('hostId', $hostId)
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value)
+            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
+            ->executeStatement();
+    }
+
+    private function linkToPoller(int $hostId, int $pollerId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('ns_host_relation')
+            ->values(['host_host_id' => ':hostId', 'nagios_server_id' => ':pollerId'])
+            ->setParameter('hostId', $hostId)
+            ->setParameter('pollerId', $pollerId)
+            ->executeStatement();
+    }
+
+    /**
+     * @param Collection<HostGroupId> $hostGroupIds
+     */
+    private function linkToHostGroups(int $hostId, Collection $hostGroupIds): void
+    {
+        foreach ($hostGroupIds as $hostGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('hostgroup_relation')
+                ->values(['hostgroup_hg_id' => ':groupId', 'host_host_id' => ':hostId'])
+                ->setParameter('groupId', $hostGroupId->value)
+                ->setParameter('hostId', $hostId)
+                ->executeStatement();
+        }
+    }
+
+    /**
+     * @param Collection<HostTemplateId> $templateIds
+     */
+    private function linkToTemplates(int $hostId, Collection $templateIds): void
+    {
+        // Contiguous, unlike AddHost, which leaves gaps from the array_unique() keys.
+        $order = 0;
+        foreach ($templateIds as $templateId) {
+            $this->connection->createQueryBuilder()
+                ->insert('host_template_relation')
+                ->values(['host_tpl_id' => ':templateId', 'host_host_id' => ':hostId', '`order`' => ':order'])
+                ->setParameter('templateId', $templateId->value)
+                ->setParameter('hostId', $hostId)
+                ->setParameter('order', $order++)
+                ->executeStatement();
+        }
+    }
+
+    /**
+     * Categories and the severity share `hostcategories_relation`, told apart only by
+     * `hostcategories.level`.
+     *
+     * @param Collection<HostCategoryId> $categoryIds
+     */
+    private function linkToCategories(int $hostId, Collection $categoryIds, ?HostSeverityId $severityId): void
+    {
+        foreach ($categoryIds as $categoryId) {
+            $this->linkToHostCategory($hostId, $categoryId->value);
+        }
+
+        if ($severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $severityId->value);
+        }
+    }
+
+    /**
+     * @param Collection<HostId> $parentHostIds
+     * @param Collection<HostId> $childHostIds
+     */
+    private function linkToRelatedHosts(int $hostId, Collection $parentHostIds, Collection $childHostIds): void
+    {
+        foreach ($parentHostIds as $parentHostId) {
+            $this->insertParentRelation(parentId: $parentHostId->value, childId: $hostId);
+        }
+
+        foreach ($childHostIds as $childHostId) {
+            $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
+        }
+    }
+
+    private function insertParentRelation(int $parentId, int $childId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('host_hostparent_relation')
+            ->values(['host_parent_hp_id' => ':parentId', 'host_host_id' => ':childId'])
+            ->setParameter('parentId', $parentId)
+            ->setParameter('childId', $childId)
+            ->executeStatement();
+    }
+
+    private function linkToHostCategory(int $hostId, int $hostCategoryId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('hostcategories_relation')
+            ->values(['hostcategories_hc_id' => ':categoryId', 'host_host_id' => ':hostId'])
+            ->setParameter('categoryId', $hostCategoryId)
+            ->setParameter('hostId', $hostId)
+            ->executeStatement();
     }
 
     /**

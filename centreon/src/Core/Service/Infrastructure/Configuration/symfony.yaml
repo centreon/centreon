@@ -9,6 +9,12 @@ services:
     bind:
       $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
+  # Reached from the new stack through App\Shared\Infrastructure\Legacy\LegacyContainer, which can
+  # only resolve public services (see LegacyServiceDeployerWrapper). Service creation itself has
+  # not been migrated yet; same arrangement as the vault services in config/packages/Centreon.yaml.
+  Core\Service\Application\UseCase\DeployServices\DeployServices:
+    public: true
+
   Core\Service\Application\Repository\WriteServiceRepositoryInterface:
     class: Core\Service\Infrastructure\Repository\DbWriteServiceRepository
 
