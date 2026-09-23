@@ -49,9 +49,9 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
-        public readonly DataProcessing $dataProcessing = new DataProcessing(),
         public readonly ?ExtendedInformations $extendedInformations = null,
         public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        public readonly DataProcessing $dataProcessing = new DataProcessing(),
     ) {
         parent::__construct($id);
     }
