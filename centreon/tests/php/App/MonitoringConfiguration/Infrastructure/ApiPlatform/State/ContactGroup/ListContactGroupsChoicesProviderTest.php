@@ -111,8 +111,8 @@ final class ListContactGroupsChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's host-form contact-group select appends LDAP-only groups unfiltered, but a
-     * LDAP-only group is refused on save (MON-208474): the host-scoped selector excludes them
-     * outright instead of surfacing an option the save would reject.
+     * LDAP-only group is refused on save: the host-scoped selector excludes them outright
+     * instead of surfacing an option the save would reject.
      */
     public function testItExcludesLdapContactGroups(): void
     {

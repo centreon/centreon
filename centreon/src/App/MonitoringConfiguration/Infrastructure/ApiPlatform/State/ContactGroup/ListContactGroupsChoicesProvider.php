@@ -85,8 +85,8 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
         }
 
         // Legacy's host-form contact-group select appends LDAP-only groups unfiltered but a
-        // LDAP-only group is refused on save (MON-208474): the host-scoped selector excludes them
-        // outright rather than surfacing an option the save would reject.
+        // LDAP-only group is refused on save: the host-scoped selector excludes them outright
+        // rather than surfacing an option the save would reject.
         $criteria = $criteria->withExcludeLdap(true);
 
         $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
