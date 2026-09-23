@@ -39,6 +39,9 @@ const api: APIType = {
     enable: getHostEndpoint,
     getAll: hostsListEndpoint
   },
+  // Confirmed with the backend: the payload is a plain array of ids, which is
+  // what `isSingleDuplicate` sends.
+  isSingleDuplicate: true,
   // Enable and disable are a partial update of the host, as on commands.
   methods: {
     disable: Method.PATCH,

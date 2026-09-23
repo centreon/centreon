@@ -62,9 +62,12 @@ export default () => {
 
       cy.findByTestId('confirm').click();
 
-      // Against a mocked endpoint: `/configuration/hosts/_duplicate` does not
-      // exist yet, and the shape it will take is still open.
-      cy.waitForRequest('@duplicateHosts');
+      // Against a mock: `/configuration/hosts/_duplicate` is agreed with the
+      // backend but not implemented yet. The payload is the contract — a plain
+      // array of ids, as on commands.
+      cy.waitForRequest('@duplicateHosts').then(({ request }) => {
+        expect(request.body).to.deep.equal({ ids: [0] });
+      });
 
       cy.makeSnapshot();
     });
