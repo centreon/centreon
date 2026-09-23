@@ -239,10 +239,9 @@ sub get_alarms {
         return 1;
     }
 
-    my $rows = [];
-    while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
-        push @{$self->{current_alarms}}, $row;
+    while (my $alarm_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
+        last if (scalar(@$alarm_batch) == 0);
+        push @{$self->{current_alarms}}, @$alarm_batch; 
     }
 
     return 1 if (scalar(@{$self->{current_alarms}}) == 0);
@@ -266,20 +265,21 @@ sub get_alarms {
         return 1;
     }
 
-    $rows = [];
-    while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
-        $self->{current_pools_status}->{$row->[2]} = {} if (!defined($self->{current_pools_status}->{$row->[2]}));
-        $self->{current_pools_status}->{$row->[2]}->{$row->[4]} = {
-            host_name => $row->[0],
-            instance_id => $row->[1],
-            service_id => $row->[3],
-            last_check => $row->[5],
-            state => $row->[6],
-            alarm_id => $row->[7]
-        };
-    }
 
+    while (my $alarm_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
+        last if (scalar(@$alarm_batch) == 0);
+        foreach my $alarm (@$alarm_batch) {
+            $self->{current_pools_status}->{$alarm->[2]} = {} if (!defined($self->{current_pools_status}->{$alarm->[2]}));
+            $self->{current_pools_status}->{$alarm->[2]}->{$alarm->[4]} = {
+                host_name => $alarm->[0],
+                instance_id => $alarm->[1],
+                service_id => $alarm->[3],
+                last_check => $alarm->[5],
+                state => $alarm->[6],
+                alarm_id => $alarm->[7]
+            };
+        }
+    }
     return 0;
 }
 
