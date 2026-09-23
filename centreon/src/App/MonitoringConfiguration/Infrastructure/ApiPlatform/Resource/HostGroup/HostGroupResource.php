@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostGr
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
@@ -40,12 +41,14 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListH
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access host groups',
+            itemUriTemplate: '/configuration/host_groups/{id}',
             output: HostGroupChoicesOutput::class,
             provider: ListHostGroupsChoicesProvider::class,
         ),
         new GetCollection(
             uriTemplate: '/configuration/host_groups',
             provider: ListHostGroupsProvider::class,
+            itemUriTemplate: '/configuration/host_groups/{id}',
             output: HostGroupCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
@@ -63,6 +66,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostGroup\ListH
                 is_granted("' . HostGroupPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list host groups',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/host_groups/{id}'),
     ],
 )]
 final class HostGroupResource

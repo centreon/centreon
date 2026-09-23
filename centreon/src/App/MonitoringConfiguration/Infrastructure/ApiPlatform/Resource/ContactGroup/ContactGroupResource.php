@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Contac
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
@@ -40,12 +41,14 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\Li
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access contact groups',
+            itemUriTemplate: '/configuration/contact_groups/{id}',
             output: ContactGroupChoicesOutput::class,
             provider: ListContactGroupsChoicesProvider::class,
         ),
         new GetCollection(
             uriTemplate: '/configuration/contact_groups',
             provider: ListContactGroupsProvider::class,
+            itemUriTemplate: '/configuration/contact_groups/{id}',
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -65,6 +68,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\Li
                 is_granted("' . ContactGroupPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list contact groups',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/contact_groups/{id}'),
     ],
 )]
 final readonly class ContactGroupResource

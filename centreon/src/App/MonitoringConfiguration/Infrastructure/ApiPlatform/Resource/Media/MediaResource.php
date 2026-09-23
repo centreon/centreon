@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Media;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMediasChoicesProvider;
@@ -39,12 +40,14 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMedia
             openapi: false,
             security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to access medias',
+            itemUriTemplate: '/configuration/medias/{id}',
             output: MediaChoicesOutput::class,
             provider: ListMediasChoicesProvider::class,
         ),
         new GetCollection(
             uriTemplate: '/configuration/medias',
             provider: ListMediasProvider::class,
+            itemUriTemplate: '/configuration/medias/{id}',
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -59,6 +62,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\ListMedia
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
             securityMessage: 'You must be authenticated to list medias',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/medias/{id}'),
     ],
 )]
 final class MediaResource
