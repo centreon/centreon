@@ -27,12 +27,22 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
 
 #[ApiResource(
     shortName: 'HostTemplate',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/host_templates',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
+            output: HostTemplateChoicesOutput::class,
+            provider: ListHostTemplatesChoicesProvider::class,
+        ),
         new GetCollection(
             uriTemplate: '/configuration/host_templates',
             provider: ListHostTemplatesProvider::class,
