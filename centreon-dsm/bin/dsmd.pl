@@ -248,20 +248,22 @@ sub get_alarms {
 
     my %pools = ();
     my @sql_where = ();
+    my @bind_values = ($self->{dsmd_config}->{macro_config});
     foreach my $row (@{$self->{current_alarms}}) {
         next if (defined($pools{$row->[1]}->{$row->[4]}));
         $pools{$row->[1]}->{$row->[4]} = 1;
-        push @sql_where, "(services.host_id = $row->[1] AND services.description LIKE " . $self->{db_centstorage}->quote($row->[4] . '%') . ")";
+        push @sql_where, "(services.host_id = ? AND services.description LIKE ?)";
+        push @bind_values, $row->[1], $row->[4] . '%';
     }
     return 1 if (scalar(@sql_where) == 0);
 
-    ($status, $sth) = $self->{db_centstorage}->query(
+    $sth = $self->{db_centstorage}->{instance}->prepare(
         "SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
-        "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = '" . $self->{dsmd_config}->{macro_config} . "', hosts " .
-        "WHERE (" . join('OR', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id"
+        "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = ?, hosts " .
+        "WHERE (" . join(' OR ', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id"
     );
-    if ($status == -1) {
-        $self->{logger}->writeLogError("Cannot get alarms");
+    if (!defined($sth) || !$sth->execute(@bind_values)) {
+        $self->{logger}->writeLogError("Cannot get alarms: " . $DBI::errstr);
         return 1;
     }
 
