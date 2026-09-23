@@ -26,6 +26,8 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -38,11 +40,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEventHandlerCommandOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
@@ -75,6 +81,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private Security $security,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
+        private CommandRepository $commandRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
@@ -94,6 +101,19 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $hostGroupIds = new Collection(
             array_map(static fn (int $id): HostGroupId => new HostGroupId($id), array_unique($data->hostGroupIds)),
             HostGroupId::class,
+        );
+
+        $dpInput = $data->dataProcessing ?? new DataProcessingInput();
+        $dataProcessing = new DataProcessing(
+            checkFreshness: $dpInput->checkFreshness ?? TriStateEnum::UseDefault,
+            flapDetectionEnabled: $dpInput->flapDetectionEnabled ?? TriStateEnum::UseDefault,
+            eventHandlerEnabled: $dpInput->eventHandlerEnabled ?? TriStateEnum::UseDefault,
+            acknowledgmentTimeout: $dpInput->acknowledgmentTimeout,
+            freshnessThreshold: $dpInput->freshnessThreshold,
+            lowFlapThreshold: $dpInput->lowFlapThreshold,
+            highFlapThreshold: $dpInput->highFlapThreshold,
+            eventHandlerCommandId: $dpInput->eventHandlerCommandId !== null ? new CommandId($dpInput->eventHandlerCommandId) : null,
+            eventHandlerArgs: array_values($dpInput->eventHandlerArgs),
         );
 
         $extendedInformationsInput = $data->extendedInformations;
@@ -126,6 +146,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             address: new HostAddress($data->address),
             pollerId: new PollerId($data->pollerId),
             hostGroupIds: $hostGroupIds,
+            dataProcessing: $dataProcessing,
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
             extendedInformations: $extendedInformations,
@@ -151,6 +172,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
         $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
         $resource->groups = $groups;
+        $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
         $resource->extendedInformations = new HostExtendedInformationsOutput(
             noteUrl: $host->extendedInformations?->noteUrl,
             note: $host->extendedInformations?->note,
@@ -172,6 +194,28 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
 
         return $resource;
+    }
+
+    private function buildDataProcessingOutput(DataProcessing $dataProcessing): DataProcessingOutput
+    {
+        $eventHandler = null;
+        if ($dataProcessing->eventHandlerCommandId instanceof CommandId) {
+            $command = $this->commandRepository->getById($dataProcessing->eventHandlerCommandId);
+            $eventHandler = new HostEventHandlerCommandOutput($command->id()->value, $command->name->value);
+        }
+
+        // On a Cloud platform the on-premise-only members are not part of the contract.
+        return new DataProcessingOutput(
+            checkFreshness: $dataProcessing->checkFreshness,
+            freshnessThreshold: $dataProcessing->freshnessThreshold,
+            eventHandlerEnabled: $dataProcessing->eventHandlerEnabled,
+            eventHandler: $eventHandler,
+            acknowledgmentTimeout: $this->isCloudPlatform ? null : $dataProcessing->acknowledgmentTimeout,
+            flapDetectionEnabled: $this->isCloudPlatform ? null : $dataProcessing->flapDetectionEnabled,
+            lowFlapThreshold: $this->isCloudPlatform ? null : $dataProcessing->lowFlapThreshold,
+            highFlapThreshold: $this->isCloudPlatform ? null : $dataProcessing->highFlapThreshold,
+            eventHandlerArgs: $this->isCloudPlatform ? [] : $dataProcessing->eventHandlerArgs,
+        );
     }
 
     private function triStateOrDefault(?TriStateEnum $value): TriStateEnum
