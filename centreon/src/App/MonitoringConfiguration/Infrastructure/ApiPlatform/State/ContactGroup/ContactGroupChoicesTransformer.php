@@ -21,27 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
-use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
-use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupTypeEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupChoicesOutput;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalContactGroupRepository
- *
- * @implements TransformerInterface<RowTypeAlias, ContactGroup>
+ * @implements TransformerInterface<ContactGroup, ContactGroupChoicesOutput>
  */
-final readonly class ContactGroupTransformer implements TransformerInterface
+final readonly class ContactGroupChoicesTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ContactGroup
+    public function transform(mixed $from): ContactGroupChoicesOutput
     {
-        return new ContactGroup(
-            id: new ContactGroupId($from['cg_id']),
-            name: new ContactGroupName($from['cg_name']),
-            type: $from['cg_type'] === 'local' ? ContactGroupTypeEnum::Local : ContactGroupTypeEnum::Ldap,
+        return new ContactGroupChoicesOutput(
+            id: $from->id()->value,
+            name: $from->name->value,
         );
     }
 }

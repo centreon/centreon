@@ -44,6 +44,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @phpstan-type RowTypeAlias = array{
  *   cg_id: int,
  *   cg_name: string,
+ *   cg_type: string,
  * }
  */
 final readonly class DbalContactGroupRepository extends DbalRepository implements ContactGroupRepository
@@ -129,6 +130,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         return [
             "{$alias}.cg_id AS cg_id",
             "{$alias}.cg_name AS cg_name",
+            "{$alias}.cg_type AS cg_type",
         ];
     }
 
@@ -142,6 +144,10 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 ),
                 $names
             )));
+        }
+
+        if ($criteria->excludeLdap()) {
+            $qb->andWhere($qb->expr()->neq('cg.cg_type', $qb->createNamedParameter('ldap')));
         }
     }
 

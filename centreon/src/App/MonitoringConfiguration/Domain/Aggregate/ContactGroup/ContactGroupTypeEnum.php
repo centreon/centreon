@@ -23,18 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
-
-/**
- * @extends AggregateRoot<ContactGroupId>
- */
-final class ContactGroup extends AggregateRoot
+enum ContactGroupTypeEnum
 {
-    public function __construct(
-        ContactGroupId $id,
-        public readonly ContactGroupName $name,
-        public readonly ContactGroupTypeEnum $type = ContactGroupTypeEnum::Local,
-    ) {
-        parent::__construct($id);
-    }
+    case Local;
+    case Ldap;
 }

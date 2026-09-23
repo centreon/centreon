@@ -28,11 +28,21 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\ListContactGroupsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\ListContactGroupsProvider;
 
 #[ApiResource(
     shortName: 'ContactGroup',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/contact_groups',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access contact groups',
+            output: ContactGroupChoicesOutput::class,
+            provider: ListContactGroupsChoicesProvider::class,
+        ),
         new GetCollection(
             uriTemplate: '/configuration/contact_groups',
             provider: ListContactGroupsProvider::class,
