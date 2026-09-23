@@ -786,6 +786,11 @@ final class CreateHostProcessorTest extends ApiTestCase
     /**
      * The notification columns are written either way, so the response reports the persisted
      * state rather than dropping the key — a client never has to handle two shapes.
+     *
+     * The Cloud branch (block rejected on input, key omitted from the response) cannot be
+     * exercised here: both the WhenPlatform constraint and CreateHostProcessor read
+     * IS_CLOUD_PLATFORM through the compiled container, which no test can re-bind per case —
+     * same limitation as testItAllowsEmptyHostGroupsOnPremise below.
      */
     public function testItReportsTheDefaultNotificationsWhenTheBlockIsAbsent(): void
     {

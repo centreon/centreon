@@ -31,10 +31,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[Group('wip')]
 final class NotificationsTest extends TestCase
 {
     public function testItAcceptsEveryOptionalFieldLeftEmpty(): void

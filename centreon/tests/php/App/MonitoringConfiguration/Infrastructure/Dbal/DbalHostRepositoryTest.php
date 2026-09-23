@@ -526,6 +526,35 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertNull($row['host_notification_options']);
     }
 
+    /**
+     * Covers every letter of the engine's `host_notification_options` format in one go: a missing
+     * or wrong mapping silently changes when the engine notifies, and nothing else would catch it.
+     */
+    public function testAddMapsEveryNotificationOptionToItsEngineLetter(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+            options: [
+                NotificationOptionEnum::Down,
+                NotificationOptionEnum::Unreachable,
+                NotificationOptionEnum::Recovery,
+                NotificationOptionEnum::Flapping,
+                NotificationOptionEnum::DowntimeScheduled,
+            ],
+        ));
+
+        $this->repository->add($host);
+
+        self::assertSame(
+            'd,u,r,f,s',
+            $this->connection->fetchOne('SELECT host_notification_options FROM host WHERE host_id = ?', [$host->id()->value]),
+        );
+    }
+
     public function testAddPersistsTheNoneNotificationOption(): void
     {
         $pollerId = $this->createPoller('Central');
