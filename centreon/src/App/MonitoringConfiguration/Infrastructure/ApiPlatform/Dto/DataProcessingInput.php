@@ -80,11 +80,17 @@ final readonly class DataProcessingInput
         ])]
         #[Assert\All([
             new Assert\Type('string'),
-            // '!' is the storage delimiter (see DbalHostRepository::joinCommandArgs); an argument
-            // containing it would corrupt the round-trip, so reject it at the boundary.
+            // The storage codec (DbalHostRepository::joinCommandArgs) joins on '!' and encodes
+            // \n\t\r as #BR#/#T#/#R#; the read path does not decode them, so an argument carrying the
+            // delimiter, a raw control character or a literal escape token would not round-trip.
             new Assert\Regex(
-                pattern: '/\A[^!]*\z/',
-                message: 'An event handler argument cannot contain the "!" character.',
+                pattern: '/\A[^!\n\t\r]*\z/',
+                message: 'An event handler argument cannot contain "!", a newline, a tab or a carriage return.',
+            ),
+            new Assert\Regex(
+                pattern: '/#(?:BR|T|R)#/',
+                match: false,
+                message: 'An event handler argument cannot contain the reserved escape tokens #BR#, #T# or #R#.',
             ),
         ])]
         public array $eventHandlerArgs = [],

@@ -106,4 +106,18 @@ final class DataProcessingTest extends TestCase
 
         new DataProcessing(eventHandlerArgs: ['a!b']);
     }
+
+    public function testRejectsAnEventHandlerArgContainingAControlCharacter(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new DataProcessing(eventHandlerArgs: ["a\nb"]);
+    }
+
+    public function testRejectsAnEventHandlerArgContainingAnEscapeToken(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new DataProcessing(eventHandlerArgs: ['a#BR#b']);
+    }
 }
