@@ -241,19 +241,22 @@ sub get_alarms {
 
     while (my $alarm_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
         last if (scalar(@$alarm_batch) == 0);
-        push @{$self->{current_alarms}}, @$alarm_batch; 
+        push @{$self->{current_alarms}}, @$alarm_batch;
     }
 
     return 1 if (scalar(@{$self->{current_alarms}}) == 0);
 
     my %pools = ();
     my @sql_where = ();
-    my @bind_values = ($self->{dsmd_config}->{macro_config});
-    foreach my $row (@{$self->{current_alarms}}) {
-        next if (defined($pools{$row->[1]}->{$row->[4]}));
-        $pools{$row->[1]}->{$row->[4]} = 1;
+    my @bind_values = ($self->{dsmd_config}->{macro_config}); # bind for cv.name
+
+    # $alarm->[X]
+    # 0 = cache_id, 1 = host_id, 2 = ctime, 3 = status, 4 = pool_prefix, 5 = id (alarm id), 6 = macros, 7 = output
+    foreach my $alarm (@{$self->{current_alarms}}) {
+        next if (defined($pools{$alarm->[1]}->{$alarm->[4]}));
+        $pools{$alarm->[1]}->{$alarm->[4]} = 1;
         push @sql_where, "(services.host_id = ? AND services.description LIKE ?)";
-        push @bind_values, $row->[1], $row->[4] . '%';
+        push @bind_values, $alarm->[1], $alarm->[4] . '%';
     }
     return 1 if (scalar(@sql_where) == 0);
 
@@ -267,18 +270,18 @@ sub get_alarms {
         return 1;
     }
 
-
-    while (my $alarm_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
-        last if (scalar(@$alarm_batch) == 0);
-        foreach my $alarm (@$alarm_batch) {
-            $self->{current_pools_status}->{$alarm->[2]} = {} if (!defined($self->{current_pools_status}->{$alarm->[2]}));
-            $self->{current_pools_status}->{$alarm->[2]}->{$alarm->[4]} = {
-                host_name => $alarm->[0],
-                instance_id => $alarm->[1],
-                service_id => $alarm->[3],
-                last_check => $alarm->[5],
-                state => $alarm->[6],
-                alarm_id => $alarm->[7]
+    # 0 = host_name, 1 = instance_id, 2 = host_id, 3 = service_id, 4 = service description, 5 = service last check, 6 = service state, 7 = alarm value (=cache_id##alarm_id. can also be empty or "raw::empty" with latest version of centengine)
+    while (my $slot_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
+        last if (scalar(@$slot_batch) == 0);
+        foreach my $slot (@$slot_batch) {
+            $self->{current_pools_status}->{$slot->[2]} = {} if (!defined($self->{current_pools_status}->{$slot->[2]}));
+            $self->{current_pools_status}->{$slot->[2]}->{$slot->[4]} = {
+                host_name => $slot->[0],
+                instance_id => $slot->[1],
+                service_id => $slot->[3],
+                last_check => $slot->[5],
+                state => $slot->[6],
+                alarm_id => $slot->[7]
             };
         }
     }
