@@ -44,7 +44,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @phpstan-type RowTypeAlias = array{
  *   cg_id: int,
  *   cg_name: string,
- *   cg_type: string,
+ *   cg_type: ?string,
  * }
  */
 final readonly class DbalContactGroupRepository extends DbalRepository implements ContactGroupRepository
@@ -147,7 +147,11 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         }
 
         if ($criteria->excludeLdap()) {
-            $qb->andWhere($qb->expr()->neq('cg.cg_type', $qb->createNamedParameter('ldap')));
+            // cg_type is nullable in DB; a NULL row is not LDAP, so it must stay included.
+            $qb->andWhere($qb->expr()->or(
+                'cg.cg_type IS NULL',
+                $qb->expr()->neq('cg.cg_type', $qb->createNamedParameter('ldap')),
+            ));
         }
     }
 
