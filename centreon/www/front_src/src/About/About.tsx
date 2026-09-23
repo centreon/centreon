@@ -22,8 +22,8 @@ const About = (): ReactElement => {
   const isCloudPlatform = Boolean(platformFeatures?.isCloudPlatform);
 
   return (
-    <div className="mx-auto max-w-[900px] px-4">
-      <div className="max-h-[85vh] overflow-hidden overflow-y-auto rounded bg-background-paper shadow">
+    <div className="px-4">
+      <div className="rounded bg-background-paper shadow">
         <Hero
           showOpenSourceEditionTag={!isCloudPlatform}
           version={platformVersion?.web.version}
