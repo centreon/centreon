@@ -51,14 +51,14 @@ $host = $parameters['address'] ?: 'localhost';
  */
 
 // Escape a value for a single-quoted PHP or Perl string literal.
-$escapeSingleQuoted = static fn(string $value): string => str_replace(
+$escapeSingleQuoted = static fn (string $value): string => str_replace(
     ['\\', "'"],
     ['\\\\', "\\'"],
     $value
 );
 
 // Escape a value for a double-quoted YAML string literal.
-$escapeDoubleQuoted = static fn(string $value): string => str_replace(
+$escapeDoubleQuoted = static fn (string $value): string => str_replace(
     ['\\', '"'],
     ['\\\\', '\"'],
     $value
