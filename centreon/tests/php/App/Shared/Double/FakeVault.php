@@ -21,32 +21,33 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+namespace Tests\App\Shared\Double;
 
 use App\Shared\Domain\VaultInterface;
 
 /**
  * Configurable in-memory {@see VaultInterface} test double.
  *
- * `isVaultPath()` uses the real prefix check. `resolve()`/`write()` are driven by the public
- * maps/flags below so tests can exercise the happy path and the fail-and-rollback path.
+ * `isVaultPath()` uses the real prefix check. `resolve()` and `writeMany()`/`write()` are driven
+ * by the public maps/flags below so tests can exercise the happy path and the failure path, and
+ * assert exactly what was sent to the vault.
  */
 final class FakeVault implements VaultInterface
 {
     /** @var array<string, string> vault path => plaintext returned by resolve() */
     public array $resolved = [];
 
-    /** @var array<string, string> credential key => `secret::` path returned by write() */
+    /** @var array<string, string> credential key => `secret::` path returned by writeMany()/write() */
     public array $writtenPaths = [];
 
-    /** @var list<array{customPath: string, key: string, value: string, uuid: ?string}> */
-    public array $writeCalls = [];
+    /** @var list<array{customPath: string, secrets: array<string, string>, uuid: ?string}> */
+    public array $writeManyCalls = [];
 
-    public bool $resolveThrows = false;
+    public bool $vaultEnabled = true;
 
     public bool $writeThrows = false;
 
-    public bool $vaultEnabled = true;
+    public bool $resolveThrows = false;
 
     public function isEnabled(string $featureFlag = 'vault'): bool
     {
@@ -82,10 +83,14 @@ final class FakeVault implements VaultInterface
 
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
     {
-        $this->writeCalls[] = [
+        return $this->writeMany($customPath, [$key => $value], $uuid)[$key];
+    }
+
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
+    {
+        $this->writeManyCalls[] = [
             'customPath' => $customPath,
-            'key' => $key,
-            'value' => $value,
+            'secrets' => $secrets,
             'uuid' => $uuid,
         ];
 
@@ -93,14 +98,9 @@ final class FakeVault implements VaultInterface
             throw new \RuntimeException('Unable to write vault credential');
         }
 
-        return $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/new-uuid::%s', $customPath, $key);
-    }
-
-    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
-    {
         $paths = [];
-        foreach ($secrets as $key => $value) {
-            $paths[$key] = $this->write($customPath, $key, $value, $uuid);
+        foreach (array_keys($secrets) as $key) {
+            $paths[$key] = $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/new-uuid::%s', $customPath, $key);
         }
 
         return $paths;
