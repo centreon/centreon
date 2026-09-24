@@ -22,18 +22,24 @@ const useDeleteOne = (): UseDeleteOneProps => {
 
   const { isMutating, mutateAsync } = useMutationQuery({
     getEndpoint,
-    method: Method.DELETE,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listResources'] });
-    }
+    method: Method.DELETE
   });
 
-  const deleteOneMutation = ({ id }: { id: number }) => {
-    return mutateAsync({ _meta: { id } }, {});
+  // Not `onSuccess`: that fires once per request, so a fan-out would refetch
+  // once per row. Runs after a failure too — a partial one still changed rows.
+  const invalidateListing = <T>(result: T): T => {
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
+
+    return result;
   };
 
+  const deleteOneMutation = ({ id }: { id: number }) =>
+    mutateAsync({ _meta: { id } }, {}).then(invalidateListing);
+
   const deleteEachMutation = ({ ids }: { ids: Array<number> }) =>
-    fanOut(ids, (id) => mutateAsync({ _meta: { id } }, {}));
+    fanOut(ids, (id) => mutateAsync({ _meta: { id } }, {})).then(
+      invalidateListing
+    );
 
   return {
     deleteEachMutation,

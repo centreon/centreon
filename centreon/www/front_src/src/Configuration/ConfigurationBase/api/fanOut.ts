@@ -22,9 +22,11 @@ const fanOut = async <TResponse>(
   for (const id of ids) {
     const response = await mutate(id);
 
+    const { isError, statusCode } = (response ?? {}) as ResponseError;
+
     results.push({
       href: `/${id}`,
-      status: (response as ResponseError)?.isError ? 500 : 204
+      status: isError ? (statusCode ?? 500) : 204
     });
   }
 
