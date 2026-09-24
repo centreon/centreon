@@ -42,7 +42,7 @@ final readonly class CheckOptions
         public ?CommandId $checkCommandId,
         array $args = [],
     ) {
-        // Arguments only make sense alongside a check command (see MON-208474 "Args"): without a
+        // Arguments only make sense alongside a check command: without a
         // command there is nothing for them to be passed to, so legacy hides the field entirely.
         if (! $checkCommandId instanceof CommandId) {
             Assert::isEmpty($args, 'Check command arguments require a check command to be set.');
