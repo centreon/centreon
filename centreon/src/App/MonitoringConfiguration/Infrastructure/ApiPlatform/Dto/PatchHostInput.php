@@ -21,13 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
-enum ActionEnum: string
+use ApiPlatform\Metadata\ApiProperty;
+use Symfony\Component\Validator\Constraints as Assert;
+
+final readonly class PatchHostInput
 {
-    case Add = 'Add';
-    case Update = 'Update';
-    case Delete = 'Delete';
-    case Enable = 'Enable';
-    case Disable = 'Disable';
+    public function __construct(
+        // Named after the host representation (`activated`), so a PATCH patches the same field
+        // the GET exposes, rather than a separate verb.
+        #[ApiProperty(description: 'Whether the host is enabled.')]
+        #[Assert\NotNull]
+        public bool $activated,
+    ) {
+    }
 }

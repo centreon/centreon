@@ -28,15 +28,22 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
+use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
- * Reacts to the creation of any ACL-scoped resource (see {@see AclScopedInterface}): a
- * non-admin creator must see their own new resource immediately, without waiting for the
- * `centAcl` cron's next run, so `centreon_acl` is seeded directly for their Access Groups.
- * The relevant ACL tables are also flagged so the cron fully recomputes them afterwards.
+ * Reacts to the create or change of any ACL-scoped resource (see {@see AclScopedInterface}): its
+ * visibility may now differ, so the ACL tables are flagged for the `centAcl` cron to recompute
+ * `centreon_acl` — otherwise, for instance, a disabled host stays visible there until some
+ * unrelated change happens to raise a flag.
+ *
+ * On creation only, a non-admin creator's `centreon_acl` is additionally seeded directly, so they
+ * see their own new resource immediately without waiting for the cron. On a later change (e.g. a
+ * host being enabled or disabled) the flag alone drives the recompute: seeding grants access, which
+ * would be wrong when disabling and redundant when enabling. Reacting to the {@see AggregateUpdated}
+ * supertype also catches its enable/disable specializations.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler
@@ -48,7 +55,7 @@ final readonly class ReloadAclEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated $event): void
     {
         if (! $event->aggregate instanceof AclScopedInterface) {
             return;
@@ -68,7 +75,10 @@ final readonly class ReloadAclEventHandler
             return;
         }
 
-        $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
+        if ($event instanceof AggregateCreated) {
+            $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
+        }
+
         $this->accessGroupRepository->flagGroupsAsChanged($accessGroupIds);
     }
 }

@@ -52,7 +52,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly HostName $name,
         public readonly ?HostAlias $alias,
         public readonly HostAddress $address,
-        public readonly bool $activated,
+        public bool $activated,
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
@@ -75,6 +75,16 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
             [],
             'A host cannot be both a parent and a child of this host.',
         );
+    }
+
+    public function enable(): void
+    {
+        $this->activated = true;
+    }
+
+    public function disable(): void
+    {
+        $this->activated = false;
     }
 
     /**

@@ -26,13 +26,16 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 
 #[ApiResource(
     shortName: 'Host',
@@ -50,6 +53,23 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to create hosts',
+        ),
+        new Patch(
+            uriTemplate: '/configuration/hosts/{id}',
+            status: 204,
+            processor: PatchHostProcessor::class,
+            input: PatchHostInput::class,
+            output: false,
+            openapi: new Model\Operation(
+                description: 'Enable or disable a single host.',
+                responses: [
+                    204 => new Model\Response('Host activation status updated'),
+                    404 => new Model\Response('Host not found'),
+                    422 => new Model\Response('Invalid input'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update hosts',
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',

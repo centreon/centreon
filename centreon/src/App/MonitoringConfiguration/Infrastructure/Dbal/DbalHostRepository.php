@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -212,6 +213,43 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         foreach ($host->childHostIds as $childHostId) {
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
         }
+    }
+
+    public function getById(HostId $id, ?UserId $viewerId = null): Host
+    {
+        if ($viewerId instanceof UserId && ! in_array($id->value, $this->findAccessibleHostIds($viewerId), true)) {
+            throw new HostNotFoundException([$id->value], 'id');
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'h')
+            ->leftJoin('h', 'ns_host_relation', 'nsr', 'nsr.host_host_id = h.host_id')
+            ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
+            ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->andWhere("h.host_register = '1'")
+            ->andWhere($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image');
+
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            throw new HostNotFoundException([$id->value], 'id');
+        }
+
+        /** @var RowTypeAlias $row */
+        return $this->createHost($row);
+    }
+
+    public function updateActivationStatus(HostId $id, bool $activated): void
+    {
+        $this->connection->createQueryBuilder()
+            ->update(self::TABLE_NAME)
+            ->set('host_activate', ':activated')
+            ->where('host_id = :id')
+            ->setParameter('activated', $activated ? '1' : '0')
+            ->setParameter('id', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     /**
