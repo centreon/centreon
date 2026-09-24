@@ -75,7 +75,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
 
         $queryBinding = [];
         $bindedValues = [];
-        foreach ($messages as $key => $message) {
+        foreach (array_values($messages) as $key => $message) {
             $queryBinding[] = "(:notificationId, :channel_{$key}, :subject_{$key}, :message_{$key},"
                 . " :formatted_message_{$key})";
             $bindedValues[":channel_{$key}"] = $message->getChannel()->value;
@@ -112,7 +112,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
 
         $queryBinding = [];
         $bindedValues = [];
-        foreach ($userIds as $key => $user) {
+        foreach (array_values($userIds) as $key => $user) {
             $queryBinding[] = "(:notificationId, :userId_{$key})";
             $bindedValues[":userId_{$key}"] = $user;
         }
@@ -144,7 +144,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
 
         $queryBinding = [];
         $bindedValues = [];
-        foreach ($contactGroupIds as $key => $contactgroupId) {
+        foreach (array_values($contactGroupIds) as $key => $contactgroupId) {
             $queryBinding[] = "(:notificationId, :contactgroupId_{$key})";
             $bindedValues[":contactgroupId_{$key}"] = $contactgroupId;
         }

@@ -57,7 +57,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
 
         $bindValues = [];
         $subValues = [];
-        foreach ($resourceIds as $index => $hostCategoryId) {
+        foreach (array_values($resourceIds) as $index => $hostCategoryId) {
             $bindValues[":host_category_id_{$index}"] = $hostCategoryId;
             $subValues[] = "(:host_category_id_{$index}, :datasetId)";
         }
