@@ -43,7 +43,13 @@ fetch_stable_file() {
 load_stable_packages() {
   local listing listed suites suite root release arches a packages
   listing=$(fetch_stable_file "$PULP_CONTENT_URL/$STABLE_REPOSITORY_ROOT/dists/") || return 1
-  listed=$(grep -oE 'href="\./[^"/]+/"' <<< "$listing" | sed -E 's|href="\./([^"/]+)/"|\1|' || true)
+  listed=$(grep -oE 'href="(\./)?[^"/?]+/"' <<< "$listing" | sed -E 's|href="(\./)?([^"/?]+)/"|\2|' | grep -vx '\.\.' || true)
+  # a listing without any link isn't the expected directory index: guarding
+  # the target suite only would let a shared-pool collision through
+  if [[ -n "$listing" ]] && ! grep -q 'href="' <<< "$listing"; then
+    echo "::error::Cannot parse the stable suites from $STABLE_REPOSITORY_ROOT/dists/; refusing to deliver." >&2
+    return 1
+  fi
   suites=$(printf '%s\n' "$STABLE_SUITE" "$listed" | awk 'NF && !seen[$0]++')
   for suite in $suites; do
     root=$STABLE_REPOSITORY_ROOT
