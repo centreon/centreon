@@ -96,11 +96,20 @@ record_row() {
   echo "[CHECK] $filename ($arch): present=$p metadata=$m fetchable=$f"
 }
 
+# served_artifact_sha256 <effective_url> — print the sha256 of the artifact the
+# content app redirected to (storage path artifact/<domain>/<sha[0:2]>/<sha[2:]>),
+# nothing when the url doesn't follow that layout
+served_artifact_sha256() {
+  if [[ "$1" =~ /artifact/[^/]+/([0-9a-f]{2})/([0-9a-f]{62})([?]|$) ]]; then
+    echo "${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+  fi
+}
+
 # check_fetchable_and_record — HEAD each resolved package on the content url and
-# record every package's result row. Uses the E_FILENAME/E_ARCH/E_BASEPATH,
+# record every package's result row. Uses the E_FILENAME/E_ARCH/E_BASEPATH/E_SHA256,
 # PRESENT_IDX, META_IDX and RESOLVED_IDX arrays filled by the sourcing script.
 check_fetchable_and_record() {
-  local i url code fetchable attempt
+  local i url out code served fetchable attempt digest_deadline=""
   for i in "${!E_FILENAME[@]}"; do
     fetchable=false
     if [[ "${META_IDX[$i]}" == "true" ]]; then
@@ -108,10 +117,33 @@ check_fetchable_and_record() {
       # retry: one flaky HEAD out of hundreds (content-app/S3 hiccup) must not
       # fail the whole verification
       for attempt in 1 2 3; do
-        code=$(content_curl -fsSL -o /dev/null -w '%{http_code}' -I "$url" 2>/dev/null || echo 000)
+        out=$(content_curl -fsSL -o /dev/null -w '%{http_code} %{url_effective}' -I "$url" 2>/dev/null || echo 000)
+        code=${out%% *}
         [[ "$code" == "200" ]] && { fetchable=true; break; }
         sleep 2
       done
+      # the legacy front resolves pool paths stable first: a same-named build
+      # published elsewhere is served instead of the delivered one
+      served=$(served_artifact_sha256 "${out#* }")
+      if [[ "$fetchable" == "true" && -n "$served" && "$served" != "${E_SHA256[$i]}" ]]; then
+        # a replaced build keeps being served until the content-app cache
+        # expires (600s TTL): one shared window for the whole verification
+        digest_deadline=${digest_deadline:-$(( SECONDS + METADATA_TIMEOUT ))}
+        while [[ -n "$served" && "$served" != "${E_SHA256[$i]}" && "$SECONDS" -lt "$digest_deadline" ]]; do
+          echo "[INFO] ${E_FILENAME[$i]}: served sha256 ${served} differs from the delivered one, waiting ${METADATA_INTERVAL}s for the content cache..."
+          sleep "$METADATA_INTERVAL"
+          out=$(content_curl -fsSL -o /dev/null -w '%{http_code} %{url_effective}' -I "$url" 2>/dev/null || echo 000)
+          served=$(served_artifact_sha256 "${out#* }")
+        done
+        if [[ -n "$served" && "$served" != "${E_SHA256[$i]}" ]]; then
+          if [[ "${STABILITY:-}" == "unstable" ]]; then
+            echo "::warning::${url} serves sha256 ${served}, not the delivered ${E_SHA256[$i]}: another build with the same file name masks it."
+          else
+            echo "::error::${url} serves sha256 ${served}, not the delivered ${E_SHA256[$i]}: another build with the same file name masks it. Bump the package version."
+            fetchable=false
+          fi
+        fi
+      fi
     fi
     record_row "${E_FILENAME[$i]}" "${E_ARCH[$i]}" "${PRESENT_IDX[$i]}" "${META_IDX[$i]}" "$fetchable"
   done
