@@ -24,14 +24,15 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Service;
 
 /**
- * Renders check-command arguments into the single string legacy stores in
- * `host.command_command_id_arg1`: bang-joined (`!arg1!arg2`) with newlines, tabs and carriage
- * returns escaped as `#BR#`/`#T#`/`#R#` so a multi-line argument round-trips through one column
- * (CentreonHost::insert()). Shared by the persistence layer and the input validator so both agree
- * on exactly what will be stored — the length that must fit the `TEXT` column is the length of
- * this output, not of the raw arguments.
+ * Renders a command's arguments into the single string legacy stores in the `command_command_id_argN`
+ * columns (`host.command_command_id_arg1` for the check command, `command_command_id_arg2` for the
+ * event handler): bang-joined (`!arg1!arg2`) with newlines, tabs and carriage returns escaped as
+ * `#BR#`/`#T#`/`#R#` so a multi-line argument round-trips through one column (CentreonHost::insert()).
+ * Shared by the persistence layer and the input validators so both agree on exactly what will be
+ * stored — the length that must fit the `TEXT` column is the length of this output, not of the raw
+ * arguments.
  */
-final class CheckCommandArgumentsFormatter
+final class CommandArgumentsFormatter
 {
     /** Maximum bytes a MySQL/MariaDB TEXT column can hold. */
     public const MAX_STORAGE_LENGTH = 65535;

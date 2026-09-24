@@ -48,6 +48,15 @@ final readonly class CheckOptions
             Assert::isEmpty($args, 'Check command arguments require a check command to be set.');
         }
 
+        Assert::allString($args);
+        // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R# (CommandArgumentsFormatter),
+        // matching legacy. The legacy read path splits on '!' and decodes those tokens, so an argument
+        // carrying the '!' delimiter or a literal #BR#/#T#/#R# would not round-trip; raw \n\t\r are fine
+        // because the formatter encodes them. Same rule as DataProcessing::$eventHandlerArgs.
+        foreach (['!', '#BR#', '#T#', '#R#'] as $reserved) {
+            Assert::allNotContains($args, $reserved, 'CheckOptions::args must not contain the "!" delimiter or a #BR#/#T#/#R# escape token.');
+        }
+
         $this->args = array_values($args);
     }
 }

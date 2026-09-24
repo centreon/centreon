@@ -58,4 +58,27 @@ final class CheckOptionsTest extends TestCase
 
         self::assertSame(['b', 'a'], $options->args);
     }
+
+    public function testItRejectsAnArgumentContainingTheStorageDelimiter(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new CheckOptions(new CommandId(1), ['a!b']);
+    }
+
+    public function testItRejectsAnArgumentContainingAnEscapeToken(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new CheckOptions(new CommandId(1), ['a#BR#b']);
+    }
+
+    public function testItAcceptsAnArgumentContainingAControlCharacter(): void
+    {
+        // Newlines, tabs and carriage returns are allowed: the storage formatter encodes them as
+        // #BR#/#T#/#R#, matching legacy, so they round-trip through the single legacy column.
+        $options = new CheckOptions(new CommandId(1), ["a\nb"]);
+
+        self::assertSame(["a\nb"], $options->args);
+    }
 }

@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
-use App\MonitoringConfiguration\Infrastructure\Service\CheckCommandArgumentsFormatter;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -41,7 +41,24 @@ final readonly class CheckOptionsInput
         ])]
         public ?int $commandId = null,
 
-        #[Assert\All([new Assert\Type('string')])]
+        #[Assert\All([
+            new Assert\Type('string'),
+            // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R#
+            // (CommandArgumentsFormatter). The legacy reader splits on '!' and decodes those tokens,
+            // so an argument carrying the '!' delimiter or a literal #BR#/#T#/#R# would not round-trip;
+            // raw \n\t\r stay allowed because the formatter encodes them. Same rule as
+            // DataProcessingInput::$eventHandlerArgs.
+            new Assert\Regex(
+                pattern: '/!/',
+                match: false,
+                message: 'A check command argument cannot contain "!".',
+            ),
+            new Assert\Regex(
+                pattern: '/#(?:BR|T|R)#/',
+                match: false,
+                message: 'A check command argument cannot contain the reserved escape tokens #BR#, #T# or #R#.',
+            ),
+        ])]
         public array $args = [],
     ) {
     }
@@ -70,10 +87,10 @@ final readonly class CheckOptionsInput
             return;
         }
 
-        $formatted = CheckCommandArgumentsFormatter::format($args);
+        $formatted = CommandArgumentsFormatter::format($args);
         // Byte length ('8bit'), not character count: the TEXT column limit is in bytes, so a
         // multi-byte argument must be measured as the bytes it will actually occupy.
-        if ($formatted !== null && \mb_strlen($formatted, '8bit') > CheckCommandArgumentsFormatter::MAX_STORAGE_LENGTH) {
+        if ($formatted !== null && \mb_strlen($formatted, '8bit') > CommandArgumentsFormatter::MAX_STORAGE_LENGTH) {
             $context->buildViolation('The check command arguments are too long.')
                 ->atPath('args')
                 ->addViolation();

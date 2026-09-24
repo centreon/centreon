@@ -30,7 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Infrastructure\Service\CheckCommandArgumentsFormatter;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
@@ -129,7 +129,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
             ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
             ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
-            ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
+            ->setParameter('eventHandlerArgs', CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs))
             ->setParameter('snmpVersion', $host->snmpVersion?->value)
             ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
             ->setParameter('timezoneId', $host->timezoneId?->value)
@@ -142,7 +142,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
             ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
-            ->setParameter('check_command_args', CheckCommandArgumentsFormatter::format($host->checkOptions->args))
+            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -375,25 +375,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
-    }
-
-    /**
-     * Store the event-handler command arguments the legacy way: each argument prefixed with "!" and
-     * concatenated; an empty list stores NULL. Arguments are validated upstream to contain no "!"
-     * delimiter (nor \n\t\r), so no escaping is needed here.
-     *
-     * @param list<string> $args
-     */
-    private function joinCommandArgsForLegacyColumn(array $args): ?string
-    {
-        if ($args === []) {
-            return null;
-        }
-
-        // Arguments are validated upstream (DataProcessingInput / DataProcessing) to contain neither
-        // the '!' delimiter nor the \n\t\r characters the legacy codec would encode, so a plain
-        // '!'-prefixed join is unambiguous and round-trips through the reader.
-        return '!' . implode('!', $args);
     }
 
     /**
