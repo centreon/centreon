@@ -10,6 +10,7 @@ import { BrowserRouter } from 'react-router';
 import { externalTranslationEndpoint } from '../App/endpoint';
 import { userEndpoint } from '../api/endpoint';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
+import { labelCentreonIsLoading } from '../Main/translatedLabels';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import LoginPage from '.';
 import {
@@ -32,7 +33,7 @@ import {
   labelPoweredByCentreon,
   labelRequired
 } from './translatedLabels';
-import { router } from './useLogin';
+import { browserLocation, router } from './useLogin';
 
 const labelInvalidCredentials = 'Invalid credentials';
 const labelError = 'This is an error from the server';
@@ -420,6 +421,40 @@ describe('Login Page', () => {
     cy.contains('An error occurred').should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('displays a loader instead of the login form while the providers configuration is loading', () => {
+    mountComponentAndStubs();
+
+    cy.contains(labelCentreonIsLoading).should('be.visible');
+    cy.findByLabelText(labelAlias).should('not.exist');
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.findByLabelText(labelAlias).should('be.visible');
+    cy.contains(labelCentreonIsLoading).should('not.exist');
+  });
+
+  it('redirects to the forced provider without displaying the login form', () => {
+    cy.interceptAPIRequest({
+      alias: 'getProvidersConfiguration',
+      method: Method.GET,
+      path: `${replace('./', '**', providersConfigurationEndpoint)}`,
+      response: retrievedForcedProvidersConfiguration
+    });
+    const replaceLocation = cy.stub(browserLocation, 'replace');
+
+    mountComponentAndStubs();
+
+    cy.waitForRequest('@getProvidersConfiguration');
+
+    cy.contains(labelCentreonIsLoading).should('be.visible');
+    cy.findByLabelText(labelAlias).should('not.exist');
+    cy.findByLabelText(labelConnect).should('not.exist');
+    cy.wrap(replaceLocation).should(
+      'have.been.calledWith',
+      '/centreon/authentication/providers/configurations/openid'
+    );
   });
 });
 
