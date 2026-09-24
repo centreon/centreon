@@ -54,12 +54,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Webmozart\Assert\Assert;
 
 /**
+ * @phpstan-import-type ExtraDataTypeAlias from ResourcePollerTransformer
+ *
  * @implements ProcessorInterface<CreatePollerInput, PollerResource>
  */
 final readonly class CreatePollerProcessor implements ProcessorInterface
 {
     /**
-     * @param TransformerInterface<Poller, PollerResource> $transformer
+     * @param TransformerInterface<Poller, PollerResource, ExtraDataTypeAlias> $transformer
      */
     public function __construct(
         private CommandBus $commandBus,
@@ -131,10 +133,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $this->isCloudPlatform,
         );
 
-        $resource = $this->transformer->transform($model);
-        $resource->installationCommand = $factory->generate();
-
-        return $resource;
+        return $this->transformer->transform($model, ['installationCommand' => $factory->generate()]);
     }
 
     /**

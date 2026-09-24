@@ -34,7 +34,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Whether the contact actually is a Cloud admin is resolved by {@see DbalCredentialRepository}
- * and reaches the transformer as the "is_cloud_admin" row key — the on-premise / Cloud
+ * and reaches the transformer as the "isCloudAdmin" extra data — the on-premise / Cloud
  * branching itself is covered by DbalCredentialRepositoryTest.
  *
  * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
@@ -112,6 +112,13 @@ final class DbalCredentialTransformerTest extends TestCase
         self::assertTrue($credential->active);
     }
 
+    public function testItRequiresThePermissionsResolvedByTheRepository(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new DbalCredentialTransformer())->transform(['c_id' => 42, 'c_alias' => 'jdoe', 'c_admin' => '0', 'c_active' => '1']);
+    }
+
     /**
      * @param list<string> $topologyPermissions
      */
@@ -123,11 +130,12 @@ final class DbalCredentialTransformerTest extends TestCase
             'c_alias' => 'jdoe',
             'c_admin' => $contactAdmin ? '1' : '0',
             'c_active' => '1',
-            'is_cloud_admin' => $isCloudAdmin,
-            'topology_permissions' => $topologyPermissions,
-            'action_rules' => [],
         ];
 
-        return (new DbalCredentialTransformer())->transform($row);
+        return (new DbalCredentialTransformer())->transform($row, [
+            'isCloudAdmin' => $isCloudAdmin,
+            'topologyPermissions' => $topologyPermissions,
+            'actionRules' => [],
+        ]);
     }
 }

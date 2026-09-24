@@ -38,7 +38,7 @@ final readonly class HostTemplateTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): HostTemplate
+    public function transform(mixed $from, array $extraData = []): HostTemplate
     {
         return new HostTemplate(
             id: new HostTemplateId($from['host_id']),

@@ -29,7 +29,6 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
@@ -51,10 +50,10 @@ final readonly class ListCommandsProvider implements ProviderInterface
     use SortAwareProviderTrait;
 
     /**
-     * @param TransformerInterface<Command,ListCommandResource> $transformer
+     * @param TransformerInterface<list<Command>, list<ListCommandResource>> $transformer
      */
     public function __construct(
-        #[Autowire(service: ResourceListCommandTransformer::class)]
+        #[Autowire(service: ListCommandResourceListTransformer::class)]
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
         private Pagination $pagination,
@@ -114,22 +113,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleSort($filters, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
-        $commandResources = [];
-        if (count($commands) > 0) {
-            $counts = $this->commandRepository->countLinkedResources(array_map(
-                fn (Command $command): CommandId => $command->id(),
-                iterator_to_array($commands)
-            ));
-        }
-        foreach ($commands as $command) {
-            /** @var CommandId $id */
-            $id = $command->id();
-            $commandResource = $this->transformer->transform($command);
-            if (isset($counts) && $counts !== []) {
-                $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
-            }
-            $commandResources[] = $commandResource;
-        }
+        $commandResources = $this->transformer->transform(array_values(iterator_to_array($commands)));
 
         if (! $commands instanceof Paginator) {
             return $commandResources;

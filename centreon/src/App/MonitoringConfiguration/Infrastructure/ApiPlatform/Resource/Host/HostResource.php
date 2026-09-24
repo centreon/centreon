@@ -101,35 +101,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
         ),
     ],
 )]
-final class HostResource
+final readonly class HostResource
 {
-    public HostPollerOutput $poller;
-
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    /** @var list<HostGroupOutput> */
-    public array $groups;
-
-    public DataProcessingOutput $dataProcessing;
-
-    /** @var list<HostCategoryOutput> */
-    public array $categories = [];
-
-    /** @var list<RelatedHostOutput> */
-    public array $parentHosts = [];
-
-    /** @var list<RelatedHostOutput> */
-    public array $childHosts = [];
-
-    public ?HostTimezoneOutput $timezone = null;
-
-    public ?HostSeverityOutput $severity = null;
-
-    public ?HostExtendedInformationsOutput $extendedInformations = null;
-
-    public HostSchedulingOptionsOutput $schedulingOptions;
-
+    /**
+     * @param list<HostTemplateOutput> $templates
+     * @param list<HostGroupOutput> $groups
+     * @param list<HostCategoryOutput> $categories
+     * @param list<RelatedHostOutput> $parentHosts
+     * @param list<RelatedHostOutput> $childHosts
+     */
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
@@ -142,7 +122,29 @@ final class HostResource
 
         public bool $activated,
 
-        public ?SnmpVersionEnum $snmpVersion = null,
+        public ?SnmpVersionEnum $snmpVersion,
+
+        public HostPollerOutput $poller,
+
+        public array $templates,
+
+        public array $groups,
+
+        public DataProcessingOutput $dataProcessing,
+
+        public array $categories,
+
+        public array $parentHosts,
+
+        public array $childHosts,
+
+        public ?HostTimezoneOutput $timezone,
+
+        public ?HostSeverityOutput $severity,
+
+        public HostExtendedInformationsOutput $extendedInformations,
+
+        public HostSchedulingOptionsOutput $schedulingOptions,
     ) {
     }
 }

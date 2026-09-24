@@ -35,7 +35,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalServiceCategoryTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ServiceCategory
+    public function transform(mixed $from, array $extraData = []): ServiceCategory
     {
         return new ServiceCategory(
             id: new ServiceCategoryId($from['sc_id']),

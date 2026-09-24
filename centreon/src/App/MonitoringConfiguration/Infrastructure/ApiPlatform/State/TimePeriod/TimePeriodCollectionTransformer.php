@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class TimePeriodCollectionTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): TimePeriodCollectionOutput
+    public function transform(mixed $from, array $extraData = []): TimePeriodCollectionOutput
     {
         return new TimePeriodCollectionOutput(
             id: $from->id()->value,

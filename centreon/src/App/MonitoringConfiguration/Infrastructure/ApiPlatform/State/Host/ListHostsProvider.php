@@ -28,24 +28,10 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
-use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -62,16 +48,12 @@ final readonly class ListHostsProvider implements ProviderInterface
     use FilterAwareProviderTrait;
 
     /**
-     * @param TransformerInterface<Host, HostCollectionOutput> $transformer
+     * @param TransformerInterface<list<Host>, list<HostCollectionOutput>> $transformer
      */
     public function __construct(
-        #[Autowire(service: HostCollectionOutputTransformer::class)]
+        #[Autowire(service: HostCollectionOutputListTransformer::class)]
         private TransformerInterface $transformer,
         private HostRepository $repository,
-        private PollerRepository $pollerRepository,
-        private HostTemplateRepository $hostTemplateRepository,
-        private MediaRepository $mediaRepository,
-        private MediaUrlGenerator $mediaUrlGenerator,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -120,7 +102,7 @@ final readonly class ListHostsProvider implements ProviderInterface
         $hosts = $this->repository->findAll($criteria);
         $hostList = array_values(iterator_to_array($hosts));
 
-        $resources = $this->transformHosts($hostList);
+        $resources = $this->transformer->transform($hostList);
 
         if (! $hosts instanceof Paginator) {
             return $resources;
@@ -132,62 +114,5 @@ final readonly class ListHostsProvider implements ProviderInterface
             $hosts->getItemsPerPage(),
             $hosts->getTotalItems()
         );
-    }
-
-    /**
-     * @param list<Host> $hostList
-     *
-     * @return list<HostCollectionOutput>
-     */
-    private function transformHosts(array $hostList): array
-    {
-        /** @var array<int, PollerId> $pollerIds */
-        $pollerIds = [];
-        /** @var array<int, HostTemplateId> $templateIds */
-        $templateIds = [];
-        /** @var array<int, MediaId> $iconIds */
-        $iconIds = [];
-        foreach ($hostList as $host) {
-            $pollerIds[$host->pollerId->value] = $host->pollerId;
-            foreach ($host->templateIds as $templateId) {
-                $templateIds[$templateId->value] = $templateId;
-            }
-            if ($host->extendedInformations?->iconId !== null) {
-                $iconIds[$host->extendedInformations->iconId->value] = $host->extendedInformations->iconId;
-            }
-        }
-
-        /** @var array<int, PollerName> $pollerNames */
-        $pollerNames = $this->pollerRepository->findNamesByIds(new Collection(array_values($pollerIds), PollerId::class))->toArray();
-        /** @var array<int, HostTemplateName> $templateNames */
-        $templateNames = $this->hostTemplateRepository->findNamesByIds(
-            new Collection(array_values($templateIds), HostTemplateId::class)
-        )->toArray();
-        /** @var array<int, Media> $icons */
-        $icons = $this->mediaRepository->findByIds(new Collection(array_values($iconIds), MediaId::class))->toArray();
-
-        $resources = [];
-        foreach ($hostList as $host) {
-            $templates = [];
-            foreach ($host->templateIds as $templateId) {
-                if (isset($templateNames[$templateId->value])) {
-                    $templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]->value);
-                }
-            }
-
-            $resource = $this->transformer->transform($host);
-            $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
-            $resource->templates = $templates;
-
-            $iconId = $host->extendedInformations?->iconId;
-            $icon = $iconId !== null ? $icons[$iconId->value] ?? null : null;
-            $resource->icon = $icon instanceof Media
-                ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
-                : null;
-
-            $resources[] = $resource;
-        }
-
-        return $resources;
     }
 }

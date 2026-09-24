@@ -27,23 +27,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
-use App\Shared\Application\Command\CommandBus;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DataProcessingOutputTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostSchedulingOptionsOutputTransformer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
@@ -586,10 +576,8 @@ final class CreateHostProcessorTest extends ApiTestCase
 
     /**
      * activeCheckEnabled/passiveCheckEnabled are omitted from the response on a Cloud platform
-     * (CreateHostProcessor nulls them). IS_CLOUD_PLATFORM is fixed for the whole kernel and can't
-     * be forced per test through the env var, so the platform is forced here by replacing the
-     * container's CreateHostProcessor instance with one built with the desired value, reusing its
-     * other real dependencies (same technique as ListHostsProviderTest::forcePlatform()).
+     * (HostSchedulingOptionsOutputTransformer nulls them). IS_CLOUD_PLATFORM is fixed for the whole
+     * kernel and can't be forced per test through the env var, see forcePlatform().
      */
     public function testItOmitsTheTriStateFieldsOnACloudPlatform(): void
     {
@@ -1604,63 +1592,27 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * The data_processing output shaping reads CreateHostProcessor's own $isCloudPlatform (bound
-     * from IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by
-     * replacing the container's processor with one built with the desired value, reusing its real
-     * dependencies. Must run before the request is made.
+     * The Cloud-dependent output shaping reads $isCloudPlatform (bound from IS_CLOUD_PLATFORM) in
+     * DataProcessingOutputTransformer and HostSchedulingOptionsOutputTransformer, which cannot be
+     * flipped per test through the env. Force it by replacing both transformers in the container
+     * with ones built with the desired value. Must run before the request is made.
      */
     private function forcePlatform(bool $isCloudPlatform): void
     {
         $container = self::getContainer();
 
-        /** @var CommandBus $commandBus */
-        $commandBus = $container->get(CommandBus::class);
-        /** @var HostResourceTransformer $transformer */
-        $transformer = $container->get(HostResourceTransformer::class);
-        /** @var Security $security */
-        $security = $container->get(Security::class);
-        /** @var PollerRepository $pollerRepository */
-        $pollerRepository = $container->get(PollerRepository::class);
-        /** @var HostGroupRepository $hostGroupRepository */
-        $hostGroupRepository = $container->get(HostGroupRepository::class);
         /** @var CommandRepository $commandRepository */
         $commandRepository = $container->get(CommandRepository::class);
-        /** @var MediaRepository $mediaRepository */
-        $mediaRepository = $container->get(MediaRepository::class);
-        /** @var MediaUrlGenerator $mediaUrlGenerator */
-        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
-        /** @var HostTemplateRepository $hostTemplateRepository */
-        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
-        /** @var HostRepository $hostRepository */
-        $hostRepository = $container->get(HostRepository::class);
-        /** @var HostCategoryRepository $hostCategoryRepository */
-        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
-        /** @var HostSeverityRepository $hostSeverityRepository */
-        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
-        /** @var TimezoneRepository $timezoneRepository */
-        $timezoneRepository = $container->get(TimezoneRepository::class);
 
         $container->set(
-            CreateHostProcessor::class,
-            new CreateHostProcessor(
-                $commandBus,
-                $transformer,
-                $security,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $hostRepository,
-                $mediaRepository,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                $isCloudPlatform,
-            ),
+            DataProcessingOutputTransformer::class,
+            new DataProcessingOutputTransformer($commandRepository, $isCloudPlatform),
+        );
+        $container->set(
+            HostSchedulingOptionsOutputTransformer::class,
+            new HostSchedulingOptionsOutputTransformer($timePeriodRepository, $isCloudPlatform),
         );
     }
 

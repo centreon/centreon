@@ -36,6 +36,7 @@ use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
+ * @phpstan-import-type ExtraDataTypeAlias from DbalCredentialRepository
  */
 final class ListHostsProviderTest extends ApiTestCase
 {
@@ -551,7 +552,7 @@ final class ListHostsProviderTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = $container->get('doctrine.dbal.default_connection');
-        /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
+        /** @var TransformerInterface<RowTypeAlias, Credential, ExtraDataTypeAlias> $transformer */
         $transformer = $container->get(DbalCredentialTransformer::class);
         /** @var AccessGroupRepository $accessGroupRepository */
         $accessGroupRepository = $container->get(AccessGroupRepository::class);

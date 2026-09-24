@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class TimezoneResourceTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): TimezoneResource
+    public function transform(mixed $from, array $extraData = []): TimezoneResource
     {
         return new TimezoneResource(
             id: $from->id()->value,

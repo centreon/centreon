@@ -43,7 +43,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalHostTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): Host
+    public function transform(mixed $from, array $extraData = []): Host
     {
         $templateIds = [];
         if ($from['template_ids'] !== null && $from['template_ids'] !== '') {

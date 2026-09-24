@@ -37,7 +37,7 @@ final readonly class MediaChoicesTransformer implements TransformerInterface
     ) {
     }
 
-    public function transform(mixed $from): MediaChoicesOutput
+    public function transform(mixed $from, array $extraData = []): MediaChoicesOutput
     {
         return new MediaChoicesOutput(
             id: $from->id()->value,

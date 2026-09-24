@@ -35,7 +35,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalHostGroupTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): HostGroup
+    public function transform(mixed $from, array $extraData = []): HostGroup
     {
         return new HostGroup(
             id: new HostGroupId($from['hg_id']),
