@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 
 import { type FormikValues, useFormikContext } from 'formik';
-import { equals, includes, path, split } from 'ramda';
+import { equals, includes, path, split, without } from 'ramda';
 import { type ChangeEvent, useEffect } from 'react';
 
 import { useMemoComponent } from '../..';
@@ -39,7 +39,18 @@ const CheckboxGroup = ({
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const label = event.target.id;
     if (!includes(label, value ?? [])) {
-      setFieldValue(fieldName, [...(value ?? []), label]);
+      const exclusiveOptions = checkbox?.exclusiveOptions ?? [];
+
+      if (includes(label, exclusiveOptions)) {
+        setFieldValue(fieldName, [label]);
+
+        return;
+      }
+
+      setFieldValue(fieldName, [
+        ...without(exclusiveOptions, value ?? []),
+        label
+      ]);
 
       return;
     }

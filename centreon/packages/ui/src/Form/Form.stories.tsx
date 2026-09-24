@@ -1,4 +1,7 @@
+import { object } from 'yup';
+
 import { Form, GroupDirection } from './Form';
+import { InputType } from './Inputs/models';
 import {
   type BasicForm,
   basicFormGroups,
@@ -53,5 +56,33 @@ export const basicFormWithHorizontalGroups = (): JSX.Element => (
     {...mandatoryProps}
     groupDirection={GroupDirection.Horizontal}
     groups={basicFormGroups.filter((group) => group.order !== 3)}
+  />
+);
+
+export const checkboxGroupWithExclusiveOptions = (): JSX.Element => (
+  <Form
+    initialValues={{ notificationOptions: ['Down', 'Recovery'] }}
+    inputs={[
+      {
+        checkbox: {
+          direction: 'horizontal',
+          exclusiveOptions: ['None'],
+          options: [
+            'Down',
+            'Unreachable',
+            'Recovery',
+            'Flapping',
+            'Downtime Scheduled',
+            'None'
+          ]
+        },
+        fieldName: 'notificationOptions',
+        group: '',
+        label: 'Notification options',
+        type: InputType.CheckboxGroup
+      }
+    ]}
+    submit={submit}
+    validationSchema={object()}
   />
 );

@@ -80,6 +80,7 @@ export interface InputProps {
   }: ChangeArgs) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
+    exclusiveOptions?: Array<string>;
     labelPlacement?: LabelPlacement;
     options?: Array<string>;
   };
