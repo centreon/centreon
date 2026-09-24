@@ -206,10 +206,10 @@ interface Vendor {
 }
 
 export {
+  AddOrUpdateVendor,
+  CheckVendorFieldsValues,
+  CreateOrUpdateTrapGroup,
   submitForm,
   trapsSnmpConfiguration,
-  UpdateTrapsSnmpConfiguration,
-  CreateOrUpdateTrapGroup,
-  AddOrUpdateVendor,
-  CheckVendorFieldsValues
+  UpdateTrapsSnmpConfiguration
 };

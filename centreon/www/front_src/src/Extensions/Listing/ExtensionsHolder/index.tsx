@@ -136,7 +136,7 @@ const ExtensionsHolder = ({
   };
 
   const getPropsFromLicense = (licenseInfo): LicenseProps | undefined => {
-    if (!licenseInfo || !licenseInfo.required) {
+    if (!licenseInfo?.required) {
       return undefined;
     }
 

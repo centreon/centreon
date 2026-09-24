@@ -262,4 +262,4 @@ const getAutocompleteSuggestions = ({
   return reject(includes(__, search), getCriteriaNameSuggestions(criteriaName));
 };
 
-export { parse, build, getAutocompleteSuggestions };
+export { build, getAutocompleteSuggestions, parse };

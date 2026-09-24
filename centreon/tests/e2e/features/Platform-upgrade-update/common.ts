@@ -740,13 +740,13 @@ Then('Poller configuration should be fully generated', () => {
 });
 
 export {
-  localPackageDirectory,
+  checkPlatformVersion,
   containerPackageDirectory,
+  dateBeforeLogin,
   getCentreonPreviousMajorVersion,
   getCentreonStableMinorVersions,
+  insertResources,
   installCentreon,
-  updatePlatformPackages,
-  checkPlatformVersion,
-  dateBeforeLogin,
-  insertResources
+  localPackageDirectory,
+  updatePlatformPackages
 };

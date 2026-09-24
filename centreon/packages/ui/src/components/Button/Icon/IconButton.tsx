@@ -63,4 +63,5 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     );
   }
 );
+
 export { IconButton };

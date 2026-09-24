@@ -30,4 +30,4 @@ const listMetaServiceMetrics =
     });
   };
 
-export { listMetaServiceMetrics, buildListMetaServiceMetricsEndpoint };
+export { buildListMetaServiceMetricsEndpoint, listMetaServiceMetrics };

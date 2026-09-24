@@ -397,11 +397,14 @@ describe('timeSeries', () => {
       [null, 'B', 1024, null]
     ];
 
-    it.each(
-      cases
-    )('formats the given value to a human readable form according to the given unit and base', (value, unit, base, formattedResult) => {
-      expect(formatMetricValue({ base, unit, value })).toEqual(formattedResult);
-    });
+    it.each(cases)(
+      'formats the given value to a human readable form according to the given unit and base',
+      (value, unit, base, formattedResult) => {
+        expect(formatMetricValue({ base, unit, value })).toEqual(
+          formattedResult
+        );
+      }
+    );
   });
 
   describe('getSortedStackedLines', () => {
@@ -639,33 +642,31 @@ describe('Format value with unit', () => {
   });
 
   describe('Format the value as human readable', () => {
-    it.each(humanReadableTestCases)('formats the value with $unit', ({
-      value,
-      unit,
-      expectedResult
-    }) => {
-      expect(
-        formatMetricValueWithUnit({
-          unit,
-          value
-        })
-      ).toEqual(expectedResult);
-    });
+    it.each(humanReadableTestCases)(
+      'formats the value with $unit',
+      ({ value, unit, expectedResult }) => {
+        expect(
+          formatMetricValueWithUnit({
+            unit,
+            value
+          })
+        ).toEqual(expectedResult);
+      }
+    );
   });
 
   describe('Format the value as raw', () => {
-    it.each(rawTestCases)('formats the value with $unit', ({
-      value,
-      unit,
-      expectedResult
-    }) => {
-      expect(
-        formatMetricValueWithUnit({
-          isRaw: true,
-          unit,
-          value
-        })
-      ).toEqual(expectedResult);
-    });
+    it.each(rawTestCases)(
+      'formats the value with $unit',
+      ({ value, unit, expectedResult }) => {
+        expect(
+          formatMetricValueWithUnit({
+            isRaw: true,
+            unit,
+            value
+          })
+        ).toEqual(expectedResult);
+      }
+    );
   });
 });

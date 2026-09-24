@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="84" height="56.4" viewBox="0 0 84 56.4">
+<svg height="56.4" viewBox="0 0 84 56.4" width="84" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
   <defs>
     <clipPath id="clip-path">
-      <rect id="Rectangle_1859" data-name="Rectangle 1859" width="84" height="56.4" rx="7" fill="none" stroke="#2e68aa" stroke-width="1"/>
+      <rect data-name="Rectangle 1859" fill="none" height="56.4" id="Rectangle_1859" rx="7" stroke="#2e68aa" stroke-width="1" width="84" />
     </clipPath>
   </defs>
-  <g id="Groupe_1715" data-name="Groupe 1715" clip-path="url(#clip-path)">
-    <rect id="Rectangle_1858" data-name="Rectangle 1858" width="81.6" height="54.4" rx="6.8" transform="translate(1.2 1)" fill="none" stroke="#2e68aa" stroke-miterlimit="10" stroke-width="3"/>
-    <path id="Tracé_2802" data-name="Tracé 2802" d="M82.6,15.794l-40.8,17L1,15.794" transform="translate(0.2 0)" fill="none" stroke="#2e68aa" stroke-miterlimit="10" stroke-width="3"/>
+  <g clip-path="url(#clip-path)" data-name="Groupe 1715" id="Groupe_1715" >
+    <rect data-name="Rectangle 1858" fill="none" height="54.4" id="Rectangle_1858" rx="6.8" stroke="#2e68aa" stroke-miterlimit="10" stroke-width="3" transform="translate(1.2 1)" width="81.6" />
+    <path d="M82.6,15.794l-40.8,17L1,15.794" data-name="Tracé 2802" fill="none" id="Tracé_2802" stroke="#2e68aa" stroke-miterlimit="10" stroke-width="3" transform="translate(0.2 0)" />
   </g>
 </svg>

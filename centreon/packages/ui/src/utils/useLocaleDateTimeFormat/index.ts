@@ -92,4 +92,4 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
   };
 };
 
-export { dateTimeFormat, dateFormat, timeFormat, useLocaleDateTimeFormat };
+export { dateFormat, dateTimeFormat, timeFormat, useLocaleDateTimeFormat };

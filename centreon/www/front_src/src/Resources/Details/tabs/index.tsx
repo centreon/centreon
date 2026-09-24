@@ -143,13 +143,13 @@ const getTabLabelFromId = (id: TabId): string => {
 
 export {
   detailsTabId,
-  timelineTabId,
+  getTabIdFromLabel,
+  getTabLabelFromId,
   graphTabId,
-  servicesTabId,
   metricsTabId,
   notificationsTabId,
-  tabs,
+  servicesTabId,
   TabById,
-  getTabIdFromLabel,
-  getTabLabelFromId
+  tabs,
+  timelineTabId
 };
