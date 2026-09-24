@@ -105,7 +105,7 @@ export default () => {
 
       cy.waitForRequest('@patchHost').then(({ request }) => {
         expect(request.url.pathname).to.not.contain('/api/latest');
-        expect(request.body).to.deep.equal({ is_activated: false });
+        expect(request.body).to.deep.equal({ activate: false });
       });
     });
 
@@ -187,7 +187,7 @@ export default () => {
       // while reporting the entire selection as done is the bug this pins, and
       // it is invisible if you assert on the first host.
       cy.waitForRequest('@patchHost2').then(({ request }) => {
-        expect(request.body).to.deep.equal({ is_activated: false });
+        expect(request.body).to.deep.equal({ activate: false });
       });
     });
 

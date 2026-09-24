@@ -27,6 +27,7 @@ const useEnable = (): UseEnableProps => {
   const queryClient = useQueryClient();
 
   const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+  const activationField = configuration?.api?.activationField ?? 'is_activated';
 
   const { isMutating, mutateAsync } = useMutationQuery({
     baseEndpoint: writeBaseEndpoint,
@@ -45,7 +46,7 @@ const useEnable = (): UseEnableProps => {
   const enableMutation = ({ ids }: { ids: Array<number> }) => {
     if (equals(method, Method.PATCH)) {
       return fanOut(ids, (id) =>
-        mutateAsync({ _meta: { id }, payload: { is_activated: true } })
+        mutateAsync({ _meta: { id }, payload: { [activationField]: true } })
       ).then(invalidateListing);
     }
 

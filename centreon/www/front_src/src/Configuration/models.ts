@@ -132,6 +132,9 @@ export interface APIType {
   // module can have the two on different prefixes while an API migrates.
   baseEndpoint?: string;
   writeBaseEndpoint?: string;
+  // The field a PATCH-based enable/disable sets, when an endpoint does not
+  // spell it the way the older migrated listings do.
+  activationField?: string;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;

@@ -23,6 +23,7 @@ const useDisable = (): UseDisableProps => {
   const queryClient = useQueryClient();
 
   const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+  const activationField = configuration?.api?.activationField ?? 'is_activated';
 
   const { isMutating, mutateAsync } = useMutationQuery({
     baseEndpoint: writeBaseEndpoint,
@@ -41,7 +42,7 @@ const useDisable = (): UseDisableProps => {
   const disableMutation = ({ ids }: { ids: Array<number> }) => {
     if (equals(method, Method.PATCH)) {
       return fanOut(ids, (id) =>
-        mutateAsync({ _meta: { id }, payload: { is_activated: false } })
+        mutateAsync({ _meta: { id }, payload: { [activationField]: false } })
       ).then(invalidateListing);
     }
 

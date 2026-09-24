@@ -29,6 +29,9 @@ interface UseHostsState {
 }
 
 const api: APIType = {
+  // This endpoint takes `activate`, not the `is_activated` of the older
+  // migrated listings.
+  activationField: 'activate',
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
   decoders: { getAll: hostsListDecoder },
