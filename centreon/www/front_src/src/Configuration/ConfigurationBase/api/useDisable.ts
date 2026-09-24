@@ -22,7 +22,10 @@ const useDisable = (): UseDisableProps => {
 
   const queryClient = useQueryClient();
 
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+
   const { isMutating, mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint,
     method: method || Method.POST
   });

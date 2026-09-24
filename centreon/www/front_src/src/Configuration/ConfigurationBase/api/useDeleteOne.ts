@@ -20,7 +20,10 @@ const useDeleteOne = (): UseDeleteOneProps => {
   const configuration = useAtomValue(configurationAtom);
   const getEndpoint = configuration?.api?.endpoints?.deleteOne;
 
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+
   const { isMutating, mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint,
     method: Method.DELETE
   });

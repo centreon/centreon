@@ -127,8 +127,11 @@ export interface Endpoints {
 
 export interface APIType {
   endpoints: Endpoints | null;
-  // Overrides the default `./api/latest` of `customFetch`. Applies to `getAll`.
+  // Override the default `./api/latest` of `customFetch`: `baseEndpoint` for
+  // the listing, `writeBaseEndpoint` for the mutations. Separate because a
+  // module can have the two on different prefixes while an API migrates.
   baseEndpoint?: string;
+  writeBaseEndpoint?: string;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;

@@ -29,7 +29,10 @@ const useDuplicate = (): UseDuplicateProps => {
 
   const queryClient = useQueryClient();
 
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+
   const { isMutating, mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint: duplicatesEachByItself
       ? (endpoint as ({ id }: { id: number }) => string)
       : () => endpoint as string,
