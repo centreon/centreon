@@ -206,21 +206,10 @@ ensure_legacy_suite_associations() {
   return 1
 }
 
-# "already promoted" is decided against the stable repository's OWN version
-# (it's always dedicated, never shared, so it only ever receives stable content)
-STABLE_SHAS_FILE=$(mktemp)
-STABLE_VERSION_HREF=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.latest_version_href')
-url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
-  printf 'repository_version=%s&fields=sha256&limit=1000' \
-    "$(jq -rn --arg v "$STABLE_VERSION_HREF" '$v | @uri')"
-)"
-while [[ -n "$url" ]]; do
-  refresh_pulp_token
-  page=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" "$url")
-  echo "$page" | jq -r '.results[].sha256' >> "$STABLE_SHAS_FILE"
-  url=$(echo "$page" | jq -r '.next // empty')
-done
-sort -u "$STABLE_SHAS_FILE" -o "$STABLE_SHAS_FILE"
+# "already promoted" is decided against the stable SUITE: the stable repository
+# is shared by every major version, so a package another version's stable suite
+# publishes with the same bytes is in the repository without being in this suite
+STABLE_SHAS_FILE=$(suite_sha_file "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" "$STABLE_SUITE") || exit 1
 
 mkdir -p promoted-packages
 
