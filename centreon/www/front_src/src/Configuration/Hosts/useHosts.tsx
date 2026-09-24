@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
 import {
-  bulkDeleteHostsEndpoint,
-  bulkDuplicateHostsEndpoint,
+  getDuplicateHostEndpoint,
   getHostEndpoint,
   getHostGroupsEndpoint,
   getHostTemplatesEndpoint,
@@ -33,14 +32,15 @@ const api: APIType = {
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
   decoders: { getAll: hostsListDecoder },
+  // Every write names one host, so a selection becomes one request per row.
   endpoints: {
-    delete: bulkDeleteHostsEndpoint,
+    deleteOne: getHostEndpoint,
     disable: getHostEndpoint,
-    duplicate: bulkDuplicateHostsEndpoint,
+    duplicate: getDuplicateHostEndpoint,
     enable: getHostEndpoint,
     getAll: hostsListEndpoint
   },
-  // Sends `{ ids }` rather than `{ ids, nb_duplicates }`.
+  // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,

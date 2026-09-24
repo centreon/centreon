@@ -6,9 +6,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 
 import { configurationAtom } from '../atoms';
+import fanOut from './fanOut';
 
 interface UseDeleteOneProps {
   deleteOneMutation: ({ id }) => Promise<object | ResponseError>;
+  deleteEachMutation: ({ ids }) => Promise<object>;
   isMutating: boolean;
 }
 
@@ -30,7 +32,11 @@ const useDeleteOne = (): UseDeleteOneProps => {
     return mutateAsync({ _meta: { id } }, {});
   };
 
+  const deleteEachMutation = ({ ids }: { ids: Array<number> }) =>
+    fanOut(ids, (id) => mutateAsync({ _meta: { id } }, {}));
+
   return {
+    deleteEachMutation,
     deleteOneMutation,
     isMutating
   };

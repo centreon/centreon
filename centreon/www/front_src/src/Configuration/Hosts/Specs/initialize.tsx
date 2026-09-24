@@ -8,9 +8,8 @@ import { BrowserRouter as Router } from 'react-router';
 
 import Hosts from '..';
 import {
-  bulkDeleteHostsEndpoint,
-  bulkDuplicateHostsEndpoint,
   getDeployServicesEndpoint,
+  getDuplicateHostEndpoint,
   getHostEndpoint,
   hostGroupsEndpoint,
   hostsListEndpoint,
@@ -97,19 +96,26 @@ const initialize = ({
     response: {}
   });
 
-  // No bulk endpoint exists for hosts yet, so these two stay mocked.
+  // Every write names one host, so each row has its own intercept.
   cy.interceptAPIRequest({
-    alias: 'deleteHosts',
-    method: Method.POST,
-    path: `**${bulkDeleteHostsEndpoint}`,
-    response: { results: [{ href: '/hosts/0', status: 204 }] }
+    alias: 'deleteHost',
+    method: Method.DELETE,
+    path: `**${getHostEndpoint({ id: 0 })}`,
+    response: {}
   });
 
   cy.interceptAPIRequest({
-    alias: 'duplicateHosts',
+    alias: 'deleteHost2',
+    method: Method.DELETE,
+    path: `**${getHostEndpoint({ id: 2 })}`,
+    response: {}
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'duplicateHost',
     method: Method.POST,
-    path: `**${bulkDuplicateHostsEndpoint}`,
-    response: { results: [{ href: '/hosts/0', status: 204 }] }
+    path: `**${getDuplicateHostEndpoint({ id: 0 })}`,
+    response: {}
   });
 
   cy.interceptAPIRequest({

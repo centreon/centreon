@@ -52,10 +52,8 @@ export default () => {
 
       cy.findByTestId('confirm').click();
 
-      // The row icon deletes through the bulk endpoint too: one route for the
-      // action, whatever the count.
-      cy.waitForRequest('@deleteHosts').then(({ request }) => {
-        expect(request.body).to.deep.equal({ ids: [0] });
+      cy.waitForRequest('@deleteHost').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/configuration/hosts/0');
       });
 
       cy.makeSnapshot();
@@ -70,12 +68,28 @@ export default () => {
 
       cy.findByTestId('confirm').click();
 
-      // Against a mock: `/configuration/hosts/_duplicate` is agreed with the
-      // backend but not implemented yet. The payload is the contract — a plain
-      // array of ids, as on commands.
-      cy.waitForRequest('@duplicateHosts').then(({ request }) => {
-        expect(request.body).to.deep.equal({ ids: [0] });
+      // The route names the host and takes no body.
+      cy.waitForRequest('@duplicateHost').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/configuration/hosts/0/_duplicate'
+        );
       });
+    });
+
+    it('deletes every selected host, one request each', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('input[type="checkbox"]').eq(0).click();
+
+      cy.findByTestId(labelMoreActions).click();
+      cy.get('[role="menu"]').contains(labelDelete).click();
+      cy.findByTestId('confirm').click();
+
+      // Sequentially, so waiting on the last one proves the whole fan-out ran.
+      cy.waitForRequest('@deleteHost');
+      cy.waitForRequest('@deleteHost2');
     });
 
     it('disables an activated host from the row toggle', () => {

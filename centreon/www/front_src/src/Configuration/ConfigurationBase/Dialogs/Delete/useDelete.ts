@@ -69,13 +69,16 @@ const useDelete = (): UseDeleteState => {
   };
 
   const { deleteMutation, isMutating } = useDeleteRequest();
-  const { deleteOneMutation, isMutating: isMutatingOne } =
-    useDeleteOneRequest();
+  const {
+    deleteOneMutation,
+    deleteEachMutation,
+    isMutating: isMutatingOne
+  } = useDeleteOneRequest();
 
-  // A module that declares no `deleteOne` endpoint deletes through the bulk one
-  // whatever the count, so the action depends on a single route.
-  const deletesOneByItself =
-    equals(count, 1) && isNotNil(configuration?.api?.endpoints?.deleteOne);
+  // Which of the two routes a module has decides how a selection is deleted:
+  // one request for all of them, or one each.
+  const hasBulkEndpoint = isNotNil(configuration?.api?.endpoints?.delete);
+  const deletesOneByItself = equals(count, 1) || !hasBulkEndpoint;
 
   const handleApiResponse = (response) => {
     const { isError, results } = response as ResponseError;
@@ -83,7 +86,7 @@ const useDelete = (): UseDeleteState => {
       return;
     }
 
-    if (deletesOneByItself) {
+    if (equals(count, 1)) {
       showSuccessMessage(
         t(labelResourceDeleted(capitalize(labelResourceType)))
       );
@@ -105,9 +108,15 @@ const useDelete = (): UseDeleteState => {
   };
 
   const confirm = (): void => {
-    deletesOneByItself
+    if (!deletesOneByItself) {
+      deleteMutation({ ids }).then(handleApiResponse);
+
+      return;
+    }
+
+    equals(count, 1)
       ? deleteOneMutation({ id: ids[0] }).then(handleApiResponse)
-      : deleteMutation({ ids }).then(handleApiResponse);
+      : deleteEachMutation({ ids }).then(handleApiResponse);
   };
 
   const bodyContent = {

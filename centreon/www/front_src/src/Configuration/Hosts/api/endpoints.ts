@@ -22,8 +22,11 @@ export const getDeployServicesEndpoint = ({
   id: number | string;
 }): string => `/configuration/hosts/${id}/services/deploy`;
 
-export const bulkDeleteHostsEndpoint = '/configuration/hosts/_delete';
-export const bulkDuplicateHostsEndpoint = '/configuration/hosts/_duplicate';
+export const getDuplicateHostEndpoint = ({
+  id
+}: {
+  id: number | string;
+}): string => `/configuration/hosts/${id}/_duplicate`;
 
 type SearchParameter = {
   conditions?: Array<{ values?: { $lk?: string; $ni?: Array<string> } }>;
