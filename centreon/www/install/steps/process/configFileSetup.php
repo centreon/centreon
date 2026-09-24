@@ -72,6 +72,7 @@ $userMacros = [
     '--CONFDB--' => $parameters['db_configuration'],
     '--STORAGEDB--' => $parameters['db_storage'],
     '--DBPORT--' => $parameters['port'],
+    '--ENGINE_COMMAND--' => $engine['monitoring_var_lib'] . '/rw/centengine.cmd',
 ];
 
 // Macros with trusted, server-side values (paths, constants).
@@ -87,7 +88,6 @@ $trustedMacros = [
     '--SSLMODE--' => 'false',
     '--CENTREON_TRAPDIR--' => '/etc/snmp/centreon_traps',
     '--GORGONE_VARLIB--' => '/var/lib/centreon-gorgone',
-    '--ENGINE_COMMAND--' => $engine['monitoring_var_lib'] . '/rw/centengine.cmd',
     '@GORGONE_USER@' => 'centreon-gorgone',
     '@GORGONE_PASSWORD@' => $gorgonePassword,
 ];
