@@ -29,11 +29,7 @@ const CheckboxGroup = ({
     if (!disabled && !hideCheckbox) {
       return;
     }
-    const resetedValue = (value ?? []).map((element) => ({
-      ...(element as unknown as Record<string, unknown>),
-      checked: false
-    }));
-    setFieldValue(fieldName, resetedValue);
+    setFieldValue(fieldName, []);
   }, [disabled, hideCheckbox, fieldName, setFieldValue]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
