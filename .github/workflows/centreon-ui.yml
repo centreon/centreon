@@ -15,14 +15,22 @@ env:
 
 jobs:
   dependency-scan:
+    permissions:
+      contents: read
+      pull-requests: write
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   lint:
     needs: [dependency-scan]
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      checks: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/frontend-lint
         with:
           frontend_directory: ${{ env.directory }}
@@ -34,15 +42,23 @@ jobs:
   type-check:
     needs: [dependency-scan]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/frontend-type-check
         with:
           frontend_directory: ${{ env.directory }}
           dependencies_lock_file: centreon/pnpm-lock.yaml
 
   cypress-component-testing:
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     needs: [dependency-scan]
     uses: ./.github/workflows/cypress-component-parallelization.yml
     secrets:
@@ -60,8 +76,12 @@ jobs:
   unit-test:
     needs: [dependency-scan]
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:

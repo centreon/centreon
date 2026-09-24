@@ -16,6 +16,9 @@ jobs:
       github.event.pull_request.base.ref == 'develop' &&
       contains(github.event.pull_request.labels.*.name, 'delivery-feature')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
     env:
       GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
       HEAD_REF: ${{ github.head_ref }}
@@ -48,6 +51,8 @@ jobs:
     needs: [check-other-feature-prs]
     if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     env:
       HEAD_REF: ${{ github.head_ref }}
     steps:
@@ -96,6 +101,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Setup pulp-cli
         uses: ./.github/actions/setup-pulp-cli

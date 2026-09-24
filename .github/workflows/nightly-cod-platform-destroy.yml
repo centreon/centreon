@@ -8,11 +8,16 @@ jobs:
   nightly-cod-platform-destroy:
     if: github.repository == 'centreon/centreon'
     runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      actions: read
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Check the status of the latest nightly build
         id: check-latest-nightly-status

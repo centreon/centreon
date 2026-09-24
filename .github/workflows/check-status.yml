@@ -17,6 +17,9 @@ on:
 jobs:
   check-status:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Display API rate limit usage
         env:
@@ -209,6 +212,9 @@ jobs:
             core.setFailed("Timeout: some jobs are still in progress");
 
   get-environment:
+    permissions:
+      contents: read
+      pull-requests: write
     if: |
       contains(fromJSON('["pull_request"]') , github.event_name) &&
       (startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
@@ -219,6 +225,9 @@ jobs:
   check-cherry-pick:
     needs: [get-environment, check-status]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
     if: |
       contains(fromJSON('["pull_request"]') , github.event_name) &&
       needs.get-environment.outputs.target_stability == 'testing' &&
