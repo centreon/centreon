@@ -31,11 +31,15 @@ use App\Shared\Domain\Collection;
 interface InheritedHostMacroRepository
 {
     /**
-     * Resolves the custom macros a host would inherit from its template chain and from its check
-     * command (the `$_HOST<NAME>$` macros a command declares). Used to strip redundant submitted
-     * macros before persisting (see HostMacroInheritanceResolver).
+     * Resolves the effective custom macros a host would inherit from its multi-level template chain
+     * and from its check command (the `$_HOST<NAME>$` macros a command declares). Used to strip
+     * redundant submitted macros before persisting (see HostMacroInheritanceResolver).
      *
-     * @param Collection<HostTemplateId> $templateIds the host's template chain, in order
+     * Returns one macro per name: the definition closest to the host wins over any farther ancestor,
+     * and templates win over the check command (legacy comparaPriority). The implementation expands
+     * the full ancestor chain, so only the host's direct templates need to be passed.
+     *
+     * @param Collection<HostTemplateId> $templateIds the host's direct templates, in order
      * @param ?CommandId $checkCommandId the host's check command, if any
      *
      * @return Collection<HostMacro>

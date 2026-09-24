@@ -47,55 +47,133 @@ final readonly class DbalInheritedHostMacroRepository implements InheritedHostMa
 
     public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): Collection
     {
-        $macros = $this->findTemplateMacros($templateIds);
+        $directTemplateIds = array_values(
+            array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()),
+        );
 
-        if ($checkCommandId instanceof CommandId) {
-            foreach ($this->findCommandMacros($checkCommandId) as $macro) {
-                $macros[] = $macro;
+        // Full multi-level inheritance line, nearest-to-host first (legacy getTemplateChain /
+        // InheritanceManager::findInheritanceLine: depth-first, `order ASC`, first occurrence kept).
+        $inheritanceLine = $this->resolveInheritanceLine($directTemplateIds);
+
+        $macrosByOwner = $this->findTemplateMacrosByOwner($inheritanceLine);
+
+        // One macro per name: walking nearest-to-host first, the closest definition wins over any
+        // farther ancestor (legacy comparaPriority keeps the first-encountered same-source macro).
+        $resolved = [];
+        foreach ($inheritanceLine as $ownerId) {
+            foreach ($macrosByOwner[$ownerId] ?? [] as $macro) {
+                $resolved[$macro->name->value] ??= $macro;
             }
         }
 
-        return new Collection($macros, HostMacro::class);
+        // Check-command macros are the lowest priority: they only fill names no template defines
+        // (legacy comparaPriority: fromTpl(2) > fromCommand(1)).
+        if ($checkCommandId instanceof CommandId) {
+            foreach ($this->findCommandMacros($checkCommandId) as $macro) {
+                $resolved[$macro->name->value] ??= $macro;
+            }
+        }
+
+        return new Collection(array_values($resolved), HostMacro::class);
     }
 
     /**
-     * @param Collection<HostTemplateId> $templateIds
+     * Expands the host's direct templates into the full inheritance line: each direct template
+     * (already in `order` order) followed by its own ancestors, depth-first, nearest-to-host first,
+     * with a visited guard so a template shared by several branches is walked once (its nearest
+     * position). Mirrors legacy CentreonHost::getTemplateChain().
      *
-     * @return list<HostMacro>
+     * @param list<int> $directTemplateIds
+     *
+     * @return list<int>
      */
-    private function findTemplateMacros(Collection $templateIds): array
+    private function resolveInheritanceLine(array $directTemplateIds): array
     {
-        if (count($templateIds) === 0) {
+        $line = [];
+        $visited = [];
+
+        $walk = function (int $templateId) use (&$walk, &$line, &$visited): void {
+            if (isset($visited[$templateId])) {
+                return;
+            }
+            $visited[$templateId] = true;
+            $line[] = $templateId;
+
+            foreach ($this->findDirectParentTemplateIds($templateId) as $parentId) {
+                $walk($parentId);
+            }
+        };
+
+        foreach ($directTemplateIds as $templateId) {
+            $walk($templateId);
+        }
+
+        return $line;
+    }
+
+    /**
+     * The active template parents of one template, in `order`. Matches legacy getTemplateChain's
+     * query (activated, register = '0').
+     *
+     * @return list<int>
+     */
+    private function findDirectParentTemplateIds(int $templateId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('htr.host_tpl_id')
+            ->from('host_template_relation', 'htr')
+            ->innerJoin('htr', 'host', 'h', 'h.host_id = htr.host_tpl_id')
+            ->where('htr.host_host_id = :templateId')
+            ->andWhere("h.host_activate = '1'")
+            ->andWhere("h.host_register = '0'")
+            ->setParameter('templateId', $templateId)
+            ->orderBy('htr.`order`', 'ASC');
+
+        /** @var list<int|string> $ids */
+        $ids = $qb->executeQuery()->fetchFirstColumn();
+
+        return array_map(static fn (int|string $id): int => (int) $id, $ids);
+    }
+
+    /**
+     * Custom macros defined on the given templates, grouped by the template that owns them and kept
+     * in `macro_order` within each template.
+     *
+     * @param list<int> $ownerIds
+     *
+     * @return array<int, list<HostMacro>>
+     */
+    private function findTemplateMacrosByOwner(array $ownerIds): array
+    {
+        if ($ownerIds === []) {
             return [];
         }
 
-        $ids = array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray());
-
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('host_macro_name', 'host_macro_value', 'is_password')
+        $qb->select('host_host_id', 'host_macro_name', 'host_macro_value', 'is_password')
             ->from('on_demand_macro_host')
-            ->where($qb->expr()->in('host_host_id', ':templateIds'))
-            ->setParameter('templateIds', $ids, ArrayParameterType::INTEGER)
+            ->where($qb->expr()->in('host_host_id', ':ownerIds'))
+            ->setParameter('ownerIds', $ownerIds, ArrayParameterType::INTEGER)
             ->orderBy('macro_order');
 
-        /** @var array<array{host_macro_name: string, host_macro_value: ?string, is_password: ?string}> $rows */
+        /** @var array<array{host_host_id: int, host_macro_name: string, host_macro_value: ?string, is_password: ?string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
-        $macros = [];
+        $byOwner = [];
         foreach ($rows as $row) {
             $shortName = $this->extractShortName($row['host_macro_name']);
             if ($shortName === null) {
                 continue;
             }
 
-            $macros[] = new HostMacro(
+            $byOwner[(int) $row['host_host_id']][] = new HostMacro(
                 new HostMacroName($shortName),
                 (string) $row['host_macro_value'],
                 isPassword: (bool) (int) ($row['is_password'] ?? 0),
             );
         }
 
-        return $macros;
+        return $byOwner;
     }
 
     /**

@@ -78,6 +78,78 @@ final class DbalInheritedHostMacroRepositoryTest extends KernelTestCase
         self::assertTrue($macros[0]->isPassword);
     }
 
+    public function testItReadsMacrosInheritedThroughAMultiLevelTemplateChain(): void
+    {
+        // host -> child -> parent; a macro defined only on the parent is still inherited.
+        $parentId = $this->createHostTemplate('parent-template');
+        $this->insertMacro($parentId, '$_HOSTPARENTMACRO$', 'from-parent', isPassword: false);
+        $childId = $this->createHostTemplate('child-template');
+        $this->linkTemplateToParent($childId, $parentId);
+
+        $macros = $this->repository->findInheritedMacros(
+            new Collection([new HostTemplateId($childId)], HostTemplateId::class),
+            null,
+        )->toArray();
+
+        $byName = $this->indexByName($macros);
+        self::assertArrayHasKey('PARENTMACRO', $byName);
+        self::assertSame('from-parent', $byName['PARENTMACRO']->value);
+    }
+
+    public function testTheDefinitionClosestToTheHostWinsWhenAMacroIsOverriddenAlongTheChain(): void
+    {
+        // Both the child and the parent define the same macro: the child (closest to the host) wins.
+        $parentId = $this->createHostTemplate('parent-template');
+        $this->insertMacro($parentId, '$_HOSTSHARED$', 'from-parent', isPassword: false);
+        $childId = $this->createHostTemplate('child-template');
+        $this->insertMacro($childId, '$_HOSTSHARED$', 'from-child', isPassword: false);
+        $this->linkTemplateToParent($childId, $parentId);
+
+        $macros = $this->repository->findInheritedMacros(
+            new Collection([new HostTemplateId($childId)], HostTemplateId::class),
+            null,
+        )->toArray();
+
+        self::assertCount(1, $macros);
+        self::assertSame('SHARED', $macros[0]->name->value);
+        self::assertSame('from-child', $macros[0]->value);
+    }
+
+    public function testTheFirstDirectTemplateWinsWhenTwoDefineTheSameMacro(): void
+    {
+        // Two direct templates in `order`: the first one wins, like legacy's ordered template chain.
+        $firstId = $this->createHostTemplate('first-template');
+        $this->insertMacro($firstId, '$_HOSTSHARED$', 'from-first', isPassword: false);
+        $secondId = $this->createHostTemplate('second-template');
+        $this->insertMacro($secondId, '$_HOSTSHARED$', 'from-second', isPassword: false);
+
+        $macros = $this->repository->findInheritedMacros(
+            new Collection([new HostTemplateId($firstId), new HostTemplateId($secondId)], HostTemplateId::class),
+            null,
+        )->toArray();
+
+        self::assertCount(1, $macros);
+        self::assertSame('from-first', $macros[0]->value);
+    }
+
+    public function testATemplateMacroWinsOverACheckCommandMacroOfTheSameName(): void
+    {
+        // A name defined by both a template and the check command resolves to the template value
+        // (legacy comparaPriority: fromTpl > fromCommand); command-only names still come through.
+        $templateId = $this->createHostTemplate('generic-template');
+        $this->insertMacro($templateId, '$_HOSTSHARED$', 'from-template', isPassword: false);
+        $commandId = $this->createCommand('$USER1$/check -a $_HOSTSHARED$ -b $_HOSTCMDONLY$');
+
+        $macros = $this->indexByName($this->repository->findInheritedMacros(
+            new Collection([new HostTemplateId($templateId)], HostTemplateId::class),
+            new CommandId($commandId),
+        )->toArray());
+
+        self::assertSame('from-template', $macros['SHARED']->value);
+        self::assertArrayHasKey('CMDONLY', $macros);
+        self::assertSame('', $macros['CMDONLY']->value);
+    }
+
     public function testItReturnsNothingWithoutTemplatesOrCommand(): void
     {
         self::assertSame([], $this->repository->findInheritedMacros(new Collection([], HostTemplateId::class), null)->toArray());
@@ -113,9 +185,36 @@ final class DbalInheritedHostMacroRepositoryTest extends KernelTestCase
         $this->connection->insert('host', [
             'host_name' => $name . '_' . bin2hex(random_bytes(4)),
             'host_register' => '0',
+            // The parent-chain query filters on activated templates.
+            'host_activate' => '1',
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkTemplateToParent(int $childTemplateId, int $parentTemplateId, int $order = 0): void
+    {
+        $this->connection->insert('host_template_relation', [
+            'host_host_id' => $childTemplateId,
+            'host_tpl_id' => $parentTemplateId,
+            // `order` is a reserved word — quote the identifier for the raw insert.
+            '`order`' => $order,
+        ]);
+    }
+
+    /**
+     * @param array<HostMacro> $macros
+     *
+     * @return array<string, HostMacro>
+     */
+    private function indexByName(array $macros): array
+    {
+        $byName = [];
+        foreach ($macros as $macro) {
+            $byName[$macro->name->value] = $macro;
+        }
+
+        return $byName;
     }
 
     private function insertMacro(int $hostId, string $name, string $value, bool $isPassword): void
