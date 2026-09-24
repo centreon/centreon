@@ -13,6 +13,10 @@ framework:
                     # completed so the record reflects the final persistent
                     # state, not an in-flight snapshot.
                     - App\Shared\Infrastructure\Messenger\LoggingMiddleware
+                    # Keep the default middlewares: dispatch_after_current_bus sits above these
+                    # and drains its queue once they return, which is what makes an event marked
+                    # DeliveredAfterCommitInterface reach its handler after the commit rather
+                    # than inside the transaction.
                     - App\Shared\Infrastructure\Messenger\DoctrineTransactionMiddleware
 
             query.bus:

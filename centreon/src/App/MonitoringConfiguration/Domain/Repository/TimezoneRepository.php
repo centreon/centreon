@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
 
 interface TimezoneRepository
@@ -32,4 +34,6 @@ interface TimezoneRepository
      * @return \IteratorAggregate<int, Timezone>&\Countable
      */
     public function findAll(?TimezoneCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    public function findNameById(TimezoneId $id): ?TimezoneName;
 }
