@@ -26,16 +26,29 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
 
 #[ApiResource(
     shortName: 'HostTemplate',
     operations: [
         new GetCollection(
+            uriTemplate: '/configuration/hosts/host_templates',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
+            itemUriTemplate: '/configuration/host_templates/{id}',
+            output: HostTemplateChoicesOutput::class,
+            provider: ListHostTemplatesChoicesProvider::class,
+        ),
+        new GetCollection(
             uriTemplate: '/configuration/host_templates',
             provider: ListHostTemplatesProvider::class,
+            itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
@@ -53,6 +66,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
                 is_granted("' . HostTemplatePermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list host templates',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/host_templates/{id}'),
     ],
 )]
 final class HostTemplateResource
