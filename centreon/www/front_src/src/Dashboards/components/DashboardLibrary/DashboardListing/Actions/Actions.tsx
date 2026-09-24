@@ -14,12 +14,15 @@ const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
 
   return (
     <Box className={classes.actions}>
-      {!isViewer && <AddDashboard openConfig={openConfig} />}
+      <Box className={classes.leftCluster}>
+        {!isViewer && <AddDashboard openConfig={openConfig} />}
+        <ViewMode />
+        <FavoriteFilter />
+      </Box>
       <Box className={classes.filter}>
         <Filter />
       </Box>
-      <ViewMode />
-      <FavoriteFilter />
+      <Box className={classes.spacer} />
     </Box>
   );
 };
