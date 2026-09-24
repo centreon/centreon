@@ -33,12 +33,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -49,7 +51,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
@@ -66,8 +70,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPol
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimePeriodOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -94,9 +100,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
         private CommandRepository $commandRepository,
+        private HostTemplateRepository $hostTemplateRepository,
         private HostCategoryRepository $hostCategoryRepository,
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
+        private HostRepository $hostRepository,
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
@@ -168,7 +176,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
             alias: $alias !== null ? new HostAlias($alias) : null,
             snmpVersion: $data->snmpVersion,
+            templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),
             categoryIds: $this->toIdCollection($data->categoryIds, HostCategoryId::class),
+            parentHostIds: $this->toIdCollection($data->parentHostIds, HostId::class),
+            childHostIds: $this->toIdCollection($data->childHostIds, HostId::class),
             snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
             timezoneId: $data->timezoneId !== null ? new TimezoneId($data->timezoneId) : null,
             severityId: $data->severityId !== null ? new HostSeverityId($data->severityId) : null,
@@ -193,9 +204,23 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 
         $resource = $this->transformer->transform($host);
         $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
-        $resource->templates = []; // default value as templates are non mandatory and not handled ATM.
         $resource->groups = $groups;
         $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
+
+        $templateNames = $this->hostTemplateRepository->findNamesByIds($host->templateIds)->toArray();
+        $resource->templates = [];
+        foreach ($host->templateIds as $templateId) {
+            if (isset($templateNames[$templateId->value])) {
+                $resource->templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]->value);
+            }
+        }
+
+        $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
+            [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()],
+            HostId::class,
+        ))->toArray();
+        $resource->parentHosts = $this->toRelatedHosts($host->parentHostIds, $relatedHostNames);
+        $resource->childHosts = $this->toRelatedHosts($host->childHostIds, $relatedHostNames);
 
         $categoryNames = $this->hostCategoryRepository->findNamesByIds($host->categoryIds)->toArray();
         $resource->categories = [];
@@ -324,5 +349,23 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             array_map(static fn (int $id): object => new $className($id), array_values(array_unique($ids))),
             $className,
         );
+    }
+
+    /**
+     * @param Collection<HostId> $hostIds
+     * @param array<array-key, HostName> $names indexed by host id
+     *
+     * @return list<RelatedHostOutput>
+     */
+    private function toRelatedHosts(Collection $hostIds, array $names): array
+    {
+        $related = [];
+        foreach ($hostIds as $hostId) {
+            if (isset($names[$hostId->value])) {
+                $related[] = new RelatedHostOutput($hostId->value, $names[$hostId->value]->value);
+            }
+        }
+
+        return $related;
     }
 }

@@ -116,6 +116,12 @@ final class HostResource
     /** @var list<HostCategoryOutput> */
     public array $categories = [];
 
+    /** @var list<RelatedHostOutput> */
+    public array $parentHosts = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $childHosts = [];
+
     public ?HostTimezoneOutput $timezone = null;
 
     public ?HostSeverityOutput $severity = null;
