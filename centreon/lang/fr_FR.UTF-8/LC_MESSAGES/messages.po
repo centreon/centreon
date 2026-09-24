@@ -1131,10 +1131,74 @@ msgstr "Paramètres avancés"
 msgid "Advanced: gorgone - poller connects to the central"
 msgstr "Avancé : gorgone - le collecteur se connecte au central"
 
-#: centreon/www/install/front_translate.php
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Editions & Cloud licenses"
+msgstr "Licences Edition et Cloud"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Get more from Centreon"
+msgstr "Profiter davantage de Centreon"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Join The Watch"
+msgstr "Rejoindre The Watch"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Made with care by the Centreon team & community"
+msgstr "Conçu avec soin par l'équipe et la communauté Centreon"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>"
+msgstr "Un grand merci à tous les développeurs et contributeurs. <contributors>Voir la liste complète sur GitHub ↗</contributors>"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>"
+msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger. <policy>Signaler une vulnérabilité ↗</policy>"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"
+msgstr "Plateforme de supervision IT ouverte et évolutive pour une visibilité complète sur votre infrastructure hybride"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open the repository"
+msgstr "Ouvrir le dépôt"
+
 #: centreon/www/install/react_translation.php
-msgid "Advanced: reverse Centreon Broker communication flow"
-msgstr "Avancé : inverser le flux de communication du Broker Centreon"
+msgid "Prerequisite: configure the central to accept PullWSS connections"
+msgstr ""
+"Prérequis : configurer le central pour accepter les connexions PullWSS"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Project & contributors"
+msgstr "Projet et contributeurs"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Security"
+msgstr "Sécurité"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Setup, configuration and 700+ Monitoring Connectors."
+msgstr "Installation, configuration et plus de 700 connecteurs de supervision."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star centreon/centreon on GitHub"
+msgstr "Ajouter une étoile à centreon/centreon sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star on GitHub"
+msgstr "Ajouter une étoile sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star the repo, open issues, submit connectors."
+msgstr "Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "The Watch community"
+msgstr "La communauté The Watch"
+
+#: centreon/www/install/react_translation.php
+msgid "documentation"
+msgstr "documentation"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "After"

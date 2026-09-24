@@ -5884,6 +5884,10 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Editions & Cloud licenses"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Editor"
 msgstr ""
@@ -13308,6 +13312,16 @@ msgid "Open"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid ""
+"Open and scalable IT monitoring platform for full visibility on your hybrid "
+"infrastructure"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Open the repository"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Open ticket for host"
 msgstr ""
 
@@ -14329,7 +14343,7 @@ msgid "Progress"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Project leaders"
+msgid "Project & contributors"
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
