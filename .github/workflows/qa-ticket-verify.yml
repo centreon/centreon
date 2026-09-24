@@ -4,23 +4,13 @@ name: qa-ticket-verify
 # that PR's build in Docker, exercises it with Playwright, posts a report as a Jira comment.
 # Never transitions the ticket itself.
 #
-# Secrets:
-# - CLAUDE_CODE_OAUTH_TOKEN, per person — NOT a single shared secret. Plain repo-level
-#   secrets, one per contributor, named CLAUDE_CODE_OAUTH_TOKEN_<YOUR-GITHUB-USERNAME>.
-#   Each contributor sets their own, no admin rights needed, ever:
-#     claude setup-token
-#     gh secret set CLAUDE_CODE_OAUTH_TOKEN_<YOUR-USERNAME> --repo centreon/centreon
-#   The "Run QA verification" step resolves it with `secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}',
-#   github.actor)]` — fully dynamic, no per-contributor line to add anywhere, ever.
-#   `github.actor` is set server-side by GitHub for whoever actually triggered the run
-#   (workflow_dispatch or push), not spoofable via an input, so a run only ever spends
-#   under the identity that triggered it. GitHub's secret-name lookup is case-insensitive
-#   (verified: `gh secret set` uppercases the stored name, e.g. an actor "MedWassCh" still
-#   resolves CLAUDE_CODE_OAUTH_TOKEN_MEDWASSCH correctly), so no case-normalization is
-#   needed. If that person hasn't set their named secret yet, the step fails immediately
-#   with a clear error — there is deliberately no shared/default token to fall back to.
-# - JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL / XRAY_JIRA_TOKEN are reused from the existing Xray
-#   reporting workflows — shared, repo-level, unrelated to the per-person token above.
+# CLAUDE_CODE_OAUTH_TOKEN is per contributor, not a shared secret: each person runs
+# `claude setup-token` then `gh secret set CLAUDE_CODE_OAUTH_TOKEN_<their-github-username>
+# --repo centreon/centreon` (no admin rights needed). `secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}',
+# github.actor)]` below resolves it dynamically from whoever actually triggered the run, so
+# onboarding a new contributor never touches this file, and a run only ever spends under the
+# identity that triggered it. JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL / XRAY_JIRA_TOKEN are shared,
+# reused from the existing Xray reporting workflows.
 
 on:
   workflow_dispatch:
@@ -173,11 +163,6 @@ jobs:
       - name: Run QA verification
         id: qa
         env:
-          # Fully dynamic — no per-contributor line here, ever. Resolves the repo secret
-          # named CLAUDE_CODE_OAUTH_TOKEN_<github.actor> (see header comment). Verified:
-          # GitHub Actions does support computed secret names via `secrets[format(...)]`
-          # when the key comes from a trusted context value like github.actor (not from
-          # unmoderated input), and the lookup is case-insensitive.
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
