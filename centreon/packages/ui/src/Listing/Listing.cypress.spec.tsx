@@ -15,6 +15,19 @@ const ButtonColumn = ({ row }: Props): JSX.Element => (
   <Button size="small">Click to reveal details about {row.name}</Button>
 );
 
+const CheckboxColumn = ({ row }: Props): JSX.Element => {
+  const [checked, setChecked] = useState(false);
+
+  return (
+    <input
+      aria-label={`Toggle ${row.name}`}
+      checked={checked}
+      onChange={(event) => setChecked(event.target.checked)}
+      type="checkbox"
+    />
+  );
+};
+
 const LargeText = (): JSX.Element => (
   <Typography sx={{ whiteSpace: 'normal' }}>
     This is a large text that fills the content
@@ -300,5 +313,37 @@ describe('Listing', () => {
     );
 
     cy.makeSnapshot();
+  });
+
+  it('toggles a checkbox in a clickable column without clicking the row', () => {
+    const onRowClick = cy.stub().as('rowClick');
+
+    cy.mount({
+      Component: (
+        <div style={{ height: '100vh' }}>
+          <Listing
+            columns={[
+              {
+                Component: CheckboxColumn,
+                clickable: true,
+                id: 'toggle',
+                label: 'Toggle',
+                type: ColumnType.component
+              }
+            ]}
+            currentPage={1}
+            limit={10}
+            onRowClick={onRowClick}
+            rows={[{ id: 0, name: 'E0' }]}
+            totalRows={1}
+          />
+        </div>
+      )
+    });
+
+    cy.findByLabelText('Toggle E0').click();
+
+    cy.findByLabelText('Toggle E0').should('be.checked');
+    cy.get('@rowClick').should('not.have.been.called');
   });
 });
