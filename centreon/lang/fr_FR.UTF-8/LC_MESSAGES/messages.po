@@ -1173,10 +1173,6 @@ msgid "Editions & Cloud licenses"
 msgstr "Licences Edition et Cloud"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
-msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le reporting avancé et des SLA."
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
 
@@ -1201,10 +1197,6 @@ msgid "Open and scalable IT monitoring platform for full visibility on your hybr
 msgstr "Plateforme de supervision IT ouverte et évolutive pour une visibilité complète sur votre infrastructure hybride"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Open source edition"
-msgstr "Édition open source"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Open the repository"
 msgstr "Ouvrir le dépôt"
 
@@ -1216,14 +1208,6 @@ msgstr ""
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Project & contributors"
 msgstr "Projet et contributeurs"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Project leaders <count>({{total}})</count>"
-msgstr "Responsables du projet <count>({{total}})</count>"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Scaling beyond open source?"
-msgstr "Besoin d'aller plus loin que l'open source ?"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"
@@ -1244,10 +1228,6 @@ msgstr "Ajouter une étoile sur GitHub"
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Star the repo, open issues, submit connectors."
 msgstr "Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Start free trial"
-msgstr "Démarrer l'essai gratuit"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "The Watch community"
