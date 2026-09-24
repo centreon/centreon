@@ -57,6 +57,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
         new Patch(
             uriTemplate: '/configuration/hosts/{id}',
             status: 204,
+            // No item provider: this is a write-only action, and reading the full host would mean
+            // rebuilding the whole HostResource for a boolean toggle. The processor resolves the
+            // host itself (and returns 404 through the handler when it is missing).
+            read: false,
             processor: PatchHostProcessor::class,
             input: PatchHostInput::class,
             output: false,
