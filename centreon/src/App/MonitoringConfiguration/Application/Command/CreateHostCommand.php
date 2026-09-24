@@ -73,6 +73,7 @@ final readonly class CreateHostCommand
         public ?string $snmpCommunity = null,
         public ?TimezoneId $timezoneId = null,
         public ?HostSeverityId $severityId = null,
+        public bool $deployServicesFromTemplates = true,
         public ?ExtendedInformations $extendedInformations = null,
         public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
     ) {

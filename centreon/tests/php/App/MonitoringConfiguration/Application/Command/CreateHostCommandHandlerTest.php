@@ -60,6 +60,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
@@ -563,6 +564,39 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([8, 7], array_map(static fn (HostTemplateId $id): int => $id->value, $host->templateIds->toArray()));
     }
 
+    public function testItRequestsServiceDeploymentForAHostWithTemplates(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[3] = new HostTemplate(new HostTemplateId(3), new HostTemplateName('generic-active-host'));
+
+        ($this->handler)($this->relationCommand($poller->id(), templateIds: [3]));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    public function testItDoesNotRequestServiceDeploymentWhenTheToggleIsOff(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[3] = new HostTemplate(new HostTemplateId(3), new HostTemplateName('generic-active-host'));
+
+        ($this->handler)($this->relationCommand($poller->id(), templateIds: [3], deployServicesFromTemplates: false));
+
+        self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    /**
+     * Legacy resolves what to deploy by walking host_template_relation, so without templates there
+     * is nothing to do — and reaching it would boot a second Symfony kernel for nothing.
+     */
+    public function testItDoesNotRequestServiceDeploymentWithoutTemplates(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        ($this->handler)($this->relationCommand($poller->id()));
+
+        self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
     private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand
     {
         return new CreateHostCommand(
@@ -612,6 +646,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         array $templateIds = [],
         array $parentHostIds = [],
         array $childHostIds = [],
+        bool $deployServicesFromTemplates = true,
     ): CreateHostCommand {
         return new CreateHostCommand(
             name: new HostName('relation-host'),
@@ -631,6 +666,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
                 array_map(static fn (int $id): HostId => new HostId($id), $childHostIds),
                 HostId::class,
             ),
+            deployServicesFromTemplates: $deployServicesFromTemplates,
         );
     }
 

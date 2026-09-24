@@ -1377,6 +1377,8 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'address' => '10.0.0.50',
                 'poller_id' => $pollerId,
                 'template_ids' => [$secondTemplateId, $firstTemplateId, $secondTemplateId],
+                // Nothing here asserts deployment, and leaving it on would boot the legacy kernel.
+                'create_services_linked_to_templates' => false,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$childId],
             ],
@@ -1478,6 +1480,29 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'poller_id' => $pollerId,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$ancestorId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * The toggle is honoured in `CreateHostCommandHandler`, which is where it is unit-tested: the
+     * legacy deployer runs on its own connection and cannot see this test's open transaction, so
+     * an end-to-end assertion on the created services is not reachable here. What this pins is the
+     * binding — a non-boolean must be refused rather than silently ignored.
+     */
+    public function testItRejectsANonBooleanServiceDeploymentToggle(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.53',
+                'poller_id' => $pollerId,
+                'create_services_linked_to_templates' => 'yes',
             ],
         ]);
 
