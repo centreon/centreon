@@ -138,13 +138,9 @@ final readonly class CreateHostCommandHandler
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
 
-        // Template-based macro inheritance is deferred: the host itself stores the requested templates
-        // (below), but the inherited macro set is resolved from the check command alone for now, so an
-        // empty template collection is passed here. The resolver already handles the template chain for
-        // when it is wired in.
-        $macroTemplateIds = new Collection([], HostTemplateId::class);
-
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $macroTemplateIds);
+        // Resolve inherited macros from the requested templates and the check command together, so a
+        // submitted macro that merely duplicates an inherited one is dropped (keepOverridesOnly).
+        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds);
 
         $host = new Host(
             id: null,

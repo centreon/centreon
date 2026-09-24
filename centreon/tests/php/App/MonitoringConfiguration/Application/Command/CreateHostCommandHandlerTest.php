@@ -276,6 +276,28 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('OWN', $host->checkOptions->macros[0]->name->value);
     }
 
+    public function testItResolvesInheritedMacrosFromTemplatesAndTheCheckCommand(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(8), new HostTemplateId(7)], HostTemplateId::class),
+            checkOptions: new CheckOptions(new CommandId(9)),
+        ));
+
+        // Inherited macros are resolved from the requested templates and the check command together.
+        self::assertSame([8, 7], $this->inheritedHostMacroRepository->receivedTemplateIds);
+        self::assertSame(9, $this->inheritedHostMacroRepository->receivedCheckCommandId?->value);
+    }
+
     public function testItMovesPasswordMacrosToTheVault(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);

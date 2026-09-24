@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\Shared\Domain\Collection;
 
@@ -33,8 +34,19 @@ final class FakeInheritedHostMacroRepository implements InheritedHostMacroReposi
     /** @var list<HostMacro> */
     public array $inheritedMacros = [];
 
+    /** @var list<int> the template ids of the last findInheritedMacros() call, in order */
+    public array $receivedTemplateIds = [];
+
+    public ?CommandId $receivedCheckCommandId = null;
+
     public function findInheritedMacros(Collection $templateIds, ?CommandId $checkCommandId): Collection
     {
+        $this->receivedTemplateIds = array_values(array_map(
+            static fn (HostTemplateId $id): int => $id->value,
+            $templateIds->toArray(),
+        ));
+        $this->receivedCheckCommandId = $checkCommandId;
+
         return new Collection($this->inheritedMacros, HostMacro::class);
     }
 }
