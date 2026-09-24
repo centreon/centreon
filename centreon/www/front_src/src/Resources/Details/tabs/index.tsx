@@ -63,6 +63,10 @@ const tabs: Array<Tab> = [
         return false;
       }
 
+      if (details.status?.name === 'UNKNOWN') {
+        return false;
+      }
+
       if (equals(details.type, 'host')) {
         return true;
       }
