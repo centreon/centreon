@@ -109,7 +109,7 @@ served_artifact_sha256() {
 # record every package's result row. Uses the E_FILENAME/E_ARCH/E_BASEPATH/E_SHA256,
 # PRESENT_IDX, META_IDX and RESOLVED_IDX arrays filled by the sourcing script.
 check_fetchable_and_record() {
-  local i url out code served fetchable attempt digest_deadline=""
+  local i url out code served retry_served fetchable attempt digest_deadline=""
   for i in "${!E_FILENAME[@]}"; do
     fetchable=false
     if [[ "${META_IDX[$i]}" == "true" ]]; then
@@ -129,13 +129,15 @@ check_fetchable_and_record() {
         # a replaced build keeps being served until the content-app cache
         # expires (600s TTL): one shared window for the whole verification
         digest_deadline=${digest_deadline:-$(( SECONDS + METADATA_TIMEOUT ))}
-        while [[ -n "$served" && "$served" != "${E_SHA256[$i]}" && "$SECONDS" -lt "$digest_deadline" ]]; do
+        while [[ "$served" != "${E_SHA256[$i]}" && "$SECONDS" -lt "$digest_deadline" ]]; do
           echo "[INFO] ${E_FILENAME[$i]}: served sha256 ${served} differs from the delivered one, waiting ${METADATA_INTERVAL}s for the content cache..."
           sleep "$METADATA_INTERVAL"
           out=$(content_curl -fsSL -o /dev/null -w '%{http_code} %{url_effective}' -I "$url" 2>/dev/null || echo 000)
-          served=$(served_artifact_sha256 "${out#* }")
+          retry_served=$(served_artifact_sha256 "${out#* }")
+          # a failed retry (no digest) keeps the known mismatch
+          [[ -n "$retry_served" ]] && served=$retry_served
         done
-        if [[ -n "$served" && "$served" != "${E_SHA256[$i]}" ]]; then
+        if [[ "$served" != "${E_SHA256[$i]}" ]]; then
           if [[ "${STABILITY:-}" == "unstable" ]]; then
             echo "::warning::${url} serves sha256 ${served}, not the delivered ${E_SHA256[$i]}: another build with the same file name masks it."
           else
