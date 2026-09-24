@@ -75,8 +75,7 @@ const useDelete = (): UseDeleteState => {
     isMutating: isMutatingOne
   } = useDeleteOneRequest();
 
-  // Which of the two routes a module has decides how a selection is deleted:
-  // one request for all of them, or one each.
+  // One request for the selection, or one each, depending on what is declared.
   const hasBulkEndpoint = isNotNil(configuration?.api?.endpoints?.delete);
   const deletesOneByItself = equals(count, 1) || !hasBulkEndpoint;
 

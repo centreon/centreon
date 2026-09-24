@@ -5,15 +5,13 @@ interface BulkResult {
 }
 
 /**
- * Turns a selection into one request per row, for an API that exposes
- * single-resource operations only.
+ * Turns a selection into one request per row.
  *
- * Sequential, not parallel: each write ends its transaction by flagging the
- * host's monitoring server, so concurrent writes on rows sharing one deadlock
- * (MariaDB 1213) and all but the first roll back.
+ * Sequential on purpose: these writes contend on a shared row and deadlock
+ * when they overlap.
  *
- * Returns the shape a bulk endpoint would, so `useBulkResponse` can report a
- * partial failure by name instead of calling the whole selection a success.
+ * Returns what a bulk endpoint would, so `useBulkResponse` can name a partial
+ * failure rather than reading nothing.
  */
 const fanOut = async <TResponse>(
   ids: Array<number>,

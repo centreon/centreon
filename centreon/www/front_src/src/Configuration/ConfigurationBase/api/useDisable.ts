@@ -27,9 +27,8 @@ const useDisable = (): UseDisableProps => {
     method: method || Method.POST
   });
 
-  // Not `onSuccess`: that fires once per request, so a fan-out refetched the
-  // listing once per selected row. `customFetch` resolves rather than rejects,
-  // so this also runs after a failure — a partial one still changed rows.
+  // Not `onSuccess`: that fires once per request, so a fan-out would refetch
+  // once per row. Runs after a failure too — a partial one still changed rows.
   const invalidateListing = <T>(result: T): T => {
     queryClient.invalidateQueries({ queryKey: ['listResources'] });
 
