@@ -66,8 +66,8 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly ?ExtendedInformations $extendedInformations = null,
         public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
         public readonly DataProcessing $dataProcessing = new DataProcessing(),
-        // Always present, empty by default: the create path populates it, while the read/list path
-        // does not surface check options yet (mirrors the hardcoded empty templates in the provider).
+        // Always present, empty by default: the create path populates it; the read/list providers
+        // do not surface check options yet.
         public readonly CheckOptions $checkOptions = new CheckOptions(null),
     ) {
         parent::__construct($id);

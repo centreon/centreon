@@ -32,14 +32,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Early, best-effort check that the referenced command exists and is of type "check", surfaced as
- * a clean 422 field violation for the common case — mirroring AccessiblePollerValidator, which
- * likewise reports a nonexistent reference as 422 rather than deferring it. Both "doesn't exist"
- * and "wrong type" use the same message, since neither is worth distinguishing to the client.
- *
- * CreateHostCommandHandler still calls getById() as the authoritative guard: a command deleted
- * between validation and execution surfaces there as a 404, exactly as the handler's poller check
- * does — this constraint only shortens the round-trip, it does not replace it.
+ * Best-effort 422 existence + "must be a check command" check, mirroring AccessiblePollerValidator.
+ * CreateHostCommandHandler's getById() remains the authoritative 404 guard.
  */
 final class CheckCommandTypeValidator extends ConstraintValidator
 {

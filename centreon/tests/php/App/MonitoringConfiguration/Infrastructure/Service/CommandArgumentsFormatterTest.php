@@ -46,4 +46,25 @@ final class CommandArgumentsFormatterTest extends TestCase
             CommandArgumentsFormatter::format(["line1\nline2\tcol\rret"]),
         );
     }
+
+    public function testItKeepsEmptyStringArgumentsAsEmptySegments(): void
+    {
+        // An empty argument is a real segment: the leading '!' plus the delimiters must still be there,
+        // so the legacy reader splits back to the same number of arguments.
+        self::assertSame('!!a!', CommandArgumentsFormatter::format(['', 'a', '']));
+    }
+
+    public function testTheFormattedLengthIsTheOneBoundedAgainstTheStorageCap(): void
+    {
+        // The '!' prefix counts toward the stored length: a single argument of MAX_STORAGE_LENGTH - 1
+        // bytes formats to exactly the cap (the largest input the DTO validators accept), and one more
+        // byte tips it over. This pins the byte accounting the '> MAX_STORAGE_LENGTH' check relies on.
+        $atCap = CommandArgumentsFormatter::format([str_repeat('a', CommandArgumentsFormatter::MAX_STORAGE_LENGTH - 1)]);
+        $overCap = CommandArgumentsFormatter::format([str_repeat('a', CommandArgumentsFormatter::MAX_STORAGE_LENGTH)]);
+
+        self::assertNotNull($atCap);
+        self::assertNotNull($overCap);
+        self::assertSame(CommandArgumentsFormatter::MAX_STORAGE_LENGTH, \mb_strlen($atCap, '8bit'));
+        self::assertSame(CommandArgumentsFormatter::MAX_STORAGE_LENGTH + 1, \mb_strlen($overCap, '8bit'));
+    }
 }
