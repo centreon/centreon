@@ -100,13 +100,23 @@ if (! empty($chartId)) {
 }
 if ($index !== false) {
     $stmt = $pearDBO->prepare(
-        'SELECT host_name, service_description FROM index_data WHERE id = :index'
+        <<<'SQL'
+            SELECT i.host_name, i.service_description, s.display_name
+            FROM index_data i
+            LEFT JOIN services s ON s.host_id = i.host_id AND s.service_id = i.service_id
+            WHERE i.id = :index
+            SQL
     );
     $stmt->bindValue(':index', $index, PDO::PARAM_INT);
     $stmt->execute();
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $hName = $row['host_name'];
         $sName = $row['service_description'];
+        // Meta services are stored as "_Module_Meta / meta_<id>": use their display name instead
+        if ($hName === '_Module_Meta' && ! empty($row['display_name'])) {
+            $hName = 'Meta';
+            $sName = $row['display_name'];
+        }
     }
 
     header('Content-Type: application/csv-tab-delimited-table');

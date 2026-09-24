@@ -1856,16 +1856,27 @@ class CentreonService
             }
         }
 
-        $query = 'SELECT CONCAT (h.name, " - ", s.description) as fullname '
-            . 'FROM hosts h, services s '
-            . 'WHERE h.host_id = s.host_id '
-            . 'AND s.enabled = "1" '
-            . 'AND s.service_id = ' . $serviceId;
+        // Meta services are stored as "_Module_Meta / meta_<id>": use their display name instead
+        $query = <<<'SQL'
+            SELECT CASE
+                WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', s.display_name)
+                ELSE CONCAT(h.name, ' - ', s.description)
+            END AS fullname
+            FROM hosts h
+            INNER JOIN services s ON s.host_id = h.host_id
+            WHERE s.enabled = '1'
+              AND s.service_id = :serviceId
+            SQL;
         if (isset($hostId)) {
-            $query .= ' AND s.host_id = ' . $hostId;
+            $query .= ' AND s.host_id = :hostId';
         }
-        $result = $this->dbMon->query($query);
-        while ($row = $result->fetchRow()) {
+        $statement = $this->dbMon->prepare($query);
+        $statement->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
+        if (isset($hostId)) {
+            $statement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        }
+        $statement->execute();
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $name = $row['fullname'];
         }
 
