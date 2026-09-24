@@ -3,9 +3,9 @@
 #
 
 $centreon_config = {
-       VarLib => "--CENTREON_VARLIB--",
-       CentreonDir => "--CENTREONDIR--",
-       CacheDir => "--CENTREON_CACHEDIR--",
+       VarLib => '--CENTREON_VARLIB--',
+       CentreonDir => '--CENTREONDIR--',
+       CacheDir => '--CENTREON_CACHEDIR--',
        "centreon_db" => '--CONFDB--',
        "centstorage_db" => '--STORAGEDB--',
        "db_host" => '--ADDRESS--:--DBPORT--',
