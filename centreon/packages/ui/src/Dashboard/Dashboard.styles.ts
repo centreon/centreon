@@ -126,37 +126,80 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
 export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
   (theme, { hasHeader }) => ({
     widgetContainer: {
+      '&:hover .cf-panel-resource-link': {
+        opacity: 1,
+        pointerEvents: 'auto'
+      },
       '&[data-padding="false"]': {
         padding: 0
       },
       background: theme.palette.background.widget,
-      border: 'none',
+      border: `1px solid ${theme.palette.divider}`,
       borderRadius: theme.spacing(1),
       height: '100%',
+      position: 'relative',
       width: '100%'
     },
     widgetContent: {
       height: hasHeader
         ? `calc(100% - ${theme.spacing(3.5)} - ${theme.spacing(0.5)})`
-        : `calc(100% - ${theme.spacing(3.5)})`
+        : '100%'
     },
     widgetHeader: {
-      '&:hover': {
-        backgroundColor: theme.palette.action.hover
-      },
-      '&[data-can-move="false"]': {
-        cursor: 'default'
-      },
-      '&[data-can-move="true"]': {
-        cursor: 'move'
-      },
       padding: theme.spacing(0, 1.5),
       position: 'relative'
     },
-    widgetHeaderDraggable: {
-      height: '100%',
+    widgetHeaderCollapsed: {
+      height: 0,
+      overflow: 'hidden',
+      padding: 0
+    },
+    widgetOverlayActions: {
+      alignItems: 'center',
+      backgroundColor: theme.palette.background.paper,
+      borderRadius: theme.shape.borderRadius,
+      display: 'flex',
+      gap: theme.spacing(0.5),
+      opacity: 0,
+      position: 'relative',
+      transition: theme.transitions.create(['box-shadow', 'opacity'])
+    },
+    widgetOverlayCorner: {
+      '&:hover .cf-widget-drag-handle': {
+        opacity: 1,
+        pointerEvents: 'auto'
+      },
+      '&:hover .cf-widget-overlay-actions': {
+        boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.15)}`,
+        opacity: 1
+      },
+      '&:hover .cf-widget-overlay-info': {
+        opacity: 0,
+        pointerEvents: 'none'
+      },
       position: 'absolute',
-      width: '95%'
+      right: theme.spacing(1),
+      top: theme.spacing(1),
+      zIndex: 1
+    },
+    widgetOverlayDragHandle: {
+      alignItems: 'center',
+      color: theme.palette.text.secondary,
+      cursor: 'move',
+      display: 'flex',
+      justifyContent: 'center',
+      opacity: 0,
+      padding: theme.spacing(0.5),
+      pointerEvents: 'none',
+      transition: theme.transitions.create('opacity')
+    },
+    widgetOverlayInfo: {
+      alignItems: 'center',
+      display: 'flex',
+      inset: 0,
+      justifyContent: 'center',
+      position: 'absolute',
+      transition: theme.transitions.create('opacity')
     },
     widgetPadding: {
       overflowX: 'auto',

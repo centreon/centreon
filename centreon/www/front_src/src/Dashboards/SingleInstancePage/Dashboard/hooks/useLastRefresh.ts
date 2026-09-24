@@ -1,18 +1,17 @@
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { equals, gte } from 'ramda';
-import { useRef } from 'react';
+import { equals } from 'ramda';
+import { useEffect, useRef, useState } from 'react';
 
 interface UseLastRefreshState {
-  isLastRefreshMoreThanADay: boolean;
-  labelRefresh: string;
+  labelLastRefresh: string;
 }
 
 export const useLastRefresh = (isFetching: number): UseLastRefreshState => {
   const previousIsFetchingRef = useRef<number | null>(null);
-  const previousLastRefreshRef = useRef('');
-  const previousLastRefreshDateRef = useRef<number>(Date.now());
-  const { format } = useLocaleDateTimeFormat();
+  const lastRefreshDateRef = useRef<number>(Date.now());
+  const [, forceRender] = useState(0);
+  const { toHumanizedDuration } = useLocaleDateTimeFormat();
 
   const hasFetchStateChanged = !equals(
     isFetching,
@@ -20,25 +19,24 @@ export const useLastRefresh = (isFetching: number): UseLastRefreshState => {
   );
 
   if (isFetching && hasFetchStateChanged) {
-    previousLastRefreshDateRef.current = Date.now();
+    lastRefreshDateRef.current = Date.now();
   }
 
   previousIsFetchingRef.current = isFetching;
 
-  const now = Date.now();
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      forceRender((count) => count + 1);
+    }, 1000);
 
-  const isLastRefreshMoreThanADay = gte(
-    now - previousLastRefreshDateRef.current,
-    1_000 * 60 * 60 * 24
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const elapsedSeconds = Math.floor(
+    (Date.now() - lastRefreshDateRef.current) / 1000
   );
 
-  const newLastRefresh = format({
-    date: new Date(previousLastRefreshDateRef.current),
-    formatString: isLastRefreshMoreThanADay ? 'L LT' : 'LT'
-  });
-
   return {
-    isLastRefreshMoreThanADay,
-    labelRefresh: newLastRefresh || previousLastRefreshRef.current
+    labelLastRefresh: toHumanizedDuration(elapsedSeconds, 1)
   };
 };
