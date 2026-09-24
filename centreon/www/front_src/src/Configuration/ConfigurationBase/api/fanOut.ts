@@ -7,9 +7,6 @@ interface BulkResult {
 /**
  * Turns a selection into one request per row.
  *
- * Sequential on purpose: these writes contend on a shared row and deadlock
- * when they overlap.
- *
  * Returns what a bulk endpoint would, so `useBulkResponse` can name a partial
  * failure rather than reading nothing.
  */
@@ -17,20 +14,18 @@ const fanOut = async <TResponse>(
   ids: Array<number>,
   mutate: (id: number) => Promise<TResponse>
 ): Promise<BulkResult> => {
-  const results: BulkResult['results'] = [];
+  const responses = await Promise.all(ids.map((id) => mutate(id)));
 
-  for (const id of ids) {
-    const response = await mutate(id);
+  return {
+    results: responses.map((response, index) => {
+      const { isError, statusCode } = (response ?? {}) as ResponseError;
 
-    const { isError, statusCode } = (response ?? {}) as ResponseError;
-
-    results.push({
-      href: `/${id}`,
-      status: isError ? (statusCode ?? 500) : 204
-    });
-  }
-
-  return { results };
+      return {
+        href: `/${ids[index]}`,
+        status: isError ? (statusCode ?? 500) : 204
+      };
+    })
+  };
 };
 
 export default fanOut;

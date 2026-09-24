@@ -52,8 +52,11 @@ export default () => {
 
       cy.findByTestId('confirm').click();
 
+      // API Platform, not the legacy prefix — the same assertion the listing
+      // makes, since the two are not interchangeable.
       cy.waitForRequest('@deleteHost').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/configuration/hosts/0');
+        expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
+        expect(request.url.pathname).to.not.contain('/api/latest');
       });
 
       cy.makeSnapshot();
@@ -71,8 +74,9 @@ export default () => {
       // The route names the host and takes no body.
       cy.waitForRequest('@duplicateHost').then(({ request }) => {
         expect(request.url.pathname).to.contain(
-          '/configuration/hosts/0/_duplicate'
+          '/api/configuration/hosts/0/_duplicate'
         );
+        expect(request.url.pathname).to.not.contain('/api/latest');
       });
     });
 
@@ -100,6 +104,7 @@ export default () => {
       cy.findByTestId(`${labelEnableDisable}_0`).click();
 
       cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.body).to.deep.equal({ is_activated: false });
       });
     });

@@ -45,7 +45,8 @@ const api: APIType = {
   methods: {
     disable: Method.PATCH,
     enable: Method.PATCH
-  }
+  },
+  writeBaseEndpoint: hostsBaseEndpoint
 };
 
 const useHosts = (): UseHostsState => {
