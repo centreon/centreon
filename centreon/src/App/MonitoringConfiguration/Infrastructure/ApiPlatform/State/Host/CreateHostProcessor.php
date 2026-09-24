@@ -183,6 +183,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
             timezoneId: $data->timezoneId !== null ? new TimezoneId($data->timezoneId) : null,
             severityId: $data->severityId !== null ? new HostSeverityId($data->severityId) : null,
+            // Absent on Cloud, where linked services are always created.
+            deployServicesFromTemplates: $data->createServicesLinkedToTemplates ?? true,
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
         );

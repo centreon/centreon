@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
@@ -140,6 +141,16 @@ final readonly class CreateHostCommandHandler
         $this->repository->add($host);
 
         $this->eventBus->fire(new HostCreated($host, $command->creatorId));
+
+        if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
+
+            $this->eventBus->fire(new HostServicesDeploymentRequested(
+                $host->id(),
+
+                new UserId($command->creatorId),
+            ));
+
+        }
 
         return $host;
     }
