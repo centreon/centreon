@@ -13,8 +13,8 @@ export const hostTemplatesEndpoint = '/configuration/host_templates';
 export const hostGroupsEndpoint = '/configuration/host_groups';
 export const pollersEndpoint = '/configuration/pollers';
 
-export const getHostEndpoint = (params?: { id: number | string }): string =>
-  `/configuration/hosts/${params?.id}`;
+export const getHostEndpoint = ({ id }: { id: number | string }): string =>
+  `/configuration/hosts/${id}`;
 
 export const getDeployServicesEndpoint = ({
   id

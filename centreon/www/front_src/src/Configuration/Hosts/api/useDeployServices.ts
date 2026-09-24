@@ -1,13 +1,9 @@
-import {
-  Method,
-  type ResponseError,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { any, propEq } from 'ramda';
+import { any, complement, propEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import fanOut from '../../ConfigurationBase/api/fanOut';
 import type { ResourceRow } from '../../models';
 import {
   labelServiceDeploymentFailed,
@@ -20,7 +16,6 @@ interface UseDeployServicesState {
   isMutating: boolean;
 }
 
-// The endpoint takes one host, so a selection fans out into one request each.
 const useDeployServices = (): UseDeployServicesState => {
   const { t } = useTranslation();
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
@@ -37,14 +32,12 @@ const useDeployServices = (): UseDeployServicesState => {
   });
 
   const deployServices = (rows: Array<ResourceRow>): void => {
-    Promise.all(
-      rows.map(({ id }) =>
-        mutateAsync({ _meta: { id: id as number }, payload: {} })
-      )
+    fanOut(
+      rows.map(({ id }) => id as number),
+      (id) => mutateAsync({ _meta: { id }, payload: {} })
     )
-      .then((responses) => {
-        // `customFetch` resolves with an error shape rather than rejecting.
-        if (any(propEq(true, 'isError'), responses as Array<ResponseError>)) {
+      .then(({ results }) => {
+        if (any(complement(propEq(204, 'status')), results)) {
           showErrorMessage(t(labelServiceDeploymentFailed));
 
           return;

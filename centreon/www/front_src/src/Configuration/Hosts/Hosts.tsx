@@ -92,8 +92,8 @@ const Hosts = () => {
       filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
-      // Four filters, two of them autocompletes holding host group and template
-      // names, do not fit the default width.
+      // The default width fits neither five filters nor the names the
+      // autocompletes hold.
       filtersPanelWidth={60}
       form={{ defaultValues, groups, inputs, validationSchema }}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}

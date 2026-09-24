@@ -119,8 +119,8 @@ export interface Endpoints {
   deleteOne?: ({ id }: { id: number | string }) => string;
   delete?: string;
   duplicate?: string | (({ id }: { id: number | string }) => string);
-  enable?: (params?: { id: number | string }) => string;
-  disable?: (params?: { id: number | string }) => string;
+  enable?: (() => string) | ((params: { id: number | string }) => string);
+  disable?: (() => string) | ((params: { id: number | string }) => string);
   create?: string;
   update?: ({ id }: { id: number | string }) => string;
 }
