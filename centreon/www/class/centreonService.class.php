@@ -1839,11 +1839,14 @@ class CentreonService
     }
 
     /**
-     * @param $serviceId
-     * @param $hostId
+     * Get the monitored service full name: "<host> - <service>", or "Meta - <name>" for meta services.
+     * A name returned by a "Service/getMonitoringFullName" hook takes precedence.
+     *
+     * @param int|string $serviceId
+     * @param int|string|null $hostId
      *
      * @throws PDOException
-     * @return mixed|null
+     * @return string|null
      */
     public function getMonitoringFullName($serviceId, $hostId = null)
     {
@@ -1856,10 +1859,10 @@ class CentreonService
             }
         }
 
-        // Meta services are stored as "_Module_Meta / meta_<id>": use their display name instead
+        // Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
         $query = <<<'SQL'
             SELECT CASE
-                WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', s.display_name)
+                WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), s.description))
                 ELSE CONCAT(h.name, ' - ', s.description)
             END AS fullname
             FROM hosts h

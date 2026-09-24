@@ -43,10 +43,10 @@ if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
 // Get host and service name
 $serviceName = '';
 
-// Meta services are stored as "_Module_Meta / meta_<id>": use their display name instead
+// Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
 $query = <<<'SQL'
     SELECT CASE
-        WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', s.display_name)
+        WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), s.description))
         ELSE CONCAT(h.name, ' - ', s.description)
     END AS fullname
     FROM hosts h

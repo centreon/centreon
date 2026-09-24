@@ -112,7 +112,7 @@ if ($index !== false) {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $hName = $row['host_name'];
         $sName = $row['service_description'];
-        // Meta services are stored as "_Module_Meta / meta_<id>": use their display name instead
+        // Meta services use host "_Module_Meta" and description "meta_<id>": name the file after their display name
         if ($hName === '_Module_Meta' && ! empty($row['display_name'])) {
             $hName = 'Meta';
             $sName = $row['display_name'];

@@ -41,11 +41,11 @@ if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
 $metrics = [];
 
 // Get list metrics
-// Meta services are stored as "_Module_Meta / meta_<id>": use their display name instead
+// Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
 $query = <<<'SQL'
     SELECT m.metric_id, m.metric_name,
         CASE
-            WHEN i.host_name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(s.display_name, i.service_description))
+            WHEN i.host_name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), i.service_description))
             ELSE CONCAT(i.host_name, ' - ', i.service_description)
         END AS fullname
     FROM metrics m
