@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
@@ -1361,6 +1362,148 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->assertReferenceIsRejected('severity_id', $categoryId, login: false);
     }
 
+    public function testItCreatesAHostWithTemplatesAndRelatedHosts(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $firstTemplateId = $this->insertHostTemplate($this->uniqueName('generic'));
+        $secondTemplateId = $this->insertHostTemplate($this->uniqueName('linux'));
+        $parentId = $this->insertHost($this->uniqueName('router'), $pollerId);
+        $childId = $this->insertHost($this->uniqueName('vm'), $pollerId);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.50',
+                'poller_id' => $pollerId,
+                'template_ids' => [$secondTemplateId, $firstTemplateId, $secondTemplateId],
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$childId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        $payload = $response->toArray();
+        self::assertSame([$parentId], $this->idsOf($payload, 'parent_hosts'));
+        self::assertSame([$childId], $this->idsOf($payload, 'child_hosts'));
+        // Ordered as posted, and the repeat is dropped: host_template_relation's primary key is
+        // (host_host_id, host_tpl_id), so a duplicate would be an error rather than a second row.
+        self::assertSame([$secondTemplateId, $firstTemplateId], $this->idsOf($payload, 'templates'));
+
+        /** @var int $hostId */
+        $hostId = $payload['id'];
+
+        /** @var list<array{host_tpl_id: int|string, order: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_tpl_id, `order` FROM host_template_relation WHERE host_host_id = ? ORDER BY `order`',
+            [$hostId],
+        );
+        self::assertSame(
+            [[$secondTemplateId, 0], [$firstTemplateId, 1]],
+            array_map(static fn (array $row): array => [(int) $row['host_tpl_id'], (int) $row['order']], $rows),
+        );
+
+        // Written from both sides of the same table.
+        self::assertSame(
+            [$parentId],
+            $this->intColumn('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$childId],
+            $this->intColumn('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = ?', $hostId),
+        );
+    }
+
+    public function testItRejectsAnUnknownTemplate(): void
+    {
+        $this->assertReferenceIsRejected('template_ids', [999999]);
+    }
+
+    public function testItRejectsAnUnknownParentHost(): void
+    {
+        $this->assertReferenceIsRejected('parent_host_ids', [999999]);
+    }
+
+    public function testItRejectsAnUnknownChildHost(): void
+    {
+        $this->assertReferenceIsRejected('child_host_ids', [999999]);
+    }
+
+    /**
+     * A template has no poller and would corrupt the hierarchy, so it must not resolve as a host.
+     */
+    public function testItRejectsAHostTemplateUsedAsAParent(): void
+    {
+        $this->login();
+        $templateId = $this->insertHostTemplate($this->uniqueName('generic'));
+
+        $this->assertReferenceIsRejected('parent_host_ids', [$templateId], login: false);
+    }
+
+    public function testItRejectsAHostNamedAsBothParentAndChild(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $otherId = $this->insertHost($this->uniqueName('router'), $pollerId);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.51',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$otherId],
+                'child_host_ids' => [$otherId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAChildThatIsAnAncestorOfAParent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $ancestorId = $this->insertHost($this->uniqueName('core'), $pollerId);
+        $parentId = $this->insertHost($this->uniqueName('edge'), $pollerId);
+        $this->connection->insert('host_hostparent_relation', [
+            'host_parent_hp_id' => $ancestorId,
+            'host_host_id' => $parentId,
+        ]);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.52',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$ancestorId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @param array<mixed> $payload
+     *
+     * @return list<int>
+     */
+    private function idsOf(array $payload, string $key): array
+    {
+        /** @var list<array{id: int}> $items */
+        $items = $payload[$key];
+
+        return array_map(static fn (array $item): int => $item['id'], $items);
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     private function assertReferenceIsRejected(string $field, mixed $value, bool $login = true): void
     {
         if ($login) {
@@ -1463,6 +1606,10 @@ final class CreateHostProcessorTest extends ApiTestCase
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var HostTemplateRepository $hostTemplateRepository */
+        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
         /** @var HostCategoryRepository $hostCategoryRepository */
         $hostCategoryRepository = $container->get(HostCategoryRepository::class);
         /** @var HostSeverityRepository $hostSeverityRepository */
@@ -1479,9 +1626,11 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $pollerRepository,
                 $hostGroupRepository,
                 $commandRepository,
+                $hostTemplateRepository,
                 $hostCategoryRepository,
                 $hostSeverityRepository,
                 $timezoneRepository,
+                $hostRepository,
                 $mediaRepository,
                 $mediaUrlGenerator,
                 $timePeriodRepository,

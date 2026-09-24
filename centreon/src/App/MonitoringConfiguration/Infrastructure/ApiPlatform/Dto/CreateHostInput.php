@@ -44,7 +44,10 @@ final readonly class CreateHostInput
 
     /**
      * @param list<int> $hostGroupIds
+     * @param list<int> $templateIds
      * @param list<int> $categoryIds
+     * @param list<int> $parentHostIds
+     * @param list<int> $childHostIds
      */
     public function __construct(
         #[Assert\Sequentially([
@@ -107,8 +110,18 @@ final readonly class CreateHostInput
         #[Assert\Positive]
         public ?int $severityId = null,
 
+        #[ApiProperty(description: 'Ordered: the position of a template drives the inheritance order.')]
+        #[Assert\All([new Assert\Type('integer'), new Assert\Positive()])]
+        public array $templateIds = [],
+
         #[Assert\All([new Assert\Type('integer'), new Assert\Positive()])]
         public array $categoryIds = [],
+
+        #[Assert\All([new Assert\Type('integer'), new Assert\Positive()])]
+        public array $parentHostIds = [],
+
+        #[Assert\All([new Assert\Type('integer'), new Assert\Positive()])]
+        public array $childHostIds = [],
 
         #[Assert\Valid]
         public ?DataProcessingInput $dataProcessing = null,
