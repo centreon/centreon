@@ -39,7 +39,7 @@ final readonly class MediaTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): Media
+    public function transform(mixed $from, array $extraData = []): Media
     {
         return new Media(
             id: new MediaId($from['id']),

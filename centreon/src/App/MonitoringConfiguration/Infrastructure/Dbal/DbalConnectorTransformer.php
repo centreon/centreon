@@ -37,7 +37,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalConnectorTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): Connector
+    public function transform(mixed $from, array $extraData = []): Connector
     {
         return new Connector(
             id: new ConnectorId($from['c_id']),

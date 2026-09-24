@@ -27,7 +27,6 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
-use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider;
 
 #[GetCollection(
@@ -84,32 +83,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
         ],
     ),
 )]
-final class ListCommandResource
+final readonly class ListCommandResource
 {
-    #[ApiProperty(
-        description: 'Number of hosts using this command',
-        openapiContext: ['example' => 10],
-    )]
-    public int $usedHostsCount;
-
-    #[ApiProperty(
-        description: 'Number of host templates using this command',
-        openapiContext: ['example' => 100],
-    )]
-    public int $usedHostTemplatesCount;
-
-    #[ApiProperty(
-        description: 'Number of services using this command',
-        openapiContext: ['example' => 5],
-    )]
-    public int $usedServicesCount;
-
-    #[ApiProperty(
-        description: 'Number of service templates using this command',
-        openapiContext: ['example' => 50],
-    )]
-    public int $usedServiceTemplatesCount;
-
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
@@ -149,14 +124,30 @@ final class ListCommandResource
             description: 'Indicates whether the command comes from a monitoring connector',
         )]
         public bool $isFromMonitoringConnector,
-    ) {
-    }
 
-    public function hydrateLinkedResourceCount(CommandResourceCount $commandResourceCount): void
-    {
-        $this->usedHostsCount = $commandResourceCount->usedHosts;
-        $this->usedHostTemplatesCount = $commandResourceCount->usedHostTemplates;
-        $this->usedServicesCount = $commandResourceCount->usedServices;
-        $this->usedServiceTemplatesCount = $commandResourceCount->usedServiceTemplates;
+        #[ApiProperty(
+            description: 'Number of hosts using this command',
+            openapiContext: ['example' => 10],
+        )]
+        public int $usedHostsCount,
+
+        #[ApiProperty(
+            description: 'Number of host templates using this command',
+            openapiContext: ['example' => 100],
+        )]
+        public int $usedHostTemplatesCount,
+
+        #[ApiProperty(
+            description: 'Number of services using this command',
+            openapiContext: ['example' => 5],
+        )]
+        public int $usedServicesCount,
+
+        #[ApiProperty(
+            description: 'Number of service templates using this command',
+            openapiContext: ['example' => 50],
+        )]
+        public int $usedServiceTemplatesCount,
+    ) {
     }
 }

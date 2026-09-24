@@ -38,7 +38,7 @@ final readonly class HostSeverityTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): HostSeverity
+    public function transform(mixed $from, array $extraData = []): HostSeverity
     {
         return new HostSeverity(
             id: new HostSeverityId($from['hc_id']),

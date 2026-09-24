@@ -41,7 +41,7 @@ final readonly class DbalCommandTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): Command
+    public function transform(mixed $from, array $extraData = []): Command
     {
         return new Command(
             id: new CommandId($from['cm_command_id']),

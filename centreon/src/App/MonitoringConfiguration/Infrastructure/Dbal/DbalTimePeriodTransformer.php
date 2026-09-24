@@ -38,7 +38,7 @@ final readonly class DbalTimePeriodTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): TimePeriod
+    public function transform(mixed $from, array $extraData = []): TimePeriod
     {
         return new TimePeriod(
             id: new TimePeriodId($from['tp_id']),

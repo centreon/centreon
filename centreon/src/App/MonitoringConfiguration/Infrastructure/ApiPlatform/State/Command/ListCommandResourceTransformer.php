@@ -24,16 +24,26 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use App\Shared\Infrastructure\TransformerInterface;
+use Webmozart\Assert\Assert;
 
 /**
- * @implements TransformerInterface<Command, ListCommandResource>
+ * Takes the linked resource count already resolved for the whole page: see
+ * {@see ListCommandResourceListTransformer}.
+ *
+ * @phpstan-type ExtraDataTypeAlias array{linkedResourceCount?: CommandResourceCount}
+ *
+ * @implements TransformerInterface<Command, ListCommandResource, ExtraDataTypeAlias>
  */
-final readonly class ResourceListCommandTransformer implements TransformerInterface
+final readonly class ListCommandResourceTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ListCommandResource
+    public function transform(mixed $from, array $extraData = []): ListCommandResource
     {
+        Assert::keyExists($extraData, 'linkedResourceCount');
+        $count = $extraData['linkedResourceCount'];
+
         return new ListCommandResource(
             id: $from->id()->value,
             name: $from->name->value,
@@ -41,6 +51,10 @@ final readonly class ResourceListCommandTransformer implements TransformerInterf
             commandLine: $from->commandLine->value,
             isActivated: $from->isActivated ?? false,
             isFromMonitoringConnector: $from->isFromMonitoringConnector,
+            usedHostsCount: $count->usedHosts,
+            usedHostTemplatesCount: $count->usedHostTemplates,
+            usedServicesCount: $count->usedServices,
+            usedServiceTemplatesCount: $count->usedServiceTemplates,
         );
     }
 }

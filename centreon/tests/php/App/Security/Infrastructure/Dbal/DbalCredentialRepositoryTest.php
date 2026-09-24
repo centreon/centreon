@@ -35,6 +35,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
+ * @phpstan-import-type ExtraDataTypeAlias from DbalCredentialRepository
  */
 final class DbalCredentialRepositoryTest extends KernelTestCase
 {
@@ -123,7 +124,7 @@ final class DbalCredentialRepositoryTest extends KernelTestCase
      */
     private function repositoryFor(bool $isCloudPlatform): DbalCredentialRepository
     {
-        /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
+        /** @var TransformerInterface<RowTypeAlias, Credential, ExtraDataTypeAlias> $transformer */
         $transformer = self::getContainer()->get(DbalCredentialTransformer::class);
 
         return new DbalCredentialRepository(

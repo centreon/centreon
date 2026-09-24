@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class HostGroupChoicesTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): HostGroupChoicesOutput
+    public function transform(mixed $from, array $extraData = []): HostGroupChoicesOutput
     {
         return new HostGroupChoicesOutput(
             id: $from->id()->value,

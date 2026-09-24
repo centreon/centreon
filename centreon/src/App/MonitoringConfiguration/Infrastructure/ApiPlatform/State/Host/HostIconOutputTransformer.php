@@ -21,28 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Media\MediaResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @implements TransformerInterface<Media, MediaResource>
+ * @implements TransformerInterface<Media, HostIconOutput>
  */
-final readonly class MediaResourceTransformer implements TransformerInterface
+final readonly class HostIconOutputTransformer implements TransformerInterface
 {
     public function __construct(
-        private MediaUrlGenerator $urlGenerator,
+        private MediaUrlGenerator $mediaUrlGenerator,
     ) {
     }
 
-    public function transform(mixed $from, array $extraData = []): MediaResource
+    public function transform(mixed $from, array $extraData = []): HostIconOutput
     {
-        return new MediaResource(
-            id: $from->id()->value,
-            name: $from->name->value,
-            url: $this->urlGenerator->generate($from),
-        );
+        return new HostIconOutput($from->id()->value, $from->name->value, $this->mediaUrlGenerator->generate($from));
     }
 }
