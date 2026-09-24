@@ -15,14 +15,18 @@ const About = (): ReactElement => {
   const platformVersion = useAtomValue(platformVersionsAtom);
 
   return (
-    <div className="px-4">
+    <div className="px-4" id="about-page">
       <div className="rounded border border-divider bg-background-paper">
         <Hero version={platformVersion?.web.version} />
         <div className="px-8 py-1">
-          <Row label={labelProjectAndContributors} withTopDivider={false}>
+          <Row
+            id="about-project-and-contributors"
+            label={labelProjectAndContributors}
+            withTopDivider={false}
+          >
             <Credits />
           </Row>
-          <Row label={labelSecurity}>
+          <Row id="about-security" label={labelSecurity}>
             <SecurityNotice />
           </Row>
           <ResourcesGrid />
