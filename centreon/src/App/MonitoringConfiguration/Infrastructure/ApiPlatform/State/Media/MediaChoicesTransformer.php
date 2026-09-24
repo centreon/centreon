@@ -21,20 +21,28 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Media\MediaChoicesOutput;
+use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @extends AggregateRoot<ContactGroupId>
+ * @implements TransformerInterface<Media, MediaChoicesOutput>
  */
-final class ContactGroup extends AggregateRoot
+final readonly class MediaChoicesTransformer implements TransformerInterface
 {
     public function __construct(
-        ContactGroupId $id,
-        public readonly ContactGroupName $name,
-        public readonly ContactGroupTypeEnum $type = ContactGroupTypeEnum::Local,
+        private MediaUrlGenerator $urlGenerator,
     ) {
-        parent::__construct($id);
+    }
+
+    public function transform(mixed $from): MediaChoicesOutput
+    {
+        return new MediaChoicesOutput(
+            id: $from->id()->value,
+            name: $from->name->value,
+            url: $this->urlGenerator->generate($from),
+        );
     }
 }

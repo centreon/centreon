@@ -21,20 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
+use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @extends AggregateRoot<ContactGroupId>
+ * @implements TransformerInterface<Poller, PollerChoicesOutput>
  */
-final class ContactGroup extends AggregateRoot
+final readonly class PollerChoicesTransformer implements TransformerInterface
 {
-    public function __construct(
-        ContactGroupId $id,
-        public readonly ContactGroupName $name,
-        public readonly ContactGroupTypeEnum $type = ContactGroupTypeEnum::Local,
-    ) {
-        parent::__construct($id);
+    public function transform(mixed $from): PollerChoicesOutput
+    {
+        return new PollerChoicesOutput(
+            id: $from->id()->value,
+            name: $from->name->value,
+        );
     }
 }

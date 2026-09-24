@@ -21,20 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateChoicesOutput;
+use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @extends AggregateRoot<ContactGroupId>
+ * @implements TransformerInterface<HostTemplate, HostTemplateChoicesOutput>
  */
-final class ContactGroup extends AggregateRoot
+final readonly class HostTemplateChoicesTransformer implements TransformerInterface
 {
-    public function __construct(
-        ContactGroupId $id,
-        public readonly ContactGroupName $name,
-        public readonly ContactGroupTypeEnum $type = ContactGroupTypeEnum::Local,
-    ) {
-        parent::__construct($id);
+    public function transform(mixed $from): HostTemplateChoicesOutput
+    {
+        return new HostTemplateChoicesOutput(
+            id: $from->id()->value,
+            name: $from->name->value,
+        );
     }
 }
