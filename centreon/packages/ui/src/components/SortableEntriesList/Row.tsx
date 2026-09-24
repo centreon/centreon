@@ -83,19 +83,16 @@ export const Row = <T,>({
         {renderRow({ ...rowParams, setField, setValue })}
       </div>
       <div className="flex flex-none items-center gap-0.5">
-        {actions.map(
-          ({ className, icon, id: actionId, isDisabled, label, onClick }) => (
-            <RowButton
-              className={className}
-              data-testid={actionId}
-              disabled={isDisabled}
-              icon={icon}
-              key={actionId}
-              label={t(label)}
-              onClick={onClick}
-            />
-          )
-        )}
+        {actions.map(({ icon, id: actionId, isDisabled, label, onClick }) => (
+          <RowButton
+            data-testid={actionId}
+            disabled={isDisabled}
+            icon={icon}
+            key={actionId}
+            label={t(label)}
+            onClick={onClick}
+          />
+        ))}
         <RowButton
           className="text-error-main"
           data-testid="delete-row"

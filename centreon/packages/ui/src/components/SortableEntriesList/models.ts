@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react';
 
 export interface SortableRowAction {
-  /** Tailwind classes for the button, e.g. `text-primary-main`. */
-  className?: string;
   icon: ReactElement;
   id: string;
   isDisabled?: boolean;
