@@ -70,6 +70,31 @@ final class HostMacroInheritanceResolverTest extends TestCase
         self::assertSame([$submitted], $this->resolver->keepOverridesOnly([$submitted], [$inherited]));
     }
 
+    public function testItKeepsAMacroWhenOnlyTheDescriptionDiffers(): void
+    {
+        $submitted = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'edited');
+        $inherited = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'from template');
+
+        self::assertSame([$submitted], $this->resolver->keepOverridesOnly([$submitted], [$inherited]));
+    }
+
+    public function testItDropsAMacroWhenTheDescriptionAlsoMatches(): void
+    {
+        $submitted = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'same');
+        $inherited = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'same');
+
+        self::assertSame([], $this->resolver->keepOverridesOnly([$submitted], [$inherited]));
+    }
+
+    public function testItTreatsAMissingDescriptionAndAnEmptyOneAsEqual(): void
+    {
+        // The column stores '' for a missing description, so null and '' must not look like an override.
+        $submitted = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: '');
+        $inherited = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: null);
+
+        self::assertSame([], $this->resolver->keepOverridesOnly([$submitted], [$inherited]));
+    }
+
     public function testItReindexesTheKeptMacrosAsAList(): void
     {
         $dropped = new HostMacro(new HostMacroName('a'), 'x', isPassword: false);

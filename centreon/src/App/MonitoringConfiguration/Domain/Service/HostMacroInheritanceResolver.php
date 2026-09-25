@@ -27,10 +27,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 
 /**
  * Keeps only the macros a host genuinely overrides or owns, dropping those that merely repeat an
- * inherited definition — mirroring legacy CentreonHost::hasMacroFromHostChanged(): a submitted
- * macro is discarded when its name, value and password flag are all identical to a macro inherited
- * from the host's template chain or its check command, so the host relies on inheritance at runtime
- * instead of storing a redundant copy.
+ * inherited definition — close to legacy CentreonHost::hasMacroFromHostChanged(): a submitted macro
+ * is discarded when it is identical to a macro inherited from the host's template chain or its check
+ * command, so the host relies on inheritance at runtime instead of storing a redundant copy.
+ *
+ * Unlike legacy, which compares only name/value/password, the description is part of the comparison
+ * so a host can override just an inherited macro's description.
  *
  * Names are matched through HostMacroName's normalized (upper-cased) value.
  */
@@ -55,10 +57,14 @@ final readonly class HostMacroInheritanceResolver
             static function (HostMacro $macro) use ($inheritedByName): bool {
                 $inheritedMacro = $inheritedByName[$macro->name->value] ?? null;
 
-                // Own macro (nothing to inherit from) → keep; otherwise keep only if it differs.
+                // Own macro (nothing to inherit from) → keep; otherwise keep only if it differs. Unlike
+                // legacy (hasMacroFromHostChanged compares name/value/password only), the description is
+                // part of the comparison so a description-only override is persisted rather than lost.
+                // Missing descriptions are normalized to '' since the column stores '' for none.
                 return $inheritedMacro === null
                     || $inheritedMacro->value !== $macro->value
-                    || $inheritedMacro->isPassword !== $macro->isPassword;
+                    || $inheritedMacro->isPassword !== $macro->isPassword
+                    || ($inheritedMacro->description ?? '') !== ($macro->description ?? '');
             },
         ));
     }

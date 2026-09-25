@@ -150,13 +150,15 @@ final readonly class DbalInheritedHostMacroRepository implements InheritedHostMa
         }
 
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('host_host_id', 'host_macro_name', 'host_macro_value', 'is_password')
+        // description is loaded so an override that only changes the description can be told apart from
+        // a pure duplicate (see HostMacroInheritanceResolver::keepOverridesOnly).
+        $qb->select('host_host_id', 'host_macro_name', 'host_macro_value', 'is_password', 'description')
             ->from('on_demand_macro_host')
             ->where($qb->expr()->in('host_host_id', ':ownerIds'))
             ->setParameter('ownerIds', $ownerIds, ArrayParameterType::INTEGER)
             ->orderBy('macro_order');
 
-        /** @var array<array{host_host_id: int, host_macro_name: string, host_macro_value: ?string, is_password: ?string}> $rows */
+        /** @var array<array{host_host_id: int, host_macro_name: string, host_macro_value: ?string, is_password: ?string, description: ?string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         $byOwner = [];
@@ -170,6 +172,7 @@ final readonly class DbalInheritedHostMacroRepository implements InheritedHostMa
                 new HostMacroName($shortName),
                 (string) $row['host_macro_value'],
                 isPassword: (bool) (int) ($row['is_password'] ?? 0),
+                description: $row['description'] ?? null,
             );
         }
 
