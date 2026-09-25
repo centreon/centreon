@@ -1800,12 +1800,14 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    public function testItRejectsAnInvalidMacroName(): void
+    public function testItAcceptsAMacroNameWithLegacyPermissiveCharacters(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
 
-        $this->request('POST', self::BASE_ENDPOINT, [
+        // Legacy imposes no character-set rule on macro names (only upper-cases and stores them), so a
+        // name with spaces or symbols must be accepted and stored upper-cased, not rejected.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
             'json' => [
                 'name' => $this->uniqueName('server'),
                 'address' => '10.0.0.33',
@@ -1814,7 +1816,11 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['BAD NAME!'], $names);
     }
 
     public function testItRejectsAMacroValueExceedingMaxLength(): void
