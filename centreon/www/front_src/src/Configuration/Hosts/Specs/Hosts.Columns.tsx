@@ -62,6 +62,13 @@ export default () => {
       cy.findByTestId('host-template-link_6')
         .should('have.text', 'generic-passive-host')
         .and('have.attr', 'href', '/main.php?p=60103&o=c&host_id=6');
+
+      // The separator is only in the rendered text, so an image is the only
+      // other thing that would catch it changing — and it is small enough to
+      // pass the snapshot threshold unnoticed.
+      cy.contains('host 0')
+        .closest('[role="row"]')
+        .should('contain.text', 'generic-active-host | generic-passive-host');
     });
 
     it('leaves the templates cell empty when the host inherits from none', () => {

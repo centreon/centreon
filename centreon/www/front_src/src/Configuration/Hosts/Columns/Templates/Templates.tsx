@@ -32,7 +32,7 @@ const Templates = ({ row }: ComponentColumnProps): JSX.Element | null => {
             >
               {name}
             </Link>
-            {index < templates.length - 1 && ','}
+            {index < templates.length - 1 && ' | '}
           </span>
         ))}
       </div>
