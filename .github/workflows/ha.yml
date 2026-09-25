@@ -117,31 +117,6 @@ jobs:
           php_version: ${{ needs.get-environment.outputs.php_version }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
-  deliver-sources:
-    runs-on: centreon-common
-    needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability == 'stable' &&
-      github.event_name != 'workflow_dispatch' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Deliver sources
-        uses: ./.github/actions/release-sources
-        with:
-          bucket_directory: centreon-ha
-          module_directory: centreon-ha
-          module_name: centreon-ha
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-
   deliver:
     needs: [get-environment, changes, package]
     if: |

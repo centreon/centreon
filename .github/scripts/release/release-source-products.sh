@@ -17,4 +17,4 @@ SOURCE_BUCKET_DIRECTORY[centreon-dsm]="centreon-dsm"
 SOURCE_BUCKET_DIRECTORY[centreon-open-tickets]="centreon-open-tickets"
 
 # centreon-ha is deliberately absent: product management and support confirmed its sources are not
-# meant to be distributed, even though ha.yml still carries a deliver-sources job that uploads one.
+# meant to be distributed, so ha.yml no longer builds or uploads a tarball at all.
