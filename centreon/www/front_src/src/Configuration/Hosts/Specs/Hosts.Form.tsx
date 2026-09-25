@@ -36,6 +36,13 @@ export default () => {
         'be.visible'
       );
       cy.get('[data-testid="Modal"]').should('not.exist');
+
+      // Naming the action proves the panel opened for this click, and not
+      // because an earlier test left one open.
+      cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
+        'have.text',
+        'Add a host'
+      );
     });
   });
 };

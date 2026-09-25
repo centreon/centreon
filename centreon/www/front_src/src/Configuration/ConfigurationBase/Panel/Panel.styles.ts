@@ -9,9 +9,9 @@ export const usePanelStyles = makeStyles()((theme) => ({
     // grey for the header band above it.
     backgroundColor: theme.palette.background.paper,
     // 12px in the mock, and only on the corners that are actually visible:
-    // the panel is flush to the right and the bottom of the page.
-    borderBottomRightRadius: 0,
-    borderRadius: theme.spacing(1.5),
-    borderTopRightRadius: 0
+    // the panel is flush to the right and the bottom of the page. One
+    // shorthand, because a longhand next to it loses to whichever emotion
+    // serializes last.
+    borderRadius: theme.spacing(1.5, 0, 0, 1.5)
   }
 }));

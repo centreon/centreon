@@ -29,7 +29,7 @@ const PanelLayout = ({
 }: Props): JSX.Element => {
   const theme = useTheme();
 
-  const { isOpen } = useAtomValue(formStateAtom);
+  const { id, isOpen } = useAtomValue(formStateAtom);
 
   // The module sets where the panel starts; the user may then drag it wider.
   const [requestedWidth, setRequestedWidth] = useState(width);
@@ -59,7 +59,10 @@ const PanelLayout = ({
         >
           <Panel
             form={form}
+            // Switching resources starts the panel over: remounting drops the
+            // detail payload the shared query hook keeps latched.
             hasWriteAccess={hasWriteAccess}
+            key={id}
             onResize={setRequestedWidth}
             width={panelWidth}
           />

@@ -6,7 +6,12 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { configurationAtom, formStateAtom } from '../atoms';
+import {
+  configurationAtom,
+  formStateAtom,
+  isCloseConfirmationDialogOpenAtom,
+  isFormDirtyAtom
+} from '../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -39,7 +44,11 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     selectedColumnIdsAtom
   );
 
-  const setFormState = useSetAtom(formStateAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
+  const isFormDirty = useAtomValue(isFormDirtyAtom);
+  const setIsCloseConfirmationDialogOpen = useSetAtom(
+    isCloseConfirmationDialogOpenAtom
+  );
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -69,6 +78,17 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   };
 
   const openEditForm = (row) => {
+    // A panel has no backdrop, so the listing stays clickable while a form is
+    // open. Switching to another resource would drop unsaved edits silently.
+    const leavesEditsBehind =
+      formState.isOpen && isFormDirty && formState.id !== row.id;
+
+    if (leavesEditsBehind) {
+      setIsCloseConfirmationDialogOpen(true);
+
+      return;
+    }
+
     setSearchParams({ id: row.id, mode: 'edit' });
 
     setFormState({

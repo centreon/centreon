@@ -1,5 +1,5 @@
 import { panelDataTestIds } from '../Panel/dataTestIds';
-import { labelClose } from '../translatedLabels';
+import { labelClose, labelDelete, labelMoreActions } from '../translatedLabels';
 import initialize, {
   mockActionsRequests,
   mockModalRequests
@@ -125,6 +125,14 @@ export default (resourceType, { hasSnapshots }: Options): void => {
               expect(save.getBoundingClientRect().right).to.be.at.most(
                 window.innerWidth
               );
+            }
+          );
+
+          // Narrower than it asked for: the clamp fired, rather than 720px
+          // happening to fit.
+          cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
+            ([panel]) => {
+              expect(panel.getBoundingClientRect().width).to.be.lessThan(720);
             }
           );
         });
@@ -282,6 +290,46 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         });
       });
 
+      it('follows the listing when another row is clicked', () => {
+        mount();
+
+        openForEdition();
+
+        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
+          'have.text',
+          resourceName
+        );
+
+        // Only row 1 has a detail response. A panel naming the resource it no
+        // longer holds is how an action ends up aimed at the wrong one.
+        const otherResource = `${resourceType.replace(' ', '_')} 3`;
+
+        cy.contains(otherResource).click();
+
+        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
+          'have.text',
+          otherResource
+        );
+      });
+
+      it('asks before another row takes the panel away from unsaved edits', () => {
+        mount();
+
+        openForEdition();
+
+        cy.findAllByTestId('Name').eq(1).clear().type('edited');
+
+        cy.contains(`${resourceType.replace(' ', '_')} 3`).click();
+
+        cy.get('[role="dialog"]').should('be.visible');
+
+        // Still the resource that holds the edits.
+        cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
+          'have.text',
+          resourceName
+        );
+      });
+
       it('closes the panel and clears the URL when the open resource is deleted', () => {
         mount();
 
@@ -290,6 +338,10 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         cy.location('search').should('contain', 'id=1');
 
         cy.get(`button[data-testid="${panelDataTestIds.delete}"]`).click();
+
+        // Scoped to the dialog: the listing row behind it carries the same
+        // text, so an unscoped assertion would pass on an empty name.
+        cy.get('[role="dialog"]').contains(resourceName).should('be.visible');
 
         cy.findByTestId('confirm').click();
 
@@ -301,6 +353,27 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         // A URL still naming the resource would open the panel on it again.
         cy.location('search').should('eq', '');
+      });
+
+      it('stays open when a delete does not name the resource it holds', () => {
+        mount();
+
+        openForEdition();
+
+        // Rows are labelled by id, and only activated rows are selectable.
+        cy.findByLabelText('Select row 3').click();
+        cy.findByLabelText('Select row 5').click();
+
+        cy.findAllByTestId(labelMoreActions).eq(0).click();
+        cy.findAllByTestId(labelDelete).eq(0).click();
+        cy.findByTestId('confirm').click();
+
+        cy.waitForRequest('@delete');
+
+        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
+          'be.visible'
+        );
+        cy.location('search').should('contain', 'id=1');
       });
 
       it('closes the panel when the close button is clicked', () => {
@@ -356,9 +429,42 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.waitForRequest('@getAll');
 
+        // The listing still works: the URL is ignored, not the page.
+        cy.contains(resourceName).should('be.visible');
+
         cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
           'not.exist'
         );
+      });
+
+      it('opens a read-only panel for a module offering details without edition', () => {
+        mount({
+          actions: {
+            delete: () => false,
+            duplicate: () => false,
+            edit: false,
+            enableDisable: () => false,
+            viewDetails: true
+          },
+          searchParams: '?mode=edit&id=1'
+        });
+
+        cy.waitForRequest('@getDetails');
+
+        cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
+          'be.visible'
+        );
+
+        // Nothing that writes, on a surface opened without write access.
+        [
+          panelDataTestIds.save,
+          panelDataTestIds.reset,
+          panelDataTestIds.duplicate,
+          panelDataTestIds.delete,
+          panelDataTestIds.enable
+        ].forEach((dataTestId) => {
+          cy.get(`[data-testid="${dataTestId}"]`).should('not.exist');
+        });
       });
     });
   });

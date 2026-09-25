@@ -1,4 +1,5 @@
-import { useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
+import { equals } from 'ramda';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -14,7 +15,7 @@ interface Props {
 const useSyncFormStateWithUrl = ({ hasFormAccess }: Props): void => {
   const [searchParams] = useSearchParams();
 
-  const setFormState = useSetAtom(formStateAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
 
   useEffect(() => {
     const mode = searchParams.get('mode');
@@ -24,13 +25,26 @@ const useSyncFormStateWithUrl = ({ hasFormAccess }: Props): void => {
       return;
     }
 
+    const urlId = id ? Number(id) : null;
+
+    // Opening the form writes the URL, which fires this effect right back:
+    // re-setting the state here would drop the row the listing handed over.
+    const describesTheOpenForm =
+      formState.isOpen &&
+      equals(formState.mode, mode) &&
+      equals(formState.id, urlId);
+
+    if (describesTheOpenForm) {
+      return;
+    }
+
     setFormState({
-      id: id ? Number(id) : null,
+      id: urlId,
       isOpen: true,
       mode: mode as 'add' | 'edit',
       resource: null
     });
-  }, [searchParams, setFormState, hasFormAccess]);
+  }, [searchParams, setFormState, hasFormAccess, formState]);
 };
 
 export default useSyncFormStateWithUrl;

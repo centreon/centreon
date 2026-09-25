@@ -67,9 +67,15 @@ const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
 
   const isEditMode = equals(mode, 'edit');
 
-  // The listing row carries name and state before the detail endpoint answers,
-  // and a deep link carries neither; what is loaded wins over what was listed.
-  const resource = { ...openedResource, ...loadedResource };
+  // The row the panel was opened from is the only source guaranteed to
+  // describe the open id: `useFetchQuery` keeps the last payload it loaded, so
+  // a detail response can still be the previously opened resource. Merging the
+  // two would let an action carry one resource's id under another's name, and
+  // the delete confirmation names what it is about to delete. So the actions
+  // take the row when there is one, and the loaded detail only otherwise.
+  const resource = (openedResource ?? loadedResource) as
+    | Record<string, unknown>
+    | undefined;
 
   const row = { ...resource, id } as ResourceRow;
 

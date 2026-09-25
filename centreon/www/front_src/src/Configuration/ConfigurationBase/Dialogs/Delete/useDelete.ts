@@ -21,7 +21,7 @@ import {
   propEq,
   split
 } from 'ramda';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
@@ -62,6 +62,11 @@ const useDelete = (): UseDeleteState => {
 
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const [formState, setFormState] = useAtom(formStateAtom);
+
+  // The close runs once the request resolves, by which time the form may hold
+  // another resource than the one this handler was built with.
+  const formStateRef = useRef(formState);
+  formStateRef.current = formState;
   const configuration = useAtomValue(configurationAtom);
 
   const name = truncate({ content: resourcesToDelete[0]?.name, maxLength: 40 });
@@ -94,14 +99,15 @@ const useDelete = (): UseDeleteState => {
   // void, and a URL still naming it would open it again on the next visit.
   // A resource whose own deletion was refused still exists, so its form stays.
   const closeFormOnDeletedResource = (failedIds: Array<number> = []): void => {
-    const { id, isOpen } = formState;
+    const currentFormState = formStateRef.current;
+    const { id, isOpen } = currentFormState;
 
     if (!isOpen || !ids.includes(id) || failedIds.includes(id)) {
       return;
     }
 
     setSearchParams({});
-    setFormState({ ...formState, id: null, isOpen: false });
+    setFormState({ ...currentFormState, id: null, isOpen: false });
   };
 
   const { deleteMutation, isMutating } = useDeleteRequest();
