@@ -1089,18 +1089,20 @@ class Automatic
      */
     protected function getHostTicket($params, $macroName)
     {
-        $stmt = $this->dbCentstorage->prepare(
-            'SELECT mot.ticket_value AS ticket_id
-            FROM hosts h
-            LEFT JOIN customvariables cv ON (h.host_id = cv.host_id
-            AND (cv.service_id IS NULL or cv.service_id = 0)
-            AND cv.name = :macro_name)
-            LEFT JOIN mod_open_tickets mot ON (
-                cv.value = mot.ticket_value
-                OR cv.value = CONCAT("raw::", mot.ticket_value)
-            )
-            WHERE h.host_id = :host_id'
-        );
+        $query = <<<'SQL'
+                SELECT mot.ticket_value AS ticket_id
+                FROM hosts h
+                LEFT JOIN customvariables cv ON (h.host_id = cv.host_id
+                AND (cv.service_id IS NULL or cv.service_id = 0)
+                AND cv.name = :macro_name)
+                LEFT JOIN mod_open_tickets mot ON
+                    mot.ticket_value = CASE
+                        WHEN cv.value LIKE 'raw::%' THEN SUBSTRING(cv.value, 6)
+                        ELSE cv.value
+                    END
+                WHERE h.host_id = :host_id
+            SQL;
+        $stmt = $this->dbCentstorage->prepare($query);
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
         $stmt->bindParam(':host_id', $params['host_id'], PDO::PARAM_INT);
         $stmt->execute();
@@ -1122,10 +1124,11 @@ class Automatic
         $query = <<<'SQL'
                 SELECT mot.ticket_value AS ticket_id
                 FROM customvariables cv
-                LEFT JOIN mod_open_tickets mot ON (
-                    cv.value = mot.ticket_value
-                    OR cv.value = CONCAT('raw::', mot.ticket_value)
-                )
+                LEFT JOIN mod_open_tickets mot ON 
+                    mot.ticket_value = CASE
+                        WHEN cv.value LIKE 'raw::%' THEN SUBSTRING(cv.value, 6)
+                        ELSE cv.value
+                    END
                 WHERE cv.service_id = :service_id
                     AND cv.host_id = :host_id
                     AND cv.name = :macro_name
