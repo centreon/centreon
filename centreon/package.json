@@ -121,7 +121,7 @@
     "@visx/shape": "^3.12.0",
     "@visx/threshold": "^3.12.0",
     "@visx/visx": "3.12.0",
-    "axios": "1.18.0",
+    "axios": "1.18.1",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "d3-array": "3.2.4",
