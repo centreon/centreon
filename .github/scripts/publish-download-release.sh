@@ -486,8 +486,9 @@ validate_catalog() {
 # The validator is the target repository's own code. It runs from a sibling directory, so it can
 # still reach this tree; pin what we wrote and re-check it before staging, so a rewrite between
 # validation and commit cannot reach the pull request.
-tree_manifest="$WORKDIR/tree.sha256"
-( cd "$repo_dir" && sha256sum "${written_files[@]:-}" ${AGENT_VERSION:+"$catalog_rel"} ) > "$tree_manifest"
+# Held in a variable, not a file: WORKDIR is the validator's own parent directory, so a manifest
+# written there could be rewritten to match a tampered tree. Process memory it cannot reach.
+tree_manifest="$( cd "$repo_dir" && sha256sum "${written_files[@]:-}" ${AGENT_VERSION:+"$catalog_rel"} )"
 
 log "→ running pnpm validate"
 validate_out="$WORKDIR/validate.log"
@@ -544,7 +545,7 @@ if [[ "$branch_exists" != "true" ]]; then
   authed_git checkout --quiet -b "$BRANCH"
 fi
 # anything different here was changed after it was validated
-sha256sum --quiet -c "$tree_manifest" \
+printf '%s\n' "$tree_manifest" | sha256sum --quiet -c - \
   || die "the files staged for commit changed after validation; refusing to publish them"
 
 git add "${written_files[@]:-}"
