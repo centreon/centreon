@@ -138,9 +138,16 @@ final readonly class CreateHostCommandHandler
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
 
+        // Vault the SNMP community first so its entry's UUID can be reused for the password macros:
+        // legacy keeps all of a host's secrets (SNMP community + password macros) under a single vault
+        // entry. When there is no community (or the vault is off) the UUID is null and the macros mint
+        // their own shared entry instead.
+        $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
+        $vaultUuid = $snmpCommunity instanceof SnmpCommunity ? $this->extractVaultUuid($snmpCommunity->value) : null;
+
         // Resolve inherited macros from the requested templates and the check command together, so a
         // submitted macro that merely duplicates an inherited one is dropped (keepOverridesOnly).
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds);
+        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
 
         $host = new Host(
             id: null,
@@ -156,7 +163,7 @@ final readonly class CreateHostCommandHandler
             parentHostIds: $command->parentHostIds,
             childHostIds: $command->childHostIds,
             snmpVersion: $command->snmpVersion,
-            snmpCommunity: $this->vaultOrPlaintext($command->snmpCommunity),
+            snmpCommunity: $snmpCommunity,
             timezoneId: $command->timezoneId,
             severityId: $command->severityId,
             extendedInformations: $command->extendedInformations,
@@ -187,25 +194,28 @@ final readonly class CreateHostCommandHandler
      * the host is persisted.
      *
      * @param Collection<HostTemplateId> $templateIds
+     * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
+     *                           join the same entry (null when there is none, or the vault is off)
      */
-    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds): CheckOptions
+    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds, ?string $vaultUuid): CheckOptions
     {
         $inherited = $this->inheritedHostMacroRepository->findInheritedMacros(
             $templateIds,
             $checkOptions->checkCommandId,
         )->toArray();
         $macros = $this->hostMacroInheritanceResolver->keepOverridesOnly($checkOptions->macros, $inherited);
-        $macros = $this->vaultizePasswordMacros($macros);
+        $macros = $this->vaultizePasswordMacros($macros, $vaultUuid);
 
         return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
     }
 
     /**
      * @param list<HostMacro> $macros
+     * @param ?string $vaultUuid the SNMP community's vault entry to reuse, or null to mint a fresh one
      *
      * @return list<HostMacro>
      */
-    private function vaultizePasswordMacros(array $macros): array
+    private function vaultizePasswordMacros(array $macros, ?string $vaultUuid): array
     {
         // Nothing to vault: leave the vault untouched (not even a feature-flag probe) when no macro
         // needs a secret, so a host without password macros never reaches the vault at all.
@@ -226,7 +236,9 @@ final readonly class CreateHostCommandHandler
             }
         }
 
-        $vaultedValues = $this->vaultCredentialWriter->write(VaultPathEnum::MonitoringHosts, $credentials);
+        // Reuse the SNMP community's entry (or mint one when $vaultUuid is null) so every host secret
+        // shares a single UUID, as legacy does.
+        $vaultedValues = $this->vaultCredentialWriter->write(VaultPathEnum::MonitoringHosts, $credentials, $vaultUuid);
 
         return array_map(
             static function (HostMacro $macro) use ($vaultedValues): HostMacro {
@@ -268,8 +280,9 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Legacy reuses this entry's UUID for the host's password macros: whoever migrates them must
-     * thread it through rather than mint a second secret.
+     * Vaults the SNMP community into the host's entry when a vault is enabled; the caller reuses that
+     * entry's UUID (see {@see extractVaultUuid()}) for the host's password macros rather than minting
+     * a second secret.
      */
     private function vaultOrPlaintext(?string $snmpCommunity): ?SnmpCommunity
     {
@@ -288,6 +301,20 @@ final readonly class CreateHostCommandHandler
             self::HOST_SNMP_COMMUNITY_KEY,
             $snmpCommunity,
         ));
+    }
+
+    /**
+     * Extracts the entry UUID from a `secret::vault::<path>/<uuid>::<key>` reference (the segment
+     * between the last '/' and '::'), mirroring legacy VaultTrait::getUuidFromPath. Returns null for a
+     * plaintext value (vault disabled), so the password macros mint their own shared entry instead.
+     */
+    private function extractVaultUuid(string $value): ?string
+    {
+        if (! $this->vault->isVaultPath($value)) {
+            return null;
+        }
+
+        return preg_match('/^(.*)\/(.*)::(.*)$/', $value, $matches) === 1 ? $matches[2] : null;
     }
 
     /**

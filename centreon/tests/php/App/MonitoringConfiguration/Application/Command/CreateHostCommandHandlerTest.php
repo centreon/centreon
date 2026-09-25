@@ -320,6 +320,40 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->writeManyCalls[0]['customPath']);
     }
 
+    public function testItStoresTheSnmpCommunityAndPasswordMacrosUnderTheSameVaultUuid(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        // Pin the SNMP community's vault path so its UUID is known; the macros must reuse it.
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY]
+            = 'secret::vault::monitoring/hosts/shared-uuid::_HOSTSNMPCOMMUNITY';
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            snmpCommunity: 'public',
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('secret'), 's3cr3t', isPassword: true),
+            ]),
+        ));
+
+        // Legacy keeps every host secret under one vault entry: the password macros must be written
+        // with the UUID minted for the SNMP community, not a fresh one.
+        $macroWrite = null;
+        foreach ($this->vault->writeManyCalls as $call) {
+            if (array_key_exists('_HOSTSECRET', $call['secrets'])) {
+                $macroWrite = $call;
+                break;
+            }
+        }
+
+        self::assertNotNull($macroWrite, 'The password macro should have been written to the vault.');
+        self::assertSame('shared-uuid', $macroWrite['uuid']);
+    }
+
     public function testItKeepsPasswordMacroPlaintextWhenVaultIsDisabled(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
