@@ -23,6 +23,10 @@ on:
         required: false
         default: false
         type: boolean
+    secrets:
+      CENTREON_TECHNIQUE_PAT:
+        description: 'Token with contents and pull-requests write on the download site repository'
+        required: true
   workflow_dispatch:
     inputs:
       bundle_tag:
