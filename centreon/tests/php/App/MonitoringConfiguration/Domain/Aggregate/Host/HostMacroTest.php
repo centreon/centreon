@@ -63,7 +63,7 @@ final class HostMacroTest extends TestCase
             description: str_repeat('a', HostMacro::MAX_DESCRIPTION_LENGTH),
         );
 
-        self::assertSame(HostMacro::MAX_DESCRIPTION_LENGTH, \strlen((string) $macro->description));
+        self::assertSame(HostMacro::MAX_DESCRIPTION_LENGTH, mb_strlen((string) $macro->description, '8bit'));
     }
 
     public function testItRejectsADescriptionExceedingTheByteLimit(): void
