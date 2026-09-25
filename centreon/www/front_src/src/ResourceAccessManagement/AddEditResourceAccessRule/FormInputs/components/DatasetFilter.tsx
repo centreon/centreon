@@ -66,11 +66,13 @@ const DatasetFilter = ({
         {datasetFilter.map((resource, resourceIndex) => (
           <div
             className={classes.resourceCompositionItem}
+            // biome-ignore lint/suspicious/noArrayIndexKey: dataset filters have no stable id
             key={`${resourceIndex}${resource.resources[0]}`}
           >
             <ItemComposition.Item
               className={classes.resourceDataset}
               deleteButtonHidden={deleteButtonHidden}
+              // biome-ignore lint/suspicious/noArrayIndexKey: dataset filters have no stable id
               key={`${resourceIndex}${resource.resources[0]}`}
               labelDelete={t(labelDelete)}
               onDeleteItem={deleteResource(resourceIndex)}

@@ -117,9 +117,9 @@ const checkDefaultsValueForm: Array<DataToUseForCheckForm> = [
 ];
 
 export {
-  millisecondsValueForSixMonth,
-  millisecondsValueForFourHour,
-  initializeConfigAclAndGetLoginPage,
   checkDefaultsValueForm,
-  type DataToUseForCheckForm
+  type DataToUseForCheckForm,
+  initializeConfigAclAndGetLoginPage,
+  millisecondsValueForFourHour,
+  millisecondsValueForSixMonth
 };

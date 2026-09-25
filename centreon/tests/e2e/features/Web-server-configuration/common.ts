@@ -69,7 +69,7 @@ const updateWebServerPort = (port: number): Cypress.Chainable => {
 
 export {
   reloadWebServer,
+  replaceCustomUri,
   updateWebServerConfig,
-  updateWebServerPort,
-  replaceCustomUri
+  updateWebServerPort
 };

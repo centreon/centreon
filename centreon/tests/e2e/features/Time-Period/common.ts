@@ -65,4 +65,4 @@ function submitForm() {
     .click();
 }
 
-export { setTimePeriod, navigateToTimePeriodsAndInitiateAddition, submitForm };
+export { navigateToTimePeriodsAndInitiateAddition, setTimePeriod, submitForm };

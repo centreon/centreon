@@ -41,4 +41,4 @@ const getUrlQueryParameters = <
   return fromPairs(entries) as TQueryParameters;
 };
 
-export { setUrlQueryParameters, getUrlQueryParameters };
+export { getUrlQueryParameters, setUrlQueryParameters };

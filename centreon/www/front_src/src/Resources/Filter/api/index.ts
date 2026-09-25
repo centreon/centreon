@@ -80,11 +80,11 @@ const deleteFilter =
   };
 
 export {
-  filterEndpoint,
-  listCustomFilters,
   buildListCustomFiltersEndpoint,
   createFilter,
-  updateFilter,
+  deleteFilter,
+  filterEndpoint,
+  listCustomFilters,
   patchFilter,
-  deleteFilter
+  updateFilter
 };
