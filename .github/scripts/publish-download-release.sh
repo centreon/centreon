@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publishes release metadata to download.centreon.com by committing a release
 # YAML entry to centreon/WebApp-download and opening a PR against its default
-# branch. Also emits the S3 sidecar described in that repo's docs/RM-RELEASES.md.
+# branch.
 set -euo pipefail
 
 readonly SCRIPT_NAME="${0##*/}"
@@ -16,7 +16,6 @@ PR_TITLE=""
 PR_BODY_FILE=""
 PR_LABEL="release"
 DRY_RUN="false"
-SKIP_SIDECAR="false"
 WORKDIR=""
 
 log()      { printf '%s\n' "$*"; }
@@ -60,15 +59,15 @@ Required:
 Optional:
   --pr-body-file FILE  pull request body (default: generated)
   --pr-label LABEL     label to apply (default: $PR_LABEL, "" to skip)
-  --no-sidecar         do not upload the S3 sidecar
   --dry-run            print what would happen, mutate nothing
   --help
 
 Entry TSV columns (tab-separated, no header):
-  product  train  state  os  version  file  date  md5  size  s3_uri
+  product  train  state  os  version  file  date  md5  size  [s3_uri]  [out_name]
 
-  os may be empty. s3_uri may be empty to skip that entry's sidecar. All
-  entries must belong to the same product group and train.
+  os may be empty. s3_uri is ignored (kept so one TSV shape serves every
+  pipeline). out_name overrides --out-name for that entry. All entries must
+  share one train.
 
 Environment:
   WEBAPP_REPO   target repo (default: centreon/WebApp-download)
@@ -86,7 +85,6 @@ while [[ $# -gt 0 ]]; do
     --pr-title)       PR_TITLE="${2:?--pr-title needs a value}"; shift 2 ;;
     --pr-body-file)   PR_BODY_FILE="${2:?--pr-body-file needs a value}"; shift 2 ;;
     --pr-label)       PR_LABEL="${2-}"; shift 2 ;;
-    --no-sidecar)     SKIP_SIDECAR="true"; shift ;;
     --dry-run)        DRY_RUN="true"; shift ;;
     --help|-h)        usage; exit 0 ;;
     *)                die "unknown option: $1 (see --help)" ;;
@@ -109,8 +107,11 @@ done
 # Parse and validate entries
 # ---------------------------------------------------------------------------
 # Parallel arrays; bash 4 has no array-of-struct. Index i is one release entry.
-declare -a E_PRODUCT E_TRAIN E_STATE E_OS E_VERSION E_FILE E_DATE E_MD5 E_SIZE E_S3URI E_OUT_NAME
+declare -a E_PRODUCT E_TRAIN E_STATE E_OS E_VERSION E_FILE E_DATE E_MD5 E_SIZE E_OUT_NAME
 entry_count=0
+# tracks whether any entry brought its own output filename; if none did, a single --out-name is in
+# force and the old one-file-per-run invariant still has to hold
+any_entry_out_name="false"
 line_no=0
 
 while IFS= read -r line || [[ -n "$line" ]]; do
@@ -130,11 +131,11 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   product="${cols[0]-}"; train="${cols[1]-}";   state="${cols[2]-}"
   os="${cols[3]-}";      version="${cols[4]-}"; file="${cols[5]-}"
   date="${cols[6]-}";    md5="${cols[7]-}";     size="${cols[8]-}"
-  s3_uri="${cols[9]-}"
   # One release can span several output files, because components version independently and the
   # target keys its files by version. Empty falls back to --out-name, which keeps single-file
   # callers (the OVA publisher) working unchanged.
   entry_out_name="${cols[10]-}"
+  if [[ -n "$entry_out_name" ]]; then any_entry_out_name="true"; fi
   [[ -z "$entry_out_name" || "$entry_out_name" == *.yaml ]] \
     || die "$local_ctx: out_name must end in .yaml (got '$entry_out_name')"
 
@@ -161,7 +162,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   E_PRODUCT+=("$product"); E_TRAIN+=("$train");   E_STATE+=("$state")
   E_OS+=("$os");           E_VERSION+=("$version"); E_FILE+=("$file")
   E_DATE+=("$date");       E_MD5+=("$md5");       E_SIZE+=("$size")
-  E_S3URI+=("${s3_uri:-}")
   E_OUT_NAME+=("${entry_out_name:-$OUT_NAME}")
   entry_count=$((entry_count + 1))
 done < "$ENTRIES_FILE"
@@ -211,8 +211,8 @@ fi
 log_ok "cloned ${WEBAPP_REPO}@${WEBAPP_BASE}"
 
 # Reuse an open release branch so each per-OS run of one build accumulates into
-# the same file and PR; the site only shows the newest build per product, so a
-# build has to land complete or its other OS rows disappear.
+# the same file and PR. (The site's newest-build-only rule is appliances-only, so a partial
+# publication here simply shows fewer rows rather than hiding ones already published.)
 # Asked from inside the fresh clone, not the caller's cwd: actions/checkout leaves a url-scoped
 # http.https://github.com/.extraheader in the calling repository's config, and that ambient
 # credential competes with ours. Errors are reported, never swallowed: "absent" (exit 2) and
@@ -281,6 +281,13 @@ for i in "${!E_PRODUCT[@]}"; do
 done
 
 mapfile -t OUT_RELS < <(printf '%s\n' "${E_OUT_REL[@]}" | LC_ALL=C sort -u)
+
+# With a single --out-name and no per-entry out_name there is nothing to separate products of
+# different groups, so entries would silently land in another group's directory. This is the
+# pre-multi-file "all entries must share one product group" guard, kept for single-file callers.
+if [[ "$any_entry_out_name" == "false" && "${#OUT_RELS[@]}" -gt 1 ]]; then
+  die "entries resolve to ${#OUT_RELS[@]} output files (${OUT_RELS[*]}) but only one --out-name was given, so they do not share a product group. Give each entry its own out_name column to publish across groups."
+fi
 log_ok "catalog pre-flight passed (train $train, group(s) ${!seen_groups[*]}, ${#OUT_RELS[@]} file(s))"
 
 # ---------------------------------------------------------------------------
@@ -390,7 +397,7 @@ write_output_file() {
 
   # Belt and braces: whatever the keying, the file must hold every kept and every new entry.
   local written; written=$(grep -c '^- product:' "$out_path" || true)
-  expected=$((kept + ${#idx[@]}))
+  local expected=$((kept + ${#idx[@]}))
   [[ "$written" -eq "$expected" ]] \
     || die "$out_rel holds $written entry(ies) but $expected were expected ($kept kept + ${#idx[@]} new). Either entries were lost while assembling the file, or an existing entry does not start with '- product:' and the extractor needs updating for the target repo's rendering."
 
@@ -465,49 +472,13 @@ validate_line="$(grep 'Catalogue valide' "$validate_out" | head -1 | sed 's/^[^A
 log_ok "$validate_line"
 
 # ---------------------------------------------------------------------------
-# Sidecars (uploaded last, after the artifact, per docs/RM-RELEASES.md)
-# ---------------------------------------------------------------------------
-if [[ "$SKIP_SIDECAR" == "true" ]]; then
-  log_skip "sidecar upload disabled"
-else
-  if [[ "$DRY_RUN" != "true" ]]; then
-    command -v aws >/dev/null 2>&1 || die "aws cli is required for sidecar upload (use --no-sidecar to skip)"
-  fi
-  for i in "${!E_PRODUCT[@]}"; do
-    s3_uri="${E_S3URI[$i]}"
-    [[ -n "$s3_uri" ]] || { log_skip "no s3_uri for ${E_FILE[$i]}, sidecar skipped"; continue; }
-
-    sidecar="$WORKDIR/${E_FILE[$i]}.yaml"
-    {
-      printf 'product: "%s"\n' "${E_PRODUCT[$i]}"
-      printf 'version: "%s"\n' "${E_VERSION[$i]}"
-      printf 'train: "%s"\n'   "${E_TRAIN[$i]}"
-      printf 'os: "%s"\n'      "${E_OS[$i]}"
-      printf 'state: "%s"\n'   "${E_STATE[$i]}"
-      printf 'date: "%s"\n'    "${E_DATE[$i]}"
-      printf 'md5: "%s"\n'     "${E_MD5[$i]}"
-      printf 'size: %s\n'      "${E_SIZE[$i]}"
-      printf 'file: "%s"\n'    "${E_FILE[$i]}"
-    } >"$sidecar"
-
-    if [[ "$DRY_RUN" == "true" ]]; then
-      log_skip "[dry-run] would upload sidecar to ${s3_uri}.yaml"
-      sed 's/^/    /' "$sidecar"
-    else
-      aws s3 cp "$sidecar" "${s3_uri}.yaml" --no-progress >/dev/null
-      log_ok "uploaded sidecar ${s3_uri}.yaml"
-    fi
-  done
-fi
-
-# ---------------------------------------------------------------------------
 # Commit, push, open the PR
 # ---------------------------------------------------------------------------
 if [[ "$DRY_RUN" == "true" ]]; then
   log_skip "[dry-run] would create branch : $BRANCH"
   log_skip "[dry-run] would commit        : $COMMIT_MESSAGE"
   log_skip "[dry-run] would open PR       : $PR_TITLE"
-  for f in "${written_files[@]}"; do
+  for f in "${written_files[@]:-}"; do
     log_skip "[dry-run] would target        : ${WEBAPP_REPO} ${WEBAPP_BASE} <- $f"
   done
   write_summary "not opened (dry run)"
@@ -542,7 +513,7 @@ log "→ committing as $commit_name <$commit_email>"
 if [[ "$branch_exists" != "true" ]]; then
   git checkout --quiet -b "$BRANCH"
 fi
-git add "${written_files[@]}"
+git add "${written_files[@]:-}"
 
 if git diff --cached --quiet; then
   write_summary "not opened (no change)"
@@ -560,7 +531,7 @@ if [[ -z "$PR_BODY_FILE" ]]; then
   {
     printf '## Summary\n'
     printf -- '- Adds %d release entry(ies) for train `%s`\n' "$entry_count" "$train"
-    for f in "${written_files[@]}"; do
+    for f in "${written_files[@]:-}"; do
       printf -- '  - `%s`\n' "$f"
     done
     printf -- '- md5 and size are recomputed by the publishing pipeline, not read from the S3 ETag\n'

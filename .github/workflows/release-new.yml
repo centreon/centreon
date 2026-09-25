@@ -173,10 +173,16 @@ jobs:
   # rather than from what release-new intended to push.
   publish-sources:
     needs: [release]
+    # not always(): a cancelled release must not publish. A failed one still can, because the
+    # tags it managed to push are real and their components are already building.
     if: |
-      always() &&
+      !cancelled() &&
       github.repository == 'centreon/centreon' &&
       needs.release.outputs.new_release_bundle_tag != ''
+    # a called workflow can only narrow the caller's token, never widen it
+    permissions:
+      contents: read
+      actions: read
     uses: ./.github/workflows/publish-sources-download-site.yml
     secrets: inherit
     with:

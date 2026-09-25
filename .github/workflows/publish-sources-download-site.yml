@@ -116,7 +116,8 @@ jobs:
           MISSING: ${{ steps.entries.outputs.missing }}
         run: |
           set -euo pipefail
-          [[ "$BUNDLE_TAG" =~ ^release-onprem-([0-9]+)-([0-9]{2}\.[0-9]{2})$ ]]
+          [[ "$BUNDLE_TAG" =~ ^release-onprem-([0-9]+)-([0-9]{2}\.[0-9]{2})$ ]] \
+            || { echo "::error::cannot read the build and train from '$BUNDLE_TAG'"; exit 1; }
           BUILD="${BASH_REMATCH[1]}"
           TRAIN="${BASH_REMATCH[2]}"
 
@@ -127,7 +128,6 @@ jobs:
             --branch "release/sources-${BUNDLE_TAG}"
             --commit-message "release: onprem ${TRAIN} build ${BUILD}"
             --pr-title "release: onprem ${TRAIN} build ${BUILD}"
-            --no-sidecar
           )
           # an && list whose test is false returns non-zero and would abort under set -e
           if [[ "$DRY_RUN" == "true" ]]; then
