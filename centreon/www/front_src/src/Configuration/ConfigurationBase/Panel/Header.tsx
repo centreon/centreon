@@ -86,7 +86,7 @@ const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
     !isNil(resource?.isActivated);
 
   return (
-    <Box className="flex min-w-0 items-center gap-2">
+    <Box className="flex min-w-0 items-center gap-2 py-1">
       <Typography
         className="truncate"
         data-testid={panelDataTestIds.header}

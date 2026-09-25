@@ -138,7 +138,7 @@ const ResourceForm = ({
       areGroupsOpen
       Buttons={getButtons()}
       groups={groups}
-      groupsClassName={classes.groups}
+      groupsClassName={areActionsInHeader ? undefined : classes.groups}
       initialValues={initialValues}
       inputs={inputs}
       isCollapsible

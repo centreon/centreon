@@ -1,3 +1,5 @@
+import { useTheme } from '@mui/material';
+
 import { Panel } from '@centreon/ui';
 
 import { equals } from 'ramda';
@@ -9,6 +11,7 @@ import { Form, useForm } from '../Form';
 import { labelClose } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
 import Header from './Header';
+import { usePanelStyles } from './Panel.styles';
 
 // The mock gives the panel 720px, holding a 680px content column.
 export const defaultPanelWidth = 720;
@@ -28,6 +31,8 @@ const FormPanel = ({
   width
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const { classes } = usePanelStyles();
 
   const { labelHeader, submit, close, mode, id, initialValues, isLoading } =
     useForm({ defaultValues: form.defaultValues, hasWriteAccess });
@@ -38,10 +43,12 @@ const FormPanel = ({
 
   return (
     <Panel
-      className="rounded-none"
+      className={classes.panel}
       header={
         <Header fallbackTitle={labelHeader} loadedResource={loadedResource} />
       }
+      // The mock bands the header in the page grey, above the white form.
+      headerBackgroundColor={theme.palette.background.default}
       labelClose={t(labelClose)}
       // On a page too narrow to hold it, the panel is already below its own
       // minimum: dragging must not push it back out of the page.
