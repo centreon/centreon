@@ -61,4 +61,50 @@ final readonly class VaultCredentialWriter
 
         return array_merge($credentials->toArray(), $paths);
     }
+
+    /**
+     * Update lifecycle: writes the credentials the caller set, deletes the ones it cleared, and
+     * leaves the rest untouched, all under the same vault entry.
+     *
+     * Pass the resource's existing entry $uuid (see {@see VaultInterface::extractUuid()}) to reuse it;
+     * a null $uuid mints a fresh entry (and the cleared keys are then no-ops).
+     *
+     * The returned map is the `name => value` to persist on the resource: the freshly-minted
+     * `secret::` path for each set credential, and the original value untouched for the unchanged
+     * ones. Cleared credentials are dropped from the map entirely (the caller stores nothing for
+     * them).
+     *
+     * @param VaultPathEnum $path the owning domain's vault sub-path
+     * @param VaultCredentials $credentials the resource's credentials with their lifecycle states
+     * @param string|null $uuid the existing entry to reuse; null mints a fresh entry
+     *
+     * @return array<string, string> name => value to persist on the resource
+     */
+    public function persist(VaultPathEnum $path, VaultCredentials $credentials, ?string $uuid = null): array
+    {
+        $inserts = $credentials->toInsert();
+        $deletes = $credentials->clearedKeys();
+
+        if ($inserts === [] && $deletes === []) {
+            return $credentials->toArray();
+        }
+
+        $paths = $this->vault->writeMany($path->value, $inserts, $uuid, $deletes);
+
+        $result = array_merge($credentials->toArray(), $paths);
+        foreach ($deletes as $key) {
+            unset($result[$key]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Delete a resource's entire vault entry (all its keys), addressed by its UUID. Used when the
+     * resource itself is deleted.
+     */
+    public function delete(VaultPathEnum $path, string $uuid): void
+    {
+        $this->vault->delete($path->value, $uuid);
+    }
 }

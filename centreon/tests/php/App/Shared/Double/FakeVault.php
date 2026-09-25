@@ -40,8 +40,14 @@ final class FakeVault implements VaultInterface
     /** @var array<string, string> credential key => `secret::` path returned by writeMany()/write() */
     public array $writtenPaths = [];
 
-    /** @var list<array{customPath: string, secrets: array<string, string>, uuid: ?string}> */
+    /** @var list<array{customPath: string, secrets: array<string, string>, uuid: ?string, deletes: list<string>}> */
     public array $writeManyCalls = [];
+
+    /** @var list<array{customPath: string, uuid: string}> */
+    public array $deleteCalls = [];
+
+    /** @var array<string, ?string> value => UUID returned by extractUuid() */
+    public array $extractedUuids = [];
 
     public bool $vaultEnabled = true;
 
@@ -50,6 +56,8 @@ final class FakeVault implements VaultInterface
     public bool $writeThrows = false;
 
     public bool $resolveThrows = false;
+
+    public bool $deleteThrows = false;
 
     public function isEnabled(string $featureFlag = 'vault'): bool
     {
@@ -85,17 +93,27 @@ final class FakeVault implements VaultInterface
         return $this->resolved[$value];
     }
 
+    public function extractUuid(string $value): ?string
+    {
+        if (! $this->isVaultPath($value)) {
+            return null;
+        }
+
+        return $this->extractedUuids[$value] ?? null;
+    }
+
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
     {
         return $this->writeMany($customPath, [$key => $value], $uuid)[$key];
     }
 
-    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null, array $deletes = []): array
     {
         $this->writeManyCalls[] = [
             'customPath' => $customPath,
             'secrets' => $secrets,
             'uuid' => $uuid,
+            'deletes' => $deletes,
         ];
 
         if ($this->writeThrows) {
@@ -108,5 +126,17 @@ final class FakeVault implements VaultInterface
         }
 
         return $paths;
+    }
+
+    public function delete(string $customPath, string $uuid): void
+    {
+        $this->deleteCalls[] = [
+            'customPath' => $customPath,
+            'uuid' => $uuid,
+        ];
+
+        if ($this->deleteThrows) {
+            throw new \RuntimeException('Unable to delete vault entry');
+        }
     }
 }
