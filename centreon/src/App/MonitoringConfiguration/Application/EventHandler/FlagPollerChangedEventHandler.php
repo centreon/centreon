@@ -26,15 +26,17 @@ namespace App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
+use App\Shared\Domain\Event\AggregateDeleted;
 use App\Shared\Domain\Event\AsEventHandler;
 
 /**
- * Reacts to the creation of any poller-scoped resource (see {@see PollerScopedInterface}): the
- * owning poller's configuration just changed, so its `nagios_server.updated` flag must be raised,
- * or the monitoring engine keeps running on stale configuration until something else touches it.
+ * Reacts to the creation or deletion of any poller-scoped resource (see {@see PollerScopedInterface}):
+ * the owning poller's configuration just changed, so its `nagios_server.updated` flag must be
+ * raised, or the monitoring engine keeps running on stale configuration until something else
+ * touches it.
  *
- * Only Created is wired today (Host has no update/delete use case yet in src/App) — extend to
- * AggregateUpdated/Deleted/Duplicated once those exist, mirroring LogActivityEventHandler.
+ * Created and Deleted are wired (Host creation and deletion) — extend to AggregateUpdated/Duplicated
+ * once those exist, mirroring LogActivityEventHandler.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -44,7 +46,7 @@ final readonly class FlagPollerChangedEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated $event): void
+    public function __invoke(AggregateCreated|AggregateDeleted $event): void
     {
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;

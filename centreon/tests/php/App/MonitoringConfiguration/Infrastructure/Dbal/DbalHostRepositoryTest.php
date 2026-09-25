@@ -872,6 +872,314 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindOneReturnsNullForANonExistentId(): void
+    {
+        self::assertNull($this->repository->findOne(new HostId(999999)));
+    }
+
+    public function testFindOneReturnsNullForAHostTemplate(): void
+    {
+        $templateId = $this->createHostTemplate('a-template');
+
+        self::assertNull($this->repository->findOne(new HostId($templateId)));
+    }
+
+    public function testFindOneReturnsTheHostWithItsBaseFields(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId, alias: 'srv01', address: '10.0.0.1');
+
+        $host = $this->repository->findOne(new HostId($hostId));
+
+        self::assertNotNull($host);
+        self::assertSame($hostId, $host->id()->value);
+        self::assertSame('server-01', $host->name->value);
+        self::assertSame('srv01', $host->alias?->value);
+        self::assertSame($pollerId, $host->pollerId->value);
+    }
+
+    public function testFindOneHydratesTheSnmpCommunity(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-snmp', $pollerId);
+        $this->connection->update('host', ['host_snmp_community' => 'public'], ['host_id' => $hostId]);
+
+        $host = $this->repository->findOne(new HostId($hostId));
+
+        self::assertNotNull($host);
+        self::assertSame('public', $host->snmpCommunity?->value);
+    }
+
+    public function testFindOneHydratesTheHostMacros(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-macros', $pollerId);
+        $this->insertHostMacro($hostId, '$_HOSTCOMMUNITY$', 'public', isPassword: false, order: 0);
+        $this->insertHostMacro($hostId, '$_HOSTTOKEN$', 's3cr3t', isPassword: true, order: 1);
+
+        $host = $this->repository->findOne(new HostId($hostId));
+
+        self::assertNotNull($host);
+        self::assertCount(2, $host->checkOptions->macros);
+        self::assertSame('COMMUNITY', $host->checkOptions->macros[0]->name->value);
+        self::assertSame('public', $host->checkOptions->macros[0]->value);
+        self::assertFalse($host->checkOptions->macros[0]->isPassword);
+        self::assertSame('TOKEN', $host->checkOptions->macros[1]->name->value);
+        self::assertTrue($host->checkOptions->macros[1]->isPassword);
+    }
+
+    public function testFindOneReturnsNullWhenTheViewerHasNoAccess(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('restricted-host', $pollerId);
+        $viewerId = new UserId(43);
+        $this->accessGroupRepository->groupIdsByUserId[$viewerId->value] = [501];
+        // Deliberately not linked to any centreon_acl row for this group.
+
+        self::assertNull($this->repository->findOne(new HostId($hostId), $viewerId));
+    }
+
+    public function testFindOneReturnsTheHostWhenTheViewerHasAccess(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('accessible-host', $pollerId);
+        $viewerId = new UserId(44);
+        $groupId = 502;
+        $this->accessGroupRepository->groupIdsByUserId[$viewerId->value] = [$groupId];
+        $this->linkHostToAcl($hostId, $groupId);
+
+        $host = $this->repository->findOne(new HostId($hostId), $viewerId);
+
+        self::assertNotNull($host);
+        self::assertSame($hostId, $host->id()->value);
+    }
+
+    public function testRemoveDeletesTheHostRow(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('to-be-deleted', $pollerId);
+        $host = $this->repository->findOne(new HostId($hostId));
+        self::assertNotNull($host);
+
+        $this->repository->remove($host);
+
+        /** @var int|string $remainingCount */
+        $remainingCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertSame(0, (int) $remainingCount);
+    }
+
+    public function testFindOneRoundTripsExtendedInformationsAndSnmp(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $timezoneId = $this->createTimezone('Europe/Paris');
+        $imgId = $this->createImage('server.png');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-full'),
+            alias: new HostAlias('srv-full'),
+            address: new HostAddress('10.0.0.9'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity('public'),
+            timezoneId: new TimezoneId($timezoneId),
+            extendedInformations: new ExtendedInformations(
+                noteUrl: 'https://example.com/notes',
+                note: 'a free-text note',
+                actionUrl: 'https://example.com/actions',
+                iconId: new MediaId($imgId),
+                altIcon: 'server icon',
+                comment: 'internal comment',
+                geoCoordinates: GeoCoordinates::fromString('48.8566,2.3522'),
+            ),
+        );
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertNotNull($found->extendedInformations);
+        self::assertNotNull($found->extendedInformations->geoCoordinates);
+        self::assertSame(SnmpVersionEnum::TwoC, $found->snmpVersion);
+        self::assertSame('public', $found->snmpCommunity?->value);
+        self::assertSame($timezoneId, $found->timezoneId?->value);
+        self::assertSame('https://example.com/notes', $found->extendedInformations->noteUrl);
+        self::assertSame('a free-text note', $found->extendedInformations->note);
+        self::assertSame('https://example.com/actions', $found->extendedInformations->actionUrl);
+        self::assertSame($imgId, $found->extendedInformations->iconId?->value);
+        self::assertSame('server icon', $found->extendedInformations->altIcon);
+        self::assertSame('internal comment', $found->extendedInformations->comment);
+        self::assertSame('48.8566', $found->extendedInformations->geoCoordinates->latitude);
+        self::assertSame('2.3522', $found->extendedInformations->geoCoordinates->longitude);
+    }
+
+    public function testFindOneRoundTripsSchedulingOptionsAndDataProcessing(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $timePeriodId = $this->createTimePeriod('24x7');
+        $eventHandlerCommandId = $this->createCheckCommand('event-handler');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-scheduling-full'),
+            alias: null,
+            address: new HostAddress('10.0.0.10'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            schedulingOptions: new SchedulingOptions(
+                checkTimeperiodId: new TimePeriodId($timePeriodId),
+                maxCheckAttempts: 3,
+                normalCheckInterval: 5,
+                retryCheckInterval: 1,
+                activeCheckEnabled: TriStateEnum::True,
+                passiveCheckEnabled: TriStateEnum::False,
+            ),
+            dataProcessing: new DataProcessing(
+                checkFreshness: TriStateEnum::True,
+                flapDetectionEnabled: TriStateEnum::False,
+                eventHandlerEnabled: TriStateEnum::UseDefault,
+                acknowledgmentTimeout: 15,
+                freshnessThreshold: 120,
+                lowFlapThreshold: 10,
+                highFlapThreshold: 60,
+                eventHandlerCommandId: new CommandId($eventHandlerCommandId),
+                eventHandlerArgs: ['warn', "line1\nline2\tcol\rret"],
+            ),
+        );
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertSame($timePeriodId, $found->schedulingOptions->checkTimeperiodId?->value);
+        self::assertSame(3, $found->schedulingOptions->maxCheckAttempts);
+        self::assertSame(5, $found->schedulingOptions->normalCheckInterval);
+        self::assertSame(1, $found->schedulingOptions->retryCheckInterval);
+        self::assertSame(TriStateEnum::True, $found->schedulingOptions->activeCheckEnabled);
+        self::assertSame(TriStateEnum::False, $found->schedulingOptions->passiveCheckEnabled);
+        self::assertSame(TriStateEnum::True, $found->dataProcessing->checkFreshness);
+        self::assertSame(TriStateEnum::False, $found->dataProcessing->flapDetectionEnabled);
+        self::assertSame(TriStateEnum::UseDefault, $found->dataProcessing->eventHandlerEnabled);
+        self::assertSame(15, $found->dataProcessing->acknowledgmentTimeout);
+        self::assertSame(120, $found->dataProcessing->freshnessThreshold);
+        self::assertSame(10, $found->dataProcessing->lowFlapThreshold);
+        self::assertSame(60, $found->dataProcessing->highFlapThreshold);
+        self::assertSame($eventHandlerCommandId, $found->dataProcessing->eventHandlerCommandId?->value);
+        self::assertSame(['warn', "line1\nline2\tcol\rret"], $found->dataProcessing->eventHandlerArgs);
+    }
+
+    public function testFindOneDefaultsTriStateColumnsToUseDefaultWhenUnset(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-defaults', $pollerId);
+
+        $found = $this->repository->findOne(new HostId($hostId));
+
+        self::assertNotNull($found);
+        self::assertSame(TriStateEnum::UseDefault, $found->schedulingOptions->activeCheckEnabled);
+        self::assertSame(TriStateEnum::UseDefault, $found->schedulingOptions->passiveCheckEnabled);
+        self::assertNull($found->schedulingOptions->checkTimeperiodId);
+        self::assertNull($found->schedulingOptions->maxCheckAttempts);
+        self::assertSame([], $found->dataProcessing->eventHandlerArgs);
+        self::assertSame([], $found->checkOptions->args);
+    }
+
+    public function testFindOneRoundTripsTheCheckCommandAndItsArguments(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $commandId = $this->createCheckCommand('check_ping');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-checkopts'),
+            alias: null,
+            address: new HostAddress('10.0.0.11'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(new CommandId($commandId), ['-H 10.0.0.11', "line1\nline2\tcol\rret"]),
+        );
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertSame($commandId, $found->checkOptions->checkCommandId?->value);
+        self::assertSame(['-H 10.0.0.11', "line1\nline2\tcol\rret"], $found->checkOptions->args);
+    }
+
+    public function testFindOneHydratesCategoriesAndSeverity(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $categoryId = $this->createHostCategory('Production');
+        $severityId = $this->createHostSeverity('Critical', level: 1);
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-categorised-findone'),
+            alias: null,
+            address: new HostAddress('10.0.0.12'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            categoryIds: new Collection([new HostCategoryId($categoryId)], HostCategoryId::class),
+            severityId: new HostSeverityId($severityId),
+        );
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertSame(
+            [$categoryId],
+            array_map(static fn (HostCategoryId $id): int => $id->value, $found->categoryIds->toArray()),
+        );
+        self::assertSame($severityId, $found->severityId?->value);
+    }
+
+    public function testFindOneHydratesParentAndChildHostIds(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $parentId = $this->createHost('router-findone', $pollerId);
+        $childId = $this->createHost('vm-findone', $pollerId);
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-linked-findone'),
+            alias: null,
+            address: new HostAddress('10.0.0.13'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            parentHostIds: new Collection([new HostId($parentId)], HostId::class),
+            childHostIds: new Collection([new HostId($childId)], HostId::class),
+        );
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertSame(
+            [$parentId],
+            array_map(static fn (HostId $id): int => $id->value, $found->parentHostIds->toArray()),
+        );
+        self::assertSame(
+            [$childId],
+            array_map(static fn (HostId $id): int => $id->value, $found->childHostIds->toArray()),
+        );
+    }
+
     /**
      * @return list<int>
      */
@@ -1036,6 +1344,17 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->realTimeConnection->insert('centreon_acl', [
             'group_id' => $groupId,
             'host_id' => $hostId,
+        ]);
+    }
+
+    private function insertHostMacro(int $hostId, string $name, string $value, bool $isPassword, int $order): void
+    {
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => $name,
+            'host_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : 0,
+            'host_host_id' => $hostId,
+            'macro_order' => $order,
         ]);
     }
 }

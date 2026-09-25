@@ -58,6 +58,48 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   group_ids: string|null,
  *   icon_id: int|null,
  * }
+ * @phpstan-type FindOneRowTypeAlias = array{
+ *   id: int,
+ *   name: string,
+ *   alias: string|null,
+ *   ip_address: string,
+ *   is_activated: string,
+ *   poller_id: int,
+ *   template_ids: string|null,
+ *   group_ids: string|null,
+ *   icon_id: int|null,
+ *   snmp_community: string|null,
+ *   snmp_version: string|null,
+ *   timezone_id: int|string|null,
+ *   comment: string|null,
+ *   geo_coords: string|null,
+ *   note_url: string|null,
+ *   note: string|null,
+ *   action_url: string|null,
+ *   alt_icon: string|null,
+ *   check_timeperiod_id: int|string|null,
+ *   max_check_attempts: int|string|null,
+ *   normal_check_interval: int|string|null,
+ *   retry_check_interval: int|string|null,
+ *   active_check_enabled: string|null,
+ *   passive_check_enabled: string|null,
+ *   acknowledgement_timeout: int|string|null,
+ *   check_freshness: string|null,
+ *   freshness_threshold: int|string|null,
+ *   flap_detection_enabled: string|null,
+ *   low_flap_threshold: int|string|null,
+ *   high_flap_threshold: int|string|null,
+ *   event_handler_enabled: string|null,
+ *   event_handler_command_id: int|string|null,
+ *   event_handler_args: string|null,
+ *   check_command_id: int|string|null,
+ *   check_command_args: string|null,
+ *   category_ids: string|null,
+ *   severity_id: int|string|null,
+ *   parent_host_ids: string|null,
+ *   child_host_ids: string|null,
+ *   macros: list<array{name: string, value: string, is_password: string|int, description: string|null}>,
+ * }
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
@@ -66,7 +108,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public const TABLE_NAME = 'host';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, Host> $transformer
+     * @param TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, Host> $transformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -217,6 +259,94 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         foreach ($host->childHostIds as $childHostId) {
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
         }
+    }
+
+    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
+    {
+        if (
+            $viewerId instanceof UserId
+            && ! in_array($id->value, $this->findAccessibleHostIds($viewerId), true)
+        ) {
+            // Exists but outside the viewer's ACL scope, or does not exist at all — both read as
+            // "not found" to the caller, so as not to leak existence (see HostRepository::findOne()).
+            return null;
+        }
+
+        $columns = [
+            ...self::getSelectColumns(),
+            'h.host_snmp_community AS snmp_community',
+            'h.host_snmp_version AS snmp_version',
+            'h.host_location AS timezone_id', // the timezone, despite the legacy column name
+            'h.host_comment AS comment',
+            'h.geo_coords AS geo_coords',
+            'ehi.ehi_notes_url AS note_url',
+            'ehi.ehi_notes AS note',
+            'ehi.ehi_action_url AS action_url',
+            'ehi.ehi_icon_image_alt AS alt_icon',
+            'h.timeperiod_tp_id AS check_timeperiod_id',
+            'h.host_max_check_attempts AS max_check_attempts',
+            'h.host_check_interval AS normal_check_interval',
+            'h.host_retry_check_interval AS retry_check_interval',
+            'h.host_active_checks_enabled AS active_check_enabled',
+            'h.host_passive_checks_enabled AS passive_check_enabled',
+            'h.host_acknowledgement_timeout AS acknowledgement_timeout',
+            'h.host_check_freshness AS check_freshness',
+            'h.host_freshness_threshold AS freshness_threshold',
+            'h.host_flap_detection_enabled AS flap_detection_enabled',
+            'h.host_low_flap_threshold AS low_flap_threshold',
+            'h.host_high_flap_threshold AS high_flap_threshold',
+            'h.host_event_handler_enabled AS event_handler_enabled',
+            'h.command_command_id2 AS event_handler_command_id',
+            'h.command_command_id_arg2 AS event_handler_args',
+            'h.command_command_id AS check_command_id',
+            'h.command_command_id_arg1 AS check_command_args',
+            // Categories and severity share `hostcategories_relation`, told apart only by whether
+            // the referenced `hostcategories.level` is set (see Host::$categoryIds docblock).
+            '(SELECT GROUP_CONCAT(hcr.hostcategories_hc_id)
+                FROM hostcategories_relation hcr
+                INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
+                WHERE hcr.host_host_id = h.host_id AND hc.level IS NULL) AS category_ids',
+            '(SELECT hcr.hostcategories_hc_id
+                FROM hostcategories_relation hcr
+                INNER JOIN hostcategories hc ON hc.hc_id = hcr.hostcategories_hc_id
+                WHERE hcr.host_host_id = h.host_id AND hc.level IS NOT NULL
+                LIMIT 1) AS severity_id',
+            '(SELECT GROUP_CONCAT(hhr.host_parent_hp_id)
+                FROM host_hostparent_relation hhr
+                WHERE hhr.host_host_id = h.host_id) AS parent_host_ids',
+            '(SELECT GROUP_CONCAT(hhr.host_host_id)
+                FROM host_hostparent_relation hhr
+                WHERE hhr.host_parent_hp_id = h.host_id) AS child_host_ids',
+        ];
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...$columns)
+            ->from(self::TABLE_NAME, 'h')
+            ->leftJoin('h', 'ns_host_relation', 'nsr', 'nsr.host_host_id = h.host_id')
+            ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
+            ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->where($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)))
+            ->andWhere("h.host_register = '1'")
+            ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image');
+
+        $row = $qb->executeQuery()->fetchAssociative();
+        if ($row === false) {
+            return null;
+        }
+
+        $row['macros'] = $this->findMacroRows($id->value);
+
+        /** @var FindOneRowTypeAlias $row */
+        return $this->transformer->transform($row);
+    }
+
+    public function remove(Host $host): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete(self::TABLE_NAME)
+            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($host->id()->value, ParameterType::INTEGER)))
+            ->executeStatement();
     }
 
     /**
@@ -406,6 +536,21 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return array_map(static fn (array $row): int => (int) $row['host_id'], $rows);
+    }
+
+    /**
+     * @return list<array{name: string, value: string, is_password: string|int, description: string|null}>
+     */
+    private function findMacroRows(int $hostId): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('host_macro_name AS name', 'host_macro_value AS value', 'is_password', 'description')
+            ->from('on_demand_macro_host')
+            ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
+            ->orderBy('macro_order');
+
+        /** @var list<array{name: string, value: string, is_password: string|int, description: string|null}> */
+        return $qb->executeQuery()->fetchAllAssociative();
     }
 
     private function filterByHostCriteria(QueryBuilder $qb, HostCriteria $criteria): void
