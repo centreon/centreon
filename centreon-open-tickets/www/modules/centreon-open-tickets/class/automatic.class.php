@@ -1102,7 +1102,6 @@ class Automatic
                     END
                 WHERE h.host_id = :host_id
             SQL;
-        
         $stmt = $this->dbCentstorage->prepare($query);
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
         $stmt->bindParam(':host_id', $params['host_id'], PDO::PARAM_INT);
