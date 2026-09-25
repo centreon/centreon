@@ -10,8 +10,8 @@ const securityPolicyUrl =
 
 const SecurityNotice = (): ReactElement => {
   return (
-    <div className="flex items-start gap-3">
-      <ShieldOutlinedIcon className="mt-1 shrink-0 text-xl text-success-main" />
+    <div className="flex items-center gap-3">
+      <ShieldOutlinedIcon className="shrink-0 text-xl text-success-main" />
       <p className="text-sm">
         <Trans
           components={{

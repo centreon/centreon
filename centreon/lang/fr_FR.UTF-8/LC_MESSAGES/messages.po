@@ -5593,10 +5593,6 @@ msgid ""
 msgstr "Éditer la page de wiki"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
-msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le reporting avancé et des SLA."
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Editions & Cloud licenses"
 msgstr "Licences Edition et Cloud"
 
@@ -12584,10 +12580,6 @@ msgid "Open and scalable IT monitoring platform for full visibility on your hybr
 msgstr "Plateforme de supervision IT ouverte et évolutive pour une visibilité complète sur votre infrastructure hybride"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Open source edition"
-msgstr "Édition open source"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Open the repository"
 msgstr "Ouvrir le dépôt"
 
@@ -13558,14 +13550,6 @@ msgstr "Progression"
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Project & contributors"
 msgstr "Projet et contributeurs"
-
-#: centreon/www/install/front_translate.php
-msgid "Project leaders"
-msgstr "Responsables du projet"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Project leaders <count>({{total}})</count>"
-msgstr "Responsables du projet <count>({{total}})</count>"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -14683,10 +14667,6 @@ msgstr "Mise à l'échelle"
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "Scale of time"
 msgstr "Echelle de temps"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Scaling beyond open source?"
-msgstr "Besoin d'aller plus loin que l'open source ?"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Schedule an immediate check of all services on this host"
@@ -16185,10 +16165,6 @@ msgstr "Début"
 #: centreon/www/install/front_translate.php
 msgid "Start date"
 msgstr "Date de début"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Start free trial"
-msgstr "Démarrer l'essai gratuit"
 
 #: centreon/www/install/front_translate.php
 msgid "Start time"
