@@ -40,12 +40,18 @@ trait TriStateColumnTrait
         };
     }
 
-    private function columnToTriState(string $value): TriStateEnum
+    /**
+     * The column itself has no NOT NULL constraint and defaults to NULL, not '2' — a row written
+     * outside `add()` (legacy, CLAPI, a host that predates this directive) can carry a genuine
+     * NULL. That means the same thing UseDefault does: the directive was never written, so it
+     * resolves through the template chain / engine default at generation time.
+     */
+    private function columnToTriState(?string $value): TriStateEnum
     {
         return match ($value) {
             '0' => TriStateEnum::False,
             '1' => TriStateEnum::True,
-            '2' => TriStateEnum::UseDefault,
+            '2', null => TriStateEnum::UseDefault,
             default => throw new \UnexpectedValueException(sprintf('Unexpected tri-state column value "%s".', $value)),
         };
     }
