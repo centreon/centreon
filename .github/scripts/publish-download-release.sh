@@ -138,12 +138,20 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   if [[ -n "$entry_out_name" ]]; then any_entry_out_name="true"; fi
   [[ -z "$entry_out_name" || "$entry_out_name" == *.yaml ]] \
     || die "$local_ctx: out_name must end in .yaml (got '$entry_out_name')"
+  # it is joined into the output path, so a separator or a leading dot could escape the release dir
+  [[ "$entry_out_name" != */* && "$entry_out_name" != .* ]] \
+    || die "$local_ctx: out_name must be a bare filename (got '$entry_out_name')"
 
   [[ -n "$product" ]] || die "$local_ctx: product is required"
   [[ -n "$train"   ]] || die "$local_ctx: train is required"
   [[ -n "$version" ]] || die "$local_ctx: version is required"
   [[ -n "$file"    ]] || die "$local_ctx: file is required"
   [[ -n "$date"    ]] || die "$local_ctx: date is required (schema has no default)"
+  # file and os are rendered into "..." scalars; these two characters are what could break out
+  [[ "$file" != *'"'* && "$file" != *\\* ]] \
+    || die "$local_ctx: file must not contain a quote or a backslash (got '$file')"
+  [[ "$os" != *'"'* && "$os" != *\\* ]] \
+    || die "$local_ctx: os must not contain a quote or a backslash (got '$os')"
 
   # Mirror src/lib/schema.js: state enum, UTC date shape, md5 hex, integer size.
   case "${state:=stable}" in
@@ -187,7 +195,10 @@ clone_url="https://github.com/${WEBAPP_REPO}.git"
 # Authenticate with a per-invocation header instead of a credentialed remote
 # URL: `git -c` before the subcommand is not persisted, so the token never
 # lands in .git/config, which is the cwd the target repo's own code runs in.
-git_auth=()
+# core.hooksPath=/dev/null unconditionally: the target repository's own code runs inside this
+# clone, and a hook it dropped would execute on our commit and push with the auth header in
+# GIT_CONFIG_PARAMETERS, which git hands to every child.
+git_auth=(-c core.hooksPath=/dev/null)
 if [[ -n "${GH_TOKEN:-}" ]]; then
   auth_basic="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
   # Actions masks the literal secret, not anything derived from it, so register
@@ -196,7 +207,7 @@ if [[ -n "${GH_TOKEN:-}" ]]; then
     echo "::add-mask::$auth_basic"
   fi
   auth_header="Authorization: Basic $auth_basic"
-  git_auth=(-c "http.extraHeader=$auth_header")
+  git_auth+=(-c "http.extraHeader=$auth_header")
 fi
 authed_git() { git "${git_auth[@]}" "$@"; }
 
@@ -446,11 +457,17 @@ validate_catalog() {
   [[ "$pnpm_major" =~ ^[0-9]+$ ]] || { echo "cannot read the pnpm version"; return 1; }
   [[ "$pnpm_major" -ge 11 ]] || { echo "pnpm $pnpm_major is older than the required 11"; return 1; }
   ensure_libatomic || echo "warning: libatomic1 is missing and could not be installed; pnpm may fail to start"
-  # This runs the target repo's code, so hand it neither the token nor its
-  # lifecycle scripts: --ignore-scripts skips the root pre/post/prepare hooks,
-  # and the validator is invoked directly rather than through `pnpm validate`.
+  # Validate a throwaway copy, never the tree that gets committed. scripts/validate.mjs and any
+  # .pnpmfile.cjs are the target repository's own code: run in $repo_dir they could rewrite the
+  # YAML after its integrity checks, or drop a git hook. Dropping .git also keeps the install out
+  # of what we push. --ignore-scripts and unsetting the tokens are kept, but neither is a boundary:
+  # a .pnpmfile.cjs still runs, and a child can read an ancestor's environ through /proc.
+  local tree="$WORKDIR/validate-tree"
+  rm -rf "$tree"
+  cp -a "$repo_dir" "$tree" || { echo "could not copy the clone for validation"; return 1; }
+  rm -rf "$tree/.git"
   (
-    cd "$repo_dir"
+    cd "$tree"
     env -u GH_TOKEN -u GITHUB_TOKEN pnpm install --frozen-lockfile --ignore-scripts \
       --config.trustPolicy=no-downgrade \
       --config.minimumReleaseAge=2880 \

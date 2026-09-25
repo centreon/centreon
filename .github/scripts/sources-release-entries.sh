@@ -104,9 +104,13 @@ while true; do
     tag="${component}-${VERSIONS[$i]}"
     [[ -n "${JOB_CONCLUSION[$component]:-}" ]] && { resolved=$((resolved + 1)); continue; }
 
-    run_line="$(jq -r --arg tag "$tag" \
-      '[.workflow_runs[]? | select(.head_branch == $tag)] | sort_by(.created_at) | last
-       | select(.) | [(.id|tostring), .status] | @tsv' \
+    # head_branch alone is not trustworthy: a fork pull request is listed under this repository's
+    # head_sha and carries a branch name its author chose, so it could impersonate a component tag
+    # and either stall the poll or mask the real run.
+    run_line="$(jq -r --arg tag "$tag" --arg repo "$REPOSITORY" \
+      '[.workflow_runs[]? | select(.head_branch == $tag and .event == "push"
+                                   and .head_repository.full_name == $repo)]
+       | sort_by(.created_at) | last | select(.) | [(.id|tostring), .status] | @tsv' \
       "$runs_json" 2>/dev/null || true)"
     # no run yet means the tag push has not been picked up, which is waiting, not stalling
     if [[ -z "$run_line" ]]; then active=$((active + 1)); continue; fi
@@ -185,7 +189,8 @@ for i in "${!COMPONENTS[@]}"; do
   local_file="$WORKDIR/$file"
   # a green job whose object does not serve is a real error, not a slow one
   headers="$WORKDIR/headers.txt"
-  curl -fsSL --retry 3 --retry-all-errors -D "$headers" -o "$local_file" "$url" \
+  curl -fsSL --proto '=https' --proto-redir '=https' --retry 3 --retry-all-errors \
+    -D "$headers" -o "$local_file" "$url" \
     || die "$component: deliver-sources succeeded but $url does not serve"
 
   actual_size="$(stat -c '%s' "$local_file")"

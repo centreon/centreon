@@ -184,6 +184,8 @@ jobs:
       contents: read
       actions: read
     uses: ./.github/workflows/publish-sources-download-site.yml
-    secrets: inherit
+    # only what the callee uses; GITHUB_TOKEN is provided to it automatically
+    secrets:
+      CENTREON_TECHNIQUE_PAT: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
     with:
       bundle_tag: ${{ needs.release.outputs.new_release_bundle_tag }}
