@@ -23,7 +23,7 @@ POLL_TIMEOUT="${POLL_TIMEOUT:-2700}"
 POLL_INTERVAL="${POLL_INTERVAL:-20}"
 POLL_STALL_ROUNDS="${POLL_STALL_ROUNDS:-6}"
 # how long a component's workflow run may take to appear before it is treated as never coming
-RUN_APPEAR_GRACE="${RUN_APPEAR_GRACE:-300}"
+RUN_APPEAR_GRACE="${RUN_APPEAR_GRACE:-900}"
 
 STATE="stable"
 
