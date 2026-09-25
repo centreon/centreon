@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationContactRepos
 use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationContactTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
+use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -53,7 +54,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->repository = new DbalNotificationContactRepository(
             $this->connection,
             new NotificationContactTransformer(),
-            new DbalAccessGroupRepository($this->connection),
+            new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection)),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded contacts
