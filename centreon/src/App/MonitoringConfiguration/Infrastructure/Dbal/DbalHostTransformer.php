@@ -84,7 +84,11 @@ final readonly class DbalHostTransformer implements TransformerInterface
             childHostIds: new Collection(($from['child_host_ids'] ?? null) !== null ? $this->parseIdList($from['child_host_ids'], HostId::class) : [], HostId::class),
             snmpVersion: isset($from['snmp_version']) ? SnmpVersionEnum::from($from['snmp_version']) : null,
             snmpCommunity: isset($from['snmp_community']) ? new SnmpCommunity($from['snmp_community']) : null,
-            timezoneId: isset($from['timezone_id']) ? new TimezoneId((int) $from['timezone_id']) : null,
+            // `host_location` (timezone_id) has no NULL default, unlike every other optional
+            // column here — it's '0' until a timezone is actually picked, so 0 means unset too.
+            timezoneId: isset($from['timezone_id']) && (int) $from['timezone_id'] > 0
+                ? new TimezoneId((int) $from['timezone_id'])
+                : null,
             severityId: isset($from['severity_id']) ? new HostSeverityId((int) $from['severity_id']) : null,
             extendedInformations: $this->buildExtendedInformations($from),
             schedulingOptions: $this->buildSchedulingOptions($from),
