@@ -52,6 +52,8 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly HostName $name,
         public readonly ?HostAlias $alias,
         public readonly HostAddress $address,
+        // Mutable (unlike the other, readonly fields) so enable()/disable() can toggle it; kept a
+        // plain public bool rather than `private(set)`, which the deptrac parser cannot yet read.
         public bool $activated,
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,

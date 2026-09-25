@@ -30,7 +30,9 @@ final readonly class PatchHostInput
 {
     public function __construct(
         // Named after the host representation (`activated`), so a PATCH patches the same field
-        // the read representation exposes, rather than a separate verb.
+        // the read representation exposes, rather than a separate verb. This DTO must not expose an
+        // `id` property: it would match the not-found criterion key and flip a missing-host 404 into
+        // a 422 via InvalidReferenceExceptionListener.
         #[ApiProperty(description: 'Whether the host is enabled.')]
         #[Assert\NotNull]
         public bool $activated,

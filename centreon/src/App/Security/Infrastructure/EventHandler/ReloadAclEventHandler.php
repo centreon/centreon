@@ -41,14 +41,14 @@ use Webmozart\Assert\Assert;
  * Scope of the flag: an admin flags every resource; a non-admin flags only their own access groups,
  * so a resource also visible to other groups only refreshes in those groups on their next flag. This
  * mirrors the pre-existing create behaviour and never grants access, so it is a cron-lag consistency
- * matter, not a security one; flagging every group that can see the resource is left to a dedicated
- * change spanning both create and update.
+ * matter, not a security one; flagging every group that can see the resource is out of scope here.
  *
  * On creation only, a non-admin creator's `centreon_acl` is additionally seeded directly, so they
  * see their own new resource immediately without waiting for the cron. On a later change (e.g. a
  * host being enabled or disabled) the flag alone drives the recompute: seeding grants access, which
- * would be wrong when disabling and redundant when enabling. Reacting to the {@see AggregateUpdated}
- * supertype also catches its enable/disable specializations.
+ * would be wrong when disabling, and on enabling would give immediate visibility that the flag
+ * instead defers to the cron. Reacting to the {@see AggregateUpdated} supertype also catches its
+ * enable/disable specializations.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler

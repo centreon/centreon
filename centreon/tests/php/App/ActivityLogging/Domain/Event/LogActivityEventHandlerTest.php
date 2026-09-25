@@ -181,6 +181,9 @@ final class LogActivityEventHandlerTest extends TestCase
 
         self::assertInstanceof(ActivityLog::class, $activityLog);
         self::assertSame(ActionEnum::Enable, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
+        self::assertSame(1, $activityLog->target->id->value);
+        self::assertSame('NAME', $activityLog->target->name->value);
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
 
@@ -202,6 +205,9 @@ final class LogActivityEventHandlerTest extends TestCase
 
         self::assertInstanceof(ActivityLog::class, $activityLog);
         self::assertSame(ActionEnum::Disable, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
+        self::assertSame(1, $activityLog->target->id->value);
+        self::assertSame('NAME', $activityLog->target->name->value);
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
 

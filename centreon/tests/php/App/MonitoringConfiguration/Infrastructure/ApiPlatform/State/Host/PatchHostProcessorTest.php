@@ -35,6 +35,8 @@ final class PatchHostProcessorTest extends ApiTestCase
 
     private Connection $connection;
 
+    private Connection $realTimeConnection;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -42,6 +44,11 @@ final class PatchHostProcessorTest extends ApiTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+
+        // The activity log (log_action) lives in centstorage, on the realtime connection.
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $this->realTimeConnection = $realTimeConnection;
     }
 
     public function testItRequiresAuthentication(): void
@@ -83,6 +90,7 @@ final class PatchHostProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(204);
         self::assertSame('0', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+        self::assertSame('disable', $this->latestActionType($hostId));
     }
 
     public function testItEnablesADisabledHost(): void
@@ -95,6 +103,32 @@ final class PatchHostProcessorTest extends ApiTestCase
         $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => true]]);
 
         self::assertResponseStatusCodeSame(204);
+        self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+        self::assertSame('enable', $this->latestActionType($hostId));
+    }
+
+    public function testItRejectsAMissingActivatedField(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => []]);
+
+        self::assertResponseStatusCodeSame(422);
+        // Validation runs before the command: the host is left untouched.
+        self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testItRejectsANonBooleanActivatedField(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => 'not-a-bool']]);
+
+        self::assertResponseStatusCodeSame(422);
         self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
     }
 
@@ -174,5 +208,13 @@ final class PatchHostProcessorTest extends ApiTestCase
     private function uniqueName(string $prefix = 'host'): string
     {
         return $prefix . '-' . bin2hex(random_bytes(6));
+    }
+
+    private function latestActionType(int $hostId): mixed
+    {
+        return $this->realTimeConnection->fetchOne(
+            "SELECT action_type FROM log_action WHERE object_id = ? AND object_type = 'host' ORDER BY action_log_id DESC LIMIT 1",
+            [$hostId],
+        );
     }
 }

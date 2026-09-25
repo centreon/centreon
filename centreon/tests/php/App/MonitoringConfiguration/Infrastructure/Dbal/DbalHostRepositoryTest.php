@@ -332,6 +332,17 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->getById(new HostId($hostId))->activated);
     }
 
+    public function testUpdateActivationStatusNeverTogglesAHostTemplate(): void
+    {
+        // host_register = '0'; the guard makes the UPDATE match no row -> silent no-op by contract.
+        $templateId = $this->createHostTemplate('generic-template');
+        $before = $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]);
+
+        $this->repository->updateActivationStatus(new HostId($templateId), false);
+
+        self::assertSame($before, $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]));
+    }
+
     public function testAddPersistsTheHostAndItsRelations(): void
     {
         $pollerId = $this->createPoller('Central');

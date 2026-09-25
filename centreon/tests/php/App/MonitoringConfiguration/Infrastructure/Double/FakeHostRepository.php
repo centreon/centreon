@@ -115,7 +115,7 @@ final class FakeHostRepository implements HostRepository
         $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
 
         if (isset($this->hosts[$id->value])) {
-            $this->hosts[$id->value]->activated = $activated;
+            $activated ? $this->hosts[$id->value]->enable() : $this->hosts[$id->value]->disable();
         }
     }
 

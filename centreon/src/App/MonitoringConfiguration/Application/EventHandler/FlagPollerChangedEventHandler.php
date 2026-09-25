@@ -34,7 +34,7 @@ use App\Shared\Domain\Event\AsEventHandler;
  * the owning poller's configuration just changed, so its `nagios_server.updated` flag must be
  * raised, or the monitoring engine keeps running on stale configuration until something else
  * touches it. Reacting to the {@see AggregateUpdated} supertype also catches its enable/disable
- * specializations. Deleted/Duplicated remain to be wired once those use cases exist.
+ * specializations. It reacts to creation and update only, not deletion or duplication.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
