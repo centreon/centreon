@@ -113,9 +113,11 @@ if ($index !== false) {
         $hName = $row['host_name'];
         $sName = $row['service_description'];
         // Meta services use host "_Module_Meta" and description "meta_<id>": name the file after their display name
-        if ($hName === '_Module_Meta' && ! empty($row['display_name'])) {
+        if ($hName === '_Module_Meta') {
             $hName = 'Meta';
-            $sName = $row['display_name'];
+            if (! empty($row['display_name'])) {
+                $sName = $row['display_name'];
+            }
         }
     }
 
