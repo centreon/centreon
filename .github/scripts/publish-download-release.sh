@@ -221,6 +221,10 @@ if ! authed_git clone --quiet --depth 1 --branch "$WEBAPP_BASE" "$clone_url" "$r
 fi
 log_ok "cloned ${WEBAPP_REPO}@${WEBAPP_BASE}"
 
+# Set on the clone itself, not just our own git invocations: the commit below is a plain git
+# call, and hooks are what a plain call would pick up from this tree.
+git -C "$repo_dir" config core.hooksPath /dev/null
+
 # Reuse an open release branch so each per-OS run of one build accumulates into
 # the same file and PR. (The site's newest-build-only rule is appliances-only, so a partial
 # publication here simply shows fewer rows rather than hiding ones already published.)
