@@ -39,8 +39,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
     operations: [
         new Post(
             uriTemplate: '/configuration/hosts',
-            processor: CreateHostProcessor::class,
-            input: CreateHostInput::class,
             openapi: new Model\Operation(
                 responses: [
                     404 => new Model\Response('Poller or host group not found'),
@@ -50,11 +48,11 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to create hosts',
+            input: CreateHostInput::class,
+            processor: CreateHostProcessor::class,
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',
-            provider: ListHostsProvider::class,
-            output: HostCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -98,6 +96,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
                 is_granted("' . HostPermissionEnum::CanRead->value . '") or
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list hosts',
+            output: HostCollectionOutput::class,
+            provider: ListHostsProvider::class,
         ),
     ],
 )]
