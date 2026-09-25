@@ -46,6 +46,7 @@ trait TriStateColumnTrait
             '0' => TriStateEnum::False,
             '1' => TriStateEnum::True,
             '2' => TriStateEnum::UseDefault,
+            default => throw new \UnexpectedValueException(sprintf('Unexpected tri-state column value "%s".', $value)),
         };
     }
 }

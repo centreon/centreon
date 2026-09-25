@@ -70,32 +70,32 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   icon_id: int|null,
  *   snmp_community: string|null,
  *   snmp_version: string|null,
- *   timezone_id: int|null,
+ *   timezone_id: int|string|null,
  *   comment: string|null,
  *   geo_coords: string|null,
  *   note_url: string|null,
  *   note: string|null,
  *   action_url: string|null,
  *   alt_icon: string|null,
- *   check_timeperiod_id: int|null,
- *   max_check_attempts: int|null,
- *   normal_check_interval: int|null,
- *   retry_check_interval: int|null,
+ *   check_timeperiod_id: int|string|null,
+ *   max_check_attempts: int|string|null,
+ *   normal_check_interval: int|string|null,
+ *   retry_check_interval: int|string|null,
  *   active_check_enabled: string,
  *   passive_check_enabled: string,
- *   acknowledgement_timeout: int|null,
+ *   acknowledgement_timeout: int|string|null,
  *   check_freshness: string,
- *   freshness_threshold: int|null,
+ *   freshness_threshold: int|string|null,
  *   flap_detection_enabled: string,
- *   low_flap_threshold: int|null,
- *   high_flap_threshold: int|null,
+ *   low_flap_threshold: int|string|null,
+ *   high_flap_threshold: int|string|null,
  *   event_handler_enabled: string,
- *   event_handler_command_id: int|null,
+ *   event_handler_command_id: int|string|null,
  *   event_handler_args: string|null,
- *   check_command_id: int|null,
+ *   check_command_id: int|string|null,
  *   check_command_args: string|null,
  *   category_ids: string|null,
- *   severity_id: int|null,
+ *   severity_id: int|string|null,
  *   parent_host_ids: string|null,
  *   child_host_ids: string|null,
  *   macros: list<array{name: string, value: string, is_password: string|int, description: string|null}>,
@@ -272,8 +272,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return null;
         }
 
-        $qb = $this->connection->createQueryBuilder();
-        $qb->select(
+        $columns = [
             ...self::getSelectColumns(),
             'h.host_snmp_community AS snmp_community',
             'h.host_snmp_version AS snmp_version',
@@ -318,7 +317,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             '(SELECT GROUP_CONCAT(hhr.host_host_id)
                 FROM host_hostparent_relation hhr
                 WHERE hhr.host_parent_hp_id = h.host_id) AS child_host_ids',
-        )
+        ];
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...$columns)
             ->from(self::TABLE_NAME, 'h')
             ->leftJoin('h', 'ns_host_relation', 'nsr', 'nsr.host_host_id = h.host_id')
             ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
@@ -547,10 +549,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
             ->orderBy('macro_order');
 
-        /** @var list<array{name: string, value: string, is_password: string|int, description: string|null}> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        return $rows;
+        /** @var list<array{name: string, value: string, is_password: string|int, description: string|null}> */
+        return $qb->executeQuery()->fetchAllAssociative();
     }
 
     private function filterByHostCriteria(QueryBuilder $qb, HostCriteria $criteria): void

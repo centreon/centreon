@@ -103,13 +103,13 @@ final readonly class DbalHostTransformer implements TransformerInterface
     private function parseIdList(string $commaSeparated, string $class): array
     {
         return array_map(
-            static fn (string $id) => new $class((int) $id),
+            static fn (string $id): object => new $class((int) $id),
             explode(',', $commaSeparated),
         );
     }
 
     /**
-     * @param array<string, mixed> $from
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
      */
     private function buildExtendedInformations(array $from): ExtendedInformations
     {
@@ -127,7 +127,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
     /**
      * Only present on `findOne()`'s row; `findAll()`'s row carries none of these columns.
      *
-     * @param array<string, mixed> $from
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
      */
     private function buildSchedulingOptions(array $from): SchedulingOptions
     {
@@ -148,7 +148,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
     /**
      * Only present on `findOne()`'s row; `findAll()`'s row carries none of these columns.
      *
-     * @param array<string, mixed> $from
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
      */
     private function buildDataProcessing(array $from): DataProcessing
     {
@@ -174,7 +174,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
      * no presence gate needed here, unlike scheduling/data processing: every sub-value already
      * degrades to its own empty/null default via `??`/`isset()`.
      *
-     * @param array<string, mixed> $from
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
      */
     private function buildCheckOptions(array $from): CheckOptions
     {
@@ -192,7 +192,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
     {
         // Stored as the full engine form ($_HOST<NAME>$, see HostMacroName::toStorageName()); strip
         // the '$_HOST' prefix and trailing '$' to get back the short name the VO's constructor expects.
-        $shortName = substr($row['name'], 6, -1);
+        $shortName = mb_substr($row['name'], 6, -1);
 
         return new HostMacro(
             name: new HostMacroName($shortName),

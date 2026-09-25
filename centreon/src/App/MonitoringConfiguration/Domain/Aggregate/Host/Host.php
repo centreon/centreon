@@ -91,7 +91,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
      */
     public function getVaultUuid(VaultInterface $vault): ?string
     {
-        if ($this->snmpCommunity !== null && $vault->isVaultPath($this->snmpCommunity->value)) {
+        if ($this->snmpCommunity instanceof SnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
             return $vault->extractUuid($this->snmpCommunity->value);
         }
 
