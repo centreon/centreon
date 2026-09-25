@@ -37,7 +37,7 @@ write_summary() {
     echo "| | |"
     echo "|---|---|"
     echo "| Repository | \`${WEBAPP_REPO}\` (\`${WEBAPP_BASE}\`) |"
-    echo "| File(s) | $(printf '\`%s\`, ' "${written_files[@]:-}" | sed 's/, $//') |"
+    echo "| File(s) | $(printf '`%s`, ' "${written_files[@]:-}" | sed 's/, $//') |"
     echo "| Entries | ${entry_count} |"
     echo "| Branch | \`${BRANCH}\` |"
     echo "| Pull request | ${pr_state} |"
