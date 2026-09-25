@@ -30,7 +30,7 @@ final readonly class PatchHostInput
 {
     public function __construct(
         // Named after the host representation (`activated`), so a PATCH patches the same field
-        // the GET exposes, rather than a separate verb.
+        // the read representation exposes, rather than a separate verb.
         #[ApiProperty(description: 'Whether the host is enabled.')]
         #[Assert\NotNull]
         public bool $activated,

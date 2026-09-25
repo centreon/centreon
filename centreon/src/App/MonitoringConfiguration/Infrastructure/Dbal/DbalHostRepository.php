@@ -243,10 +243,15 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function updateActivationStatus(HostId $id, bool $activated): void
     {
+        // `host_register = '1'` mirrors getById: never toggle a host template through this method,
+        // whatever the caller passes. Existence itself is guaranteed by the getById the handler runs
+        // first in the same transaction, so no affected-row assertion is made here — on MySQL an
+        // UPDATE reports changed rows, not matched rows, so a re-applied value would read as 0.
         $this->connection->createQueryBuilder()
             ->update(self::TABLE_NAME)
             ->set('host_activate', ':activated')
             ->where('host_id = :id')
+            ->andWhere("host_register = '1'")
             ->setParameter('activated', $activated ? '1' : '0')
             ->setParameter('id', $id->value, ParameterType::INTEGER)
             ->executeStatement();

@@ -41,12 +41,10 @@ final readonly class PatchHostCommandHandler
 
     public function __invoke(PatchHostCommand $command): Host
     {
-        // Scoped to the requester: a restricted viewer targeting a host outside their ACL scope
-        // gets the same not-found error as a truly nonexistent host, never a leak of its existence.
+        // Viewer-scoped: an out-of-scope host reads as not found (see HostRepository::getById).
         $host = $this->repository->getById($command->id, $command->viewerId);
 
-        // No-op when already in the requested state: no write, no activity log, no reload flag.
-        // Toggling to the current value must not produce noise or a spurious poller reload.
+        // Skip when unchanged: avoids a spurious activity log line and poller reload.
         if ($host->activated === $command->activated) {
             return $host;
         }

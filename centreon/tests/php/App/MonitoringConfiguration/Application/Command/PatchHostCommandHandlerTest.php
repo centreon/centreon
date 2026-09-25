@@ -144,6 +144,25 @@ final class PatchHostCommandHandlerTest extends TestCase
         }
     }
 
+    public function testItDisablesAHostVisibleToARestrictedViewer(): void
+    {
+        $host = $this->seedHost(activated: true);
+        // The restricted viewer is allowed to see this host, so the toggle goes through.
+        $this->repository->accessibleHostIds = [self::HOST_ID];
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            activated: false,
+            updatedBy: 1,
+            viewerId: new UserId(42),
+        ));
+
+        self::assertFalse($result->activated);
+        self::assertFalse($host->activated);
+        self::assertSame([['id' => self::HOST_ID, 'activated' => false]], $this->repository->activationUpdates);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostDisabled::class, 1));
+    }
+
     private function seedHost(bool $activated): Host
     {
         $host = new Host(

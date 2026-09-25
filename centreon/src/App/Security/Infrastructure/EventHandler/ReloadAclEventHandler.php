@@ -36,8 +36,13 @@ use Webmozart\Assert\Assert;
 /**
  * Reacts to the create or change of any ACL-scoped resource (see {@see AclScopedInterface}): its
  * visibility may now differ, so the ACL tables are flagged for the `centAcl` cron to recompute
- * `centreon_acl` — otherwise, for instance, a disabled host stays visible there until some
- * unrelated change happens to raise a flag.
+ * `centreon_acl` — otherwise, for instance, a disabled host lingers there until a flag is raised.
+ *
+ * Scope of the flag: an admin flags every resource; a non-admin flags only their own access groups,
+ * so a resource also visible to other groups only refreshes in those groups on their next flag. This
+ * mirrors the pre-existing create behaviour and never grants access, so it is a cron-lag consistency
+ * matter, not a security one; flagging every group that can see the resource is left to a dedicated
+ * change spanning both create and update.
  *
  * On creation only, a non-admin creator's `centreon_acl` is additionally seeded directly, so they
  * see their own new resource immediately without waiting for the cron. On a later change (e.g. a

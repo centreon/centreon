@@ -44,6 +44,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -59,6 +60,18 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
 
         $host = $this->createHost(pollerId: 5);
         $handler(new HostCreated($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerOnActivationChange(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // HostDisabled is an AggregateUpdated: the handler was broadened to flag the poller on it too.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDisabled($host, 1));
 
         self::assertSame([$host], $pollerRepository->flaggedResources);
     }
