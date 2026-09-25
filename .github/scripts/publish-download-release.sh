@@ -84,7 +84,7 @@ while [[ $# -gt 0 ]]; do
     --commit-message) COMMIT_MESSAGE="${2:?--commit-message needs a value}"; shift 2 ;;
     --pr-title)       PR_TITLE="${2:?--pr-title needs a value}"; shift 2 ;;
     --pr-body-file)   PR_BODY_FILE="${2:?--pr-body-file needs a value}"; shift 2 ;;
-    --pr-label)       PR_LABEL="${2-}"; shift 2 ;;
+    --pr-label)       PR_LABEL="${2?--pr-label needs a value (pass '' to skip labelling)}"; shift 2 ;;
     --dry-run)        DRY_RUN="true"; shift ;;
     --help|-h)        usage; exit 0 ;;
     *)                die "unknown option: $1 (see --help)" ;;
@@ -125,7 +125,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   mapfile -t -d $'\t' cols < <(printf '%s' "$line")
 
   local_ctx="entry on line $line_no"
-  [[ "${#cols[@]}" -ge 9 ]] \
+  [[ "${#cols[@]}" -ge 9 && "${#cols[@]}" -le 11 ]] \
     || die "$local_ctx: expected 9 to 11 tab-separated columns, got ${#cols[@]}"
 
   product="${cols[0]-}"; train="${cols[1]-}";   state="${cols[2]-}"

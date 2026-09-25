@@ -77,13 +77,25 @@ info "${#COMPONENTS[@]} component(s) expected for $BUNDLE_TAG (train $TRAIN): ${
 declare -A JOB_CONCLUSION=() JOB_URL=()
 
 runs_json="$WORKDIR/runs.json"
+api_err="$WORKDIR/gh-api.err"
+api_ever_ok="false"
 deadline=$(( SECONDS + POLL_TIMEOUT ))
 stall_rounds=0
 previous_resolved=-1
 
 while true; do
-  gh api --paginate "repos/$REPOSITORY/actions/runs?head_sha=$BUNDLE_SHA&per_page=100" \
-    > "$runs_json" 2>/dev/null || true
+  if ! gh api --paginate "repos/$REPOSITORY/actions/runs?head_sha=$BUNDLE_SHA&per_page=100" \
+       > "$runs_json" 2>"$api_err"; then
+    # a blip is worth retrying, but a bad token or a missing scope never resolves, and waiting
+    # out the deadline would blame the component workflows for an API failure
+    if [[ "$api_ever_ok" == "false" ]]; then
+      cat "$api_err" >&2
+      die "cannot list workflow runs for $BUNDLE_SHA: the Actions API call failed (see above)"
+    fi
+    warn "listing workflow runs failed, will retry: $(tail -1 "$api_err")"
+  else
+    api_ever_ok="true"
+  fi
 
   resolved=0
   for i in "${!COMPONENTS[@]}"; do
@@ -101,7 +113,8 @@ while true; do
                | select(.) | [.status, (.conclusion // ""), .html_url] | @tsv' || true)"
     [[ -n "$job" ]] || continue
 
-    IFS=$'\t' read -r j_status j_conclusion j_url <<<"$job"
+    mapfile -t -d $'\t' jcols < <(printf '%s' "$job")
+    j_status="${jcols[0]-}"; j_conclusion="${jcols[1]-}"; j_url="${jcols[2]-}"
     if [[ "$j_status" == "completed" ]]; then
       JOB_CONCLUSION[$component]="$j_conclusion"
       JOB_URL[$component]="$j_url"
@@ -162,7 +175,9 @@ for i in "${!COMPONENTS[@]}"; do
     || die "$component: deliver-sources succeeded but $url does not serve"
 
   actual_size="$(stat -c '%s' "$local_file")"
-  declared_size="$(awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,""); print $2}' "$headers" | tail -1)"
+  # tolower(), not IGNORECASE: the latter is a gawk extension and mawk (the Ubuntu default)
+  # silently matches nothing, which would kill this check and the date below without a word
+  declared_size="$(awk 'tolower($0) ~ /^content-length:/{gsub(/\r/,""); print $2}' "$headers" | tail -1)"
   if [[ -n "$declared_size" && "$declared_size" != "$actual_size" ]]; then
     die "$file is $actual_size bytes but Content-Length announced $declared_size"
   fi
@@ -170,7 +185,7 @@ for i in "${!COMPONENTS[@]}"; do
   rm -f "$local_file"
 
   # the publication date is the object's, not the run's, so a re-publication does not rewrite it
-  date="$(awk 'BEGIN{IGNORECASE=1} /^last-modified:/{sub(/^[^:]*: */,""); gsub(/\r/,""); print}' "$headers" | tail -1)"
+  date="$(awk 'tolower($0) ~ /^last-modified:/{sub(/^[^:]*: */,""); gsub(/\r/,""); print}' "$headers" | tail -1)"
   if [[ -n "$date" ]]; then
     date="$(date -u -d "$date" +%FT%TZ 2>/dev/null || true)"
   fi
