@@ -98,6 +98,7 @@ done
 [[ -n "$COMMIT_MESSAGE" ]]  || die "--commit-message is required"
 [[ -n "$PR_TITLE" ]]        || die "--pr-title is required"
 [[ -z "$OUT_NAME" || "$OUT_NAME" == *.yaml ]] || die "--out-name must end in .yaml: $OUT_NAME"
+[[ "$OUT_NAME" != */* && "$OUT_NAME" != .* ]] || die "--out-name must be a bare filename: $OUT_NAME"
 
 for tool in git curl; do
   command -v "$tool" >/dev/null 2>&1 || die "$tool is required but not installed"
@@ -152,6 +153,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     || die "$local_ctx: file must not contain a quote or a backslash (got '$file')"
   [[ "$os" != *'"'* && "$os" != *\\* ]] \
     || die "$local_ctx: os must not contain a quote or a backslash (got '$os')"
+  [[ "$version" != *'"'* && "$version" != *\\* ]] \
+    || die "$local_ctx: version must not contain a quote or a backslash (got '$version')"
 
   # Mirror src/lib/schema.js: state enum, UTC date shape, md5 hex, integer size.
   case "${state:=stable}" in
@@ -480,6 +483,12 @@ validate_catalog() {
   )
 }
 
+# The validator is the target repository's own code. It runs from a sibling directory, so it can
+# still reach this tree; pin what we wrote and re-check it before staging, so a rewrite between
+# validation and commit cannot reach the pull request.
+tree_manifest="$WORKDIR/tree.sha256"
+( cd "$repo_dir" && sha256sum "${written_files[@]:-}" ${AGENT_VERSION:+"$catalog_rel"} ) > "$tree_manifest"
+
 log "→ running pnpm validate"
 validate_out="$WORKDIR/validate.log"
 if ! validate_catalog >"$validate_out" 2>&1; then
@@ -532,8 +541,12 @@ git config user.email "$commit_email"
 log "→ committing as $commit_name <$commit_email>"
 
 if [[ "$branch_exists" != "true" ]]; then
-  git checkout --quiet -b "$BRANCH"
+  authed_git checkout --quiet -b "$BRANCH"
 fi
+# anything different here was changed after it was validated
+sha256sum --quiet -c "$tree_manifest" \
+  || die "the files staged for commit changed after validation; refusing to publish them"
+
 git add "${written_files[@]:-}"
 
 if git diff --cached --quiet; then
@@ -542,7 +555,7 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-git commit --quiet -m "$COMMIT_MESSAGE"
+authed_git commit --quiet -m "$COMMIT_MESSAGE"
 authed_git push --quiet origin "HEAD:refs/heads/$BRANCH" \
   || die "could not push $BRANCH to ${WEBAPP_REPO}. If another run advanced the same branch, re-run this job: it merges into whatever is there."
 log_ok "pushed $BRANCH"

@@ -22,6 +22,8 @@ BUCKET_BASE_URL="${BUCKET_BASE_URL:-https://s3-eu-west-1.amazonaws.com/centreon-
 POLL_TIMEOUT="${POLL_TIMEOUT:-2700}"
 POLL_INTERVAL="${POLL_INTERVAL:-20}"
 POLL_STALL_ROUNDS="${POLL_STALL_ROUNDS:-6}"
+# how long a component's workflow run may take to appear before it is treated as never coming
+RUN_APPEAR_GRACE="${RUN_APPEAR_GRACE:-300}"
 
 STATE="stable"
 
@@ -80,6 +82,7 @@ runs_json="$WORKDIR/runs.json"
 api_err="$WORKDIR/gh-api.err"
 api_ever_ok="false"
 deadline=$(( SECONDS + POLL_TIMEOUT ))
+poll_started=$SECONDS
 stall_rounds=0
 previous_resolved=-1
 
@@ -115,12 +118,17 @@ while true; do
        | sort_by(.created_at) | last | select(.) | [(.id|tostring), .status] | @tsv' \
       "$runs_json" 2>/dev/null || true)"
     # no run yet means the tag push has not been picked up, which is waiting, not stalling
-    if [[ -z "$run_line" ]]; then active=$((active + 1)); continue; fi
+    if [[ -z "$run_line" ]]; then
+      # a run that never appears is not in flight; after the grace period stop counting it, or the
+      # stall guard could never fire and the wait would always run to POLL_TIMEOUT
+      if (( SECONDS < poll_started + RUN_APPEAR_GRACE )); then active=$((active + 1)); fi
+      continue
+    fi
     mapfile -t -d $'\t' rcols < <(printf '%s' "$run_line")
     run_id="${rcols[0]-}"; run_status="${rcols[1]-}"
 
     job="$(gh api --paginate "repos/$REPOSITORY/actions/runs/$run_id/jobs?per_page=100" 2>/dev/null \
-      | jq -r '[.jobs[]? | select(.name == "deliver-sources")] | last
+      | jq -s -r '[.[].jobs[]? | select(.name == "deliver-sources")] | last
                | select(.) | [.status, (.conclusion // ""), .html_url] | @tsv' || true)"
     # a run still going can still grow the job; a finished run without it never will
     if [[ -z "$job" ]]; then
