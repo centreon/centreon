@@ -7,8 +7,11 @@ import {
   labelAlias,
   labelIpAddress,
   labelMonitoringServer,
-  labelName
+  labelName,
+  labelTemplates
 } from '../translatedLabels';
+import Name from './Name';
+import Templates from './Templates';
 
 interface Props {
   columns: Array<Column>;
@@ -21,13 +24,13 @@ const useColumns = (): Props => {
 
   const columns: Array<Column> = [
     {
+      Component: Name,
       disablePadding: false,
-      getFormattedString: ({ name }: Record<string, unknown>) => name as string,
       id: 'name',
       label: t(labelName),
       sortable: true,
       sortField: 'name',
-      type: ColumnType.string
+      type: ColumnType.component
     },
     {
       disablePadding: false,
@@ -56,6 +59,15 @@ const useColumns = (): Props => {
       id: 'poller',
       label: t(labelMonitoringServer),
       type: ColumnType.string
+    },
+    {
+      Component: Templates,
+      // The links navigate; the cell must not also open the host panel.
+      clickable: true,
+      disablePadding: false,
+      id: 'templates',
+      label: t(labelTemplates),
+      type: ColumnType.component
     }
   ];
 

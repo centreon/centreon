@@ -67,7 +67,11 @@ const Listing = <TFilters,>({
         selectedColumnIds,
         sortable: true
       }}
-      columns={hasWriteAccess ? [...columns, ...staticColumns] : columns}
+      columns={
+        hasWriteAccess || actions?.rowActionsWithoutWriteAccess
+          ? [...columns, ...staticColumns]
+          : columns
+      }
       currentPage={(page || 1) - 1}
       disableRowCondition={disableRowCondition}
       limit={limit}
