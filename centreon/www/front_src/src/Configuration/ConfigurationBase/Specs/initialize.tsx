@@ -125,13 +125,15 @@ const initialize = ({
   filters = filtersConfiguration,
   initialValues = filtersInitialValues,
   filtersPanelWidth,
-  actions = defaultActions
+  actions = defaultActions,
+  formVariant
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
   initialValues?: Record<string, unknown>;
   filtersPanelWidth?: number;
   actions?: Actions;
+  formVariant?: 'modal' | 'panel';
 }): void => {
   const resource = resourceType.replace(' ', '_');
 
@@ -184,6 +186,7 @@ const initialize = ({
                     groups,
                     inputs
                   }}
+                  formVariant={formVariant}
                   isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
                   labels={{
                     title: `${capitalize(resourceType)}s`,

@@ -8,7 +8,17 @@ export type List<TEntity> = {
   result: Array<TEntity>;
 };
 
-export interface ModalState {
+// What a form surface needs to drive submit and reset from outside the form,
+// where Formik's context does not reach.
+export interface FormActions {
+  canReset: boolean;
+  canSubmit: boolean;
+  isSubmitting: boolean;
+  reset: () => void;
+  submit: () => void;
+}
+
+export interface FormState {
   id: number | null;
   isOpen: boolean;
   mode: 'add' | 'edit';

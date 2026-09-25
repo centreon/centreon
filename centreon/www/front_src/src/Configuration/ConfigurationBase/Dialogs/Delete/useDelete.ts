@@ -19,7 +19,7 @@ import {
   useDeleteOne as useDeleteOneRequest,
   useDelete as useDeleteRequest
 } from '../../api';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom, formStateAtom } from '../../atoms';
 import { resourcesToDeleteAtom, selectedRowsAtom } from '../../Listing/atoms';
 import {
   labelDeleteResource,
@@ -49,6 +49,7 @@ const useDelete = (): UseDeleteState => {
   );
 
   const setSelectedRows = useSetAtom(selectedRowsAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
   const configuration = useAtomValue(configurationAtom);
 
   const name = truncate({ content: resourcesToDelete[0]?.name, maxLength: 40 });
@@ -66,6 +67,16 @@ const useDelete = (): UseDeleteState => {
   const resetSelections = (): void => {
     setSelectedRows([]);
     setResourcesToDelete([]);
+  };
+
+  // A form left open on a resource that no longer exists would save into a
+  // void. Only reachable from the panel, which deletes while the form is open.
+  const closeFormOnDeletedResource = (): void => {
+    if (!formState.isOpen || !ids.includes(formState.id)) {
+      return;
+    }
+
+    setFormState({ ...formState, id: null, isOpen: false });
   };
 
   const { deleteMutation, isMutating } = useDeleteRequest();
@@ -90,6 +101,7 @@ const useDelete = (): UseDeleteState => {
         t(labelResourceDeleted(capitalize(labelResourceType)))
       );
 
+      closeFormOnDeletedResource();
       resetSelections();
 
       return;
@@ -103,6 +115,7 @@ const useDelete = (): UseDeleteState => {
       labelWarning: t(labelFailedToDeleteSomeResources)
     });
 
+    closeFormOnDeletedResource();
     resetSelections();
   };
 

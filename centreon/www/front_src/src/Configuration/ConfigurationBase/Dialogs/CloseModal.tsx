@@ -5,7 +5,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { isCloseConfirmationDialogOpenAtom, modalStateAtom } from '../atoms';
+import { formStateAtom, isCloseConfirmationDialogOpenAtom } from '../atoms';
 
 const CloseModal = (): JSX.Element => {
   const { isValid, dirty, isSubmitting, submitForm } = useFormikContext();
@@ -14,13 +14,13 @@ const CloseModal = (): JSX.Element => {
   const [isDialogOpen, setIsDialogOpen] = useAtom(
     isCloseConfirmationDialogOpenAtom
   );
-  const setModalState = useSetAtom(modalStateAtom);
+  const setFormState = useSetAtom(formStateAtom);
 
   const discard = useCallback(() => {
     setIsDialogOpen(false);
     setSearchParams({});
 
-    setModalState((dialogState) => ({ ...dialogState, isOpen: false }));
+    setFormState((formState) => ({ ...formState, isOpen: false }));
   }, []);
 
   const submitAndClose = useCallback(() => {

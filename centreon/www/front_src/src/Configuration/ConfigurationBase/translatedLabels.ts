@@ -78,3 +78,6 @@ export const labelSingleDuplicateResourcesConfirmation = (type: string) =>
 
 // Form
 export const labelSave = 'Save';
+
+export const labelClose = 'Close';
+export const labelReset = 'Reset';

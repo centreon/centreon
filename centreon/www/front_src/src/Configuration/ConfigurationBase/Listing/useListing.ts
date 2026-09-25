@@ -6,7 +6,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { configurationAtom, modalStateAtom } from '../atoms';
+import { configurationAtom, formStateAtom } from '../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -20,7 +20,7 @@ interface UseListing {
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';
-  openEditModal: (row) => void;
+  openEditForm: (row) => void;
   disableRowCondition: (row) => boolean;
   limit: number;
 }
@@ -39,7 +39,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     selectedColumnIdsAtom
   );
 
-  const setModalState = useSetAtom(modalStateAtom);
+  const setFormState = useSetAtom(formStateAtom);
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -68,10 +68,10 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
-  const openEditModal = (row) => {
+  const openEditForm = (row) => {
     setSearchParams({ id: row.id, mode: 'edit' });
 
-    setModalState({
+    setFormState({
       id: row.id,
       isOpen: true,
       mode: 'edit'
@@ -86,7 +86,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     changeSort,
     disableRowCondition,
     limit,
-    openEditModal,
+    openEditForm,
     page,
     resetColumns,
     selectColumns,
