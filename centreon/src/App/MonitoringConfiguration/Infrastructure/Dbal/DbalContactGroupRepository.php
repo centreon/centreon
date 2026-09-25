@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use App\Security\Domain\Aggregate\UserId;
@@ -62,6 +63,30 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         private TransformerInterface $transformer,
         private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (ContactGroupId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], ContactGroupName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('cg_id', 'cg_name')
+            ->from(self::TABLE_NAME)
+            ->where("cg_name IS NOT NULL AND cg_name != ''")
+            ->andWhere($qb->expr()->in('cg_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{cg_id: int|string, cg_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['cg_id']] = new ContactGroupName($row['cg_name']);
+        }
+
+        return new Collection($names, ContactGroupName::class);
     }
 
     public function findAll(ContactGroupCriteria $criteria): \IteratorAggregate&\Countable

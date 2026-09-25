@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContact;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -62,6 +63,30 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
 
         private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (NotificationContactId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], NotificationContactName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('contact_id', 'contact_name')
+            ->from(self::TABLE_NAME)
+            ->where("contact_register = '1'")
+            ->andWhere($qb->expr()->in('contact_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{contact_id: int|string, contact_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['contact_id']] = new NotificationContactName($row['contact_name']);
+        }
+
+        return new Collection($names, NotificationContactName::class);
     }
 
     public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable

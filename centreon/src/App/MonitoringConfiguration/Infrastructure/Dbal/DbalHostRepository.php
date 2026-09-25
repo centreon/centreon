@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -100,6 +101,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   child_host_ids: string|null,
  *   macros: list<array{name: string, value: string, is_password: string|int, description: string|null}>,
  * }
+ *
+ * @phpstan-import-type NotificationColumnsTypeAlias from DbalNotificationsTransformer
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
@@ -109,6 +112,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     /**
      * @param TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, Host> $transformer
+     * @param TransformerInterface<?Notifications, NotificationColumnsTypeAlias> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -117,6 +121,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         private Connection $realTimeConnection,
         #[Autowire(service: DbalHostTransformer::class)]
         private TransformerInterface $transformer,
+        #[Autowire(service: DbalNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private AccessGroupRepository $accessGroupRepository,
     ) {
     }
@@ -126,6 +132,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $dataProcessing = $host->dataProcessing;
         $extendedInformations = $host->extendedInformations;
         $schedulingOptions = $host->schedulingOptions;
+        $notifications = $host->notifications;
+        // The transformer owns every legacy storage format of the block, including what an absent
+        // one writes: the Default tri-state, false flags, and NULL everywhere else.
+        $notificationColumns = $this->notificationsTransformer->transform($notifications);
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
@@ -157,6 +167,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_passive_checks_enabled' => ':passiveCheckEnabled',
                 'command_command_id' => ':check_command_id',
                 'command_command_id_arg1' => ':check_command_args',
+                'host_notifications_enabled' => ':notificationsEnabled',
+                'host_notification_options' => ':notificationOptions',
+                'host_notification_interval' => ':notificationInterval',
+                'timeperiod_tp_id2' => ':notificationPeriodId',
+                'host_first_notification_delay' => ':firstNotificationDelay',
+                'host_recovery_notification_delay' => ':recoveryNotificationDelay',
+                'contact_additive_inheritance' => ':contactAdditiveInheritance',
+                'cg_additive_inheritance' => ':contactGroupAdditiveInheritance',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -185,6 +203,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
             ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
             ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
+            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
+            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
+            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN)
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -280,6 +306,26 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('hostId', $hostId)
                 ->setParameter('macroOrder', $macroOrder)
                 ->executeStatement();
+        }
+
+        if ($notifications instanceof Notifications) {
+            foreach ($notifications->contactIds as $contactId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contact_host_relation')
+                    ->values(['contact_id' => ':contactId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactId', $contactId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+
+            foreach ($notifications->contactGroupIds as $contactGroupId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contactgroup_host_relation')
+                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactGroupId', $contactGroupId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
         }
     }
 
