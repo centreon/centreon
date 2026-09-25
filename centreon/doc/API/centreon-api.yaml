@@ -11253,7 +11253,7 @@ components:
       type: object
       properties:
         poller:
-          $ref: '#/components/schemas/HostPollerOutput'
+          $ref: '#/components/schemas/PollerChoicesOutput'
         templates:
           type: array
           items:
@@ -11284,7 +11284,7 @@ components:
           type: object
           properties:
             poller:
-              $ref: '#/components/schemas/HostPollerOutput.jsonld'
+              $ref: '#/components/schemas/PollerChoicesOutput.jsonld'
             templates:
               type: array
               items:
@@ -11307,14 +11307,14 @@ components:
               type: string
             activated:
               type: boolean
-    HostPollerOutput:
+    PollerChoicesOutput:
       type: object
       properties:
         id:
           type: integer
         name:
           type: string
-    HostPollerOutput.jsonld:
+    PollerChoicesOutput.jsonld:
       type: object
       properties:
         id:
@@ -11357,7 +11357,7 @@ components:
       type: object
       properties:
         poller:
-          $ref: '#/components/schemas/HostPollerOutput'
+          $ref: '#/components/schemas/PollerChoicesOutput'
         templates:
           type: array
           items:
@@ -11417,7 +11417,7 @@ components:
           type: object
           properties:
             poller:
-              $ref: '#/components/schemas/HostPollerOutput.jsonld'
+              $ref: '#/components/schemas/PollerChoicesOutput.jsonld'
             templates:
               type: array
               items:
