@@ -28,12 +28,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
@@ -45,6 +47,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -54,6 +57,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
+use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroInheritanceResolver;
@@ -73,6 +77,8 @@ final readonly class CreateHostCommandHandler
     /** Must match legacy: both address the same vault entries. */
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
+    private const INHERITANCE_MODE_OPTION = 'inheritance_mode';
+    private const ADDITIVE_INHERITANCE_MODE = 1;
 
     public function __construct(
         private HostRepository $repository,
@@ -85,6 +91,7 @@ final readonly class CreateHostCommandHandler
         private CommandRepository $commandRepository,
         private InheritedHostMacroRepository $inheritedHostMacroRepository,
         private HostMacroInheritanceResolver $hostMacroInheritanceResolver,
+        private OptionRepository $optionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
@@ -169,6 +176,7 @@ final readonly class CreateHostCommandHandler
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
             checkOptions: $checkOptions,
+            notifications: $this->applyInheritanceMode($command->notifications),
         );
 
         $this->repository->add($host);
@@ -251,6 +259,46 @@ final readonly class CreateHostCommandHandler
             },
             $macros,
         );
+    }
+
+    /**
+     * The additive-inheritance flags only mean something when the platform's `inheritance_mode`
+     * option enables them; otherwise legacy silently drops whatever the client asked for
+     * (`NewHostFactory::create()`), and a fresh install ships that option disabled.
+     */
+    private function applyInheritanceMode(?Notifications $notifications): ?Notifications
+    {
+        if (! $notifications instanceof Notifications) {
+            return null;
+        }
+
+        if (! $notifications->contactAdditiveInheritance && ! $notifications->contactGroupAdditiveInheritance) {
+            return $notifications;
+        }
+
+        if ($this->isAdditiveInheritanceEnabled()) {
+            return $notifications;
+        }
+
+        return $notifications->withoutAdditiveInheritance();
+    }
+
+    /**
+     * `inheritance_mode` is a platform-wide setting of Administration > Parameters; only the
+     * value `1` turns additive inheritance on, and a fresh install ships `3`. A missing row reads
+     * as disabled, mirroring legacy's own fallback when OptionService returns nothing.
+     */
+    private function isAdditiveInheritanceEnabled(): bool
+    {
+        try {
+            $option = $this->optionRepository->getByName(new OptionName(self::INHERITANCE_MODE_OPTION));
+        } catch (OptionDoesNotExistException) {
+            return false;
+        }
+
+        // Cast rather than compared as a string: the column is a varchar and legacy reads it
+        // with (int) too (AddHost::createHost()), so a stored '01' must not flip the answer.
+        return (int) $option->value->value === self::ADDITIVE_INHERITANCE_MODE;
     }
 
     /**
