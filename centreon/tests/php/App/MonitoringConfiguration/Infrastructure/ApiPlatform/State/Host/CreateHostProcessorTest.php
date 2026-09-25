@@ -23,13 +23,19 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
@@ -1114,6 +1120,479 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
     }
 
+    public function testItCreatesAHostWithAnAliasAndSnmpSettings(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'alias' => 'Web server',
+                'snmp_version' => '2c',
+                'snmp_community' => 'public',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['name' => $name, 'alias' => 'Web server', 'snmp_version' => '2c']);
+
+        $payload = $response->toArray();
+        // Write-only: legacy never returns it either, and with a vault configured the stored value
+        // would be a `secret::` reference.
+        self::assertArrayNotHasKey('snmp_community', $payload);
+
+        /** @var int $hostId */
+        $hostId = $payload['id'];
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_alias, host_snmp_version, host_snmp_community FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertIsArray($row);
+        self::assertSame('Web server', $row['host_alias']);
+        self::assertSame('2c', $row['host_snmp_version']);
+        self::assertSame('public', $row['host_snmp_community']);
+    }
+
+    public function testItRejectsAnUnknownSnmpVersion(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+                'snmp_version' => '4',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * Legacy asserts maxLength on the trimmed value only, so a blank value is valid there and
+     * reads as "not provided".
+     */
+    #[DataProvider('blankOptionalFieldProvider')]
+    public function testItAcceptsABlankOptionalField(string $field, string $value): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                $field => $value,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        // The serializer omits nulls platform-wide, so the key is absent rather than null.
+        self::assertArrayNotHasKey($field, $response->toArray());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function blankOptionalFieldProvider(): iterable
+    {
+        yield 'empty alias' => ['alias', ''];
+
+        yield 'whitespace alias' => ['alias', '   '];
+    }
+
+    /**
+     * Config generation writes these straight into a `.cfg` line, so an embedded newline would
+     * inject a directive. Legacy does not filter them; we do.
+     */
+    #[DataProvider('controlCharacterFieldProvider')]
+    public function testItRejectsControlCharactersInAnOptionalField(string $field): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                $field => "before\nalias_injected",
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function controlCharacterFieldProvider(): iterable
+    {
+        yield 'alias' => ['alias'];
+
+        yield 'snmp_community' => ['snmp_community'];
+    }
+
+    #[DataProvider('overlongOptionalFieldProvider')]
+    public function testItRejectsAnOverlongOptionalField(string $field, int $length): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                $field => str_repeat('a', $length),
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string, int}>
+     */
+    public static function overlongOptionalFieldProvider(): iterable
+    {
+        yield 'alias' => ['alias', HostAlias::MAX_LENGTH + 1];
+
+        yield 'snmp_community' => ['snmp_community', SnmpCommunity::MAX_LENGTH + 1];
+    }
+
+    public function testItMeasuresTheTrimmedLengthOfAnAlias(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'alias' => '  ' . str_repeat('a', HostAlias::MAX_LENGTH) . '  ',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['alias' => str_repeat('a', HostAlias::MAX_LENGTH)]);
+    }
+
+    public function testItCreatesAHostWithSimpleReferences(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $categoryId = $this->insertHostCategory($this->uniqueName('Production'));
+        $severityId = $this->insertHostSeverity($this->uniqueName('Critical'));
+        $timezoneName = $this->uniqueName('Europe/Paris');
+        $timezoneId = $this->insertTimezone($timezoneName);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'timezone_id' => $timezoneId,
+                'severity_id' => $severityId,
+                'category_ids' => [$categoryId, $categoryId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['timezone' => ['id' => $timezoneId, 'name' => $timezoneName]]);
+
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+
+        /** @var int|string $location */
+        $location = $this->connection->fetchOne('SELECT host_location FROM host WHERE host_id = ?', [$hostId]);
+        self::assertSame($timezoneId, (int) $location);
+
+        // Both land in the same table, told apart only by `hostcategories.level`, and a repeated
+        // id must not produce a second row: the table has no unique key.
+        $relations = $this->intColumn(
+            'SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?',
+            $hostId,
+        );
+        sort($relations);
+        $expected = [$categoryId, $severityId];
+        sort($expected);
+        self::assertSame($expected, $relations);
+    }
+
+    public function testItRejectsAnUnknownTimezone(): void
+    {
+        $this->assertReferenceIsRejected('timezone_id', 999999);
+    }
+
+    public function testItRejectsAnUnknownSeverity(): void
+    {
+        $this->assertReferenceIsRejected('severity_id', 999999);
+    }
+
+    public function testItRejectsAnUnknownCategory(): void
+    {
+        $this->assertReferenceIsRejected('category_ids', [999999]);
+    }
+
+    /**
+     * Severities and categories are rows of the same table, so neither may resolve as the other.
+     */
+    public function testItRejectsASeverityIdPassedAsACategory(): void
+    {
+        $this->login();
+        $severityId = $this->insertHostSeverity($this->uniqueName('Critical'));
+
+        $this->assertReferenceIsRejected('category_ids', [$severityId], login: false);
+    }
+
+    public function testItRejectsACategoryIdPassedAsASeverity(): void
+    {
+        $this->login();
+        $categoryId = $this->insertHostCategory($this->uniqueName('Production'));
+
+        $this->assertReferenceIsRejected('severity_id', $categoryId, login: false);
+    }
+
+    public function testItCreatesAHostWithTemplatesAndRelatedHosts(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $firstTemplateId = $this->insertHostTemplate($this->uniqueName('generic'));
+        $secondTemplateId = $this->insertHostTemplate($this->uniqueName('linux'));
+        $parentId = $this->insertHost($this->uniqueName('router'), $pollerId);
+        $childId = $this->insertHost($this->uniqueName('vm'), $pollerId);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.50',
+                'poller_id' => $pollerId,
+                'template_ids' => [$secondTemplateId, $firstTemplateId, $secondTemplateId],
+                // Nothing here asserts deployment, and leaving it on would boot the legacy kernel.
+                'create_services_linked_to_templates' => false,
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$childId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        $payload = $response->toArray();
+        self::assertSame([$parentId], $this->idsOf($payload, 'parent_hosts'));
+        self::assertSame([$childId], $this->idsOf($payload, 'child_hosts'));
+        // Ordered as posted, and the repeat is dropped: host_template_relation's primary key is
+        // (host_host_id, host_tpl_id), so a duplicate would be an error rather than a second row.
+        self::assertSame([$secondTemplateId, $firstTemplateId], $this->idsOf($payload, 'templates'));
+
+        /** @var int $hostId */
+        $hostId = $payload['id'];
+
+        /** @var list<array{host_tpl_id: int|string, order: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_tpl_id, `order` FROM host_template_relation WHERE host_host_id = ? ORDER BY `order`',
+            [$hostId],
+        );
+        self::assertSame(
+            [[$secondTemplateId, 0], [$firstTemplateId, 1]],
+            array_map(static fn (array $row): array => [(int) $row['host_tpl_id'], (int) $row['order']], $rows),
+        );
+
+        // Written from both sides of the same table.
+        self::assertSame(
+            [$parentId],
+            $this->intColumn('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$childId],
+            $this->intColumn('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = ?', $hostId),
+        );
+    }
+
+    public function testItRejectsAnUnknownTemplate(): void
+    {
+        $this->assertReferenceIsRejected('template_ids', [999999]);
+    }
+
+    public function testItRejectsAnUnknownParentHost(): void
+    {
+        $this->assertReferenceIsRejected('parent_host_ids', [999999]);
+    }
+
+    public function testItRejectsAnUnknownChildHost(): void
+    {
+        $this->assertReferenceIsRejected('child_host_ids', [999999]);
+    }
+
+    /**
+     * A template has no poller and would corrupt the hierarchy, so it must not resolve as a host.
+     */
+    public function testItRejectsAHostTemplateUsedAsAParent(): void
+    {
+        $this->login();
+        $templateId = $this->insertHostTemplate($this->uniqueName('generic'));
+
+        $this->assertReferenceIsRejected('parent_host_ids', [$templateId], login: false);
+    }
+
+    public function testItRejectsAHostNamedAsBothParentAndChild(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $otherId = $this->insertHost($this->uniqueName('router'), $pollerId);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.51',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$otherId],
+                'child_host_ids' => [$otherId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAChildThatIsAnAncestorOfAParent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $ancestorId = $this->insertHost($this->uniqueName('core'), $pollerId);
+        $parentId = $this->insertHost($this->uniqueName('edge'), $pollerId);
+        $this->connection->insert('host_hostparent_relation', [
+            'host_parent_hp_id' => $ancestorId,
+            'host_host_id' => $parentId,
+        ]);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.52',
+                'poller_id' => $pollerId,
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$ancestorId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * The toggle is honoured in `CreateHostCommandHandler`, which is where it is unit-tested: the
+     * legacy deployer runs on its own connection and cannot see this test's open transaction, so
+     * an end-to-end assertion on the created services is not reachable here. What this pins is the
+     * binding — a non-boolean must be refused rather than silently ignored.
+     */
+    public function testItRejectsANonBooleanServiceDeploymentToggle(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.53',
+                'poller_id' => $pollerId,
+                'create_services_linked_to_templates' => 'yes',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @param array<mixed> $payload
+     *
+     * @return list<int>
+     */
+    private function idsOf(array $payload, string $key): array
+    {
+        /** @var list<array{id: int}> $items */
+        $items = $payload[$key];
+
+        return array_map(static fn (array $item): int => $item['id'], $items);
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function assertReferenceIsRejected(string $field, mixed $value, bool $login = true): void
+    {
+        if ($login) {
+            $this->login();
+        }
+
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.41',
+                'poller_id' => $pollerId,
+                $field => $value,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function intColumn(string $sql, int $parameter): array
+    {
+        /** @var list<int|string> $values */
+        $values = $this->connection->fetchFirstColumn($sql, [$parameter]);
+
+        return array_map(static fn (int|string $value): int => (int) $value, $values);
+    }
+
+    private function insertHostCategory(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostSeverity(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name, 'level' => 1]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * `timezone_name` is UNIQUE against the pre-seeded IANA rows; the offsets are NOT NULL.
+     */
+    private function insertTimezone(string $name): int
+    {
+        $this->connection->insert('timezone', [
+            'timezone_name' => $name,
+            'timezone_offset' => '+00:00',
+            'timezone_dst_offset' => '+00:00',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function uniqueName(string $prefix = 'host'): string
+    {
+        return $prefix . '_' . bin2hex(random_bytes(4));
+    }
+
     private function forceCloudPlatform(): void
     {
         $this->forcePlatform(isCloudPlatform: true);
@@ -1152,6 +1631,16 @@ final class CreateHostProcessorTest extends ApiTestCase
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var HostTemplateRepository $hostTemplateRepository */
+        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var HostCategoryRepository $hostCategoryRepository */
+        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
+        /** @var HostSeverityRepository $hostSeverityRepository */
+        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
+        /** @var TimezoneRepository $timezoneRepository */
+        $timezoneRepository = $container->get(TimezoneRepository::class);
 
         $container->set(
             CreateHostProcessor::class,
@@ -1162,17 +1651,17 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $pollerRepository,
                 $hostGroupRepository,
                 $commandRepository,
+                $hostTemplateRepository,
+                $hostCategoryRepository,
+                $hostSeverityRepository,
+                $timezoneRepository,
+                $hostRepository,
                 $mediaRepository,
                 $mediaUrlGenerator,
                 $timePeriodRepository,
                 $isCloudPlatform,
             ),
         );
-    }
-
-    private function uniqueName(string $prefix = 'host'): string
-    {
-        return $prefix . '_' . bin2hex(random_bytes(4));
     }
 
     private function insertPoller(string $name): int

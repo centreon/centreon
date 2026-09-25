@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -100,6 +101,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_event_handler_enabled' => ':eventHandlerEnabled',
                 'command_command_id2' => ':eventHandlerCommandId',
                 'command_command_id_arg2' => ':eventHandlerArgs',
+                'host_snmp_version' => ':snmpVersion',
+                'host_snmp_community' => ':snmpCommunity',
+                'host_location' => ':timezoneId', // the timezone, despite the legacy column name
                 'geo_coords' => ':geoCoords',
                 'host_comment' => ':comment',
                 'timeperiod_tp_id' => ':checkTimeperiodId',
@@ -111,6 +115,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
+            // NULL where legacy stores '': config generation skips both identically.
             ->setParameter('alias', $host->alias?->value)
             ->setParameter('is_activated', $host->activated ? '1' : '0')
             ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
@@ -122,6 +127,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
             ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
             ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
+            ->setParameter('snmpVersion', $host->snmpVersion?->value)
+            ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
+            ->setParameter('timezoneId', $host->timezoneId?->value)
             ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
             ->setParameter('comment', $extendedInformations?->comment)
             ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
@@ -175,6 +183,35 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('hostId', $hostId)
                 ->executeStatement();
         }
+
+        // Categories and the severity share this table, told apart only by `hostcategories.level`.
+        foreach ($host->categoryIds as $categoryId) {
+            $this->linkToHostCategory($hostId, $categoryId->value);
+        }
+
+        if ($host->severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $host->severityId->value);
+        }
+
+        // Contiguous, unlike AddHost, which leaves gaps from the array_unique() keys.
+        $order = 0;
+        foreach ($host->templateIds as $templateId) {
+            $this->connection->createQueryBuilder()
+                ->insert('host_template_relation')
+                ->values(['host_tpl_id' => ':templateId', 'host_host_id' => ':hostId', '`order`' => ':order'])
+                ->setParameter('templateId', $templateId->value)
+                ->setParameter('hostId', $hostId)
+                ->setParameter('order', $order++)
+                ->executeStatement();
+        }
+
+        foreach ($host->parentHostIds as $parentHostId) {
+            $this->insertParentRelation(parentId: $parentHostId->value, childId: $hostId);
+        }
+
+        foreach ($host->childHostIds as $childHostId) {
+            $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
+        }
     }
 
     /**
@@ -208,7 +245,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->from(self::TABLE_NAME, 'h')
             ->leftJoin('h', 'ns_host_relation', 'nsr', 'nsr.host_host_id = h.host_id')
             ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
-            ->leftJoin('h', 'host_template_relation', 'htpl', 'htpl.host_host_id = h.host_id')
             ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
             ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
             ->andWhere("h.host_register = '1'")
@@ -237,7 +273,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $this->paginate($qb, $criteria);
 
         // total across all pages: countMatching clones $qb, strips its sort/pagination
-        // and resets its GROUP BY (needed here to collapse the template-relation join),
+        // and resets its GROUP BY (needed here to collapse the host-group join),
         // so the count is unaffected by the pagination applied above.
         $count = $this->countMatching($qb, 'COUNT(DISTINCT h.host_id)');
 
@@ -264,10 +300,76 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             "{$alias}.host_address AS ip_address",
             "{$alias}.host_activate AS is_activated",
             'nsr.nagios_server_id AS poller_id',
-            'GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids',
+            // A correlated subquery, not a GROUP_CONCAT over the join, because the position in
+            // this list is the inheritance order the aggregate promises.
+            "(SELECT GROUP_CONCAT(htr.host_tpl_id ORDER BY htr.`order`)
+                FROM host_template_relation htr
+                WHERE htr.host_host_id = {$alias}.host_id) AS template_ids",
             'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
             'ehi.ehi_icon_image AS icon_id',
         ];
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('host_id', 'host_name')
+            ->from(self::TABLE_NAME)
+            ->where("host_register = '1'")
+            ->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{host_id: int|string, host_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        // `host_name` is nullable; a nameless row reads as "not found".
+        $names = [];
+        foreach ($rows as $row) {
+            if (($name = (string) $row['host_name']) !== '') {
+                $names[(int) $row['host_id']] = new HostName($name);
+            }
+        }
+
+        return new Collection($names, HostName::class);
+    }
+
+    public function findAncestorIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostId::class);
+        }
+
+        // UNION, not UNION ALL: a loop already in the data cannot hang the query.
+        $sql = <<<'SQL'
+            WITH RECURSIVE ancestors (host_id) AS (
+                SELECT h.host_id
+                FROM host h
+                WHERE h.host_id IN (:ids)
+                UNION
+                SELECT hhr.host_parent_hp_id
+                FROM host_hostparent_relation hhr
+                INNER JOIN ancestors a ON a.host_id = hhr.host_host_id
+                WHERE hhr.host_parent_hp_id IS NOT NULL
+            )
+            SELECT host_id FROM ancestors
+            SQL;
+
+        /** @var list<array{host_id: int|string}> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $idValues],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        return new Collection(
+            array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
+            HostId::class,
+        );
     }
 
     /**
@@ -372,5 +474,25 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     private function createHost(array $row): Host
     {
         return $this->transformer->transform($row);
+    }
+
+    private function linkToHostCategory(int $hostId, int $hostCategoryId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('hostcategories_relation')
+            ->values(['hostcategories_hc_id' => ':categoryId', 'host_host_id' => ':hostId'])
+            ->setParameter('categoryId', $hostCategoryId)
+            ->setParameter('hostId', $hostId)
+            ->executeStatement();
+    }
+
+    private function insertParentRelation(int $parentId, int $childId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('host_hostparent_relation')
+            ->values(['host_parent_hp_id' => ':parentId', 'host_host_id' => ':childId'])
+            ->setParameter('parentId', $parentId)
+            ->setParameter('childId', $childId)
+            ->executeStatement();
     }
 }
