@@ -3,10 +3,16 @@
 import { useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { configurationAtom, modalStateAtom } from '../atoms';
+import {
+  configurationAtom,
+  formStateAtom,
+  isCloseConfirmationDialogOpenAtom,
+  isFormDirtyAtom
+} from '../atoms';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
 import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
@@ -20,7 +26,7 @@ interface UseListing {
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';
-  openEditModal: (row) => void;
+  openEditForm: (row) => void;
   disableRowCondition: (row) => boolean;
   limit: number;
 }
@@ -39,7 +45,18 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     selectedColumnIdsAtom
   );
 
-  const setModalState = useSetAtom(modalStateAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
+  const isFormDirty = useAtomValue(isFormDirtyAtom);
+  const setIsCloseConfirmationDialogOpen = useSetAtom(
+    isCloseConfirmationDialogOpenAtom
+  );
+
+  // `MemoizedListing` holds on to this handler, so anything it reads has to be
+  // read when the row is clicked rather than when the handler was built.
+  const formStateRef = useRef(formState);
+  formStateRef.current = formState;
+  const isFormDirtyRef = useRef(isFormDirty);
+  isFormDirtyRef.current = isFormDirty;
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -68,13 +85,27 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     setSelectedColumnIds(updatedColumnIds);
   };
 
-  const openEditModal = (row) => {
+  const openEditForm = (row) => {
+    // A panel has no backdrop, so the listing stays clickable while a form is
+    // open. Switching to another resource would drop unsaved edits silently.
+    const openForm = formStateRef.current;
+
+    const leavesEditsBehind =
+      openForm.isOpen && isFormDirtyRef.current && openForm.id !== row.id;
+
+    if (leavesEditsBehind) {
+      setIsCloseConfirmationDialogOpen(true);
+
+      return;
+    }
+
     setSearchParams({ id: row.id, mode: 'edit' });
 
-    setModalState({
+    setFormState({
       id: row.id,
       isOpen: true,
-      mode: 'edit'
+      mode: 'edit',
+      resource: row
     });
   };
 
@@ -86,7 +117,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     changeSort,
     disableRowCondition,
     limit,
-    openEditModal,
+    openEditForm,
     page,
     resetColumns,
     selectColumns,

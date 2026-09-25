@@ -6,7 +6,6 @@ import { ResponseError, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
@@ -17,9 +16,9 @@ import {
 } from '../api';
 import {
   configurationAtom,
+  formStateAtom,
   isCloseConfirmationDialogOpenAtom,
-  isFormDirtyAtom,
-  modalStateAtom
+  isFormDirtyAtom
 } from '../atoms';
 import {
   labelModalTitle,
@@ -27,7 +26,7 @@ import {
   labelResourceUpdated
 } from '../translatedLabels';
 
-interface UseModalState {
+interface UseFormState {
   labelHeader: string;
   submit: (
     values,
@@ -45,16 +44,14 @@ interface UseModalState {
   isLoading: boolean;
 }
 
-const useModal = ({ defaultValues, hasWriteAccess }): UseModalState => {
+const useForm = ({ defaultValues, hasWriteAccess }): UseFormState => {
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
 
-  const [searchParams, setSearchParams] = useSearchParams(
-    window.location.search
-  );
+  const [, setSearchParams] = useSearchParams(window.location.search);
 
-  const [modalState, setModalState] = useAtom(modalStateAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
   const isFormDirty = useAtomValue(isFormDirtyAtom);
   const setIsCloseConfirmationDialogOpen = useSetAtom(
     isCloseConfirmationDialogOpenAtom
@@ -65,34 +62,21 @@ const useModal = ({ defaultValues, hasWriteAccess }): UseModalState => {
   const adapter = configuration?.api?.adapter;
 
   const labelResourceType = capitalize(resourceType as string);
-  const isAddMode = equals(modalState.mode, 'add');
+  const isAddMode = equals(formState.mode, 'add');
 
   const { data, isLoading } = useGetDetails({
-    id: modalState.id
+    id: formState.id
   });
 
   const initialValues =
-    data && equals(modalState.mode, 'edit') ? data : defaultValues;
+    data && equals(formState.mode, 'edit') ? data : defaultValues;
 
   const { createMutation } = useCreateRequest();
   const { updateMutation } = useUpdateRequest();
 
-  useEffect(() => {
-    const mode = searchParams.get('mode');
-    const id = searchParams.get('id');
-
-    if (mode) {
-      setModalState({
-        id: id ? Number(id) : null,
-        isOpen: true,
-        mode: mode as 'add' | 'edit'
-      });
-    }
-  }, [searchParams, setModalState]);
-
   const reset = (): void => {
     setSearchParams({});
-    setModalState({ ...modalState, id: null, isOpen: false });
+    setFormState({ ...formState, id: null, isOpen: false });
   };
 
   const close = () => {
@@ -127,7 +111,7 @@ const useModal = ({ defaultValues, hasWriteAccess }): UseModalState => {
     const payload = adapter(values);
     const mutate = isAddMode
       ? createMutation
-      : updateMutation(modalState.id as number);
+      : updateMutation(formState.id as number);
 
     mutate(payload)
       .then(handleApiSuccess)
@@ -145,14 +129,14 @@ const useModal = ({ defaultValues, hasWriteAccess }): UseModalState => {
 
   return {
     close,
-    id: modalState.id,
+    id: formState.id,
     initialValues,
     isLoading,
-    isOpen: modalState.isOpen,
+    isOpen: formState.isOpen,
     labelHeader,
-    mode: modalState.mode,
+    mode: formState.mode,
     submit
   };
 };
 
-export default useModal;
+export default useForm;

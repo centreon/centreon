@@ -96,6 +96,8 @@ const Hosts = () => {
       // autocompletes hold.
       filtersPanelWidth={60}
       form={{ defaultValues, groups, inputs, validationSchema }}
+      // The host form is specified as a side panel beside the listing.
+      formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         title: t(labelHosts),

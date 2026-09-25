@@ -125,15 +125,23 @@ const initialize = ({
   filters = filtersConfiguration,
   initialValues = filtersInitialValues,
   filtersPanelWidth,
-  actions = defaultActions
+  actions = defaultActions,
+  formVariant,
+  searchParams = ''
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
   initialValues?: Record<string, unknown>;
   filtersPanelWidth?: number;
   actions?: Actions;
+  formVariant?: 'modal' | 'panel';
+  searchParams?: string;
 }): void => {
   const resource = resourceType.replace(' ', '_');
+
+  // Mounted under a real router, so a deep link is expressed as the URL the
+  // page is opened on. Always set, so one test cannot leak into the next.
+  window.history.pushState({}, '', searchParams || window.location.pathname);
 
   mockListingRequests(resource);
 
@@ -184,6 +192,7 @@ const initialize = ({
                     groups,
                     inputs
                   }}
+                  formVariant={formVariant}
                   isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
                   labels={{
                     title: `${capitalize(resourceType)}s`,
