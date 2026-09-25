@@ -1783,7 +1783,11 @@ final class CreateHostProcessorTest extends ApiTestCase
         $this->login();
         $pollerId = $this->insertPoller('Central');
 
-        // "SNMPCOMMUNITY" resolves to $_HOSTSNMPCOMMUNITY$, a reserved macro in nagios_macro.
+        // "SNMPCOMMUNITY" resolves to $_HOSTSNMPCOMMUNITY$, a reserved macro in nagios_macro. Seed it
+        // explicitly rather than rely on the platform install data, which the integration database
+        // does not guarantee (macro_id is auto-increment, so only the name matters here).
+        $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
+
         $this->request('POST', self::BASE_ENDPOINT, [
             'json' => [
                 'name' => $this->uniqueName('server'),
