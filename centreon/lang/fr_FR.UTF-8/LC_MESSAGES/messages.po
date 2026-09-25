@@ -5586,12 +5586,6 @@ msgid ""
 msgstr "Éditer la page de wiki"
 
 #: centreon/www/install/front_translate.php
-msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
-msgstr ""
-"Les licences Edition ajoutent la découverte automatique, BAM, le reporting "
-"avancé et des SLA."
-
-#: centreon/www/install/front_translate.php
 msgid "Editions & Cloud licenses"
 msgstr "Licences Edition et Cloud"
 
@@ -12612,10 +12606,6 @@ msgstr ""
 "complète sur votre infrastructure hybride"
 
 #: centreon/www/install/front_translate.php
-msgid "Open source edition"
-msgstr "Édition open source"
-
-#: centreon/www/install/front_translate.php
 msgid "Open the repository"
 msgstr "Ouvrir le dépôt"
 
@@ -13587,10 +13577,6 @@ msgstr "Progression"
 #: centreon/www/install/front_translate.php
 msgid "Project & contributors"
 msgstr "Projet et contributeurs"
-
-#: centreon/www/install/front_translate.php
-msgid "Project leaders <count>({{total}})</count>"
-msgstr "Responsables du projet <count>({{total}})</count>"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -14714,10 +14700,6 @@ msgstr "Mise à l'échelle"
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "Scale of time"
 msgstr "Echelle de temps"
-
-#: centreon/www/install/front_translate.php
-msgid "Scaling beyond open source?"
-msgstr "Besoin d'aller plus loin que l'open source ?"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Schedule an immediate check of all services on this host"
@@ -16222,10 +16204,6 @@ msgstr "Début"
 #: centreon/www/install/front_translate.php
 msgid "Start date"
 msgstr "Date de début"
-
-#: centreon/www/install/front_translate.php
-msgid "Start free trial"
-msgstr "Démarrer l'essai gratuit"
 
 #: centreon/www/install/front_translate.php
 msgid "Start time"
