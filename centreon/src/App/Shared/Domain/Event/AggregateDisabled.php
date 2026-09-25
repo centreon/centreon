@@ -24,12 +24,8 @@ declare(strict_types=1);
 namespace App\Shared\Domain\Event;
 
 /**
- * The aggregate's activation was turned off.
- *
- * A specialization of {@see AggregateUpdated}: side-effect handlers that react to any
- * configuration change (poller reload, ACL recompute) type-hint the supertype and therefore
- * catch this automatically, while the activity log distinguishes it to record a dedicated
- * "disable" line instead of a generic "update".
+ * The aggregate's activation was turned off. A specialization of {@see AggregateUpdated}: side-effect
+ * handlers catch it via the supertype, while the activity log records a dedicated "disable" line.
  */
 abstract readonly class AggregateDisabled extends AggregateUpdated
 {

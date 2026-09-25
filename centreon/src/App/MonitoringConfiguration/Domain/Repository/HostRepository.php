@@ -46,11 +46,9 @@ interface HostRepository
     public function getById(HostId $id, ?UserId $viewerId = null): Host;
 
     /**
-     * Bounded UPDATE of the activation flag alone. Never touches a host template.
-     *
-     * Precondition: the caller must have confirmed the host exists — typically via {@see getById()}
-     * in the same transaction. This method does not assert a row was matched, so it is a silent
-     * no-op on an unknown or template id; it never throws for those.
+     * Bounded UPDATE of the activation flag; never touches a host template. Precondition: the caller
+     * confirmed the host exists (typically {@see getById()} in the same transaction) — it does not
+     * assert a matched row, so it is a silent no-op on an unknown or template id.
      */
     public function updateActivationStatus(HostId $id, bool $activated): void;
 

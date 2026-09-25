@@ -35,20 +35,12 @@ use Webmozart\Assert\Assert;
 
 /**
  * Reacts to the create or change of any ACL-scoped resource (see {@see AclScopedInterface}): its
- * visibility may now differ, so the ACL tables are flagged for the `centAcl` cron to recompute
- * `centreon_acl` — otherwise, for instance, a disabled host lingers there until a flag is raised.
+ * visibility may differ, so the ACL tables are flagged for the `centAcl` cron to recompute
+ * `centreon_acl` (else a disabled host lingers there until some flag is raised). An admin flags all
+ * resources; a non-admin flags only their own access groups.
  *
- * Scope of the flag: an admin flags every resource; a non-admin flags only their own access groups,
- * so a resource also visible to other groups only refreshes in those groups on their next flag. This
- * mirrors the pre-existing create behaviour and never grants access, so it is a cron-lag consistency
- * matter, not a security one; flagging every group that can see the resource is out of scope here.
- *
- * On creation only, a non-admin creator's `centreon_acl` is additionally seeded directly, so they
- * see their own new resource immediately without waiting for the cron. On a later change (e.g. a
- * host being enabled or disabled) the flag alone drives the recompute: seeding grants access, which
- * would be wrong when disabling, and on enabling would give immediate visibility that the flag
- * instead defers to the cron. Reacting to the {@see AggregateUpdated} supertype also catches its
- * enable/disable specializations.
+ * Seeding `centreon_acl` directly (which grants access) happens on creation only — on a later
+ * enable/disable the flag alone drives the recompute. Caught via the {@see AggregateUpdated} supertype.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler

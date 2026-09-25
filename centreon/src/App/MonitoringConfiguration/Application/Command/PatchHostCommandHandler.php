@@ -53,9 +53,8 @@ final readonly class PatchHostCommandHandler
 
         $this->repository->updateActivationStatus($command->id, $command->activated);
 
-        // The poller and ACL side effects are driven off this event, inside the same transaction.
-        // The event carries the in-memory aggregate, which still holds its poller: a disable never
-        // loses track of the poller that must reload, even though the row is now deactivated.
+        // Drives the poller + ACL side effects, inside the transaction. The event carries the in-memory
+        // aggregate, so a disable keeps the poller to reload even though the row is now off.
         $this->eventBus->fire(
             $command->activated
                 ? new HostEnabled($host, $command->updatedBy)
