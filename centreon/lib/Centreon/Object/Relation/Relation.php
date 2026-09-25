@@ -195,6 +195,10 @@ abstract class Centreon_Object_Relation
         $bindParams = [];
         $filterIndex = 0;
         if (count($filters)) {
+            if (strtoupper($filterType) !== 'OR' && strtoupper($filterType) !== 'AND') {
+                throw new InvalidArgumentException('Invalid input');
+            }
+            $filterType = strtoupper($filterType);
             foreach ($filters as $key => $rawvalue) {
                 $key = $this->sanitizeIdentifier($key);
                 if (is_array($rawvalue)) {
