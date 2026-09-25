@@ -301,6 +301,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     public function testItMovesPasswordMacrosToTheVault(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
 
         $host = ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
@@ -315,7 +316,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
         self::assertStringStartsWith('secret::', $host->checkOptions->macros[0]->value);
         self::assertStringContainsString('_HOSTSECRET', $host->checkOptions->macros[0]->value);
-        self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->writeCalls[0]['customPath']);
+        // The credential writer batches all password macros into a single writeMany() call.
+        self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->writeManyCalls[0]['customPath']);
     }
 
     public function testItKeepsPasswordMacroPlaintextWhenVaultIsDisabled(): void
@@ -335,7 +337,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ));
 
         self::assertSame('s3cr3t', $host->checkOptions->macros[0]->value);
-        self::assertSame([], $this->vault->writeCalls);
+        self::assertSame([], $this->vault->writeManyCalls);
     }
 
     public function testItRejectsADuplicateName(): void

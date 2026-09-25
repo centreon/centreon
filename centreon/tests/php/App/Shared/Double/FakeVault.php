@@ -43,9 +43,6 @@ final class FakeVault implements VaultInterface
     /** @var list<array{customPath: string, secrets: array<string, string>, uuid: ?string}> */
     public array $writeManyCalls = [];
 
-    /** @var list<array{customPath: string, key: string, value: string, uuid: ?string}> */
-    public array $writeCalls = [];
-
     public bool $vaultEnabled = true;
 
     public int $isEnabledCalls = 0;
@@ -90,13 +87,6 @@ final class FakeVault implements VaultInterface
 
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
     {
-        $this->writeCalls[] = [
-            'customPath' => $customPath,
-            'key' => $key,
-            'value' => $value,
-            'uuid' => $uuid,
-        ];
-
         return $this->writeMany($customPath, [$key => $value], $uuid)[$key];
     }
 

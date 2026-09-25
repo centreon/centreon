@@ -207,6 +207,13 @@ final readonly class CreateHostCommandHandler
      */
     private function vaultizePasswordMacros(array $macros): array
     {
+        // Nothing to vault: leave the vault untouched (not even a feature-flag probe) when no macro
+        // needs a secret, so a host without password macros never reaches the vault at all.
+        $hasPasswordMacro = array_any($macros, static fn (HostMacro $macro): bool => $macro->isPassword);
+        if (! $hasPasswordMacro) {
+            return $macros;
+        }
+
         if (! $this->vault->isEnabled()) {
             return $macros;
         }
