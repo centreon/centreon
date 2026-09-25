@@ -25,16 +25,30 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersChoicesProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersProvider;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 #[ApiResource(
     shortName: 'Poller',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/pollers',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access pollers',
+            itemUriTemplate: '/configuration/pollers/{id}',
+            output: PollerChoicesOutput::class,
+            provider: ListPollersChoicesProvider::class,
+        ),
         new Post(
             uriTemplate: '/configuration/pollers',
             processor: CreatePollerProcessor::class,
@@ -49,6 +63,29 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
             security: "is_granted('" . PollerPermissionEnum::CanCreateEdit->value . "')",
             securityMessage: 'You are not allowed to create pollers',
         ),
+        new GetCollection(
+            uriTemplate: '/configuration/pollers',
+            provider: ListPollersProvider::class,
+            itemUriTemplate: '/configuration/pollers/{id}',
+            output: PollerCollectionOutput::class,
+            openapi: new Model\Operation(
+                parameters: [
+                    new Model\Parameter(
+                        name: 'name[lk]',
+                        in: 'query',
+                        description: 'Filter by poller name using "like" operator',
+                        required: false,
+                        schema: ['type' => 'string'],
+                    ),
+                ],
+            ),
+            security: '
+                is_granted("' . PollerPermissionEnum::CanRead->value . '") or
+                is_granted("' . PollerPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to list pollers',
+        ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/pollers/{id}'),
     ],
 )]
 final class PollerResource
@@ -70,7 +107,7 @@ final class PollerResource
         public string $gorgoneCommunicationType,
 
         #[ApiProperty(
-            openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
+            openapiContext: ['example' => 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
         )]
         #[Sensitive]
         public string $installationCommand = '',

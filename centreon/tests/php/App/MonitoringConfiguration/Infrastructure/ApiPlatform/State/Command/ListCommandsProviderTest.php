@@ -26,10 +26,12 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Com
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class ListCommandsProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/commands';
+    use ClearsInstalledPlatformRows;
+    private const BASE_ENDPOINT = '/api/configuration/commands';
 
     protected function setUp(): void
     {
@@ -37,6 +39,7 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'command');
 
         $commands = [
             ['command_id' => 1, 'command_name' => 'check_host_alive', 'command_line' => '$USER1$/check_icmp -H $HOSTADDRESS$', 'command_type' => 2],
@@ -170,7 +173,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->login();
 
         // call PATCH to deactivate a command
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -374,5 +377,21 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         $this->assertContains('Check', $commandTypes);
         $this->assertNotContains('Miscellaneous', $commandTypes);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'check_host_alive']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItIgnoresAnEmptyNameFilterValue(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => '']]]);
+        self::assertResponseIsSuccessful();
     }
 }

@@ -14,88 +14,143 @@ PULP_DOMAIN="${PULP_DOMAIN:-default}"
 # read through the public content-app, no auth/grant needed (see api.sh's content_curl)
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 
-# fetch the stable suite's Release file and print its advertised architectures
-# (empty output = suite doesn't exist yet, i.e. nothing published to guard against).
+STABLE_ROOT="${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}}"
+# the dists listing is only served on the domain path, not through the legacy front
+STABLE_REPOSITORY_ROOT="$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}"
+
+# print a stable repository file (empty output = 404, i.e. not published).
 # Fails closed (non-zero) on anything but a clean 404.
-stable_suite_architectures() {
-  local release_file http_code
-  release_file=$(mktemp)
-  http_code=$(content_curl -sSL --retry 3 --retry-delay 5 -o "$release_file" -w '%{http_code}' \
-    "$PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}}/dists/$STABLE_SUITE/Release" 2>/dev/null || echo 000)
+fetch_stable_file() {
+  local url=$1 out_file http_code
+  out_file=$(mktemp)
+  http_code=$(content_curl -sSL --retry 3 --retry-delay 5 -o "$out_file" -w '%{http_code}' "$url" 2>/dev/null || echo 000)
   case "$http_code" in
-    404) rm -f "$release_file"; return 0 ;;
-    200) awk -F': ' '/^Architectures:/ {print $2}' "$release_file"; rm -f "$release_file" ;;
+    404) rm -f "$out_file"; return 0 ;;
+    200) cat "$out_file"; rm -f "$out_file" ;;
     *)
-      rm -f "$release_file"
-      echo "::error::Cannot verify the stable suite $STABLE_SUITE (HTTP $http_code) to guard an Architecture: all package; refusing to deliver. Retry once the content endpoint is reachable." >&2
+      rm -f "$out_file"
+      echo "::error::Cannot read $url (HTTP $http_code) to guard the stable packages; refusing to deliver. Retry once the content endpoint is reachable." >&2
       return 1
       ;;
   esac
 }
 
-# fetch one architecture's Packages index from the stable suite (empty output = not
-# published for that architecture). Fails closed on anything but a clean 404.
-fetch_stable_packages_index() {
-  local a=$1 pkg_file http_code
-  pkg_file=$(mktemp)
-  http_code=$(content_curl -sSL --retry 3 --retry-delay 5 -o "$pkg_file" -w '%{http_code}' \
-    "$PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}}/dists/$STABLE_SUITE/main/binary-$a/Packages" 2>/dev/null || echo 000)
-  case "$http_code" in
-    404) rm -f "$pkg_file"; return 0 ;;
-    200) cat "$pkg_file"; rm -f "$pkg_file" ;;
-    *)
-      rm -f "$pkg_file"
-      echo "::error::Cannot verify the stable suite $STABLE_SUITE binary-$a index; refusing to deliver. Retry once the content endpoint is reachable." >&2
-      return 1
-      ;;
-  esac
+# print one "suite package version architecture sha256 filename" line per
+# package the stable repository publishes. The publication lays every suite out
+# in one flat pool (pool/main/<prefix>/<name>/<file>), so a build published in
+# another version's stable suite shares the delivered file's pool path, and the
+# legacy front resolves pool paths stable first.
+load_stable_packages() {
+  local listing listed suites suite root release arches a packages
+  listing=$(fetch_stable_file "$PULP_CONTENT_URL/$STABLE_REPOSITORY_ROOT/dists/") || return 1
+  listed=$(grep -oE 'href="(\./)?[^"/?]+/"' <<< "$listing" | sed -E 's|href="(\./)?([^"/?]+)/"|\2|' | grep -vx '\.\.' || true)
+  # a listing without any link isn't the expected directory index: guarding
+  # the target suite only would let a shared-pool collision through
+  if [[ -n "$listing" ]] && ! grep -q 'href="' <<< "$listing"; then
+    echo "::error::Cannot parse the stable suites from $STABLE_REPOSITORY_ROOT/dists/; refusing to deliver." >&2
+    return 1
+  fi
+  suites=$(printf '%s\n' "$STABLE_SUITE" "$listed" | awk 'NF && !seen[$0]++')
+  for suite in $suites; do
+    root=$STABLE_REPOSITORY_ROOT
+    [[ "$suite" == "$STABLE_SUITE" ]] && root=$STABLE_ROOT
+    release=$(fetch_stable_file "$PULP_CONTENT_URL/$root/dists/$suite/Release") || return 1
+    # no Release yet (fresh suite) -> nothing published
+    [[ -z "$release" ]] && continue
+    # "Architecture: all" packages are listed in every binary-<arch>/Packages
+    # index the suite advertises; there is no binary-all index (404, skipped)
+    arches=$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$release")
+    for a in $arches; do
+      packages=$(fetch_stable_file "$PULP_CONTENT_URL/$root/dists/$suite/main/binary-$a/Packages") || return 1
+      [[ -z "$packages" ]] && continue
+      awk -v s="$suite" '
+        BEGIN { RS = ""; FS = "\n" }
+        {
+          n = v = ar = h = f = ""
+          for (i = 1; i <= NF; i++) {
+            if ($i ~ /^Package: /) n = substr($i, 10)
+            else if ($i ~ /^Version: /) v = substr($i, 10)
+            else if ($i ~ /^Architecture: /) ar = substr($i, 15)
+            else if ($i ~ /^SHA256: /) h = substr($i, 9)
+            else if ($i ~ /^Filename: /) f = substr($i, 11)
+          }
+          if (n != "") print s, n, v, ar, h, f
+        }
+      ' <<< "$packages"
+    done
+  done
 }
 
-# refuse delivering a package version already published in the stable suite:
-# pulp dedupes by (package, version, arch) repository-wide, so re-delivering
-# would silently evict the stable one
-assert_not_in_stable() {
-  local file=$1 name version arch arches a packages
+# the stable repository holds a single build per (package, version, arch) for
+# every suite: when another version's stable suite already publishes this
+# package version, deliver that exact build instead of the local one, so the
+# testing index matches the served file and the promotion can associate it
+# with this version's stable suite too
+adopt_stable_build() {
+  local file=$1 name version arch sha256 entry other_suite stable_sha256 stable_filename tmp_file
   name=$(dpkg-deb -f "$file" Package)
   version=$(dpkg-deb -f "$file" Version)
   arch=$(dpkg-deb -f "$file" Architecture)
+  sha256=$(sha256sum "$file" | cut -d' ' -f1)
+  # already in this version's stable suite: assert_not_in_stable refuses it
+  if awk -v s="$STABLE_SUITE" -v n="$name" -v v="$version" -v a="$arch" \
+       '$1 == s && $2 == n && $3 == v && $4 == a { found = 1 } END { exit found ? 0 : 1 }' "$STABLE_PACKAGES"; then
+    return 0
+  fi
+  entry=$(awk -v s="$STABLE_SUITE" -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" \
+    '$1 != s && $2 == n && $3 == v && $4 == a && $5 != h { print $1, $5, $6; exit }' "$STABLE_PACKAGES")
+  [[ -z "$entry" ]] && return 0
+  read -r other_suite stable_sha256 stable_filename <<< "$entry"
 
-  # the release_components api isn't listable by the OIDC ci-user (403), so
-  # check the served Packages index(es) instead. "Architecture: all" packages are
-  # listed in every binary-<arch>/Packages index the suite advertises, not a
-  # synthetic "binary-all" one that doesn't exist -- resolve the suite's actual
-  # architectures from its Release file and check each of them; other
-  # architectures still only ever need their own single index.
-  if [[ "$arch" == "all" ]]; then
-    arches=$(stable_suite_architectures) || return 1
-    # no Release yet (fresh suite) -> nothing published, nothing to guard against
-    [[ -z "$arches" ]] && return 0
-  else
-    arches="$arch"
+  tmp_file=$(mktemp)
+  if ! content_curl -fsSL --retry 3 --retry-delay 5 -o "$tmp_file" "$PULP_CONTENT_URL/$STABLE_REPOSITORY_ROOT/$stable_filename"; then
+    rm -f "$tmp_file"
+    echo "::error::Cannot download the $other_suite build of $name $version ($arch) to deliver it instead of the local one; refusing to deliver."
+    return 1
+  fi
+  if [[ "$(sha256sum "$tmp_file" | cut -d' ' -f1)" != "$stable_sha256" \
+     || "$(dpkg-deb -f "$tmp_file" Package)" != "$name" \
+     || "$(dpkg-deb -f "$tmp_file" Version)" != "$version" \
+     || "$(dpkg-deb -f "$tmp_file" Architecture)" != "$arch" ]]; then
+    rm -f "$tmp_file"
+    echo "::error::The downloaded $other_suite build of $name $version ($arch) doesn't match its index entry; refusing to deliver."
+    return 1
+  fi
+  mv -f "$tmp_file" "$file"
+  chmod 644 "$file"
+  ADOPTED[$file]=1
+  echo "::warning::$name $version ($arch) is already published in the stable suite $other_suite (sha256 $stable_sha256): delivering that build instead of the local one (sha256 $sha256). Bump the package version to ship a distinct build."
+}
+
+# refuse delivering a package version already published in the stable suite
+# (pulp dedupes by (package, version, arch) repository-wide, so re-delivering
+# would silently evict the stable one), or another build of a version published
+# in any other stable suite (same pool path, the stable file would be served;
+# adopt_stable_build normally replaced it beforehand). The release_components
+# api isn't listable by the OIDC ci-user (403), so this reads the served
+# Packages indexes loaded into STABLE_PACKAGES.
+assert_not_in_stable() {
+  local file=$1 name version arch sha256 conflict
+  # unstable is never promoted to stable: a rebuilt package may reuse a version
+  # already published there (unversioned plugins/connectors packages)
+  [[ "${STABILITY:-}" == "unstable" ]] && return 0
+  name=$(dpkg-deb -f "$file" Package)
+  version=$(dpkg-deb -f "$file" Version)
+  arch=$(dpkg-deb -f "$file" Architecture)
+  sha256=$(sha256sum "$file" | cut -d' ' -f1)
+
+  if awk -v s="$STABLE_SUITE" -v n="$name" -v v="$version" -v a="$arch" \
+       '$1 == s && $2 == n && $3 == v && $4 == a { found = 1 } END { exit found ? 0 : 1 }' "$STABLE_PACKAGES"; then
+    echo "::error::$name $version ($arch) is already published in the stable suite $STABLE_SUITE; refusing to deliver it to $SUITE. Bump the package version for a new build."
+    return 1
   fi
 
-  for a in $arches; do
-    packages=$(fetch_stable_packages_index "$a") || return 1
-    # empty index -> nothing in stable for this architecture
-    [[ -z "$packages" ]] && continue
-
-    # a package is in stable if a Packages stanza matches both name and version
-    if printf '%s\n' "$packages" | awk -v n="$name" -v v="$version" '
-         BEGIN { RS = ""; FS = "\n" }
-         {
-           has_name = 0; has_version = 0
-           for (i = 1; i <= NF; i++) {
-             if ($i == "Package: " n) has_name = 1
-             if ($i == "Version: " v) has_version = 1
-           }
-           if (has_name && has_version) found = 1
-         }
-         END { exit found ? 0 : 1 }
-       '; then
-      echo "::error::$name $version ($arch) is already published in the stable suite $STABLE_SUITE; refusing to deliver it to $SUITE. Bump the package version for a new build."
-      return 1
-    fi
-  done
+  conflict=$(awk -v n="$name" -v v="$version" -v a="$arch" -v h="$sha256" \
+    '$2 == n && $3 == v && $4 == a && $5 != h { print $1; exit }' "$STABLE_PACKAGES")
+  if [[ -n "$conflict" ]]; then
+    echo "::error::Another build of $name $version ($arch) is published in the stable suite $conflict and shares its pool path; refusing to deliver it to $SUITE, the stable file would be served instead. Bump the package version."
+    return 1
+  fi
 }
 
 FILES=(*.deb)
@@ -115,6 +170,69 @@ if ! pulp_resource_exists "distributions/deb/apt" "$REPOSITORY_NAME"; then
 fi
 
 REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
+
+# loaded once, read by every assert_not_in_stable (parallel uploads included);
+# adoptions happen before anything reads the local files' checksums
+STABLE_PACKAGES=$(mktemp)
+declare -A ADOPTED=()
+if [[ "${STABILITY:-}" != "unstable" ]]; then
+  refresh_pulp_token
+  load_stable_packages > "$STABLE_PACKAGES"
+  for FILE in "${FILES[@]}"; do
+    adopt_stable_build "$FILE"
+  done
+fi
+
+# record every delivered package in the manifest for the verification step,
+# publish, and write the manifest
+record_and_publish() {
+  local file name version arch sha256
+  for file in "${FILES[@]}"; do
+    name=$(dpkg-deb -f "$file" Package)
+    version=$(dpkg-deb -f "$file" Version)
+    arch=$(dpkg-deb -f "$file" Architecture)
+    sha256=$(sha256sum "$file" | cut -d' ' -f1)
+    manifest_add "$(jq -cn \
+      --arg filename "$file" --arg name "$name" --arg version "$version" \
+      --arg arch "$arch" --arg sha256 "$sha256" --arg repository "$REPOSITORY_NAME" \
+      --arg base_path "${LEGACY_BASE_PATH:-$PULP_DOMAIN/$BASE_PATH}" --arg suite "$SUITE" --arg relative_path "$POOL_PATH/$file" \
+      '{filename:$filename,name:$name,version:$version,arch:$arch,sha256:$sha256,repository:$repository,base_path:$base_path,suite:$suite,relative_path:$relative_path}')"
+  done
+
+  echo "[INFO] Publishing repository $REPOSITORY_NAME"
+  create_publication deb "$REPOSITORY_NAME" --structured
+
+  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_BASE_PATH:-$PULP_DOMAIN/$BASE_PATH}/ $SUITE main"
+
+  manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "${STABILITY:-}" "delivery" "$PULP_CONTENT_URL"
+}
+
+# an adopted build already published in the target suite (a previous delivery
+# of the same version) needs no upload: it is reused content whose suite
+# association pre-exists, from which no release component can be deduced
+DELIVER_FILES=("${FILES[@]}")
+if ((${#ADOPTED[@]} > 0)); then
+  TARGET_ROOT="${LEGACY_BASE_PATH:-$PULP_DOMAIN/$BASE_PATH}"
+  TARGET_SHA256S=""
+  TARGET_RELEASE=$(fetch_stable_file "$PULP_CONTENT_URL/$TARGET_ROOT/dists/$SUITE/Release")
+  read -ra TARGET_ARCHES <<< "$(awk -F': ' '/^Architectures:/ {print $2}' <<< "$TARGET_RELEASE")"
+  for a in "${TARGET_ARCHES[@]}"; do
+    TARGET_SHA256S+=$(fetch_stable_file "$PULP_CONTENT_URL/$TARGET_ROOT/dists/$SUITE/main/binary-$a/Packages" | awk -F': ' '/^SHA256:/ {print $2}')
+    TARGET_SHA256S+=$'\n'
+  done
+  DELIVER_FILES=()
+  for FILE in "${FILES[@]}"; do
+    if [[ -n "${ADOPTED[$FILE]+set}" ]] && grep -qxF "$(sha256sum "$FILE" | cut -d' ' -f1)" <<< "$TARGET_SHA256S"; then
+      echo "[INFO] $FILE: the adopted build is already published in $SUITE, nothing to upload"
+    else
+      DELIVER_FILES+=("$FILE")
+    fi
+  done
+  if ((${#DELIVER_FILES[@]} == 0)); then
+    record_and_publish
+    exit 0
+  fi
+fi
 
 PULP_LABELS=$(jq -cn \
   --arg mod        "$MODULE_NAME" \
@@ -201,8 +319,8 @@ declare -A LEGACY_FOR_ARCH=()
 declare -A LEGACY_FRESH=()
 declare -A LEGACY_BEFORE=()
 refresh_pulp_token
-for i in "${!FILES[@]}"; do
-  FILE=${FILES[$i]}
+for i in "${!DELIVER_FILES[@]}"; do
+  FILE=${DELIVER_FILES[$i]}
   arch=$(dpkg-deb -f "$FILE" Architecture)
   if [[ -n "${LEGACY_FRESH[$arch]+set}" ]]; then
     continue
@@ -230,7 +348,7 @@ for arch in "${!LEGACY_FOR_ARCH[@]}"; do
   IS_LEGACY["${LEGACY_FOR_ARCH[$arch]}"]=1
 done
 ORPHAN_FILES=()
-for FILE in "${FILES[@]}"; do
+for FILE in "${DELIVER_FILES[@]}"; do
   [[ -n "${IS_LEGACY[$FILE]+set}" ]] || ORPHAN_FILES+=("$FILE")
 done
 
@@ -435,22 +553,4 @@ if ((${#PACKAGE_HREFS[@]} > 0)); then
   done
 fi
 
-# record every delivered package in the manifest for the verification step
-for FILE in "${FILES[@]}"; do
-  name=$(dpkg-deb -f "$FILE" Package)
-  version=$(dpkg-deb -f "$FILE" Version)
-  arch=$(dpkg-deb -f "$FILE" Architecture)
-  sha256=$(sha256sum "$FILE" | cut -d' ' -f1)
-  manifest_add "$(jq -cn \
-    --arg filename "$FILE" --arg name "$name" --arg version "$version" \
-    --arg arch "$arch" --arg sha256 "$sha256" --arg repository "$REPOSITORY_NAME" \
-    --arg base_path "${LEGACY_BASE_PATH:-$PULP_DOMAIN/$BASE_PATH}" --arg suite "$SUITE" --arg relative_path "$POOL_PATH/$FILE" \
-    '{filename:$filename,name:$name,version:$version,arch:$arch,sha256:$sha256,repository:$repository,base_path:$base_path,suite:$suite,relative_path:$relative_path}')"
-done
-
-echo "[INFO] Publishing repository $REPOSITORY_NAME"
-create_publication deb "$REPOSITORY_NAME" --structured
-
-echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_BASE_PATH:-$PULP_DOMAIN/$BASE_PATH}/ $SUITE main"
-
-manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "${STABILITY:-}" "delivery" "$PULP_CONTENT_URL"
+record_and_publish

@@ -53,6 +53,12 @@
   --color-background-tooltip: #434e58;
   --color-background-widget: #f8f8f8;
 
+  /* Brand colors. Deliberately not overridden in the dark variant: they paint
+     brand surfaces that stay the same in both themes. */
+  --color-brand-navy: #131d5a;
+  --color-brand-navy-action: #cde7fc;
+  --color-brand-navy-action-text: #2e68aa;
+
   /* Chip colors */
   --color-chip-error: #ff6666;
   --color-chip-info: #1588d1;
@@ -104,6 +110,9 @@
   --color-secondary-main: #c772d6;
   --color-secondary-light: #e5a5f0;
   --color-secondary-dark: #ac28c1;
+
+  /* Section title color */
+  --color-section-title: #131d5a;
 
   /* Status colors */
   --color-status-background-error: #ff6e6e;
@@ -199,6 +208,7 @@
     --color-primary-dark: #4974a5;
     --color-primary-contrastText: #000;
     --color-secondary-main: #7c1fa2;
+    --color-section-title: #ffffff;
     --color-status-background-error: #ff4a4a;
     --color-status-background-none: --alpha(#2e68aa / 10%);
     --color-status-background-pending: #1ebeb3;

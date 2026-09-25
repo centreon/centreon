@@ -1,6 +1,7 @@
 import { filter, propEq } from 'ramda';
 
 import { ResourceType } from '../../models';
+import { defaultFiltersPanelWidth } from '../Filters/Filters.styles';
 import {
   labelAlias,
   labelClear,
@@ -10,7 +11,32 @@ import {
   labelSearch
 } from '../translatedLabels';
 import initialize from './initialize';
-import { filtersConfiguration } from './utils';
+import {
+  filtersConfiguration,
+  filtersConfigurationWithSingleConnectedAutocomplete,
+  filtersInitialValuesWithSingleConnectedAutocomplete,
+  labelHostTemplate
+} from './utils';
+
+const initializeWithSingleConnectedAutocomplete = (
+  resourceType: ResourceType
+): void =>
+  initialize({
+    filters: filtersConfigurationWithSingleConnectedAutocomplete,
+    initialValues: filtersInitialValuesWithSingleConnectedAutocomplete,
+    resourceType
+  });
+
+const openAdvancedFilters = (): void => {
+  cy.get(`[data-testid="${labelFilters}"]`).click();
+  cy.get('[data-testid="advanced-filters"]').should('be.visible');
+};
+
+const selectHostTemplate = (name: string): void => {
+  cy.findByTestId(labelHostTemplate).click();
+  cy.waitForRequest('@getHostTemplates');
+  cy.contains(name).click();
+};
 
 export default (resourceType: ResourceType) => {
   describe('Filters', () => {
@@ -107,6 +133,132 @@ export default (resourceType: ResourceType) => {
       cy.makeSnapshot(
         `${resourceType}: clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked`
       );
+    });
+
+    describe('Single connected autocomplete', () => {
+      beforeEach(() => {
+        cy.clearLocalStorage();
+      });
+
+      afterEach(() => {
+        cy.clearLocalStorage();
+      });
+
+      it('sends a listing request matching the selected id when a value is selected in the single connected autocomplete filter', () => {
+        initializeWithSingleConnectedAutocomplete(resourceType);
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        selectHostTemplate('host template 1');
+
+        cy.findByTestId(labelSearch).click();
+
+        cy.waitForRequest('@getAll').then(({ request }) => {
+          expect(
+            JSON.parse(request.url.searchParams.get('search'))
+          ).to.deep.equal({
+            $and: [{ $or: [{ 'host_template.id': { $eq: 1 } }] }]
+          });
+        });
+
+        cy.makeSnapshot(
+          `${resourceType}: sends a listing request matching the selected id when a value is selected in the single connected autocomplete filter`
+        );
+      });
+
+      it('removes the filter from the search parameters when the selected value is cleared', () => {
+        initializeWithSingleConnectedAutocomplete(resourceType);
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        selectHostTemplate('host template 1');
+
+        cy.findByTestId(labelHostTemplate)
+          .closest('.MuiAutocomplete-root')
+          .find('button[title="Clear"]')
+          .click({ force: true });
+
+        cy.findByTestId(labelHostTemplate).should('have.value', '');
+
+        cy.findByTestId(labelSearch).click();
+
+        cy.waitForRequest('@getAll').then(({ request }) => {
+          expect(
+            JSON.parse(request.url.searchParams.get('search'))
+          ).to.deep.equal({ $and: [] });
+        });
+
+        cy.makeSnapshot(
+          `${resourceType}: removes the filter from the search parameters when the selected value is cleared`
+        );
+      });
+
+      it('keeps the selected value when the listing is mounted again', () => {
+        initializeWithSingleConnectedAutocomplete(resourceType);
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        selectHostTemplate('host template 1');
+
+        cy.findByTestId(labelHostTemplate).should(
+          'have.value',
+          'host template 1'
+        );
+
+        initializeWithSingleConnectedAutocomplete(resourceType);
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.findByTestId(labelHostTemplate).should(
+          'have.value',
+          'host template 1'
+        );
+
+        cy.makeSnapshot(
+          `${resourceType}: keeps the selected value when the listing is mounted again`
+        );
+      });
+    });
+
+    describe('Filters panel width', () => {
+      const spacingUnit = 8;
+      const customWidth = 60;
+
+      it('renders the advanced filters panel with the default width when no width is declared', () => {
+        initialize({ resourceType });
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.get('[data-testid="advanced-filters"]').should(
+          'have.css',
+          'width',
+          `${defaultFiltersPanelWidth * spacingUnit}px`
+        );
+      });
+
+      it('renders the advanced filters panel with the declared width when a width is declared', () => {
+        initialize({ filtersPanelWidth: customWidth, resourceType });
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.get('[data-testid="advanced-filters"]').should(
+          'have.css',
+          'width',
+          `${customWidth * spacingUnit}px`
+        );
+      });
     });
 
     it('hides the advanced filters icon when only the name field is filterable', () => {

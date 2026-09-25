@@ -95,4 +95,14 @@ final class FakeVault implements VaultInterface
 
         return $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/new-uuid::%s', $customPath, $key);
     }
+
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
+    {
+        $paths = [];
+        foreach ($secrets as $key => $value) {
+            $paths[$key] = $this->write($customPath, $key, $value, $uuid);
+        }
+
+        return $paths;
+    }
 }

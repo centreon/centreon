@@ -18,13 +18,15 @@ properties:
     description: "ID of the resource"
     example: 12
   alias:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Resource alias"
     example: null
   fqdn:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Resource fqdn"
     example: null
   links:
@@ -34,8 +36,9 @@ properties:
     description: "Monitoring Server from which is monitored the Resource"
     example: "Central"
   icon:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -65,53 +68,63 @@ properties:
     description: "Indicates whether resource is in flapping"
     example: false
   percent_state_change:
-    type: number
-    nullable: true
+    type:
+      - number
+      - 'null'
     description: "Percentage of state change"
     example: "10.4"
   duration:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Duration since last status change"
     example: "2h 3m"
   last_status_change:
-    type: string
+    type:
+      - string
+      - 'null'
     format: date-time
-    nullable: true
     description: "Date of the last status change (ISO8601)"
   last_time_with_no_issue:
-    type: string
+    type:
+      - string
+      - 'null'
     format: date-time
-    nullable: true
     description: "Date of the last status change (ISO8601)"
   tries:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Number of check tries"
     example: "3/3 (H)"
   last_check:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Duration since last check"
     example: "1h 45m"
   information:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Output of the resource"
     example: "OK - Ping is ok"
   has_active_checks_enabled:
-    type: boolean
-    nullable: true
+    type:
+      - boolean
+      - 'null'
     description: "Indicates whether active checks are enabled"
     example: true
   has_passive_checks_enabled:
-    type: boolean
-    nullable: true
+    type:
+      - boolean
+      - 'null'
     description: "Indicates whether passive checks are enabled"
     example: true
   performance_data:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Performance data result of the check sent"
     example: "rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100 "
   is_notification_enabled:
@@ -119,8 +132,9 @@ properties:
     description: "Indicates if notifications are enabled for the resource"
     example: false
   severity:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       type:
         type: string

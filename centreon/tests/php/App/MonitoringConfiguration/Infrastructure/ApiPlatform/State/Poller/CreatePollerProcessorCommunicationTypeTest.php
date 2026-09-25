@@ -46,6 +46,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ResourcePollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\UserId;
@@ -54,7 +55,12 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
 final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 {
@@ -72,7 +78,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
     }
 
-    public function testOnPremPlatformUsesZmq(): void
+    public function testOnPremPlatformAlsoUsesPullWss(): void
     {
         $capturedCommand = null;
         $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
@@ -83,7 +89,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         );
 
         self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::ZMQ, $capturedCommand->gorgoneCommunicationType);
+        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
     }
 
     public function testCentralAddressIsPassedToCommand(): void
@@ -100,8 +106,36 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
     }
 
-    private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
+    /**
+     * The central URL is resolved before the poller is persisted, so a platform base path that
+     * cannot go into the command fails the request instead of leaving a poller behind it.
+     */
+    public function testItCreatesNoPollerWhenThePlatformBaseUriIsUnusable(): void
     {
+        $capturedCommand = null;
+        $requestStack = new RequestStack();
+        $requestStack->push(
+            Request::create('https://central.example.com/centreon;id/api/latest/configuration/pollers')
+        );
+        $processor = $this->buildProcessor(
+            isCloudPlatform: false,
+            capturedCommand: $capturedCommand,
+            requestStack: $requestStack,
+        );
+
+        try {
+            $processor->process($this->buildInput(), new Post());
+            self::fail('An unusable platform base path must fail the request');
+        } catch (BadRequestHttpException) {
+            self::assertNull($capturedCommand, 'the poller must not have been created');
+        }
+    }
+
+    private function buildProcessor(
+        bool $isCloudPlatform,
+        ?object &$capturedCommand,
+        ?RequestStack $requestStack = null,
+    ): CreatePollerProcessor {
         $poller = new Poller(
             id: new PollerId(42),
             name: new PollerName('TestPoller'),
@@ -161,6 +195,9 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
+            gorgoneNodesSynchronizer: new FakeGorgoneNodesSynchronizer(),
+            logger: new NullLogger(),
+            centralUrlFactory: new CentralUrlFactory($requestStack ?? new RequestStack(), $isCloudPlatform),
             isCloudPlatform: $isCloudPlatform,
         );
     }

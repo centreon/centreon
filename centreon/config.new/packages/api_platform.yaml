@@ -6,9 +6,10 @@ api_platform:
     name_converter: 'serializer.name_converter.camel_case_to_snake_case'
 
     exception_to_status:
-        ApiPlatform\Validator\Exception\ValidationException: 400 # To be compatible with the legacy
+        ApiPlatform\Validator\Exception\ValidationException: 422 # Input validation errors are unprocessable entities, not bad requests
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
         App\Shared\Domain\Exception\AggregateNotFoundException: 404
+        App\Shared\Domain\Exception\AggregateConflictException: 409 # unless the failed criteria name an input field, see InvalidReferenceExceptionListener
         App\Shared\Domain\Exception\EngineSecretsUnavailableException: 503
         App\Security\Domain\Exception\CredentialDisabledException: 401
 

@@ -1,7 +1,10 @@
 import {
+  acknowledgementAtom,
   aclAtom,
+  downtimeAtom,
   isOnPublicPageAtom,
-  platformVersionsAtom
+  platformVersionsAtom,
+  userAtom
 } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
@@ -16,6 +19,9 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
   const acl = useAtomValue(aclAtom);
   const platform = useAtomValue(platformVersionsAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const acknowledgement = useAtomValue(acknowledgementAtom);
+  const downtime = useAtomValue(downtimeAtom);
+  const user = useAtomValue(userAtom);
 
   const openTicketContext = useMemo(
     (): OpenTicketContext => ({
@@ -43,10 +49,13 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
 
   return (
     <WidgetProvider
+      acknowledgement={acknowledgement}
       acl={acl}
+      downtime={downtime}
       isOnPublicPage={isOnPublicPage}
       openTicketContext={openTicketContext}
       platform={platform}
+      user={user}
     >
       <ResourcesTable {...props} />
     </WidgetProvider>

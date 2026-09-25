@@ -489,6 +489,10 @@ msgstr "Action Name"
 msgid "Action URL"
 msgstr "Action URL"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr "Action access"
+
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
 msgstr "Action access list link"
@@ -2055,6 +2059,10 @@ msgstr "Bottom"
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
 msgstr "Breadcrumb copied"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
+msgstr "Broker"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
@@ -3664,6 +3672,10 @@ msgstr "Create Services linked to the Template too"
 #: centreon/www/install/front_translate.php
 msgid "Create a dashboard"
 msgstr "Create a dashboard"
+
+#: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr "Create a host"
 
 #: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
@@ -5899,6 +5911,10 @@ msgstr "End time"
 #: centreon/www/install/front_translate.php
 msgid "Ends at"
 msgstr "Ends at"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr "Engine"
 
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
@@ -8461,6 +8477,10 @@ msgstr "Host group"
 msgid "Host group (%s) not found"
 msgstr "Host group (%s) not found"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr "Host group dependency"
+
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 msgid "Host groups"
@@ -10898,7 +10918,7 @@ msgstr "Modify Vendor"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Modify a host category"
-msgstr "Modify a  host category"
+msgstr "Modify a host category"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
@@ -13827,6 +13847,10 @@ msgstr "Resource Name"
 msgid "Resource Type"
 msgstr "Resource Type"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr "Resource access"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr "Resource access rule name"
@@ -14941,6 +14965,10 @@ msgstr "Service graphs"
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr "Service group"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
+msgstr "Service group dependency"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
@@ -18113,8 +18141,8 @@ msgid "View Vendor"
 msgstr "View Vendor"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a  host category"
-msgstr "View a  host category"
+msgid "View a host category"
+msgstr "View a host category"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "View a Centreon-Broker Configuration"
@@ -18508,6 +18536,10 @@ msgstr "Welcome to Centreon Setup"
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
 msgstr "Welcome to the Dashboards interface!"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
+msgstr "Welcome to the Hosts interface!"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the additional configurations page"
@@ -20064,44 +20096,10 @@ msgstr ""
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
 
-# Host categories - modernized listing/form (UX/UI migration)
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host category"
-msgstr "Duplicate host category"
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "This contact group is not available"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host categories"
-msgstr "Duplicate host categories"
-
-#: unknown
-msgid "Delete host category"
-msgstr "Delete host category"
-
-#: unknown
-msgid "Delete host categories"
-msgstr "Delete host categories"
-
-#: unknown
-msgid "Group hosts into categories to organize and filter your configuration."
-msgstr "Group hosts into categories to organize and filter your configuration."
-
-#: unknown
-msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
-
-#: unknown
-msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
-msgstr "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
-
-#: unknown
-msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
-msgstr "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
-
-#: unknown
-msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
-msgstr "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
-
-
-#: unknown
-# msgid "Beta"
-# msgstr ""
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "This contact is not available"

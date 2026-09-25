@@ -29,35 +29,41 @@ properties:
     description: "Indicates whether the provider is forced or not"
     example: false
   base_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Base URL of the provider"
     example: "https://localhost:8080"
-    nullable: true
   authorization_endpoint:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Authorization endpoint of the provider"
     example: "/authorize"
-    nullable: true
   token_endpoint:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Token endpoint of the provider"
     example: "/token"
-    nullable: true
   introspection_token_endpoint:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Introspection token endpoint of the provider"
     example: "/introspect"
-    nullable: true
   userinfo_endpoint:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Userinfo endpoint of the provider"
     example: "/userinfo"
-    nullable: true
   endsession_endpoint:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Endsession endpoint of the provider"
     example: "/logout"
-    nullable: true
   connection_scopes:
     type: array
     description: "List of scopes to request"
@@ -66,28 +72,33 @@ properties:
       description: "Scope"
       example: "openid"
   login_claim:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Claim used to login"
     example: "sub"
-    nullable: true
   client_id:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Client ID"
     example: "client_id"
-    nullable: true
   client_secret:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Client secret"
     example: "client_secret"
-    nullable: true
   authentication_type:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Authentication type"
     example: "client_secret_post"
-    nullable: true
     enum:
       - client_secret_post
       - client_secret_basic
+      - null
   verify_peer:
     type: boolean
     description: "Verify peer"
@@ -97,8 +108,9 @@ properties:
     description: "Auto import user from external provider"
     example: true
   contact_template:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -109,20 +121,23 @@ properties:
         description: "Contact template name"
         example: "Default"
   email_bind_attribute:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Email bind attribute"
     example: "email"
-    nullable: true
   fullname_bind_attribute:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Fullname bind attribute"
     example: "name"
-    nullable: true
   redirect_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "custom redirect url"
     example: "https://my_custom_domain.com"
-    nullable: true
   authentication_conditions:
     type: object
     required:
@@ -159,8 +174,9 @@ properties:
             type: string
             enum: [introspection_endpoint, user_information_endpoint, custom_endpoint]
           custom_endpoint:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
       authorized_values:
         type: array
         items:
@@ -177,7 +193,6 @@ properties:
         type: boolean
       attribute_path:
         type: string
-        nullable: false
         example: info.items.groups
       endpoint:
         type: object
@@ -186,8 +201,9 @@ properties:
             type: string
             enum: [introspection_endpoint, user_information_endpoint, custom_endpoint]
           custom_endpoint:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
       relations:
         type: array
         items:
@@ -224,8 +240,9 @@ properties:
             type: string
             enum: [introspection_endpoint, user_information_endpoint, custom_endpoint]
           custom_endpoint:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
       relations:
         type: array
         items:
