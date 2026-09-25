@@ -23,39 +23,33 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Time periods carry no ACL scoping of their own (see DbalTimePeriodRepository), so plain
- * existence is the whole check — unlike contacts, which are also scoped to the viewer.
- *
- * Always declared after Assert\Positive inside an Assert\Sequentially on the property (see
- * CreateHostSchedulingOptionsInput, CreateHostNotificationsInput): TimePeriodId asserts a strictly
- * positive int and would throw instead of producing a clean violation, so this validator must
- * never run on a value Positive would have rejected.
+ * Legacy could not express this combination at all: it took the options as a bit flag, where
+ * "none" is the zero value. A list can express it, so it has to be rejected explicitly — the
+ * Notifications value object asserts the same invariant, this only turns it into a clean 422.
  */
-final class ExistingTimePeriodValidator extends ConstraintValidator
+final class ExclusiveNotificationOptionValidator extends ConstraintValidator
 {
-    public function __construct(
-        private readonly TimePeriodRepository $timePeriodRepository,
-    ) {
-    }
-
     public function validate(mixed $value, Constraint $constraint): void
     {
-        if (! $constraint instanceof ExistingTimePeriod) {
-            throw new UnexpectedTypeException($constraint, ExistingTimePeriod::class);
+        if (! $constraint instanceof ExclusiveNotificationOption) {
+            throw new UnexpectedTypeException($constraint, ExclusiveNotificationOption::class);
         }
 
-        if (! is_int($value)) {
+        // Distinct values only: a repeated option is tolerated like every other repeated value of
+        // this endpoint (ids, options) and Notifications collapses it, so ["none", "none"] is just
+        // "none" — only combining it with another option breaks the rule.
+        if (! is_array($value) || count(array_unique($value)) < 2) {
             return;
         }
 
-        if (! $this->timePeriodRepository->existsOne(new TimePeriodId($value))) {
+        if (in_array(NotificationOptionEnumResolver::toString(NotificationOptionEnum::None), $value, true)) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

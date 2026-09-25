@@ -133,6 +133,8 @@ final class HostResource
 
     public HostCheckOptionsOutput $checkOptions;
 
+    public ?HostNotificationsOutput $notifications = null;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,

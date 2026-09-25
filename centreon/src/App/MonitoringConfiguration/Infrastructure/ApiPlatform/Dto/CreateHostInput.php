@@ -140,6 +140,13 @@ final readonly class CreateHostInput
 
         #[Assert\Valid]
         public ?CheckOptionsInput $checkOptions = null,
+
+        #[ApiProperty(description: 'Not available on a Cloud platform, where notifications follow a different model.')]
+        #[Assert\Valid]
+        #[WhenPlatform(forCloud: true, constraints: [
+            new Assert\Blank(message: 'Notifications are not available on a Cloud platform.'),
+        ])]
+        public ?CreateHostNotificationsInput $notifications = null,
     ) {
     }
 }

@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -38,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -46,6 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
@@ -63,8 +66,10 @@ use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
@@ -74,6 +79,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExt
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
@@ -99,6 +105,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 {
     /**
      * @param TransformerInterface<Host, HostResource> $transformer
+     * @param TransformerInterface<?Notifications, ?HostNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
         private CommandBus $commandBus,
@@ -114,6 +121,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private TimezoneRepository $timezoneRepository,
         private HostRepository $hostRepository,
         private MediaRepository $mediaRepository,
+        #[Autowire(service: HostNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
@@ -187,6 +196,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             ) : [],
         );
 
+        // Cloud handles notifications through a different model (MON-204689) and the input
+        // validator rejects the block there, so the host simply carries none — and the
+        // response omits the key rather than advertising a feature that platform lacks.
+        $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
 
         $command = new CreateHostCommand(
@@ -211,6 +224,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
             checkOptions: $checkOptions,
+            notifications: $notifications,
         );
 
         $host = $this->commandBus->execute($command);
@@ -309,6 +323,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
+        $resource->notifications = $this->notificationsTransformer->transform($host->notifications);
+
         return $resource;
     }
 
@@ -352,6 +368,38 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         return $name instanceof TimePeriodName
             ? new TimePeriodResource($checkTimeperiodId->value, $name->value)
             : null;
+    }
+
+    /**
+     * Always built on-premise, even for a request carrying no notification block: the columns are
+     * written either way (with the Default tri-state), so the response reports what was actually
+     * persisted rather than dropping the key.
+     */
+    private function buildNotifications(?CreateHostNotificationsInput $input): Notifications
+    {
+        $input ??= new CreateHostNotificationsInput();
+
+        // Deduplicated like the host groups above (and like legacy's own form does through its
+        // DELETE/INSERT cycle): a client repeating an id is tolerated, but the relation tables
+        // carry no unique index, so a repetition would otherwise become a duplicate row.
+        return new Notifications(
+            enabled: TriStateEnum::from($input->enabled),
+            contactIds: new Collection(
+                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), array_unique($input->contacts)),
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), array_unique($input->contactGroups)),
+                ContactGroupId::class,
+            ),
+            options: array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),
+            interval: $input->interval,
+            periodId: $input->timeperiodId !== null ? new TimePeriodId($input->timeperiodId) : null,
+            firstDelay: $input->firstDelay,
+            recoveryDelay: $input->recoveryDelay,
+            contactAdditiveInheritance: $input->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $input->contactGroupAdditiveInheritance,
+        );
     }
 
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput
