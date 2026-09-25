@@ -963,10 +963,12 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         $this->repository->remove($host);
 
-        self::assertSame(0, (int) $this->connection->fetchOne(
+        /** @var int|string $remainingCount */
+        $remainingCount = $this->connection->fetchOne(
             'SELECT COUNT(*) FROM host WHERE host_id = ?',
             [$hostId],
-        ));
+        );
+        self::assertSame(0, (int) $remainingCount);
     }
 
     public function testFindOneRoundTripsExtendedInformationsAndSnmp(): void
@@ -1002,17 +1004,19 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $found = $this->repository->findOne(new HostId($host->id()->value));
 
         self::assertNotNull($found);
+        self::assertNotNull($found->extendedInformations);
+        self::assertNotNull($found->extendedInformations->geoCoordinates);
         self::assertSame(SnmpVersionEnum::TwoC, $found->snmpVersion);
         self::assertSame('public', $found->snmpCommunity?->value);
         self::assertSame($timezoneId, $found->timezoneId?->value);
-        self::assertSame('https://example.com/notes', $found->extendedInformations?->noteUrl);
-        self::assertSame('a free-text note', $found->extendedInformations?->note);
-        self::assertSame('https://example.com/actions', $found->extendedInformations?->actionUrl);
-        self::assertSame($imgId, $found->extendedInformations?->iconId?->value);
-        self::assertSame('server icon', $found->extendedInformations?->altIcon);
-        self::assertSame('internal comment', $found->extendedInformations?->comment);
-        self::assertSame('48.8566', $found->extendedInformations?->geoCoordinates?->latitude);
-        self::assertSame('2.3522', $found->extendedInformations?->geoCoordinates?->longitude);
+        self::assertSame('https://example.com/notes', $found->extendedInformations->noteUrl);
+        self::assertSame('a free-text note', $found->extendedInformations->note);
+        self::assertSame('https://example.com/actions', $found->extendedInformations->actionUrl);
+        self::assertSame($imgId, $found->extendedInformations->iconId?->value);
+        self::assertSame('server icon', $found->extendedInformations->altIcon);
+        self::assertSame('internal comment', $found->extendedInformations->comment);
+        self::assertSame('48.8566', $found->extendedInformations->geoCoordinates->latitude);
+        self::assertSame('2.3522', $found->extendedInformations->geoCoordinates->longitude);
     }
 
     public function testFindOneRoundTripsSchedulingOptionsAndDataProcessing(): void

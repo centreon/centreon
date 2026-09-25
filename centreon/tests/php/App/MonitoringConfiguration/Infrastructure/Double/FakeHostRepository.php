@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
@@ -63,6 +64,20 @@ final class FakeHostRepository implements HostRepository
         foreach ($host->childHostIds as $childId) {
             $this->parentIds[$childId->value][] = $id;
         }
+    }
+
+    /**
+     * ACL scoping (`$viewerId`) is not modeled by this fake — tests exercising that behavior go
+     * through `DbalHostRepositoryTest` instead. Every viewer sees every host here.
+     */
+    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
+    {
+        return $this->hosts[$id->value] ?? null;
+    }
+
+    public function remove(Host $host): void
+    {
+        unset($this->hosts[$host->id()->value]);
     }
 
     public function isNameUsedByHostOrTemplate(HostName $name): bool
