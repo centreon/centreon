@@ -50,18 +50,36 @@ final class HostTest extends TestCase
         self::assertCount(1, $host->childHostIds);
     }
 
+    public function testItEnablesTheHost(): void
+    {
+        $host = $this->host(activated: false);
+
+        $host->enable();
+
+        self::assertTrue($host->activated);
+    }
+
+    public function testItDisablesTheHost(): void
+    {
+        $host = $this->host(activated: true);
+
+        $host->disable();
+
+        self::assertFalse($host->activated);
+    }
+
     /**
      * @param list<int> $parentHostIds
      * @param list<int> $childHostIds
      */
-    private function host(array $parentHostIds = [], array $childHostIds = []): Host
+    private function host(array $parentHostIds = [], array $childHostIds = [], bool $activated = true): Host
     {
         return new Host(
             id: null,
             name: new HostName('server-01'),
             alias: null,
             address: new HostAddress('127.0.0.1'),
-            activated: true,
+            activated: $activated,
             pollerId: new PollerId(1),
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: new Collection([], HostGroupId::class),

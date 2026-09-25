@@ -27,11 +27,30 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
 
 interface HostRepository
 {
     public function add(Host $host): void;
+
+    /**
+     * Never returns a host template, though both share the `host` table.
+     *
+     * @param ?UserId $viewerId when non-null, the lookup is scoped to what that user is allowed to
+     *                          see: a host outside their ACL scope reads as not found, exactly like
+     *                          a nonexistent one, so existence is never leaked. Null = unrestricted.
+     *
+     * @throws \App\MonitoringConfiguration\Domain\Exception\HostNotFoundException
+     */
+    public function getById(HostId $id, ?UserId $viewerId = null): Host;
+
+    /**
+     * Bounded UPDATE of the activation flag; never touches a host template. Precondition: the caller
+     * confirmed the host exists (typically {@see getById()} in the same transaction) — it does not
+     * assert a matched row, so it is a silent no-op on an unknown or template id.
+     */
+    public function updateActivationStatus(HostId $id, bool $activated): void;
 
     /**
      * Looked up across hosts AND host templates (both share the same `host` table and the

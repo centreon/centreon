@@ -44,6 +44,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
@@ -261,6 +262,86 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->createHost('unrestricted-host', $pollerId);
 
         self::assertCount(1, iterator_to_array($this->repository->findAll()));
+    }
+
+    public function testGetByIdReturnsTheHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId, alias: 'srv01', address: '10.0.0.1');
+
+        $host = $this->repository->getById(new HostId($hostId));
+
+        self::assertSame($hostId, $host->id()->value);
+        self::assertSame('server-01', $host->name->value);
+        self::assertTrue($host->activated);
+        self::assertSame($pollerId, $host->pollerId->value);
+    }
+
+    public function testGetByIdThrowsWhenTheHostDoesNotExist(): void
+    {
+        $this->expectException(HostNotFoundException::class);
+
+        $this->repository->getById(new HostId(987654));
+    }
+
+    public function testGetByIdExcludesHostTemplates(): void
+    {
+        // A host template lives in the `host` table with host_register = '0'; it is never a host.
+        $templateId = $this->createHostTemplate('generic-template');
+
+        $this->expectException(HostNotFoundException::class);
+
+        $this->repository->getById(new HostId($templateId));
+    }
+
+    public function testGetByIdScopedToViewerReturnsAnAccessibleHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('accessible-host', $pollerId);
+
+        $viewerId = new UserId(43);
+        $groupId = 501;
+        $this->accessGroupRepository->groupIdsByUserId[$viewerId->value] = [$groupId];
+        $this->linkHostToAcl($hostId, $groupId);
+
+        self::assertSame($hostId, $this->repository->getById(new HostId($hostId), $viewerId)->id()->value);
+    }
+
+    public function testGetByIdScopedToViewerHidesAnInaccessibleHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('restricted-host', $pollerId);
+
+        $viewerId = new UserId(44);
+        $this->accessGroupRepository->groupIdsByUserId[$viewerId->value] = [502];
+        // The host is deliberately not linked to any centreon_acl row for this group.
+
+        $this->expectException(HostNotFoundException::class);
+
+        $this->repository->getById(new HostId($hostId), $viewerId);
+    }
+
+    public function testUpdateActivationStatusPersistsTheFlag(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId, activated: true);
+
+        $this->repository->updateActivationStatus(new HostId($hostId), false);
+        self::assertFalse($this->repository->getById(new HostId($hostId))->activated);
+
+        $this->repository->updateActivationStatus(new HostId($hostId), true);
+        self::assertTrue($this->repository->getById(new HostId($hostId))->activated);
+    }
+
+    public function testUpdateActivationStatusNeverTogglesAHostTemplate(): void
+    {
+        // host_register = '0'; the guard makes the UPDATE match no row -> silent no-op by contract.
+        $templateId = $this->createHostTemplate('generic-template');
+        $before = $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]);
+
+        $this->repository->updateActivationStatus(new HostId($templateId), false);
+
+        self::assertSame($before, $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]));
     }
 
     public function testAddPersistsTheHostAndItsRelations(): void

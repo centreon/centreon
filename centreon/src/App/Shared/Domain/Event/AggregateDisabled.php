@@ -21,13 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\Shared\Domain\Event;
 
-enum ActionEnum: string
+/**
+ * The aggregate's activation was turned off. A specialization of {@see AggregateUpdated}: side-effect
+ * handlers catch it via the supertype, while the activity log records a dedicated "disable" line.
+ */
+abstract readonly class AggregateDisabled extends AggregateUpdated
 {
-    case Add = 'Add';
-    case Update = 'Update';
-    case Delete = 'Delete';
-    case Enable = 'Enable';
-    case Disable = 'Disable';
 }

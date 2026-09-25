@@ -28,15 +28,19 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
+use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
- * Reacts to the creation of any ACL-scoped resource (see {@see AclScopedInterface}): a
- * non-admin creator must see their own new resource immediately, without waiting for the
- * `centAcl` cron's next run, so `centreon_acl` is seeded directly for their Access Groups.
- * The relevant ACL tables are also flagged so the cron fully recomputes them afterwards.
+ * Reacts to the create or change of any ACL-scoped resource (see {@see AclScopedInterface}): its
+ * visibility may differ, so the ACL tables are flagged for the `centAcl` cron to recompute
+ * `centreon_acl` (else a disabled host lingers there until some flag is raised). An admin flags all
+ * resources; a non-admin flags only their own access groups.
+ *
+ * Seeding `centreon_acl` directly (which grants access) happens on creation only — on a later
+ * enable/disable the flag alone drives the recompute. Caught via the {@see AggregateUpdated} supertype.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler
@@ -48,7 +52,7 @@ final readonly class ReloadAclEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated $event): void
     {
         if (! $event->aggregate instanceof AclScopedInterface) {
             return;
@@ -68,7 +72,10 @@ final readonly class ReloadAclEventHandler
             return;
         }
 
-        $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
+        if ($event instanceof AggregateCreated) {
+            $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
+        }
+
         $this->accessGroupRepository->flagGroupsAsChanged($accessGroupIds);
     }
 }

@@ -32,12 +32,22 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Event\CommandDeleted;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
+use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Tests\App\ActivityLogging\Infrastructure\Double\FakeActivityLogFactory;
@@ -149,6 +159,70 @@ final class LogActivityEventHandlerTest extends TestCase
         self::assertSame('NAME', $activityLog->target->name->value);
         self::assertSame(TargetTypeEnum::Command, $activityLog->target->type);
         self::assertEquals($firedAt, $activityLog->performedAt);
+    }
+
+    public function testCreateActivityLogOnEnable(): void
+    {
+        $repository = new FakeActivityLogRepository();
+
+        $handler = new LogActivityEventHandler($repository, $this->createContainer([
+            Host::class => new FakeActivityLogFactory(),
+        ]));
+
+        // HostEnabled extends AggregateUpdated: this guards the match-arm ordering in the handler
+        // (Enable/Disable must be matched before the generic AggregateUpdated -> Update arm).
+        $handler(new HostEnabled(
+            aggregate: $this->host(),
+            creatorId: 2,
+            firedAt: $firedAt = new \DateTimeImmutable(),
+        ));
+
+        $activityLog = reset($repository->activityLogs);
+
+        self::assertInstanceof(ActivityLog::class, $activityLog);
+        self::assertSame(ActionEnum::Enable, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
+        self::assertSame(1, $activityLog->target->id->value);
+        self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertEquals($firedAt, $activityLog->performedAt);
+    }
+
+    public function testCreateActivityLogOnDisable(): void
+    {
+        $repository = new FakeActivityLogRepository();
+
+        $handler = new LogActivityEventHandler($repository, $this->createContainer([
+            Host::class => new FakeActivityLogFactory(),
+        ]));
+
+        $handler(new HostDisabled(
+            aggregate: $this->host(),
+            creatorId: 2,
+            firedAt: $firedAt = new \DateTimeImmutable(),
+        ));
+
+        $activityLog = reset($repository->activityLogs);
+
+        self::assertInstanceof(ActivityLog::class, $activityLog);
+        self::assertSame(ActionEnum::Disable, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
+        self::assertSame(1, $activityLog->target->id->value);
+        self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertEquals($firedAt, $activityLog->performedAt);
+    }
+
+    private function host(): Host
+    {
+        return new Host(
+            id: new HostId(1),
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
     }
 
     /**
