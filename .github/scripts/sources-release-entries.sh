@@ -98,20 +98,29 @@ while true; do
   fi
 
   resolved=0
+  active=0
   for i in "${!COMPONENTS[@]}"; do
     component="${COMPONENTS[$i]}"
     tag="${component}-${VERSIONS[$i]}"
     [[ -n "${JOB_CONCLUSION[$component]:-}" ]] && { resolved=$((resolved + 1)); continue; }
 
-    run_id="$(jq -r --arg tag "$tag" \
-      '[.workflow_runs[]? | select(.head_branch == $tag)] | sort_by(.created_at) | last | .id // empty' \
+    run_line="$(jq -r --arg tag "$tag" \
+      '[.workflow_runs[]? | select(.head_branch == $tag)] | sort_by(.created_at) | last
+       | select(.) | [(.id|tostring), .status] | @tsv' \
       "$runs_json" 2>/dev/null || true)"
-    [[ -n "$run_id" ]] || continue
+    # no run yet means the tag push has not been picked up, which is waiting, not stalling
+    if [[ -z "$run_line" ]]; then active=$((active + 1)); continue; fi
+    mapfile -t -d $'\t' rcols < <(printf '%s' "$run_line")
+    run_id="${rcols[0]-}"; run_status="${rcols[1]-}"
 
     job="$(gh api --paginate "repos/$REPOSITORY/actions/runs/$run_id/jobs?per_page=100" 2>/dev/null \
       | jq -r '[.jobs[]? | select(.name == "deliver-sources")] | last
                | select(.) | [.status, (.conclusion // ""), .html_url] | @tsv' || true)"
-    [[ -n "$job" ]] || continue
+    # a run still going can still grow the job; a finished run without it never will
+    if [[ -z "$job" ]]; then
+      [[ "$run_status" == "completed" ]] || active=$((active + 1))
+      continue
+    fi
 
     mapfile -t -d $'\t' jcols < <(printf '%s' "$job")
     j_status="${jcols[0]-}"; j_conclusion="${jcols[1]-}"; j_url="${jcols[2]-}"
@@ -120,12 +129,17 @@ while true; do
       JOB_URL[$component]="$j_url"
       resolved=$((resolved + 1))
       info "$component: deliver-sources $j_conclusion"
+    else
+      active=$((active + 1))
     fi
   done
 
   (( resolved == ${#COMPONENTS[@]} )) && break
 
-  if (( resolved > 0 && resolved == previous_resolved )); then
+  # A queued or running job is progress, so only an idle wait counts as a stall. Components
+  # reach deliver-sources through different dependency chains, so one finishing long before
+  # another is normal; waiting that out is what POLL_TIMEOUT is for.
+  if (( active == 0 && resolved == previous_resolved )); then
     stall_rounds=$(( stall_rounds + 1 ))
   else
     stall_rounds=0
@@ -133,7 +147,7 @@ while true; do
   previous_resolved=$resolved
 
   if (( stall_rounds >= POLL_STALL_ROUNDS )); then
-    warn "no progress for $POLL_STALL_ROUNDS rounds; $resolved/${#COMPONENTS[@]} resolved, giving up early"
+    warn "no job left running and no progress for $POLL_STALL_ROUNDS rounds; $resolved/${#COMPONENTS[@]} resolved, giving up early"
     break
   fi
   if (( SECONDS >= deadline )); then
