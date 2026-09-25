@@ -39,4 +39,13 @@ trait TriStateColumnTrait
             TriStateEnum::UseDefault => '2',
         };
     }
+
+    private function columnToTriState(string $value): TriStateEnum
+    {
+        return match ($value) {
+            '0' => TriStateEnum::False,
+            '1' => TriStateEnum::True,
+            '2' => TriStateEnum::UseDefault,
+        };
+    }
 }

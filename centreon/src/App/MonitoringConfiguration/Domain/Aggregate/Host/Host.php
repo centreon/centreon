@@ -33,6 +33,7 @@ use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -78,6 +79,29 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
             [],
             'A host cannot be both a parent and a child of this host.',
         );
+    }
+
+    /**
+     * The UUID of this host's vault entry, if it has one, or null when none of its vault-eligible
+     * fields currently hold a `secret::` reference (vault disabled, or nothing vaulted yet).
+     *
+     * Checked in the same order as legacy (`retrieveHostUuidFromVault`): the SNMP community first,
+     * then the first password macro that is vaulted — every vault-eligible field of a given
+     * resource shares one entry (one UUID), so the first match found settles it.
+     */
+    public function getVaultUuid(VaultInterface $vault): ?string
+    {
+        if ($this->snmpCommunity !== null && $vault->isVaultPath($this->snmpCommunity->value)) {
+            return $vault->extractUuid($this->snmpCommunity->value);
+        }
+
+        foreach ($this->checkOptions->macros as $macro) {
+            if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
+                return $vault->extractUuid($macro->value);
+            }
+        }
+
+        return null;
     }
 
     /**
