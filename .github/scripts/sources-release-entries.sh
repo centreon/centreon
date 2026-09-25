@@ -107,9 +107,11 @@ while true; do
     # head_branch alone is not trustworthy: a fork pull request is listed under this repository's
     # head_sha and carries a branch name its author chose, so it could impersonate a component tag
     # and either stall the poll or mask the real run.
-    run_line="$(jq -r --arg tag "$tag" --arg repo "$REPOSITORY" \
-      '[.workflow_runs[]? | select(.head_branch == $tag and .event == "push"
-                                   and .head_repository.full_name == $repo)]
+    # -s: --paginate emits one JSON document per page, so without slurping the filter would run
+    # once per page and could emit several rows where the parser below expects exactly one.
+    run_line="$(jq -s -r --arg tag "$tag" --arg repo "$REPOSITORY" \
+      '[.[].workflow_runs[]? | select(.head_branch == $tag and .event == "push"
+                                      and .head_repository.full_name == $repo)]
        | sort_by(.created_at) | last | select(.) | [(.id|tostring), .status] | @tsv' \
       "$runs_json" 2>/dev/null || true)"
     # no run yet means the tag push has not been picked up, which is waiting, not stalling
@@ -190,6 +192,7 @@ for i in "${!COMPONENTS[@]}"; do
   # a green job whose object does not serve is a real error, not a slow one
   headers="$WORKDIR/headers.txt"
   curl -fsSL --proto '=https' --proto-redir '=https' --retry 3 --retry-all-errors \
+    --connect-timeout 30 --speed-limit 1024 --speed-time 60 --max-time 1800 \
     -D "$headers" -o "$local_file" "$url" \
     || die "$component: deliver-sources succeeded but $url does not serve"
 
