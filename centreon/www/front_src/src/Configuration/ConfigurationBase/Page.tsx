@@ -108,7 +108,7 @@ const Page = <TFilters,>({
   const openCreateForm = (): void => {
     setSearchParams({ mode: 'add' });
 
-    setFormState({ id: null, isOpen: true, mode: 'add' });
+    setFormState({ id: null, isOpen: true, mode: 'add', resource: null });
 
     setIsWelcomePageDisplayed(false);
   };

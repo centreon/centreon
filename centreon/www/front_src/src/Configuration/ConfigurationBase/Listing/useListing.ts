@@ -74,7 +74,8 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     setFormState({
       id: row.id,
       isOpen: true,
-      mode: 'edit'
+      mode: 'edit',
+      resource: row
     });
   };
 

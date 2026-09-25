@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useLayoutEffect, useRef, useState } from 'react';
 
 interface UseAvailableWidth {
   availableWidth: number | null;
@@ -12,7 +12,9 @@ const useAvailableWidth = (): UseAvailableWidth => {
 
   const [availableWidth, setAvailableWidth] = useState<number | null>(null);
 
-  useEffect(() => {
+  // Before paint: a width measured afterwards shows the panel at its full
+  // width for a frame on a page too narrow to hold it.
+  useLayoutEffect(() => {
     const element = ref.current;
 
     if (!element) {
@@ -21,8 +23,8 @@ const useAvailableWidth = (): UseAvailableWidth => {
 
     setAvailableWidth(element.clientWidth);
 
-    const observer = new ResizeObserver(([entry]) => {
-      setAvailableWidth(entry.contentRect.width);
+    const observer = new ResizeObserver(() => {
+      setAvailableWidth(element.clientWidth);
     });
 
     observer.observe(element);

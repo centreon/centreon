@@ -86,6 +86,8 @@ export const mockModalRequests = (resourceType): void => {
   const response = {
     alias: `${resourceType} 1 alias`,
     coordinates: '-20.40,13,12',
+    // A surface that offers enable/disable reads the state from the resource.
+    isActivated: true,
     name: `${resourceType} 1`
   };
 
@@ -126,7 +128,8 @@ const initialize = ({
   initialValues = filtersInitialValues,
   filtersPanelWidth,
   actions = defaultActions,
-  formVariant
+  formVariant,
+  searchParams = ''
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
@@ -134,8 +137,13 @@ const initialize = ({
   filtersPanelWidth?: number;
   actions?: Actions;
   formVariant?: 'modal' | 'panel';
+  searchParams?: string;
 }): void => {
   const resource = resourceType.replace(' ', '_');
+
+  // Mounted under a real router, so a deep link is expressed as the URL the
+  // page is opened on. Always set, so one test cannot leak into the next.
+  window.history.pushState({}, '', searchParams || window.location.pathname);
 
   mockListingRequests(resource);
 

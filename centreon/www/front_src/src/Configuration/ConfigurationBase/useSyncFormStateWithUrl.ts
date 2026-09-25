@@ -27,7 +27,8 @@ const useSyncFormStateWithUrl = ({ hasFormAccess }: Props): void => {
     setFormState({
       id: id ? Number(id) : null,
       isOpen: true,
-      mode: mode as 'add' | 'edit'
+      mode: mode as 'add' | 'edit',
+      resource: null
     });
   }, [searchParams, setFormState, hasFormAccess]);
 };

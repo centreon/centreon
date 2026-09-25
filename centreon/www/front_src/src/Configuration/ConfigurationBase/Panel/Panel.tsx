@@ -32,18 +32,16 @@ const FormPanel = ({
   const { labelHeader, submit, close, mode, id, initialValues, isLoading } =
     useForm({ defaultValues: form.defaultValues, hasWriteAccess });
 
-  const resource = equals(mode, 'edit')
+  const loadedResource = equals(mode, 'edit')
     ? (initialValues as Record<string, unknown>)
     : undefined;
-
-  // An open resource is named by the resource itself, as the mock has it; a
-  // resource being created has only the action to go on.
-  const title = (resource?.name as string) || labelHeader;
 
   return (
     <Panel
       className="rounded-none"
-      header={<Header resource={resource} title={title} />}
+      header={
+        <Header fallbackTitle={labelHeader} loadedResource={loadedResource} />
+      }
       labelClose={t(labelClose)}
       // On a page too narrow to hold it, the panel is already below its own
       // minimum: dragging must not push it back out of the page.

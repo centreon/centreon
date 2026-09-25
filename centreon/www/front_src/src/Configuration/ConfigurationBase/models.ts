@@ -1,3 +1,5 @@
+import { ResourceRow } from '../models';
+
 export type ListMeta = {
   limit: number;
   page: number;
@@ -22,4 +24,8 @@ export interface FormState {
   id: number | null;
   isOpen: boolean;
   mode: 'add' | 'edit';
+  // The row the form was opened from. A surface that shows more than the
+  // fields — the panel names the resource and toggles it — has it straight
+  // away, without waiting for the detail endpoint.
+  resource?: ResourceRow | null;
 }

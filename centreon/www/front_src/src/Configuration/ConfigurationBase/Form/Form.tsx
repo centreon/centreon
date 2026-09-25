@@ -88,7 +88,7 @@ const PublishedActions = (): JSX.Element => {
 
   useEffect(() => {
     setIsDirty(dirty);
-  }, [dirty]);
+  }, [dirty, setIsDirty]);
 
   useEffect(() => {
     setFormActions({
@@ -100,9 +100,9 @@ const PublishedActions = (): JSX.Element => {
         submitForm();
       }
     });
-  }, [dirty, isValid, isSubmitting]);
+  }, [dirty, isValid, isSubmitting, resetForm, submitForm, setFormActions]);
 
-  useEffect(() => () => setFormActions(null), []);
+  useEffect(() => () => setFormActions(null), [setFormActions]);
 
   return <CloseModalConfirmation />;
 };

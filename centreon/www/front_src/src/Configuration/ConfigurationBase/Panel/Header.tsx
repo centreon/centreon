@@ -52,22 +52,29 @@ const EnableAction = ({ row }: { row: ResourceRow }): JSX.Element => {
 };
 
 interface Props {
-  resource?: Record<string, unknown>;
-  title: string;
+  fallbackTitle: string;
+  loadedResource?: Record<string, unknown>;
 }
 
 // The panel carries the form's actions in its header, as the mock has them:
 // enable · reset · duplicate · save · delete, then the close the panel adds.
-const Header = ({ resource, title }: Props): JSX.Element => {
+const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
   const { t } = useTranslation();
 
   const configuration = useAtomValue(configurationAtom);
-  const { id, mode } = useAtomValue(formStateAtom);
+  const { id, mode, resource: openedResource } = useAtomValue(formStateAtom);
   const formActions = useAtomValue(formActionsAtom);
 
   const isEditMode = equals(mode, 'edit');
 
+  // The listing row carries name and state before the detail endpoint answers,
+  // and a deep link carries neither; what is loaded wins over what was listed.
+  const resource = { ...openedResource, ...loadedResource };
+
   const row = { ...resource, id } as ResourceRow;
+
+  // The mock names the panel after the resource it holds.
+  const title = (resource?.name as string) || fallbackTitle;
 
   const { canDelete, canDuplicate, openDeleteModal, openDuplicateModal } =
     useActions(row);

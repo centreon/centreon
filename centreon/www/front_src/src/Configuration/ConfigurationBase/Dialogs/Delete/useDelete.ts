@@ -11,9 +11,19 @@ import {
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
-import { equals, isEmpty, isNotNil, pluck } from 'ramda';
+import {
+  complement,
+  equals,
+  isEmpty,
+  isNotNil,
+  last,
+  pluck,
+  propEq,
+  split
+} from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
 
 import {
   useDeleteOne as useDeleteOneRequest,
@@ -48,6 +58,8 @@ const useDelete = (): UseDeleteState => {
     resourcesToDeleteAtom
   );
 
+  const [, setSearchParams] = useSearchParams();
+
   const setSelectedRows = useSetAtom(selectedRowsAtom);
   const [formState, setFormState] = useAtom(formStateAtom);
   const configuration = useAtomValue(configurationAtom);
@@ -69,13 +81,26 @@ const useDelete = (): UseDeleteState => {
     setResourcesToDelete([]);
   };
 
+  // Ids a bulk response reports as refused, read from the response the same way
+  // `useBulkResponse` reads it.
+  const getFailedIds = (results): Array<number> =>
+    (results ?? [])
+      .filter(complement(propEq(204, 'status')))
+      .map(({ href }) =>
+        Number.parseInt(last(split('/', href || '')) as string, 10)
+      );
+
   // A form left open on a resource that no longer exists would save into a
-  // void. Only reachable from the panel, which deletes while the form is open.
-  const closeFormOnDeletedResource = (): void => {
-    if (!formState.isOpen || !ids.includes(formState.id)) {
+  // void, and a URL still naming it would open it again on the next visit.
+  // A resource whose own deletion was refused still exists, so its form stays.
+  const closeFormOnDeletedResource = (failedIds: Array<number> = []): void => {
+    const { id, isOpen } = formState;
+
+    if (!isOpen || !ids.includes(id) || failedIds.includes(id)) {
       return;
     }
 
+    setSearchParams({});
     setFormState({ ...formState, id: null, isOpen: false });
   };
 
@@ -115,7 +140,7 @@ const useDelete = (): UseDeleteState => {
       labelWarning: t(labelFailedToDeleteSomeResources)
     });
 
-    closeFormOnDeletedResource();
+    closeFormOnDeletedResource(getFailedIds(results));
     resetSelections();
   };
 

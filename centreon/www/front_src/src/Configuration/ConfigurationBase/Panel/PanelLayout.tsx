@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 
 import { useAtomValue } from 'jotai';
 import { JSX, useState } from 'react';
@@ -11,7 +11,6 @@ import useAvailableWidth from './useAvailableWidth';
 // `PageLayout.Body` pads the page with `theme.spacing(0, 3, 1.5)`. The panel is
 // flush to the page edges, so it bleeds back out by exactly that padding.
 const pageBodyPadding = { bottom: 1.5, right: 3 };
-const rightBleed = 24;
 
 interface Props {
   children: JSX.Element;
@@ -28,12 +27,16 @@ const PanelLayout = ({
   hasWriteAccess,
   width = defaultPanelWidth
 }: Props): JSX.Element => {
+  const theme = useTheme();
+
   const { isOpen } = useAtomValue(formStateAtom);
 
   // The module sets where the panel starts; the user may then drag it wider.
   const [requestedWidth, setRequestedWidth] = useState(width);
 
   const { ref, availableWidth } = useAvailableWidth();
+
+  const rightBleed = Number.parseFloat(theme.spacing(pageBodyPadding.right));
 
   // Never wider than the page: the panel is flush right, so any excess would
   // be clipped, taking the form actions with it.
@@ -47,9 +50,9 @@ const PanelLayout = ({
       {isOpen && (
         <Box
           sx={{
-            bottom: (theme) => `-${theme.spacing(pageBodyPadding.bottom)}`,
+            bottom: `-${theme.spacing(pageBodyPadding.bottom)}`,
             position: 'absolute',
-            right: (theme) => `-${theme.spacing(pageBodyPadding.right)}`,
+            right: `-${theme.spacing(pageBodyPadding.right)}`,
             top: 0,
             zIndex: 10
           }}
