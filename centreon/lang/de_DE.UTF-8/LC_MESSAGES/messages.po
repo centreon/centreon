@@ -14997,6 +14997,10 @@ msgstr "Service-Überprüfungslatenz"
 msgid "Service dependency"
 msgstr "Serviceabhängigkeit"
 
+#: centreon/www/install/front_translate.php
+msgid "Service deployment failed."
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "Service description cannot be empty"
 msgstr "Die Beschreibung des Services darf nicht leer sein"
@@ -15286,6 +15290,10 @@ msgstr "Services nach Host"
 #: centreon/www/install/menu_translation.php
 msgid "Services by host group"
 msgstr "Services nach Hostgruppen"
+
+#: centreon/www/install/front_translate.php
+msgid "Services deployed successfully!"
+msgstr ""
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
 #: centreon/www/include/monitoring/status/Services/serviceSummaryJS.php

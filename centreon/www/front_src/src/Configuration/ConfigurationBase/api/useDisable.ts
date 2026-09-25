@@ -7,6 +7,7 @@ import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
 import { configurationAtom } from '../atoms';
+import fanOut from './fanOut';
 
 interface UseDisableProps {
   disableMutation: ({ ids }) => Promise<object | ResponseError>;
@@ -21,25 +22,33 @@ const useDisable = (): UseDisableProps => {
 
   const queryClient = useQueryClient();
 
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+  const activationField = configuration?.api?.activationField ?? 'is_activated';
+
   const { isMutating, mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint,
-    method: method || Method.POST,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listResources'] });
-    }
+    method: method || Method.POST
   });
+
+  // Not `onSuccess`: that fires once per request, so a fan-out would refetch
+  // once per row. Runs after a failure too — a partial one still changed rows.
+  const invalidateListing = <T>(result: T): T => {
+    queryClient.invalidateQueries({ queryKey: ['listResources'] });
+
+    return result;
+  };
 
   const disableMutation = ({ ids }: { ids: Array<number> }) => {
     if (equals(method, Method.PATCH)) {
-      return mutateAsync({
-        _meta: { id: ids[0] },
-        payload: { is_activated: false }
-      });
+      return fanOut(ids, (id) =>
+        mutateAsync({ _meta: { id }, payload: { [activationField]: false } })
+      ).then(invalidateListing);
     }
 
     return mutateAsync({
       payload: { ids }
-    });
+    }).then(invalidateListing);
   };
 
   return {
