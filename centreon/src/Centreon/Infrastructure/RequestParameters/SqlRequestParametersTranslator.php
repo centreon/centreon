@@ -450,6 +450,7 @@ class SqlRequestParametersTranslator
                 }
                 try {
                     $mixedValue = str_replace('/', '\/', $mixedValue);
+                    $mixedValue = RegularExpressionSanitizer::sanitize($mixedValue);
                     preg_match('/' . $mixedValue . '/', '');
                     if (preg_last_error() !== PREG_NO_ERROR) {
                         throw new RequestParametersTranslatorException('Bad regex format \'' . $mixedValue . '\'', 0);
