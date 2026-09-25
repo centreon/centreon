@@ -319,6 +319,23 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItRejectsEventHandlerArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                // One argument longer than the TEXT column can hold once formatted.
+                'data_processing' => ['event_handler_args' => [str_repeat('a', 65536)]],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * extended_informations is a nested sub-object in the request payload, not a set of flat
      * fields on the root — matches the endpoint's output shape (see MON-208990).
@@ -1509,6 +1526,181 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItCreatesAHostWithACheckCommandAndArguments(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandName = $this->uniqueName('check');
+        $commandId = $this->insertCommand($commandName, 2); // check
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.20',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'args' => ['-w', '5'],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        // The resolved command name must reach the response, not just its id.
+        self::assertJsonContains([
+            'check_options' => [
+                'command' => ['id' => $commandId, 'name' => $commandName],
+                'args' => ['-w', '5'],
+            ],
+        ]);
+
+        // Arguments are persisted bang-joined in the legacy column.
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        /** @var array{command_command_id: int, command_command_id_arg1: string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertSame($commandId, (int) $row['command_command_id']);
+        self::assertSame('!-w!5', $row['command_command_id_arg1']);
+    }
+
+    public function testItReturnsAnEmptyCheckOptionsObjectWhenNoneIsProvided(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.24',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['check_options' => ['args' => []]]);
+        // The null command is dropped from the payload by the platform-wide skip_null_values default.
+        /** @var array{check_options: array<string, mixed>} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('command', $payload['check_options']);
+    }
+
+    public function testItRejectsACommandThatIsNotACheckCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $notificationCommandId = $this->insertCommand($this->uniqueName('notif'), 1); // notification
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.21',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $notificationCommandId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownCheckCommand(): void
+    {
+        // Existence is validated at the API boundary (→422), mirroring an unknown poller_id — not
+        // deferred to the handler's 404, which only guards the delete-between-validation-and-write race.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.22',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => 2147483646],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.25',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    // One argument longer than the TEXT column can hold once formatted.
+                    'args' => [str_repeat('a', 65536)],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsWithoutACommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.23',
+                'poller_id' => $pollerId,
+                'check_options' => ['args' => ['-w', '5']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACheckCommandArgumentContainingTheStorageDelimiter(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.26',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $commandId, 'args' => ['a!b']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACheckCommandArgumentContainingAnEscapeToken(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.27',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $commandId, 'args' => ['a#BR#b']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * @param array<mixed> $payload
      *
@@ -1867,5 +2059,16 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'hg_hg_id' => $hostGroupId,
             ]);
         }
+    }
+
+    private function insertCommand(string $name, int $type): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => '$USER1$/check_ping -H $HOSTADDRESS$',
+            'command_type' => $type,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 }

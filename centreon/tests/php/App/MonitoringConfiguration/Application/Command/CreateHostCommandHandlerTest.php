@@ -25,7 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
@@ -62,6 +68,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
@@ -70,6 +77,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -84,6 +92,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
@@ -104,6 +113,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     private FakePollerRepository $pollerRepository;
 
     private FakeHostGroupRepository $hostGroupRepository;
+
+    private FakeCommandRepository $commandRepository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
 
@@ -132,6 +143,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostRepository = new FakeHostRepository();
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
+        $this->commandRepository = new FakeCommandRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
@@ -144,6 +156,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
+        $container->set(CommandRepository::class, $this->commandRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(EventBus::class, $this->eventBus);
         $container->set(VaultInterface::class, $this->vault);
@@ -170,6 +183,40 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ));
 
         self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
+    }
+
+    public function testItCreatesAHostWithACheckCommand(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(new CommandId(9), ['-w', '5']),
+        ));
+
+        self::assertSame(9, $host->checkOptions->checkCommandId?->value);
+        self::assertSame(['-w', '5'], $host->checkOptions->args);
+    }
+
+    public function testItRejectsAnUnknownCheckCommand(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(CommandNotFoundException::class);
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(new CommandId(404)),
+        ));
     }
 
     public function testItRejectsADuplicateName(): void
@@ -697,6 +744,21 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostRepository->add($host);
 
         return $host->id()->value;
+    }
+
+    private function addCheckCommand(int $id, CommandTypeEnum $type = CommandTypeEnum::Check): void
+    {
+        $this->commandRepository->commands[$id] = new Command(
+            new CommandId($id),
+            new CommandName('check_ping'),
+            $type,
+            new CommandLine('$USER1$/check_ping -H $HOSTADDRESS$'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
     }
 
     private function addPoller(FakePollerRepository $repository, int $id): Poller
