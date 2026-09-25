@@ -29,9 +29,11 @@ use App\MonitoringConfiguration\Domain\Factory\BrokerConfigurationFactory;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalBrokerConfigurationRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
     private const POLLER_ID = 2;
     private const ON_PREM_CENTRAL_ADDRESS = '10.0.0.1';
     private const CLOUD_CENTRAL_ADDRESS = 'staging.euwest1.centreon.click/funky-donkey';
@@ -54,6 +56,8 @@ final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+
+        $this->clearInstalledPlatformRows($this->connection, 'cfg_resource_instance_relations', 'cfg_resource', 'cfg_centreonbroker', 'nagios_server');
 
         $this->connection->insert('nagios_server', [
             'id' => self::POLLER_ID,

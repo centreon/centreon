@@ -69,6 +69,15 @@ services:
     Core\Common\Application\VaultEligibilityService:
         public: true
 
+    # Reached from the new stack through App\Shared\Infrastructure\Legacy\LegacyContainer, which can
+    # only resolve public services. LegacyServiceDeployerWrapper sets a token on it so that the
+    # action log written by the legacy service-creation path keeps an author, as it does when the
+    # legacy endpoint is called directly. The untracked storage is the one UsageTrackingTokenStorage
+    # delegates to, and it carries no session-usage side effect.
+    centreon.legacy_token_storage:
+        alias: security.untracked_token_storage
+        public: true
+
     Adaptation\Database\Connection\Model\ConnectionConfig:
         arguments:
             $host: '%database_host%'

@@ -3906,6 +3906,10 @@ msgid "Create a dashboard"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr ""
 
@@ -16489,6 +16493,10 @@ msgstr "Latencia del control de servicio."
 msgid "Service dependency"
 msgstr "Dependencia del servicio"
 
+#: centreon/www/install/front_translate.php
+msgid "Service deployment failed."
+msgstr ""
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "Service description cannot be empty"
 msgstr ""
@@ -16782,6 +16790,10 @@ msgstr "Servicios por host"
 #: centreon/www/install/menu_translation.php
 msgid "Services by host group"
 msgstr "Servicios por grupo de invitados"
+
+#: centreon/www/install/front_translate.php
+msgid "Services deployed successfully!"
+msgstr ""
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
 #: centreon/www/include/monitoring/status/Services/serviceSummaryJS.php
@@ -20114,6 +20126,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

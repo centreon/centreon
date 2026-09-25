@@ -28,6 +28,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
@@ -110,7 +111,26 @@ final class HostResource
     /** @var list<HostGroupOutput> */
     public array $groups;
 
+    public DataProcessingOutput $dataProcessing;
+
+    /** @var list<HostCategoryOutput> */
+    public array $categories = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $parentHosts = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $childHosts = [];
+
+    public ?HostTimezoneOutput $timezone = null;
+
+    public ?HostSeverityOutput $severity = null;
+
     public ?HostExtendedInformationsOutput $extendedInformations = null;
+
+    public HostSchedulingOptionsOutput $schedulingOptions;
+
+    public HostCheckOptionsOutput $checkOptions;
 
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
@@ -123,6 +143,8 @@ final class HostResource
         public string $address,
 
         public bool $activated,
+
+        public ?SnmpVersionEnum $snmpVersion = null,
     ) {
     }
 }

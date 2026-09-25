@@ -3674,6 +3674,10 @@ msgid "Create a dashboard"
 msgstr "Create a dashboard"
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr "Create a host"
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr "Create a new resource access rule"
 
@@ -14969,6 +14973,10 @@ msgstr "Service check latency"
 msgid "Service dependency"
 msgstr "Service dependency"
 
+#: centreon/www/install/front_translate.php
+msgid "Service deployment failed."
+msgstr "Service deployment failed."
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "Service description cannot be empty"
 msgstr "Service description cannot be empty"
@@ -15262,6 +15270,10 @@ msgstr "Services by host"
 #: centreon/www/install/menu_translation.php
 msgid "Services by host group"
 msgstr "Services by host group"
+
+#: centreon/www/install/front_translate.php
+msgid "Services deployed successfully!"
+msgstr "Services deployed successfully!"
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
 #: centreon/www/include/monitoring/status/Services/serviceSummaryJS.php
@@ -18556,6 +18568,10 @@ msgstr "Welcome to Centreon Setup"
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
 msgstr "Welcome to the Dashboards interface!"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
+msgstr "Welcome to the Hosts interface!"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the additional configurations page"

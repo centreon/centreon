@@ -42,9 +42,17 @@ final class FakeVault implements VaultInterface
     /** @var list<array{customPath: string, key: string, value: string, uuid: ?string}> */
     public array $writeCalls = [];
 
+    /** @var list<array{customPath: string, uuid: string}> */
+    public array $deleteCalls = [];
+
+    /** @var array<string, ?string> value => UUID returned by extractUuid() */
+    public array $extractedUuids = [];
+
     public bool $resolveThrows = false;
 
     public bool $writeThrows = false;
+
+    public bool $deleteThrows = false;
 
     public bool $vaultEnabled = true;
 
@@ -80,6 +88,15 @@ final class FakeVault implements VaultInterface
         return $this->resolved[$value];
     }
 
+    public function extractUuid(string $value): ?string
+    {
+        if (! $this->isVaultPath($value)) {
+            return null;
+        }
+
+        return $this->extractedUuids[$value] ?? null;
+    }
+
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
     {
         $this->writeCalls[] = [
@@ -94,5 +111,27 @@ final class FakeVault implements VaultInterface
         }
 
         return $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/new-uuid::%s', $customPath, $key);
+    }
+
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null, array $deletes = []): array
+    {
+        $paths = [];
+        foreach ($secrets as $key => $value) {
+            $paths[$key] = $this->write($customPath, $key, $value, $uuid);
+        }
+
+        return $paths;
+    }
+
+    public function delete(string $customPath, string $uuid): void
+    {
+        $this->deleteCalls[] = [
+            'customPath' => $customPath,
+            'uuid' => $uuid,
+        ];
+
+        if ($this->deleteThrows) {
+            throw new \RuntimeException('Unable to delete vault entry');
+        }
     }
 }

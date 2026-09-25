@@ -38,6 +38,7 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -134,6 +135,13 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     {
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
+        }
+
+        if ($criteria->excludeLocked()) {
+            // A locked host template is a paid plugin-pack template the platform's license doesn't
+            // cover, matching legacy's CentreonHost::getLimitedList() exclusion for the host form's
+            // "extend template" select.
+            $qb->andWhere($qb->expr()->eq('h.host_locked', $qb->createNamedParameter(0, ParameterType::INTEGER)));
         }
 
         $this->filterByViewer($qb, $criteria);
