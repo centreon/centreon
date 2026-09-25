@@ -86,8 +86,6 @@ export const mockModalRequests = (resourceType): void => {
   const response = {
     alias: `${resourceType} 1 alias`,
     coordinates: '-20.40,13,12',
-    // A surface that offers enable/disable reads the state from the resource.
-    isActivated: true,
     name: `${resourceType} 1`
   };
 

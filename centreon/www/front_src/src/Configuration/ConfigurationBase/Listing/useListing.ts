@@ -3,6 +3,7 @@
 import { useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
@@ -49,6 +50,13 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const setIsCloseConfirmationDialogOpen = useSetAtom(
     isCloseConfirmationDialogOpenAtom
   );
+
+  // `MemoizedListing` holds on to this handler, so anything it reads has to be
+  // read when the row is clicked rather than when the handler was built.
+  const formStateRef = useRef(formState);
+  formStateRef.current = formState;
+  const isFormDirtyRef = useRef(isFormDirty);
+  isFormDirtyRef.current = isFormDirty;
   const [sorto, setSorto] = useAtom(sortOrderAtom);
   const [sortf, setSortf] = useAtom(sortFieldAtom);
   const [page, setPage] = useAtom(pageAtom);
@@ -80,8 +88,10 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   const openEditForm = (row) => {
     // A panel has no backdrop, so the listing stays clickable while a form is
     // open. Switching to another resource would drop unsaved edits silently.
+    const openForm = formStateRef.current;
+
     const leavesEditsBehind =
-      formState.isOpen && isFormDirty && formState.id !== row.id;
+      openForm.isOpen && isFormDirtyRef.current && openForm.id !== row.id;
 
     if (leavesEditsBehind) {
       setIsCloseConfirmationDialogOpen(true);
