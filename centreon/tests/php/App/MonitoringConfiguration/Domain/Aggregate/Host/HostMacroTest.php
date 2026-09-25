@@ -53,4 +53,30 @@ final class HostMacroTest extends TestCase
         self::assertNull($macro->description);
         self::assertTrue($macro->isPassword);
     }
+
+    public function testItAcceptsADescriptionAtTheByteLimit(): void
+    {
+        $macro = new HostMacro(
+            new HostMacroName('big'),
+            'v',
+            isPassword: false,
+            description: str_repeat('a', HostMacro::MAX_DESCRIPTION_LENGTH),
+        );
+
+        self::assertSame(HostMacro::MAX_DESCRIPTION_LENGTH, \strlen((string) $macro->description));
+    }
+
+    public function testItRejectsADescriptionExceedingTheByteLimit(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        // A single multibyte character is 2 bytes: MAX_DESCRIPTION_LENGTH such characters are within the
+        // character limit but twice the byte budget of the TEXT column.
+        new HostMacro(
+            new HostMacroName('big'),
+            'v',
+            isPassword: false,
+            description: str_repeat('é', HostMacro::MAX_DESCRIPTION_LENGTH),
+        );
+    }
 }

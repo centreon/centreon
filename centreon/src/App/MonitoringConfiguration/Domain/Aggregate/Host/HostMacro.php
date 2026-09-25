@@ -45,7 +45,14 @@ final readonly class HostMacro
     ) {
         Assert::maxLength($value, self::MAX_VALUE_LENGTH);
         if ($description !== null) {
-            Assert::maxLength($description, self::MAX_DESCRIPTION_LENGTH);
+            // Byte length ('8bit'), not character count: the description lands in a MySQL TEXT column
+            // bounded to MAX_DESCRIPTION_LENGTH bytes, so a multibyte description must be measured in
+            // the bytes it will actually occupy.
+            Assert::lessThanEq(
+                mb_strlen($description, '8bit'),
+                self::MAX_DESCRIPTION_LENGTH,
+                'The macro description is too long.',
+            );
         }
     }
 }

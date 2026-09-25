@@ -51,7 +51,10 @@ final readonly class HostMacroInput
 
         public bool $isPassword = false,
 
-        #[Assert\Length(max: HostMacro::MAX_DESCRIPTION_LENGTH)]
+        // Counted in bytes, not characters: on_demand_macro_host.description is a MySQL TEXT column
+        // bounded to 65,535 bytes, so a multibyte description must be measured as the bytes it occupies
+        // to reject it with a 422 instead of failing at insertion time.
+        #[Assert\Length(max: HostMacro::MAX_DESCRIPTION_LENGTH, countUnits: Assert\Length::COUNT_BYTES)]
         public ?string $description = null,
     ) {
     }
