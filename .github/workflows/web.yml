@@ -2040,7 +2040,6 @@ jobs:
           translation_directory: centreon/www/locale
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   build-openapi-documentation:
     runs-on: ubuntu-24.04
