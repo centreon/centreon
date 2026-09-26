@@ -210,7 +210,9 @@ if [[ -n "${GH_TOKEN:-}" ]]; then
     echo "::add-mask::$auth_basic"
   fi
   auth_header="Authorization: Basic $auth_basic"
-  git_auth+=(-c "http.extraHeader=$auth_header")
+  # Scoped to this url, not global: http.extraHeader is sent to whatever host git contacts, so
+  # a rewritten remote would hand the credential to it. Scoped, another host gets nothing.
+  git_auth+=(-c "http.${clone_url}.extraHeader=$auth_header")
 fi
 authed_git() { git "${git_auth[@]}" "$@"; }
 
@@ -560,6 +562,14 @@ authed_git commit --quiet -m "$COMMIT_MESSAGE"
 # Verify what will actually be pushed. The commit is built from the index, not the working
 # tree, so a pre-staged path, an extra commit, a clean filter or a symlink would all pass a
 # check of the files on disk and still change what lands in the pull request.
+# GIT_NO_REPLACE_OBJECTS: refs/replace/* can map the committed blob to a clean one, so every
+# check below would read content that is not what gets pushed.
+export GIT_NO_REPLACE_OBJECTS=1
+[[ -z "$(git for-each-ref --format="%(refname)" "refs/replace/*")" ]] \
+  || die "the clone carries replace refs; refusing to publish from it"
+[[ ! -e "$(git rev-parse --git-path info/grafts)" ]] \
+  || die "the clone carries grafts; refusing to publish from it"
+
 parent="$(git rev-parse HEAD^)"
 [[ "$parent" == "$base_sha" ]] \
   || die "the branch carries history this run did not create; refusing to push it"
@@ -574,9 +584,19 @@ while read -r want path; do
   [[ "$(git show "HEAD:$path" | sha256sum | cut -d' ' -f1)" == "$want" ]] \
     || die "$path was committed with content the run did not validate"
 done <<<"$tree_manifest"
+verified_sha="$(git rev-parse HEAD)"
 log_ok "commit verified against what was validated"
 
-authed_git push --quiet origin "HEAD:refs/heads/$BRANCH" \
+# A rewritten remote or an insteadOf rule would redirect the push, so check both, then push the
+# verified object id to the literal url rather than re-resolving origin and HEAD.
+[[ "$(git config --get remote.origin.url || true)" == "$clone_url" ]] \
+  || die "the clone's origin no longer points at ${WEBAPP_REPO}; refusing to push"
+[[ -z "$(git config --get remote.origin.pushurl || true)" ]] \
+  || die "the clone has a separate push url; refusing to push"
+[[ -z "$(git config --get-regexp '^url\.' || true)" ]] \
+  || die "the clone rewrites urls through insteadOf; refusing to push"
+
+authed_git push --quiet "$clone_url" "${verified_sha}:refs/heads/$BRANCH" \
   || die "could not push $BRANCH to ${WEBAPP_REPO}. If another run advanced the same branch, re-run this job: it merges into whatever is there."
 log_ok "pushed $BRANCH"
 
