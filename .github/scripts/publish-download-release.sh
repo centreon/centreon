@@ -593,8 +593,14 @@ log_ok "commit verified against what was validated"
   || die "the clone's origin no longer points at ${WEBAPP_REPO}; refusing to push"
 [[ -z "$(git config --get remote.origin.pushurl || true)" ]] \
   || die "the clone has a separate push url; refusing to push"
-[[ -z "$(git config --get-regexp '^url\.' || true)" ]] \
-  || die "the clone rewrites urls through insteadOf; refusing to push"
+# Scoping the header protects the host, but a proxy redirects the transport underneath it, and a
+# disabled or redirected TLS check lets whoever it reaches read the header. --name-only so no value
+# is ever logged, and the suffix match covers the url-scoped forms such as http.<url>.proxy.
+transport="$(git config --list --name-only 2>/dev/null \
+  | grep -Ei '(^|\.)(proxy|proxyauthmethod|sslverify|sslcainfo|sslcapath|sslcert|sslkey|sshcommand|askpass|followredirects)$|^credential\.|^url\.' \
+  || true)"
+[[ -z "$transport" ]] \
+  || die "the clone carries transport configuration this run did not set ($(tr '\n' ' ' <<<"$transport")); refusing to push"
 
 authed_git push --quiet "$clone_url" "${verified_sha}:refs/heads/$BRANCH" \
   || die "could not push $BRANCH to ${WEBAPP_REPO}. If another run advanced the same branch, re-run this job: it merges into whatever is there."
