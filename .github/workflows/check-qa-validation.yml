@@ -9,8 +9,6 @@ on:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
       - hotfix-*
       - release-*
     types:
@@ -25,99 +23,87 @@ jobs:
   check-qa-validation:
     if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
+    permissions:
+      statuses: write        # post commit statuses
+      issues: write          # remove stale qa-approved label + read PR timeline
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Get PR labels
-        id: get-labels
-        uses: ./.github/actions/get-pr-labels
-
-      - name: Check if PR has been approved by QA
+      - name: Evaluate QA validation state
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        id: has-qa-approved-label
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.number }}
-          PR_LABELS: ${{ steps.get-labels.outputs.labels }}
           EVENT_ACTION: ${{ github.event.action }}
         with:
           script: |
             const qaApprovedLabel = 'qa-approved';
-            for (const label of JSON.parse(process.env.PR_LABELS)) {
-              if (label === qaApprovedLabel) {
-                if (process.env.EVENT_ACTION === 'synchronize') {
-                  try {
-                    await github.rest.issues.removeLabel({
-                      name: qaApprovedLabel,
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: context.issue.number
-                    });
-                    core.notice(`label ${qaApprovedLabel} removed because changes have been pushed.`);
-                  } catch (e) {
-                    core.warning(`failed to remove label ${qaApprovedLabel}: ${e}`);
-                  }
-                } else {
-                  console.log('This PR has been approved by the QA team');
-                  return;
-                }
-              }
-            }
+            const statusContext = 'qa-validation-status';
+            const headSha = context.payload.pull_request.head.sha;
 
-            const getRequestedTeamsFromTimeline = async (page) => {
-              const timeline = await github.rest.issues.listEventsForTimeline({
+            const setStatus = (state, description) =>
+              github.rest.repos.createCommitStatus({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: context.issue.number,
-                per_page: 100,
-                page: page,
+                sha: headSha,
+                context: statusContext,
+                state,          // 'pending' | 'success'
+                description,
               });
 
-              let requestedTeams = [];
-              for (const event of timeline.data) {
-                if (event.event === 'review_requested' && event?.requested_team?.name) {
-                  requestedTeams.push(event.requested_team.name);
-                }
-              }
-              console.log(`Found ${requestedTeams.length} requested teams in the PR timeline (page ${page}).`);
+            // Labels are in the event payload; no checkout needed
+            let labels = context.payload.pull_request.labels.map(l => l.name);
 
-              return requestedTeams;
+            // Stale approval: new commits invalidate the QA label
+            if (labels.includes(qaApprovedLabel)) {
+              if (process.env.EVENT_ACTION === 'synchronize') {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.issue.number,
+                    name: qaApprovedLabel,
+                  });
+                  labels = labels.filter(l => l !== qaApprovedLabel);
+                  core.notice(`label ${qaApprovedLabel} removed because changes have been pushed.`);
+                } catch (e) {
+                  core.warning(`failed to remove label: ${e}`);
+                }
+              } else {
+                await setStatus('success', 'Approved by the QA team');
+                return;
+              }
             }
 
-            const teamsWithQaApproval = [
-              'owners-php',
-              'owners-react',
-              'owners-cpp',
-            ];
+            // Scan the whole timeline: a QA team's review_requested may be on any page.
+            const getRequestedTeamsFromTimeline = async () => {
+              const events = await github.paginate(
+                github.rest.issues.listEventsForTimeline,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  per_page: 100,
+                },
+              );
+              return events
+                .filter(e => e.event === 'review_requested' && e?.requested_team?.name)
+                .map(e => e.requested_team.name);
+            };
 
+            const teamsWithQaApproval = ['owners-php', 'owners-react', 'owners-cpp'];
             let needsQaApproval = false;
             try {
-              let requestedTeams = await getRequestedTeamsFromTimeline(1);
-              if (requestedTeams.length === 0) {
-                requestedTeams = await getRequestedTeamsFromTimeline(2);
-              }
-
-              if (requestedTeams.length === 0) {
-                core.warning('Cannot find any requested teams in the PR timeline (200 last events). Assuming that this PR needs approval by the QA team.');
+              const teams = await getRequestedTeamsFromTimeline();
+              if (teams.length === 0) {
+                core.warning('No requested teams found; assuming QA approval is needed.');
                 needsQaApproval = true;
               }
-
-              console.log(`Requested teams found: ${requestedTeams.join(', ')}`);
-              for (const requestedTeam of requestedTeams) {
-                if (teamsWithQaApproval.includes(requestedTeam)) {
-                  console.log(`This PR needs approval by the QA team because team ${requestedTeam} is impacted.`);
-                  needsQaApproval = true;
-                }
-              }
+              needsQaApproval ||= teams.some(t => teamsWithQaApproval.includes(t));
             } catch (e) {
               core.warning(`failed to list required reviewers: ${e}`);
               needsQaApproval = true;
             }
 
             if (needsQaApproval) {
-              core.setFailed(`This PR is not yet approved by the QA team. If label "${qaApprovedLabel}" has been added, please re-run this workflow.`);
+              await setStatus('pending', `Waiting for QA — add the "${qaApprovedLabel}" label`);
             } else {
-              core.notice('This PR does not need approval by the QA team');
+              await setStatus('success', 'QA approval not required for this PR');
             }
