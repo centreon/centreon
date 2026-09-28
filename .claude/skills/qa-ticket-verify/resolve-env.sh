@@ -4,7 +4,7 @@
 # Usage: resolve-env.sh <pr-number>
 #
 # Prints KEY=value lines, ready for "$GITHUB_ENV":
-#   MODULE, WEB_IMAGE, MBI_IMAGE, COMPOSE_PROFILE, E2E_DIR, FRONT_DIRS
+#   MODULE, OTHER_MODULES, WEB_IMAGE, MBI_IMAGE, COMPOSE_PROFILE, E2E_DIR, FRONT_DIRS
 # centreon/centreon-modules ships its own resolve-env.sh printing the same keys.
 
 set -euo pipefail
@@ -32,6 +32,7 @@ fi
 
 cat <<EOF
 MODULE=centreon-web
+OTHER_MODULES=
 WEB_IMAGE=$registry/centreon-web-slim-$os:$tag
 MBI_IMAGE=
 COMPOSE_PROFILE=

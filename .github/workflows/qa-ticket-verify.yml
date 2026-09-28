@@ -4,17 +4,26 @@ name: qa-ticket-verify
 # that PR's build in Docker, exercises it with Playwright, posts a report as a Jira comment.
 # Never transitions the ticket itself.
 #
-# The skill ships in the centreon-qa plugin of centreon/dotfiles, loaded with --plugin-dir.
-# Everything repo-specific stays here, under .claude/skills/qa-ticket-verify/: resolve-env.sh
-# (PR -> image and source paths), the Playwright MCP configs and the selector catalog.
+# The skill ships in the CI-only centreon-qa-ci plugin of centreon/dotfiles, loaded with
+# --plugin-dir; its README documents the environment contract. Everything repo-specific stays
+# here, under .claude/skills/qa-ticket-verify/: resolve-env.sh (PR -> image and source paths),
+# the Playwright MCP configs (version pinned) and the selector catalog.
 #
-# CLAUDE_CODE_OAUTH_TOKEN is per contributor, not a shared secret: each person runs
+# Setup: CLAUDE_CODE_OAUTH_TOKEN is per contributor, not a shared secret: each person runs
 # `claude setup-token` then `gh secret set CLAUDE_CODE_OAUTH_TOKEN_<their-github-username>
 # --repo centreon/centreon` (no admin rights needed). `secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}',
 # github.actor)]` below resolves it dynamically from whoever actually triggered the run, so
 # onboarding a new contributor never touches this file, and a run only ever spends under the
-# identity that triggered it. JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL / XRAY_JIRA_TOKEN are shared,
-# reused from the existing Xray reporting workflows.
+# identity that triggered it. Secret names only allow [A-Za-z0-9_] and expressions can't
+# rewrite github.actor, so a username containing a hyphen can't have its own token yet.
+# JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL / XRAY_JIRA_TOKEN are shared, reused from the existing
+# Xray reporting workflows.
+#
+# Run: `gh workflow run qa-ticket-verify.yml --repo centreon/centreon -f jira_key=MON-12345`, or
+# Actions > qa-ticket-verify > Run workflow. No per-run budget cap: the qa-verify job's
+# timeout-minutes bounds a run. The artifact qa-ticket-verify-<key> (14 days) holds the
+# Claude transcripts, the generated .feature and report data, the updated selector catalog
+# (merge it back from time to time, CI never pushes) and the Playwright video/screenshots.
 
 on:
   workflow_dispatch:
@@ -65,7 +74,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: centreon/dotfiles
-          ref: feat/qa-ticket-verify-skill # develop once centreon/dotfiles merges the skill
+          ref: feat/qa-ticket-verify-skill # develop once centreon/dotfiles#133 is merged
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           path: dotfiles
 
@@ -119,6 +128,12 @@ jobs:
           echo "number=$number" >> "$GITHUB_OUTPUT"
           echo "head_ref=$head_ref" >> "$GITHUB_OUTPUT"
           echo "url=$url" >> "$GITHUB_OUTPUT"
+          # The skill can't read this step's annotations: hand it every candidate.
+          {
+            echo "PR_CANDIDATES<<EOF_PR_CANDIDATES"
+            echo "$pr_json" | jq -r '.[] | "#\(.number) \(.state) \(.url)"'
+            echo "EOF_PR_CANDIDATES"
+          } >> "$GITHUB_ENV"
           echo "Found PR #$number ($url) on branch $head_ref for $TICKET_KEY"
 
       - name: Resolve environment and start it
@@ -179,15 +194,16 @@ jobs:
           PR_NUMBER: ${{ steps.find_pr.outputs.number }}
           PR_URL: ${{ steps.find_pr.outputs.url }}
           TRIGGERED_BY: ${{ github.actor }}
+          QA_SKILL_DIR: ${{ github.workspace }}/dotfiles/plugins/centreon-qa-ci/skills/qa-ticket-verify
         run: |
           set -o pipefail  # otherwise `| tee` makes this step "succeed" even when claude fails
           # No missing-token check here — the check-token job already guarantees
           # CLAUDE_CODE_OAUTH_TOKEN is set before qa-verify is even allowed to start.
 
-          claude -p "Use the centreon-qa:qa-ticket-verify skill to verify Jira ticket $TICKET_KEY \
+          claude -p "Use the centreon-qa-ci:qa-ticket-verify skill to verify Jira ticket $TICKET_KEY \
             (linked PR #$PR_NUMBER, $PR_URL, module $MODULE). Every input it documents is already \
             in the environment. This run was triggered by GitHub user $TRIGGERED_BY." \
-            --plugin-dir dotfiles/plugins/centreon-qa \
+            --plugin-dir dotfiles/plugins/centreon-qa-ci \
             --mcp-config .claude/skills/qa-ticket-verify/mcp-config.ci.json \
             --strict-mcp-config \
             --allowedTools "Skill,Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find,mcp__playwright__browser_close" \
@@ -239,7 +255,7 @@ jobs:
           path: |
             claude-output.jsonl
             claude-progress.log
-            .claude/skills/qa-ticket-verify/runs/*.feature
+            .claude/skills/qa-ticket-verify/runs/*
             .claude/skills/qa-ticket-verify/selectors.json
             playwright-mcp-output/**
           retention-days: 14
