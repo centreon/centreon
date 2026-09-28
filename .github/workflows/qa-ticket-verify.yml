@@ -52,7 +52,7 @@ jobs:
   qa-verify:
     needs: check-token
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -193,7 +193,6 @@ jobs:
             --strict-mcp-config \
             --allowedTools "Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find,mcp__playwright__browser_close" \
             --permission-mode bypassPermissions \
-            --max-budget-usd 3 \
             --verbose \
             --output-format stream-json \
             | tee claude-output.jsonl \
