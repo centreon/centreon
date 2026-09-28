@@ -43,8 +43,16 @@ if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
 // Get host and service name
 $serviceName = '';
 
-$query = 'SELECT h.name, s.description FROM hosts h, services s
-    WHERE h.host_id = :hostId AND s.service_id = :serviceId AND h.host_id = s.host_id';
+// Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
+$query = <<<'SQL'
+    SELECT CASE
+        WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), s.description))
+        ELSE CONCAT(h.name, ' - ', s.description)
+    END AS fullname
+    FROM hosts h
+    INNER JOIN services s ON s.host_id = h.host_id
+    WHERE h.host_id = :hostId AND s.service_id = :serviceId
+    SQL;
 
 $stmt = $pearDBO->prepare($query);
 $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
@@ -52,7 +60,7 @@ $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
 $stmt->execute();
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $serviceName = $row['name'] . ' - ' . $row['description'];
+    $serviceName = $row['fullname'];
 }
 
 $periods = [
