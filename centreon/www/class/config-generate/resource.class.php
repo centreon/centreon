@@ -98,12 +98,13 @@ class Resource extends AbstractObject
 
         $results = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($results as $value) {
+            $resourceLine = (string) $value['resource_line'];
             if ((bool) $value['is_password'] === true) {
                 $isPassword[$value['resource_name']] = true;
             }
-            $object['resources'][$value['resource_name']] = $value['resource_line'];
-            if ($this->isAVaultPath($value['resource_line'])) {
-                $vaultPaths[] = $value['resource_line'];
+            $object['resources'][$value['resource_name']] = $resourceLine;
+            if ($this->isAVaultPath($resourceLine)) {
+                $vaultPaths[] = $resourceLine;
             }
         }
         if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
