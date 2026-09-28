@@ -364,7 +364,7 @@ class CentreonMainCfg
                 if ($paramName === ':nagios_server_id') {
                     $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
                 } else {
-                    $stmt->bindValue($paramName, empty($paramValue) ? null : $paramValue, PDO::PARAM_STR);
+                    $stmt->bindValue($paramName, $paramValue === null || $paramValue === '' ? null : $paramValue, PDO::PARAM_STR);
                 }
             }
             $stmt->execute();
