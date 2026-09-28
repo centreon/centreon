@@ -5285,6 +5285,30 @@ msgid "Drag handle"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Drag to reorder"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Picked up row {{position}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Reordering cancelled, row {{position}} returned to its original position"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} dropped at position {{newPosition}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} moved to position {{newPosition}}"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Drop or"
 msgstr ""
 
