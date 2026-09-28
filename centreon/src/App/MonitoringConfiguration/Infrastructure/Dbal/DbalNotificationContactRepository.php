@@ -76,6 +76,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         $qb->select('contact_id', 'contact_name')
             ->from(self::TABLE_NAME)
             ->where("contact_register = '1'")
+            ->andWhere("contact_name IS NOT NULL AND contact_name != ''")
             ->andWhere($qb->expr()->in('contact_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
 
         /** @var list<array{contact_id: int|string, contact_name: string}> $rows */
