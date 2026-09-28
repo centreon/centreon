@@ -13,9 +13,10 @@ import { panelDataTestIds } from './dataTestIds';
 import Header from './Header';
 import { usePanelStyles } from './Panel.styles';
 
-// The mock gives the panel 720px, holding a 680px content column.
-export const defaultPanelWidth = 720;
-const minPanelWidth = 550;
+// The design sizes the panel between these two, and opens it at its narrowest.
+export const minPanelWidth = 720;
+export const maxPanelWidth = 1368;
+export const defaultPanelWidth = minPanelWidth;
 
 interface Props {
   form: FormType;
@@ -47,11 +48,10 @@ const FormPanel = ({
       header={
         <Header fallbackTitle={labelHeader} loadedResource={loadedResource} />
       }
-      // The mock bands the header in the page grey, above the white form.
       headerBackgroundColor={theme.palette.background.default}
       labelClose={t(labelClose)}
-      // On a page too narrow to hold it, the panel is already below its own
-      // minimum: dragging must not push it back out of the page.
+      // Already below its own minimum on a narrow page: dragging must not
+      // push it back out.
       minWidth={Math.min(minPanelWidth, width)}
       onClose={close}
       onResize={onResize}

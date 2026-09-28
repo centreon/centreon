@@ -40,8 +40,7 @@ const initialize = ({
     resources: {}
   });
 
-  // The form is URL-driven, and Cypress does not reload between tests: without
-  // this, a test opens on the panel the previous one left behind.
+  // The form is URL-driven and Cypress does not reload between tests.
   window.history.pushState({}, '', window.location.pathname);
 
   const store = createStore();

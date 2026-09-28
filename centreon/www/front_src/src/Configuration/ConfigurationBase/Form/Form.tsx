@@ -28,8 +28,8 @@ export type ResourceFormProps = {
   initialValues: Record<string, unknown>;
   isLoading: boolean;
   hasWriteAccess: boolean;
-  // Surfaces whose own chrome carries save and reset — the panel — take them
-  // out of the form and drive them through `formActionsAtom` instead.
+  // The panel carries save and reset in its own chrome, through
+  // `formActionsAtom`.
   areActionsInHeader?: boolean;
 } & Pick<FormActionsProps, 'onCancel'>;
 
@@ -77,8 +77,7 @@ const Actions = ({
   );
 };
 
-// Publishes what an outside surface needs to drive the form, from inside the
-// Formik context the surface cannot reach.
+// Inside the Formik context the panel header cannot reach.
 const PublishedActions = (): JSX.Element => {
   const setIsDirty = useSetAtom(isFormDirtyAtom);
   const setFormActions = useSetAtom(formActionsAtom);

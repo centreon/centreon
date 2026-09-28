@@ -51,8 +51,8 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
     isCloseConfirmationDialogOpenAtom
   );
 
-  // `MemoizedListing` holds on to this handler, so anything it reads has to be
-  // read when the row is clicked rather than when the handler was built.
+  // `MemoizedListing` holds this handler, so what it reads must be read when
+  // the row is clicked, not when the handler was built.
   const formStateRef = useRef(formState);
   formStateRef.current = formState;
   const isFormDirtyRef = useRef(isFormDirty);
@@ -86,8 +86,7 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   };
 
   const openEditForm = (row) => {
-    // A panel has no backdrop, so the listing stays clickable while a form is
-    // open. Switching to another resource would drop unsaved edits silently.
+    // A panel has no backdrop: the listing stays clickable while a form is open.
     const openForm = formStateRef.current;
 
     const leavesEditsBehind =

@@ -1,5 +1,5 @@
-// Tracking ids are owned here rather than derived from a label: wording still
-// moves (MON-209116), and a Pendo tag must not move with it.
+// Owned here rather than derived from a label: wording still moves
+// (MON-209116), and a Pendo tag must not move with it.
 export const panelDataTestIds = {
   content: 'form-panel',
   delete: 'form-panel-delete',

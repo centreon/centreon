@@ -101,10 +101,9 @@ export interface ConfigurationBase<TFilters> {
     link: string;
   }>;
   filtersPanelWidth?: number;
-  // Where the create/edit form opens. The modal is the default: the modules
-  // that shipped before the panel keep it untouched.
+  // Where the create/edit form opens. Modal by default.
   formVariant?: 'modal' | 'panel';
-  // Width the panel opens at, in pixels. The user can then resize it.
+  // Width the panel opens at; the user can resize it from there.
   formPanelWidth?: number;
 }
 

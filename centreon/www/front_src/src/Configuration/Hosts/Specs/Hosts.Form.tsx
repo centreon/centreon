@@ -1,9 +1,8 @@
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import initialize from './initialize';
 
-// The surface is chosen by the module, and `ConfigurationBase`'s own specs pass
-// `formVariant` explicitly — so this is the only place a revert to the modal
-// would turn something red.
+// `ConfigurationBase`'s specs pass `formVariant` explicitly, so this is the
+// only place a revert to the modal would turn something red.
 export default () => {
   describe('Form: ', () => {
     it('opens the form of a host in a side panel rather than a modal', () => {
@@ -18,7 +17,7 @@ export default () => {
       );
       cy.get('[data-testid="Modal"]').should('not.exist');
 
-      // The listing row names the panel, without waiting for a detail call.
+      // Named by the listing row, with no detail endpoint on this module.
       cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
         'have.text',
         'host 0'
@@ -37,8 +36,6 @@ export default () => {
       );
       cy.get('[data-testid="Modal"]').should('not.exist');
 
-      // Naming the action proves the panel opened for this click, and not
-      // because an earlier test left one open.
       cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
         'have.text',
         'Add a host'

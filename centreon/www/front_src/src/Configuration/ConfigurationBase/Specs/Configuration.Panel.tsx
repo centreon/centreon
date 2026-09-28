@@ -1,3 +1,4 @@
+import { maxPanelWidth } from '../Panel';
 import { panelDataTestIds } from '../Panel/dataTestIds';
 import { labelClose, labelDelete, labelMoreActions } from '../translatedLabels';
 import initialize, {
@@ -7,8 +8,7 @@ import initialize, {
 import { groups, inputs } from './utils';
 
 interface Options {
-  // The panel is generic: a second resource type renders the same pixels with
-  // another word in the title, so the baselines are taken once.
+  // The panel renders the same pixels whatever the resource type.
   hasSnapshots: boolean;
 }
 
@@ -51,7 +51,7 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           .should('be.visible')
           .should('be.disabled');
 
-        // The panel carries its actions in the header, so the form keeps none.
+        // The actions are in the header, so the form keeps none.
         cy.get('button[data-testid="submit"]').should('not.exist');
         cy.get('button[data-testid="cancel"]').should('not.exist');
 
@@ -128,14 +128,31 @@ export default (resourceType, { hasSnapshots }: Options): void => {
             }
           );
 
-          // Narrower than it asked for: the clamp fired, rather than 720px
-          // happening to fit.
+          // Narrower than asked: the clamp fired, rather than 720 fitting.
           cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
             ([panel]) => {
               expect(panel.getBoundingClientRect().width).to.be.lessThan(720);
             }
           );
         });
+      });
+
+      it('opens no wider than the design allows, whatever the module asks for', () => {
+        cy.viewport(1600, 590);
+
+        mount({ formPanelWidth: 2000 });
+
+        cy.waitForRequest('@getAll');
+
+        cy.get('[data-testid="add-resource"]').click();
+
+        // The surface itself: a scrollbar would narrow the content inside it.
+        cy.get(`[data-testid="${panelDataTestIds.content}"]`)
+          .parents('.MuiPaper-root')
+          .first()
+          .should(([panel]) => {
+            expect(panel.getBoundingClientRect().width).to.equal(maxPanelWidth);
+          });
       });
 
       it('shows form fields organized into groups, with each field initialized with default values', () => {
@@ -186,7 +203,6 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         openForEdition();
 
-        // The mock names the panel after the resource it holds.
         cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
           'have.text',
           resourceName
@@ -300,8 +316,7 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           resourceName
         );
 
-        // Only row 1 has a detail response. A panel naming the resource it no
-        // longer holds is how an action ends up aimed at the wrong one.
+        // No detail response for this one: the panel has only the row to go on.
         const otherResource = `${resourceType.replace(' ', '_')} 3`;
 
         cy.contains(otherResource).click();
@@ -323,7 +338,6 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.get('[role="dialog"]').should('be.visible');
 
-        // Still the resource that holds the edits.
         cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
           'have.text',
           resourceName
@@ -339,8 +353,7 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.get(`button[data-testid="${panelDataTestIds.delete}"]`).click();
 
-        // Scoped to the dialog: the listing row behind it carries the same
-        // text, so an unscoped assertion would pass on an empty name.
+        // Scoped: the listing row behind it carries the same text.
         cy.get('[role="dialog"]').contains(resourceName).should('be.visible');
 
         cy.findByTestId('confirm').click();
@@ -351,7 +364,6 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           'not.exist'
         );
 
-        // A URL still naming the resource would open the panel on it again.
         cy.location('search').should('eq', '');
       });
 
@@ -360,7 +372,7 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         openForEdition();
 
-        // Rows are labelled by id, and only activated rows are selectable.
+        // Rows are labelled by id; only activated ones are selectable.
         cy.findByLabelText('Select row 3').click();
         cy.findByLabelText('Select row 5').click();
 
@@ -429,7 +441,7 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.waitForRequest('@getAll');
 
-        // The listing still works: the URL is ignored, not the page.
+        // The URL is ignored, not the page.
         cy.contains(resourceName).should('be.visible');
 
         cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
@@ -455,7 +467,6 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           'be.visible'
         );
 
-        // Nothing that writes, on a surface opened without write access.
         [
           panelDataTestIds.save,
           panelDataTestIds.reset,

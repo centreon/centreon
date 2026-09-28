@@ -5,7 +5,7 @@ import { JSX, useState } from 'react';
 
 import { Form as FormType } from '../../models';
 import { formStateAtom } from '../atoms';
-import Panel, { defaultPanelWidth } from './Panel';
+import Panel, { defaultPanelWidth, maxPanelWidth } from './Panel';
 import useAvailableWidth from './useAvailableWidth';
 
 // `PageLayout.Body` pads the page with `theme.spacing(0, 3, 1.5)`. The panel is
@@ -19,8 +19,6 @@ interface Props {
   width?: number;
 }
 
-// Lays the form panel over the listing, flush to the right: the listing keeps
-// its width and its scroll position instead of reflowing when the panel opens.
 const PanelLayout = ({
   children,
   form,
@@ -31,18 +29,18 @@ const PanelLayout = ({
 
   const { id, isOpen } = useAtomValue(formStateAtom);
 
-  // The module sets where the panel starts; the user may then drag it wider.
   const [requestedWidth, setRequestedWidth] = useState(width);
 
   const { ref, availableWidth } = useAvailableWidth();
 
   const rightBleed = Number.parseFloat(theme.spacing(pageBodyPadding.right));
 
-  // Never wider than the page: the panel is flush right, so any excess would
-  // be clipped, taking the form actions with it.
-  const panelWidth = availableWidth
-    ? Math.min(requestedWidth, availableWidth + rightBleed)
+  // Flush right, so anything wider than the page is clipped off it.
+  const roomToGrow = availableWidth
+    ? availableWidth + rightBleed
     : requestedWidth;
+
+  const panelWidth = Math.min(requestedWidth, maxPanelWidth, roomToGrow);
 
   return (
     <div className="relative h-full" ref={ref}>
@@ -59,9 +57,8 @@ const PanelLayout = ({
         >
           <Panel
             form={form}
-            // Switching resources starts the panel over: remounting drops the
-            // detail payload the shared query hook keeps latched.
             hasWriteAccess={hasWriteAccess}
+            // Remounts on another resource, dropping the latched detail.
             key={id}
             onResize={setRequestedWidth}
             width={panelWidth}

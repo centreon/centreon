@@ -24,7 +24,7 @@ export default (resourceType): void => {
           .should('have.text', labelSave)
           .should('be.disabled');
 
-        // The panel is opt-in: a module that asks for nothing keeps the modal.
+        // Opt-in: a module that asks for nothing keeps the modal.
         cy.get(`[data-testid="${panelDataTestIds.content}"]`).should(
           'not.exist'
         );

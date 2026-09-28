@@ -64,7 +64,7 @@ const useDelete = (): UseDeleteState => {
   const [formState, setFormState] = useAtom(formStateAtom);
 
   // The close runs once the request resolves, by which time the form may hold
-  // another resource than the one this handler was built with.
+  // another resource.
   const formStateRef = useRef(formState);
   formStateRef.current = formState;
   const configuration = useAtomValue(configurationAtom);
@@ -86,8 +86,6 @@ const useDelete = (): UseDeleteState => {
     setResourcesToDelete([]);
   };
 
-  // Ids a bulk response reports as refused, read from the response the same way
-  // `useBulkResponse` reads it.
   const getFailedIds = (results): Array<number> =>
     (results ?? [])
       .filter(complement(propEq(204, 'status')))
@@ -95,9 +93,9 @@ const useDelete = (): UseDeleteState => {
         Number.parseInt(last(split('/', href || '')) as string, 10)
       );
 
-  // A form left open on a resource that no longer exists would save into a
-  // void, and a URL still naming it would open it again on the next visit.
-  // A resource whose own deletion was refused still exists, so its form stays.
+  // A form on a deleted resource would save into a void, and a URL still
+  // naming it would reopen it. A refused deletion leaves the resource, and its
+  // form, alone.
   const closeFormOnDeletedResource = (failedIds: Array<number> = []): void => {
     const currentFormState = formStateRef.current;
     const { id, isOpen } = currentFormState;

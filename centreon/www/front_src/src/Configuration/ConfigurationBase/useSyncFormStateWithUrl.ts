@@ -9,17 +9,15 @@ interface Props {
   hasFormAccess: boolean;
 }
 
-// The form is deep-linkable through `?mode=add|edit` and `?id=`. The sync lives
-// on the page rather than in the form itself: the panel is mounted only while
-// it is open, so it cannot be what reacts to the URL that opens it.
+// Deep links (`?mode=`, `?id=`) are handled here rather than in the form: the
+// panel is mounted only while open, so it cannot react to the URL opening it.
 const useSyncFormStateWithUrl = ({ hasFormAccess }: Props): void => {
   const [searchParams] = useSearchParams();
 
   const [formState, setFormState] = useAtom(formStateAtom);
 
-  // Read at call time, never depended on: the effect must answer to the URL
-  // alone. Waking on the state it writes would race react-router, which
-  // publishes the new URL a commit later.
+  // Read at call time, never depended on: waking on the state this effect
+  // writes races react-router, which publishes the URL a commit later.
   const formStateRef = useRef(formState);
   formStateRef.current = formState;
 
@@ -33,8 +31,6 @@ const useSyncFormStateWithUrl = ({ hasFormAccess }: Props): void => {
 
     const urlId = id ? Number(id) : null;
 
-    // Opening the form writes the URL, which fires this effect right back:
-    // re-setting the state here would drop the row the listing handed over.
     const currentFormState = formStateRef.current;
 
     const describesTheOpenForm =

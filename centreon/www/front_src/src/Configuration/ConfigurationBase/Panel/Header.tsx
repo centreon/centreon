@@ -29,8 +29,6 @@ import {
 } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
 
-// Own component so that the enable/disable request is only wired up for the
-// modules that offer the action.
 const EnableAction = ({ row }: { row: ResourceRow }): JSX.Element => {
   const { t } = useTranslation();
 
@@ -56,8 +54,6 @@ interface Props {
   loadedResource?: Record<string, unknown>;
 }
 
-// The panel carries the form's actions in its header, as the mock has them:
-// enable · reset · duplicate · save · delete, then the close the panel adds.
 const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -67,25 +63,20 @@ const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
 
   const isEditMode = equals(mode, 'edit');
 
-  // The row the panel was opened from is the only source guaranteed to
-  // describe the open id: `useFetchQuery` keeps the last payload it loaded, so
-  // a detail response can still be the previously opened resource. Merging the
-  // two would let an action carry one resource's id under another's name, and
-  // the delete confirmation names what it is about to delete. So the actions
-  // take the row when there is one, and the loaded detail only otherwise.
+  // Never merged: `useFetchQuery` keeps the last payload it loaded, so a detail
+  // response can still describe the previously opened resource, and an action
+  // would carry one resource's id under another's name.
   const resource = (openedResource ?? loadedResource) as
     | Record<string, unknown>
     | undefined;
 
   const row = { ...resource, id } as ResourceRow;
 
-  // The mock names the panel after the resource it holds.
   const title = (resource?.name as string) || fallbackTitle;
 
   const { canDelete, canDuplicate, openDeleteModal, openDuplicateModal } =
     useActions(row);
 
-  // The toggle reflects a state only a loaded resource has.
   const canEnableDisable =
     isEditMode &&
     !!configuration?.actions?.enableDisable?.(row) &&

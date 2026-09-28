@@ -127,6 +127,7 @@ const initialize = ({
   filtersPanelWidth,
   actions = defaultActions,
   formVariant,
+  formPanelWidth,
   searchParams = ''
 }: {
   resourceType?: ResourceType;
@@ -135,12 +136,13 @@ const initialize = ({
   filtersPanelWidth?: number;
   actions?: Actions;
   formVariant?: 'modal' | 'panel';
+  formPanelWidth?: number;
   searchParams?: string;
 }): void => {
   const resource = resourceType.replace(' ', '_');
 
-  // Mounted under a real router, so a deep link is expressed as the URL the
-  // page is opened on. Always set, so one test cannot leak into the next.
+  // A deep link is the URL the page opens on. Always set, so no test leaks
+  // its URL into the next.
   window.history.pushState({}, '', searchParams || window.location.pathname);
 
   mockListingRequests(resource);
@@ -192,6 +194,7 @@ const initialize = ({
                     groups,
                     inputs
                   }}
+                  formPanelWidth={formPanelWidth}
                   formVariant={formVariant}
                   isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
                   labels={{
