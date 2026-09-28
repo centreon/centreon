@@ -11,14 +11,16 @@ set -e
 # Must run before container.d/99-logs.sh, which is sourced (not forked) below and
 # itself execs "$@" — anything placed after the loop never runs.
 if [ -n "${CENTREONTRAPD_LOG_LEVEL}" ]; then
-  new_args=""
-  for arg in "$@"; do
+  remaining=$#
+  while [ "$remaining" -gt 0 ]; do
+    arg=$1
+    shift
     case "$arg" in
       --severity=*) arg="--severity=${CENTREONTRAPD_LOG_LEVEL}" ;;
     esac
-    new_args="${new_args} ${arg}"
+    set -- "$@" "$arg"
+    remaining=$((remaining - 1))
   done
-  set -- ${new_args}
 fi
 
 BASEDIR="/usr/local/lib/centreon-centreontrapd/container.d"
