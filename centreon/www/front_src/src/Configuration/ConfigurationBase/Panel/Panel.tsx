@@ -3,20 +3,37 @@ import { useTheme } from '@mui/material';
 import { Panel } from '@centreon/ui';
 
 import { equals } from 'ramda';
-import { JSX } from 'react';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Form as FormType } from '../../models';
+import { ResetDialog } from '../Dialogs';
 import { Form, useForm } from '../Form';
 import { labelClose } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
 import Header from './Header';
 import { usePanelStyles } from './Panel.styles';
 
-// The design sizes the panel between these two, and opens it at its narrowest.
-export const minPanelWidth = 720;
-export const maxPanelWidth = 1368;
-export const defaultPanelWidth = minPanelWidth;
+// The three widths the design lays the form out at.
+const panelWidths = { large: 1400, medium: 900, small: 720 };
+
+export const minPanelWidth = panelWidths.small;
+export const maxPanelWidth = panelWidths.large;
+
+// The panel opens at a width the screen can hold, and the user takes it from
+// there. Thresholds are the screens the design sizes for: 1920, then 14" and
+// 1440 desktops, then 13".
+export const getDefaultPanelWidth = (viewportWidth: number): number => {
+  if (viewportWidth >= 1920) {
+    return panelWidths.large;
+  }
+
+  if (viewportWidth >= 1440) {
+    return panelWidths.medium;
+  }
+
+  return panelWidths.small;
+};
 
 interface Props {
   form: FormType;
@@ -30,7 +47,7 @@ const FormPanel = ({
   hasWriteAccess,
   onResize,
   width
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { t } = useTranslation();
   const theme = useTheme();
   const { classes } = usePanelStyles();
@@ -57,6 +74,7 @@ const FormPanel = ({
       onResize={onResize}
       selectedTab={
         <div className="px-5 pb-5" data-testid={panelDataTestIds.content}>
+          <ResetDialog />
           <Form
             areActionsInHeader
             groups={form?.groups}

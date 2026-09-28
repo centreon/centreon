@@ -81,3 +81,5 @@ export const labelSave = 'Save';
 
 export const labelClose = 'Close';
 export const labelReset = 'Reset';
+export const labelResetConfirmation =
+  'The changes you made will be lost. Do you want to reset the form?';

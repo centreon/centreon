@@ -1,6 +1,6 @@
 export {
   default as Panel,
-  defaultPanelWidth,
+  getDefaultPanelWidth,
   maxPanelWidth,
   minPanelWidth
 } from './Panel';

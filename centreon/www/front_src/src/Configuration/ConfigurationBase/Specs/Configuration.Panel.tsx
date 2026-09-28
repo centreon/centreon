@@ -1,4 +1,4 @@
-import { maxPanelWidth } from '../Panel';
+import { getDefaultPanelWidth, maxPanelWidth } from '../Panel';
 import { panelDataTestIds } from '../Panel/dataTestIds';
 import { labelClose, labelDelete, labelMoreActions } from '../translatedLabels';
 import initialize, {
@@ -34,6 +34,12 @@ export default (resourceType, { hasSnapshots }: Options): void => {
       mockActionsRequests(resource);
     });
 
+    const panelSurface = () =>
+      cy
+        .get(`[data-testid="${panelDataTestIds.content}"]`)
+        .parents('.MuiPaper-root')
+        .first();
+
     describe('Creation mode', () => {
       it("opens the panel in creation mode when the 'Add' button was clicked", () => {
         mount();
@@ -67,6 +73,8 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.get('[data-testid="add-resource"]').click();
 
+        // Nothing to reset, enable, duplicate or delete before it exists.
+        cy.get(`[data-testid="${panelDataTestIds.reset}"]`).should('not.exist');
         cy.get(`[data-testid="${panelDataTestIds.enable}"]`).should(
           'not.exist'
         );
@@ -137,8 +145,55 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         });
       });
 
+      // The screens the design sizes for, and what it opens the panel at.
+      [
+        { expected: 1400, viewport: 1920 },
+        { expected: 900, viewport: 1512 },
+        { expected: 900, viewport: 1440 },
+        { expected: 720, viewport: 1280 }
+      ].forEach(({ viewport, expected }) => {
+        it(`opens at ${expected}px on a ${viewport}px screen`, () => {
+          cy.viewport(viewport, 900);
+
+          mount();
+
+          cy.waitForRequest('@getAll');
+
+          cy.get('[data-testid="add-resource"]').click();
+
+          // The surface itself: a scrollbar narrows the content inside it.
+          panelSurface().should(([panel]) => {
+            expect(panel.getBoundingClientRect().width).to.equal(expected);
+            expect(expected).to.equal(getDefaultPanelWidth(viewport));
+          });
+        });
+      });
+
+      it('reopens at the width it was last dragged to', () => {
+        cy.viewport(1920, 900);
+
+        mount({ panelWidth: 1000 });
+
+        cy.waitForRequest('@getAll');
+
+        cy.get('[data-testid="add-resource"]').click();
+
+        // Not the 1400 this screen opens at when nothing was ever dragged.
+        panelSurface().should(([panel]) => {
+          expect(panel.getBoundingClientRect().width).to.equal(1000);
+        });
+
+        cy.findByLabelText(labelClose).click();
+
+        cy.get('[data-testid="add-resource"]').click();
+
+        panelSurface().should(([panel]) => {
+          expect(panel.getBoundingClientRect().width).to.equal(1000);
+        });
+      });
+
       it('opens no wider than the design allows, whatever the module asks for', () => {
-        cy.viewport(1600, 590);
+        cy.viewport(1920, 900);
 
         mount({ formPanelWidth: 2000 });
 
@@ -146,13 +201,9 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.get('[data-testid="add-resource"]').click();
 
-        // The surface itself: a scrollbar would narrow the content inside it.
-        cy.get(`[data-testid="${panelDataTestIds.content}"]`)
-          .parents('.MuiPaper-root')
-          .first()
-          .should(([panel]) => {
-            expect(panel.getBoundingClientRect().width).to.equal(maxPanelWidth);
-          });
+        panelSurface().should(([panel]) => {
+          expect(panel.getBoundingClientRect().width).to.equal(maxPanelWidth);
+        });
       });
 
       it('shows form fields organized into groups, with each field initialized with default values', () => {
@@ -283,6 +334,9 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.get(`button[data-testid="${panelDataTestIds.reset}"]`).click();
 
+        // Discarding edits is confirmed, as deleting and closing are.
+        cy.findByTestId('confirm').click();
+
         cy.findAllByTestId('Name').eq(1).should('have.value', resourceName);
         cy.get(`button[data-testid="${panelDataTestIds.reset}"]`).should(
           'be.disabled'
@@ -304,6 +358,28 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         cy.waitForRequest('@disable').then(({ request }) => {
           expect(request.body).to.deep.equals({ ids: [1] });
         });
+
+        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`).should(
+          'not.be.checked'
+        );
+      });
+
+      it('puts the toggle back when the request is refused', () => {
+        mockActionsRequests(resourceType.replace(' ', '_'), true);
+
+        mount();
+
+        openForEdition();
+
+        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`)
+          .should('be.checked')
+          .click();
+
+        cy.waitForRequest('@disable');
+
+        cy.get(`[data-testid="${panelDataTestIds.enable}"] input`).should(
+          'be.checked'
+        );
       });
 
       it('follows the listing when another row is clicked', () => {

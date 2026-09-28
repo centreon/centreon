@@ -1,11 +1,11 @@
 import { Box, useTheme } from '@mui/material';
 
-import { useAtomValue } from 'jotai';
-import { JSX, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { ReactElement } from 'react';
 
 import { Form as FormType } from '../../models';
-import { formStateAtom } from '../atoms';
-import Panel, { defaultPanelWidth, maxPanelWidth } from './Panel';
+import { formStateAtom, panelWidthAtom } from '../atoms';
+import Panel, { getDefaultPanelWidth, maxPanelWidth } from './Panel';
 import useAvailableWidth from './useAvailableWidth';
 
 // `PageLayout.Body` pads the page with `theme.spacing(0, 3, 1.5)`. The panel is
@@ -13,7 +13,7 @@ import useAvailableWidth from './useAvailableWidth';
 const pageBodyPadding = { bottom: 1.5, right: 3 };
 
 interface Props {
-  children: JSX.Element;
+  children: ReactElement;
   form: FormType;
   hasWriteAccess: boolean;
   width?: number;
@@ -23,24 +23,27 @@ const PanelLayout = ({
   children,
   form,
   hasWriteAccess,
-  width = defaultPanelWidth
-}: Props): JSX.Element => {
+  width
+}: Props): ReactElement => {
   const theme = useTheme();
 
   const { id, isOpen } = useAtomValue(formStateAtom);
 
-  const [requestedWidth, setRequestedWidth] = useState(width);
+  const [draggedWidth, setDraggedWidth] = useAtom(panelWidthAtom);
 
   const { ref, availableWidth } = useAvailableWidth();
 
   const rightBleed = Number.parseFloat(theme.spacing(pageBodyPadding.right));
 
+  const preferredWidth =
+    draggedWidth ?? width ?? getDefaultPanelWidth(window.innerWidth);
+
   // Flush right, so anything wider than the page is clipped off it.
   const roomToGrow = availableWidth
     ? availableWidth + rightBleed
-    : requestedWidth;
+    : preferredWidth;
 
-  const panelWidth = Math.min(requestedWidth, maxPanelWidth, roomToGrow);
+  const panelWidth = Math.min(preferredWidth, maxPanelWidth, roomToGrow);
 
   return (
     <div className="relative h-full" ref={ref}>
@@ -60,7 +63,7 @@ const PanelLayout = ({
             hasWriteAccess={hasWriteAccess}
             // Remounts on another resource, dropping the latched detail.
             key={id}
-            onResize={setRequestedWidth}
+            onResize={setDraggedWidth}
             width={panelWidth}
           />
         </Box>

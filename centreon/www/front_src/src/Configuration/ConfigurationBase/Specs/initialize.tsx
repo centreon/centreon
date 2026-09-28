@@ -10,6 +10,7 @@ import { BrowserRouter as Router } from 'react-router';
 
 import { Actions, FilterConfiguration, ResourceType } from '../../models';
 import ConfigurationBase from '..';
+import { panelWidthAtom } from '../atoms';
 import {
   columns,
   columnsAtomKey,
@@ -25,7 +26,10 @@ import {
   resourceDecoderListDecoder
 } from './utils';
 
-export const mockActionsRequests = (resourceType): void => {
+export const mockActionsRequests = (
+  resourceType,
+  disableFails = false
+): void => {
   cy.interceptAPIRequest({
     alias: 'deleteOne',
     method: Method.DELETE,
@@ -61,7 +65,13 @@ export const mockActionsRequests = (resourceType): void => {
     method: Method.POST,
     path: `**${getEndpoints(resourceType).disable?.()}`,
     response: {
-      results: [{ href: '/resources/1', message: null, status: 204 }]
+      results: [
+        {
+          href: '/resources/1',
+          message: disableFails ? 'Resource in use' : null,
+          status: disableFails ? 409 : 204
+        }
+      ]
     }
   });
 };
@@ -128,6 +138,7 @@ const initialize = ({
   actions = defaultActions,
   formVariant,
   formPanelWidth,
+  panelWidth,
   searchParams = ''
 }: {
   resourceType?: ResourceType;
@@ -137,6 +148,7 @@ const initialize = ({
   actions?: Actions;
   formVariant?: 'modal' | 'panel';
   formPanelWidth?: number;
+  panelWidth?: number;
   searchParams?: string;
 }): void => {
   const resource = resourceType.replace(' ', '_');
@@ -157,6 +169,10 @@ const initialize = ({
   const isWelcomePageDisplayedAtom = atom(false);
 
   const store = createStore();
+
+  // Always set: the store is new for each test but localStorage is not, so a
+  // width one test drags to would otherwise open the next one.
+  store.set(panelWidthAtom, panelWidth ?? null);
 
   cy.mount({
     Component: (

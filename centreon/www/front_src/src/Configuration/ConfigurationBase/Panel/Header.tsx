@@ -9,13 +9,18 @@ import { Box, Tooltip, Typography } from '@mui/material';
 import { IconButton } from '@centreon/ui';
 import { Switch } from '@centreon/ui/components';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNil } from 'ramda';
-import { JSX } from 'react';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ResourceRow } from '../../models';
-import { configurationAtom, formActionsAtom, formStateAtom } from '../atoms';
+import {
+  configurationAtom,
+  formActionsAtom,
+  formStateAtom,
+  isResetConfirmationDialogOpenAtom
+} from '../atoms';
 import useActions from '../Listing/Columns/Actions/useActions';
 import useStatus from '../Listing/Columns/Status/useStatus';
 import {
@@ -29,7 +34,7 @@ import {
 } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
 
-const EnableAction = ({ row }: { row: ResourceRow }): JSX.Element => {
+const EnableAction = ({ row }: { row: ResourceRow }): ReactElement => {
   const { t } = useTranslation();
 
   const { isMutating, change, checked } = useStatus({ row });
@@ -54,12 +59,15 @@ interface Props {
   loadedResource?: Record<string, unknown>;
 }
 
-const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
+const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
   const { t } = useTranslation();
 
   const configuration = useAtomValue(configurationAtom);
   const { id, mode, resource: openedResource } = useAtomValue(formStateAtom);
   const formActions = useAtomValue(formActionsAtom);
+  const setIsResetConfirmationDialogOpen = useSetAtom(
+    isResetConfirmationDialogOpenAtom
+  );
 
   const isEditMode = equals(mode, 'edit');
 
@@ -93,12 +101,12 @@ const Header = ({ fallbackTitle, loadedResource }: Props): JSX.Element => {
       </Typography>
       <Box className="ml-auto flex items-center gap-1">
         {canEnableDisable && <EnableAction row={row} />}
-        {formActions && (
+        {isEditMode && formActions && (
           <IconButton
             ariaLabel={t(labelReset)}
             dataTestid={panelDataTestIds.reset}
             disabled={!formActions.canReset}
-            onClick={formActions.reset}
+            onClick={() => setIsResetConfirmationDialogOpen(true)}
             title={t(labelReset)}
           >
             <ResetIcon />
