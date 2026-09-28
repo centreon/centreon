@@ -64,6 +64,14 @@ final class NotificationOptionEnumResolverTest extends TestCase
         self::assertSame($option, NotificationOptionEnumResolver::toDomain($apiValue));
     }
 
+    public function testItPublishesTheApiStringOfEveryOption(): void
+    {
+        self::assertSame(
+            array_map(NotificationOptionEnumResolver::toString(...), NotificationOptionEnum::cases()),
+            NotificationOptionEnumResolver::API_VALUES,
+        );
+    }
+
     public function testItRejectsAnUnknownApiString(): void
     {
         $this->expectException(\ValueError::class);

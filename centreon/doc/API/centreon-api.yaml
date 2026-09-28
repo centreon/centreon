@@ -11823,6 +11823,13 @@ components:
           type: array
           items:
             type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
         interval:
           minimum: 0
           type:
@@ -12154,6 +12161,10 @@ components:
       properties:
         enabled:
           type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
         contacts:
           type: array
           items:
@@ -12163,10 +12174,16 @@ components:
           items:
             $ref: '#/components/schemas/ContactGroup'
         options:
-          description: '{@see \App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum}'
           type: array
           items:
             type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
         interval:
           type:
             - integer
@@ -12194,6 +12211,10 @@ components:
       properties:
         enabled:
           type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
         contacts:
           type: array
           items:
@@ -12203,10 +12224,16 @@ components:
           items:
             $ref: '#/components/schemas/ContactGroup.jsonld'
         options:
-          description: '{@see \App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum}'
           type: array
           items:
             type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
         interval:
           type:
             - integer

@@ -30,6 +30,17 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
  */
 final readonly class NotificationOptionEnumResolver
 {
+    /**
+     * Listed for the OpenAPI schema, which an attribute cannot compute from the enum cases.
+     */
+    public const array API_VALUES = [
+        self::DOWN_VALUE,
+        self::UNREACHABLE_VALUE,
+        self::RECOVERY_VALUE,
+        self::FLAPPING_VALUE,
+        self::DOWNTIME_SCHEDULED_VALUE,
+        self::NONE_VALUE,
+    ];
     private const string DOWN_VALUE = 'down';
     private const string DOWNTIME_SCHEDULED_VALUE = 'downtime_scheduled';
     private const string FLAPPING_VALUE = 'flapping';

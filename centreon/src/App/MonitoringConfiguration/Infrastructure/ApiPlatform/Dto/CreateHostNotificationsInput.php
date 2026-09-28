@@ -58,7 +58,10 @@ final readonly class CreateHostNotificationsInput
         ])]
         public array $contactGroups = [],
 
-        #[ApiProperty(description: 'State transitions triggering a notification. "none" is exclusive.')]
+        #[ApiProperty(
+            description: 'State transitions triggering a notification. "none" is exclusive.',
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+        )]
         #[Assert\Sequentially([
             new Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])]),
             new ExclusiveNotificationOption(),
