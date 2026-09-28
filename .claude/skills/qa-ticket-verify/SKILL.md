@@ -136,21 +136,76 @@ For each `Given`/`When`/`Then` step, act **directly on the selector already reso
 
 ## 9. Report — and stop
 
-Produce a concise report with:
-- Ticket key/title/status, PR link, and any Jira-vs-PR-vs-diff discrepancy from step 3.
-- The full Gherkin you wrote (or a link to the saved `.feature` file).
-- Pass/fail per scenario, with screenshots for failures.
-- A coverage line: "N/M behavior changes covered" — list the `@not-covered` ones by name and why, right in the report, not just in the `.feature` file a human would have to go dig up.
-- Any selectors newly added to the catalog this run.
-- CI only: mention that a full session recording is attached to the workflow run's artifacts (`playwright-mcp-output/videos/`) — the Jira comment can't embed the file itself, just link to the workflow run.
-- A clear verdict — e.g. "Ready to leave QA NEEDED" or "Blocking: <what's broken>" — but **do not transition the Jira ticket**; tell the user what transition you'd recommend and let them do it (or ask you to, explicitly, as a separate action).
+Structure the report the same way whether interactive or CI — a title, a prominent verdict, then metadata, scope, results, discrepancies, artifacts, and a recommendation:
 
-**Interactive:** post this as your chat reply. Ask whether to tear the environment down (`docker compose -f .github/docker/docker-compose.yml down`) or leave it running for manual follow-up.
+1. **Title** — "QA Verification Report — `<TICKET_KEY>`" followed by the ticket's own title.
+2. **Verdict** — one prominent line: "Ready to leave QA NEEDED" or "Blocking: <what's broken>" (color it green/red in CI, see below). **Never transition the ticket yourself** — this is a recommendation for a human to act on, or ask you to act on explicitly as a separate action.
+3. **Metadata** — PR link, who/what triggered the run, workflow run link (CI only), and a coverage line "N/M behavior changes covered".
+4. **What was tested** — a short bullet list of the actual behavior changes in scope (from step 3), independent of pass/fail — so a reader knows what was checked before seeing results.
+5. **Scenarios executed** — one row per scenario: name + pass/fail, with the exact mismatch (expected vs. observed) for any failure, and screenshots for failures (interactive: inline; CI: reference the artifact). List the `@not-covered` ones here too, by name and why — not just in the `.feature` file a human would have to go dig up.
+6. **Ticket / PR / Diff discrepancies** — from step 3; "None" if they agreed.
+7. **Artifacts** — CI only: a note that the full session video (`playwright-mcp-output/videos/`) and updated selector catalog are attached to the workflow run — the Jira comment can't embed the file itself, just link to the run.
 
-**CI:** don't tear the environment down yourself — per step 6, the workflow's own "Tear down environment" step does that after you finish, success or failure, so it happens even if you error out partway. Just post the report as a Jira comment via REST:
-```bash
-curl -su "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
-  "$JIRA_BASE_URL/rest/api/3/issue/$TICKET_KEY/comment" \
-  --data "$(jq -n --arg text "$REPORT_MARKDOWN" '{body:{type:"doc",version:1,content:[{type:"paragraph",content:[{type:"text",text:$text}]}]}}')"
+**Interactive:** post this as your chat reply, using Markdown headings/tables. Then ask whether to tear the environment down (`docker compose -f .github/docker/docker-compose.yml down`) or leave it running for manual follow-up.
+
+**CI:** don't tear the environment down yourself — per step 6, the workflow's own "Tear down environment" step does that after you finish, success or failure, so it happens even if you error out partway. Jira Cloud comments are ADF, not Markdown — build a real structured document (headings, a colored panel for the verdict, tables), not one flat text block; a wall of undifferentiated text is much harder to skim than the sectioned report above deserves. Write a small Python script rather than hand-nesting `jq` — far less error-prone for this much structure:
+
+```python
+import json, os, subprocess
+
+verdict_ok = True  # set from your actual verdict
+panel_type = "success" if verdict_ok else "error"  # ADF panelType: info/note/success/warning/error
+
+def heading(text, level=2):
+    return {"type": "heading", "attrs": {"level": level}, "content": [{"type": "text", "text": text}]}
+
+def paragraph(text):
+    return {"type": "paragraph", "content": [{"type": "text", "text": text}]}
+
+def bullet_list(items):
+    return {"type": "bulletList", "content": [{"type": "listItem", "content": [paragraph(i)]} for i in items]}
+
+def table(headers, rows):
+    def cell(text, header=False):
+        return {"type": "tableHeader" if header else "tableCell", "content": [paragraph(text)]}
+    head = {"type": "tableRow", "content": [cell(h, header=True) for h in headers]}
+    body = [{"type": "tableRow", "content": [cell(c) for c in row]} for row in rows]
+    return {"type": "table", "attrs": {"isNumberColumnEnabled": False, "layout": "default"}, "content": [head] + body}
+
+def panel(text, panel_type="note"):
+    return {"type": "panel", "attrs": {"panelType": panel_type}, "content": [paragraph(text)]}
+
+doc = {
+    "type": "doc", "version": 1,
+    "content": [
+        heading(f"QA Verification Report — {ticket_key}", 2),
+        panel(f"Verdict: {verdict_text}", panel_type),
+        table(["", ""], [
+            ["PR", pr_url],
+            ["Triggered by", triggered_by],
+            ["Run", run_url],
+            ["Coverage", f"{covered}/{total} behavior changes covered"],
+        ]),
+        heading("What was tested", 3),
+        bullet_list(scope_items),
+        heading("Scenarios executed", 3),
+        table(["Scenario", "Result"], scenario_rows),
+        heading("Ticket / PR / Diff discrepancies", 3),
+        paragraph(discrepancies_text),
+        heading("Artifacts", 3),
+        paragraph(f"Full session recording + screenshots in this run's artifacts: {run_url}"),
+        heading("Recommendation", 3),
+        paragraph(recommendation_text),
+    ],
+}
+
+subprocess.run(
+    ["curl", "-su", f"{os.environ['JIRA_EMAIL']}:{os.environ['JIRA_API_TOKEN']}", "-X", "POST",
+     "-H", "Content-Type: application/json",
+     f"{os.environ['JIRA_BASE_URL']}/rest/api/3/issue/{ticket_key}/comment",
+     "--data", json.dumps({"body": doc})],
+    check=True,
+)
 ```
-(Jira Cloud comments are ADF, not Markdown — a single text block is fine for a first version; a nicer ADF structure with headings/tables can come later.) Do this even if the run found blocking issues — silence is worse than a "found problems" comment. If something failed hard enough that you can't produce a real report (environment never came up, PR not found, etc.), still post a short comment saying so with a link to the workflow run logs, rather than leaving the ticket untouched.
+
+This is a structural template, not literal code to copy-paste unmodified — fill in the real values from your run (verdict, scenario rows, discrepancies, scope bullets, etc.). Do this even if the run found blocking issues — silence is worse than a "found problems" comment. If something failed hard enough that you can't produce a real report (environment never came up, PR not found, etc.), still post a short comment saying so with a link to the workflow run logs, rather than leaving the ticket untouched.
