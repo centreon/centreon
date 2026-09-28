@@ -870,32 +870,35 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
         $statement->execute();
 
-        $allInheritances = [];
+        // Index inheritances by child ID once, so that walking the inheritance chain of each
+        // service is a lookup instead of a scan of the whole list (O(N) instead of O(N²)).
+        $inheritancesByChildId = [];
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array{child_id: int, parent_id: int} $row */
-            $allInheritances[] = new ServiceInheritance(
+            $childId = (int) $row['child_id'];
+            $inheritancesByChildId[$childId][] = new ServiceInheritance(
                 (int) $row['parent_id'],
-                (int) $row['child_id']
+                $childId
             );
         }
 
         $result = [];
         foreach ($serviceIds as $serviceId) {
-            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $allInheritances);
+            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $inheritancesByChildId);
         }
 
         return $result;
     }
 
     /**
-     * Filter the global inheritance list to get only those relevant to a specific service.
+     * Walk the inheritance chain of a service to get only the inheritances relevant to it.
      *
      * @param int $serviceId
-     * @param ServiceInheritance[] $allInheritances
+     * @param array<int, ServiceInheritance[]> $inheritancesByChildId Inheritances indexed by child ID
      *
      * @return ServiceInheritance[]
      */
-    private function filterInheritancesForService(int $serviceId, array $allInheritances): array
+    private function filterInheritancesForService(int $serviceId, array $inheritancesByChildId): array
     {
         $relevant = [];
         $idsToProcess = [$serviceId];
@@ -908,11 +911,9 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             }
             $processed[$currentId] = true;
 
-            foreach ($allInheritances as $inheritance) {
-                if ($inheritance->getChildId() === $currentId) {
-                    $relevant[] = $inheritance;
-                    $idsToProcess[] = $inheritance->getParentId();
-                }
+            foreach ($inheritancesByChildId[$currentId] ?? [] as $inheritance) {
+                $relevant[] = $inheritance;
+                $idsToProcess[] = $inheritance->getParentId();
             }
         }
 
