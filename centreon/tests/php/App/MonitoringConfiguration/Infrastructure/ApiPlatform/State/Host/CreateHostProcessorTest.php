@@ -1886,22 +1886,15 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        /** @var array{host_id: numeric-string, host_notifications_enabled: string, host_notification_options: string|null,
-         *      host_notification_interval: numeric-string|null, timeperiod_tp_id2: numeric-string|null,
-         *      host_first_notification_delay: numeric-string|null, host_recovery_notification_delay: numeric-string|null}|false $row */
+        // column by column storage is DbalHostRepositoryTest's job; the options alone prove the API
+        // strings reach the engine format end to end
+        /** @var array{host_id: numeric-string, host_notification_options: string|null}|false $row */
         $row = $this->connection->fetchAssociative(
-            'SELECT host_id, host_notifications_enabled, host_notification_options, host_notification_interval,
-                    timeperiod_tp_id2, host_first_notification_delay, host_recovery_notification_delay
-             FROM host WHERE host_name = ?',
+            'SELECT host_id, host_notification_options FROM host WHERE host_name = ?',
             [$name],
         );
         self::assertIsArray($row);
-        self::assertSame('1', $row['host_notifications_enabled']);
         self::assertSame('d,r', $row['host_notification_options']);
-        self::assertSame(30, (int) $row['host_notification_interval']);
-        self::assertSame($periodId, (int) $row['timeperiod_tp_id2']);
-        self::assertSame(10, (int) $row['host_first_notification_delay']);
-        self::assertSame(20, (int) $row['host_recovery_notification_delay']);
 
         $hostId = (int) $row['host_id'];
         self::assertSame(

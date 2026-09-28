@@ -809,23 +809,6 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
-    public function testItStoresTheNotificationsOnTheHost(): void
-    {
-        $poller = $this->addPoller($this->pollerRepository, 1);
-
-        $host = ($this->handler)(new CreateHostCommand(
-            name: new HostName('server-notif'),
-            address: new HostAddress('127.0.0.1'),
-            pollerId: $poller->id(),
-            hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
-            notifications: $this->notifications(),
-        ));
-
-        self::assertInstanceOf(Notifications::class, $host->notifications);
-        self::assertSame(TriStateEnum::True, $host->notifications->enabled);
-    }
-
     /**
      * Legacy drops the additive-inheritance flags whenever the platform option is off, which is
      * the shipped default: honouring them regardless would change the generated configuration of

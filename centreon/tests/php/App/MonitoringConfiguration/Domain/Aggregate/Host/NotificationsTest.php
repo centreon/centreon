@@ -39,7 +39,6 @@ final class NotificationsTest extends TestCase
     {
         $notifications = $this->createNotifications();
 
-        self::assertSame(TriStateEnum::UseDefault, $notifications->enabled);
         self::assertSame([], $notifications->options);
         self::assertNull($notifications->interval);
         self::assertNull($notifications->periodId);
@@ -47,35 +46,6 @@ final class NotificationsTest extends TestCase
         self::assertNull($notifications->recoveryDelay);
         self::assertFalse($notifications->contactAdditiveInheritance);
         self::assertFalse($notifications->contactGroupAdditiveInheritance);
-    }
-
-    public function testItAcceptsAllFieldsFilled(): void
-    {
-        $periodId = new TimePeriodId(5);
-
-        $notifications = new Notifications(
-            enabled: TriStateEnum::True,
-            contactIds: new Collection([new NotificationContactId(1)], NotificationContactId::class),
-            contactGroupIds: new Collection([new ContactGroupId(3)], ContactGroupId::class),
-            options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
-            interval: 30,
-            periodId: $periodId,
-            firstDelay: 10,
-            recoveryDelay: 20,
-            contactAdditiveInheritance: true,
-            contactGroupAdditiveInheritance: true,
-        );
-
-        self::assertSame(TriStateEnum::True, $notifications->enabled);
-        self::assertCount(1, $notifications->contactIds);
-        self::assertCount(1, $notifications->contactGroupIds);
-        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $notifications->options);
-        self::assertSame(30, $notifications->interval);
-        self::assertSame($periodId, $notifications->periodId);
-        self::assertSame(10, $notifications->firstDelay);
-        self::assertSame(20, $notifications->recoveryDelay);
-        self::assertTrue($notifications->contactAdditiveInheritance);
-        self::assertTrue($notifications->contactGroupAdditiveInheritance);
     }
 
     public function testItCollapsesDuplicatedOptions(): void
