@@ -11400,6 +11400,8 @@ components:
               type: 'null'
         scheduling_options:
           $ref: '#/components/schemas/HostSchedulingOptionsOutput'
+        check_options:
+          $ref: '#/components/schemas/HostCheckOptionsOutput'
         notifications:
           anyOf:
             -
@@ -11525,6 +11527,12 @@ components:
               $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
             -
               type: 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CheckOptionsInput'
+            -
+              type: 'null'
         notifications:
           anyOf:
             -
@@ -11582,6 +11590,8 @@ components:
                   type: 'null'
             scheduling_options:
               $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
+            check_options:
+              $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
             notifications:
               anyOf:
                 -
@@ -11757,6 +11767,25 @@ components:
               type: integer
             name:
               type: string
+    CheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'the check command to run, null when none is set'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments; only meaningful with a command'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroInput'
     CreateHostExtendedInformationsInput:
       type: object
       properties:
@@ -12076,6 +12105,56 @@ components:
           type: integer
         name:
           type: string
+    HostCheckCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCheckCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCheckOptionsOutput:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostCheckCommandOutput'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments (empty when no command is set)'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroOutput'
+    HostCheckOptionsOutput.jsonld:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments (empty when no command is set)'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroOutput.jsonld'
     HostEventHandlerCommandOutput:
       type: object
       properties:
@@ -12153,6 +12232,62 @@ components:
             - string
             - 'null'
         geo_coordinates:
+          type:
+            - string
+            - 'null'
+    HostMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 248
+          type: string
+        value:
+          maxLength: 4096
+          type: string
+        is_password:
+          type: boolean
+        description:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    HostMacroOutput:
+      type: object
+      properties:
+        name:
+          description: 'the short macro name (upper-cased), without the $_HOST…$ wrapper'
+          type: string
+        value:
+          description: |-
+            always null for a password macro, whose secret is never echoed back;
+            the null is then dropped from the payload by skip_null_values
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        description:
+          type:
+            - string
+            - 'null'
+    HostMacroOutput.jsonld:
+      type: object
+      properties:
+        name:
+          description: 'the short macro name (upper-cased), without the $_HOST…$ wrapper'
+          type: string
+        value:
+          description: |-
+            always null for a password macro, whose secret is never echoed back;
+            the null is then dropped from the payload by skip_null_values
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        description:
           type:
             - string
             - 'null'
