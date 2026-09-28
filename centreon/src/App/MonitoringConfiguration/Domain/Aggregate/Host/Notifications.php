@@ -36,8 +36,8 @@ use Webmozart\Assert\Assert;
  * the two additive-inheritance flags, and the `contact_host_relation` /
  * `contactgroup_host_relation` links.
  *
- * On-prem only — the Cloud platform handles notifications through a different model
- * (see MON-208992/MON-204689), so the API rejects this whole block there.
+ * On-prem only — the Cloud platform handles notifications through a different model,
+ * so the API rejects this whole block there.
  */
 final readonly class Notifications
 {

@@ -196,7 +196,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             ) : [],
         );
 
-        // Cloud handles notifications through a different model (MON-204689) and the input
+        // Cloud handles notifications through a different model and the input
         // validator rejects the block there, so the host simply carries none — and the
         // response omits the key rather than advertising a feature that platform lacks.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
