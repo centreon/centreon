@@ -1839,11 +1839,14 @@ class CentreonService
     }
 
     /**
-     * @param $serviceId
-     * @param $hostId
+     * Get the monitored service full name: "<host> - <service>", or "Meta - <name>" for meta services.
+     * A name returned by a "Service/getMonitoringFullName" hook takes precedence.
+     *
+     * @param int|string $serviceId
+     * @param int|string|null $hostId
      *
      * @throws PDOException
-     * @return mixed|null
+     * @return string|null
      */
     public function getMonitoringFullName($serviceId, $hostId = null)
     {
@@ -1856,16 +1859,27 @@ class CentreonService
             }
         }
 
-        $query = 'SELECT CONCAT (h.name, " - ", s.description) as fullname '
-            . 'FROM hosts h, services s '
-            . 'WHERE h.host_id = s.host_id '
-            . 'AND s.enabled = "1" '
-            . 'AND s.service_id = ' . $serviceId;
+        // Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
+        $query = <<<'SQL'
+            SELECT CASE
+                WHEN h.name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), s.description))
+                ELSE CONCAT(h.name, ' - ', s.description)
+            END AS fullname
+            FROM hosts h
+            INNER JOIN services s ON s.host_id = h.host_id
+            WHERE s.enabled = '1'
+              AND s.service_id = :serviceId
+            SQL;
         if (isset($hostId)) {
-            $query .= ' AND s.host_id = ' . $hostId;
+            $query .= ' AND s.host_id = :hostId';
         }
-        $result = $this->dbMon->query($query);
-        while ($row = $result->fetchRow()) {
+        $statement = $this->dbMon->prepare($query);
+        $statement->bindValue(':serviceId', (int) $serviceId, PDO::PARAM_INT);
+        if (isset($hostId)) {
+            $statement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        }
+        $statement->execute();
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $name = $row['fullname'];
         }
 
