@@ -59,6 +59,27 @@ final class NotificationsTest extends TestCase
         self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $notifications->options);
     }
 
+    public function testItCollapsesDuplicatedContactAndContactGroupIds(): void
+    {
+        $notifications = new Notifications(
+            enabled: TriStateEnum::UseDefault,
+            contactIds: new Collection(
+                [new NotificationContactId(3), new NotificationContactId(5), new NotificationContactId(3)],
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                [new ContactGroupId(7), new ContactGroupId(7)],
+                ContactGroupId::class,
+            ),
+        );
+
+        self::assertEquals(
+            [new NotificationContactId(3), new NotificationContactId(5)],
+            $notifications->contactIds->toArray(),
+        );
+        self::assertEquals([new ContactGroupId(7)], $notifications->contactGroupIds->toArray());
+    }
+
     /**
      * Legacy round-trips the options through a bit flag, so the column can only ever hold the
      * enum's declaration order — this endpoint must not be able to write an order legacy cannot.
@@ -98,8 +119,8 @@ final class NotificationsTest extends TestCase
         self::assertFalse($stripped->contactAdditiveInheritance);
         self::assertFalse($stripped->contactGroupAdditiveInheritance);
         self::assertSame(TriStateEnum::True, $stripped->enabled);
-        self::assertSame($notifications->contactIds, $stripped->contactIds);
-        self::assertSame($notifications->contactGroupIds, $stripped->contactGroupIds);
+        self::assertSame($notifications->contactIds->toArray(), $stripped->contactIds->toArray());
+        self::assertSame($notifications->contactGroupIds->toArray(), $stripped->contactGroupIds->toArray());
         self::assertSame([NotificationOptionEnum::Down], $stripped->options);
         self::assertSame(30, $stripped->interval);
         self::assertSame($periodId, $stripped->periodId);

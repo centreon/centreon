@@ -379,17 +379,15 @@ final readonly class CreateHostProcessor implements ProcessorInterface
     {
         $input ??= new CreateHostNotificationsInput();
 
-        // Deduplicated like the host groups above (and like legacy's own form does through its
-        // DELETE/INSERT cycle): a client repeating an id is tolerated, but the relation tables
-        // carry no unique index, so a repetition would otherwise become a duplicate row.
+        // A client repeating a contact or contact group id is tolerated: Notifications collapses it.
         return new Notifications(
             enabled: TriStateEnum::from($input->enabled),
             contactIds: new Collection(
-                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), array_unique($input->contacts)),
+                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $input->contacts),
                 NotificationContactId::class,
             ),
             contactGroupIds: new Collection(
-                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), array_unique($input->contactGroups)),
+                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $input->contactGroups),
                 ContactGroupId::class,
             ),
             options: array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),

@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
@@ -46,12 +47,18 @@ final readonly class Notifications
     public const MIN_FIRST_DELAY = 0;
     public const MIN_RECOVERY_DELAY = 0;
 
+    /** @var Collection<NotificationContactId> */
+    public Collection $contactIds;
+
+    /** @var Collection<ContactGroupId> */
+    public Collection $contactGroupIds;
+
     /** @var list<NotificationOptionEnum> */
     public array $options;
 
     /**
-     * @param Collection<NotificationContactId> $contactIds
-     * @param Collection<ContactGroupId> $contactGroupIds
+     * @param Collection<NotificationContactId> $contactIds duplicates are collapsed
+     * @param Collection<ContactGroupId> $contactGroupIds duplicates are collapsed
      * @param list<NotificationOptionEnum> $options duplicates are collapsed; {@see NotificationOptionEnum::None}
      *                                              is exclusive and cannot be combined
      * @param bool $contactAdditiveInheritance forced to false by the caller when the platform's
@@ -60,8 +67,8 @@ final readonly class Notifications
      */
     public function __construct(
         public TriStateEnum $enabled,
-        public Collection $contactIds,
-        public Collection $contactGroupIds,
+        Collection $contactIds,
+        Collection $contactGroupIds,
         array $options = [],
         public ?int $interval = null,
         public ?TimePeriodId $periodId = null,
@@ -70,6 +77,11 @@ final readonly class Notifications
         public bool $contactAdditiveInheritance = self::DEFAULT_ADDITIVE_INHERITANCE,
         public bool $contactGroupAdditiveInheritance = self::DEFAULT_ADDITIVE_INHERITANCE,
     ) {
+        // The relation tables carry no unique index, so a repeated id would otherwise become a
+        // duplicate row. Legacy's own form avoids it through its DELETE/INSERT cycle.
+        $this->contactIds = self::uniqueIds($contactIds, NotificationContactId::class);
+        $this->contactGroupIds = self::uniqueIds($contactGroupIds, ContactGroupId::class);
+
         // Normalised to the enum's own declaration order, which is the order legacy can only ever
         // produce: it round-trips the options through a bit flag, so `host_notification_options`
         // always comes out as `d,u,r,f,s`. Keeping the client's order would let this endpoint write
@@ -112,5 +124,23 @@ final readonly class Notifications
             contactAdditiveInheritance: false,
             contactGroupAdditiveInheritance: false,
         );
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     * @param class-string<T> $className
+     *
+     * @return Collection<T>
+     */
+    private static function uniqueIds(Collection $ids, string $className): Collection
+    {
+        $uniqueIds = [];
+        foreach ($ids as $id) {
+            $uniqueIds[$id->value] ??= $id;
+        }
+
+        return new Collection(array_values($uniqueIds), $className);
     }
 }
