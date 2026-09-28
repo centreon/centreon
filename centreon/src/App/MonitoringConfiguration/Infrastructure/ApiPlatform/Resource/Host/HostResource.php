@@ -63,7 +63,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
             provider: GetHostProvider::class,
             openapi: new Model\Operation(
                 responses: [
-                    403 => new Model\Response('You are not allowed to view this host'),
+                    403 => new Model\Response('You are not allowed to view hosts'),
                     404 => new Model\Response('Host not found'),
                 ],
             ),
