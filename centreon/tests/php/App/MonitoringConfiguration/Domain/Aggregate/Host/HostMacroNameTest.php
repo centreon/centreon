@@ -47,11 +47,12 @@ final class HostMacroNameTest extends TestCase
         new HostMacroName('   ');
     }
 
-    public function testItRejectsInvalidCharacters(): void
+    public function testItAcceptsLegacyPermissiveCharacters(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-
-        new HostMacroName('my macro!');
+        // Legacy only upper-cases and stores the name (no character-set check), so names carrying
+        // spaces, dots or other symbols must be accepted rather than aborting inheritance.
+        self::assertSame('MY MACRO!', (new HostMacroName('my macro!'))->value);
+        self::assertSame('MY.MACRO', (new HostMacroName('my.macro'))->value);
     }
 
     public function testItRejectsANameTooLongForStorage(): void

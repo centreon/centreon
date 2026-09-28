@@ -23,17 +23,18 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-final readonly class HostCheckOptionsOutput
+final readonly class HostMacroOutput
 {
     /**
-     * @param ?HostCheckCommandOutput $command the check command, null when none is set
-     * @param list<string> $args ordered check-command arguments (empty when no command is set)
-     * @param list<HostMacroOutput> $macros the host's own custom macros (post inheritance strip)
+     * @param string $name the short macro name (upper-cased), without the $_HOST…$ wrapper
+     * @param ?string $value always null for a password macro, whose secret is never echoed back;
+     *                       the null is then dropped from the payload by skip_null_values
      */
     public function __construct(
-        public ?HostCheckCommandOutput $command,
-        public array $args,
-        public array $macros,
+        public string $name,
+        public ?string $value,
+        public bool $isPassword,
+        public ?string $description,
     ) {
     }
 }

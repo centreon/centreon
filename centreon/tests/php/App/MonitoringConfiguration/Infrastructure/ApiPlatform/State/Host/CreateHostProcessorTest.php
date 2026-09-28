@@ -1701,6 +1701,145 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItCreatesAHostWithCustomMacros(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'macros' => [
+                        ['name' => 'community', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                        ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'check_options' => [
+                'macros' => [
+                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                    ['name' => 'TOKEN', 'is_password' => true],
+                ],
+            ],
+        ]);
+
+        // The password macro's value is never echoed back.
+        /** @var array{id: int, check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('value', $payload['check_options']['macros'][1]);
+
+        $hostId = $payload['id'];
+        /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            [$hostId],
+        );
+        self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
+        self::assertSame('$_HOSTTOKEN$', $rows[1]['host_macro_name']);
+        self::assertSame(1, (int) $rows[1]['is_password']);
+    }
+
+    public function testItStripsAMacroInheritedFromTheCheckCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        // The command declares $_HOSTFOO$, so a submitted FOO with the same (empty) value is redundant.
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFOO$');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [
+                        ['name' => 'foo', 'value' => '', 'is_password' => false],
+                        ['name' => 'own', 'value' => 'kept', 'is_password' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['OWN'], $names);
+    }
+
+    public function testItRejectsAReservedMacroName(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // "SNMPCOMMUNITY" resolves to $_HOSTSNMPCOMMUNITY$, a reserved macro in nagios_macro. Seed it
+        // explicitly rather than rely on the platform install data, which the integration database
+        // does not guarantee (macro_id is auto-increment, so only the name matters here).
+        $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'snmpcommunity', 'value' => 'x']]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItAcceptsAMacroNameWithLegacyPermissiveCharacters(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // Legacy imposes no character-set rule on macro names (only upper-cases and stores them), so a
+        // name with spaces or symbols must be accepted and stored upper-cased, not rejected.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'bad name!', 'value' => 'x']]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['BAD NAME!'], $names);
+    }
+
+    public function testItRejectsAMacroValueExceedingMaxLength(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'big', 'value' => str_repeat('a', 4097)]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * @param array<mixed> $payload
      *
@@ -2061,11 +2200,11 @@ final class CreateHostProcessorTest extends ApiTestCase
         }
     }
 
-    private function insertCommand(string $name, int $type): int
+    private function insertCommand(string $name, int $type, string $commandLine = '$USER1$/check_ping -H $HOSTADDRESS$'): int
     {
         $this->connection->insert('command', [
             'command_name' => $name,
-            'command_line' => '$USER1$/check_ping -H $HOSTADDRESS$',
+            'command_line' => $commandLine,
             'command_type' => $type,
         ]);
 

@@ -32,6 +32,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
@@ -552,6 +554,43 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame($commandId, (int) $row['command_command_id']);
         // Bang-joined, with newline/tab/carriage-return stored as #BR#/#T#/#R# (legacy CentreonHost::insert).
         self::assertSame('!-H 10.0.0.2!line1#BR#line2#T#col#R#ret', $row['command_command_id_arg1']);
+    }
+
+    public function testAddPersistsCustomMacros(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-macros'),
+            alias: null,
+            address: new HostAddress('10.0.0.4'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'SNMP'),
+                new HostMacro(new HostMacroName('secret'), 'secret::vault::x', isPassword: true),
+            ]),
+        );
+
+        $this->repository->add($host);
+
+        /** @var list<array{host_macro_name: string, host_macro_value: string, is_password: ?string, description: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, host_macro_value, is_password, description
+             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            [$host->id()->value],
+        );
+
+        self::assertCount(2, $rows);
+        self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
+        self::assertSame('public', $rows[0]['host_macro_value']);
+        self::assertNull($rows[0]['is_password']);
+        self::assertSame('SNMP', $rows[0]['description']);
+        self::assertSame('$_HOSTSECRET$', $rows[1]['host_macro_name']);
+        self::assertSame(1, (int) $rows[1]['is_password']);
     }
 
     public function testAddLeavesTheCheckCommandNullWhenNoneIsSet(): void

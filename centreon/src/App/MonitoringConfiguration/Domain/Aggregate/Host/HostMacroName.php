@@ -42,9 +42,10 @@ final readonly class HostMacroName
     {
         $value = mb_strtoupper(trim($value));
         Assert::notEmpty($value, 'The macro name cannot be empty.');
-        // Same character set the engine accepts inside a $_HOST...$ macro (CentreonCommand's
-        // extraction pattern is /\$_HOST([\w_-]+)\$/).
-        Assert::regex($value, '/^[A-Z0-9_-]+$/', 'The macro name contains invalid characters.');
+        // No character-set restriction: legacy only upper-cases the name and stores it, so inherited
+        // macros read from templates/ancestors (created via the legacy form) may legitimately contain
+        // characters a stricter rule would reject and abort inheritance on. Only the storage width is
+        // bounded, matching the on_demand_macro_host.host_macro_name column.
         Assert::maxLength('$_HOST' . $value . '$', self::MAX_STORAGE_LENGTH);
 
         $this->value = $value;
