@@ -84,6 +84,7 @@ ENGINE_PORT=""
 # Optional / runtime
 TZ=""
 DEBUG=""
+GORGONE_LOG_LEVEL=""
 
 # Optional services (Docker mode)
 WITH_VMWARE=0
