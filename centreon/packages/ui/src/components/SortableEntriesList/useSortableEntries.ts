@@ -77,7 +77,12 @@ export const useSortableEntries = <T>({
     }
 
     pendingFocusSelectorRef.current = null;
-    containerRef.current?.querySelector<HTMLElement>(selector)?.focus();
+
+    const element = containerRef.current?.querySelector<HTMLElement>(selector);
+
+    element?.focus();
+    // In a capped list, show the whole row, not only the focused element.
+    element?.closest('li')?.scrollIntoView({ block: 'nearest' });
   }, [entries]);
 
   const commit = (nextEntries: Array<Entry<T>>): void => {
@@ -108,7 +113,7 @@ export const useSortableEntries = <T>({
       currentEntries[index + 1] ?? currentEntries[index - 1];
 
     pendingFocusSelectorRef.current = nextFocusedEntry
-      ? `${getRowSelector(nextFocusedEntry.id)} [data-testid="delete-row"]`
+      ? `${getRowSelector(nextFocusedEntry.id)} [data-row-fields] :is(${focusableSelector})`
       : `button[aria-label="${CSS.escape(addLabel)}"]`;
     commit(currentEntries.filter((entry) => entry.id !== id));
   };

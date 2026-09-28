@@ -1,3 +1,4 @@
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -90,7 +91,10 @@ const renderTemplateRow = ({
 };
 
 type TemplatesListArgs = Partial<
-  Pick<SortableEntriesListProps<TemplateRow>, 'addLabel' | 'draggable'>
+  Pick<
+    SortableEntriesListProps<TemplateRow>,
+    'addLabel' | 'draggable' | 'maxVisibleRows'
+  >
 >;
 
 const TemplatesList = (args: TemplatesListArgs): JSX.Element => {
@@ -132,10 +136,11 @@ const TemplatesList = (args: TemplatesListArgs): JSX.Element => {
 };
 
 export const Templates: Story = {
-  args: { draggable: true },
+  args: { draggable: true, maxVisibleRows: 10 },
   argTypes: {
     addLabel: { control: 'text' },
-    draggable: { control: 'boolean' }
+    draggable: { control: 'boolean' },
+    maxVisibleRows: { control: 'number' }
   },
   parameters: { mockData: templatesMockData },
   render: (args) => <TemplatesList {...(args as TemplatesListArgs)} />
@@ -167,7 +172,7 @@ const renderMacroRow = ({
   setField,
   value: macro
 }: RenderRowParams<MacroRow>): JSX.Element => (
-  <div className="grid grid-cols-2 gap-2">
+  <div className="grid grid-cols-2 gap-2 @max-[600px]:grid-cols-1">
     <TextField
       dataTestId="macro-name"
       fullWidth
@@ -197,12 +202,22 @@ const initialMacros: Array<MacroRow> = [
   { isPassword: false, name: 'PORT', origin: 'fromCommand', value: '443' }
 ];
 
+const buildMacros = (count: number): Array<MacroRow> =>
+  Array.from({ length: count }, (_, index) => ({
+    isPassword: false,
+    name: `MACRO_${index + 1}`,
+    origin: 'direct',
+    value: `value ${index + 1}`
+  }));
+
 const MacrosList = ({
   draggable,
-  initialValues = initialMacros
+  initialValues = initialMacros,
+  maxVisibleRows
 }: {
   draggable: boolean;
   initialValues?: Array<MacroRow>;
+  maxVisibleRows?: number;
 }): JSX.Element => {
   const [macros, setMacros] = useState(initialValues);
 
@@ -216,7 +231,7 @@ const MacrosList = ({
     );
 
   return (
-    <div className="w-[640px]">
+    <>
       <SortableEntriesList<MacroRow>
         actions={({ index, value }) => [
           {
@@ -224,29 +239,87 @@ const MacrosList = ({
             id: 'toggle-password',
             label: value.isPassword ? 'Show value' : 'Hide value',
             onClick: () => toggleIsPassword(index)
+          },
+          {
+            icon: <DescriptionOutlinedIcon />,
+            id: 'macro-description',
+            label: 'Description',
+            onClick: () => undefined
           }
         ]}
         createValue={createMacroRow}
         draggable={draggable}
         getRowClassName={({ value }) => macroRowClassName[value.origin]}
         label="Custom macros"
+        maxVisibleRows={maxVisibleRows}
         onChange={setMacros}
         renderRow={renderMacroRow}
         values={macros}
       />
       <ValuesPreview values={macros} />
-    </div>
+    </>
   );
 };
 
 export const CustomMacros: Story = {
-  render: () => <MacrosList draggable />
+  render: () => (
+    <div className="w-[640px]">
+      <MacrosList draggable />
+    </div>
+  )
 };
 
 export const NonDraggable: Story = {
-  render: () => <MacrosList draggable={false} />
+  render: () => (
+    <div className="w-[640px]">
+      <MacrosList draggable={false} />
+    </div>
+  )
 };
 
 export const Empty: Story = {
-  render: () => <MacrosList draggable initialValues={[]} />
+  render: () => (
+    <div className="w-[640px]">
+      <MacrosList draggable initialValues={[]} />
+    </div>
+  )
+};
+
+// Capped list in a resizable container: drag the bottom-right corner or use the
+// presets to check the row layout against the list width, not the viewport.
+const panelWidths = [1400, 900, 720, 560];
+
+const ScrollableMacrosList = (): JSX.Element => {
+  const [width, setWidth] = useState(panelWidths[0]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        {panelWidths.map((panelWidth) => (
+          <button
+            className="rounded border px-2 py-1"
+            key={panelWidth}
+            onClick={(): void => setWidth(panelWidth)}
+            type="button"
+          >
+            {panelWidth}px
+          </button>
+        ))}
+      </div>
+      <div
+        className="max-w-full resize-x overflow-auto border border-dashed p-2"
+        style={{ width }}
+      >
+        <MacrosList
+          draggable
+          initialValues={buildMacros(15)}
+          maxVisibleRows={10}
+        />
+      </div>
+    </div>
+  );
+};
+
+export const ScrollableAndResizable: Story = {
+  render: () => <ScrollableMacrosList />
 };
