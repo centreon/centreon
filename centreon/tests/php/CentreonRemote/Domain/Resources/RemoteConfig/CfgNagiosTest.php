@@ -27,18 +27,26 @@ use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
 
 beforeEach(function (): void {
     $this->originalEnv = $_ENV['IS_CLOUD_PLATFORM'] ?? null;
+    $this->originalServer = $_SERVER['IS_CLOUD_PLATFORM'] ?? null;
+    $this->originalGetenv = getenv('IS_CLOUD_PLATFORM');
 });
 
 afterEach(function (): void {
-    if ($this->originalEnv === null) {
-        unset($_ENV['IS_CLOUD_PLATFORM']);
-    } else {
+    unset($_ENV['IS_CLOUD_PLATFORM'], $_SERVER['IS_CLOUD_PLATFORM']);
+    if ($this->originalEnv !== null) {
         $_ENV['IS_CLOUD_PLATFORM'] = $this->originalEnv;
     }
+    if ($this->originalServer !== null) {
+        $_SERVER['IS_CLOUD_PLATFORM'] = $this->originalServer;
+    }
+    $this->originalGetenv === false
+        ? putenv('IS_CLOUD_PLATFORM')
+        : putenv('IS_CLOUD_PLATFORM=' . $this->originalGetenv);
 });
 
 test('it disables flap and host-down checks by default on-prem', function (): void {
-    unset($_ENV['IS_CLOUD_PLATFORM']);
+    unset($_ENV['IS_CLOUD_PLATFORM'], $_SERVER['IS_CLOUD_PLATFORM']);
+    putenv('IS_CLOUD_PLATFORM');
 
     $config = CfgNagios::getConfiguration('TestPoller', 1);
 
