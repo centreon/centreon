@@ -184,6 +184,7 @@ final class LogActivityEventHandlerTest extends TestCase
         self::assertSame(2, $activityLog->actor->id->value);
         self::assertSame(1, $activityLog->target->id->value);
         self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertSame(TargetTypeEnum::Host, $activityLog->target->type);
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
 
@@ -208,6 +209,7 @@ final class LogActivityEventHandlerTest extends TestCase
         self::assertSame(2, $activityLog->actor->id->value);
         self::assertSame(1, $activityLog->target->id->value);
         self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertSame(TargetTypeEnum::Host, $activityLog->target->type);
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
 
