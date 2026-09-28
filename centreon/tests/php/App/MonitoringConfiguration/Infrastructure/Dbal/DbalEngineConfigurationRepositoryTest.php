@@ -63,7 +63,7 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
 
     public function testItInsertsCfgNagiosRow(): void
     {
-        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller');
+        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller', false);
 
         $this->repository->add($cfg);
 
@@ -81,7 +81,7 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
 
     public function testItInsertsCfgNagiosLoggerRow(): void
     {
-        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller');
+        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller', false);
 
         $this->repository->add($cfg);
 
@@ -100,7 +100,7 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
 
     public function testItInsertsCfgNagiosBrokerModuleRow(): void
     {
-        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller');
+        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller', false);
 
         $this->repository->add($cfg);
 
@@ -117,7 +117,7 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
 
     public function testItSetsAggregateId(): void
     {
-        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller');
+        $cfg = EngineConfiguration::createDefault(new PollerId(1), 'TestPoller', false);
 
         $this->repository->add($cfg);
 

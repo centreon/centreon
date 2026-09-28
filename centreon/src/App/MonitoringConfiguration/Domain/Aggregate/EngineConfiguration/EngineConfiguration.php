@@ -47,7 +47,7 @@ final class EngineConfiguration extends AggregateRoot
         parent::__construct($engineConfigurationId);
     }
 
-    public static function createDefault(PollerId $pollerId, string $pollerName, bool $isCloudPlatform = false): self
+    public static function createDefault(PollerId $pollerId, string $pollerName, bool $isCloudPlatform): self
     {
         return new self(
             engineConfigurationId: null,
