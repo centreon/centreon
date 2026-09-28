@@ -47,8 +47,12 @@ final class EngineConfiguration extends AggregateRoot
         parent::__construct($engineConfigurationId);
     }
 
-    public static function createDefault(PollerId $pollerId, string $pollerName, bool $isCloudPlatform): self
-    {
+    public static function createDefault(
+        PollerId $pollerId,
+        string $pollerName,
+        bool $enableFlapDetection = false,
+        bool $hostDownDisableServiceChecks = false,
+    ): self {
         return new self(
             engineConfigurationId: null,
             pollerId: $pollerId,
@@ -56,12 +60,11 @@ final class EngineConfiguration extends AggregateRoot
             broker: new BrokerOptions(
                 brokerModuleCfgFile: sprintf('/etc/centreon-broker/%s-module.json', $pollerName),
             ),
-            // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
             checkExecution: new CheckExecutionOptions(
-                hostDownDisableServiceChecks: $isCloudPlatform,
+                hostDownDisableServiceChecks: $hostDownDisableServiceChecks,
             ),
             freshnessAndFlap: new FreshnessAndFlapOptions(
-                enableFlapDetection: $isCloudPlatform,
+                enableFlapDetection: $enableFlapDetection,
             ),
         );
     }

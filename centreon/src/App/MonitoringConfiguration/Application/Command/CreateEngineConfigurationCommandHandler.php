@@ -40,10 +40,12 @@ final readonly class CreateEngineConfigurationCommandHandler
 
     public function __invoke(CreateEngineConfigurationCommand $command): void
     {
+        // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
         $engineConfiguration = EngineConfiguration::createDefault(
             $command->pollerId,
             $command->pollerName,
-            $this->isCloudPlatform,
+            enableFlapDetection: $this->isCloudPlatform,
+            hostDownDisableServiceChecks: $this->isCloudPlatform,
         );
 
         $this->repository->add($engineConfiguration);
