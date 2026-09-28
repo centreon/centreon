@@ -70,6 +70,8 @@ final readonly class DbalHostTransformer implements TransformerInterface
     public function transform(mixed $from): Host
     {
         $alias = $from['alias'] !== null ? trim($from['alias']) : '';
+        $snmpVersion = $this->nullIfEmpty($from['snmp_version'] ?? null);
+        $snmpCommunity = $this->nullIfEmpty($from['snmp_community'] ?? null);
 
         return new Host(
             id: new HostId((int) $from['id']),
@@ -87,8 +89,8 @@ final readonly class DbalHostTransformer implements TransformerInterface
             categoryIds: new Collection(($from['category_ids'] ?? null) !== null ? $this->parseIdList($from['category_ids'], HostCategoryId::class) : [], HostCategoryId::class),
             parentHostIds: new Collection(($from['parent_host_ids'] ?? null) !== null ? $this->parseIdList($from['parent_host_ids'], HostId::class) : [], HostId::class),
             childHostIds: new Collection(($from['child_host_ids'] ?? null) !== null ? $this->parseIdList($from['child_host_ids'], HostId::class) : [], HostId::class),
-            snmpVersion: ($from['snmp_version'] ?? '') !== '' ? SnmpVersionEnum::from($from['snmp_version']) : null,
-            snmpCommunity: ($from['snmp_community'] ?? '') !== '' ? new SnmpCommunity($from['snmp_community']) : null,
+            snmpVersion: $snmpVersion !== null ? SnmpVersionEnum::from($snmpVersion) : null,
+            snmpCommunity: $snmpCommunity !== null ? new SnmpCommunity($snmpCommunity) : null,
             // `host_location` (timezone_id) has no NULL default, unlike every other optional
             // column here — it's '0' until a timezone is actually picked, so 0 means unset too.
             timezoneId: isset($from['timezone_id']) && (int) $from['timezone_id'] > 0
@@ -126,6 +128,8 @@ final readonly class DbalHostTransformer implements TransformerInterface
      */
     private function buildExtendedInformations(array $from): ExtendedInformations
     {
+        $geoCoords = $this->nullIfEmpty($from['geo_coords'] ?? null);
+
         return new ExtendedInformations(
             noteUrl: $this->nullIfEmpty($from['note_url'] ?? null),
             note: $this->nullIfEmpty($from['note'] ?? null),
@@ -133,7 +137,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
             iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
             altIcon: $this->nullIfEmpty($from['alt_icon'] ?? null),
             comment: $this->nullIfEmpty($from['comment'] ?? null),
-            geoCoordinates: ($from['geo_coords'] ?? '') !== '' ? GeoCoordinates::fromString($from['geo_coords']) : null,
+            geoCoordinates: $geoCoords !== null ? GeoCoordinates::fromString($geoCoords) : null,
         );
     }
 
