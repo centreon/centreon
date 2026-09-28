@@ -29,12 +29,12 @@ for file in $(find "$BASEDIR" -maxdepth 1 -type f | xargs -n1 basename | sort); 
   esac
 done
 
-# Override the --severity flag baked into the image's CMD with CENTREONTRAPD_SEVERITY
-if [ -n "${CENTREONTRAPD_SEVERITY}" ]; then
+# Override the --severity flag baked into the image's CMD with CENTREONTRAPD_LOG_LEVEL
+if [ -n "${CENTREONTRAPD_LOG_LEVEL}" ]; then
   new_args=""
   for arg in "$@"; do
     case "$arg" in
-      --severity=*) arg="--severity=${CENTREONTRAPD_SEVERITY}" ;;
+      --severity=*) arg="--severity=${CENTREONTRAPD_LOG_LEVEL}" ;;
     esac
     new_args="${new_args} ${arg}"
   done

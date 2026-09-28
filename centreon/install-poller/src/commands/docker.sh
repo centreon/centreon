@@ -261,7 +261,7 @@ CENTREON_PLUGINS_PATH=${VMWARE_PATH:-./centreon-plugins}
 TZ=${TZ:-UTC}
 DEBUG=${DEBUG:-false}
 # centreontrapd log verbosity (only used when --with-snmptrap is set)
-CENTREONTRAPD_SEVERITY=${CENTREONTRAPD_SEVERITY:-error}
+CENTREONTRAPD_LOG_LEVEL=${CENTREONTRAPD_LOG_LEVEL:-error}
 
 NAME=${POLLER_NAME}
 GORGONE_UID=${GORGONE_UID}
@@ -528,7 +528,7 @@ EOF
     environment:
       TZ: "${TZ}"
       DEBUG: "${DEBUG}"
-      CENTREONTRAPD_SEVERITY: "${CENTREONTRAPD_SEVERITY}"
+      CENTREONTRAPD_LOG_LEVEL: "${CENTREONTRAPD_LOG_LEVEL}"
     volumes:
       - poller-snmp-spool:/var/spool/centreontrapd
       - poller-snmp-traps:/etc/snmp/centreon_traps:ro
