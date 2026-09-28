@@ -425,6 +425,13 @@ class CentreonMainCfg
      */
     private function setEngineOptions(): void
     {
+        // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
+        $enabledOnCloud = filter_var(
+            $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+            FILTER_VALIDATE_BOOL,
+            FILTER_NULL_ON_FAILURE
+        ) === true ? '1' : '0';
+
         $this->aInstanceDefaultValues = [
             'log_file' => '/var/log/centreon-engine/centengine.log',
             'cfg_dir' => '/etc/centreon-engine/',
@@ -461,7 +468,7 @@ class CentreonMainCfg
             'max_host_check_spread' => '15',
             'check_result_reaper_frequency' => '5',
             'auto_reschedule_checks' => '0',
-            'enable_flap_detection' => '1',
+            'enable_flap_detection' => $enabledOnCloud,
             'low_service_flap_threshold' => '25.0',
             'high_service_flap_threshold' => '50.0',
             'low_host_flap_threshold' => '25.0',
@@ -488,7 +495,7 @@ class CentreonMainCfg
             'nagios_server_id' => '1',
             'enable_predictive_host_dependency_checks' => '1',
             'enable_predictive_service_dependency_checks' => '1',
-            'host_down_disable_service_checks' => '1',
+            'host_down_disable_service_checks' => $enabledOnCloud,
             'passive_host_checks_are_soft' => '0',
             'enable_environment_macros' => '0',
             'debug_file' => '/var/log/centreon-engine/centengine.debug',
