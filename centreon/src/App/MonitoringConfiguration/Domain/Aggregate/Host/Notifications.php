@@ -79,8 +79,8 @@ final readonly class Notifications
     ) {
         // The relation tables carry no unique index, so a repeated id would otherwise become a
         // duplicate row. Legacy's own form avoids it through its DELETE/INSERT cycle.
-        $this->contactIds = self::uniqueIds($contactIds, NotificationContactId::class);
-        $this->contactGroupIds = self::uniqueIds($contactGroupIds, ContactGroupId::class);
+        $this->contactIds = $this->uniqueIds($contactIds, NotificationContactId::class);
+        $this->contactGroupIds = $this->uniqueIds($contactGroupIds, ContactGroupId::class);
 
         // Normalised to the enum's own declaration order, which is the order legacy can only ever
         // produce: it round-trips the options through a bit flag, so `host_notification_options`
@@ -134,7 +134,7 @@ final readonly class Notifications
      *
      * @return Collection<T>
      */
-    private static function uniqueIds(Collection $ids, string $className): Collection
+    private function uniqueIds(Collection $ids, string $className): Collection
     {
         $uniqueIds = [];
         foreach ($ids as $id) {
