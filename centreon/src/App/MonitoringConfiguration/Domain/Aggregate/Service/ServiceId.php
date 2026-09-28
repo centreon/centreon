@@ -21,13 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
-enum TargetTypeEnum: string
+use App\Shared\Domain\Aggregate\AggregateRootId;
+
+final readonly class ServiceId extends AggregateRootId
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case Service = 'Service';
-    case ServiceCategory = 'ServiceCategory';
 }

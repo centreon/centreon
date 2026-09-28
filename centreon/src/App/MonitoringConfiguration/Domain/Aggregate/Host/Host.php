@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
+use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
@@ -39,7 +40,7 @@ use Webmozart\Assert\Assert;
 /**
  * @extends AggregateRoot<HostId>
  */
-final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface
+final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface, VaultScopedInterface
 {
     /**
      * @param Collection<HostTemplateId> $templateIds
