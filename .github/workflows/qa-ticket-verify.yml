@@ -4,6 +4,10 @@ name: qa-ticket-verify
 # that PR's build in Docker, exercises it with Playwright, posts a report as a Jira comment.
 # Never transitions the ticket itself.
 #
+# The skill ships in the centreon-qa plugin of centreon/dotfiles, loaded with --plugin-dir.
+# Everything repo-specific stays here, under .claude/skills/qa-ticket-verify/: resolve-env.sh
+# (PR -> image and source paths), the Playwright MCP configs and the selector catalog.
+#
 # CLAUDE_CODE_OAUTH_TOKEN is per contributor, not a shared secret: each person runs
 # `claude setup-token` then `gh secret set CLAUDE_CODE_OAUTH_TOKEN_<their-github-username>
 # --repo centreon/centreon` (no admin rights needed). `secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}',
@@ -57,6 +61,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
+      - name: Checkout the centreon-qa plugin
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: centreon/dotfiles
+          ref: feat/qa-ticket-verify-skill # develop once centreon/dotfiles merges the skill
+          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          path: dotfiles
+
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -109,35 +121,30 @@ jobs:
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "Found PR #$number ($url) on branch $head_ref for $TICKET_KEY"
 
-      - name: Resolve image tag and start local environment
+      - name: Resolve environment and start it
         id: start_env
         env:
           GH_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ steps.find_pr.outputs.head_ref }}
           PR_NUMBER: ${{ steps.find_pr.outputs.number }}
         run: |
-          # Don't hardcode the OS variant — read what this PR's own CI actually built.
-          os_variant=$(gh pr checks "$PR_NUMBER" --repo centreon/centreon --json name --jq '.[].name' \
-            | grep -oP 'alma\d+' | sort | uniq -c | sort -rn | head -1 | grep -oP 'alma\d+' || true)
-          if [ -z "$os_variant" ]; then
-            echo "::warning::Could not detect the OS variant from PR #$PR_NUMBER's checks, defaulting to alma9"
-            os_variant="alma9"
-          fi
-          image="docker.centreon.com/centreon/centreon-web-slim-${os_variant}:${HEAD_REF}"
-          echo "web_image=$image" >> "$GITHUB_OUTPUT"
-          echo "Resolved image: $image"
+          # KEY=value lines documented in the skill: the next steps (and Claude) read them from
+          # $GITHUB_ENV, this step exports them itself.
+          .claude/skills/qa-ticket-verify/resolve-env.sh "$PR_NUMBER" > resolved-env.txt
+          cat resolved-env.txt
+          cat resolved-env.txt >> "$GITHUB_ENV"
+          while IFS='=' read -r key value; do export "$key=$value"; done < resolved-env.txt
 
           attempts=0
           max_attempts=5
-          until WEB_IMAGE="$image" docker compose -f .github/docker/docker-compose.yml up -d --wait; do
+          until docker compose -f .github/docker/docker-compose.yml ${COMPOSE_PROFILE:+--profile "$COMPOSE_PROFILE"} up -d --wait; do
             attempts=$((attempts + 1))
             if [ "$attempts" -ge "$max_attempts" ]; then
-              echo "::error::$image never became healthy after $max_attempts attempts"
+              echo "::error::$WEB_IMAGE never became healthy after $max_attempts attempts"
               docker compose -f .github/docker/docker-compose.yml logs web --tail 100 || true
               exit 1
             fi
             echo "Not ready yet (attempt $attempts/$max_attempts, the PR's image may still be building) — waiting 60s"
-            docker compose -f .github/docker/docker-compose.yml down -v || true
+            docker compose -f .github/docker/docker-compose.yml ${COMPOSE_PROFILE:+--profile "$COMPOSE_PROFILE"} down -v || true
             sleep 60
           done
           curl -sf http://localhost:4000/centreon/login > /dev/null \
@@ -177,21 +184,13 @@ jobs:
           # No missing-token check here — the check-token job already guarantees
           # CLAUDE_CODE_OAUTH_TOKEN is set before qa-verify is even allowed to start.
 
-          claude -p "Use the qa-ticket-verify skill (see .claude/skills/qa-ticket-verify/SKILL.md) \
-            to verify Jira ticket $TICKET_KEY. You are running in CI: no human is present and no \
-            mcp__claude_ai_Atlassian__* tools are available — follow every 'CI:' branch in that \
-            skill's instructions exactly, especially for Jira access (curl with \$JIRA_EMAIL / \
-            \$JIRA_API_TOKEN, never mcp__claude_ai_Atlassian__*) and the final report step (post it \
-            as a Jira comment yourself via curl, then stop — do not wait for further input). \
-            The linked PR (#$PR_NUMBER, $PR_URL) was already found and the local environment is \
-            already up and reachable at http://localhost:4000/centreon — skip skill step 2's PR \
-            search and step 6's docker startup, go straight to fetching the PR's body/diff with \
-            'gh pr view $PR_NUMBER' / 'gh pr diff $PR_NUMBER' and continue from step 3. Do not \
-            run 'docker compose down' yourself, the workflow tears the environment down after. \
-            This run was triggered by GitHub user $TRIGGERED_BY." \
+          claude -p "Use the centreon-qa:qa-ticket-verify skill to verify Jira ticket $TICKET_KEY \
+            (linked PR #$PR_NUMBER, $PR_URL, module $MODULE). Every input it documents is already \
+            in the environment. This run was triggered by GitHub user $TRIGGERED_BY." \
+            --plugin-dir dotfiles/plugins/centreon-qa \
             --mcp-config .claude/skills/qa-ticket-verify/mcp-config.ci.json \
             --strict-mcp-config \
-            --allowedTools "Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find,mcp__playwright__browser_close" \
+            --allowedTools "Skill,Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find,mcp__playwright__browser_close" \
             --permission-mode bypassPermissions \
             --verbose \
             --output-format stream-json \
@@ -230,7 +229,7 @@ jobs:
 
       - name: Tear down environment
         if: always()
-        run: docker compose -f .github/docker/docker-compose.yml down -v || true
+        run: docker compose -f .github/docker/docker-compose.yml ${COMPOSE_PROFILE:+--profile "$COMPOSE_PROFILE"} down -v || true
 
       - name: Upload run artifacts
         if: always()
