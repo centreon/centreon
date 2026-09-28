@@ -90,6 +90,11 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertSame([['id' => self::HOST_ID, 'activated' => false]], $this->repository->activationUpdates);
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDisabled::class, 1));
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
+
+        // The event must carry the in-memory aggregate (so its poller can be reloaded) and the actor.
+        $dispatched = $this->eventBus->getDispatchedEvents(HostDisabled::class)[0];
+        self::assertSame($host, $dispatched->aggregate);
+        self::assertSame(1, $dispatched->creatorId);
     }
 
     public function testItIsASilentNoOpWhenAlreadyInTheRequestedState(): void

@@ -24,6 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
@@ -43,6 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
@@ -84,6 +90,32 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $handler(new PollerCreated($this->createPoller(), 1));
 
         self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    public function testItDoesNothingForANonPollerScopedUpdate(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // CommandUpdated is an AggregateUpdated too, but Command is not poller-scoped: ignore it.
+        $handler(new CommandUpdated($this->createCommand(), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    private function createCommand(): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName('check-something'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
     }
 
     private function createHost(int $pollerId): Host

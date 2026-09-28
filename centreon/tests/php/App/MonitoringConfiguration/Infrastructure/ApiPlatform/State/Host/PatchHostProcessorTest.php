@@ -176,6 +176,44 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertSame('0', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]));
     }
 
+    public function testItLetsARestrictedViewerDisableAHostInItsScope(): void
+    {
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadAndWriteTopologyRole($contactId);
+        $this->login($username);
+
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        // getById scopes on centreon_acl: make the host visible to the viewer's access group.
+        $this->linkHostToAcl($hostId, $aclGroupId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('0', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+        // The audit line records the acting (restricted) user as the actor.
+        self::assertEquals($contactId, $this->latestActor($hostId));
+    }
+
+    public function testItHidesAHostOutsideTheRestrictedViewerScope(): void
+    {
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $this->grantHostReadAndWriteTopologyRole($contactId);
+        $this->login($username);
+
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        // Deliberately NOT linked to the viewer's access group in centreon_acl.
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false]]);
+
+        // Out of ACL scope reads as not found (no existence leak, not a 403), and nothing is toggled.
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -216,5 +254,81 @@ final class PatchHostProcessorTest extends ApiTestCase
             "SELECT action_type FROM log_action WHERE object_id = ? AND object_type = 'host' ORDER BY action_log_id DESC LIMIT 1",
             [$hostId],
         );
+    }
+
+    private function latestActor(int $hostId): mixed
+    {
+        return $this->realTimeConnection->fetchOne(
+            "SELECT log_contact_id FROM log_action WHERE object_id = ? AND object_type = 'host' ORDER BY action_log_id DESC LIMIT 1",
+            [$hostId],
+        );
+    }
+
+    private function createNonAdminContact(string $alias): int
+    {
+        $this->createApiUser($this->connection, $alias, admin: false);
+
+        /** @var int|string $contactId */
+        $contactId = $this->connection->fetchOne(
+            'SELECT contact_id FROM contact WHERE contact_alias = :alias',
+            ['alias' => $alias]
+        );
+
+        return (int) $contactId;
+    }
+
+    /**
+     * Grants the "Configuration > Hosts > Hosts" read-write topology access (topology_page 60101),
+     * bridged to HostPermissionEnum::CanReadAndWrite. Returns the created access group id.
+     */
+    private function grantHostReadAndWriteTopologyRole(int $contactId): int
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'topology-rw-group-' . $contactId,
+            'acl_group_alias' => 'topology-rw-group-' . $contactId,
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_topology', [
+            'acl_topo_name' => 'topology-rw-rule-' . $contactId,
+            'acl_topo_alias' => 'topology-rw-rule-' . $contactId,
+            'acl_topo_activate' => '1',
+        ]);
+        $aclTopoId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_topology_relations', [
+            'acl_group_id' => $aclGroupId,
+            'acl_topology_id' => $aclTopoId,
+        ]);
+
+        foreach ([6, 601, 60101] as $topologyPage) {
+            $topologyId = $this->connection->fetchOne(
+                'SELECT topology_id FROM topology WHERE topology_page = :page',
+                ['page' => $topologyPage]
+            );
+            self::assertIsScalar($topologyId, "topology_page {$topologyPage} not found in fixtures");
+
+            $this->connection->insert('acl_topology_relations', [
+                'topology_topology_id' => (int) $topologyId,
+                'acl_topo_id' => $aclTopoId,
+                'access_right' => 1, // read-write
+            ]);
+        }
+
+        return $aclGroupId;
+    }
+
+    private function linkHostToAcl(int $hostId, int $aclGroupId): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', [
+            'group_id' => $aclGroupId,
+            'host_id' => $hostId,
+        ]);
     }
 }
