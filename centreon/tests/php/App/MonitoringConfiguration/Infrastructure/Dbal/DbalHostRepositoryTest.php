@@ -949,6 +949,57 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('public', $host->snmpCommunity?->value);
     }
 
+    /**
+     * `sethostparam "host;snmp_community;"` (CLAPI) writes '', not NULL — no coercion in the
+     * setparam path. A host cleared this way must read back as "no SNMP community", not crash.
+     */
+    public function testFindOneTreatsAnEmptySnmpCommunityAndVersionAsUnset(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-empty-snmp', $pollerId);
+        $this->connection->update(
+            'host',
+            ['host_snmp_community' => '', 'host_snmp_version' => ''],
+            ['host_id' => $hostId],
+        );
+
+        $host = $this->repository->findOne(new HostId($hostId));
+
+        self::assertNotNull($host);
+        self::assertNull($host->snmpCommunity);
+        self::assertNull($host->snmpVersion);
+    }
+
+    /**
+     * Same CLAPI gap as SNMP: `sethostparam "host;notes;"` and siblings write '', not NULL, for
+     * every Extended Informations field, including geo_coords.
+     */
+    public function testFindOneTreatsEmptyExtendedInformationsColumnsAsUnset(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-empty-extended', $pollerId);
+        $this->connection->update(
+            'host',
+            ['host_comment' => '', 'geo_coords' => ''],
+            ['host_id' => $hostId],
+        );
+        $this->connection->update(
+            'extended_host_information',
+            ['ehi_notes_url' => '', 'ehi_notes' => '', 'ehi_action_url' => '', 'ehi_icon_image_alt' => ''],
+            ['host_host_id' => $hostId],
+        );
+
+        $host = $this->repository->findOne(new HostId($hostId));
+
+        self::assertNotNull($host);
+        self::assertNull($host->extendedInformations?->noteUrl);
+        self::assertNull($host->extendedInformations?->note);
+        self::assertNull($host->extendedInformations?->actionUrl);
+        self::assertNull($host->extendedInformations?->altIcon);
+        self::assertNull($host->extendedInformations?->comment);
+        self::assertNull($host->extendedInformations?->geoCoordinates);
+    }
+
     public function testFindOneHydratesTheHostMacros(): void
     {
         $pollerId = $this->createPoller('Central');

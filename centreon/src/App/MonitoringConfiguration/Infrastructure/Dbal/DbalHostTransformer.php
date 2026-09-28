@@ -62,6 +62,11 @@ final readonly class DbalHostTransformer implements TransformerInterface
 {
     use TriStateColumnTrait;
 
+    /**
+     * `findAll()`'s row carries only: id, name, alias, ip_address, is_activated, poller_id,
+     * template_ids, group_ids, icon_id. Every other key exists only on `findOne()`'s row, so each
+     * is read defensively (isset / array_key_exists / ??) below.
+     */
     public function transform(mixed $from): Host
     {
         $alias = $from['alias'] !== null ? trim($from['alias']) : '';
@@ -82,8 +87,8 @@ final readonly class DbalHostTransformer implements TransformerInterface
             categoryIds: new Collection(($from['category_ids'] ?? null) !== null ? $this->parseIdList($from['category_ids'], HostCategoryId::class) : [], HostCategoryId::class),
             parentHostIds: new Collection(($from['parent_host_ids'] ?? null) !== null ? $this->parseIdList($from['parent_host_ids'], HostId::class) : [], HostId::class),
             childHostIds: new Collection(($from['child_host_ids'] ?? null) !== null ? $this->parseIdList($from['child_host_ids'], HostId::class) : [], HostId::class),
-            snmpVersion: isset($from['snmp_version']) ? SnmpVersionEnum::from($from['snmp_version']) : null,
-            snmpCommunity: isset($from['snmp_community']) ? new SnmpCommunity($from['snmp_community']) : null,
+            snmpVersion: ($from['snmp_version'] ?? '') !== '' ? SnmpVersionEnum::from($from['snmp_version']) : null,
+            snmpCommunity: ($from['snmp_community'] ?? '') !== '' ? new SnmpCommunity($from['snmp_community']) : null,
             // `host_location` (timezone_id) has no NULL default, unlike every other optional
             // column here — it's '0' until a timezone is actually picked, so 0 means unset too.
             timezoneId: isset($from['timezone_id']) && (int) $from['timezone_id'] > 0
@@ -106,6 +111,10 @@ final readonly class DbalHostTransformer implements TransformerInterface
      */
     private function parseIdList(string $commaSeparated, string $class): array
     {
+        if ($commaSeparated === '') {
+            return [];
+        }
+
         return array_map(
             static fn (string $id): object => new $class((int) $id),
             explode(',', $commaSeparated),
@@ -118,14 +127,25 @@ final readonly class DbalHostTransformer implements TransformerInterface
     private function buildExtendedInformations(array $from): ExtendedInformations
     {
         return new ExtendedInformations(
-            noteUrl: $from['note_url'] ?? null,
-            note: $from['note'] ?? null,
-            actionUrl: $from['action_url'] ?? null,
+            noteUrl: $this->nullIfEmpty($from['note_url'] ?? null),
+            note: $this->nullIfEmpty($from['note'] ?? null),
+            actionUrl: $this->nullIfEmpty($from['action_url'] ?? null),
             iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
-            altIcon: $from['alt_icon'] ?? null,
-            comment: $from['comment'] ?? null,
-            geoCoordinates: isset($from['geo_coords']) ? GeoCoordinates::fromString($from['geo_coords']) : null,
+            altIcon: $this->nullIfEmpty($from['alt_icon'] ?? null),
+            comment: $this->nullIfEmpty($from['comment'] ?? null),
+            geoCoordinates: ($from['geo_coords'] ?? '') !== '' ? GeoCoordinates::fromString($from['geo_coords']) : null,
         );
+    }
+
+    /**
+     * Every CLAPI `setparam` field lands in its column as-is, with no NULL coercion — clearing a
+     * field via `sethostparam "host;<field>;"` writes `''`, not `NULL`. Each of these columns
+     * feeds a value object with a minimum length of 1, so an unguarded `''` throws on a host that
+     * legitimately had the field cleared this way. Treat `''` the same as `NULL`: absent.
+     */
+    private function nullIfEmpty(?string $value): ?string
+    {
+        return ($value ?? '') !== '' ? $value : null;
     }
 
     /**
