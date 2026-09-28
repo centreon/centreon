@@ -21,19 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-final readonly class HostCheckOptionsOutput
+use Symfony\Component\Validator\Constraint;
+
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class ReservedMacroName extends Constraint
 {
-    /**
-     * @param ?HostCheckCommandOutput $command the check command, null when none is set
-     * @param list<string> $args ordered check-command arguments (empty when no command is set)
-     * @param list<HostMacroOutput> $macros the host's own custom macros (post inheritance strip)
-     */
-    public function __construct(
-        public ?HostCheckCommandOutput $command,
-        public array $args,
-        public array $macros,
-    ) {
-    }
+    public string $message = 'This macro name is reserved and cannot be used.';
 }
