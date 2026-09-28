@@ -29,9 +29,12 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalStandardMacroRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalStandardMacroRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private DbalStandardMacroRepository $repository;
 
     protected function setUp(): void
@@ -42,6 +45,8 @@ final class DbalStandardMacroRepositoryTest extends KernelTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'nagios_macro');
+
         $macros = [
             [1, '$HOSTNAME$'],
             [2, '$HOSTALIAS$'],

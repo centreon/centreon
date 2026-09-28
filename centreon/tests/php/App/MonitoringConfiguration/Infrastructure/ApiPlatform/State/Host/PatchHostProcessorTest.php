@@ -185,7 +185,7 @@ final class PatchHostProcessorTest extends ApiTestCase
 
         $pollerId = $this->insertPoller('Central');
         $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
-        // getById scopes on centreon_acl: make the host visible to the viewer's access group.
+        // findOne scopes on centreon_acl: make the host visible to the viewer's access group.
         $this->linkHostToAcl($hostId, $aclGroupId);
 
         $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false]]);

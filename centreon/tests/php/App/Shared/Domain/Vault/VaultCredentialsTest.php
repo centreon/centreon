@@ -85,4 +85,84 @@ final class VaultCredentialsTest extends TestCase
 
         self::assertTrue($credentials->plaintextOnly()->isEmpty());
     }
+
+    public function testEmptyBuilderHasNothing(): void
+    {
+        $credentials = VaultCredentials::empty();
+
+        self::assertTrue($credentials->isEmpty());
+        self::assertSame([], $credentials->toArray());
+        self::assertSame([], $credentials->toInsert());
+        self::assertSame([], $credentials->clearedKeys());
+    }
+
+    public function testExplicitStatesClassifyEntries(): void
+    {
+        $credentials = VaultCredentials::empty()
+            ->set('MACRO_A', 'newpass')
+            ->clear('MACRO_B')
+            ->keep('MACRO_C', 'secret::vault::monitoring/hosts/uuid::MACRO_C');
+
+        self::assertSame(['MACRO_A' => 'newpass'], $credentials->toInsert());
+        self::assertSame(['MACRO_B'], $credentials->clearedKeys());
+        self::assertSame([
+            'MACRO_A' => 'newpass',
+            'MACRO_B' => '',
+            'MACRO_C' => 'secret::vault::monitoring/hosts/uuid::MACRO_C',
+        ], $credentials->toArray());
+    }
+
+    public function testExplicitBuildersAreImmutable(): void
+    {
+        $original = VaultCredentials::empty()->set('a', '1');
+        $updated = $original->clear('b');
+
+        self::assertSame(['a' => '1'], $original->toArray());
+        self::assertSame(['a' => '1', 'b' => ''], $updated->toArray());
+    }
+
+    public function testSetNormalizesVaultKey(): void
+    {
+        $credentials = VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, 'public');
+
+        self::assertSame(['_HOSTSNMPCOMMUNITY' => 'public'], $credentials->toInsert());
+    }
+
+    public function testClearNormalizesVaultKey(): void
+    {
+        $credentials = VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity);
+
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $credentials->clearedKeys());
+    }
+
+    public function testSetWithAnAlreadyVaultedOrEmptyValueIsNotInserted(): void
+    {
+        $credentials = VaultCredentials::empty()
+            ->set('vaulted', 'secret::vault::monitoring/hosts/uuid::vaulted')
+            ->set('empty', '');
+
+        self::assertSame([], $credentials->toInsert());
+        self::assertSame([], $credentials->clearedKeys());
+    }
+
+    public function testFromArrayDerivesStatesByValueConvention(): void
+    {
+        $credentials = VaultCredentials::fromArray([
+            'set' => 'plaintext',
+            'cleared' => '',
+            'unchanged' => 'secret::vault::monitoring/hosts/uuid::unchanged',
+        ]);
+
+        self::assertSame(['set' => 'plaintext'], $credentials->toInsert());
+        self::assertSame(['cleared'], $credentials->clearedKeys());
+    }
+
+    public function testKeepIsNeitherInsertedNorCleared(): void
+    {
+        $credentials = VaultCredentials::empty()->keep('MACRO', 'plaintext-left-as-is');
+
+        self::assertSame([], $credentials->toInsert());
+        self::assertSame([], $credentials->clearedKeys());
+        self::assertSame(['MACRO' => 'plaintext-left-as-is'], $credentials->toArray());
+    }
 }

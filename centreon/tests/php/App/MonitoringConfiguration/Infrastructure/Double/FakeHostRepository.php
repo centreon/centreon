@@ -26,7 +26,6 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -39,7 +38,7 @@ final class FakeHostRepository implements HostRepository
     public array $hosts = [];
 
     /**
-     * When set, {@see getById()} with a non-null viewer only returns ids listed here; any other
+     * When set, {@see findOne()} with a non-null viewer only returns ids listed here; any other
      * reads as not found. Null means the viewer sees everything — used to simulate ACL scoping.
      *
      * @var list<int>|null
@@ -92,11 +91,16 @@ final class FakeHostRepository implements HostRepository
         }
     }
 
-    public function getById(HostId $id, ?UserId $viewerId = null): Host
+    /**
+     * Honors {@see $accessibleHostIds} when a viewer is given, returning null (like the real
+     * repository) for a host outside the viewer's scope, so the ACL not-found path is exercised
+     * at the handler layer.
+     */
+    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
     {
         $host = $this->hosts[$id->value] ?? null;
         if ($host === null) {
-            throw new HostNotFoundException([$id->value], 'id');
+            return null;
         }
 
         if (
@@ -104,10 +108,15 @@ final class FakeHostRepository implements HostRepository
             && $this->accessibleHostIds !== null
             && ! in_array($id->value, $this->accessibleHostIds, true)
         ) {
-            throw new HostNotFoundException([$id->value], 'id');
+            return null;
         }
 
         return $host;
+    }
+
+    public function remove(Host $host): void
+    {
+        unset($this->hosts[$host->id()->value]);
     }
 
     public function updateActivationStatus(HostId $id, bool $activated): void

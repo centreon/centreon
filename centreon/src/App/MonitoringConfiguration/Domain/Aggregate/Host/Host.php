@@ -33,6 +33,7 @@ use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -68,6 +69,9 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly ?ExtendedInformations $extendedInformations = null,
         public readonly SchedulingOptions $schedulingOptions = new SchedulingOptions(),
         public readonly DataProcessing $dataProcessing = new DataProcessing(),
+        // Always present, empty by default: the create path populates it; the read/list providers
+        // do not surface check options yet.
+        public readonly CheckOptions $checkOptions = new CheckOptions(null),
     ) {
         parent::__construct($id);
 
@@ -87,6 +91,29 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
     public function disable(): void
     {
         $this->activated = false;
+    }
+
+    /**
+     * The UUID of this host's vault entry, if it has one, or null when none of its vault-eligible
+     * fields currently hold a `secret::` reference (vault disabled, or nothing vaulted yet).
+     *
+     * Checked in the same order as legacy (`retrieveHostUuidFromVault`): the SNMP community first,
+     * then the first password macro that is vaulted — every vault-eligible field of a given
+     * resource shares one entry (one UUID), so the first match found settles it.
+     */
+    public function getVaultUuid(VaultInterface $vault): ?string
+    {
+        if ($this->snmpCommunity instanceof SnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
+            return $vault->extractUuid($this->snmpCommunity->value);
+        }
+
+        foreach ($this->checkOptions->macros as $macro) {
+            if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
+                return $vault->extractUuid($macro->value);
+            }
+        }
+
+        return null;
     }
 
     /**

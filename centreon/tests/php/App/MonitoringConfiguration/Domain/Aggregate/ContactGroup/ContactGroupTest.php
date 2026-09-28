@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupTypeEnum;
 use PHPUnit\Framework\TestCase;
 
 final class ContactGroupTest extends TestCase
@@ -36,5 +37,23 @@ final class ContactGroupTest extends TestCase
 
         self::assertSame(42, $contactGroup->id()->value);
         self::assertSame('Supervisors', $contactGroup->name->value);
+    }
+
+    public function testDefaultsToLocal(): void
+    {
+        $contactGroup = new ContactGroup(new ContactGroupId(42), new ContactGroupName('Supervisors'));
+
+        self::assertSame(ContactGroupTypeEnum::Local, $contactGroup->type);
+    }
+
+    public function testAcceptsAnExplicitType(): void
+    {
+        $contactGroup = new ContactGroup(
+            new ContactGroupId(42),
+            new ContactGroupName('LDAP Supervisors'),
+            ContactGroupTypeEnum::Ldap,
+        );
+
+        self::assertSame(ContactGroupTypeEnum::Ldap, $contactGroup->type);
     }
 }

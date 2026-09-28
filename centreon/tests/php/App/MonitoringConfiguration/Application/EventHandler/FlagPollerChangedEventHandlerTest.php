@@ -50,6 +50,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -101,6 +102,19 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $handler(new CommandUpdated($this->createCommand(), 1));
 
         self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerAsChangedOnDelete(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // The host is still carried in memory by the event even though its row is already gone,
+        // so the poller it belonged to can still be resolved and flagged.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDeleted($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
     }
 
     private function createCommand(): Command

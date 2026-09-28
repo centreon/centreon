@@ -33,6 +33,7 @@ final class ContactGroup extends AggregateRoot
     public function __construct(
         ContactGroupId $id,
         public readonly ContactGroupName $name,
+        public readonly ContactGroupTypeEnum $type = ContactGroupTypeEnum::Local,
     ) {
         parent::__construct($id);
     }

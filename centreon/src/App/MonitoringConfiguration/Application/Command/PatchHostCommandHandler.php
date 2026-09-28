@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
@@ -41,8 +42,12 @@ final readonly class PatchHostCommandHandler
 
     public function __invoke(PatchHostCommand $command): Host
     {
-        // Viewer-scoped: an out-of-scope host reads as not found (see HostRepository::getById).
-        $host = $this->repository->getById($command->id, $command->viewerId);
+        // Viewer-scoped: findOne returns null for a host outside the viewer's ACL scope, the same as
+        // a nonexistent one, so a restricted viewer can never tell them apart.
+        $host = $this->repository->findOne($command->id, $command->viewerId);
+        if (! $host instanceof Host) {
+            throw new HostNotFoundException([$command->id->value], 'id');
+        }
 
         // Skip when unchanged: avoids a spurious activity log line and poller reload.
         if ($host->activated === $command->activated) {

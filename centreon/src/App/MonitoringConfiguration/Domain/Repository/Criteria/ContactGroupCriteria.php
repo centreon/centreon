@@ -37,6 +37,8 @@ final class ContactGroupCriteria implements PaginableCriteria
     /** @var list<string> */
     private array $names = [];
 
+    private bool $excludeLdap = false;
+
     public function withName(string $name): self
     {
         // stringNotEmpty (not notEmpty) so a legitimate name of "0" is not wrongly rejected.
@@ -57,5 +59,18 @@ final class ContactGroupCriteria implements PaginableCriteria
     public function getNames(): array
     {
         return $this->names;
+    }
+
+    public function withExcludeLdap(bool $exclude): self
+    {
+        $new = clone $this;
+        $new->excludeLdap = $exclude;
+
+        return $new;
+    }
+
+    public function excludeLdap(): bool
+    {
+        return $this->excludeLdap;
     }
 }

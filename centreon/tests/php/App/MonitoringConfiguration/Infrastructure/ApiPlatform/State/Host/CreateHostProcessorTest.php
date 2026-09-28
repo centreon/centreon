@@ -319,6 +319,23 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItRejectsEventHandlerArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                // One argument longer than the TEXT column can hold once formatted.
+                'data_processing' => ['event_handler_args' => [str_repeat('a', 65536)]],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * extended_informations is a nested sub-object in the request payload, not a set of flat
      * fields on the root — matches the endpoint's output shape (see MON-208990).
@@ -1377,6 +1394,8 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'address' => '10.0.0.50',
                 'poller_id' => $pollerId,
                 'template_ids' => [$secondTemplateId, $firstTemplateId, $secondTemplateId],
+                // Nothing here asserts deployment, and leaving it on would boot the legacy kernel.
+                'create_services_linked_to_templates' => false,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$childId],
             ],
@@ -1478,6 +1497,343 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'poller_id' => $pollerId,
                 'parent_host_ids' => [$parentId],
                 'child_host_ids' => [$ancestorId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * The toggle is honoured in `CreateHostCommandHandler`, which is where it is unit-tested: the
+     * legacy deployer runs on its own connection and cannot see this test's open transaction, so
+     * an end-to-end assertion on the created services is not reachable here. What this pins is the
+     * binding — a non-boolean must be refused rather than silently ignored.
+     */
+    public function testItRejectsANonBooleanServiceDeploymentToggle(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.53',
+                'poller_id' => $pollerId,
+                'create_services_linked_to_templates' => 'yes',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItCreatesAHostWithACheckCommandAndArguments(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandName = $this->uniqueName('check');
+        $commandId = $this->insertCommand($commandName, 2); // check
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.20',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'args' => ['-w', '5'],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        // The resolved command name must reach the response, not just its id.
+        self::assertJsonContains([
+            'check_options' => [
+                'command' => ['id' => $commandId, 'name' => $commandName],
+                'args' => ['-w', '5'],
+            ],
+        ]);
+
+        // Arguments are persisted bang-joined in the legacy column.
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        /** @var array{command_command_id: int, command_command_id_arg1: string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertSame($commandId, (int) $row['command_command_id']);
+        self::assertSame('!-w!5', $row['command_command_id_arg1']);
+    }
+
+    public function testItReturnsAnEmptyCheckOptionsObjectWhenNoneIsProvided(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.24',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['check_options' => ['args' => []]]);
+        // The null command is dropped from the payload by the platform-wide skip_null_values default.
+        /** @var array{check_options: array<string, mixed>} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('command', $payload['check_options']);
+    }
+
+    public function testItRejectsACommandThatIsNotACheckCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $notificationCommandId = $this->insertCommand($this->uniqueName('notif'), 1); // notification
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.21',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $notificationCommandId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownCheckCommand(): void
+    {
+        // Existence is validated at the API boundary (→422), mirroring an unknown poller_id — not
+        // deferred to the handler's 404, which only guards the delete-between-validation-and-write race.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.22',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => 2147483646],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.25',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    // One argument longer than the TEXT column can hold once formatted.
+                    'args' => [str_repeat('a', 65536)],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsWithoutACommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.23',
+                'poller_id' => $pollerId,
+                'check_options' => ['args' => ['-w', '5']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACheckCommandArgumentContainingTheStorageDelimiter(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.26',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $commandId, 'args' => ['a!b']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACheckCommandArgumentContainingAnEscapeToken(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.27',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $commandId, 'args' => ['a#BR#b']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItCreatesAHostWithCustomMacros(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'macros' => [
+                        ['name' => 'community', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                        ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'check_options' => [
+                'macros' => [
+                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                    ['name' => 'TOKEN', 'is_password' => true],
+                ],
+            ],
+        ]);
+
+        // The password macro's value is never echoed back.
+        /** @var array{id: int, check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('value', $payload['check_options']['macros'][1]);
+
+        $hostId = $payload['id'];
+        /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            [$hostId],
+        );
+        self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
+        self::assertSame('$_HOSTTOKEN$', $rows[1]['host_macro_name']);
+        self::assertSame(1, (int) $rows[1]['is_password']);
+    }
+
+    public function testItStripsAMacroInheritedFromTheCheckCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        // The command declares $_HOSTFOO$, so a submitted FOO with the same (empty) value is redundant.
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFOO$');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [
+                        ['name' => 'foo', 'value' => '', 'is_password' => false],
+                        ['name' => 'own', 'value' => 'kept', 'is_password' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['OWN'], $names);
+    }
+
+    public function testItRejectsAReservedMacroName(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // "SNMPCOMMUNITY" resolves to $_HOSTSNMPCOMMUNITY$, a reserved macro in nagios_macro. Seed it
+        // explicitly rather than rely on the platform install data, which the integration database
+        // does not guarantee (macro_id is auto-increment, so only the name matters here).
+        $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'snmpcommunity', 'value' => 'x']]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItAcceptsAMacroNameWithLegacyPermissiveCharacters(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // Legacy imposes no character-set rule on macro names (only upper-cases and stores them), so a
+        // name with spaces or symbols must be accepted and stored upper-cased, not rejected.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'bad name!', 'value' => 'x']]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['BAD NAME!'], $names);
+    }
+
+    public function testItRejectsAMacroValueExceedingMaxLength(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'big', 'value' => str_repeat('a', 4097)]]],
             ],
         ]);
 
@@ -1842,5 +2198,16 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'hg_hg_id' => $hostGroupId,
             ]);
         }
+    }
+
+    private function insertCommand(string $name, int $type, string $commandLine = '$USER1$/check_ping -H $HOSTADDRESS$'): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => $commandLine,
+            'command_type' => $type,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 }

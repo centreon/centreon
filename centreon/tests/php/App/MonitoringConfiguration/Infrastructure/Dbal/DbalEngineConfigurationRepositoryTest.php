@@ -29,9 +29,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalEngineConfigurationRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private DbalEngineConfigurationRepository $repository;
 
     private Connection $connection;
@@ -45,6 +48,8 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+
+        $this->clearInstalledPlatformRows($this->connection, 'cfg_resource_instance_relations', 'cfg_resource', 'nagios_server');
 
         $this->connection->insert('nagios_server', [
             'id' => 1,

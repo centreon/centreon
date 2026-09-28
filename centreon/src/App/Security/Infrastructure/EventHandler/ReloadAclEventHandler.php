@@ -28,19 +28,22 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
+use App\Shared\Domain\Event\AggregateDeleted;
 use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
- * Reacts to the create or change of any ACL-scoped resource (see {@see AclScopedInterface}): its
- * visibility may differ, so the ACL tables are flagged for the `centAcl` cron to recompute
- * `centreon_acl` (else a disabled host lingers there until some flag is raised). An admin flags all
- * resources; a non-admin flags only their own access groups.
+ * Reacts to the create, change or deletion of any ACL-scoped resource (see {@see AclScopedInterface}):
+ * its visibility may differ, so the ACL tables are flagged for the `centAcl` cron to recompute
+ * `centreon_acl` (else e.g. a disabled or deleted host lingers there until some flag is raised). An
+ * admin flags all resources; a non-admin flags only their own access groups.
  *
- * Seeding `centreon_acl` directly (which grants access) happens on creation only — on a later
- * enable/disable the flag alone drives the recompute. Caught via the {@see AggregateUpdated} supertype.
+ * Seeding `centreon_acl` directly (which grants access) happens on creation only, so a non-admin
+ * creator sees their new resource without waiting for the cron. On a later enable/disable, or on a
+ * deletion, the flag alone drives the recompute — the cron purges stale rows for a deleted resource.
+ * Caught via the {@see AggregateUpdated} supertype (enable/disable) and {@see AggregateDeleted}.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler
@@ -52,7 +55,7 @@ final readonly class ReloadAclEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated|AggregateUpdated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted $event): void
     {
         if (! $event->aggregate instanceof AclScopedInterface) {
             return;
@@ -75,7 +78,6 @@ final readonly class ReloadAclEventHandler
         if ($event instanceof AggregateCreated) {
             $this->resourceAccessRepository->grantResourceAccess($event->aggregate, $accessGroupIds);
         }
-
         $this->accessGroupRepository->flagGroupsAsChanged($accessGroupIds);
     }
 }
