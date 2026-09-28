@@ -54,8 +54,29 @@ test('it disables flap and host-down checks by default on-prem', function (): vo
         ->and($config['host_down_disable_service_checks'])->toBe('0');
 });
 
-test('it enables flap and host-down checks on cloud', function (): void {
+test('it enables flap and host-down checks on cloud via $_ENV', function (): void {
     $_ENV['IS_CLOUD_PLATFORM'] = '1';
+
+    $config = CfgNagios::getConfiguration();
+
+    expect($config['enable_flap_detection'])->toBe('1')
+        ->and($config['host_down_disable_service_checks'])->toBe('1');
+});
+
+test('it enables flap and host-down checks on cloud via $_SERVER', function (): void {
+    unset($_ENV['IS_CLOUD_PLATFORM']);
+    putenv('IS_CLOUD_PLATFORM');
+    $_SERVER['IS_CLOUD_PLATFORM'] = '1';
+
+    $config = CfgNagios::getConfiguration();
+
+    expect($config['enable_flap_detection'])->toBe('1')
+        ->and($config['host_down_disable_service_checks'])->toBe('1');
+});
+
+test('it enables flap and host-down checks on cloud via getenv', function (): void {
+    unset($_ENV['IS_CLOUD_PLATFORM'], $_SERVER['IS_CLOUD_PLATFORM']);
+    putenv('IS_CLOUD_PLATFORM=1');
 
     $config = CfgNagios::getConfiguration();
 
