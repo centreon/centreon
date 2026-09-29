@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -103,6 +104,10 @@ final readonly class DuplicateHostCommandHandler
         // Action log (with field detail) and the poller's `nagios_server.updated` flag are written
         // by the shared event handlers reacting to AggregateDuplicated.
         $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy));
+
+        // The aggregate does not model services; they are duplicated by a legacy step delivered after
+        // the commit (the copy must be visible to the legacy connection), like host creation deploys them.
+        $this->eventBus->fire(new HostServicesDuplicationRequested($command->hostId, $copy->id()));
     }
 
     /**

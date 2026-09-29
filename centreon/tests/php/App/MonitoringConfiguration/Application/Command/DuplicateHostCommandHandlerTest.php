@@ -43,6 +43,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\Security\Domain\Aggregate\UserId;
@@ -172,6 +173,21 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDuplicated::class, 1));
         $event = $this->eventBus->getDispatchedEvents(HostDuplicated::class)[0];
         self::assertSame(42, $event->creatorId);
+    }
+
+    public function testRequestsServiceDuplicationFromTheSourceOntoTheCopy(): void
+    {
+        $this->storeSourceHost(1, 'web');
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDuplicationRequested::class, 1));
+        $event = $this->eventBus->getDispatchedEvents(HostServicesDuplicationRequested::class)[0];
+        self::assertSame(1, $event->sourceHostId->value);
+
+        $copy = $this->findCopyByName('web_1');
+        self::assertNotNull($copy);
+        self::assertSame($copy->id()->value, $event->newHostId->value);
     }
 
     public function testAdminFlagsEveryResourceForReload(): void
