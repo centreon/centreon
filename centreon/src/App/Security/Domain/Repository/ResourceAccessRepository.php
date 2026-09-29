@@ -26,6 +26,7 @@ namespace App\Security\Domain\Repository;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
@@ -97,4 +98,11 @@ interface ResourceAccessRepository
      *                                      all host groups); an empty Collection means the user can access none
      */
     public function findAccessibleHostGroupIds(UserId $userId): ?Collection;
+
+    /**
+     * @return Collection<MediaDirectoryId>|null null means no restriction applies (the user can
+     *                                           access all image folders); an empty Collection means
+     *                                           the user can access none
+     */
+    public function findAccessibleImageFolderIds(UserId $userId): ?Collection;
 }

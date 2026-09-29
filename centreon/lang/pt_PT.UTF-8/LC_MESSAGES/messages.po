@@ -5714,10 +5714,6 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Editions & Cloud licenses"
 msgstr ""
 
@@ -12770,10 +12766,6 @@ msgid ""
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Open source edition"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Open the repository"
 msgstr ""
 
@@ -13737,10 +13729,6 @@ msgstr "Progresso"
 
 #: centreon/www/install/front_translate.php
 msgid "Project & contributors"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Project leaders <count>({{total}})</count>"
 msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
@@ -14856,10 +14844,6 @@ msgstr "Valores de escala do Gráfico"
 #: centreon/www/include/monitoring/external_cmd/popup/massive_downtime.php
 msgid "Scale of time"
 msgstr "Escala de tempo"
-
-#: centreon/www/install/front_translate.php
-msgid "Scaling beyond open source?"
-msgstr ""
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Schedule an immediate check of all services on this host"
@@ -16363,10 +16347,6 @@ msgstr "Inicio"
 
 #: centreon/www/install/front_translate.php
 msgid "Start date"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Start free trial"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

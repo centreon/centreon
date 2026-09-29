@@ -91,6 +91,9 @@ WITH_SNMPTRAP=0
 WITH_CMA=0
 START_STACK=1
 
+# Overwrite existing docker-compose.yaml/.env without prompting (--overwrite)
+OVERWRITE=0
+
 # Path to a centreon-plugins checkout, used to build the centreon-vmware
 # image when --with-vmware is set. Empty means use the default (see
 # _checkVmwarePrerequisites in commands/docker.sh).

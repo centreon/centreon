@@ -1,6 +1,6 @@
 get:
   tags:
-    - Time period
+    - TimePeriod
   summary: "Get all time periods"
   description: |
     Get list of all time periods
@@ -30,7 +30,7 @@ get:
       $ref: '../../Common/Response/InternalServerError.yaml'
 post:
   tags:
-    - Time period
+    - TimePeriod
   summary: "Create a new time period"
   requestBody:
     required: true

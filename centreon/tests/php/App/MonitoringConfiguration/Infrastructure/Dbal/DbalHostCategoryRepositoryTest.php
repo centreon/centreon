@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostCategoryTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -74,6 +76,33 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
 
         self::assertContains($categoryName, $names);
         self::assertNotContains($severityName, $names, 'A host severity (level IS NOT NULL) must not appear among host categories.');
+    }
+
+    public function testFindNamesByIdsResolvesCategories(): void
+    {
+        $categoryId = $this->insertHostCategory("names-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostCategoryId($categoryId)], HostCategoryId::class)
+        )->toArray();
+
+        self::assertSame("names-{$this->tag}", $names[$categoryId]->value);
+    }
+
+    public function testFindNamesByIdsIgnoresSeverities(): void
+    {
+        $severityId = $this->insertHostCategory("sev-names-{$this->tag}", level: 1);
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostCategoryId($severityId)], HostCategoryId::class)
+        );
+
+        self::assertCount(0, $names);
+    }
+
+    public function testFindNamesByIdsReturnsNothingForAnEmptyInput(): void
+    {
+        self::assertCount(0, $this->repository->findNamesByIds(new Collection([], HostCategoryId::class)));
     }
 
     public function testFindAllFiltersByNameUsingLike(): void

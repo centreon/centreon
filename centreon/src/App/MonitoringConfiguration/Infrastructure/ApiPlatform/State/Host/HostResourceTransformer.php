@@ -40,6 +40,7 @@ final readonly class HostResourceTransformer implements TransformerInterface
             alias: $from->alias?->value,
             address: $from->address->value,
             activated: $from->activated,
+            snmpVersion: $from->snmpVersion,
         );
     }
 }

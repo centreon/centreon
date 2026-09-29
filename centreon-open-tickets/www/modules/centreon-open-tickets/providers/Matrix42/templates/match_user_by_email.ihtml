@@ -1,0 +1,43 @@
+{* match user email with Matrix42 user (unlikely to work since by default we don't get email from Matrix42) *}
+{literal}
+<script>
+(function () {
+    var centreonUserEmail = "{/literal}{$user.email|escape:'javascript'}{literal}".toLowerCase();
+    var syncToResponsibleUser = "{/literal}{$sync_user_to_responsible_user|escape:'javascript'}{literal}" === 'yes';
+
+    var $select = jQuery('#select_matrix42_user');
+    if ($select.length === 0 || centreonUserEmail === '') {
+        return;
+    }
+
+    var matchedValue = null;
+    $select.find('option').each(function () {
+        var $option = jQuery(this);
+        if ($option.val() === '-1') {
+            // skip the placeholder entry
+            return;
+        }
+
+        if ($option.text().toLowerCase() === centreonUserEmail) {
+            matchedValue = $option.val();
+            return false;
+        }
+    });
+
+    if (matchedValue === null) {
+        return;
+    }
+
+    $select.val(matchedValue);
+    $select.trigger('change');
+
+    if (syncToResponsibleUser) {
+        var $responsibleSelect = jQuery('#select_matrix42_responsible_user');
+        if ($responsibleSelect.length > 0) {
+            $responsibleSelect.val(matchedValue);
+            $responsibleSelect.trigger('change');
+        }
+    }
+})();
+</script>
+{/literal}

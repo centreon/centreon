@@ -25,6 +25,7 @@ namespace Tests\App\Upgrade\Infrastructure\Dbal;
 
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Dbal\DbalModuleRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -54,7 +55,9 @@ final class DbalModuleRepositoryTest extends TestCase
         $this->repository = new DbalModuleRepository(
             $this->configConnection,
             $this->modulesDir,
-            new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
+            new LegacyConnectionFactory(
+                new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage')
+            ),
             '/usr/share/centreon/',
             new NullLogger(),
         );

@@ -24,9 +24,11 @@ CENTREONTRAPD_SDB_FIXTURE=$(build_centreontrapd_sdb_fixture "centreontrapd-wirin
 export CENTREONTRAPD_IMAGE SNMPTRAPD_IMAGE CENTREONTRAPD_SDB_FIXTURE
 
 cleanup() {
+  local rc=$?
   "${COMPOSE[@]}" logs > /tmp/centreon-trapd-config-wiring-test.log 2>&1 || true
   "${COMPOSE[@]}" down -v --remove-orphans > /dev/null 2>&1 || true
   rm -f "$CENTREONTRAPD_SDB_FIXTURE" || true
+  _summary_render "Config/wiring test — centreontrapd + snmptrapd" "$rc"
 }
 trap cleanup EXIT
 
@@ -56,13 +58,21 @@ wait_for_log() {
   return 1
 }
 
+summary_step_start "Both containers start (docker compose up)"
 echo "=== [wiring] Starting centreontrapd + snmptrapd ==="
 "${COMPOSE[@]}" up -d
+summary_step_pass
 
+summary_step_start "centreontrapd reports readiness"
 echo "=== [wiring] Waiting for both containers to report readiness ==="
 wait_ready centreontrapd || exit 1
-wait_ready snmptrapd || exit 1
+summary_step_pass
 
+summary_step_start "snmptrapd reports readiness"
+wait_ready snmptrapd || exit 1
+summary_step_pass
+
+summary_step_start "Both containers still running after startup"
 for service in centreontrapd snmptrapd; do
   running=$(docker inspect -f '{{.State.Running}}' "${PROJECT}-${service}-1" 2>/dev/null || echo false)
   if [ "$running" != "true" ]; then
@@ -71,32 +81,43 @@ for service in centreontrapd snmptrapd; do
     exit 1
   fi
 done
+summary_step_pass
 
 # Confirm snmptrapd is actually listening before sending anything - UDP has
 # no handshake, so a trap sent before the daemon binds the port is silently
 # dropped and the test would flake instead of failing meaningfully.
+summary_step_start "snmptrapd is listening on UDP/162"
 echo "=== [wiring] Checking snmptrapd is listening ==="
 if ! wait_for_log snmptrapd "Listening on UDP/162"; then
   echo "::error::snmptrapd never logged its listening banner"
   "${COMPOSE[@]}" logs snmptrapd || true
   exit 1
 fi
+summary_step_pass
+
+summary_step_start "No crash signature in snmptrapd logs (pre-trap)"
 if "${COMPOSE[@]}" logs snmptrapd 2>&1 | grep -Ei "Compilation failed|Can't locate|Segmentation fault|Out of memory"; then
   echo "::error::snmptrapd logs contain a crash signature, see above"
   exit 1
 fi
+summary_step_pass
 
+summary_step_start "SNMP trap sent to snmptrapd (UDP/1620)"
 echo "=== [wiring] Sending a real SNMP trap to snmptrapd (UDP/1620) ==="
 snmptrap -v2c -c public 127.0.0.1:1620 '' \
   1.3.6.1.4.1.2021.13.990.1 \
   1.3.6.1.4.1.2021.13.990.1.1 s "e2e wiring test"
+summary_step_pass
 
+summary_step_start "No crash signature in snmptrapd logs (post-trap)"
 echo "=== [wiring] Checking snmptrapd forwarded the trap without crashing ==="
 if "${COMPOSE[@]}" logs snmptrapd 2>&1 | grep -Ei "Compilation failed|Can't locate|Segmentation fault|Out of memory"; then
   echo "::error::snmptrapd logs contain a crash signature, see above"
   exit 1
 fi
+summary_step_pass
 
+summary_step_start "Trap landed in the shared spool directory"
 echo "=== [wiring] Checking the trap landed in the shared spool directory ==="
 spool_ok=false
 for _ in $(seq 1 "$TRAP_TIMEOUT"); do
@@ -112,21 +133,25 @@ if [ "$spool_ok" != "true" ]; then
   "${COMPOSE[@]}" logs || true
   exit 1
 fi
+summary_step_pass
 
 # The image's default --severity=error hides this - the compose file starts
 # centreontrapd with --severity=debug specifically so this trace is visible.
+summary_step_start "centreontrapd picked up the trap file (debug log)"
 echo "=== [wiring] Checking centreontrapd's debug log shows it picked up the trap file ==="
 if ! wait_for_log centreontrapd "Processing file:"; then
   echo "::error::centreontrapd never logged 'Processing file:' - it did not pick up the trap from the spool"
   "${COMPOSE[@]}" logs centreontrapd || true
   exit 1
 fi
+summary_step_pass
 
 # centreontrapd's default policy_trap=1 deletes the spool file once it has
 # been processed - even for an unknown trap (no matching row in `traps`),
 # unlink_trap stays at its default of 1 unless the DB connection itself
 # drops. So the file disappearing again proves centreontrapd actually
 # consumed it, not just that it was sitting in the spool untouched.
+summary_step_start "centreontrapd consumed (removed) the trap from spool"
 echo "=== [wiring] Checking centreontrapd consumed (removed) the trap from the spool ==="
 consumed_ok=false
 for _ in $(seq 1 "$TRAP_TIMEOUT"); do
@@ -142,7 +167,9 @@ if [ "$consumed_ok" != "true" ]; then
   "${COMPOSE[@]}" logs centreontrapd || true
   exit 1
 fi
+summary_step_pass
 
+summary_step_start "centreontrapd still running, no crash signature"
 echo "=== [wiring] Checking centreontrapd is still running and did not crash ==="
 running=$(docker inspect -f '{{.State.Running}}' "${PROJECT}-centreontrapd-1" 2>/dev/null || echo false)
 if [ "$running" != "true" ]; then
@@ -154,5 +181,6 @@ if "${COMPOSE[@]}" logs centreontrapd 2>&1 | grep -Ei "Compilation failed|Can't 
   echo "::error::centreontrapd logs contain a crash signature, see above"
   exit 1
 fi
+summary_step_pass
 
 echo "=== [wiring] PASSED ==="

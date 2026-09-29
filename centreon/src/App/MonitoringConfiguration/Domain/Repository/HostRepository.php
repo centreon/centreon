@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
+use App\Shared\Domain\Collection;
 
 interface HostRepository
 {
@@ -45,4 +47,22 @@ interface HostRepository
      * @return \IteratorAggregate<int, Host>&\Countable
      */
     public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Never returns a host template, though both share the `host` table.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<HostName> indexed by id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * Includes $ids themselves, minus any that is not a host.
+     *
+     * @param Collection<HostId> $ids
+     *
+     * @return Collection<HostId>
+     */
+    public function findAncestorIds(Collection $ids): Collection;
 }

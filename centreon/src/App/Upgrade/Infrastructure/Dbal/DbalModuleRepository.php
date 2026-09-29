@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
-use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -46,7 +46,7 @@ final class DbalModuleRepository implements ModuleRepository
         private readonly Connection $configConnection,
         #[Autowire(param: 'upgrade.modules_dir')]
         private readonly string $modulesDir,
-        private readonly ConnectionConfig $connectionConfig,
+        private readonly LegacyConnectionFactory $legacyConnectionFactory,
         #[Autowire(param: 'upgrade.centreon_path')]
         private readonly string $centreonPath,
         private readonly LoggerInterface $logger,
@@ -292,18 +292,9 @@ final class DbalModuleRepository implements ModuleRepository
             return;
         }
 
-        // TODO: temporary bridge — replace with proper ConnectionInterface injection once module upgrade scripts are migrated
-        $pearDB = new \CentreonDB(connectionConfig: $this->connectionConfig);
-        $pearDBO = new \CentreonDB(connectionConfig: new ConnectionConfig(
-            host: $this->connectionConfig->getHost(),
-            user: $this->connectionConfig->getUser(),
-            password: $this->connectionConfig->getPassword(),
-            databaseNameConfiguration: $this->connectionConfig->getDatabaseNameRealTime(),
-            databaseNameRealTime: $this->connectionConfig->getDatabaseNameRealTime(),
-            port: $this->connectionConfig->getPort(),
-            charset: $this->connectionConfig->getCharset(),
-            driver: $this->connectionConfig->getDriver(),
-        ));
+        // See LegacyConnectionFactory: module upgrade scripts still call legacy CentreonDB/PDO methods.
+        $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
+        $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
         $centreon_path = $this->centreonPath;
 
         require_once $filePath;
