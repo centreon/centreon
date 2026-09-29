@@ -10,8 +10,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2026-09-17 09:59+0000\n"
-"Last-Translator: Weblate user 4 <user-"
-"4@users.noreply.weblate.prod.centreon.io>\n"
+"Last-Translator: Weblate user 4 "
+"<user-4@users.noreply.weblate.prod.centreon.io>\n"
 "Language-Team: French <https://weblate.prod.centreon.io/projects/centreon-"
 "infra-monitoring/26-10/web-messages-26-10/fr/>\n"
 "Language: fr_FR\n"
@@ -20906,14 +20906,14 @@ msgstr ""
 "Une erreur s'est produite lors de l'application des actions postérieures "
 "à la mise à jour"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "An error occurred when applying the update %s (%s)"
 msgstr ""
 "Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "An error occurred when applying the update (%s)"
 msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
 
@@ -21268,8 +21268,8 @@ msgstr "Information sur Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
@@ -21597,8 +21597,8 @@ msgstr ""
 "Impossible de trouver la base de données de configuration. La session a "
 "probablement expiré."
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -22976,8 +22976,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -23128,8 +23128,8 @@ msgstr "Map"
 msgid "Map Icon"
 msgstr "Icône pour la carte"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "MariaDB version %s required (%s installed)"
 msgstr "La version %s de MariaDB est requise (%s installée)"
 
@@ -23471,8 +23471,8 @@ msgstr "Vue d'ensemble"
 msgid "PENDING"
 msgstr "EN ATTENTE"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "PHP extension %s not loaded"
 msgstr "L'extension %s de PHP n'est pas chargée"
 
@@ -23480,8 +23480,8 @@ msgstr "L'extension %s de PHP n'est pas chargée"
 msgid "PHP file included"
 msgstr "Fichier PHP inclus"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "PHP version %s required (%s installed)"
 msgstr "La version %s de PHP est requise (%s installée)"
 
@@ -24400,8 +24400,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
@@ -24978,8 +24978,8 @@ msgstr "Bienvenue"
 msgid "Welcome to Centreon Broker configuration"
 msgstr "Bienvenu dans la configuration de Centreon Broker"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Welcome to the %s page"
 msgstr "Bienvenue sur la page %s"
 
@@ -25265,8 +25265,8 @@ msgstr ""
 "Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer "
 "ce panneau sans enregistrer ?"
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "You haven't configured any %s yet. Add your first one below and Centreon "
 "will start monitoring it right away."
@@ -25310,8 +25310,8 @@ msgstr "Votre session a expiré"
 msgid "ZMQ"
 msgstr "ZMQ"
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 msgstr ""
