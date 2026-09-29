@@ -850,14 +850,6 @@ msgstr "Contribution sur GitHub"
 msgid "Documentation & guides"
 msgstr "Documentation et guides"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host category"
-msgstr "Dupliquer la catégorie d'hôtes"
-
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host categories"
-msgstr "Dupliquer les catégories d'hôtes"
-
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -1180,10 +1172,6 @@ msgstr "Paramètres avancés"
 msgid "Advanced: reverse Centreon Broker communication flow"
 msgstr "Avancé : inverser le flux de communication du Broker Centreon"
 
-#: centreon/www/install/react_translation.php
-msgid "Advanced: gorgone - poller connects to the central"
-msgstr "Avancé : gorgone - le collecteur se connecte au central"
-
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Editions & Cloud licenses"
 msgstr "Licences Edition et Cloud"
@@ -1216,11 +1204,6 @@ msgstr "Plateforme de supervision IT ouverte et évolutive pour une visibilité 
 msgid "Open the repository"
 msgstr "Ouvrir le dépôt"
 
-#: centreon/www/install/react_translation.php
-msgid "Prerequisite: configure the central to accept PullWSS connections"
-msgstr ""
-"Prérequis : configurer le central pour accepter les connexions PullWSS"
-
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Project & contributors"
 msgstr "Projet et contributeurs"
@@ -1248,10 +1231,6 @@ msgstr "Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connect
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "The Watch community"
 msgstr "La communauté The Watch"
-
-#: centreon/www/install/react_translation.php
-msgid "documentation"
-msgstr "documentation"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "After"

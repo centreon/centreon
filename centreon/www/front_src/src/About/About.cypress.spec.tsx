@@ -23,6 +23,16 @@ const platformVersion: PlatformVersions = {
   widgets: {}
 };
 
+const resourceLinks = [
+  { label: 'Browse the docs', url: 'https://docs.centreon.com' },
+  { label: 'Join The Watch', url: 'https://thewatch.centreon.com' },
+  { label: 'Open the repository', url: 'https://github.com/centreon/centreon' },
+  {
+    label: 'Compare Edition licenses',
+    url: 'https://www.centreon.com/pricing-centreon-infra-monitoring/'
+  }
+];
+
 const buildStore = () => {
   const store = createStore();
 
@@ -74,14 +84,24 @@ describe('About page', () => {
       .should('have.attr', 'href')
       .and('include', 'security/policy');
 
-    cy.contains('Browse the docs').should('be.visible');
-    cy.contains('Join The Watch').should('be.visible');
-    cy.contains('Open the repository').should('be.visible');
-    cy.contains('Compare Edition licenses').should('be.visible');
-    cy.contains('Open source edition').should('not.exist');
-    cy.contains('Start free trial').should('not.exist');
+    resourceLinks.forEach(({ label, url }) => {
+      cy.contains(label)
+        .should('be.visible')
+        .closest('a')
+        .should('have.attr', 'href', url)
+        .and('have.attr', 'target', '_blank');
+    });
 
     cy.contains('Copyright © 2005 - 2021 Centreon').should('be.visible');
+
+    cy.contains('23.04.0')
+      .parent()
+      .should('have.css', 'background-color', 'rgb(37, 88, 145)');
+    cy.contains('Project & contributors').should(
+      'have.css',
+      'color',
+      'rgb(0, 0, 0)'
+    );
 
     cy.makeSnapshot();
   });
@@ -98,6 +118,10 @@ describe('About page', () => {
 
     cy.contains('23.04.0').should('be.visible');
     cy.contains('Copyright © 2005 - 2021 Centreon').should('exist');
+
+    cy.contains('23.04.0')
+      .parent()
+      .should('have.css', 'background-color', 'rgb(73, 116, 165)');
 
     cy.contains('Project & contributors').should(
       'have.css',
