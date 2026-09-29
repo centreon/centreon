@@ -23,7 +23,7 @@ const Hero = ({ version }: Props): ReactElement => {
   const { t } = useTranslation();
 
   return (
-    <div className="relative overflow-hidden bg-primary-main p-8 dark:bg-primary-dark">
+    <div className="relative overflow-hidden bg-primary-dark p-8">
       <div className="absolute -top-[120px] -right-20 h-[360px] w-[360px] rounded-full bg-[linear-gradient(100deg,#1F8FD6_0%,#6A4FD6_52%,#27A567_100%)] opacity-55 blur-2xl" />
       <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:justify-between">
         <div className="w-[168px] brightness-0 invert">
@@ -31,7 +31,7 @@ const Hero = ({ version }: Props): ReactElement => {
         </div>
         <a
           aria-label={t(labelStarCentreonOnGithub)}
-          className="inline-flex shrink-0 items-center gap-1 rounded bg-white/12 px-3 py-2 text-sm whitespace-nowrap text-white no-underline transition-colors hover:bg-white/22"
+          className="inline-flex shrink-0 items-center gap-1 rounded bg-white/12 px-3 py-2 text-sm whitespace-nowrap text-white no-underline transition-colors hover:bg-white/22 dark:bg-black/20 dark:hover:bg-black/30"
           href={githubUrl}
           rel="noreferrer"
           target="_blank"
@@ -45,7 +45,7 @@ const Hero = ({ version }: Props): ReactElement => {
       <p className="relative mt-6 text-[34px] leading-none font-bold tracking-[-0.01em] text-white">
         {version || t(labelCentreon)}
       </p>
-      <p className="relative mt-3 max-w-[560px] text-sm text-white/78">
+      <p className="relative mt-3 max-w-[560px] text-sm text-white/78 dark:text-white">
         {t(labelPlatformTagline)}
       </p>
     </div>
