@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
@@ -112,6 +113,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_retry_check_interval' => ':retryCheckInterval',
                 'host_active_checks_enabled' => ':activeCheckEnabled',
                 'host_passive_checks_enabled' => ':passiveCheckEnabled',
+                'command_command_id' => ':check_command_id',
+                'command_command_id_arg1' => ':check_command_args',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -126,7 +129,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
             ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
             ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
-            ->setParameter('eventHandlerArgs', $this->joinCommandArgsForLegacyColumn($dataProcessing->eventHandlerArgs))
+            ->setParameter('eventHandlerArgs', CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs))
             ->setParameter('snmpVersion', $host->snmpVersion?->value)
             ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
             ->setParameter('timezoneId', $host->timezoneId?->value)
@@ -138,6 +141,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
             ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
+            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
+            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -211,6 +216,28 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         foreach ($host->childHostIds as $childHostId) {
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
+        }
+
+        foreach ($host->checkOptions->macros as $macroOrder => $macro) {
+            $this->connection->createQueryBuilder()
+                ->insert('on_demand_macro_host')
+                ->values([
+                    'host_macro_name' => ':macroName',
+                    'host_macro_value' => ':macroValue',
+                    'is_password' => ':isPassword',
+                    'description' => ':description',
+                    'host_host_id' => ':hostId',
+                    'macro_order' => ':macroOrder',
+                ])
+                ->setParameter('macroName', $macro->name->toStorageName())
+                ->setParameter('macroValue', $macro->value)
+                // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+                ->setParameter('isPassword', $macro->isPassword ? 1 : null)
+                // Legacy coerces a missing description to '' (never NULL) in this column.
+                ->setParameter('description', $macro->description ?? '')
+                ->setParameter('hostId', $hostId)
+                ->setParameter('macroOrder', $macroOrder)
+                ->executeStatement();
         }
     }
 
@@ -370,25 +397,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
-    }
-
-    /**
-     * Store the event-handler command arguments the legacy way: each argument prefixed with "!" and
-     * concatenated; an empty list stores NULL. Arguments are validated upstream to contain no "!"
-     * delimiter (nor \n\t\r), so no escaping is needed here.
-     *
-     * @param list<string> $args
-     */
-    private function joinCommandArgsForLegacyColumn(array $args): ?string
-    {
-        if ($args === []) {
-            return null;
-        }
-
-        // Arguments are validated upstream (DataProcessingInput / DataProcessing) to contain neither
-        // the '!' delimiter nor the \n\t\r characters the legacy codec would encode, so a plain
-        // '!'-prefixed join is unambiguous and round-trips through the reader.
-        return '!' . implode('!', $args);
     }
 
     /**

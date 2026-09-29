@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
@@ -31,6 +32,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
@@ -523,6 +526,100 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('2', $row['host_passive_checks_enabled']);
     }
 
+    public function testAddPersistsTheCheckCommandAndItsEncodedArguments(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $commandId = $this->createCheckCommand('check_ping');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-check'),
+            alias: null,
+            address: new HostAddress('10.0.0.2'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(new CommandId($commandId), ['-H 10.0.0.2', "line1\nline2\tcol\rret"]),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array{command_command_id: int, command_command_id_arg1: string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        self::assertSame($commandId, (int) $row['command_command_id']);
+        // Bang-joined, with newline/tab/carriage-return stored as #BR#/#T#/#R# (legacy CentreonHost::insert).
+        self::assertSame('!-H 10.0.0.2!line1#BR#line2#T#col#R#ret', $row['command_command_id_arg1']);
+    }
+
+    public function testAddPersistsCustomMacros(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-macros'),
+            alias: null,
+            address: new HostAddress('10.0.0.4'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'SNMP'),
+                new HostMacro(new HostMacroName('secret'), 'secret::vault::x', isPassword: true),
+            ]),
+        );
+
+        $this->repository->add($host);
+
+        /** @var list<array{host_macro_name: string, host_macro_value: string, is_password: ?string, description: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, host_macro_value, is_password, description
+             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            [$host->id()->value],
+        );
+
+        self::assertCount(2, $rows);
+        self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
+        self::assertSame('public', $rows[0]['host_macro_value']);
+        self::assertNull($rows[0]['is_password']);
+        self::assertSame('SNMP', $rows[0]['description']);
+        self::assertSame('$_HOSTSECRET$', $rows[1]['host_macro_name']);
+        self::assertSame(1, (int) $rows[1]['is_password']);
+    }
+
+    public function testAddLeavesTheCheckCommandNullWhenNoneIsSet(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-nocheck'),
+            alias: null,
+            address: new HostAddress('10.0.0.5'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $this->repository->add($host);
+
+        /** @var array{command_command_id: ?int, command_command_id_arg1: ?string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+
+        self::assertNull($row['command_command_id']);
+        self::assertNull($row['command_command_id_arg1']);
+    }
+
     public function testItMapsAHostWithoutAnIconToANullIconId(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -936,6 +1033,17 @@ final class DbalHostRepositoryTest extends KernelTestCase
     private function createHostGroup(string $name): int
     {
         $this->connection->insert('hostgroup', ['hg_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function createCheckCommand(string $name): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => '$USER1$/check_ping -H $HOSTADDRESS$',
+            'command_type' => 2, // check
+        ]);
 
         return (int) $this->connection->lastInsertId();
     }

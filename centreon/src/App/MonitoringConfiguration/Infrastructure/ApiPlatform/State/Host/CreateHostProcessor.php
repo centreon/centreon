@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
@@ -34,6 +35,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -58,14 +61,19 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckOptionsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEventHandlerCommandOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
@@ -164,6 +172,21 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             passiveCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->passiveCheckEnabled),
         );
 
+        $checkOptionsInput = $data->checkOptions;
+        $checkOptions = new CheckOptions(
+            $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
+            $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
+            $checkOptionsInput instanceof CheckOptionsInput ? array_map(
+                static fn (HostMacroInput $macro): HostMacro => new HostMacro(
+                    new HostMacroName($macro->name),
+                    $macro->value,
+                    $macro->isPassword,
+                    $macro->description,
+                ),
+                $checkOptionsInput->macros,
+            ) : [],
+        );
+
         $alias = $this->trimmedOrNull($data->alias);
 
         $command = new CreateHostCommand(
@@ -187,6 +210,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             deployServicesFromTemplates: $data->createServicesLinkedToTemplates ?? true,
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
+            checkOptions: $checkOptions,
         );
 
         $host = $this->commandBus->execute($command);
@@ -203,6 +227,14 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         }
 
         $icon = $this->resolveIcon($host->extendedInformations?->iconId);
+
+        $checkCommandOutput = null;
+        if ($host->checkOptions->checkCommandId instanceof CommandId) {
+            // The command exists (the handler already validated it), so this resolves it purely to
+            // surface its name in the response, the same way the poller name is resolved above.
+            $checkCommand = $this->commandRepository->getById($host->checkOptions->checkCommandId);
+            $checkCommandOutput = new HostCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
+        }
 
         $resource = $this->transformer->transform($host);
         $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
@@ -265,6 +297,17 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
+        $macroOutputs = array_map(
+            static fn (HostMacro $macro): HostMacroOutput => new HostMacroOutput(
+                $macro->name->value,
+                // A password macro's stored value is a vault reference (or secret) — never echoed.
+                $macro->isPassword ? null : $macro->value,
+                $macro->isPassword,
+                $macro->description,
+            ),
+            $host->checkOptions->macros,
+        );
+        $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
         return $resource;
     }
