@@ -24,10 +24,25 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimePeriodCriteria;
+use App\Shared\Domain\Collection;
 
 interface TimePeriodRepository
 {
+    public function existsOne(TimePeriodId $id): bool;
+
+    /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a time period by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<TimePeriodId> $ids
+     *
+     * @return Collection<TimePeriodName> indexed by time period id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
     /**
      * @return \IteratorAggregate<int, TimePeriod>&\Countable
      */

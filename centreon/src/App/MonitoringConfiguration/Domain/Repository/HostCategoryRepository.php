@@ -24,7 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
+use App\Shared\Domain\Collection;
 
 interface HostCategoryRepository
 {
@@ -32,4 +35,13 @@ interface HostCategoryRepository
      * @return \IteratorAggregate<int, HostCategory>&\Countable
      */
     public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Never returns a severity, though both share the `hostcategories` table.
+     *
+     * @param Collection<HostCategoryId> $ids
+     *
+     * @return Collection<HostCategoryName> indexed by id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
 }

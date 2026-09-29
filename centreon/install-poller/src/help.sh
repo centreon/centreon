@@ -35,6 +35,7 @@ function help() {
   echo ""
   echo "Docker behavior flags:"
   echo -e "  --no-start\t\t\tOnly generate files, do not run docker compose up -d"
+  echo -e "  --overwrite\t\t\tOverwrite existing docker-compose.yaml/.env without prompting (for non-interactive/scripted runs)"
   echo ""
   echo "Docker optional flags:"
   echo -e "  --tz string\t\t\tTimezone (default: UTC)"

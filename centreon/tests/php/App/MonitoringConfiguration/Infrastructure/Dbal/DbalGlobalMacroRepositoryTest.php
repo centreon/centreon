@@ -30,9 +30,12 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalGlobalMacroRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private DbalGlobalMacroRepository $repository;
 
     protected function setUp(): void
@@ -43,6 +46,8 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'cfg_resource_instance_relations', 'cfg_resource', 'nagios_server');
+
         $connection->insert('nagios_server', ['id' => 1, 'name' => 'Central', 'localhost' => '1', 'ns_activate' => '1', 'ns_ip_address' => '127.0.0.1', 'uid' => 100000000000001]);
         $connection->insert('cfg_resource', ['resource_id' => 1, 'resource_name' => '$USER1$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'path to plugins', 'resource_activate' => '1', 'is_password' => 0]);
         $connection->insert('cfg_resource', ['resource_id' => 2, 'resource_name' => '$CENTREONPLUGINS$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'Centreon Plugin Path', 'resource_activate' => '1', 'is_password' => 0]);

@@ -24,10 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostSeverityRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostSeverityTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
@@ -56,7 +58,7 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostSeverityRepository(
             $this->connection,
             new HostSeverityTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host severities
@@ -148,6 +150,40 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withViewerId($viewerId)));
 
         self::assertSame([], $names, 'A viewer granted only categories is restricted and sees no severity.');
+    }
+
+    public function testItFindsASeverityByItsId(): void
+    {
+        $severityId = $this->insertHostSeverity("sev-{$this->tag}");
+
+        self::assertSame("sev-{$this->tag}", $this->repository->findNameById(new HostSeverityId($severityId))?->value);
+    }
+
+    /**
+     * Severities and categories are rows of the same table, told apart only by `level`. Resolving
+     * a category id here would silently let a category be attached as a severity.
+     */
+    public function testItIgnoresALevellessCategory(): void
+    {
+        $categoryId = $this->insertHostSeverity("cat-{$this->tag}", level: null);
+
+        self::assertNull($this->repository->findNameById(new HostSeverityId($categoryId)));
+    }
+
+    /**
+     * `hc_name` is nullable and the column has no length floor, so a nameless row must read as
+     * "not found" rather than reach HostSeverityName, whose assertion would surface as a 500.
+     */
+    public function testItReturnsNullForANamelessRow(): void
+    {
+        $severityId = $this->insertHostSeverity('');
+
+        self::assertNull($this->repository->findNameById(new HostSeverityId($severityId)));
+    }
+
+    public function testItReturnsNullForAnUnknownId(): void
+    {
+        self::assertNull($this->repository->findNameById(new HostSeverityId(999999)));
     }
 
     /**

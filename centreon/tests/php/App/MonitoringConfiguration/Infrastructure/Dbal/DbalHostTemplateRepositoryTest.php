@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
@@ -58,7 +59,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host templates
@@ -76,6 +77,21 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
         self::assertContains($templateName, $names);
         self::assertNotContains($hostName, $names, 'A regular host (host_register = 1) must not appear among host templates.');
+    }
+
+    public function testFindAllExcludesLockedTemplatesWhenRequested(): void
+    {
+        $unlockedName = "unlocked-{$this->tag}";
+        $this->insertHostTemplate($unlockedName);
+        $lockedName = "locked-{$this->tag}";
+        $this->insertHostTemplate($lockedName, locked: true);
+
+        $names = $this->names($this->repository->findAll(
+            (new HostTemplateCriteria())->withName($this->tag)->withExcludeLocked(true)
+        ));
+
+        self::assertContains($unlockedName, $names);
+        self::assertNotContains($lockedName, $names);
     }
 
     public function testFindAllFiltersByNameUsingLike(): void
@@ -211,9 +227,14 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         ));
     }
 
-    private function insertHostTemplate(string $name): int
+    private function insertHostTemplate(string $name, bool $locked = false): int
     {
-        $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0', 'host_activate' => '1']);
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_register' => '0',
+            'host_activate' => '1',
+            'host_locked' => $locked ? '1' : '0',
+        ]);
 
         return (int) $this->connection->lastInsertId();
     }

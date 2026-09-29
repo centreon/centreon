@@ -499,6 +499,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             $qb->andWhere($qb->expr()->like('p.name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
+        if ($criteria->isActiveOnly()) {
+            $qb->andWhere($qb->expr()->eq('p.ns_activate', $qb->createNamedParameter('1')));
+        }
+
         if ($criteria->excludeUnknownCentral()) {
             // a central not registered as a remote server's address is excluded, matching legacy's
             // "isLocalhost() && address not in remoteServersIps" rule, expressed here in SQL to keep

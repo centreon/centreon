@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
 
 final class HostCollectionOutput
 {
-    public HostPollerOutput $poller;
+    public PollerChoicesOutput $poller;
 
     /** @var list<HostTemplateOutput> */
     public array $templates;
