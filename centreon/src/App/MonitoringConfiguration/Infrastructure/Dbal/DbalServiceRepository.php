@@ -105,6 +105,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $qb = $this->connection->createQueryBuilder();
         $qb->delete(self::TABLE_NAME)
             ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($service->id()->value, ParameterType::INTEGER)))
+            ->andWhere("service_register = '1'")
             ->executeStatement();
     }
 

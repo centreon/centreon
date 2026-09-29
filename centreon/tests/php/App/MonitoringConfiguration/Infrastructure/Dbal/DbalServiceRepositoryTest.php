@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalServiceTransformer;
 use Doctrine\DBAL\Connection;
@@ -104,6 +107,22 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId)));
     }
 
+    public function testRemoveDoesNotDeleteAServiceTemplate(): void
+    {
+        // findExclusivelyLinkedToHostId() never returns a template's id today (templates carry no
+        // host_service_relation row), but the guard mirrors legacy DbWriteServiceRepository's own
+        // `AND service_register = '1'` regardless of caller, so it's exercised directly here.
+        $templateId = $this->createServiceTemplate('web-check-template');
+        $template = new Service(id: new ServiceId($templateId), name: new ServiceName('web-check-template'), hostId: new HostId(1));
+
+        $this->repository->remove($template);
+
+        self::assertNotFalse($this->connection->fetchOne(
+            'SELECT service_id FROM service WHERE service_id = :id',
+            ['id' => $templateId],
+        ));
+    }
+
     private function createPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -143,6 +162,16 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         $this->linkServiceToHost($serviceId, $hostId);
 
         return $serviceId;
+    }
+
+    private function createServiceTemplate(string $description): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $description,
+            'service_register' => '0',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function linkServiceToHost(int $serviceId, int $hostId): void
