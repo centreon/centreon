@@ -122,7 +122,7 @@ class Resource extends AbstractObject
         $shouldBeEncrypted = $readMonitoringServerRepository->isEncryptionReady($poller_id);
         foreach ($object['resources'] as $macroKey => &$macroValue) {
             if (isset($isPassword[$macroKey])) {
-                $macroValue =  $shouldBeEncrypted
+                $macroValue = $shouldBeEncrypted && $macroValue !== ''
                 ? 'encrypt::' . $this->engineContextEncryption->crypt($macroValue)
                 : $macroValue;
             }
