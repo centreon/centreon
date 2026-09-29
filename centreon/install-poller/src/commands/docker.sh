@@ -268,10 +268,7 @@ CENTRAL_PORT=${CENTRAL_PORT}
 ENGINE_PORT=${ENGINE_PORT}
 GORGONE_TOKEN=${GORGONE_TOKEN}
 GORGONE_SSL=${GORGONE_SSL}
-# Minimum log level for gorgoned (fatal/error/warning/notice/info/debug). Defaults to
-# gorgoned's own default (info) to avoid debug-level log spamming; raise to debug for
-# troubleshooting. error/warning would also hide gorgoned's own info-level startup
-# confirmations (e.g. RSA key generation/load).
+# Minimum log level for gorgoned (fatal/error/warning/notice/info/debug), defaults to info.
 GORGONE_LOG_LEVEL=${GORGONE_LOG_LEVEL:-info}
 GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI=${GORGONE_PULLWSS_CENTRAL_URI}
 

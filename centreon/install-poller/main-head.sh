@@ -84,7 +84,8 @@ ENGINE_PORT=""
 # Optional / runtime
 TZ=""
 DEBUG=""
-GORGONE_LOG_LEVEL=""
+# Preserve a caller-exported value instead of blanking it like TZ/DEBUG above.
+GORGONE_LOG_LEVEL="${GORGONE_LOG_LEVEL:-}"
 
 # Optional services (Docker mode)
 WITH_VMWARE=0
