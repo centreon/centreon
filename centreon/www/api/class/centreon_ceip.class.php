@@ -43,6 +43,9 @@ require_once __DIR__ . '/webService.class.php';
  */
 class CentreonCeip extends CentreonWebService
 {
+    /** CIM editions that can be read from the licensing.edition property of the license file */
+    private const ALLOWED_LICENSE_EDITIONS = ['IT-100', 'IT', 'BE', 'MSP', 'PRO'];
+
     /** @var string */
     private $uuid;
 
@@ -372,9 +375,23 @@ class CentreonCeip extends CentreonWebService
                         if ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
                             $productLicense = 'MSP Edition';
                         }
+                    }
+                    $edition = $licenseInformation[$module]['licensing']['edition'] ?? null;
+                    if (! isset($licenseEdition) && is_string($edition) && trim($edition) !== '') {
+                        $licenseEdition = trim($edition);
+                    }
+                    if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         break;
                     }
                     $environment = $licenseInformation[$module]['platform']['environment'];
+                }
+            }
+
+            // Newer licenses carry the edition explicitly: it takes precedence over the computed one
+            if (isset($licenseEdition) && in_array($licenseEdition, self::ALLOWED_LICENSE_EDITIONS, true)) {
+                $productLicense = $licenseEdition;
+                if (! isset($fingerprint) && in_array($licenseEdition, ['MSP', 'BE'], true)) {
+                    $fingerprint = $fingerprintService->calculateFingerprint();
                 }
             }
         } catch (UnknownIdentifierException) {
