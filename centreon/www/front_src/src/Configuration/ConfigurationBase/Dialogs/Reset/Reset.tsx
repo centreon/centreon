@@ -12,8 +12,8 @@ import {
 } from '../../atoms';
 import {
   labelCancel,
-  labelReset,
-  labelResetConfirmation
+  labelDoYouWantToResetTheForm,
+  labelReset
 } from '../../translatedLabels';
 
 const ResetDialog = (): ReactElement => {
@@ -33,7 +33,7 @@ const ResetDialog = (): ReactElement => {
     <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{t(labelReset)}</Modal.Header>
       <Modal.Body>
-        <Typography>{t(labelResetConfirmation)}</Typography>
+        <Typography>{t(labelDoYouWantToResetTheForm)}</Typography>
       </Modal.Body>
       <Modal.Actions
         isDanger
