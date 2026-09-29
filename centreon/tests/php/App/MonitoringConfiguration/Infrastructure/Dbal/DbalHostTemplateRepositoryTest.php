@@ -313,6 +313,46 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame([$hostId => $nextIconId], $this->inheritedIconIds($hostId));
     }
 
+    public function testFindInheritedIconIdsResolvesEachHostOfTheBatchIndependently(): void
+    {
+        $firstIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->setIcon($firstTemplateId, $firstIconId);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $secondIconId);
+        $firstHostId = $this->insertRegularHost("host-a-{$this->tag}");
+        $this->linkHostToTemplate($firstHostId, $firstTemplateId, 1);
+        $secondHostId = $this->insertRegularHost("host-b-{$this->tag}");
+        $this->linkHostToTemplate($secondHostId, $secondTemplateId, 1);
+        $sharingHostId = $this->insertRegularHost("host-c-{$this->tag}");
+        $this->linkHostToTemplate($sharingHostId, $firstTemplateId, 1);
+
+        $iconIds = $this->inheritedIconIds($firstHostId, $secondHostId, $sharingHostId);
+        ksort($iconIds);
+
+        self::assertSame(
+            [$firstHostId => $firstIconId, $secondHostId => $secondIconId, $sharingHostId => $firstIconId],
+            $iconIds,
+        );
+    }
+
+    public function testFindInheritedIconIdsBreaksAnOrderTieByTemplateId(): void
+    {
+        // legacy reads ties in primary-key order (host_host_id, host_tpl_id), so the lower template id wins
+        $firstIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->setIcon($firstTemplateId, $firstIconId);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $secondIconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $secondTemplateId, 1);
+        $this->linkHostToTemplate($hostId, $firstTemplateId, 1);
+
+        self::assertSame([$hostId => $firstIconId], $this->inheritedIconIds($hostId));
+    }
+
     public function testFindInheritedIconIdsReturnsAnEmptyCollectionForNoIds(): void
     {
         self::assertCount(0, $this->repository->findInheritedIconIds(new Collection([], HostId::class)));

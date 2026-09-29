@@ -183,6 +183,41 @@ final class ListHostsProviderTest extends ApiTestCase
         ]);
     }
 
+    public function testItResolvesTheIconOfEachHostOfAPageIndependently(): void
+    {
+        $prefix = 'icon-mix-' . bin2hex(random_bytes(4));
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $hostImgId = $this->insertImage('host.png');
+        $this->linkImageToFolder($hostImgId, $dirId);
+        $templateImgId = $this->insertImage('template.png');
+        $this->linkImageToFolder($templateImgId, $dirId);
+        $templateId = $this->insertHostTemplate('iconed-template', iconId: $templateImgId);
+        $this->insertHost("{$prefix}-own", $pollerId, iconId: $hostImgId);
+        $inheritingHostId = $this->insertHost("{$prefix}-inherited", $pollerId);
+        $this->linkHostToTemplate($inheritingHostId, $templateId);
+        $this->insertHost("{$prefix}-none", $pollerId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $prefix]]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array{name: string, icon?: array{id: int}}> $member */
+        $member = $response->toArray()['member'];
+        $iconIdsByName = [];
+        foreach ($member as $host) {
+            $iconIdsByName[$host['name']] = $host['icon']['id'] ?? null;
+        }
+        ksort($iconIdsByName);
+
+        // the host without icon nor template proves the no-template path yields no icon
+        self::assertSame(
+            ["{$prefix}-inherited" => $templateImgId, "{$prefix}-none" => null, "{$prefix}-own" => $hostImgId],
+            $iconIdsByName,
+        );
+    }
+
     public function testItOmitsTheAliasKeyWhenTheHostHasNoAlias(): void
     {
         // ApiPlatform's skip_null_values defaults to true and drops a null field from the
