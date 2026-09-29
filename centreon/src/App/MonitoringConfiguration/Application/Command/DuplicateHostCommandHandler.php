@@ -92,7 +92,10 @@ final readonly class DuplicateHostCommandHandler
         // The copy inherits the source's ACL scope: its configuration relations
         // (acl_resources_host(ex)_relations — the only path that writes them) and its real-time
         // centreon_acl rows. This mirrors legacy (centreonACL::duplicateHostAcl + updateACL('DUP')).
-        $this->resourceAccessRepository->duplicateHostAccess($command->hostId, $copy->id());
+        $this->resourceAccessRepository->duplicateHostAccess(
+            sourceHostId: $command->hostId,
+            newHostId: $copy->id(),
+        );
 
         // Flag the centAcl cron so it recomputes the ACL scoping afterwards.
         $this->flagAclReload($command->viewerId);
@@ -110,9 +113,16 @@ final readonly class DuplicateHostCommandHandler
     private function generateAvailableName(HostName $sourceName): HostName
     {
         for ($index = 1; $index <= self::MAX_NAME_ATTEMPTS; $index++) {
-            $candidate = new HostName($sourceName->value . '_' . $index);
-            if (! $this->repository->isNameUsedByHostOrTemplate($candidate)) {
-                return $candidate;
+            $candidate = $sourceName->value . '_' . $index;
+            // A suffix that pushes the name past its length limit yields no valid copy name; surface
+            // the same 409 as an exhausted range instead of letting HostName throw an unmapped 500.
+            if (mb_strlen($candidate) > HostName::MAX_LENGTH) {
+                break;
+            }
+
+            $candidateName = new HostName($candidate);
+            if (! $this->repository->isNameUsedByHostOrTemplate($candidateName)) {
+                return $candidateName;
             }
         }
 

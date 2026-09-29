@@ -38,8 +38,9 @@ use App\Shared\Domain\Event\AsEventHandler;
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
  * configuration until something else touches it.
  *
- * Created, Deleted and Duplicated are wired (Host creation, deletion, duplication) — extend to
- * AggregateUpdated once it exists, mirroring LogActivityEventHandler.
+ * Created, Deleted and Duplicated are handled here (host creation and duplication are the live use
+ * cases today). Extend the union to AggregateUpdated once a poller-scoped update use case fires it —
+ * LogActivityEventHandler already handles that event.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
