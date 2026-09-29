@@ -26,16 +26,29 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostCa
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory\ListHostCategoriesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory\ListHostCategoriesProvider;
 
 #[ApiResource(
     shortName: 'HostCategory',
     operations: [
         new GetCollection(
+            uriTemplate: '/configuration/hosts/host_categories',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host categories',
+            itemUriTemplate: '/configuration/host_categories/{id}',
+            output: HostCategoryChoicesOutput::class,
+            provider: ListHostCategoriesChoicesProvider::class,
+        ),
+        new GetCollection(
             uriTemplate: '/configuration/host_categories',
             provider: ListHostCategoriesProvider::class,
+            itemUriTemplate: '/configuration/host_categories/{id}',
             output: HostCategoryCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
@@ -53,6 +66,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory\Li
                 is_granted("' . HostCategoryPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list host categories',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/host_categories/{id}'),
     ],
 )]
 final class HostCategoryResource

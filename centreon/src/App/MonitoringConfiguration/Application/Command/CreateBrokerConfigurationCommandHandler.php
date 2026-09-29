@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\BrokerConfiguration\BrokerConfi
 use App\MonitoringConfiguration\Domain\Factory\BrokerConfigurationFactory;
 use App\MonitoringConfiguration\Domain\Repository\BrokerConfigurationRepository;
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -82,7 +83,7 @@ final readonly class CreateBrokerConfigurationCommandHandler
         $plaintext = $this->vault->resolve($rawToken);
 
         return $this->vault->write(
-            BrokerConfigurationFactory::BROKER_VAULT_CUSTOM_PATH,
+            VaultPathEnum::Broker->value,
             BrokerConfigurationFactory::CENTRAL_MODULE_OUTPUT_NAME . '_' . BrokerConfigKey::AUTHORIZATION,
             $plaintext,
         );

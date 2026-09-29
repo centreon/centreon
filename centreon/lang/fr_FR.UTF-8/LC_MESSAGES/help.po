@@ -8346,3 +8346,33 @@ msgid "snmpttconvertmib binary with complete path."
 msgstr ""
 "Chemin d'accès complet vers le script snmpttconvertmib. Ce dernier permet "
 "de convertir les fichiers MIBs importés dans Centreon."
+
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
+msgstr ""
+"Répertoire des journaux de débogage RRDTool et de recherche LDAP. Les "
+"journaux web et d'authentification sont écrits dans le répertoire de "
+"journaux de la plateforme (_CENTREON_LOG_, /var/log/centreon par défaut) "
+"quel que soit ce paramètre."
+
+#: centreon/www/include/configuration/configServers/help.php
+msgid ""
+"Gorgone port of the remote poller (by default: 5556 in ZMQ, 22 in SSH, 5556 "
+"in Pull and 8086 in PullWSS)"
+msgstr ""
+"Port Gorgone du collecteur distant (par défaut : 5556 en ZMQ, 22 en SSH, "
+"5556 en Pull et 8086 en PullWSS)"
+
+#: centreon/www/include/configuration/configObject/host_categories/help.php
+#: centreon/www/include/configuration/configObject/service_categories/help.php
+msgid ""
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
+msgstr ""
+"Niveau de sévérité, doit être un entier entre 1 et 127. Les éléments "
+"affichés seront triés par ordre croissant. Ainsi, la sévérité la plus basse "
+"est considérée comme la priorité la plus haute."

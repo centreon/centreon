@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Shared\Domain\Collection;
@@ -56,6 +58,20 @@ final readonly class DbalTimezoneRepository extends DbalRepository implements Ti
         #[Autowire(service: TimezoneTransformer::class)]
         private TransformerInterface $transformer,
     ) {
+    }
+
+    public function findNameById(TimezoneId $id): ?TimezoneName
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('t.timezone_name')
+            ->from(self::TABLE_NAME, 't')
+            ->where($qb->expr()->eq('t.timezone_id', $qb->createNamedParameter($id->value)))
+            ->setMaxResults(1);
+
+        /** @var false|string|null $name */
+        $name = $qb->executeQuery()->fetchOne();
+
+        return $name === false || $name === null ? null : new TimezoneName($name);
     }
 
     public function findAll(?TimezoneCriteria $criteria = null): \IteratorAggregate&\Countable

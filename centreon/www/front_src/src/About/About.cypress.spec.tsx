@@ -1,5 +1,4 @@
 import {
-  platformFeaturesAtom,
   platformVersionsAtom,
   ThemeMode,
   userAtom
@@ -12,7 +11,6 @@ import { initReactI18next } from 'react-i18next';
 
 import { PlatformVersions } from '../api/models';
 import About from './About';
-import { projectLeaders } from './Sections/Credits';
 
 const platformVersion: PlatformVersions = {
   modules: {},
@@ -25,27 +23,19 @@ const platformVersion: PlatformVersions = {
   widgets: {}
 };
 
-const buildStore = (isCloudPlatform: boolean) => {
+const buildStore = () => {
   const store = createStore();
 
   store.set(platformVersionsAtom, platformVersion);
-  store.set(platformFeaturesAtom, {
-    featureFlags: {},
-    isCloudPlatform
-  });
 
   return store;
 };
 
-const mountComponent = ({
-  isCloudPlatform = false
-}: {
-  isCloudPlatform?: boolean;
-} = {}): void => {
+const mountComponent = (): void => {
   cy.viewport('ipad-mini', 'portrait');
   cy.mount({
     Component: (
-      <Provider store={buildStore(isCloudPlatform)}>
+      <Provider store={buildStore()}>
         <About />
       </Provider>
     )
@@ -69,16 +59,16 @@ describe('About page', () => {
     mountComponent();
 
     cy.contains('23.04.0').should('be.visible');
-    cy.contains('Open source edition').should('be.visible');
     cy.findByLabelText('Star centreon/centreon on GitHub').should(
       'have.attr',
       'href',
       'https://github.com/centreon/centreon'
     );
 
-    projectLeaders.forEach((leader) => {
-      cy.contains(leader).should('be.visible');
-    });
+    cy.contains('Project leaders').should('not.exist');
+    cy.contains('See the full list on GitHub')
+      .should('have.attr', 'href')
+      .and('include', 'graphs/contributors');
 
     cy.contains('Report a vulnerability')
       .should('have.attr', 'href')
@@ -88,18 +78,10 @@ describe('About page', () => {
     cy.contains('Join The Watch').should('be.visible');
     cy.contains('Open the repository').should('be.visible');
     cy.contains('Compare Edition licenses').should('be.visible');
-    cy.contains('Start free trial').should('be.visible');
-
-    cy.contains('Copyright © 2005 - 2021 Centreon').should('be.visible');
-
-    cy.makeSnapshot();
-  });
-
-  it('hides the open source edition tag and the editions upsell for Cloud platforms', () => {
-    mountComponent({ isCloudPlatform: true });
-
     cy.contains('Open source edition').should('not.exist');
     cy.contains('Start free trial').should('not.exist');
+
+    cy.contains('Copyright © 2005 - 2021 Centreon').should('be.visible');
 
     cy.makeSnapshot();
   });

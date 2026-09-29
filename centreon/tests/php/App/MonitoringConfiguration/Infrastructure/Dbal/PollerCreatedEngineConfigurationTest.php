@@ -46,9 +46,12 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class PollerCreatedEngineConfigurationTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private Connection $connection;
 
     private EventBus $eventBus;
@@ -62,6 +65,8 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
         /** @var EventBus $eventBus */
         $eventBus = self::getContainer()->get(EventBus::class);
         $this->eventBus = $eventBus;
+
+        $this->clearInstalledPlatformRows($this->connection, 'cfg_resource_instance_relations', 'cfg_resource', 'nagios_server');
 
         $this->connection->insert('nagios_server', [
             'id' => 1,

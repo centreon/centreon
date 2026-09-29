@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -31,9 +32,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -61,12 +65,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
 
-        $this->repository = new DbalResourceAccessRepository($this->connection, $realTimeConnection);
+        $this->repository = new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection));
 
         $this->connection->insert('nagios_server', ['id' => 101, 'name' => 'Poller-101', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.101', 'uid' => 200000000000101]);
         $this->connection->insert('nagios_server', ['id' => 102, 'name' => 'Poller-102', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.102', 'uid' => 200000000000102]);
         $this->connection->insert('hostgroup', ['hg_id' => 201, 'hg_name' => 'HostGroup-201']);
         $this->connection->insert('hostgroup', ['hg_id' => 202, 'hg_name' => 'HostGroup-202']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 301, 'dir_name' => 'ImageFolder-301']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 302, 'dir_name' => 'ImageFolder-302']);
     }
 
     public function testGrantResourceAccessSeedsCentreonAclForEachGivenGroup(): void
@@ -369,6 +375,192 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->findAccessibleHostGroupIds($userId));
     }
 
+    public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
+    {
+        // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
+        // ACL resource is fully restricted (fails closed), returning an empty Collection rather
+        // than the null "see all".
+        $userId = new UserId($this->createContact('user-no-acl-media'));
+
+        $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
+
+        self::assertNotNull($accessibleFolderIds);
+        self::assertCount(0, $accessibleFolderIds);
+    }
+
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
+    {
+        $contactId = $this->createContact('user-empty-resource-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: false);
+
+        $userId = new UserId($contactId);
+
+        $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
+
+        self::assertNotNull($accessibleFolderIds);
+        self::assertCount(0, $accessibleFolderIds);
+    }
+
+    public function testUserWithAclResourceFlaggedAllImageFoldersHasAccessToAllImageFolders(): void
+    {
+        $contactId = $this->createContact('user-all-folders-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: true);
+
+        $userId = new UserId($contactId);
+
+        self::assertNull($this->repository->findAccessibleImageFolderIds($userId));
+    }
+
+    public function testUserWithAclResourceRestrictedToASingleImageFolderSeesOnlyThatImageFolder(): void
+    {
+        $contactId = $this->createContact('user-single-folder-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301], allImageFolders: false);
+
+        $userId = new UserId($contactId);
+
+        $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
+        self::assertNotNull($accessibleFolderIds);
+        self::assertEquals([301], array_map(static fn (MediaDirectoryId $id): int => $id->value, iterator_to_array($accessibleFolderIds)));
+    }
+
+    /**
+     * Mirrors legacy's OR-across-resources semantics for the "all image folders" flag: a single
+     * accessible resource with the flag set grants everything, even when another accessible
+     * resource restricts to a specific folder.
+     */
+    public function testUserWithOneRestrictedAndOneAllFlagResourceHasAccessToAllImageFolders(): void
+    {
+        $contactId = $this->createContact('user-mixed-resources-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301], allImageFolders: false);
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: true);
+
+        $userId = new UserId($contactId);
+
+        self::assertNull($this->repository->findAccessibleImageFolderIds($userId));
+    }
+
+    public function testUserWithNoAclGroupHasAccessToNoContact(): void
+    {
+        $contactId = $this->createContact('no-group-contacts-' . uniqid());
+
+        $accessible = $this->repository->findAccessibleContactIds(new UserId($contactId));
+
+        // contacts are not ACL resources: there is no "all contacts" flag to fall back on, so a
+        // user belonging to no Access Group reaches nothing rather than everything
+        self::assertCount(0, $accessible);
+    }
+
+    public function testUserSeesTheContactsAttachedToItsAccessGroupDirectlyOrThroughAContactGroup(): void
+    {
+        $viewerId = $this->createContact('viewer-contacts-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+
+        $directContactId = $this->createContact('direct-' . uniqid());
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $directContactId,
+        ]);
+
+        $indirectContactId = $this->createContact('indirect-' . uniqid());
+        $contactGroupId = $this->createContactGroup('cg-' . uniqid());
+        $this->connection->insert('contactgroup_contact_relation', [
+            'contactgroup_cg_id' => $contactGroupId,
+            'contact_contact_id' => $indirectContactId,
+        ]);
+        $this->connection->insert('acl_group_contactgroups_relations', [
+            'acl_group_id' => $aclGroupId,
+            'cg_cg_id' => $contactGroupId,
+        ]);
+
+        $unrelatedContactId = $this->createContact('unrelated-' . uniqid());
+
+        // a template contact (contact_register = '0') is not a notification target, even when linked
+        $templateContactId = $this->createContact('template-' . uniqid());
+        $this->connection->update('contact', ['contact_register' => '0'], ['contact_id' => $templateContactId]);
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $templateContactId,
+        ]);
+
+        $accessibleIds = array_map(
+            static fn (NotificationContactId $id): int => $id->value,
+            $this->repository->findAccessibleContactIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertContains($directContactId, $accessibleIds);
+        self::assertContains($indirectContactId, $accessibleIds, 'A contact reached through a contact group of the Access Group counts as accessible.');
+        self::assertNotContains($unrelatedContactId, $accessibleIds);
+        self::assertNotContains($templateContactId, $accessibleIds);
+    }
+
+    public function testUserAlwaysSeesTheContactGroupsItBelongsTo(): void
+    {
+        $viewerId = $this->createContact('viewer-cg-' . uniqid());
+        $ownContactGroupId = $this->createContactGroup('own-cg-' . uniqid());
+        $this->connection->insert('contactgroup_contact_relation', [
+            'contactgroup_cg_id' => $ownContactGroupId,
+            'contact_contact_id' => $viewerId,
+        ]);
+
+        // no Access Group at all: own membership is the only path, and it must still apply
+        $accessibleIds = array_map(
+            static fn (ContactGroupId $id): int => $id->value,
+            $this->repository->findAccessibleContactGroupIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertSame([$ownContactGroupId], $accessibleIds);
+    }
+
+    public function testUserSeesTheContactGroupsGrantedByItsAccessGroup(): void
+    {
+        $viewerId = $this->createContact('viewer-granted-cg-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+
+        $grantedContactGroupId = $this->createContactGroup('granted-cg-' . uniqid());
+        $this->connection->insert('acl_group_contactgroups_relations', [
+            'acl_group_id' => $aclGroupId,
+            'cg_cg_id' => $grantedContactGroupId,
+        ]);
+        $this->createContactGroup('unrelated-cg-' . uniqid());
+
+        $accessibleIds = array_map(
+            static fn (ContactGroupId $id): int => $id->value,
+            $this->repository->findAccessibleContactGroupIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertSame([$grantedContactGroupId], $accessibleIds);
+    }
+
+    private function createAccessGroupForContact(int $contactId): int
+    {
+        $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => $name,
+            'acl_group_alias' => $name,
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        return $aclGroupId;
+    }
+
+    private function createContactGroup(string $name): int
+    {
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     private function buildHost(int $id): Host
     {
         $host = new Host(
@@ -531,6 +723,45 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             $this->connection->insert('acl_resources_hg_relations', [
                 'acl_res_id' => $aclResId,
                 'hg_hg_id' => $hostGroupId,
+            ]);
+        }
+    }
+
+    /**
+     * @param list<int> $restrictToImageFolderIds image folders explicitly granted through this
+     *                                            resource's relations; irrelevant once $allImageFolders is true
+     */
+    private function linkContactToAclResourceForImageFolders(int $contactId, array $restrictToImageFolderIds, bool $allImageFolders): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_alias' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'resource-' . $aclGroupId,
+            'acl_res_alias' => 'resource-' . $aclGroupId,
+            'acl_res_activate' => '1',
+            'all_image_folders' => $allImageFolders ? '1' : '0',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToImageFolderIds as $imageFolderId) {
+            $this->connection->insert('acl_resources_image_folder_relations', [
+                'acl_res_id' => $aclResId,
+                'dir_id' => $imageFolderId,
             ]);
         }
     }

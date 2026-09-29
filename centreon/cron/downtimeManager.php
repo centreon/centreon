@@ -26,6 +26,8 @@ require_once realpath(__DIR__ . '/../config/centreon.config.php');
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonDowntime.Broker.class.php';
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 $unix_time = time();
 
 $ext_cmd_add['host'] = ['[%u] SCHEDULE_HOST_DOWNTIME;%s;%u;%u;%u;0;%u;Downtime cycle;[Downtime cycle #%u]', '[%u] SCHEDULE_HOST_SVC_DOWNTIME;%s;%u;%u;%u;0;%u;Downtime cycle;[Downtime cycle #%u]'];

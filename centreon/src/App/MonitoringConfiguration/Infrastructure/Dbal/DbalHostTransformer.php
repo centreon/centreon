@@ -23,41 +23,55 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\TriStateColumnTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalHostRepository
+ * @phpstan-import-type FindOneRowTypeAlias from DbalHostRepository
  *
- * @implements TransformerInterface<RowTypeAlias, Host>
+ * @implements TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, Host>
  */
 final readonly class DbalHostTransformer implements TransformerInterface
 {
+    use TriStateColumnTrait;
+
+    /**
+     * `findAll()`'s row carries only: id, name, alias, ip_address, is_activated, poller_id,
+     * template_ids, group_ids, icon_id. Every other key exists only on `findOne()`'s row, so each
+     * is read defensively (isset / array_key_exists / ??) below.
+     */
     public function transform(mixed $from): Host
     {
-        $templateIds = [];
-        if ($from['template_ids'] !== null && $from['template_ids'] !== '') {
-            foreach (explode(',', $from['template_ids']) as $templateId) {
-                $templateIds[] = new HostTemplateId((int) $templateId);
-            }
-        }
-
-        $groupIds = [];
-        if ($from['group_ids'] !== null && $from['group_ids'] !== '') {
-            foreach (explode(',', $from['group_ids']) as $groupId) {
-                $groupIds[] = new HostGroupId((int) $groupId);
-            }
-        }
-
         $alias = $from['alias'] !== null ? trim($from['alias']) : '';
+        $snmpVersion = $this->nullIfEmpty($from['snmp_version'] ?? null);
+        $snmpCommunity = $this->nullIfEmpty($from['snmp_community'] ?? null);
 
         return new Host(
             id: new HostId((int) $from['id']),
@@ -66,8 +80,153 @@ final readonly class DbalHostTransformer implements TransformerInterface
             address: new HostAddress($from['ip_address']),
             activated: $from['is_activated'] === '1',
             pollerId: new PollerId((int) $from['poller_id']),
-            templateIds: new Collection($templateIds, HostTemplateId::class),
-            hostGroupIds: new Collection($groupIds, HostGroupId::class),
+            templateIds: new Collection($from['template_ids'] !== null ? $this->parseIdList($from['template_ids'], HostTemplateId::class) : [], HostTemplateId::class),
+            hostGroupIds: new Collection($from['group_ids'] !== null ? $this->parseIdList($from['group_ids'], HostGroupId::class) : [], HostGroupId::class),
+            // The remaining fields are only present on the row `findOne()` builds — a listing row
+            // (`RowTypeAlias`) carries none of these keys, and Host's own defaults (empty
+            // collections, null, an empty CheckOptions/SchedulingOptions/DataProcessing) apply.
+            // `findAll()` stays a deliberately partial read (see `Host::$checkOptions` docblock).
+            categoryIds: new Collection(($from['category_ids'] ?? null) !== null ? $this->parseIdList($from['category_ids'], HostCategoryId::class) : [], HostCategoryId::class),
+            parentHostIds: new Collection(($from['parent_host_ids'] ?? null) !== null ? $this->parseIdList($from['parent_host_ids'], HostId::class) : [], HostId::class),
+            childHostIds: new Collection(($from['child_host_ids'] ?? null) !== null ? $this->parseIdList($from['child_host_ids'], HostId::class) : [], HostId::class),
+            snmpVersion: $snmpVersion !== null ? SnmpVersionEnum::from($snmpVersion) : null,
+            snmpCommunity: $snmpCommunity !== null ? new SnmpCommunity($snmpCommunity) : null,
+            // `host_location` (timezone_id) has no NULL default, unlike every other optional
+            // column here — it's '0' until a timezone is actually picked, so 0 means unset too.
+            timezoneId: isset($from['timezone_id']) && (int) $from['timezone_id'] > 0
+                ? new TimezoneId((int) $from['timezone_id'])
+                : null,
+            severityId: isset($from['severity_id']) ? new HostSeverityId((int) $from['severity_id']) : null,
+            extendedInformations: $this->buildExtendedInformations($from),
+            schedulingOptions: $this->buildSchedulingOptions($from),
+            dataProcessing: $this->buildDataProcessing($from),
+            checkOptions: $this->buildCheckOptions($from),
+        );
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param class-string<T> $class
+     *
+     * @return list<T>
+     */
+    private function parseIdList(string $commaSeparated, string $class): array
+    {
+        if ($commaSeparated === '') {
+            return [];
+        }
+
+        return array_map(
+            static fn (string $id): object => new $class((int) $id),
+            explode(',', $commaSeparated),
+        );
+    }
+
+    /**
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
+     */
+    private function buildExtendedInformations(array $from): ExtendedInformations
+    {
+        $geoCoords = $this->nullIfEmpty($from['geo_coords'] ?? null);
+
+        return new ExtendedInformations(
+            noteUrl: $this->nullIfEmpty($from['note_url'] ?? null),
+            note: $this->nullIfEmpty($from['note'] ?? null),
+            actionUrl: $this->nullIfEmpty($from['action_url'] ?? null),
+            iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
+            altIcon: $this->nullIfEmpty($from['alt_icon'] ?? null),
+            comment: $this->nullIfEmpty($from['comment'] ?? null),
+            geoCoordinates: $geoCoords !== null ? GeoCoordinates::fromString($geoCoords) : null,
+        );
+    }
+
+    /**
+     * Every CLAPI `setparam` field lands in its column as-is, with no NULL coercion — clearing a
+     * field via `sethostparam "host;<field>;"` writes `''`, not `NULL`. Each of these columns
+     * feeds a value object with a minimum length of 1, so an unguarded `''` throws on a host that
+     * legitimately had the field cleared this way. Treat `''` the same as `NULL`: absent.
+     */
+    private function nullIfEmpty(?string $value): ?string
+    {
+        return ($value ?? '') !== '' ? $value : null;
+    }
+
+    /**
+     * Only present on `findOne()`'s row; `findAll()`'s row carries none of these columns.
+     *
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
+     */
+    private function buildSchedulingOptions(array $from): SchedulingOptions
+    {
+        if (! array_key_exists('check_timeperiod_id', $from)) {
+            return new SchedulingOptions();
+        }
+
+        return new SchedulingOptions(
+            checkTimeperiodId: $from['check_timeperiod_id'] !== null ? new TimePeriodId((int) $from['check_timeperiod_id']) : null,
+            maxCheckAttempts: $from['max_check_attempts'] !== null ? (int) $from['max_check_attempts'] : null,
+            normalCheckInterval: $from['normal_check_interval'] !== null ? (int) $from['normal_check_interval'] : null,
+            retryCheckInterval: $from['retry_check_interval'] !== null ? (int) $from['retry_check_interval'] : null,
+            activeCheckEnabled: $this->columnToTriState($from['active_check_enabled']),
+            passiveCheckEnabled: $this->columnToTriState($from['passive_check_enabled']),
+        );
+    }
+
+    /**
+     * Only present on `findOne()`'s row; `findAll()`'s row carries none of these columns.
+     *
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
+     */
+    private function buildDataProcessing(array $from): DataProcessing
+    {
+        if (! array_key_exists('acknowledgement_timeout', $from)) {
+            return new DataProcessing();
+        }
+
+        return new DataProcessing(
+            checkFreshness: $this->columnToTriState($from['check_freshness']),
+            flapDetectionEnabled: $this->columnToTriState($from['flap_detection_enabled']),
+            eventHandlerEnabled: $this->columnToTriState($from['event_handler_enabled']),
+            acknowledgmentTimeout: $from['acknowledgement_timeout'] !== null ? (int) $from['acknowledgement_timeout'] : null,
+            freshnessThreshold: $from['freshness_threshold'] !== null ? (int) $from['freshness_threshold'] : null,
+            lowFlapThreshold: $from['low_flap_threshold'] !== null ? (int) $from['low_flap_threshold'] : null,
+            highFlapThreshold: $from['high_flap_threshold'] !== null ? (int) $from['high_flap_threshold'] : null,
+            eventHandlerCommandId: $from['event_handler_command_id'] !== null ? new CommandId((int) $from['event_handler_command_id']) : null,
+            eventHandlerArgs: CommandArgumentsFormatter::parse($from['event_handler_args'] ?? null),
+        );
+    }
+
+    /**
+     * `args`/`macros` default to empty for `findAll()`'s row, same as `checkCommandId` to null —
+     * no presence gate needed here, unlike scheduling/data processing: every sub-value already
+     * degrades to its own empty/null default via `??`/`isset()`.
+     *
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
+     */
+    private function buildCheckOptions(array $from): CheckOptions
+    {
+        return new CheckOptions(
+            checkCommandId: isset($from['check_command_id']) ? new CommandId((int) $from['check_command_id']) : null,
+            args: CommandArgumentsFormatter::parse($from['check_command_args'] ?? null),
+            macros: array_map($this->createMacro(...), $from['macros'] ?? []),
+        );
+    }
+
+    /**
+     * @param array{name: string, value: string, is_password: string|int, description: string|null} $row
+     */
+    private function createMacro(array $row): HostMacro
+    {
+        // Stored as the full engine form ($_HOST<NAME>$, see HostMacroName::toStorageName()); strip
+        // the '$_HOST' prefix and trailing '$' to get back the short name the VO's constructor expects.
+        $shortName = mb_substr($row['name'], 6, -1);
+
+        return new HostMacro(
+            name: new HostMacroName($shortName),
+            value: $row['value'],
+            isPassword: (bool) $row['is_password'],
+            description: $row['description'],
         );
     }
 }

@@ -23,18 +23,23 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -46,6 +51,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         private Connection $connection,
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
         private Connection $realTimeConnection,
+        private AccessGroupRepository $accessGroupRepository,
     ) {
     }
 
@@ -299,6 +305,167 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows),
             HostGroupId::class,
         );
+    }
+
+    public function findAccessibleImageFolderIds(UserId $userId): ?Collection
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Unlike pollers, image folders carry an explicit "all image folders" flag on the ACL
+        // resource itself (acl_resources.all_image_folders). A resource simply carrying no
+        // image-folder relation row is NOT the same thing as this flag — it means that resource
+        // grants zero folders, not every folder. Legacy (DbReadImageFolderRepository::
+        // hasAccessToAllImageFolders()) only treats the user as unrestricted when at least one
+        // accessible resource has the flag set.
+        $allImageFoldersQb = $this->connection->createQueryBuilder();
+        $allImageFoldersQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_image_folders = '1'")
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($allImageFoldersQb->getSQL(), ['contactId' => $userId->value]) !== false) {
+            return null;
+        }
+
+        // No "all image folders" flag anywhere: the accessible set is the union of image-folder
+        // relations across every accessible resource (legacy findByRequestParametersAndAccessGroups()).
+        // This is naturally empty — not "everything" — for a user with no accessible resource at
+        // all, or whose accessible resources carry no image-folder relation.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arifr.dir_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_image_folder_relations', 'arifr', 'arifr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{dir_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return new Collection(
+            array_map(static fn (array $row): MediaDirectoryId => new MediaDirectoryId((int) $row['dir_id']), $rows),
+            MediaDirectoryId::class,
+        );
+    }
+
+    public function findAccessibleContactIds(UserId $userId): Collection
+    {
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+        if ($accessGroupIds === []) {
+            return new Collection([], NotificationContactId::class);
+        }
+
+        // Two bounded queries unioned in PHP rather than one query with an OR across both join
+        // paths: the OR variant multiplies the two relation tables together for contacts matching
+        // both, which the DISTINCT then has to collapse.
+        $contactIds = array_unique([
+            ...$this->findContactIdsDirectlyLinkedToAccessGroups($accessGroupIds),
+            ...$this->findContactIdsLinkedViaContactGroupToAccessGroups($accessGroupIds),
+        ]);
+
+        return new Collection(
+            array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), array_values($contactIds)),
+            NotificationContactId::class,
+        );
+    }
+
+    public function findAccessibleContactGroupIds(UserId $userId): Collection
+    {
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+
+        $contactGroupIds = [];
+        if ($accessGroupIds !== []) {
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('DISTINCT gcgr.cg_cg_id AS id')
+                ->from('acl_group_contactgroups_relations', 'gcgr')
+                ->where($qb->expr()->in(
+                    'gcgr.acl_group_id',
+                    $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)
+                ));
+
+            /** @var list<array{id: int|string}> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+            foreach ($rows as $row) {
+                $contactGroupIds[] = (int) $row['id'];
+            }
+        }
+
+        // A user always reaches the contact groups they are themselves a member of, even when no
+        // Access Group grants them any.
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT ccr.contactgroup_cg_id AS id')
+            ->from('contactgroup_contact_relation', 'ccr')
+            ->innerJoin('ccr', 'contact', 'c', 'c.contact_id = ccr.contact_contact_id')
+            ->where('ccr.contact_contact_id = :userId')
+            ->andWhere($qb->expr()->eq('c.contact_register', $qb->createNamedParameter('1')))
+            ->setParameter('userId', $userId->value);
+
+        /** @var list<array{id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+        foreach ($rows as $row) {
+            $contactGroupIds[] = (int) $row['id'];
+        }
+
+        return new Collection(
+            array_map(
+                static fn (int $id): ContactGroupId => new ContactGroupId($id),
+                array_values(array_unique($contactGroupIds)),
+            ),
+            ContactGroupId::class,
+        );
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function findActiveAccessGroupIdValues(UserId $userId): array
+    {
+        return array_values(array_map(
+            static fn (AccessGroupId $id): int => $id->value,
+            iterator_to_array($this->accessGroupRepository->findActiveGroupIdsForUser($userId)),
+        ));
+    }
+
+    /**
+     * @param list<int> $accessGroupIds
+     *
+     * @return list<int>
+     */
+    private function findContactIdsDirectlyLinkedToAccessGroups(array $accessGroupIds): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT c.contact_id')
+            ->from('contact', 'c')
+            ->innerJoin('c', 'acl_group_contacts_relations', 'agcr', 'agcr.contact_contact_id = c.contact_id')
+            ->where("c.contact_register = '1'")
+            ->andWhere($qb->expr()->in('agcr.acl_group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{contact_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
+    }
+
+    /**
+     * @param list<int> $accessGroupIds
+     *
+     * @return list<int>
+     */
+    private function findContactIdsLinkedViaContactGroupToAccessGroups(array $accessGroupIds): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT c.contact_id')
+            ->from('contact', 'c')
+            ->innerJoin('c', 'contactgroup_contact_relation', 'ccr', 'ccr.contact_contact_id = c.contact_id')
+            ->innerJoin('ccr', 'acl_group_contactgroups_relations', 'agccgr', 'agccgr.cg_cg_id = ccr.contactgroup_cg_id')
+            ->where("c.contact_register = '1'")
+            ->andWhere($qb->expr()->in('agccgr.acl_group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{contact_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return array_map(static fn (array $row): int => (int) $row['contact_id'], $rows);
     }
 
     private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder

@@ -23,7 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Double;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -39,10 +44,31 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var ?Collection<HostGroupId> null means unrestricted, matching the real contract */
     public ?Collection $accessibleHostGroupIds = null;
 
+    /** @var ?Collection<MediaDirectoryId> null means unrestricted, matching the real contract */
+    public ?Collection $accessibleImageFolderIds = null;
+
+    /** @var ?Collection<HostCategoryId> null means unrestricted, matching the real contract */
+    public ?Collection $accessibleHostCategoryIds = null;
+
+    /** @var ?Collection<HostSeverityId> null means unrestricted, matching the real contract */
+    public ?Collection $accessibleHostSeverityIds = null;
+
+    /** @var Collection<NotificationContactId> unlike the nullable ones, contacts have no "unrestricted" case */
+    public Collection $accessibleContactIds;
+
+    /** @var Collection<ContactGroupId> unlike the nullable ones, contact groups have no "unrestricted" case */
+    public Collection $accessibleContactGroupIds;
+
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
     public bool $allResourcesFlaggedAsChanged = false;
+
+    public function __construct()
+    {
+        $this->accessibleContactIds = new Collection([], NotificationContactId::class);
+        $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
+    }
 
     public function hasAccessToAllPollers(UserId $userId): bool
     {
@@ -56,12 +82,12 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findAccessibleHostSeverityIds(UserId $userId): ?Collection
     {
-        return null;
+        return $this->accessibleHostSeverityIds;
     }
 
     public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
     {
-        return null;
+        return $this->accessibleHostCategoryIds;
     }
 
     public function findAccessiblePollerIds(UserId $userId): ?Collection
@@ -72,6 +98,21 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     public function findAccessibleHostGroupIds(UserId $userId): ?Collection
     {
         return $this->accessibleHostGroupIds;
+    }
+
+    public function findAccessibleContactIds(UserId $userId): Collection
+    {
+        return $this->accessibleContactIds;
+    }
+
+    public function findAccessibleContactGroupIds(UserId $userId): Collection
+    {
+        return $this->accessibleContactGroupIds;
+    }
+
+    public function findAccessibleImageFolderIds(UserId $userId): ?Collection
+    {
+        return $this->accessibleImageFolderIds;
     }
 
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
