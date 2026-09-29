@@ -20,7 +20,7 @@ const Row = ({
         withTopDivider ? 'border-t border-divider' : ''
       }`}
     >
-      <p className="text-base leading-tight font-medium text-section-title">
+      <p className="text-base leading-tight font-medium text-text-primary">
         {t(label)}
       </p>
       <div>{children}</div>
