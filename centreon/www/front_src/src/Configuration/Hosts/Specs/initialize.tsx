@@ -40,6 +40,9 @@ const initialize = ({
     resources: {}
   });
 
+  // The form is URL-driven and Cypress does not reload between tests.
+  window.history.pushState({}, '', window.location.pathname);
+
   const store = createStore();
 
   store.set(userPermissionsAtom, {

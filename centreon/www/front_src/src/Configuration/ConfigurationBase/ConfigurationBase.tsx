@@ -24,7 +24,9 @@ const Base = <TFilters,>({
   filtersAtomKey,
   isWelcomePageDisplayedAtom,
   navbar,
-  filtersPanelWidth
+  filtersPanelWidth,
+  formVariant,
+  formPanelWidth
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -80,6 +82,8 @@ const Base = <TFilters,>({
       filtersAtom={filtersAtom}
       filtersAtomKey={filtersAtomKey}
       form={form}
+      formPanelWidth={formPanelWidth}
+      formVariant={formVariant}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={labels}
       navbar={navbar}
