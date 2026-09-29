@@ -35,7 +35,7 @@ const ResourcesGrid = (): ReactElement => {
 
   return (
     <div className="border-t border-divider pt-3">
-      <p className="mb-2 font-medium text-section-title">
+      <p className="mb-2 font-medium text-text-primary">
         {t(labelGetMoreFromCentreon)}
       </p>
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
