@@ -14,6 +14,7 @@ import {
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
+  monitoringServersEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
 import {
@@ -47,6 +48,20 @@ const initialize = ({
 
   store.set(userPermissionsAtom, {
     configuration_host_write: hasWriteAccess
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getMonitoringServers',
+    method: Method.GET,
+    path: `**${monitoringServersEndpoint}?**`,
+    response: getPollersResponse({ apiPlatform: false })
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'createHost',
+    method: Method.POST,
+    path: `**${hostsListEndpoint}`,
+    response: { id: 12, name: 'new host' }
   });
 
   cy.interceptAPIRequest({

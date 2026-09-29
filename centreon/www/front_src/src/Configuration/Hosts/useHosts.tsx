@@ -28,15 +28,34 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
+// The create endpoint is API Platform, so the payload is snake_case. The form
+// holds the poller as the option the autocomplete selected; the API wants its
+// id alone.
+const adaptFormToApiPayload = (data: unknown) => {
+  const { name, address, poller } = data as {
+    address: string;
+    name: string;
+    poller: { id: number } | null;
+  };
+
+  return {
+    address,
+    name,
+    poller_id: poller?.id
+  };
+};
+
 const api: APIType = {
   // This endpoint takes `activate`, not the `is_activated` of the older
   // migrated listings.
   activationField: 'activate',
+  adapter: adaptFormToApiPayload,
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
   decoders: { getAll: hostsListDecoder },
   // Every write names one host, so a selection becomes one request per row.
   endpoints: {
+    create: hostsListEndpoint,
     deleteOne: getHostEndpoint,
     disable: getHostEndpoint,
     duplicate: getDuplicateHostEndpoint,
