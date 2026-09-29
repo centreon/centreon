@@ -21,13 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-final readonly class HostTimePeriodOutput
+use Symfony\Component\Validator\Constraint;
+
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class AccessibleContactGroups extends Constraint
 {
-    public function __construct(
-        public int $id,
-        public string $name,
-    ) {
-    }
+    public string $message = 'One or more contact groups do not exist or are not accessible.';
 }

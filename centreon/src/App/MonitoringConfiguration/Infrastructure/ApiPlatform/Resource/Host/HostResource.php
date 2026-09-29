@@ -31,6 +31,7 @@ use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 
@@ -39,8 +40,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
     operations: [
         new Post(
             uriTemplate: '/configuration/hosts',
-            processor: CreateHostProcessor::class,
-            input: CreateHostInput::class,
             openapi: new Model\Operation(
                 responses: [
                     404 => new Model\Response('Poller or host group not found'),
@@ -50,11 +49,11 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to create hosts',
+            input: CreateHostInput::class,
+            processor: CreateHostProcessor::class,
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',
-            provider: ListHostsProvider::class,
-            output: HostCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -98,12 +97,14 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
                 is_granted("' . HostPermissionEnum::CanRead->value . '") or
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list hosts',
+            output: HostCollectionOutput::class,
+            provider: ListHostsProvider::class,
         ),
     ],
 )]
 final class HostResource
 {
-    public HostPollerOutput $poller;
+    public PollerChoicesOutput $poller;
 
     /** @var list<HostTemplateOutput> */
     public array $templates;
@@ -131,6 +132,8 @@ final class HostResource
     public HostSchedulingOptionsOutput $schedulingOptions;
 
     public HostCheckOptionsOutput $checkOptions;
+
+    public ?HostNotificationsOutput $notifications = null;
 
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]

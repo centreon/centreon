@@ -24,10 +24,23 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContact;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
+use App\Shared\Domain\Collection;
 
 interface NotificationContactRepository
 {
+    /**
+     * Every requested id's name, for bulk display purposes and existence checks. An id
+     * absent from the result no longer exists.
+     *
+     * @param Collection<NotificationContactId> $ids
+     *
+     * @return Collection<NotificationContactName> indexed by notification contact id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
     /**
      * @return \IteratorAggregate<int, NotificationContact>&\Countable
      */

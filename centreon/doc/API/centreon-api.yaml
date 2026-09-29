@@ -10863,7 +10863,7 @@ components:
       type: object
       properties:
         poller:
-          $ref: '#/components/schemas/HostPollerOutput'
+          $ref: '#/components/schemas/PollerChoicesOutput'
         templates:
           type: array
           items:
@@ -10893,7 +10893,7 @@ components:
           type: object
           properties:
             poller:
-              $ref: '#/components/schemas/HostPollerOutput.jsonld'
+              $ref: '#/components/schemas/PollerChoicesOutput.jsonld'
             templates:
               type: array
               items:
@@ -10948,7 +10948,7 @@ components:
       type: object
       properties:
         poller:
-          $ref: '#/components/schemas/HostPollerOutput'
+          $ref: '#/components/schemas/PollerChoicesOutput'
         templates:
           type: array
           items:
@@ -10957,10 +10957,46 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HostGroupOutput'
-        icon:
+        data_processing:
+          $ref: '#/components/schemas/DataProcessingOutput'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostCategoryOutput'
+        parent_hosts:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedHostOutput'
+        child_hosts:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelatedHostOutput'
+        timezone:
           anyOf:
             -
-              $ref: '#/components/schemas/HostIconOutput'
+              $ref: '#/components/schemas/HostTimezoneOutput'
+            -
+              type: 'null'
+        severity:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostSeverityOutput'
+            -
+              type: 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostExtendedInformationsOutput'
+            -
+              type: 'null'
+        scheduling_options:
+          $ref: '#/components/schemas/HostSchedulingOptionsOutput'
+        check_options:
+          $ref: '#/components/schemas/HostCheckOptionsOutput'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostNotificationsOutput'
             -
               type: 'null'
         id:
@@ -10975,6 +11011,15 @@ components:
           type: string
         activated:
           type: boolean
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
     Host.CreateHostInput:
       type: object
       required:
@@ -11000,6 +11045,91 @@ components:
           type: array
           items:
             type: integer
+        alias:
+          maxLength: 200
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only. Stored in the vault when one is configured, and never returned.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        template_ids:
+          description: 'Ordered: the position of a template drives the inheritance order.'
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        parent_host_ids:
+          type: array
+          items:
+            type: integer
+        child_host_ids:
+          type: array
+          items:
+            type: integer
+        data_processing:
+          anyOf:
+            -
+              $ref: '#/components/schemas/DataProcessingInput'
+            -
+              type: 'null'
+        create_services_linked_to_templates:
+          description: 'Not available on a Cloud platform, where linked services are always created. Defaults to true.'
+          type:
+            - boolean
+            - 'null'
+        extended_informations:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            -
+              type: 'null'
+        scheduling_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            -
+              type: 'null'
+        check_options:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CheckOptionsInput'
+            -
+              type: 'null'
+        notifications:
+          anyOf:
+            -
+              $ref: '#/components/schemas/CreateHostNotificationsInput'
+            -
+              type: 'null'
     Host.jsonld:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -11007,7 +11137,7 @@ components:
           type: object
           properties:
             poller:
-              $ref: '#/components/schemas/HostPollerOutput.jsonld'
+              $ref: '#/components/schemas/PollerChoicesOutput.jsonld'
             templates:
               type: array
               items:
@@ -11016,10 +11146,46 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/HostGroupOutput.jsonld'
-            icon:
+            data_processing:
+              $ref: '#/components/schemas/DataProcessingOutput.jsonld'
+            categories:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostCategoryOutput.jsonld'
+            parent_hosts:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedHostOutput.jsonld'
+            child_hosts:
+              type: array
+              items:
+                $ref: '#/components/schemas/RelatedHostOutput.jsonld'
+            timezone:
               anyOf:
                 -
-                  $ref: '#/components/schemas/HostIconOutput.jsonld'
+                  $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
+                -
+                  type: 'null'
+            severity:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostSeverityOutput.jsonld'
+                -
+                  type: 'null'
+            extended_informations:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostExtendedInformationsOutput.jsonld'
+                -
+                  type: 'null'
+            scheduling_options:
+              $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
+            check_options:
+              $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
+            notifications:
+              anyOf:
+                -
+                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
                 -
                   type: 'null'
             id:
@@ -11034,6 +11200,15 @@ components:
               type: string
             activated:
               type: boolean
+            snmp_version:
+              type:
+                - string
+                - 'null'
+              enum:
+                - '1'
+                - 2c
+                - '3'
+                - null
     HostGroupOutput:
       type: object
       properties:
@@ -11148,6 +11323,782 @@ components:
         name:
           type: string
     HostSeverity.HostSeverityCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    CheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'the check command to run, null when none is set'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments; only meaningful with a command'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroInput'
+    CreateHostExtendedInformationsInput:
+      type: object
+      properties:
+        note_url:
+          minLength: 1
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        note:
+          minLength: 1
+          maxLength: 512
+          type:
+            - string
+            - 'null'
+        action_url:
+          minLength: 1
+          maxLength: 2048
+          type:
+            - string
+            - 'null'
+        icon_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alt_icon:
+          minLength: 1
+          maxLength: 200
+          type:
+            - string
+            - 'null'
+        comment:
+          minLength: 1
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    CreateHostNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'Whether notifications are enabled; "use_default" leaves the directive to the template chain.'
+          type: string
+        contacts:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          type: array
+          items:
+            type: integer
+        options:
+          description: 'State transitions triggering a notification. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+    CreateHostSchedulingOptionsInput:
+      type: object
+      properties:
+        check_timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        max_check_attempts:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          minimum: 1
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+    DataProcessingInput:
+      type: object
+      properties:
+        check_freshness:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        freshness_threshold:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        event_handler_command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        acknowledgment_timeout:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          minimum: 0
+          maximum: 100
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    DataProcessingOutput:
+      type: object
+      properties:
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostEventHandlerCommandOutput'
+            -
+              type: 'null'
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    DataProcessingOutput.jsonld:
+      type: object
+      properties:
+        check_freshness:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        freshness_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        event_handler:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostEventHandlerCommandOutput.jsonld'
+            -
+              type: 'null'
+        acknowledgment_timeout:
+          type:
+            - integer
+            - 'null'
+        flap_detection_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        low_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        high_flap_threshold:
+          type:
+            - integer
+            - 'null'
+        event_handler_args:
+          type: array
+          items:
+            type: string
+    HostCategoryOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCategoryOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCheckCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCheckCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCheckOptionsOutput:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostCheckCommandOutput'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments (empty when no command is set)'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroOutput'
+    HostCheckOptionsOutput.jsonld:
+      type: object
+      properties:
+        command:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
+            -
+              type: 'null'
+        args:
+          description: 'ordered check-command arguments (empty when no command is set)'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroOutput.jsonld'
+    HostEventHandlerCommandOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostEventHandlerCommandOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostExtendedInformationsOutput:
+      type: object
+      properties:
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    HostExtendedInformationsOutput.jsonld:
+      type: object
+      properties:
+        note_url:
+          type:
+            - string
+            - 'null'
+        note:
+          type:
+            - string
+            - 'null'
+        action_url:
+          type:
+            - string
+            - 'null'
+        icon:
+          anyOf:
+            -
+              $ref: '#/components/schemas/HostIconOutput.jsonld'
+            -
+              type: 'null'
+        alt_icon:
+          type:
+            - string
+            - 'null'
+        comment:
+          type:
+            - string
+            - 'null'
+        geo_coordinates:
+          type:
+            - string
+            - 'null'
+    HostMacroInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          maxLength: 248
+          type: string
+        value:
+          maxLength: 4096
+          type: string
+        is_password:
+          type: boolean
+        description:
+          maxLength: 65535
+          type:
+            - string
+            - 'null'
+    HostMacroOutput:
+      type: object
+      properties:
+        name:
+          description: 'the short macro name (upper-cased), without the $_HOST…$ wrapper'
+          type: string
+        value:
+          description: |-
+            always null for a password macro, whose secret is never echoed back;
+            the null is then dropped from the payload by skip_null_values
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        description:
+          type:
+            - string
+            - 'null'
+    HostMacroOutput.jsonld:
+      type: object
+      properties:
+        name:
+          description: 'the short macro name (upper-cased), without the $_HOST…$ wrapper'
+          type: string
+        value:
+          description: |-
+            always null for a password macro, whose secret is never echoed back;
+            the null is then dropped from the payload by skip_null_values
+          type:
+            - string
+            - 'null'
+        is_password:
+          type: boolean
+        description:
+          type:
+            - string
+            - 'null'
+    HostNotificationsOutput:
+      type: object
+      properties:
+        enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationContact'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactGroup'
+        options:
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        interval:
+          type:
+            - integer
+            - 'null'
+        timeperiod:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+    HostNotificationsOutput.jsonld:
+      type: object
+      properties:
+        enabled:
+          type: string
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationContact.jsonld'
+        contact_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactGroup.jsonld'
+        options:
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        interval:
+          type:
+            - integer
+            - 'null'
+        timeperiod:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
+        first_delay:
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          type: boolean
+        contact_group_additive_inheritance:
+          type: boolean
+    HostSchedulingOptionsOutput:
+      type: object
+      properties:
+        check_period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod'
+            -
+              type: 'null'
+        max_check_attempts:
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+    HostSchedulingOptionsOutput.jsonld:
+      type: object
+      properties:
+        check_period:
+          anyOf:
+            -
+              $ref: '#/components/schemas/TimePeriod.jsonld'
+            -
+              type: 'null'
+        max_check_attempts:
+          type:
+            - integer
+            - 'null'
+        normal_check_interval:
+          type:
+            - integer
+            - 'null'
+        retry_check_interval:
+          type:
+            - integer
+            - 'null'
+        active_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+        passive_check_enabled:
+          type:
+            - string
+            - 'null'
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+            - null
+    HostSeverityOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostSeverityOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostTimezoneOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostTimezoneOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    PollerChoicesOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    PollerChoicesOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    RelatedHostOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    RelatedHostOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    TimePeriod:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    TimePeriod.jsonld:
       allOf:
         -
           $ref: '#/components/schemas/HydraItemBaseSchema'

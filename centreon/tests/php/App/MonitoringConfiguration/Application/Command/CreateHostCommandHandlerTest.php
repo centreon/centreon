@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -39,6 +40,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
@@ -52,6 +54,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -86,12 +89,14 @@ use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
+use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Vault\VaultPathEnum;
@@ -104,6 +109,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeInheritedHostMacroRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
@@ -125,6 +131,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     private FakeInheritedHostMacroRepository $inheritedHostMacroRepository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
+
+    private FakeOptionRepository $optionRepository;
 
     private FakeVault $vault;
 
@@ -154,6 +162,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->commandRepository = new FakeCommandRepository();
         $this->inheritedHostMacroRepository = new FakeInheritedHostMacroRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->optionRepository = new FakeOptionRepository();
         $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
         $this->hostCategoryRepository = new FakeHostCategoryRepository();
@@ -168,6 +177,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $container->set(CommandRepository::class, $this->commandRepository);
         $container->set(InheritedHostMacroRepository::class, $this->inheritedHostMacroRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
+        $container->set(OptionRepository::class, $this->optionRepository);
         $container->set(VaultInterface::class, $this->vault);
         // Rebuild the writer on the fake vault so vaulting is driven by the test's FakeVault.
         $container->set(VaultCredentialWriter::class, new VaultCredentialWriter($this->vault));
@@ -799,6 +809,74 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
+    /**
+     * Legacy drops the additive-inheritance flags whenever the platform option is off, which is
+     * the shipped default: honouring them regardless would change the generated configuration of
+     * every host created through the API on such a platform.
+     */
+    public function testItForcesTheAdditiveInheritanceFlagsOffWhenTheOptionIsDisabled(): void
+    {
+        // '3' is what a fresh install ships: anything but '1' means additive inheritance is off
+        $this->optionRepository->options['inheritance_mode'] = '3';
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertFalse($host->notifications->contactAdditiveInheritance);
+        self::assertFalse($host->notifications->contactGroupAdditiveInheritance);
+        // everything else must survive the rebuild
+        self::assertSame(TriStateEnum::True, $host->notifications->enabled);
+        self::assertCount(1, $host->notifications->contactIds);
+    }
+
+    public function testItKeepsTheAdditiveInheritanceFlagsWhenTheOptionIsEnabled(): void
+    {
+        $this->optionRepository->options['inheritance_mode'] = '1';
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertTrue($host->notifications->contactAdditiveInheritance);
+        self::assertTrue($host->notifications->contactGroupAdditiveInheritance);
+    }
+
+    /**
+     * A platform without the `inheritance_mode` row reads as disabled, like legacy's own fallback.
+     */
+    public function testItForcesTheAdditiveInheritanceFlagsOffWhenTheOptionIsMissing(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertFalse($host->notifications->contactAdditiveInheritance);
+        self::assertFalse($host->notifications->contactGroupAdditiveInheritance);
+    }
+
     private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand
     {
         return new CreateHostCommand(
@@ -913,6 +991,19 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             isFromMonitoringConnector: false,
             connector: null,
             comment: null,
+        );
+    }
+
+    private function notifications(
+        bool $contactAdditiveInheritance = false,
+        bool $contactGroupAdditiveInheritance = false,
+    ): Notifications {
+        return new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId(7)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(9)], ContactGroupId::class),
+            contactAdditiveInheritance: $contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $contactGroupAdditiveInheritance,
         );
     }
 
