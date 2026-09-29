@@ -43,8 +43,17 @@ require_once __DIR__ . '/webService.class.php';
  */
 class CentreonCeip extends CentreonWebService
 {
-    /** CIM editions that can be read from the licensing.edition property of the license file */
-    private const ALLOWED_LICENSE_EDITIONS = ['IT-100', 'IT', 'BE', 'MSP', 'PRO'];
+    /**
+     * CIM editions allowed in the licensing.edition property of the license file,
+     * with the license type label historically sent to Pendo.
+     */
+    private const LICENSE_EDITION_LABELS = [
+        'IT-100' => 'IT-100 Edition',
+        'IT' => 'IT Edition',
+        'BE' => 'Business Edition',
+        'MSP' => 'MSP Edition',
+        'PRO' => 'PRO Edition',
+    ];
 
     /** @var string */
     private $uuid;
@@ -388,8 +397,8 @@ class CentreonCeip extends CentreonWebService
             }
 
             // Newer licenses carry the edition explicitly: it takes precedence over the computed one
-            if (isset($licenseEdition) && in_array($licenseEdition, self::ALLOWED_LICENSE_EDITIONS, true)) {
-                $productLicense = $licenseEdition;
+            if (isset($licenseEdition, self::LICENSE_EDITION_LABELS[$licenseEdition])) {
+                $productLicense = self::LICENSE_EDITION_LABELS[$licenseEdition];
                 if (! isset($fingerprint) && in_array($licenseEdition, ['MSP', 'BE'], true)) {
                     $fingerprint = $fingerprintService->calculateFingerprint();
                 }
