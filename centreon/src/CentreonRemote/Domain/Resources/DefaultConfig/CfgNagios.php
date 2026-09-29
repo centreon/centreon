@@ -37,7 +37,7 @@ class CfgNagios
     {
         // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
         $enabledOnCloud = filter_var(
-            $_ENV['IS_CLOUD_PLATFORM'] ?? $_SERVER['IS_CLOUD_PLATFORM'] ?? getenv('IS_CLOUD_PLATFORM'),
+            $_ENV['IS_CLOUD_PLATFORM'] ?? false,
             FILTER_VALIDATE_BOOL,
             FILTER_NULL_ON_FAILURE
         ) === true ? '1' : '0';

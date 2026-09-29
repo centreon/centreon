@@ -27,26 +27,17 @@ use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
 
 beforeEach(function (): void {
     $this->originalEnv = $_ENV['IS_CLOUD_PLATFORM'] ?? null;
-    $this->originalServer = $_SERVER['IS_CLOUD_PLATFORM'] ?? null;
-    $this->originalGetenv = getenv('IS_CLOUD_PLATFORM');
 });
 
 afterEach(function (): void {
-    unset($_ENV['IS_CLOUD_PLATFORM'], $_SERVER['IS_CLOUD_PLATFORM']);
+    unset($_ENV['IS_CLOUD_PLATFORM']);
     if ($this->originalEnv !== null) {
         $_ENV['IS_CLOUD_PLATFORM'] = $this->originalEnv;
     }
-    if ($this->originalServer !== null) {
-        $_SERVER['IS_CLOUD_PLATFORM'] = $this->originalServer;
-    }
-    $this->originalGetenv === false
-        ? putenv('IS_CLOUD_PLATFORM')
-        : putenv('IS_CLOUD_PLATFORM=' . $this->originalGetenv);
 });
 
 test('it disables flap and host-down checks by default on-prem', function (): void {
-    unset($_ENV['IS_CLOUD_PLATFORM'], $_SERVER['IS_CLOUD_PLATFORM']);
-    putenv('IS_CLOUD_PLATFORM');
+    unset($_ENV['IS_CLOUD_PLATFORM']);
 
     $config = CfgNagios::getConfiguration('TestPoller', 1);
 
@@ -54,29 +45,8 @@ test('it disables flap and host-down checks by default on-prem', function (): vo
         ->and($config['host_down_disable_service_checks'])->toBe('0');
 });
 
-test('it enables flap and host-down checks on cloud via $_ENV', function (): void {
+test('it enables flap and host-down checks on cloud', function (): void {
     $_ENV['IS_CLOUD_PLATFORM'] = '1';
-
-    $config = CfgNagios::getConfiguration('TestPoller', 1);
-
-    expect($config['enable_flap_detection'])->toBe('1')
-        ->and($config['host_down_disable_service_checks'])->toBe('1');
-});
-
-test('it enables flap and host-down checks on cloud via $_SERVER', function (): void {
-    unset($_ENV['IS_CLOUD_PLATFORM']);
-    putenv('IS_CLOUD_PLATFORM');
-    $_SERVER['IS_CLOUD_PLATFORM'] = '1';
-
-    $config = CfgNagios::getConfiguration('TestPoller', 1);
-
-    expect($config['enable_flap_detection'])->toBe('1')
-        ->and($config['host_down_disable_service_checks'])->toBe('1');
-});
-
-test('it enables flap and host-down checks on cloud via getenv', function (): void {
-    unset($_ENV['IS_CLOUD_PLATFORM'], $_SERVER['IS_CLOUD_PLATFORM']);
-    putenv('IS_CLOUD_PLATFORM=1');
 
     $config = CfgNagios::getConfiguration('TestPoller', 1);
 
