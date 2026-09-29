@@ -78,18 +78,6 @@ it('returns the whole inheritance chain of each service', function (): void {
         ->and($result[12])->toBe([]);
 });
 
-it('follows every parent of a child', function (): void {
-    ($this->mockInheritanceRows)([
-        ['child_id' => 10, 'parent_id' => 1],
-        ['child_id' => 1, 'parent_id' => 2],
-        ['child_id' => 10, 'parent_id' => 5],
-    ]);
-
-    $result = $this->repository->findParentsByServiceIds([10]);
-
-    expect(($this->toPairs)($result[10]))->toBe([[10, 1], [10, 5], [1, 2]]);
-});
-
 it('stops walking the inheritance chain when it contains a cycle', function (): void {
     ($this->mockInheritanceRows)([
         ['child_id' => 10, 'parent_id' => 1],

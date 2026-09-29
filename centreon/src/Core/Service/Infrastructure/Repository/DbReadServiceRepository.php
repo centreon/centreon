@@ -870,51 +870,41 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
         $statement->execute();
 
-        // Index inheritances by child ID once, so that walking the inheritance chain of each
+        // Index inheritances by child ID once, so that walking the template chain of each
         // service is a lookup instead of a scan of the whole list (O(N) instead of O(N²)).
-        $inheritancesByChildId = [];
+        // A service has at most one parent template, so there is one inheritance per child.
+        $inheritanceByChildId = [];
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array{child_id: int, parent_id: int} $row */
             $childId = (int) $row['child_id'];
-            $inheritancesByChildId[$childId][] = new ServiceInheritance(
-                (int) $row['parent_id'],
-                $childId
-            );
+            $inheritanceByChildId[$childId] = new ServiceInheritance((int) $row['parent_id'], $childId);
         }
 
         $result = [];
         foreach ($serviceIds as $serviceId) {
-            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $inheritancesByChildId);
+            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $inheritanceByChildId);
         }
 
         return $result;
     }
 
     /**
-     * Walk the inheritance chain of a service to get only the inheritances relevant to it.
+     * Walk up the template chain of a service (a service has at most one parent template).
      *
      * @param int $serviceId
-     * @param array<int, ServiceInheritance[]> $inheritancesByChildId Inheritances indexed by child ID
+     * @param array<int, ServiceInheritance> $inheritanceByChildId Inheritance indexed by child ID
      *
      * @return ServiceInheritance[]
      */
-    private function filterInheritancesForService(int $serviceId, array $inheritancesByChildId): array
+    private function filterInheritancesForService(int $serviceId, array $inheritanceByChildId): array
     {
         $relevant = [];
-        $idsToProcess = [$serviceId];
-        $processed = [];
-
-        while (! empty($idsToProcess)) {
-            $currentId = array_shift($idsToProcess);
-            if (isset($processed[$currentId])) {
-                continue;
-            }
-            $processed[$currentId] = true;
-
-            foreach ($inheritancesByChildId[$currentId] ?? [] as $inheritance) {
-                $relevant[] = $inheritance;
-                $idsToProcess[] = $inheritance->getParentId();
-            }
+        $visited = [];
+        $currentId = $serviceId;
+        while (isset($inheritanceByChildId[$currentId]) && ! isset($visited[$currentId])) {
+            $visited[$currentId] = true;
+            $relevant[] = $inheritanceByChildId[$currentId];
+            $currentId = $inheritanceByChildId[$currentId]->getParentId();
         }
 
         return $relevant;
