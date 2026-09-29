@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupTypeEnum;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
@@ -40,6 +41,7 @@ final readonly class ContactGroupTransformer implements TransformerInterface
         return new ContactGroup(
             id: new ContactGroupId($from['cg_id']),
             name: new ContactGroupName($from['cg_name']),
+            type: $from['cg_type'] === 'ldap' ? ContactGroupTypeEnum::Ldap : ContactGroupTypeEnum::Local,
         );
     }
 }

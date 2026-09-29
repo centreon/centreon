@@ -21,20 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate;
 
-use App\Shared\Domain\Aggregate\AggregateRoot;
+use ApiPlatform\Metadata\ApiProperty;
 
-/**
- * @extends AggregateRoot<ContactGroupId>
- */
-final class ContactGroup extends AggregateRoot
+final class HostTemplateChoicesOutput
 {
     public function __construct(
-        ContactGroupId $id,
-        public readonly ContactGroupName $name,
-        public readonly ContactGroupTypeEnum $type = ContactGroupTypeEnum::Local,
+        #[ApiProperty(identifier: true)]
+        public int $id,
+
+        public string $name,
     ) {
-        parent::__construct($id);
     }
 }

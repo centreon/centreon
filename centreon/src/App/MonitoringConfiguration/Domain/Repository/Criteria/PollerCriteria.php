@@ -36,6 +36,8 @@ final class PollerCriteria implements PaginableCriteria
 
     private bool $excludeUnknownCentral = false;
 
+    private bool $activeOnly = false;
+
     public function withName(string $name): self
     {
         // notEmpty() relies on empty(), which would wrongly reject a legitimate name of "0"
@@ -63,5 +65,18 @@ final class PollerCriteria implements PaginableCriteria
     public function excludeUnknownCentral(): bool
     {
         return $this->excludeUnknownCentral;
+    }
+
+    public function withActiveOnly(bool $activeOnly): self
+    {
+        $new = clone $this;
+        $new->activeOnly = $activeOnly;
+
+        return $new;
+    }
+
+    public function isActiveOnly(): bool
+    {
+        return $this->activeOnly;
     }
 }
