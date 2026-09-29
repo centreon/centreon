@@ -23,6 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\EventHandler;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -30,8 +35,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -95,7 +102,7 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
     }
 
-    public function testItFlagsOnlyTheDeletersGroupsForANonAdminWithoutSeedingCentreonAclOnDelete(): void
+    public function testItFlagsTheGroupsWithoutSeedingOnAnUpdateForANonAdmin(): void
     {
         $accessGroupRepository = new FakeAccessGroupRepository();
         $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
@@ -104,6 +111,23 @@ final class ReloadAclEventHandlerTest extends TestCase
         $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
 
         $host = $this->createHost(name: 'server-04');
+        // A disable is not a creation: the flag must be raised, but centreon_acl must not be seeded.
+        $handler(new HostDisabled($host, 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsOnlyTheDeletersGroupsForANonAdminWithoutSeedingCentreonAclOnDelete(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-04-deleted');
         $handler(new HostDeleted($host, 7));
 
         // Deleting a resource never seeds `centreon_acl` (mirrors legacy's DELETE branch), only
@@ -113,7 +137,7 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
     }
 
-    public function testItFlagsAllResourcesForAnAdminOnDeleteWithoutSeedingCentreonAcl(): void
+    public function testItFlagsAllResourcesOnAnUpdateForAnAdmin(): void
     {
         $accessGroupRepository = new FakeAccessGroupRepository();
         $resourceAccessRepository = new FakeResourceAccessRepository();
@@ -121,9 +145,41 @@ final class ReloadAclEventHandlerTest extends TestCase
         $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
 
         $host = $this->createHost(name: 'server-05');
+        $handler(new HostDisabled($host, 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsAllResourcesForAnAdminOnDeleteWithoutSeedingCentreonAcl(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $host = $this->createHost(name: 'server-05-deleted');
         $handler(new HostDeleted($host, 1));
 
         self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNothingForANonAclScopedUpdate(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        // Admin so that, if the AclScopedInterface guard were removed, flagAllResourcesAsChanged
+        // would fire — this asserts it does not for a non-ACL-scoped aggregate.
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        // Command is an AggregateUpdated but not AclScoped: the handler must ignore it entirely.
+        $handler(new CommandUpdated($this->createCommand(), 1));
+
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
         self::assertSame([], $resourceAccessRepository->grantedAccess);
         self::assertSame([], $accessGroupRepository->flaggedGroupIds);
     }
@@ -143,6 +199,21 @@ final class ReloadAclEventHandlerTest extends TestCase
         $security->method('getUser')->willReturn(new CredentialUser($credential));
 
         return new ReloadAclEventHandler($security, $accessGroupRepository, $resourceAccessRepository);
+    }
+
+    private function createCommand(): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName('check-something'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
     }
 
     private function createHost(string $name): Host

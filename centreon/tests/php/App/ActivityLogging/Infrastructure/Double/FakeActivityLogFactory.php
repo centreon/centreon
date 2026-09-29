@@ -45,6 +45,7 @@ final class FakeActivityLogFactory implements ActivityLogFactoryInterface
         $type = match ($action) {
             ActionEnum::Add => TargetTypeEnum::ServiceCategory,
             ActionEnum::Update, ActionEnum::Delete => TargetTypeEnum::Command,
+            ActionEnum::Enable, ActionEnum::Disable => TargetTypeEnum::Host,
         };
 
         $target = new Target(

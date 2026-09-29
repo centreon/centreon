@@ -13,11 +13,8 @@ services:
     # file: ..." trace (and everything else) shows up in `docker compose
     # logs` - the test greps for it as direct proof centreontrapd picked up
     # the trap, not just that it later vanished from the spool.
-    command: [
-      "/usr/bin/perl", "/usr/share/centreon/bin/centreontrapd",
-      "--logfile=/dev/stdout", "--severity=debug",
-      "--config=/etc/centreon/conf.pm", "--config-extra=/etc/centreon/centreontrapd.pm"
-    ]
+    environment:
+      CENTREONTRAPD_LOG_LEVEL: "debug"
     volumes:
       - trap-spool:/var/spool/centreontrapd
       # Seeded by centreon-trapd-docker-config-wiring-test.sh - see

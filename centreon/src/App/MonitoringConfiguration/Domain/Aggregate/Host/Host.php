@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
+use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
@@ -39,7 +40,7 @@ use Webmozart\Assert\Assert;
 /**
  * @extends AggregateRoot<HostId>
  */
-final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface
+final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface, VaultScopedInterface
 {
     /**
      * @param Collection<HostTemplateId> $templateIds
@@ -53,7 +54,8 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly HostName $name,
         public readonly ?HostAlias $alias,
         public readonly HostAddress $address,
-        public readonly bool $activated,
+        // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
+        public bool $activated,
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
@@ -80,6 +82,16 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
             [],
             'A host cannot be both a parent and a child of this host.',
         );
+    }
+
+    public function enable(): void
+    {
+        $this->activated = true;
+    }
+
+    public function disable(): void
+    {
+        $this->activated = false;
     }
 
     /**

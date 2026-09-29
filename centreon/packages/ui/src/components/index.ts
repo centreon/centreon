@@ -11,6 +11,7 @@ export * from './Layout';
 export * from './List';
 export * from './Menu';
 export * from './Modal';
+export * from './SortableEntriesList';
 export * from './Tabs';
 export * from './Tooltip';
 export type { ZoomState } from './Zoom/models';
