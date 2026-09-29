@@ -297,6 +297,22 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame([], $this->inheritedIconIds($hostId));
     }
 
+    public function testFindInheritedIconIdsSkipsAnIconWhoseImageIsInNoFolder(): void
+    {
+        // legacy cannot build the URL of an image outside any folder, so it moves on to the next template
+        $folderlessIconId = $this->insertImage(inFolder: false);
+        $nextIconId = $this->insertImage();
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->setIcon($firstTemplateId, $folderlessIconId);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $nextIconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $firstTemplateId, 1);
+        $this->linkHostToTemplate($hostId, $secondTemplateId, 2);
+
+        self::assertSame([$hostId => $nextIconId], $this->inheritedIconIds($hostId));
+    }
+
     public function testFindInheritedIconIdsReturnsAnEmptyCollectionForNoIds(): void
     {
         self::assertCount(0, $this->repository->findInheritedIconIds(new Collection([], HostId::class)));
@@ -328,12 +344,21 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         return array_map(static fn (MediaId $iconId): int => $iconId->value, $result->toArray());
     }
 
-    private function insertImage(): int
+    private function insertImage(bool $inFolder = true): int
     {
         $name = "icon-{$this->tag}-" . Uuid::v4()->toBase58() . '.png';
         $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+        $imageId = (int) $this->connection->lastInsertId();
 
-        return (int) $this->connection->lastInsertId();
+        if ($inFolder) {
+            $this->connection->insert('view_img_dir', ['dir_name' => "dir-{$name}"]);
+            $this->connection->insert('view_img_dir_relation', [
+                'dir_dir_parent_id' => (int) $this->connection->lastInsertId(),
+                'img_img_id' => $imageId,
+            ]);
+        }
+
+        return $imageId;
     }
 
     private function setIcon(int $hostId, ?int $iconId): void

@@ -142,7 +142,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         // One query fetches every template relation reachable from the requested hosts, in legacy's
         // `order`; the depth-first walk itself is done in PHP. UNION dedupes reached ids, so a
-        // template loop already in the data cannot make the recursion run forever.
+        // template loop already in the data cannot make the recursion run forever. Like legacy, an
+        // icon whose image sits in no folder cannot be displayed and is read as no icon (same joins
+        // as DbalMediaRepository::findByIds).
         $sql = <<<'SQL'
             WITH RECURSIVE chain (id) AS (
                 SELECT host_host_id
@@ -158,6 +160,12 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             INNER JOIN chain c ON c.id = htr.host_host_id
             LEFT JOIN extended_host_information ehi
                 ON ehi.host_host_id = htr.host_tpl_id
+                AND EXISTS (
+                    SELECT 1
+                    FROM view_img_dir_relation vidr
+                    INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
+                    WHERE vidr.img_img_id = ehi.ehi_icon_image
+                )
             ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
             SQL;
 
