@@ -129,12 +129,58 @@ final class ListHostsProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT);
+        // scoped by name: a pre-seeded host may now legitimately inherit an icon from its templates
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'no-icon-host']]]);
         self::assertResponseIsSuccessful();
 
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
         self::assertArrayNotHasKey('icon', $member[0]);
+    }
+
+    public function testItInheritsTheIconFromTheHostTemplatesWhenTheHostHasNone(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $imgId = $this->insertImage('template.png');
+        $this->linkImageToFolder($imgId, $dirId);
+        $templateId = $this->insertHostTemplate('iconed-template', iconId: $imgId);
+        $hostId = $this->insertHost('inheriting-host', $pollerId);
+        $this->linkHostToTemplate($hostId, $templateId);
+
+        $this->login();
+
+        // scoped by name so hosts pre-seeded in the database cannot shift the member order
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'inheriting-host']]]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'member' => [
+                ['icon' => ['id' => $imgId, 'name' => 'template.png', 'url' => '/img/media/dir/template.png']],
+            ],
+        ]);
+    }
+
+    public function testItPrefersTheHostOwnIconOverTheInheritedOne(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $hostImgId = $this->insertImage('host.png');
+        $this->linkImageToFolder($hostImgId, $dirId);
+        $templateImgId = $this->insertImage('template.png');
+        $this->linkImageToFolder($templateImgId, $dirId);
+        $templateId = $this->insertHostTemplate('iconed-template', iconId: $templateImgId);
+        $hostId = $this->insertHost('iconed-host', $pollerId, iconId: $hostImgId);
+        $this->linkHostToTemplate($hostId, $templateId);
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'iconed-host']]]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'member' => [
+                ['icon' => ['id' => $hostImgId, 'name' => 'host.png', 'url' => '/img/media/dir/host.png']],
+            ],
+        ]);
     }
 
     public function testItOmitsTheAliasKeyWhenTheHostHasNoAlias(): void
@@ -359,14 +405,22 @@ final class ListHostsProviderTest extends ApiTestCase
         return (int) $this->connection->lastInsertId();
     }
 
-    private function insertHostTemplate(string $name): int
+    private function insertHostTemplate(string $name, ?int $iconId = null): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_register' => '0',
         ]);
+        $templateId = (int) $this->connection->lastInsertId();
 
-        return (int) $this->connection->lastInsertId();
+        if ($iconId !== null) {
+            $this->connection->insert('extended_host_information', [
+                'host_host_id' => $templateId,
+                'ehi_icon_image' => $iconId,
+            ]);
+        }
+
+        return $templateId;
     }
 
     private function insertHost(

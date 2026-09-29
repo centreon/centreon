@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
@@ -213,6 +215,93 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame([], $this->names($result), 'A viewer granted only regular categories sees no host template.');
     }
 
+    public function testFindInheritedIconIdsReturnsTheIconOfADirectTemplate(): void
+    {
+        $iconId = $this->insertImage();
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, $iconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $templateId, 1);
+
+        self::assertSame([$hostId => $iconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsWalksUpTheTemplateChain(): void
+    {
+        $iconId = $this->insertImage();
+        $grandParentId = $this->insertHostTemplate("grand-parent-{$this->tag}");
+        $this->setIcon($grandParentId, $iconId);
+        $parentId = $this->insertHostTemplate("parent-{$this->tag}");
+        $this->linkHostToTemplate($parentId, $grandParentId, 1);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $parentId, 1);
+
+        self::assertSame([$hostId => $iconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsIsDepthFirstByRelationOrder(): void
+    {
+        // legacy fully explores the first template (in order) before moving to the next one, so an
+        // icon inherited through the first template wins over the second template's own icon
+        $deepIconId = $this->insertImage();
+        $secondIconId = $this->insertImage();
+        $deepTemplateId = $this->insertHostTemplate("deep-{$this->tag}");
+        $this->setIcon($deepTemplateId, $deepIconId);
+        $firstTemplateId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->linkHostToTemplate($firstTemplateId, $deepTemplateId, 1);
+        $secondTemplateId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->setIcon($secondTemplateId, $secondIconId);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        // inserted out of order on purpose: `order`, not insertion, drives the traversal
+        $this->linkHostToTemplate($hostId, $secondTemplateId, 2);
+        $this->linkHostToTemplate($hostId, $firstTemplateId, 1);
+
+        self::assertSame([$hostId => $deepIconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsPrefersATemplateOwnIconOverItsParents(): void
+    {
+        $ownIconId = $this->insertImage();
+        $parentIconId = $this->insertImage();
+        $parentId = $this->insertHostTemplate("parent-{$this->tag}");
+        $this->setIcon($parentId, $parentIconId);
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, $ownIconId);
+        $this->linkHostToTemplate($templateId, $parentId, 1);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $templateId, 1);
+
+        self::assertSame([$hostId => $ownIconId], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsOmitsHostsWithoutAnyInheritedIcon(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->setIcon($templateId, null);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $templateId, 1);
+        $orphanHostId = $this->insertRegularHost("orphan-{$this->tag}");
+
+        self::assertSame([], $this->inheritedIconIds($hostId, $orphanHostId));
+    }
+
+    public function testFindInheritedIconIdsSurvivesATemplateLoop(): void
+    {
+        $firstId = $this->insertHostTemplate("loop-a-{$this->tag}");
+        $secondId = $this->insertHostTemplate("loop-b-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $secondId, 1);
+        $this->linkHostToTemplate($secondId, $firstId, 1);
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+        $this->linkHostToTemplate($hostId, $firstId, 1);
+
+        self::assertSame([], $this->inheritedIconIds($hostId));
+    }
+
+    public function testFindInheritedIconIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        self::assertCount(0, $this->repository->findInheritedIconIds(new Collection([], HostId::class)));
+    }
+
     /**
      * @param \IteratorAggregate<int, HostTemplate>&\Countable $result
      *
@@ -224,6 +313,44 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
             static fn (HostTemplate $hostTemplate): string => $hostTemplate->name->value,
             iterator_to_array($result)
         ));
+    }
+
+    /**
+     * @return array<int> inherited icon id indexed by host id
+     */
+    private function inheritedIconIds(int ...$hostIds): array
+    {
+        $result = $this->repository->findInheritedIconIds(new Collection(
+            array_map(static fn (int $hostId): HostId => new HostId($hostId), $hostIds),
+            HostId::class,
+        ));
+
+        return array_map(static fn (MediaId $iconId): int => $iconId->value, $result->toArray());
+    }
+
+    private function insertImage(): int
+    {
+        $name = "icon-{$this->tag}-" . Uuid::v4()->toBase58() . '.png';
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function setIcon(int $hostId, ?int $iconId): void
+    {
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
+        ]);
+    }
+
+    private function linkHostToTemplate(int $hostId, int $templateId, int $order): void
+    {
+        $this->connection->insert('host_template_relation', [
+            'host_host_id' => $hostId,
+            'host_tpl_id' => $templateId,
+            '`order`' => $order,
+        ]);
     }
 
     private function insertHostTemplate(string $name, bool $locked = false): int

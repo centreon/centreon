@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -129,6 +131,86 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         }
 
         return new Collection($names, HostTemplateName::class);
+    }
+
+    public function findInheritedIconIds(Collection $hostIds): Collection
+    {
+        $idValues = array_map(static fn (HostId $id): int => $id->value, $hostIds->toArray());
+        if ($idValues === []) {
+            return new Collection([], MediaId::class);
+        }
+
+        // One query fetches every template relation reachable from the requested hosts, in legacy's
+        // `order`; the depth-first walk itself is done in PHP. UNION dedupes reached ids, so a
+        // template loop already in the data cannot make the recursion run forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT host_host_id
+                FROM host_template_relation
+                WHERE host_host_id IN (:ids)
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT htr.host_host_id, htr.host_tpl_id, ehi.ehi_icon_image AS icon_id
+            FROM host_template_relation htr
+            INNER JOIN chain c ON c.id = htr.host_host_id
+            LEFT JOIN extended_host_information ehi
+                ON ehi.host_host_id = htr.host_tpl_id
+            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
+            SQL;
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, icon_id: int|string|null}> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $idValues],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        /** @var array<int, list<array{int, ?int}>> $templatesById ordered [template id, icon id] pairs per host or template */
+        $templatesById = [];
+        foreach ($rows as $row) {
+            $templatesById[(int) $row['host_host_id']][] = [
+                (int) $row['host_tpl_id'],
+                $row['icon_id'] !== null ? (int) $row['icon_id'] : null,
+            ];
+        }
+
+        $iconIds = [];
+        foreach ($idValues as $hostId) {
+            $visited = [$hostId => true];
+            $iconId = $this->findFirstIconId($hostId, $templatesById, $visited);
+            if ($iconId !== null) {
+                $iconIds[$hostId] = new MediaId($iconId);
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
+    }
+
+    /**
+     * Legacy getMyHostExtendedInfoImage() walk: for each template in order, its own icon wins,
+     * otherwise its own templates are searched before moving on to the next one.
+     *
+     * @param array<int, list<array{int, ?int}>> $templatesById
+     * @param array<int, true> $visited guards against template loops
+     */
+    private function findFirstIconId(int $id, array $templatesById, array &$visited): ?int
+    {
+        foreach ($templatesById[$id] ?? [] as [$templateId, $iconId]) {
+            if (isset($visited[$templateId])) {
+                continue;
+            }
+            $visited[$templateId] = true;
+
+            $iconId ??= $this->findFirstIconId($templateId, $templatesById, $visited);
+            if ($iconId !== null) {
+                return $iconId;
+            }
+        }
+
+        return null;
     }
 
     private function filterByCriteria(QueryBuilder $qb, HostTemplateCriteria $criteria): void
