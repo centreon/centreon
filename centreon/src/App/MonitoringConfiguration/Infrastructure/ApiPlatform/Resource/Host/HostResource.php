@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
@@ -32,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 
 #[ApiResource(
@@ -98,6 +100,18 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
                 is_granted("' . HostPermissionEnum::CanRead->value . '") or
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list hosts',
+        ),
+        new Delete(
+            uriTemplate: '/configuration/hosts/{id}',
+            processor: DeleteHostProcessor::class,
+            read: false,
+            openapi: new Model\Operation(
+                responses: [
+                    404 => new Model\Response('Host resource not found'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to delete hosts',
         ),
     ],
 )]
