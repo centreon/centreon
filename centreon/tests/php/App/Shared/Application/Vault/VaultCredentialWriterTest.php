@@ -102,4 +102,104 @@ final class VaultCredentialWriterTest extends TestCase
 
         $writer->write(VaultPathEnum::MonitoringHosts, VaultCredentials::fromArray(['MACRO' => 'value']));
     }
+
+    public function testPersistWritesSetDeletesClearedAndKeepsTheRest(): void
+    {
+        $vault = new FakeVault();
+        $vault->writtenPaths = [
+            'MACRO_A' => 'secret::vault::monitoring/hosts/existing-uuid::MACRO_A',
+        ];
+        $writer = new VaultCredentialWriter($vault);
+
+        $credentials = VaultCredentials::empty()
+            ->set('MACRO_A', 'newpass')
+            ->clear('MACRO_B')
+            ->keep('MACRO_C', 'secret::vault::monitoring/hosts/existing-uuid::MACRO_C');
+
+        $result = $writer->persist(VaultPathEnum::MonitoringHosts, $credentials, 'existing-uuid');
+
+        // Set -> fresh path; Cleared -> dropped from the map; Unchanged -> carried through untouched.
+        self::assertSame([
+            'MACRO_A' => 'secret::vault::monitoring/hosts/existing-uuid::MACRO_A',
+            'MACRO_C' => 'secret::vault::monitoring/hosts/existing-uuid::MACRO_C',
+        ], $result);
+
+        // Only the set credential is inserted; the cleared key is deleted; all under the same entry.
+        self::assertCount(1, $vault->writeManyCalls);
+        self::assertSame('monitoring/hosts', $vault->writeManyCalls[0]['customPath']);
+        self::assertSame(['MACRO_A' => 'newpass'], $vault->writeManyCalls[0]['secrets']);
+        self::assertSame('existing-uuid', $vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['MACRO_B'], $vault->writeManyCalls[0]['deletes']);
+    }
+
+    public function testPersistDeletesOnlyWhenNothingIsSet(): void
+    {
+        $vault = new FakeVault();
+        $writer = new VaultCredentialWriter($vault);
+
+        $credentials = VaultCredentials::empty()
+            ->clear('MACRO_B')
+            ->keep('MACRO_C', 'secret::vault::monitoring/hosts/existing-uuid::MACRO_C');
+
+        $result = $writer->persist(VaultPathEnum::MonitoringHosts, $credentials, 'existing-uuid');
+
+        // Cleared key dropped from the returned map; only the unchanged one is carried through.
+        self::assertSame([
+            'MACRO_C' => 'secret::vault::monitoring/hosts/existing-uuid::MACRO_C',
+        ], $result);
+
+        self::assertCount(1, $vault->writeManyCalls);
+        self::assertSame([], $vault->writeManyCalls[0]['secrets']);
+        self::assertSame(['MACRO_B'], $vault->writeManyCalls[0]['deletes']);
+    }
+
+    public function testPersistDoesNotTouchVaultWhenNothingSetOrCleared(): void
+    {
+        $vault = new FakeVault();
+        $writer = new VaultCredentialWriter($vault);
+
+        $credentials = VaultCredentials::empty()
+            ->keep('MACRO_C', 'secret::vault::monitoring/hosts/existing-uuid::MACRO_C');
+
+        $result = $writer->persist(VaultPathEnum::MonitoringHosts, $credentials, 'existing-uuid');
+
+        self::assertSame($credentials->toArray(), $result);
+        self::assertSame([], $vault->writeManyCalls);
+    }
+
+    public function testPersistFailurePropagates(): void
+    {
+        $vault = new FakeVault();
+        $vault->writeThrows = true;
+
+        $writer = new VaultCredentialWriter($vault);
+
+        $this->expectException(\RuntimeException::class);
+
+        $writer->persist(VaultPathEnum::MonitoringHosts, VaultCredentials::empty()->set('MACRO', 'value'));
+    }
+
+    public function testDeleteForwardsPathAndUuidToVault(): void
+    {
+        $vault = new FakeVault();
+        $writer = new VaultCredentialWriter($vault);
+
+        $writer->delete(VaultPathEnum::MonitoringHosts, 'entry-uuid');
+
+        self::assertSame([
+            ['customPath' => 'monitoring/hosts', 'uuid' => 'entry-uuid'],
+        ], $vault->deleteCalls);
+    }
+
+    public function testDeleteFailurePropagates(): void
+    {
+        $vault = new FakeVault();
+        $vault->deleteThrows = true;
+
+        $writer = new VaultCredentialWriter($vault);
+
+        $this->expectException(\RuntimeException::class);
+
+        $writer->delete(VaultPathEnum::MonitoringHosts, 'entry-uuid');
+    }
 }

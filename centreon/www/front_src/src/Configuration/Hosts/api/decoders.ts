@@ -2,18 +2,27 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 
-import type { HostListItem } from '../models';
+import type { HostListItem, Icon, NamedEntity } from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
   name: JsonDecoder.string
 };
 
+const iconDecoder = JsonDecoder.object<Icon>(
+  {
+    ...namedEntityDecoder,
+    url: JsonDecoder.string
+  },
+  'Icon'
+);
+
 const hostsDecoder = JsonDecoder.object<HostListItem>(
   {
     ...namedEntityDecoder,
     address: JsonDecoder.string,
     alias: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
+    icon: JsonDecoder.optional(JsonDecoder.nullable(iconDecoder)),
     isActivated: JsonDecoder.boolean,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller'),
     templates: JsonDecoder.array(
@@ -32,4 +41,12 @@ export const hostsListDecoder = buildListingDecoder({
   entityDecoder: hostsDecoder,
   entityDecoderName: 'Host',
   listingDecoderName: 'Hosts List'
+});
+
+// The selectors answer in Hydra, which the autocomplete cannot read unmapped.
+export const namedEntitiesListDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
+  entityDecoder: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Entity'),
+  entityDecoderName: 'Entity',
+  listingDecoderName: 'Entity List'
 });

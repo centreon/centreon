@@ -3,6 +3,7 @@ import Actions from './Configuration.Actions';
 import Filters from './Configuration.Filters';
 import Layout from './Configuration.Layout';
 import Modal from './Configuration.Modal';
+import StaticColumns from './Configuration.StaticColumns';
 
 const testCases = [
   { resourceType: ResourceType.Host },
@@ -15,5 +16,6 @@ testCases.forEach(({ resourceType }) => {
     Filters(resourceType);
     Actions(resourceType);
     Modal(resourceType);
+    StaticColumns();
   });
 });

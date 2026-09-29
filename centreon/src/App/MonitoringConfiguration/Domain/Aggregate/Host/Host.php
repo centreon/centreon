@@ -32,13 +32,15 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
+use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
 /**
  * @extends AggregateRoot<HostId>
  */
-final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface
+final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface, VaultScopedInterface
 {
     /**
      * @param Collection<HostTemplateId> $templateIds
@@ -52,7 +54,8 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         public readonly HostName $name,
         public readonly ?HostAlias $alias,
         public readonly HostAddress $address,
-        public readonly bool $activated,
+        // Mutable (the other fields are readonly) so enable()/disable() can toggle it.
+        public bool $activated,
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
         public readonly Collection $hostGroupIds,
@@ -78,6 +81,39 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
             [],
             'A host cannot be both a parent and a child of this host.',
         );
+    }
+
+    public function enable(): void
+    {
+        $this->activated = true;
+    }
+
+    public function disable(): void
+    {
+        $this->activated = false;
+    }
+
+    /**
+     * The UUID of this host's vault entry, if it has one, or null when none of its vault-eligible
+     * fields currently hold a `secret::` reference (vault disabled, or nothing vaulted yet).
+     *
+     * Checked in the same order as legacy (`retrieveHostUuidFromVault`): the SNMP community first,
+     * then the first password macro that is vaulted — every vault-eligible field of a given
+     * resource shares one entry (one UUID), so the first match found settles it.
+     */
+    public function getVaultUuid(VaultInterface $vault): ?string
+    {
+        if ($this->snmpCommunity instanceof SnmpCommunity && $vault->isVaultPath($this->snmpCommunity->value)) {
+            return $vault->extractUuid($this->snmpCommunity->value);
+        }
+
+        foreach ($this->checkOptions->macros as $macro) {
+            if ($macro->isPassword && $vault->isVaultPath($macro->value)) {
+                return $vault->extractUuid($macro->value);
+            }
+        }
+
+        return null;
     }
 
     /**

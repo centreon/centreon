@@ -80,7 +80,19 @@ $updateContactsShowDeprecatedCustomViews = function () use (&$errorMessage, &$pe
     }
 };
 
+/**
+ * Enable flap detection and host_down_disable_service_checks on existing pollers (Cloud platforms only).
+ */
 $updateCfgParameters = function () use ($pearDB, &$errorMessage): void {
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+        FILTER_VALIDATE_BOOL,
+        FILTER_NULL_ON_FAILURE
+    );
+    if ($isCloudPlatform !== true) {
+        return;
+    }
+
     $errorMessage = 'Unable to update cfg_nagios table';
 
     $pearDB->executeQuery(

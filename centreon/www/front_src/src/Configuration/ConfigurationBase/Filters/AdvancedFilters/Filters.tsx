@@ -125,6 +125,8 @@ const Filters = <TFilters,>({
         if (equals(filter.fieldType, FieldType.SingleConnectedAutocomplete))
           return (
             <SingleConnectedAutocomplete<TFilters>
+              baseEndpoint={filter.baseEndpoint}
+              decoder={filter.decoder}
               filters={filters}
               getEndpoint={filter.getEndpoint}
               key={filter.name}

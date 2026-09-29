@@ -8,7 +8,7 @@ import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
-import { FilterConfiguration, ResourceType } from '../../models';
+import { Actions, FilterConfiguration, ResourceType } from '../../models';
 import ConfigurationBase from '..';
 import {
   columns,
@@ -111,16 +111,27 @@ export const mockModalRequests = (resourceType): void => {
   });
 };
 
+const defaultActions = {
+  delete: () => true,
+  duplicate: () => true,
+  edit: true,
+  enableDisable: () => true,
+  massive: true,
+  viewDetails: true
+};
+
 const initialize = ({
   resourceType = ResourceType.Host,
   filters = filtersConfiguration,
   initialValues = filtersInitialValues,
-  filtersPanelWidth
+  filtersPanelWidth,
+  actions = defaultActions
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
   initialValues?: Record<string, unknown>;
   filtersPanelWidth?: number;
+  actions?: Actions;
 }): void => {
   const resource = resourceType.replace(' ', '_');
 
@@ -145,14 +156,7 @@ const initialize = ({
             <Provider store={store}>
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
-                  actions={{
-                    delete: () => true,
-                    duplicate: () => true,
-                    edit: true,
-                    enableDisable: () => true,
-                    massive: true,
-                    viewDetails: true
-                  }}
+                  actions={actions}
                   api={{
                     adapter: (data) => data,
                     decoders: { getAll: resourceDecoderListDecoder },

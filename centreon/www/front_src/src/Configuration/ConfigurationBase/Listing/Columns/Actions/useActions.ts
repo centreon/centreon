@@ -3,7 +3,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pick } from 'ramda';
 
-import { ResourceRow } from '../../../../models';
+import { ResourceRow, RowAction } from '../../../../models';
 import { configurationAtom } from '../../../atoms';
 import { resourcesToDeleteAtom, resourcesToDuplicateAtom } from '../../atoms';
 
@@ -12,6 +12,7 @@ interface UseActionsState {
   openDuplicateModal: () => void;
   canDelete: boolean;
   canDuplicate: boolean;
+  rowActions: Array<RowAction>;
 }
 
 const useActions = (row: ResourceRow): UseActionsState => {
@@ -30,11 +31,16 @@ const useActions = (row: ResourceRow): UseActionsState => {
   const canDelete = !!actions?.delete?.(row);
   const canDuplicate = !!actions?.duplicate?.(row);
 
+  const rowActions = (actions?.rowActions ?? []).filter(
+    ({ isVisible }) => isVisible?.(row) ?? true
+  );
+
   return {
     canDelete,
     canDuplicate,
     openDeleteModal,
-    openDuplicateModal
+    openDuplicateModal,
+    rowActions
   };
 };
 

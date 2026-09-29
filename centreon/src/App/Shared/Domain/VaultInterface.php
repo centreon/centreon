@@ -62,6 +62,18 @@ interface VaultInterface
     public function resolve(string $value): string;
 
     /**
+     * Extract the vault entry UUID carried by a `secret::` reference, or null when $value is not
+     * a vault path.
+     *
+     * An update reuses a resource's existing vault entry by extracting its UUID from any of the
+     * resource's stored references and passing it back to {@see self::writeMany()}, so the new
+     * secrets land under the same entry instead of minting a fresh one.
+     *
+     * example: 'secret::hashicorp_vault::monitoring/hosts/3f2a-…::_HOSTSNMPCOMMUNITY' => '3f2a-…'
+     */
+    public function extractUuid(string $value): ?string;
+
+    /**
      * Store $value in the vault under a new credential and return its `secret::` path.
      *
      * A null $uuid mints a fresh vault entry (a new UUID); pass an existing UUID to add
@@ -79,12 +91,27 @@ interface VaultInterface
      *
      * A null $uuid mints a fresh vault entry; pass an existing UUID to add the keys to it.
      *
+     * On an existing entry, $deletes removes the named keys from it in the same operation (used to
+     * drop credentials the caller cleared on update); the deleted keys are absent from the returned
+     * map. $deletes is a no-op on a fresh entry.
+     *
      * @param string $customPath vault sub-path of the owning domain (e.g. 'monitoring/hosts')
      * @param array<string, string> $secrets key => plaintext value
+     * @param list<string> $deletes keys to remove from the entry
      *
      * @throws \Throwable when a secret cannot be written
      *
      * @return array<string, string> key => `secret::` path
      */
-    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array;
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null, array $deletes = []): array;
+
+    /**
+     * Delete a resource's entire vault entry (all its keys), addressed by its UUID under the owning
+     * domain's sub-path. Used when the resource itself is deleted.
+     *
+     * @param string $customPath vault sub-path of the owning domain (e.g. 'monitoring/hosts')
+     *
+     * @throws \Throwable when the entry cannot be deleted
+     */
+    public function delete(string $customPath, string $uuid): void;
 }

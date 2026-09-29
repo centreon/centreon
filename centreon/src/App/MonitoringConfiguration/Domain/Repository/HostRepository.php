@@ -27,11 +27,35 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
 
 interface HostRepository
 {
     public function add(Host $host): void;
+
+    /**
+     * Never returns a host template, though both share the `host` table. Returns the `Host` fully
+     * hydrated — every field, unlike `findAll()`, which deliberately stays partial (see
+     * `Host::$checkOptions` docblock): a listing never needs the full object, this is the one read
+     * path that does (a future single-host consumer, e.g. an update handler, plugs straight into it).
+     *
+     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value
+     *                          scopes the lookup to what that user can access via ACL — a host
+     *                          that exists but is outside the viewer's scope returns null, the
+     *                          same as a host that does not exist at all, so as not to leak
+     *                          existence (mirrors `CreateHostCommandHandler`'s poller/host-group checks)
+     */
+    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host;
+
+    public function remove(Host $host): void;
+
+    /**
+     * Bounded UPDATE of the activation flag; never touches a host template. Precondition: the caller
+     * confirmed the host exists (typically {@see findOne()} in the same transaction) — it does not
+     * assert a matched row, so it is a silent no-op on an unknown or template id.
+     */
+    public function updateActivationStatus(HostId $id, bool $activated): void;
 
     /**
      * Looked up across hosts AND host templates (both share the same `host` table and the

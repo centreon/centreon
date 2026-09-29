@@ -28,10 +28,12 @@ final readonly class HostCheckOptionsOutput
     /**
      * @param ?HostCheckCommandOutput $command the check command, null when none is set
      * @param list<string> $args ordered check-command arguments (empty when no command is set)
+     * @param list<HostMacroOutput> $macros the host's own custom macros (post inheritance strip)
      */
     public function __construct(
         public ?HostCheckCommandOutput $command,
         public array $args,
+        public array $macros,
     ) {
     }
 }
