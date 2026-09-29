@@ -34,8 +34,8 @@ use Webmozart\Assert\Assert;
 
 /**
  * Unitary duplication: one host by id, no request body. The response carries no content (204); the
- * client refetches the listing. A single call per host, so the front fans a multi-selection out over
- * this route rather than sending a bulk payload.
+ * client refetches the listing. Designed to be called once per host — a multi-selection is duplicated
+ * by calling this route per id rather than by sending a bulk payload.
  *
  * @implements ProcessorInterface<null, null>
  */

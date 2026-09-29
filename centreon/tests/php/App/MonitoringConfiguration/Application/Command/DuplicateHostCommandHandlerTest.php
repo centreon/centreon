@@ -25,15 +25,23 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
@@ -87,6 +95,30 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame($this->idValues($source->templateIds), $this->idValues($copy->templateIds));
         self::assertSame($this->idValues($source->hostGroupIds), $this->idValues($copy->hostGroupIds));
         self::assertSame($this->idValues($source->categoryIds), $this->idValues($copy->categoryIds));
+        self::assertSame($this->idValues($source->parentHostIds), $this->idValues($copy->parentHostIds));
+        self::assertSame($this->idValues($source->childHostIds), $this->idValues($copy->childHostIds));
+        // The remaining fields are forwarded straight from the source aggregate; identity assertions
+        // catch a field accidentally dropped or crossed in the copy constructor (it would become a
+        // fresh default instead of the source's value).
+        self::assertSame($source->snmpVersion, $copy->snmpVersion);
+        self::assertSame($source->snmpCommunity, $copy->snmpCommunity);
+        self::assertSame($source->timezoneId, $copy->timezoneId);
+        self::assertSame($source->severityId, $copy->severityId);
+        self::assertSame($source->extendedInformations, $copy->extendedInformations);
+        self::assertSame($source->schedulingOptions, $copy->schedulingOptions);
+        self::assertSame($source->dataProcessing, $copy->dataProcessing);
+        self::assertSame($source->checkOptions, $copy->checkOptions);
+    }
+
+    public function testThrowsConflictWhenTheSuffixWouldExceedTheNameLengthLimit(): void
+    {
+        // A source name already at the maximum length leaves no room for the "_<n>" suffix, so no
+        // candidate is valid — this must surface as a 409, not an unmapped 500 from HostName.
+        $this->storeSourceHost(1, str_repeat('a', HostName::MAX_LENGTH));
+
+        $this->expectException(HostAlreadyExistsException::class);
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
     }
 
     public function testSkipsAlreadyTakenSuffixes(): void
@@ -183,6 +215,16 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             templateIds: new Collection([new HostTemplateId(5)], HostTemplateId::class),
             hostGroupIds: new Collection([new HostGroupId(3)], HostGroupId::class),
             categoryIds: new Collection([new HostCategoryId(8)], HostCategoryId::class),
+            parentHostIds: new Collection([new HostId(10)], HostId::class),
+            childHostIds: new Collection([new HostId(11)], HostId::class),
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity('public'),
+            timezoneId: new TimezoneId(3),
+            severityId: new HostSeverityId(4),
+            extendedInformations: new ExtendedInformations(note: 'a note'),
+            schedulingOptions: new SchedulingOptions(),
+            dataProcessing: new DataProcessing(),
+            checkOptions: new CheckOptions(null),
         );
     }
 
@@ -198,14 +240,14 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     }
 
     /**
-     * @param Collection<HostTemplateId>|Collection<HostGroupId>|Collection<HostCategoryId> $collection
+     * @param Collection<HostTemplateId>|Collection<HostGroupId>|Collection<HostCategoryId>|Collection<HostId> $collection
      *
      * @return list<int>
      */
     private function idValues(Collection $collection): array
     {
         return array_values(array_map(
-            static fn (HostTemplateId|HostGroupId|HostCategoryId $id): int => $id->value,
+            static fn (HostTemplateId|HostGroupId|HostCategoryId|HostId $id): int => $id->value,
             $collection->toArray(),
         ));
     }

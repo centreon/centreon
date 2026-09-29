@@ -114,10 +114,13 @@ final readonly class DuplicateHostCommandHandler
     {
         for ($index = 1; $index <= self::MAX_NAME_ATTEMPTS; $index++) {
             $candidate = $sourceName->value . '_' . $index;
-            // A suffix that pushes the name past its length limit yields no valid copy name; surface
-            // the same 409 as an exhausted range instead of letting HostName throw an unmapped 500.
+            // The suffix only grows, so once it overflows the name length limit no suffix ever fits:
+            // surface a distinct 409 instead of letting HostName throw an unmapped 500.
             if (mb_strlen($candidate) > HostName::MAX_LENGTH) {
-                break;
+                throw new HostAlreadyExistsException(
+                    ['name' => $sourceName->value],
+                    'The duplicated host name would exceed the maximum length.',
+                );
             }
 
             $candidateName = new HostName($candidate);
