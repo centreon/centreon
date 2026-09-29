@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -35,6 +36,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
@@ -43,12 +46,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -83,6 +88,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             $this->connection,
             $this->realTimeConnection,
             new DbalHostTransformer(),
+            new DbalNotificationsTransformer(),
             $this->accessGroupRepository,
         );
     }
@@ -1293,6 +1299,229 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testAddPersistsNotifications(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $contactId = $this->createContact('notified-contact');
+        $contactGroupId = $this->createContactGroup('notified-group');
+        $periodId = $this->createTimePeriod('24x7');
+
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId($contactId)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId($contactGroupId)], ContactGroupId::class),
+            options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
+            interval: 30,
+            periodId: new TimePeriodId($periodId),
+            firstDelay: 10,
+            recoveryDelay: 20,
+            contactAdditiveInheritance: true,
+            contactGroupAdditiveInheritance: true,
+        ));
+
+        $this->repository->add($host);
+
+        /** @var array{host_notifications_enabled: string, host_notification_options: string|null,
+         *      host_notification_interval: numeric-string|null, timeperiod_tp_id2: numeric-string|null,
+         *      host_first_notification_delay: numeric-string|null, host_recovery_notification_delay: numeric-string|null,
+         *      contact_additive_inheritance: numeric-string|null, cg_additive_inheritance: numeric-string|null}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_notifications_enabled, host_notification_options, host_notification_interval,
+                    timeperiod_tp_id2, host_first_notification_delay, host_recovery_notification_delay,
+                    contact_additive_inheritance, cg_additive_inheritance
+             FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($row);
+        self::assertSame('1', $row['host_notifications_enabled']);
+        self::assertSame('d,r', $row['host_notification_options']);
+        self::assertSame(30, (int) $row['host_notification_interval']);
+        self::assertSame($periodId, (int) $row['timeperiod_tp_id2']);
+        self::assertSame(10, (int) $row['host_first_notification_delay']);
+        self::assertSame(20, (int) $row['host_recovery_notification_delay']);
+        self::assertSame(1, (int) $row['contact_additive_inheritance']);
+        self::assertSame(1, (int) $row['cg_additive_inheritance']);
+
+        self::assertSame(
+            [$contactId],
+            $this->linkedIds('SELECT contact_id AS id FROM contact_host_relation WHERE host_host_id = ?', $host->id()->value),
+        );
+        self::assertSame(
+            [$contactGroupId],
+            $this->linkedIds('SELECT contactgroup_cg_id AS id FROM contactgroup_host_relation WHERE host_host_id = ?', $host->id()->value),
+        );
+    }
+
+    /**
+     * Legacy writes the Default tri-state and NULL everywhere else for a payload carrying no
+     * notification field, and the engine then resolves the directive through the template chain.
+     * Writing '0' instead would silently turn notifications off on every such host.
+     */
+    public function testAddPersistsTheDefaultTriStateWithoutANotificationsBlock(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = $this->hostWithNotifications($pollerId, null);
+
+        $this->repository->add($host);
+
+        /** @var array{host_notifications_enabled: string, host_notification_options: string|null,
+         *      host_notification_interval: numeric-string|null, timeperiod_tp_id2: numeric-string|null,
+         *      host_first_notification_delay: numeric-string|null, host_recovery_notification_delay: numeric-string|null,
+         *      contact_additive_inheritance: numeric-string|null, cg_additive_inheritance: numeric-string|null}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_notifications_enabled, host_notification_options, host_notification_interval,
+                    timeperiod_tp_id2, host_first_notification_delay, host_recovery_notification_delay,
+                    contact_additive_inheritance, cg_additive_inheritance
+             FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($row);
+        self::assertSame('2', $row['host_notifications_enabled']);
+        self::assertNull($row['host_notification_options']);
+        self::assertNull($row['host_notification_interval']);
+        self::assertNull($row['timeperiod_tp_id2']);
+        self::assertNull($row['host_first_notification_delay']);
+        self::assertNull($row['host_recovery_notification_delay']);
+        self::assertSame(0, (int) $row['contact_additive_inheritance']);
+        self::assertSame(0, (int) $row['cg_additive_inheritance']);
+    }
+
+    public function testAddWritesNoNotificationOptionForAnEmptyList(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::False,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+        ));
+
+        $this->repository->add($host);
+
+        /** @var array{host_notifications_enabled: string, host_notification_options: string|null}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_notifications_enabled, host_notification_options FROM host WHERE host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertIsArray($row);
+        self::assertSame('0', $row['host_notifications_enabled']);
+        // NULL, not an empty string: legacy leaves the column unset so the engine inherits it
+        self::assertNull($row['host_notification_options']);
+    }
+
+    /**
+     * Covers every letter of the engine's `host_notification_options` format in one go: a missing
+     * or wrong mapping silently changes when the engine notifies, and nothing else would catch it.
+     */
+    public function testAddMapsEveryNotificationOptionToItsEngineLetter(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+            options: [
+                NotificationOptionEnum::Down,
+                NotificationOptionEnum::Unreachable,
+                NotificationOptionEnum::Recovery,
+                NotificationOptionEnum::Flapping,
+                NotificationOptionEnum::DowntimeScheduled,
+            ],
+        ));
+
+        $this->repository->add($host);
+
+        self::assertSame(
+            'd,u,r,f,s',
+            $this->connection->fetchOne('SELECT host_notification_options FROM host WHERE host_id = ?', [$host->id()->value]),
+        );
+    }
+
+    public function testAddPersistsTheNoneNotificationOption(): void
+    {
+        $pollerId = $this->createPoller('Central');
+
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::UseDefault,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+            options: [NotificationOptionEnum::None],
+        ));
+
+        $this->repository->add($host);
+
+        // "none" is a real stored value ('n'), distinct from "no option set" (NULL): it tells the
+        // engine to notify on nothing rather than to inherit the option from the template chain
+        self::assertSame(
+            'n',
+            $this->connection->fetchOne('SELECT host_notification_options FROM host WHERE host_id = ?', [$host->id()->value]),
+        );
+    }
+
+    private function hostWithNotifications(int $pollerId, ?Notifications $notifications): Host
+    {
+        return new Host(
+            id: null,
+            name: new HostName('server-notif-' . uniqid()),
+            alias: null,
+            address: new HostAddress('10.0.0.3'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            notifications: $notifications,
+        );
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function linkedIds(string $sql, int $hostId): array
+    {
+        /** @var list<array{id: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($sql, [$hostId]);
+
+        return array_map(static fn (array $row): int => (int) $row['id'], $rows);
+    }
+
+    private function createContact(string $name): int
+    {
+        $unique = $name . '-' . uniqid();
+        $this->connection->insert('contact', [
+            'contact_name' => $unique,
+            'contact_alias' => $unique,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $unique . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function createContactGroup(string $name): int
+    {
+        $unique = $name . '-' . uniqid();
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $unique,
+            'cg_alias' => $unique,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function createTimePeriod(string $name): int
+    {
+        $unique = $name . '-' . uniqid();
+        $this->connection->insert('timeperiod', ['tp_name' => $unique, 'tp_alias' => $unique]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     /**
      * @return list<int>
      */
@@ -1441,13 +1670,6 @@ final class DbalHostRepositoryTest extends KernelTestCase
     private function createImage(string $name): int
     {
         $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
-
-        return (int) $this->connection->lastInsertId();
-    }
-
-    private function createTimePeriod(string $name): int
-    {
-        $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
 
         return (int) $this->connection->lastInsertId();
     }

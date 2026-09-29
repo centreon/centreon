@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -38,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -46,6 +48,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
@@ -63,8 +66,10 @@ use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
@@ -74,14 +79,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExt
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimePeriodOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -99,6 +105,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 {
     /**
      * @param TransformerInterface<Host, HostResource> $transformer
+     * @param TransformerInterface<?Notifications, ?HostNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
         private CommandBus $commandBus,
@@ -114,6 +121,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private TimezoneRepository $timezoneRepository,
         private HostRepository $hostRepository,
         private MediaRepository $mediaRepository,
+        #[Autowire(service: HostNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
@@ -187,6 +196,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             ) : [],
         );
 
+        // Cloud handles notifications through a different model and the input
+        // validator rejects the block there, so the host simply carries none — and the
+        // response omits the key rather than advertising a feature that platform lacks.
+        $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
 
         $command = new CreateHostCommand(
@@ -194,15 +207,15 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             address: new HostAddress($data->address),
             pollerId: new PollerId($data->pollerId),
             hostGroupIds: $hostGroupIds,
-            dataProcessing: $dataProcessing,
             creatorId: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            dataProcessing: $dataProcessing,
             alias: $alias !== null ? new HostAlias($alias) : null,
-            snmpVersion: $data->snmpVersion,
             templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),
             categoryIds: $this->toIdCollection($data->categoryIds, HostCategoryId::class),
             parentHostIds: $this->toIdCollection($data->parentHostIds, HostId::class),
             childHostIds: $this->toIdCollection($data->childHostIds, HostId::class),
+            snmpVersion: $data->snmpVersion,
             snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
             timezoneId: $data->timezoneId !== null ? new TimezoneId($data->timezoneId) : null,
             severityId: $data->severityId !== null ? new HostSeverityId($data->severityId) : null,
@@ -211,6 +224,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
             checkOptions: $checkOptions,
+            notifications: $notifications,
         );
 
         $host = $this->commandBus->execute($command);
@@ -237,7 +251,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         }
 
         $resource = $this->transformer->transform($host);
-        $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
+        $resource->poller = new PollerChoicesOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
         $resource->groups = $groups;
         $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
 
@@ -309,6 +323,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
+        $resource->notifications = $this->notificationsTransformer->transform($host->notifications);
+
         return $resource;
     }
 
@@ -339,7 +355,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         return $value ?? TriStateEnum::UseDefault;
     }
 
-    private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?HostTimePeriodOutput
+    private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?TimePeriodResource
     {
         if (! $checkTimeperiodId instanceof TimePeriodId) {
             return null;
@@ -350,8 +366,38 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             ->toArray()[$checkTimeperiodId->value] ?? null;
 
         return $name instanceof TimePeriodName
-            ? new HostTimePeriodOutput($checkTimeperiodId->value, $name->value)
+            ? new TimePeriodResource($checkTimeperiodId->value, $name->value)
             : null;
+    }
+
+    /**
+     * Always built on-premise, even for a request carrying no notification block: the columns are
+     * written either way (with the Default tri-state), so the response reports what was actually
+     * persisted rather than dropping the key.
+     */
+    private function buildNotifications(?CreateHostNotificationsInput $input): Notifications
+    {
+        $input ??= new CreateHostNotificationsInput();
+
+        // A client repeating a contact or contact group id is tolerated: Notifications collapses it.
+        return new Notifications(
+            enabled: TriStateEnum::from($input->enabled),
+            contactIds: new Collection(
+                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $input->contacts),
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $input->contactGroups),
+                ContactGroupId::class,
+            ),
+            options: array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),
+            interval: $input->interval,
+            periodId: $input->timeperiodId !== null ? new TimePeriodId($input->timeperiodId) : null,
+            firstDelay: $input->firstDelay,
+            recoveryDelay: $input->recoveryDelay,
+            contactAdditiveInheritance: $input->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $input->contactGroupAdditiveInheritance,
+        );
     }
 
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput

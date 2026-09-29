@@ -92,6 +92,13 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
         self::assertSame([], $names);
     }
 
+    public function testFindNamesByIdsQueriesNothingForAnEmptyList(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], TimePeriodId::class));
+
+        self::assertCount(0, $names);
+    }
+
     public function testFindAllReturnsIdAndNameOfEveryTimePeriod(): void
     {
         $name = "tp-{$this->tag}";
