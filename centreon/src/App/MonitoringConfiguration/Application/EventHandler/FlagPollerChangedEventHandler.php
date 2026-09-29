@@ -24,19 +24,22 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
+use App\Shared\Domain\Event\AggregateDuplicated;
 use App\Shared\Domain\Event\AsEventHandler;
 
 /**
- * Reacts to the creation or deletion of any poller-scoped resource (see {@see PollerScopedInterface}):
- * the owning poller's configuration just changed, so its `nagios_server.updated` flag must be
- * raised, or the monitoring engine keeps running on stale configuration until something else
- * touches it.
+ * Reacts to the creation, deletion or duplication of any poller-scoped resource (see
+ * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
+ * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
+ * configuration until something else touches it.
  *
- * Created and Deleted are wired (Host creation and deletion) — extend to AggregateUpdated/Duplicated
- * once those exist, mirroring LogActivityEventHandler.
+ * Created, Deleted and Duplicated are wired (Host creation, deletion, duplication) — extend to
+ * AggregateUpdated once it exists, mirroring LogActivityEventHandler.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -46,7 +49,10 @@ final readonly class FlagPollerChangedEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated|AggregateDeleted $event): void
+    /**
+     * @param AggregateCreated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
+     */
+    public function __invoke(AggregateCreated|AggregateDeleted|AggregateDuplicated $event): void
     {
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;

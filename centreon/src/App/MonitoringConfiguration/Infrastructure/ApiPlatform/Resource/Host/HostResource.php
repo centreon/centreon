@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 
 #[ApiResource(
@@ -50,6 +51,29 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to create hosts',
+        ),
+        new Post(
+            uriTemplate: '/configuration/hosts/{id}/_duplicate',
+            // No body, no item to read, no output: a 204 action that duplicates one host by id.
+            read: false,
+            deserialize: false,
+            validate: false,
+            output: false,
+            status: 204,
+            processor: DuplicateHostProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Duplicate a host',
+                description: 'Duplicates a single host. The copy takes the source name with the first '
+                    . 'free "_<n>" suffix. Unitary, not a bulk operation.',
+                responses: [
+                    204 => new Model\Response('Host duplicated'),
+                    403 => new Model\Response('You are not allowed to duplicate hosts'),
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host with the generated name already exists'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to duplicate hosts',
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',

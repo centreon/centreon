@@ -38,6 +38,12 @@ final class FakeHostRepository implements HostRepository
     public array $hosts = [];
 
     /**
+     * When true, {@see isNameUsedByHostOrTemplate()} reports every name as taken, letting a test
+     * exercise the exhausted-suffix path without seeding hundreds of hosts.
+     */
+    public bool $forceNameUsed = false;
+
+    /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
      * writes from both sides: a host created with children becomes their parent in the graph.
      *
@@ -82,6 +88,10 @@ final class FakeHostRepository implements HostRepository
 
     public function isNameUsedByHostOrTemplate(HostName $name): bool
     {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
         foreach ($this->hosts as $host) {
             if ($host->name->value === $name->value) {
                 return true;

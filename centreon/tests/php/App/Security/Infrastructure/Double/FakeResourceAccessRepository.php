@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Double;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -55,6 +56,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     public array $grantedAccess = [];
 
     public bool $allResourcesFlaggedAsChanged = false;
+
+    /** @var list<array{sourceHostId: int, newHostId: int}> */
+    public array $duplicatedHostAccess = [];
 
     public function hasAccessToAllPollers(UserId $userId): bool
     {
@@ -102,5 +106,13 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     public function flagAllResourcesAsChanged(): void
     {
         $this->allResourcesFlaggedAsChanged = true;
+    }
+
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        $this->duplicatedHostAccess[] = [
+            'sourceHostId' => $sourceHostId->value,
+            'newHostId' => $newHostId->value,
+        ];
     }
 }

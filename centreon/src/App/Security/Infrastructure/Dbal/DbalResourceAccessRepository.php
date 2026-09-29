@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -74,6 +75,39 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function flagAllResourcesAsChanged(): void
     {
         $this->connection->executeStatement('UPDATE acl_resources SET changed = 1');
+    }
+
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        // Configuration relations (main connection). INSERT ... SELECT keeps the copy in one round trip
+        // and writes nothing when the source has no relation. Legacy centreonACL::duplicateHostAcl.
+        foreach (['acl_resources_host_relations', 'acl_resources_hostex_relations'] as $table) {
+            $this->connection->executeStatement(
+                sprintf(
+                    'INSERT INTO %s (host_host_id, acl_res_id)
+                        SELECT :newHostId, acl_res_id FROM %s WHERE host_host_id = :sourceHostId',
+                    $table,
+                    $table,
+                ),
+                ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
+            );
+        }
+
+        // Real-time cache (centreon_storage connection): copy the source's host-level rows per group so
+        // a non-admin sees the copy immediately. Legacy updateACL('DUP'); its service loop is empty here
+        // because the copy has no services yet.
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['sourceHostId' => $sourceHostId->value],
+        );
+
+        foreach ($groupIds as $groupId) {
+            $this->realTimeConnection->executeStatement(
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
+                ['groupId' => (int) $groupId, 'hostId' => $newHostId->value],
+            );
+        }
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool

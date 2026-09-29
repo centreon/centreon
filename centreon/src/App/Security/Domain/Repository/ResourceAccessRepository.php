@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -57,6 +58,19 @@ interface ResourceAccessRepository
      * just the creator's own.
      */
     public function flagAllResourcesAsChanged(): void;
+
+    /**
+     * Copies a host's ACL scope onto a freshly duplicated host, so the copy is visible to exactly the
+     * same Access Groups as its source without waiting for the `centAcl` cron:
+     *  - the configuration relations `acl_resources_host_relations` and `acl_resources_hostex_relations`
+     *    (duplication is the only path that writes these two tables), and
+     *  - the real-time `centreon_acl` rows scoping the host per group.
+     *
+     * The copy carries no services yet, so only host-level rows are copied (mirrors legacy
+     * centreonACL::duplicateHostAcl + updateACL('DUP'), whose service loop is empty for a copy with
+     * no host_service_relation rows).
+     */
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
