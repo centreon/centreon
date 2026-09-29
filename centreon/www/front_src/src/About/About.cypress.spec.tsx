@@ -1,12 +1,12 @@
 import {
-  platformVersionsAtom,
   ThemeMode,
+  platformVersionsAtom,
   userAtom
 } from '@centreon/ui-context';
 
 import { renderHook } from '@testing-library/react';
 import i18next from 'i18next';
-import { createStore, Provider, useAtomValue } from 'jotai';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 
 import { PlatformVersions } from '../api/models';
