@@ -436,6 +436,64 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->findAccessibleImageFolderIds($userId));
     }
 
+    public function testDuplicateHostAccessCopiesTheSourceScopeOntoTheNewHost(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9101, 'host_name' => 'dup-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9102, 'host_name' => 'dup-copy', 'host_register' => '1']);
+
+        $this->connection->insert('acl_resources', ['acl_res_name' => 'res-dup', 'acl_res_alias' => 'res-dup', 'acl_res_activate' => '1']);
+
+        $aclResId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_resources_host_relations', ['host_host_id' => 9101, 'acl_res_id' => $aclResId]);
+        $this->connection->insert('acl_resources_hostex_relations', ['host_host_id' => 9101, 'acl_res_id' => $aclResId]);
+
+        // Real-time cache: two host-level rows, plus one service-level row that must NOT be copied.
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => 555]);
+
+        $this->repository->duplicateHostAccess(sourceHostId: new HostId(9101), newHostId: new HostId(9102));
+
+        foreach (['acl_resources_host_relations', 'acl_resources_hostex_relations'] as $table) {
+            self::assertSame(
+                1,
+                $this->countRows($this->connection, "SELECT COUNT(*) FROM {$table} WHERE host_host_id = ? AND acl_res_id = ?", [9102, $aclResId]),
+                "the copy inherits the source {$table} row",
+            );
+        }
+
+        /** @var list<array{group_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, service_id FROM centreon_acl WHERE host_id = ? ORDER BY group_id',
+            [9102],
+        );
+        self::assertCount(2, $rows, 'only the host-level rows are copied, never the service-level one');
+        self::assertSame(10, (int) $rows[0]['group_id']);
+        self::assertNull($rows[0]['service_id']);
+        self::assertSame(20, (int) $rows[1]['group_id']);
+        self::assertNull($rows[1]['service_id']);
+    }
+
+    public function testDuplicateHostAccessWritesNothingWhenTheSourceHasNoAcl(): void
+    {
+        $this->repository->duplicateHostAccess(sourceHostId: new HostId(9201), newHostId: new HostId(9202));
+
+        self::assertSame(0, $this->countRows($this->connection, 'SELECT COUNT(*) FROM acl_resources_host_relations WHERE host_host_id = ?', [9202]));
+        self::assertSame(0, $this->countRows($this->connection, 'SELECT COUNT(*) FROM acl_resources_hostex_relations WHERE host_host_id = ?', [9202]));
+        self::assertSame(0, $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ?', [9202]));
+    }
+
+    /**
+     * @param list<int|string> $params
+     */
+    private function countRows(Connection $connection, string $sql, array $params): int
+    {
+        $count = $connection->fetchOne($sql, $params);
+        self::assertIsScalar($count);
+
+        return (int) $count;
+    }
+
     private function buildHost(int $id): Host
     {
         $host = new Host(
