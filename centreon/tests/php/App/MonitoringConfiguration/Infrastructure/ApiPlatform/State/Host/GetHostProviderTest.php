@@ -178,6 +178,17 @@ final class GetHostProviderTest extends ApiTestCase
         // Secrets are never part of the resource, on either endpoint.
         self::assertArrayNotHasKey('snmp_community', $getBody);
 
+        // A password macro's value is redacted (null), asserted directly so the guarantee does not
+        // rely solely on the body-to-body comparison below (which would pass even if both leaked).
+        $passwordMacros = array_filter(
+            $getBody['check_options']['macros'],
+            static fn (array $macro): bool => $macro['is_password'] === true,
+        );
+        self::assertNotEmpty($passwordMacros, 'the fixture must contain a password macro');
+        foreach ($passwordMacros as $macro) {
+            self::assertNull($macro['value'], "password macro '{$macro['name']}' value must not be exposed");
+        }
+
         // The whole contract, field for field, matches what CreateHost returned.
         self::assertEqualsCanonicalizing($createBody, $getBody);
 
