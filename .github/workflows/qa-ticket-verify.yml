@@ -10,12 +10,12 @@ name: qa-ticket-verify
 # the Playwright MCP configs (version pinned) and the selector catalog.
 #
 # Setup: CLAUDE_CODE_OAUTH_TOKEN is per contributor, not a shared secret: each person runs
-# `claude setup-token` then `gh secret set CLAUDE_CODE_OAUTH_TOKEN_<their-github-username>
-# --repo centreon/centreon` (no admin rights needed). `secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}',
-# github.actor)]` below resolves it dynamically from whoever actually triggered the run, so
-# onboarding a new contributor never touches this file, and a run only ever spends under the
-# identity that triggered it. Secret names only allow [A-Za-z0-9_] and expressions can't
-# rewrite github.actor, so a username containing a hyphen can't have its own token yet.
+# `claude setup-token` then `gh secret set CLAUDE_CODE_OAUTH_TOKEN_<their-github-account-id>
+# --repo centreon/centreon` (no admin rights needed; the numeric id comes from `gh api user --jq .id`).
+# The job resolves it from whoever triggered the run, by `github.actor_id` — a valid secret
+# name for every user, unlike a login containing a hyphen — then by the login for secrets set
+# before (`CLAUDE_CODE_OAUTH_TOKEN_<login>`). Onboarding a new contributor never touches this
+# file, and a run only ever spends under the identity that triggered it.
 # JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL / XRAY_JIRA_TOKEN are shared, reused from the existing
 # Xray reporting workflows.
 #
@@ -53,11 +53,12 @@ jobs:
     steps:
       - name: Check that the triggering user has their own Claude token
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor_id)] || secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
           ACTOR: ${{ github.actor }}
+          ACTOR_ID: ${{ github.actor_id }}
         run: |
           if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-            echo "::error::No Claude token configured for GitHub user '$ACTOR' (expected repo secret 'CLAUDE_CODE_OAUTH_TOKEN_$ACTOR'). Set your own — no admin rights needed: \`claude setup-token\` then \`gh secret set CLAUDE_CODE_OAUTH_TOKEN_$ACTOR --repo centreon/centreon\`."
+            echo "::error::No Claude token configured for GitHub user '$ACTOR' (expected repo secret 'CLAUDE_CODE_OAUTH_TOKEN_$ACTOR_ID', your numeric account id). Set your own — no admin rights needed: \`claude setup-token\` then \`gh secret set CLAUDE_CODE_OAUTH_TOKEN_$ACTOR_ID --repo centreon/centreon\`."
             exit 1
           fi
           echo "Token found for $ACTOR — proceeding to qa-verify."
@@ -185,7 +186,7 @@ jobs:
       - name: Run QA verification
         id: qa
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor_id)] || secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
