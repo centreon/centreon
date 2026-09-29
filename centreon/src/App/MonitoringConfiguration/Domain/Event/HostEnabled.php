@@ -21,13 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-enum ActionEnum: string
+use App\Shared\Domain\Event\AggregateEnabled;
+
+final readonly class HostEnabled extends AggregateEnabled
 {
-    case Add = 'Add';
-    case Update = 'Update';
-    case Delete = 'Delete';
-    case Enable = 'Enable';
-    case Disable = 'Disable';
 }

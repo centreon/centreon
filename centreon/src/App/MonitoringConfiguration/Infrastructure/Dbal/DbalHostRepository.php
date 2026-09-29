@@ -371,6 +371,19 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->executeStatement();
     }
 
+    public function updateActivationStatus(HostId $id, bool $activated): void
+    {
+        // host_register = '1' mirrors findOne so a template is never toggled; contract on the interface.
+        $this->connection->createQueryBuilder()
+            ->update(self::TABLE_NAME)
+            ->set('host_activate', ':activated')
+            ->where('host_id = :id')
+            ->andWhere("host_register = '1'")
+            ->setParameter('activated', $activated ? '1' : '0')
+            ->setParameter('id', $id->value, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
     /**
      * No unique index backs `host_name` at the DB level (verified against the live schema) —
      * legacy has the same gap, this is a pre-existing, accepted race window, not something

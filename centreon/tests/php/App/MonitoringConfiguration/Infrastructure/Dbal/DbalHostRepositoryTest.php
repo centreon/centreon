@@ -265,6 +265,29 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertCount(1, iterator_to_array($this->repository->findAll()));
     }
 
+    public function testUpdateActivationStatusPersistsTheFlag(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId, activated: true);
+
+        $this->repository->updateActivationStatus(new HostId($hostId), false);
+        self::assertSame('0', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+
+        $this->repository->updateActivationStatus(new HostId($hostId), true);
+        self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testUpdateActivationStatusNeverTogglesAHostTemplate(): void
+    {
+        // host_register = '0'; the guard makes the UPDATE match no row -> silent no-op by contract.
+        $templateId = $this->createHostTemplate('generic-template');
+        $before = $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]);
+
+        $this->repository->updateActivationStatus(new HostId($templateId), false);
+
+        self::assertSame($before, $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]));
+    }
+
     public function testAddPersistsTheHostAndItsRelations(): void
     {
         $pollerId = $this->createPoller('Central');

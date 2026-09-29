@@ -263,6 +263,45 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertSame('new', $found->details['new_value']);
     }
 
+    /**
+     * @dataProvider provideActivationActions
+     */
+    public function testAddAndFindWithActivationAction(ActionEnum $action): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: $action,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('toggled-host'),
+                type: TargetTypeEnum::Host,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        $found = $this->repository->find($activityLog->id());
+
+        // Round-trips the new 'enable'/'disable' legacy tokens through ACTION_VALUE_MAP both ways.
+        self::assertNotNull($found);
+        self::assertEquals($action, $found->action);
+    }
+
+    /**
+     * @return iterable<string, array{ActionEnum}>
+     */
+    public static function provideActivationActions(): iterable
+    {
+        yield 'enable' => [ActionEnum::Enable];
+
+        yield 'disable' => [ActionEnum::Disable];
+    }
+
     public function testAddAndFindWithDeleteAction(): void
     {
         $activityLog = new ActivityLog(

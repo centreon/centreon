@@ -51,6 +51,13 @@ interface HostRepository
     public function remove(Host $host): void;
 
     /**
+     * Bounded UPDATE of the activation flag; never touches a host template. Precondition: the caller
+     * confirmed the host exists (typically {@see findOne()} in the same transaction) — it does not
+     * assert a matched row, so it is a silent no-op on an unknown or template id.
+     */
+    public function updateActivationStatus(HostId $id, bool $activated): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *
