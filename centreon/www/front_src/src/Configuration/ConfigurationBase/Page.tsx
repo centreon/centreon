@@ -14,7 +14,6 @@ import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
 import { Modal } from './Modal';
 import Navbar from './NavBar';
-import { usePageStyles } from './Page.styles';
 import { PanelLayout } from './Panel';
 import useSyncFormStateWithUrl from './useSyncFormStateWithUrl';
 
@@ -92,8 +91,6 @@ const Page = <TFilters,>({
   | 'formVariant'
   | 'formPanelWidth'
 >): JSX.Element => {
-  const { classes } = usePageStyles();
-
   const [, setSearchParams] = useSearchParams();
 
   const setFormState = useSetAtom(formStateAtom);
@@ -149,7 +146,7 @@ const Page = <TFilters,>({
   return (
     // A positioning context only where the panel needs one: the modules that
     // keep the modal render exactly the page they rendered before.
-    <PageLayout className={isFormInPanel && hasFormAccess ? classes.page : ''}>
+    <PageLayout className={isFormInPanel && hasFormAccess ? 'relative' : ''}>
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
