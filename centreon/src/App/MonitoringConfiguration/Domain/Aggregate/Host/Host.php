@@ -77,12 +77,25 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
     ) {
         parent::__construct($id);
 
-        // The only loop visible without the stored graph; the longer ones are the handler's.
+        // The only loops visible without the stored graph; the longer ones are the handler's.
         Assert::same(
             array_intersect($this->idValues($parentHostIds), $this->idValues($childHostIds)),
             [],
             'A host cannot be both a parent and a child of this host.',
         );
+
+        // On an update the id is known, so the immediate self-reference is catchable here too;
+        // on creation ($id === null) it cannot exist yet.
+        if ($id instanceof HostId) {
+            Assert::false(
+                in_array($id->value, $this->idValues($parentHostIds), true),
+                'A host cannot be its own parent.',
+            );
+            Assert::false(
+                in_array($id->value, $this->idValues($childHostIds), true),
+                'A host cannot be its own child.',
+            );
+        }
     }
 
     public function enable(): void
