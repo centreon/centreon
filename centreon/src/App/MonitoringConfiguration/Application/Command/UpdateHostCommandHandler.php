@@ -68,6 +68,7 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Vault\VaultCredentials;
+use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
@@ -82,9 +83,6 @@ use App\Shared\Domain\VaultInterface;
 #[AsCommandHandler]
 final readonly class UpdateHostCommandHandler
 {
-    /** Must match legacy: both address the same vault entries. */
-    public const HOST_VAULT_PATH = 'monitoring/hosts';
-    public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
     private const INHERITANCE_MODE_OPTION = 'inheritance_mode';
     private const ADDITIVE_INHERITANCE_MODE = 1;
 
@@ -223,7 +221,7 @@ final readonly class UpdateHostCommandHandler
         );
 
         if (! $hasSnmpSecret && ! $hasPasswordMacro) {
-            $this->vault->delete(self::HOST_VAULT_PATH, $existingVaultUuid);
+            $this->vault->delete(VaultPathEnum::MonitoringHosts->value, $existingVaultUuid);
         }
     }
 
@@ -331,8 +329,8 @@ final readonly class UpdateHostCommandHandler
         }
 
         return new SnmpCommunity($this->vault->write(
-            self::HOST_VAULT_PATH,
-            self::HOST_SNMP_COMMUNITY_KEY,
+            VaultPathEnum::MonitoringHosts->value,
+            VaultKeyEnum::HostSnmpCommunity->value,
             $snmpCommunity,
             $vaultUuid,
         ));
