@@ -86,6 +86,36 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         );
       });
 
+      it('runs from the top of the page to its bottom', () => {
+        mount();
+
+        cy.waitForRequest('@getAll');
+
+        cy.get('[data-testid="add-resource"]').click();
+
+        cy.get('#page').then(([page]) => {
+          const pageRect = page.getBoundingClientRect();
+
+          // The rectangles below match the viewport too, so assert the
+          // mechanism: without this the panel hangs off whatever ancestor
+          // happens to be positioned, which is invisible in a test where the
+          // page fills the frame.
+          expect(getComputedStyle(page).position).to.equal('relative');
+
+          // Above the page title, not below it.
+          panelSurface().should(([panel]) => {
+            const panelRect = panel.getBoundingClientRect();
+
+            expect(panelRect.top).to.equal(pageRect.top);
+            expect(panelRect.bottom).to.equal(pageRect.bottom);
+            expect(panelRect.right).to.equal(pageRect.right);
+          });
+        });
+
+        // The title it covers is still rendered underneath.
+        cy.get('#header').should('exist');
+      });
+
       it('opens over the listing, leaving it at its width', () => {
         mount();
 

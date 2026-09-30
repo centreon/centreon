@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { ReactElement } from 'react';
@@ -8,52 +8,44 @@ import { formStateAtom, panelWidthAtom } from '../atoms';
 import Panel, { getDefaultPanelWidth, maxPanelWidth } from './Panel';
 import useAvailableWidth from './useAvailableWidth';
 
-// `PageLayout.Body` pads the page with `theme.spacing(0, 3, 1.5)`. The panel is
-// flush to the page edges, so it bleeds back out by exactly that padding.
-const pageBodyPadding = { bottom: 1.5, right: 3 };
-
 interface Props {
-  children: ReactElement;
   form: FormType;
   hasWriteAccess: boolean;
   width?: number;
 }
 
-const PanelLayout = ({
-  children,
-  form,
-  hasWriteAccess,
-  width
-}: Props): ReactElement => {
-  const theme = useTheme();
-
+const PanelLayout = ({ form, hasWriteAccess, width }: Props): ReactElement => {
   const { id, isOpen } = useAtomValue(formStateAtom);
 
   const [draggedWidth, setDraggedWidth] = useAtom(panelWidthAtom);
 
   const { ref, availableWidth } = useAvailableWidth();
 
-  const rightBleed = Number.parseFloat(theme.spacing(pageBodyPadding.right));
-
   const preferredWidth =
     draggedWidth ?? width ?? getDefaultPanelWidth(window.innerWidth);
 
   // Flush right, so anything wider than the page is clipped off it.
-  const roomToGrow = availableWidth
-    ? availableWidth + rightBleed
-    : preferredWidth;
-
-  const panelWidth = Math.min(preferredWidth, maxPanelWidth, roomToGrow);
+  const panelWidth = Math.min(
+    preferredWidth,
+    maxPanelWidth,
+    availableWidth || preferredWidth
+  );
 
   return (
-    <div className="relative h-full" ref={ref}>
-      {children}
+    // Spans the page rather than the listing, so the panel reaches the top of
+    // the page as the mock has it. Transparent to the pointer: the listing
+    // underneath stays usable while the panel is open.
+    <Box
+      ref={ref}
+      sx={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}
+    >
       {isOpen && (
         <Box
           sx={{
-            bottom: `-${theme.spacing(pageBodyPadding.bottom)}`,
+            bottom: 0,
+            pointerEvents: 'auto',
             position: 'absolute',
-            right: `-${theme.spacing(pageBodyPadding.right)}`,
+            right: 0,
             top: 0,
             zIndex: 10
           }}
@@ -68,7 +60,7 @@ const PanelLayout = ({
           />
         </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
