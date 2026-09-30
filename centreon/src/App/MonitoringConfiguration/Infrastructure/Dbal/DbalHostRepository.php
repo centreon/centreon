@@ -330,6 +330,204 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
     }
 
+    public function update(Host $host): void
+    {
+        $hostId = $host->id()->value;
+        $dataProcessing = $host->dataProcessing;
+        $extendedInformations = $host->extendedInformations;
+        $schedulingOptions = $host->schedulingOptions;
+        $notifications = $host->notifications;
+        // The transformer owns every legacy storage format of the block, including what an absent
+        // one writes: the Default tri-state, false flags, and NULL everywhere else.
+        $notificationColumns = $this->notificationsTransformer->transform($notifications);
+
+        // Every writable column is rewritten (full-replace/PUT). `host_register` is intentionally
+        // left untouched so a host can never be turned into a template, and it guards the row the
+        // same way `updateActivationStatus()`/`findOne()` do (a template id matches nothing).
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME)
+            ->set('host_name', ':name')
+            ->set('host_address', ':address')
+            ->set('host_alias', ':alias')
+            ->set('host_activate', ':is_activated')
+            ->set('host_acknowledgement_timeout', ':ackTimeout')
+            ->set('host_check_freshness', ':checkFreshness')
+            ->set('host_freshness_threshold', ':freshnessThreshold')
+            ->set('host_flap_detection_enabled', ':flapDetectionEnabled')
+            ->set('host_low_flap_threshold', ':lowFlapThreshold')
+            ->set('host_high_flap_threshold', ':highFlapThreshold')
+            ->set('host_event_handler_enabled', ':eventHandlerEnabled')
+            ->set('command_command_id2', ':eventHandlerCommandId')
+            ->set('command_command_id_arg2', ':eventHandlerArgs')
+            ->set('host_snmp_version', ':snmpVersion')
+            ->set('host_snmp_community', ':snmpCommunity')
+            ->set('host_location', ':timezoneId') // the timezone, despite the legacy column name
+            ->set('geo_coords', ':geoCoords')
+            ->set('host_comment', ':comment')
+            ->set('timeperiod_tp_id', ':checkTimeperiodId')
+            ->set('host_max_check_attempts', ':maxCheckAttempts')
+            ->set('host_check_interval', ':normalCheckInterval')
+            ->set('host_retry_check_interval', ':retryCheckInterval')
+            ->set('host_active_checks_enabled', ':activeCheckEnabled')
+            ->set('host_passive_checks_enabled', ':passiveCheckEnabled')
+            ->set('command_command_id', ':check_command_id')
+            ->set('command_command_id_arg1', ':check_command_args')
+            ->set('host_notifications_enabled', ':notificationsEnabled')
+            ->set('host_notification_options', ':notificationOptions')
+            ->set('host_notification_interval', ':notificationInterval')
+            ->set('timeperiod_tp_id2', ':notificationPeriodId')
+            ->set('host_first_notification_delay', ':firstNotificationDelay')
+            ->set('host_recovery_notification_delay', ':recoveryNotificationDelay')
+            ->set('contact_additive_inheritance', ':contactAdditiveInheritance')
+            ->set('cg_additive_inheritance', ':contactGroupAdditiveInheritance')
+            ->where('host_id = :hostId')
+            ->andWhere("host_register = '1'")
+            ->setParameter('name', $host->name->value)
+            ->setParameter('address', $host->address->value)
+            // NULL where legacy stores '': config generation skips both identically.
+            ->setParameter('alias', $host->alias?->value)
+            ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
+            ->setParameter('checkFreshness', $this->triStateToColumn($dataProcessing->checkFreshness))
+            ->setParameter('freshnessThreshold', $dataProcessing->freshnessThreshold, ParameterType::INTEGER)
+            ->setParameter('flapDetectionEnabled', $this->triStateToColumn($dataProcessing->flapDetectionEnabled))
+            ->setParameter('lowFlapThreshold', $dataProcessing->lowFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
+            ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
+            ->setParameter('eventHandlerArgs', CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs))
+            ->setParameter('snmpVersion', $host->snmpVersion?->value)
+            ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
+            ->setParameter('timezoneId', $host->timezoneId?->value)
+            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
+            ->setParameter('comment', $extendedInformations?->comment)
+            ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
+            ->setParameter('maxCheckAttempts', $schedulingOptions->maxCheckAttempts, ParameterType::INTEGER)
+            ->setParameter('normalCheckInterval', $schedulingOptions->normalCheckInterval, ParameterType::INTEGER)
+            ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
+            ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
+            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
+            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
+            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
+            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
+            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
+            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
+
+        // The companion row always exists (add() always inserts it, like legacy) — so UPDATE, never INSERT.
+        $this->connection->createQueryBuilder()
+            ->update('extended_host_information')
+            ->set('ehi_notes_url', ':noteUrl')
+            ->set('ehi_notes', ':note')
+            ->set('ehi_action_url', ':actionUrl')
+            ->set('ehi_icon_image', ':iconId')
+            ->set('ehi_icon_image_alt', ':iconAlternative')
+            ->where('host_host_id = :hostId')
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value)
+            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
+            ->executeStatement();
+
+        // Every relation is replaced wholesale: clear this host's rows, then re-insert from $host,
+        // exactly as add() would write them for a new host.
+        $this->clearRelations($hostId);
+
+        $this->connection->createQueryBuilder()
+            ->insert('ns_host_relation')
+            ->values(['host_host_id' => ':hostId', 'nagios_server_id' => ':pollerId'])
+            ->setParameter('hostId', $hostId)
+            ->setParameter('pollerId', $host->pollerId->value)
+            ->executeStatement();
+
+        foreach ($host->hostGroupIds as $hostGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('hostgroup_relation')
+                ->values(['hostgroup_hg_id' => ':groupId', 'host_host_id' => ':hostId'])
+                ->setParameter('groupId', $hostGroupId->value)
+                ->setParameter('hostId', $hostId)
+                ->executeStatement();
+        }
+
+        // Categories and the severity share this table, told apart only by `hostcategories.level`.
+        foreach ($host->categoryIds as $categoryId) {
+            $this->linkToHostCategory($hostId, $categoryId->value);
+        }
+
+        if ($host->severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $host->severityId->value);
+        }
+
+        $order = 0;
+        foreach ($host->templateIds as $templateId) {
+            $this->connection->createQueryBuilder()
+                ->insert('host_template_relation')
+                ->values(['host_tpl_id' => ':templateId', 'host_host_id' => ':hostId', '`order`' => ':order'])
+                ->setParameter('templateId', $templateId->value)
+                ->setParameter('hostId', $hostId)
+                ->setParameter('order', $order++)
+                ->executeStatement();
+        }
+
+        foreach ($host->parentHostIds as $parentHostId) {
+            $this->insertParentRelation(parentId: $parentHostId->value, childId: $hostId);
+        }
+
+        foreach ($host->childHostIds as $childHostId) {
+            $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
+        }
+
+        foreach ($host->checkOptions->macros as $macroOrder => $macro) {
+            $this->connection->createQueryBuilder()
+                ->insert('on_demand_macro_host')
+                ->values([
+                    'host_macro_name' => ':macroName',
+                    'host_macro_value' => ':macroValue',
+                    'is_password' => ':isPassword',
+                    'description' => ':description',
+                    'host_host_id' => ':hostId',
+                    'macro_order' => ':macroOrder',
+                ])
+                ->setParameter('macroName', $macro->name->toStorageName())
+                ->setParameter('macroValue', $macro->value)
+                // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+                ->setParameter('isPassword', $macro->isPassword ? 1 : null)
+                // Legacy coerces a missing description to '' (never NULL) in this column.
+                ->setParameter('description', $macro->description ?? '')
+                ->setParameter('hostId', $hostId)
+                ->setParameter('macroOrder', $macroOrder)
+                ->executeStatement();
+        }
+
+        if ($notifications instanceof Notifications) {
+            foreach ($notifications->contactIds as $contactId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contact_host_relation')
+                    ->values(['contact_id' => ':contactId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactId', $contactId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+
+            foreach ($notifications->contactGroupIds as $contactGroupId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contactgroup_host_relation')
+                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactGroupId', $contactGroupId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+        }
+    }
+
     public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
     {
         if (
@@ -443,13 +641,18 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
      * introduced here. This is the only safeguard against a duplicate name.
      */
-    public function isNameUsedByHostOrTemplate(HostName $name): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')
             ->from(self::TABLE_NAME)
             ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
             ->setMaxResults(1);
+
+        // On an update, the edited host keeping its own name is not a conflict with itself.
+        if ($excludingHostId instanceof HostId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludingHostId->value, ParameterType::INTEGER)));
+        }
 
         return (bool) $qb->executeQuery()->fetchOne();
     }
@@ -561,15 +764,29 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return new Collection($names, HostName::class);
     }
 
-    public function findAncestorIds(Collection $ids): Collection
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
         if ($idValues === []) {
             return new Collection([], HostId::class);
         }
 
+        $params = ['ids' => $idValues];
+        $types = ['ids' => ArrayParameterType::INTEGER];
+
+        // On an update, the edited host's own parent/child edges are about to be replaced, so they
+        // must not contribute phantom ancestors: drop from the traversal every relation row on
+        // either side of it. A genuine new cycle passes through the edited host via its new edges,
+        // never through this middle path, so excluding it here cannot hide one.
+        $excludeClause = '';
+        if ($excludingHostId instanceof HostId) {
+            $excludeClause = ' AND hhr.host_host_id <> :excludeId AND hhr.host_parent_hp_id <> :excludeId';
+            $params['excludeId'] = $excludingHostId->value;
+            $types['excludeId'] = ParameterType::INTEGER;
+        }
+
         // UNION, not UNION ALL: a loop already in the data cannot hang the query.
-        $sql = <<<'SQL'
+        $sql = <<<SQL
             WITH RECURSIVE ancestors (host_id) AS (
                 SELECT h.host_id
                 FROM host h
@@ -578,7 +795,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 SELECT hhr.host_parent_hp_id
                 FROM host_hostparent_relation hhr
                 INNER JOIN ancestors a ON a.host_id = hhr.host_host_id
-                WHERE hhr.host_parent_hp_id IS NOT NULL
+                WHERE hhr.host_parent_hp_id IS NOT NULL{$excludeClause}
             )
             SELECT host_id FROM ancestors
             SQL;
@@ -586,14 +803,46 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         /** @var list<array{host_id: int|string}> $rows */
         $rows = $this->connection->executeQuery(
             $sql,
-            ['ids' => $idValues],
-            ['ids' => ArrayParameterType::INTEGER],
+            $params,
+            $types,
         )->fetchAllAssociative();
 
         return new Collection(
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
+    }
+
+    /**
+     * Removes every relation row this host owns, so update() can re-insert them from scratch
+     * (full-replace semantics). Parents and children both live in host_hostparent_relation, on
+     * either side of the id.
+     */
+    private function clearRelations(int $hostId): void
+    {
+        $tables = [
+            'ns_host_relation' => 'host_host_id',
+            'hostgroup_relation' => 'host_host_id',
+            'hostcategories_relation' => 'host_host_id',
+            'host_template_relation' => 'host_host_id',
+            'on_demand_macro_host' => 'host_host_id',
+            'contact_host_relation' => 'host_host_id',
+            'contactgroup_host_relation' => 'host_host_id',
+        ];
+
+        foreach ($tables as $table => $column) {
+            $this->connection->createQueryBuilder()
+                ->delete($table)
+                ->where("{$column} = :hostId")
+                ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete('host_hostparent_relation')
+            ->where($qb->expr()->or('host_host_id = :hostId', 'host_parent_hp_id = :hostId'))
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     /**

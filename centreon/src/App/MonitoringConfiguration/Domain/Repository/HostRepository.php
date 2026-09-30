@@ -35,6 +35,18 @@ interface HostRepository
     public function add(Host $host): void;
 
     /**
+     * Full replace of an existing host and all its relations (PUT semantics): every column is
+     * rewritten and every relation table (poller, host groups, categories/severity, templates,
+     * parents/children, macros, contacts/contact groups) is cleared and re-inserted from $host.
+     *
+     * Precondition: $host carries the id of an existing *real* host — in practice one just loaded
+     * via {@see findOne()} (which never returns a template) in the same transaction. The host-row
+     * UPDATE is additionally guarded so it never rewrites a template row, but the relation replace
+     * addresses the id directly, so honoring the precondition is what keeps a template untouched.
+     */
+    public function update(Host $host): void;
+
+    /**
      * Never returns a host template, though both share the `host` table. Returns the `Host` fully
      * hydrated — every field, unlike `findAll()`, which deliberately stays partial (see
      * `Host::$checkOptions` docblock): a listing never needs the full object, this is the one read
@@ -67,8 +79,11 @@ interface HostRepository
      * A plain existence check, not `findOneByName(): ?Host`: a matching row can be a host
      * template, which has no poller relation and therefore cannot be hydrated into a valid
      * `Host` (poller is a required, non-nullable field on the aggregate).
+     *
+     * @param ?HostId $excludingHostId on an update, the host being edited keeping its own name is
+     *                                 not a conflict; pass its id to exclude that row from the check
      */
-    public function isNameUsedByHostOrTemplate(HostName $name): bool;
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool;
 
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
@@ -88,8 +103,13 @@ interface HostRepository
      * Includes $ids themselves, minus any that is not a host.
      *
      * @param Collection<HostId> $ids
+     * @param ?HostId $excludingHostId on an update, the edited host's own parent/child edges are
+     *                                 about to be replaced, so they must not contribute phantom
+     *                                 ancestors to the circular-inheritance check; pass its id to
+     *                                 drop every `host_hostparent_relation` row touching it from
+     *                                 the traversal
      *
      * @return Collection<HostId>
      */
-    public function findAncestorIds(Collection $ids): Collection;
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection;
 }

@@ -78,5 +78,12 @@ interface PollerRepository
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
 
+    /**
+     * Same effect as {@see flagAsChanged()}, but addressed by poller id directly. Needed when the
+     * poller to flag is not the one the current aggregate points at — typically a host's *previous*
+     * poller after a PUT moved it to another one: both the old and the new poller must be regenerated.
+     */
+    public function flagAsChangedById(PollerId $pollerId): void;
+
     public function withCmaCertificates(): self;
 }

@@ -1513,6 +1513,283 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testUpdateRewritesTheScalarColumns(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-old', $pollerId, alias: 'old', address: '10.0.0.1', activated: true);
+
+        $this->repository->update($this->host(
+            id: $hostId,
+            name: 'server-new',
+            alias: 'new',
+            address: '10.0.0.2',
+            activated: false,
+            pollerId: $pollerId,
+        ));
+
+        $host = $this->repository->findOne(new HostId($hostId));
+        self::assertNotNull($host);
+        self::assertSame('server-new', $host->name->value);
+        self::assertSame('new', $host->alias?->value);
+        self::assertSame('10.0.0.2', $host->address->value);
+        self::assertFalse($host->activated);
+    }
+
+    public function testUpdateReplacesPollerGroupsTemplatesCategoriesAndSeverity(): void
+    {
+        $oldPoller = $this->createPoller('poller-old');
+        $newPoller = $this->createPoller('poller-new');
+        $oldGroup = $this->createHostGroup('group-old');
+        $newGroup = $this->createHostGroup('group-new');
+        $oldTemplate = $this->createHostTemplate('template-old');
+        $newTemplate = $this->createHostTemplate('template-new');
+        $oldCategory = $this->createHostCategory('category-old');
+        $newCategory = $this->createHostCategory('category-new');
+        $oldSeverity = $this->createHostSeverity('severity-old', level: 1);
+        $newSeverity = $this->createHostSeverity('severity-new', level: 2);
+
+        $host = $this->host(
+            name: 'server-01',
+            pollerId: $oldPoller,
+            hostGroupIds: [$oldGroup],
+            templateIds: [$oldTemplate],
+            categoryIds: [$oldCategory],
+            severityId: $oldSeverity,
+        );
+        $this->repository->add($host);
+        $hostId = $host->id()->value;
+
+        $this->repository->update($this->host(
+            id: $hostId,
+            name: 'server-01',
+            pollerId: $newPoller,
+            hostGroupIds: [$newGroup],
+            templateIds: [$newTemplate],
+            categoryIds: [$newCategory],
+            severityId: $newSeverity,
+        ));
+
+        self::assertSame(
+            [$newPoller],
+            $this->intColumn('SELECT nagios_server_id FROM ns_host_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$newGroup],
+            $this->intColumn('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$newTemplate],
+            $this->intColumn('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertEqualsCanonicalizing(
+            [$newCategory, $newSeverity],
+            $this->intColumn('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
+    public function testUpdateReplacesParentAndChildRelations(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $oldParent = $this->createHost('old-parent', $pollerId);
+        $newParent = $this->createHost('new-parent', $pollerId);
+        $oldChild = $this->createHost('old-child', $pollerId);
+        $newChild = $this->createHost('new-child', $pollerId);
+
+        $host = $this->host(name: 'server-01', pollerId: $pollerId, parentHostIds: [$oldParent], childHostIds: [$oldChild]);
+        $this->repository->add($host);
+        $hostId = $host->id()->value;
+
+        $this->repository->update($this->host(
+            id: $hostId,
+            name: 'server-01',
+            pollerId: $pollerId,
+            parentHostIds: [$newParent],
+            childHostIds: [$newChild],
+        ));
+
+        self::assertSame(
+            [$newParent],
+            $this->intColumn('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$newChild],
+            $this->intColumn('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = ?', $hostId),
+        );
+    }
+
+    public function testUpdateReplacesMacros(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $host = $this->host(
+            name: 'server-01',
+            pollerId: $pollerId,
+            macros: [new HostMacro(new HostMacroName('old'), 'old-value', isPassword: false)],
+        );
+        $this->repository->add($host);
+        $hostId = $host->id()->value;
+
+        $this->repository->update($this->host(
+            id: $hostId,
+            name: 'server-01',
+            pollerId: $pollerId,
+            macros: [new HostMacro(new HostMacroName('new'), 'new-value', isPassword: false)],
+        ));
+
+        /** @var list<array{host_macro_name: string, host_macro_value: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = ?',
+            [$hostId],
+        );
+        self::assertCount(1, $rows);
+        self::assertSame('$_HOSTNEW$', $rows[0]['host_macro_name']);
+        self::assertSame('new-value', $rows[0]['host_macro_value']);
+    }
+
+    public function testUpdateReplacesContactsAndContactGroups(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $oldContact = $this->createContact('old-contact');
+        $newContact = $this->createContact('new-contact');
+        $oldGroup = $this->createContactGroup('old-cg');
+        $newGroup = $this->createContactGroup('new-cg');
+
+        $host = $this->host(
+            name: 'server-01',
+            pollerId: $pollerId,
+            notifications: $this->notificationsWith([$oldContact], [$oldGroup]),
+        );
+        $this->repository->add($host);
+        $hostId = $host->id()->value;
+
+        $this->repository->update($this->host(
+            id: $hostId,
+            name: 'server-01',
+            pollerId: $pollerId,
+            notifications: $this->notificationsWith([$newContact], [$newGroup]),
+        ));
+
+        self::assertSame(
+            [$newContact],
+            $this->intColumn('SELECT contact_id FROM contact_host_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$newGroup],
+            $this->intColumn('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
+    public function testUpdateKeepsASingleExtendedInformationRow(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $host = $this->host(name: 'server-01', pollerId: $pollerId);
+        $this->repository->add($host);
+        $hostId = $host->id()->value;
+
+        $this->repository->update($this->host(id: $hostId, name: 'server-01', pollerId: $pollerId));
+
+        /** @var int|string $count */
+        $count = $this->connection->fetchOne('SELECT COUNT(*) FROM extended_host_information WHERE host_host_id = ?', [$hostId]);
+        self::assertSame(1, (int) $count);
+    }
+
+    public function testIsNameUsedByHostOrTemplateExcludesTheGivenHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('shared-name', $pollerId);
+        $otherId = $this->createHost('other-name', $pollerId);
+
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name')));
+        self::assertFalse($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name'), new HostId($hostId)));
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name'), new HostId($otherId)));
+    }
+
+    public function testFindAncestorIdsIgnoresTheEditedHostsOwnEdges(): void
+    {
+        // Chain root -> edited -> mid -> leaf (parent -> child). Editing the middle host replaces its
+        // own edges, so from leaf the ancestors reachable *without* those edges are only {leaf, mid}:
+        // root (and edited) must be dropped.
+        $pollerId = $this->createPoller('Central');
+        $root = $this->createHost('root', $pollerId);
+        $edited = $this->createHost('edited', $pollerId);
+        $mid = $this->createHost('mid', $pollerId);
+        $leaf = $this->createHost('leaf', $pollerId);
+        $this->linkHostToParent(hostId: $edited, parentId: $root);
+        $this->linkHostToParent(hostId: $mid, parentId: $edited);
+        $this->linkHostToParent(hostId: $leaf, parentId: $mid);
+
+        // Sanity: without exclusion, the stale chain makes root an ancestor of leaf (the phantom).
+        $withoutExclusion = array_map(
+            static fn (HostId $id): int => $id->value,
+            $this->repository->findAncestorIds(new Collection([new HostId($leaf)], HostId::class))->toArray(),
+        );
+        self::assertContains($root, $withoutExclusion);
+
+        $withExclusion = array_map(
+            static fn (HostId $id): int => $id->value,
+            $this->repository->findAncestorIds(new Collection([new HostId($leaf)], HostId::class), new HostId($edited))->toArray(),
+        );
+
+        self::assertContains($leaf, $withExclusion);
+        self::assertContains($mid, $withExclusion);
+        self::assertNotContains($edited, $withExclusion);
+        self::assertNotContains($root, $withExclusion);
+    }
+
+    /**
+     * @param list<int> $hostGroupIds
+     * @param list<int> $templateIds
+     * @param list<int> $categoryIds
+     * @param list<int> $parentHostIds
+     * @param list<int> $childHostIds
+     * @param list<HostMacro> $macros
+     */
+    private function host(
+        string $name,
+        int $pollerId,
+        ?int $id = null,
+        ?string $alias = null,
+        string $address = '127.0.0.1',
+        bool $activated = true,
+        array $hostGroupIds = [],
+        array $templateIds = [],
+        array $categoryIds = [],
+        ?int $severityId = null,
+        array $parentHostIds = [],
+        array $childHostIds = [],
+        array $macros = [],
+        ?Notifications $notifications = null,
+    ): Host {
+        return new Host(
+            id: $id !== null ? new HostId($id) : null,
+            name: new HostName($name),
+            alias: $alias !== null ? new HostAlias($alias) : null,
+            address: new HostAddress($address),
+            activated: $activated,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection(array_map(static fn (int $tid): HostTemplateId => new HostTemplateId($tid), $templateIds), HostTemplateId::class),
+            hostGroupIds: new Collection(array_map(static fn (int $gid): HostGroupId => new HostGroupId($gid), $hostGroupIds), HostGroupId::class),
+            categoryIds: new Collection(array_map(static fn (int $cid): HostCategoryId => new HostCategoryId($cid), $categoryIds), HostCategoryId::class),
+            parentHostIds: new Collection(array_map(static fn (int $pid): HostId => new HostId($pid), $parentHostIds), HostId::class),
+            childHostIds: new Collection(array_map(static fn (int $cid): HostId => new HostId($cid), $childHostIds), HostId::class),
+            severityId: $severityId !== null ? new HostSeverityId($severityId) : null,
+            checkOptions: new CheckOptions(null, macros: $macros),
+            notifications: $notifications,
+        );
+    }
+
+    /**
+     * @param list<int> $contactIds
+     * @param list<int> $contactGroupIds
+     */
+    private function notificationsWith(array $contactIds, array $contactGroupIds): Notifications
+    {
+        return new Notifications(
+            enabled: TriStateEnum::UseDefault,
+            contactIds: new Collection(array_map(static fn (int $cid): NotificationContactId => new NotificationContactId($cid), $contactIds), NotificationContactId::class),
+            contactGroupIds: new Collection(array_map(static fn (int $gid): ContactGroupId => new ContactGroupId($gid), $contactGroupIds), ContactGroupId::class),
+        );
+    }
+
     private function hostWithNotifications(int $pollerId, ?Notifications $notifications): Host
     {
         return new Host(
