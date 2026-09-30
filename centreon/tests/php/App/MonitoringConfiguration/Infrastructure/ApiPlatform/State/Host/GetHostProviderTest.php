@@ -99,6 +99,9 @@ final class GetHostProviderTest extends ApiTestCase
         $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
         $parentId = $this->insertHost($this->uniqueName('router'), $pollerId);
         $childId = $this->insertHost($this->uniqueName('vm'), $pollerId);
+        $contactId = $this->insertNotificationContact('notified');
+        $contactGroupId = $this->insertContactGroup('supervisors');
+        $notificationPeriodId = $this->insertTimePeriod($this->uniqueName('notif'));
         $name = $this->uniqueName('server');
 
         $created = $this->request('POST', self::BASE_ENDPOINT, [
@@ -159,6 +162,19 @@ final class GetHostProviderTest extends ApiTestCase
                         ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
                     ],
                 ],
+                // A fully-populated notifications block: contacts, groups, options, period and delays
+                // all have to survive the round-trip through the relation tables and the engine's
+                // single-letter option format, otherwise the two bodies diverge.
+                'notifications' => [
+                    'enabled' => 'true',
+                    'contacts' => [$contactId],
+                    'contact_groups' => [$contactGroupId],
+                    'options' => ['down', 'recovery'],
+                    'interval' => 30,
+                    'timeperiod_id' => $notificationPeriodId,
+                    'first_delay' => 10,
+                    'recovery_delay' => 20,
+                ],
             ],
         ]);
 
@@ -180,9 +196,13 @@ final class GetHostProviderTest extends ApiTestCase
 
         // A password macro's value is redacted (null), asserted directly so the guarantee does not
         // rely solely on the body-to-body comparison below (which would pass even if both leaked).
+        $checkOptions = $getBody['check_options'];
+        Assert::isArray($checkOptions);
+        /** @var list<array{name: string, value: string|null, is_password: bool}> $macros */
+        $macros = $checkOptions['macros'];
         $passwordMacros = array_filter(
-            $getBody['check_options']['macros'],
-            static fn (array $macro): bool => $macro['is_password'] === true,
+            $macros,
+            static fn (array $macro): bool => $macro['is_password'],
         );
         self::assertNotEmpty($passwordMacros, 'the fixture must contain a password macro');
         foreach ($passwordMacros as $macro) {
@@ -199,6 +219,40 @@ final class GetHostProviderTest extends ApiTestCase
         $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId);
         self::assertResponseStatusCodeSame(200);
         self::assertMatchesResourceItemJsonSchema(HostResource::class);
+    }
+
+    /**
+     * A host carrying no notification field reads back the neutral default block, never a dropped
+     * key or "notifications off", exactly as CreateHost reports it
+     * (CreateHostProcessorTest::testItReportsTheDefaultNotificationsWhenTheBlockIsAbsent). The
+     * populated case is covered by the round-trip above; this pins the empty case end to end.
+     */
+    public function testItReturnsTheDefaultNotificationsBlockForAHostWithoutOne(): void
+    {
+        $this->login();
+
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('bare'), $pollerId);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId);
+        self::assertResponseStatusCodeSame(200);
+
+        /** @var array<string, mixed> $notifications */
+        $notifications = $response->toArray()['notifications'];
+        // Drop the hydra/JSON-LD metadata ApiPlatform adds to every nested object.
+        $notifications = array_filter($notifications, static fn (string $key): bool => ! str_starts_with($key, '@'), ARRAY_FILTER_USE_KEY);
+
+        self::assertSame(
+            [
+                'enabled' => 'use_default',
+                'contacts' => [],
+                'contact_groups' => [],
+                'options' => [],
+                'contact_additive_inheritance' => false,
+                'contact_group_additive_inheritance' => false,
+            ],
+            $notifications,
+        );
     }
 
     public function testItReturnsTheHostToANonAdminWithinScope(): void
@@ -299,6 +353,34 @@ final class GetHostProviderTest extends ApiTestCase
     private function insertTimePeriod(string $name): int
     {
         $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertNotificationContact(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $name . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContactGroup(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
 
         return (int) $this->connection->lastInsertId();
     }
