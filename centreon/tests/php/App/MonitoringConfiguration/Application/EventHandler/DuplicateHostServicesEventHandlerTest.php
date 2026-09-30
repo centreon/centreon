@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Application\Command\DuplicateHostServicesCommand
 use App\MonitoringConfiguration\Application\EventHandler\DuplicateHostServicesEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
+use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -49,7 +50,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
 
     public function testItDuplicatesTheServicesOfTheDuplicatedHost(): void
     {
-        $this->logger->expects(self::never())->method('error');
+        $this->logger->expects(self::never())->method('log');
 
         ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
 
@@ -67,7 +68,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
     public function testItSwallowsAFailingLoggerToo(): void
     {
         $this->commandBus->throws = true;
-        $this->logger->method('error')->willThrowException(new \RuntimeException('The logger failed.'));
+        $this->logger->method('log')->willThrowException(new \RuntimeException('The logger failed.'));
 
         ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
 
@@ -77,7 +78,21 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
     public function testItLogsAndSwallowsADuplicationFailure(): void
     {
         $this->commandBus->throws = true;
-        $this->logger->expects(self::once())->method('error');
+        $this->logger->expects(self::once())->method('log')->with('error');
+
+        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+
+        self::assertCount(1, $this->commandBus->executed);
+    }
+
+    /**
+     * The expected failure (e.g. a token-authenticated request has no legacy session) must not be
+     * logged at error, or every such duplication would raise a false alarm and drown genuine failures.
+     */
+    public function testItLogsAnExpectedFailureAtInfoNotError(): void
+    {
+        $this->commandBus->exception = ServiceDuplicationFailedException::missingLegacySession();
+        $this->logger->expects(self::once())->method('log')->with('info');
 
         ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
 

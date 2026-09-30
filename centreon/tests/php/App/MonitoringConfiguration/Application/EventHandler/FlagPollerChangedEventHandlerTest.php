@@ -45,6 +45,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -83,6 +84,19 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         // so the poller it belonged to can still be resolved and flagged.
         $host = $this->createHost(pollerId: 5);
         $handler(new HostDeleted($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerAsChangedOnDuplicate(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // Guards the AggregateDuplicated branch of the handled union: narrowing it back would leave
+        // this fast test as the only tripwire before the slow end-to-end duplication test.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDuplicated($host, 1));
 
         self::assertSame([$host], $pollerRepository->flaggedResources);
     }

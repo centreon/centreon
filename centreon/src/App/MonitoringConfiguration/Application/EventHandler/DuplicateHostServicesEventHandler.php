@@ -25,17 +25,21 @@ namespace App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostServicesCommand;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
+use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Log\LoggerInterface;
 
 /**
  * A failure is logged and swallowed: the copy is already committed, and legacy behaves the same,
- * service duplication being a separate step there.
+ * service duplication being a separate step there. An expected failure (no legacy session, e.g. a
+ * token-authenticated request) is logged at info; a genuine one at error.
  */
 #[AsEventHandler]
 final readonly class DuplicateHostServicesEventHandler
 {
+    private const FAILURE_MESSAGE = 'Unable to duplicate the services of the duplicated host';
+
     public function __construct(
         private CommandBus $commandBus,
         private LoggerInterface $logger,
@@ -46,8 +50,18 @@ final readonly class DuplicateHostServicesEventHandler
     {
         try {
             $this->commandBus->execute(new DuplicateHostServicesCommand($event->sourceHostId, $event->newHostId));
+        } catch (ServiceDuplicationFailedException $exception) {
+            if ($exception->expected) {
+                // Expected, e.g. a token-authenticated request has no legacy session: the copy simply
+                // carries no services. Logged at info so it does not drown a genuine failure.
+                $this->log('info', 'Duplicated host was created without its services', $event, $exception);
+
+                return;
+            }
+
+            $this->log('error', self::FAILURE_MESSAGE, $event, $exception);
         } catch (\Throwable $exception) {
-            $this->logFailure($event, $exception);
+            $this->log('error', self::FAILURE_MESSAGE, $event, $exception);
         }
     }
 
@@ -55,10 +69,14 @@ final readonly class DuplicateHostServicesEventHandler
      * Delivered after the commit, so nothing can be rolled back: an escaping exception would turn a
      * duplicated host into a 5xx. A failing logger has to stop here too.
      */
-    private function logFailure(HostServicesDuplicationRequested $event, \Throwable $exception): void
-    {
+    private function log(
+        string $level,
+        string $message,
+        HostServicesDuplicationRequested $event,
+        \Throwable $exception,
+    ): void {
         try {
-            $this->logger->error('Unable to duplicate the services of the duplicated host', [
+            $this->logger->log($level, $message, [
                 'source_host_id' => $event->sourceHostId->value,
                 'new_host_id' => $event->newHostId->value,
                 'exception' => $exception,

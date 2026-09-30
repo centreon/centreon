@@ -25,4 +25,27 @@ namespace App\MonitoringConfiguration\Domain\Exception;
 
 final class ServiceDuplicationFailedException extends \RuntimeException
 {
+    /**
+     * @param bool $expected true when the copy legitimately cannot carry services (e.g. a
+     *                       token-authenticated request has no legacy session) rather than a genuine
+     *                       failure an operator must act on — lets the caller log it accordingly
+     */
+    private function __construct(string $message, public readonly bool $expected)
+    {
+        parent::__construct($message);
+    }
+
+    public static function missingLegacySession(): self
+    {
+        return new self(
+            'Host services can only be duplicated within a legacy session; none is available '
+            . '(for instance on a token-authenticated request).',
+            expected: true,
+        );
+    }
+
+    public static function legacyFunctionsUnavailable(string $reason): self
+    {
+        return new self($reason, expected: false);
+    }
 }

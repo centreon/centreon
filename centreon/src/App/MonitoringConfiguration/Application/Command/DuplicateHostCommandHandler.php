@@ -91,8 +91,8 @@ final readonly class DuplicateHostCommandHandler
         $this->repository->add($copy);
 
         // The copy inherits the source's ACL scope: its configuration relations
-        // (acl_resources_host(ex)_relations — the only path that writes them) and its real-time
-        // centreon_acl rows. This mirrors legacy (centreonACL::duplicateHostAcl + updateACL('DUP')).
+        // (acl_resources_host(ex)_relations) and its real-time centreon_acl rows. This mirrors legacy
+        // (centreonACL::duplicateHostAcl + updateACL('DUP')).
         $this->resourceAccessRepository->duplicateHostAccess(
             sourceHostId: $command->hostId,
             newHostId: $copy->id(),

@@ -109,6 +109,20 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertNotSame($hostId, (int) $copyId);
     }
 
+    public function testItReturns409WhenNoSuffixedNameCanFit(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        // A source already at the maximum name length: appending any "_<n>" suffix overflows the limit,
+        // so the handler can never build a free name and surfaces a 409 rather than an unmapped 500.
+        $name = str_pad($this->uniqueName('web'), 200, 'x');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(409);
+    }
+
     public function testItFlagsTheSourcePollerAsChanged(): void
     {
         $pollerId = $this->insertPoller('Central');

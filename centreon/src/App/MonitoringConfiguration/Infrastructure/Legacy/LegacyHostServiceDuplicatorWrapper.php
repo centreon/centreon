@@ -51,10 +51,7 @@ final class LegacyHostServiceDuplicatorWrapper implements HostServiceDuplicator
     {
         $legacySession = $_SESSION['centreon'] ?? null;
         if (! $legacySession instanceof \Centreon) {
-            throw new ServiceDuplicationFailedException(
-                'Host services can only be duplicated within a legacy session; none is available '
-                . '(for instance on a token-authenticated request).'
-            );
+            throw ServiceDuplicationFailedException::missingLegacySession();
         }
 
         $this->requireLegacyServiceFunctions();
@@ -133,7 +130,7 @@ final class LegacyHostServiceDuplicatorWrapper implements HostServiceDuplicator
             return;
         }
         if (! defined('_CENTREON_PATH_')) {
-            throw new ServiceDuplicationFailedException(
+            throw ServiceDuplicationFailedException::legacyFunctionsUnavailable(
                 'Cannot locate the legacy service functions: _CENTREON_PATH_ is not defined.'
             );
         }
@@ -143,6 +140,6 @@ final class LegacyHostServiceDuplicatorWrapper implements HostServiceDuplicator
 
     private function legacyBasePath(): string
     {
-        return (string) constant('_CENTREON_PATH_');
+        return constant('_CENTREON_PATH_');
     }
 }

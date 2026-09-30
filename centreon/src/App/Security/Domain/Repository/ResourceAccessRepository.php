@@ -63,7 +63,7 @@ interface ResourceAccessRepository
      * Copies a host's ACL scope onto a freshly duplicated host, so the copy is visible to exactly the
      * same Access Groups as its source without waiting for the `centAcl` cron:
      *  - the configuration relations `acl_resources_host_relations` and `acl_resources_hostex_relations`
-     *    (duplication is the only path that writes these two tables), and
+     *    (mirroring legacy centreonACL::duplicateHostAcl), and
      *  - the real-time `centreon_acl` rows scoping the host per group.
      *
      * The copy carries no services yet, so only host-level rows are copied (mirrors legacy
