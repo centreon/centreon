@@ -21,13 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Service;
 
-enum TargetTypeEnum: string
+use Webmozart\Assert\Assert;
+
+final readonly class ServiceName
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case Service = 'Service';
-    case ServiceCategory = 'ServiceCategory';
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 255;
+
+    public string $value;
+
+    public function __construct(string $value)
+    {
+        $value = trim($value);
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        $this->value = $value;
+    }
 }

@@ -21,18 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Event;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
+use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Marks an aggregate whose creation, update, deletion or duplication changes the effective
- * configuration of a poller: the poller's `nagios_server.updated` flag must be raised, or the
- * monitoring engine keeps running on stale configuration until something else touches that
- * poller. Purely a marker — {@see \App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler}
- * checks `$event->aggregate instanceof PollerScopedInterface` to decide whether to act.
- *
- * AggregateCreated and AggregateDeleted are wired (Host creation and deletion); extend to
- * AggregateUpdated/Duplicated once those Host use cases exist.
+ * Deferred because a vault purge cannot be rolled back: it must only happen once the deletion is
+ * committed.
  */
-interface PollerScopedInterface
+final readonly class HostVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
+    public function __construct(
+        public Host $host,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+    ) {
+    }
+
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
+    }
 }

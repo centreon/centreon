@@ -21,13 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-enum TargetTypeEnum: string
+use App\Shared\Domain\Event\AggregateDeleted;
+
+final readonly class HostDeleted extends AggregateDeleted
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case Service = 'Service';
-    case ServiceCategory = 'ServiceCategory';
 }

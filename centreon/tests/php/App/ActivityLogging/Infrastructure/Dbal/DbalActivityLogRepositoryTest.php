@@ -107,6 +107,38 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertSame('command', $objectType);
     }
 
+    public function testServiceTargetIsStoredWithTheCanonicalSingularToken(): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::Add,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('a_service'),
+                type: TargetTypeEnum::Service,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->createQueryBuilder()
+            ->select('object_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame('service', $objectType);
+    }
+
     public function testFind(): void
     {
         $activityLog = new ActivityLog(
