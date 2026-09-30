@@ -87,6 +87,9 @@ export interface InputProps {
     useNewAPIFormat?: boolean;
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     customQueryParameters: Array<QueryParameter>;
+    // The API the options are read from. Left out, the request goes to the
+    // default `./api/latest` as it always has.
+    baseEndpoint?: string;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;

@@ -166,6 +166,7 @@ const ConnectedAutocomplete = ({
   return useMemoComponent({
     Component: (
       <TypedAutocompleteField
+        baseEndpoint={connectedAutocomplete?.baseEndpoint}
         chipProps={chipProps}
         dataTestId={dataTestId}
         decoder={connectedAutocomplete?.decoder}

@@ -248,12 +248,11 @@ export default () => {
 
       cy.findByTestId('host-form-poller').click();
 
-      // The shared autocomplete builds on the default base, so assert the URL
-      // rather than trusting the intercept glob to catch a wrong one.
-      cy.waitForRequest('@getMonitoringServers').then(({ request }) => {
-        expect(request.url.pathname).to.contain(
-          '/api/latest/configuration/monitoring-servers'
-        );
+      // The same selector the listing filter reads, on API Platform rather
+      // than the default base the shared autocomplete falls back to.
+      cy.waitForRequest('@getPollers').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/pollers');
+        expect(request.url.pathname).to.not.contain('/api/latest');
       });
 
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();

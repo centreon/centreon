@@ -73,12 +73,9 @@ const pollers = [
   { id: 2, name: 'Poller EU' }
 ];
 
-// The listing filter reads the API Platform selector, the form reads the one
-// on the default base, and the two answer in different shapes.
-export const getPollersResponse = ({ apiPlatform = true } = {}) =>
-  apiPlatform
-    ? toCollection(pollers)
-    : { meta: { limit: 10, page: 1, total: pollers.length }, result: pollers };
+// One list for the listing filter and the form alike, both reading the API
+// Platform selector.
+export const getPollersResponse = () => toCollection(pollers);
 
 export const getHostTemplatesResponse = () =>
   toCollection([

@@ -9,7 +9,8 @@ import { platformFeaturesAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { monitoringServersEndpoint } from '../api/endpoints';
+import { namedEntitiesListDecoder } from '../api/decoders';
+import { hostsBaseEndpoint, pollersEndpoint } from '../api/endpoints';
 import {
   labelDataProcessing,
   labelHostConfiguration,
@@ -63,9 +64,14 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     {
       connectedAutocomplete: {
         additionalConditionParameters: [],
+        // The list the listing filter reads, so a poller that can be filtered
+        // on is a poller that can be selected.
+        baseEndpoint: hostsBaseEndpoint,
         customQueryParameters: [],
-        endpoint: monitoringServersEndpoint,
-        getOptionLabel: (option) => (option as SelectEntry)?.name
+        decoder: namedEntitiesListDecoder,
+        endpoint: pollersEndpoint,
+        getOptionLabel: (option) => (option as SelectEntry)?.name,
+        useNewAPIFormat: true
       },
       dataTestId: 'host-form-poller',
       fieldName: 'poller',
