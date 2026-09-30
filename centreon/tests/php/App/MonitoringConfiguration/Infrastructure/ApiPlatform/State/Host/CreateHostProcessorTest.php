@@ -1980,6 +1980,33 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertSame((string) $contactId, $details['host_cs'] ?? null);
     }
 
+    public function testItLogsTheOtherPropertiesOfTheHostOnCreation(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => ['name' => $name, 'address' => '10.0.0.34', 'poller_id' => $pollerId],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        // log_action / log_action_modification live in centstorage, not the configuration database
+        $details = $this->realTimeConnection->fetchAllKeyValue(
+            'SELECT lam.field_name, lam.field_value
+             FROM log_action_modification lam
+             INNER JOIN log_action la ON la.action_log_id = lam.action_log_id
+             WHERE la.object_name = ?',
+            [$name],
+        );
+
+        self::assertSame((string) $pollerId, $details['nagios_server_id'] ?? null);
+        // an unset property is logged as an empty string, a tri-state as its 0, 1 or 2 value
+        self::assertSame('', $details['host_alias'] ?? null);
+        self::assertSame('2', $details['host_active_checks_enabled'] ?? null);
+    }
+
     public function testItDeduplicatesRepeatedContactAndContactGroupIds(): void
     {
         $this->login();
