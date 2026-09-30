@@ -6,8 +6,6 @@ concurrency:
 
 on:
   pull_request:
-    # edited: re-evaluate the Jira reference when the description is fixed
-    types: [opened, synchronize, reopened, edited]
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
@@ -24,7 +22,8 @@ jobs:
     if: |
       (github.base_ref == 'develop' || startsWith(github.base_ref, 'dev-') || startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-')) &&
       github.event.pull_request.user.type != 'Bot' &&
-      ! contains(fromJSON('["technique-ci"]'), github.event.pull_request.user.login)
+      ! contains(fromJSON('["technique-ci"]'), github.event.pull_request.user.login) &&
+      ! contains(github.event.pull_request.labels.*.name, 'skip-jira-reference')
     permissions:
       pull-requests: write
     steps:
@@ -74,12 +73,18 @@ jobs:
               }
             };
 
-            // read the description from the API, the event payload is stale when a run is re-run after an edit
+            // read the description and labels from the API, the event payload is stale when a run is re-run after an edit
             const { data: pull } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
+
+            if (pull.labels.some(({ name }) => name === 'skip-jira-reference')) {
+              core.info('Jira reference check skipped by label "skip-jira-reference"');
+              await upsertComment(`${commentMarker}\n⏭️ **Jira reference required**: check skipped by label \`skip-jira-reference\`.`, false);
+              return;
+            }
 
             const branchKeys = findJiraKeys(process.env.HEAD_REF);
             const descriptionKeys = findJiraKeys(pull.body);
@@ -101,12 +106,15 @@ jobs:
               `No Jira issue key (for example \`MON-12345\`) was found in the branch name \`${process.env.HEAD_REF}\` nor in the pull request description.`,
               '',
               'Every pull request targeting `develop`, `dev-*`, `release-*` or `hotfix-*` must be traceable to a Jira issue. To fix it:',
-              '- add the key of the Jira issue to the **pull request description** (for example `Refs: MON-12345` or a link to the issue), the check re-runs automatically when the description is saved,',
-              '- or prefix the branch name with the key for the next pull requests (for example `MON-12345-short-description`).'
+              '- add the key of the Jira issue to the **pull request description** (for example `Refs: MON-12345` or a link to the issue),',
+              '- then re-run the failed jobs of workflow `check-status`.',
+              '',
+              'Prefix the branch name with the key for the next pull requests (for example `MON-12345-short-description`).',
+              'If this pull request legitimately has no Jira issue, add label `skip-jira-reference` and re-run the failed jobs of workflow `check-status`.'
             ].join('\n');
 
             await upsertComment(message, true);
-            core.setFailed(`No Jira issue key found in the branch name "${process.env.HEAD_REF}" nor in the pull request description: add one to the description (for example "Refs: MON-12345")`);
+            core.setFailed(`No Jira issue key found in the branch name "${process.env.HEAD_REF}" nor in the pull request description: add one to the description (for example "Refs: MON-12345") and re-run the failed jobs of workflow check-status`);
 
   check-status:
     needs: [check-jira-reference]
