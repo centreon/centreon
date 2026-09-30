@@ -223,12 +223,6 @@ parameters:
 			path: www/include/common/vault-functions.php
 
 		-
-			message: '#^Array has 2 duplicate keys with value ''generate'' \(''generate'', ''generate''\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: www/include/configuration/configGenerateTraps/formGenerateTraps.php
-
-		-
 			message: '#^Undefined variable\: \$oreon$#'
 			identifier: variable.undefined
 			count: 1

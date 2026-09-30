@@ -41,7 +41,12 @@ if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]
       git status
       git add .
       git commit -m "chore(lang): update translations"
-      git push || echo "::warning::Failed to push translations commit (technique-ci may not have push access)."
+      if ! git push; then
+        echo "::warning::Failed to push translations commit (no push access, e.g. fork pull request). Git patch will be available as artifact."
+        cd ..
+        git diff HEAD~1 > translations.patch
+        TRANSLATIONS_PATCH_FILE="translations.patch"
+      fi
     else
       echo "::notice::Last commit author is technique-ci. Skipping commit to avoid infinite loop."
       cd ..

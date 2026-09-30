@@ -1799,9 +1799,14 @@ function purgeOutdatedCSRFTokens()
         $elapsedTime = time() - $value;
 
         if ($elapsedTime > (15 * 60)) {
-            $tokenKey = array_search((string) $key, $_SESSION['x-centreon-token']);
-            unset($_SESSION['x-centreon-token'][$tokenKey], $_SESSION['x-centreon-token-generated-at'][(string) $key]);
-
+            // Strict, and guarded: a loose search returns false for a token missing
+            // from the list, and unset(...[false]) then deletes index 0 — a live
+            // token. Reachable whenever the two structures drift apart.
+            $tokenKey = array_search((string) $key, $_SESSION['x-centreon-token'], true);
+            if ($tokenKey !== false) {
+                unset($_SESSION['x-centreon-token'][$tokenKey]);
+            }
+            unset($_SESSION['x-centreon-token-generated-at'][(string) $key]);
         }
     }
 }

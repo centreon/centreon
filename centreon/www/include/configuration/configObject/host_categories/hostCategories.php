@@ -51,9 +51,31 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
 
 $acl = $centreon->user->access;
 $dbmon = new CentreonDB('centstorage');
-$aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
+$aclDbName = $acl->getNameDBAcl();
 $hcString = $acl->getHostCategoriesString();
 $hoststring = $acl->getHostsString('ID', $dbmon);
+
+// Restrict write targets to the caller's host-category ACL scope. Admins, and
+// non-admins with no category-level restriction ($hcString === "''"), stay
+// unrestricted — matching the read/edit paths (listHostCategories.php,
+// formHostCategories.php).
+if (! $centreon->user->admin && $hcString !== "''") {
+    $allowedHcIds = array_map(
+        static fn (string $s): int => (int) trim($s, "'\" \t\n\r\0\x0B"),
+        explode(',', $hcString)
+    );
+    if ($hc_id !== null && ! in_array((int) $hc_id, $allowedHcIds, true)) {
+        $hc_id = null;
+    }
+    if (is_array($select)) {
+        $select = array_filter(
+            $select,
+            static fn ($key): bool => in_array((int) $key, $allowedHcIds, true),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+}
+
 try {
     switch ($o) {
         case 'a':

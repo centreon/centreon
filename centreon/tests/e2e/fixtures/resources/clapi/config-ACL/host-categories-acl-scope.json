@@ -1,0 +1,107 @@
+[
+    {
+        "action": "ADD",
+        "object": "HC",
+        "values": "hc-acl-granted;hc-acl-granted"
+    },
+    {
+        "action": "ADD",
+        "object": "HC",
+        "values": "hc-acl-denied;hc-acl-denied"
+    },
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "hostcat-acl-user;hostcat-acl-user;hostcat-acl-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "hostcat-acl-ro-user;hostcat-acl-ro-user;hostcat-acl-ro-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "hostcat-ACLGROUP;hostcat-ACLGROUP"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "hostcat-ACLMENU;hostcat-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "hostcat-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "hostcat-ACLGROUP;hostcat-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "hostcat-ACLGROUP;hostcat-acl-user"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=hostcat-ACLRESOURCE;acl_group=hostcat-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "hostcat-ACLGROUP;name=hostcat-ACLRESOURCE"
+    },
+    {
+        "action": "ADDFILTER_HOSTCATEGORY",
+        "object": "ACLRESOURCE",
+        "values": "name=hostcat-ACLRESOURCE;hc-acl-granted"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "hostcat-ro-ACLGROUP;hostcat-ro-ACLGROUP"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "hostcat-ro-ACLMENU;hostcat-ro-ACLMENU"
+    },
+    {
+        "action": "GRANTRO",
+        "object": "ACLMENU",
+        "values": "hostcat-ro-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "hostcat-ro-ACLGROUP;hostcat-ro-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "hostcat-ro-ACLGROUP;hostcat-acl-ro-user"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=hostcat-ro-ACLRESOURCE;acl_group=hostcat-ro-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "hostcat-ro-ACLGROUP;name=hostcat-ro-ACLRESOURCE"
+    },
+    {
+        "action": "ADDFILTER_HOSTCATEGORY",
+        "object": "ACLRESOURCE",
+        "values": "name=hostcat-ro-ACLRESOURCE;hc-acl-granted"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

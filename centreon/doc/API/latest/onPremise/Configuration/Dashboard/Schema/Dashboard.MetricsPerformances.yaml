@@ -30,27 +30,32 @@ properties:
           description: name of the metric
           example: rta
         unit:
-          type: string
+          type:
+            - string
+            - 'null'
           description: unit of the metric
           example: '%'
-          nullable: true
         warning_high_threshold:
-          type: number
+          type:
+            - number
+            - 'null'
           description: warning high threshold
           example: 200
-          nullable: true
         critical_high_threshold:
-          type: number
+          type:
+            - number
+            - 'null'
           description: critical high threshold
           example: 400
-          nullable: true
         warning_low_threshold:
-          type: number
+          type:
+            - number
+            - 'null'
           description: warning low threshold
           example: 200
-          nullable: true
         critical_low_threshold:
-          type: number
+          type:
+            - number
+            - 'null'
           description: critical low threshold
           example: 400
-          nullable: true

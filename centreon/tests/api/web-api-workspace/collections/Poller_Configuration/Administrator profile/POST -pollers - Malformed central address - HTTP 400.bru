@@ -1,0 +1,30 @@
+meta {
+  name: POST /pollers - Malformed central address - HTTP 400
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/pollers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "poller-bruno-bad-central-address",
+    "address": "1.2.3.7",
+    "poller_type": "vm",
+    "poller_token_name": "{{PollerTokenName}}",
+    "central_address": "central.example.com:70000"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

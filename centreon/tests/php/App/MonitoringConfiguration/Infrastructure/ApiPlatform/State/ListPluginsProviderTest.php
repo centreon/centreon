@@ -63,7 +63,7 @@ final class ListPluginsProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
+        $response = $this->request('GET', '/api/configuration/plugins');
 
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListPluginResource::class);

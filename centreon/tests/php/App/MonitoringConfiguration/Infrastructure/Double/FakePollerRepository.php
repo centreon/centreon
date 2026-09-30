@@ -29,14 +29,20 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 
 final class FakePollerRepository implements PollerRepository
 {
     /** @var array<int, Poller> */
     public array $pollers = [];
+
+    /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
+    public array $flaggedResources = [];
 
     public function add(Poller $poller): void
     {
@@ -78,9 +84,54 @@ final class FakePollerRepository implements PollerRepository
         return new Collection([], Poller::class);
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->pollers[$id->value])) {
+                $names[$id->value] = $this->pollers[$id->value]->name;
+            }
+        }
+
+        return new Collection($names, PollerName::class);
+    }
+
+    /**
+     * Note: viewer-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
+     * it is exercised by DbalPollerRepositoryTest against real ACL tables instead.
+     */
+    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        $pollers = array_values($this->pollers);
+
+        if ($criteria instanceof PollerCriteria && $criteria->getName() !== null) {
+            $needle = mb_strtolower($criteria->getName());
+            $pollers = array_values(array_filter(
+                $pollers,
+                static fn (Poller $poller): bool => str_contains(mb_strtolower($poller->name->value), $needle)
+            ));
+        }
+
+        if ($criteria instanceof PollerCriteria && $criteria->excludeUnknownCentral()) {
+            $pollers = array_values(array_filter($pollers, static fn (Poller $poller): bool => ! $poller->isCentral));
+        }
+
+        $pagination = $criteria instanceof PollerCriteria ? $criteria->getPagination() : null;
+        if ($pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            $pollers = array_slice($pollers, $pagination->getOffset(), $pagination->itemsPerPage);
+        }
+
+        return new Collection($pollers, Poller::class);
+    }
+
     public function get(PollerId $pollerId): Poller
     {
         return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
+    }
+
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
+    {
+        $this->flaggedResources[] = $resource;
     }
 
     public function withCmaCertificates(): self

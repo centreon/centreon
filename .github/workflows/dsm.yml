@@ -380,7 +380,6 @@ jobs:
     uses: ./.github/workflows/set-pull-request-skip-label.yml
 
   deliver-pulp:
-    continue-on-error: true
     needs: [get-environment, changes, package]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
@@ -407,7 +406,6 @@ jobs:
       - name: Deliver packages on Pulp
         id: deliver_pulp
         uses: ./.github/actions/package-delivery-pulp
-        continue-on-error: true
         with:
           module_name: dsm
           distrib: ${{ matrix.distrib }}
@@ -421,14 +419,7 @@ jobs:
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
 
-      - name: Warn if the Pulp delivery failed
-        if: steps.deliver_pulp.outcome == 'failure'
-        shell: bash
-        run: |
-          echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
-
   promote-pulp:
-    continue-on-error: true
     needs: [get-environment, deliver-pulp]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -453,7 +444,6 @@ jobs:
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
         uses: ./.github/actions/promote-to-stable-pulp
-        continue-on-error: true
         with:
           module_name: dsm
           distrib: ${{ matrix.distrib }}
@@ -464,9 +454,3 @@ jobs:
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
-
-      - name: Warn if the Pulp promotion failed
-        if: steps.promote_pulp.outcome == 'failure'
-        shell: bash
-        run: |
-          echo "::warning::Pulp promotion failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory promotion remains authoritative). See the 'Promote to stable on Pulp' step."

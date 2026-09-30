@@ -42,13 +42,13 @@ final class CreateCommandProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('POST', '/api/latest/configuration/commands', [
+        $response = $this->request('POST', '/api/configuration/commands', [
             'json' => [
                 'name' => 'CommandNotif',
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -73,7 +73,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
     public function testCannotCreateSameCommand(): void
     {
         $this->login();
-        $this->request('POST', '/api/latest/configuration/commands', [
+        $this->request('POST', '/api/configuration/commands', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
@@ -82,13 +82,13 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
         self::assertResponseIsSuccessful();
 
-        $this->request('POST', '/api/latest/configuration/commands', [
+        $this->request('POST', '/api/configuration/commands', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
@@ -97,7 +97,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -105,6 +105,36 @@ final class CreateCommandProcessorTest extends ApiTestCase
     }
 
     public function testCannotCreateCommandWithInvalidValues(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/configuration/commands', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'name' => '',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/configuration/connectors/1',
+                'comment' => 'coucou',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[name] This value is too short. It should have 1 character or more.\n",
+        ]);
+    }
+
+    /**
+     * /api/latest/configuration/commands is a backward-compatible alias for this same operation
+     * (see LegacyApiPrefixAliasLoader) — its clients must keep getting 400 for a validation
+     * error, unlike the bare /api prefix above, which now answers 422.
+     */
+    public function testCannotCreateCommandWithInvalidValuesOnTheLegacyPrefixReturns400(): void
     {
         $this->login();
 
@@ -117,7 +147,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -133,27 +163,27 @@ final class CreateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/commands', [
+        $this->request('POST', '/api/configuration/commands', [
             'json' => [
                 'name' => true,
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
-            'code' => 400,
+            'code' => 422,
             'message' => "[name] This value should be of type string.\n",
         ]);
     }
 
     public function testCannotCreateCommandIfNotLogged(): void
     {
-        $this->request('POST', '/api/latest/configuration/commands', [
+        $this->request('POST', '/api/configuration/commands', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -173,13 +203,13 @@ final class CreateCommandProcessorTest extends ApiTestCase
         $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
-        $this->request('POST', '/api/latest/configuration/commands', [
+        $this->request('POST', '/api/configuration/commands', [
             'json' => [
                 'name' => 'CommandNotif',
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
                 'comment' => 'coucou',
             ],
         ]);
@@ -198,12 +228,48 @@ final class CreateCommandProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/commands', [
+        $this->request('POST', '/api/configuration/commands', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
             'json' => [
                 'name' => 'CommandNotif',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/configuration/connectors/1',
+                'comment' => 'coucou',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+
+        self::assertSame($count + 1, $repository->count());
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->fetchOne(
+            'SELECT object_type FROM log_action WHERE object_name = ? ORDER BY action_log_id DESC LIMIT 1',
+            ['CommandNotif']
+        );
+
+        // The command audit entry must use the canonical singular 'command' token,
+        // otherwise the Administration > Logs Type filter (bound on that token)
+        // cannot match it.
+        self::assertSame('command', $objectType);
+    }
+
+    /**
+     * Non-regression: the historical /api/latest prefix (with an old-style relation IRI) must keep working
+     * once /api becomes the canonical prefix for API Platform resources.
+     */
+    public function testCreateCommandViaLegacyApiPrefixStillWorks(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/commands', [
+            'json' => [
+                'name' => 'CommandNotifLegacyPrefix',
                 'type' => 'Notification',
                 'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
                 'is_shell_enabled' => true,
@@ -213,7 +279,62 @@ final class CreateCommandProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseIsSuccessful();
+        self::assertJsonContains(['name' => 'CommandNotifLegacyPrefix']);
 
-        self::assertSame($count + 1, $repository->count());
+        /** @var CommandRepository $repository */
+        $repository = self::getContainer()->get(CommandRepository::class);
+        self::assertNotNull($repository->findOneByName(new CommandName('CommandNotifLegacyPrefix')));
+    }
+
+    /**
+     * Non-regression: a relation IRI expressed with the old /api/latest prefix must still resolve when the
+     * request itself targets the new /api prefix (mixed old/new IRIs must keep working during migration).
+     */
+    public function testCreateCommandViaNewApiPrefixAcceptsLegacyConnectorIri(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/configuration/commands', [
+            'json' => [
+                'name' => 'CommandNotifLegacyConnector',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/latest/configuration/connectors/1',
+                'comment' => 'coucou',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['name' => 'CommandNotifLegacyConnector']);
+    }
+
+    /**
+     * The whole point of this migration: Hydra links (@id) must point to /api, never /api/latest, so that
+     * clients following them are naturally steered towards the new prefix.
+     */
+    public function testCommandHydraIriPointsToNewApiPrefix(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', '/api/configuration/commands', [
+            'headers' => [
+                'Accept' => 'application/ld+json',
+            ],
+            'json' => [
+                'name' => 'CommandNotifIriCheck',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/configuration/connectors/1',
+                'comment' => 'coucou',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        $payload = $response->toArray();
+        self::assertArrayHasKey('@id', $payload);
+        self::assertIsString($payload['@id']);
+        self::assertStringStartsWith('/api/configuration/commands/', $payload['@id']);
     }
 }

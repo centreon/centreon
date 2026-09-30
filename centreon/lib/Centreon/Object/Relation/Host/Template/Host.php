@@ -184,7 +184,17 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
             }
         }
         if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
-            $sql .= " ORDER BY {$order} {$sort} ";
+            $orderColumns = [];
+            foreach (explode(',', $order) as $orderColumn) {
+                $orderColumn = trim($orderColumn);
+                $isQuoted = str_starts_with($orderColumn, '`') && str_ends_with($orderColumn, '`');
+                $orderColumn = $this->sanitizeIdentifier($orderColumn);
+                if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_.]*$/', $orderColumn) !== 1) {
+                    throw new InvalidArgumentException("Invalid order column: {$orderColumn}");
+                }
+                $orderColumns[] = $isQuoted ? "`{$orderColumn}`" : $orderColumn;
+            }
+            $sql .= ' ORDER BY ' . implode(',', $orderColumns) . " {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);

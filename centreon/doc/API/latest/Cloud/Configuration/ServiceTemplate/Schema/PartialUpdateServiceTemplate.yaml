@@ -9,16 +9,18 @@ properties:
     description: "Service template alias."
     example: "generic-service"
   service_template_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Template ID of the service template."
     minimum: 1
-    nullable: true
     example: null
   check_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command ID."
     minimum: 1
-    nullable: true
     example: null
   check_command_args:
     type: array
@@ -50,31 +52,36 @@ properties:
       Once the service has been retried max_check_attempts times without a change in its status,
       it will revert to being scheduled at its "normal" check interval rate.
   note:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional note."
-    nullable: true
     maxLength: 65535
   note_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional URL that can be used to provide more information about the service."
     maxLength: 65535
-    nullable: true
   action_url:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "Define an optional URL that can be used to specify actions to be performed on the service."
-    nullable: true
     maxLength: 65535
   icon_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Define the image ID that should be associated with this service template."
     minimum: 1
-    nullable: true
     example: null
   severity_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Severity ID."
     minimum: 1
-    nullable: true
   host_templates:
     type: array
     description: "IDs of host templates linked to this service template."

@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingPollerToken;
+use App\MonitoringConfiguration\Infrastructure\Validator\ValidCentralAddress;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreatePollerInput
@@ -52,6 +53,7 @@ final readonly class CreatePollerInput
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: CentralAddress::MIN_LENGTH, max: CentralAddress::MAX_LENGTH)]
         #[Assert\Regex(pattern: '~://~', match: false, message: 'This value must be an IP address or a hostname with an optional base path, without a protocol scheme.')]
+        #[ValidCentralAddress]
         public string $centralAddress,
     ) {
     }

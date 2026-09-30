@@ -4,5 +4,4 @@ properties:
   data:
     type: string
     format: binary
-    nullable: false
     description: "File content"

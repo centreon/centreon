@@ -4,3 +4,8 @@ fixtures/packages
 cucumber-messages.ndjson
 cypress
 *.yml
+
+# Local-only Cypress overrides pointing at a developer's environment; never
+# used by CI. Ignored so a `git add` on this directory cannot sweep them in.
+cypress.local.config.ts
+support/e2e.local.ts

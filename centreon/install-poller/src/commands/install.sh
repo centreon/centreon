@@ -57,7 +57,7 @@ function _installParseArguments() {
         http://*) CENTRAL_URL_SSL="false" ;;
       esac
       local _url_no_scheme
-      _url_no_scheme=$(echo "${CENTRAL_URL}" | sed 's|^https\?://||')
+      _url_no_scheme=$(echo "${CENTRAL_URL}" | sed -E 's|^https?://||')
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
       # Explicit port only; the per-mode default is applied in _installDeriveCentral.
       CENTRAL_PORT=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
@@ -90,14 +90,37 @@ function _installParseArguments() {
     --no-start)
       START_STACK=0
       ;;
+    --overwrite)
+      OVERWRITE=1
+      ;;
     --with-vmware)
       WITH_VMWARE=1
+      ;;
+    --vmware-path)
+      shift
+      if [ $# -eq 0 ] || [ "${1#--}" != "$1" ]; then
+        consoleError "--vmware-path requires a path."
+        exit 1
+      fi
+      VMWARE_PATH=$1
       ;;
     --with-snmptrap)
       WITH_SNMPTRAP=1
       ;;
     --with-cma)
       WITH_CMA=1
+      ;;
+    --registry)
+      shift
+      FORCE_REGISTRY=$1
+      ;;
+    --tag)
+      shift
+      FORCE_TAG=$1
+      ;;
+    --stability)
+      shift
+      FORCE_STABILITY=$1
       ;;
     *)
       consoleError "Unknown argument: '$1'. Run with --help to list valid flags."
@@ -147,6 +170,26 @@ function _installValidateArgs() {
   if [ -z "${SALT}" ]; then
     consoleError "--salt is required."
     ret=1
+  fi
+
+  if [ -n "${FORCE_REGISTRY}" ]; then
+    case "${FORCE_REGISTRY}" in
+    harbor | ghcr) ;;
+    *)
+      consoleError "Invalid --registry '${FORCE_REGISTRY}'. Valid values: harbor, ghcr."
+      ret=1
+      ;;
+    esac
+  fi
+
+  if [ -n "${FORCE_STABILITY}" ]; then
+    case "${FORCE_STABILITY}" in
+    stable | testing-release | testing-hotfix | unstable) ;;
+    *)
+      consoleError "Invalid --stability '${FORCE_STABILITY}'. Valid values: stable, testing-release, testing-hotfix, unstable."
+      ret=1
+      ;;
+    esac
   fi
 
   return ${ret}

@@ -23,10 +23,13 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Messenger;
 
+use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Event\EventInterface;
+use Symfony\Component\Messenger\Exception\DelayedMessageHandlingException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
 final readonly class MessengerEventBus implements EventBus
 {
@@ -37,13 +40,15 @@ final readonly class MessengerEventBus implements EventBus
 
     public function fire(EventInterface $event): void
     {
+        $stamps = $event instanceof DeliveredAfterCommitInterface ? [new DispatchAfterCurrentBusStamp()] : [];
+
         try {
-            $this->eventBus->dispatch($event);
-        } catch (HandlerFailedException $e) {
-            /** @var array{0: \Throwable} $exceptions */
+            $this->eventBus->dispatch($event, $stamps);
+        } catch (HandlerFailedException|DelayedMessageHandlingException $e) {
+            /** @var list<\Throwable> $exceptions */
             $exceptions = $e->getWrappedExceptions();
 
-            throw current($exceptions);
+            throw $exceptions[0] ?? $e->getPrevious() ?? $e;
         }
     }
 }

@@ -118,7 +118,14 @@ Given(
           }
           let minorVersionIndex = 0;
           if (versionFromExpression === 'first minor') {
-            minorVersionIndex = 0;
+            // Versions below 24.10.21 aren't installable on MySQL 8.4 (see MON-209081).
+            const firstMysql84CompatibleIndex = stableMinorVersions.findIndex(
+              (minor) => minor >= 21
+            );
+            minorVersionIndex =
+              firstMysql84CompatibleIndex === -1
+                ? 0
+                : firstMysql84CompatibleIndex;
           } else {
             switch (versionFromExpression) {
               case 'last stable':

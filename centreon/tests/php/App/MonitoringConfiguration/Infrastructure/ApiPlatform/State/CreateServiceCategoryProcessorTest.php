@@ -43,7 +43,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('POST', '/api/latest/configuration/services/categories', [
+        $response = $this->request('POST', '/api/configuration/services/categories', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
@@ -72,7 +72,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -82,7 +82,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -94,6 +94,30 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
     }
 
     public function testCannotCreateServiceCategoryWithInvalidValues(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/configuration/services/categories', [
+            'json' => [
+                'name' => '',
+                'alias' => '',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[name] This value is too short. It should have 1 character or more.\n"
+                . "[alias] This value is too short. It should have 1 character or more.\n",
+        ]);
+    }
+
+    /**
+     * /api/latest/configuration/services/categories is a backward-compatible alias for this same
+     * operation (see LegacyApiPrefixAliasLoader) — its clients must keep getting 400 for a
+     * validation error, unlike the bare /api prefix above, which now answers 422.
+     */
+    public function testCannotCreateServiceCategoryWithInvalidValuesOnTheLegacyPrefixReturns400(): void
     {
         $this->login();
 
@@ -116,7 +140,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => true,
                 'alias' => 0,
@@ -124,9 +148,9 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
-            'code' => 400,
+            'code' => 422,
             'message' => "[name] This value should be of type string.\n"
                 . "[alias] This value should be of type string.\n"
                 . "[is_activated] This value should be of type bool.\n",
@@ -135,7 +159,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
     public function testCannotCreateServiceCategoryIfNotLogged(): void
     {
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -155,7 +179,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'json' => [
                 'name' => 'NAME',
                 'alias' => 'ALIAS',
@@ -177,7 +201,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         $count = $repository->count();
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/services/categories', [
+        $this->request('POST', '/api/configuration/services/categories', [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],

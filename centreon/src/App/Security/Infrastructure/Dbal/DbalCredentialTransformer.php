@@ -26,9 +26,17 @@ namespace App\Security\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostSeverityPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\NotificationContactPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\TimePeriodPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Permission;
@@ -44,7 +52,10 @@ use App\Shared\Infrastructure\TransformerInterface;
 final readonly class DbalCredentialTransformer implements TransformerInterface
 {
     /**
-     * @var array<string, string>
+     * A legacy topology role maps to one new permission, or — when a single legacy role governs
+     * several distinct new concepts — to a list of them.
+     *
+     * @var array<string, string|list<string>>
      */
     private const LEGACY_PERMISSION_MAP = [
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R' => ServiceCategoryPermissionEnum::CanRead->value,
@@ -53,6 +64,30 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_POLLERS_POLLERS_R' => PollerPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_POLLERS_POLLERS_RW' => PollerPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_R' => HostGroupPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_RW' => HostGroupPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_HOSTS_HOSTS_R' => HostPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_HOSTS_HOSTS_RW' => HostPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_HOSTS_TEMPLATES_R' => HostTemplatePermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_HOSTS_TEMPLATES_RW' => HostTemplatePermissionEnum::CanReadAndWrite->value,
+        // host categories and host severities are stored in the same `hostcategories` table and
+        // legacy gates both listings on this single topology role, so it grants both new permissions.
+        'ROLE_CONFIGURATION_HOSTS_CATEGORIES_R' => [
+            HostCategoryPermissionEnum::CanRead->value,
+            HostSeverityPermissionEnum::CanRead->value,
+        ],
+        'ROLE_CONFIGURATION_HOSTS_CATEGORIES_RW' => [
+            HostCategoryPermissionEnum::CanReadAndWrite->value,
+            HostSeverityPermissionEnum::CanReadAndWrite->value,
+        ],
+        'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R' => ContactGroupPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_RW' => ContactGroupPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R' => NotificationContactPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_RW' => NotificationContactPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_USERS_TIME_PERIODS_R' => TimePeriodPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_USERS_TIME_PERIODS_RW' => TimePeriodPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
@@ -77,23 +112,23 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      */
     public function transform(mixed $from): Credential
     {
-        $isAdmin = $from['c_admin'] === '1';
         $credential = new Credential(
             identifier: new CredentialIdentifier($from['c_alias']),
             userId: new UserId($from['c_id']),
             active: $from['c_active'] === '1',
         );
         foreach ($from['topology_permissions'] as $topology) {
-            if (($permission = $this->mapTopologyToPermission($topology)) instanceof Permission) {
+            foreach ($this->mapTopologyToPermissions($topology) as $permission) {
                 $credential->grantPermission($permission);
             }
         }
 
-        if ($isAdmin) {
-            $credential->assignRole(new Role('ROLE_ADMIN'));
-            foreach (array_keys(self::LEGACY_ROLE_MAP) as $roleString) {
-                $credential->grantPermission(new Permission(self::LEGACY_ROLE_MAP[$roleString]));
-            }
+        if ($from['c_admin'] === '1') {
+            $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
+        }
+
+        if ($from['is_cloud_admin']) {
+            $credential->assignRole(new Role('ROLE_CLOUD_ADMIN'));
         }
 
         foreach ($from['action_rules'] as $actionRule) {
@@ -109,15 +144,21 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         return $credential;
     }
 
-    private function mapTopologyToPermission(string $topology): ?Permission
+    /**
+     * @return list<Permission>
+     */
+    private function mapTopologyToPermissions(string $topology): array
     {
-        if (! $permissionString = (self::LEGACY_PERMISSION_MAP[$topology] ?? null)) {
+        if (! $permissionStrings = (self::LEGACY_PERMISSION_MAP[$topology] ?? null)) {
             @trigger_error(\sprintf('"%s" topology role is not mapped to any "%s", add it to "%s::LEGACY_PERMISSION_MAP".', $topology, Permission::class, self::class), \E_USER_DEPRECATED);
 
-            return null;
+            return [];
         }
 
-        return new Permission($permissionString);
+        return array_map(
+            static fn (string $permissionString): Permission => new Permission($permissionString),
+            (array) $permissionStrings
+        );
     }
 
     /**

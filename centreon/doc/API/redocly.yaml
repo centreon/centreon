@@ -1,0 +1,4 @@
+# Ruleset for `redocly lint`, pinned so the backend-lint CI gate is stable across CLI versions.
+# The committed specs (centreon-api.yaml, centreon-cloud-api.yaml) pass this ruleset with 0 errors.
+extends:
+  - recommended

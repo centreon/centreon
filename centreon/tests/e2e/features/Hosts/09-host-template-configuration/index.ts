@@ -48,28 +48,17 @@ Then('the user can configure directly its parent template', () => {
   cy.getIframeBody()
     .find('img[title="Edit template"]')
     .then((el) => {
-      cy.window().then((win) => {
-        // Get the hostId and build the correct URL
-        const hostId = el.siblings('select').val();
-        if (hostId !== '' && hostId !== undefined && hostId !== null) {
-          // Use relative URL to avoid hardcoding protocol and port
-          const baseUrl = win.location.origin;
-          const path = '/centreon/main.php';
-          const params = new URLSearchParams({
-            host_id: hostId.toString(),
-            min: '1',
-            o: 'c',
-            p: '60103'
-          });
-
-          // Perform redirection in the same tab
-          win.location.href = `${baseUrl}${path}?${params.toString()}`;
-        } else {
-          // Handle the case when no parent template is selected
-          cy.log('No parent template found to edit');
-          throw new Error('No parent template found to edit');
-        }
-      });
+      // Navigate with cy.visit rather than driving win.location: Cypress then
+      // owns the page load and the next wait cannot race the navigation.
+      const templateId = el.siblings('select').val();
+      if (
+        templateId === '' ||
+        templateId === undefined ||
+        templateId === null
+      ) {
+        throw new Error('No parent template found to edit');
+      }
+      cy.visit(`/centreon/main.php?p=60103&o=c&min=1&host_id=${templateId}`);
     });
   cy.waitForElementInIframe('#main-content', `input[name="host_name"]`);
   cy.getIframeBody().find('input[name="host_name"]').click();
