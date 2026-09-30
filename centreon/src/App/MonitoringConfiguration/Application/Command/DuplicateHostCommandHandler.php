@@ -76,9 +76,8 @@ final readonly class DuplicateHostCommandHandler
             childHostIds: $source->childHostIds,
             snmpVersion: $source->snmpVersion,
             // Secret references are copied verbatim: source and copy then share one vault entry.
-            // Minting a fresh entry (legacy duplicateHostSecretsInVault) is out of this ticket's
-            // stated side effects and left as a follow-up; a disabled vault stores plaintext, which
-            // copies correctly either way.
+            // Minting a fresh entry (legacy duplicateHostSecretsInVault) is deliberately not done here;
+            // a disabled vault stores plaintext, which copies correctly either way.
             snmpCommunity: $source->snmpCommunity,
             timezoneId: $source->timezoneId,
             severityId: $source->severityId,
