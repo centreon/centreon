@@ -107,6 +107,43 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId)));
     }
 
+    public function testRemoveDeletesADependencyWhoseLastParentServiceIsRemoved(): void
+    {
+        $hostId = $this->createHost('server-01', $this->createPoller('Central'));
+        $serviceId = $this->createService('ping', $hostId);
+        $dependencyId = $this->createDependency();
+        $this->connection->insert('dependency_serviceParent_relation', [
+            'dependency_dep_id' => $dependencyId,
+            'service_service_id' => $serviceId,
+            'host_host_id' => $hostId,
+        ]);
+        $service = $this->repository->findExclusivelyLinkedToHostId(new HostId($hostId))->toArray()[0];
+
+        $this->repository->remove($service);
+
+        self::assertFalse($this->dependencyExists($dependencyId));
+    }
+
+    public function testRemoveKeepsADependencyThatStillHasAnotherParentService(): void
+    {
+        $hostId = $this->createHost('server-01', $this->createPoller('Central'));
+        $serviceId = $this->createService('ping', $hostId);
+        $otherServiceId = $this->createService('http', $hostId);
+        $dependencyId = $this->createDependency();
+        foreach ([$serviceId, $otherServiceId] as $id) {
+            $this->connection->insert('dependency_serviceParent_relation', [
+                'dependency_dep_id' => $dependencyId,
+                'service_service_id' => $id,
+                'host_host_id' => $hostId,
+            ]);
+        }
+        $service = new Service(id: new ServiceId($serviceId), name: new ServiceName('ping'), hostId: new HostId($hostId));
+
+        $this->repository->remove($service);
+
+        self::assertTrue($this->dependencyExists($dependencyId));
+    }
+
     public function testRemoveDoesNotDeleteAServiceTemplate(): void
     {
         // findExclusivelyLinkedToHostId() never returns a template's id today (templates carry no
@@ -121,6 +158,18 @@ final class DbalServiceRepositoryTest extends KernelTestCase
             'SELECT service_id FROM service WHERE service_id = :id',
             ['id' => $templateId],
         ));
+    }
+
+    private function createDependency(): int
+    {
+        $this->connection->insert('dependency', ['dep_name' => 'dependency-' . bin2hex(random_bytes(4))]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function dependencyExists(int $dependencyId): bool
+    {
+        return $this->connection->fetchOne('SELECT dep_id FROM dependency WHERE dep_id = ?', [$dependencyId]) !== false;
     }
 
     private function createPoller(string $name): int

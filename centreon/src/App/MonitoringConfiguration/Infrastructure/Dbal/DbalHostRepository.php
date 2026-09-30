@@ -103,6 +103,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
+    use RemovesEmptiedDependenciesTrait;
     use DbalCriteriaApplierTrait;
     use TriStateColumnTrait;
     public const TABLE_NAME = 'host';
@@ -365,10 +366,17 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function remove(Host $host): void
     {
+        $hostId = $host->id()->value;
+        $parentDependencyIds = $this->findDependencyIds('dependency_hostParent_relation', 'host_host_id', $hostId);
+        $childDependencyIds = $this->findDependencyIds('dependency_hostChild_relation', 'host_host_id', $hostId);
+
         $qb = $this->connection->createQueryBuilder();
         $qb->delete(self::TABLE_NAME)
-            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($host->id()->value, ParameterType::INTEGER)))
+            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
             ->executeStatement();
+
+        $this->deleteDependenciesWithoutMember('dependency_hostParent_relation', $parentDependencyIds);
+        $this->deleteDependenciesWithoutMember('dependency_hostChild_relation', $childDependencyIds);
     }
 
     /**

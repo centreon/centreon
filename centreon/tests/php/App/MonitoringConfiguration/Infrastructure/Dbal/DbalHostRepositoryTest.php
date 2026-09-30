@@ -1061,6 +1061,59 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame(0, (int) $remainingCount);
     }
 
+    public function testRemoveDeletesADependencyWhoseLastParentHostIsRemoved(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $parentId = $this->createHost('parent', $pollerId);
+        $childId = $this->createHost('child', $pollerId);
+        $dependencyId = $this->createDependency();
+        $this->connection->insert('dependency_hostParent_relation', ['dependency_dep_id' => $dependencyId, 'host_host_id' => $parentId]);
+        $this->connection->insert('dependency_hostChild_relation', ['dependency_dep_id' => $dependencyId, 'host_host_id' => $childId]);
+
+        $this->repository->remove($this->findHost($parentId));
+
+        self::assertFalse($this->dependencyExists($dependencyId));
+    }
+
+    public function testRemoveDeletesADependencyWhoseLastChildHostIsRemoved(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $parentId = $this->createHost('parent', $pollerId);
+        $childId = $this->createHost('child', $pollerId);
+        $dependencyId = $this->createDependency();
+        $this->connection->insert('dependency_hostParent_relation', ['dependency_dep_id' => $dependencyId, 'host_host_id' => $parentId]);
+        $this->connection->insert('dependency_hostChild_relation', ['dependency_dep_id' => $dependencyId, 'host_host_id' => $childId]);
+
+        $this->repository->remove($this->findHost($childId));
+
+        self::assertFalse($this->dependencyExists($dependencyId));
+    }
+
+    public function testRemoveKeepsADependencyThatStillHasAnotherParentHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $parentId = $this->createHost('parent', $pollerId);
+        $otherParentId = $this->createHost('other-parent', $pollerId);
+        $dependencyId = $this->createDependency();
+        $this->connection->insert('dependency_hostParent_relation', ['dependency_dep_id' => $dependencyId, 'host_host_id' => $parentId]);
+        $this->connection->insert('dependency_hostParent_relation', ['dependency_dep_id' => $dependencyId, 'host_host_id' => $otherParentId]);
+
+        $this->repository->remove($this->findHost($parentId));
+
+        self::assertTrue($this->dependencyExists($dependencyId));
+    }
+
+    public function testRemoveLeavesUnrelatedDependenciesUntouched(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $unrelatedDependencyId = $this->createDependency();
+
+        $this->repository->remove($this->findHost($hostId));
+
+        self::assertTrue($this->dependencyExists($unrelatedDependencyId));
+    }
+
     public function testFindOneRoundTripsExtendedInformationsAndSnmp(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -1293,6 +1346,26 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function findHost(int $hostId): Host
+    {
+        $host = $this->repository->findOne(new HostId($hostId));
+        self::assertNotNull($host);
+
+        return $host;
+    }
+
+    private function createDependency(): int
+    {
+        $this->connection->insert('dependency', ['dep_name' => 'dependency-' . bin2hex(random_bytes(4))]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function dependencyExists(int $dependencyId): bool
+    {
+        return $this->connection->fetchOne('SELECT dep_id FROM dependency WHERE dep_id = ?', [$dependencyId]) !== false;
     }
 
     private function createHostCategory(string $name): int
