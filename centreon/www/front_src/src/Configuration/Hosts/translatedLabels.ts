@@ -29,7 +29,8 @@ export const labelRequired = 'Required';
 // The message the legacy host form raises on the same rule.
 export const labelNameMustNotStartWithModule =
   '_Module_ is not a legal expression';
-export const labelNameContainsForbiddenCharacters =
-  'This name contains forbidden characters';
-export const labelInvalidAddress =
-  'This address must be a valid IP address or a resolvable name';
+// The constants say which rule failed; the wording is the catalogue's, so the
+// six locales we ship already carry it. `Unauthorized value` is what the
+// legacy host form raises when a name fails the same character check.
+export const labelNameContainsForbiddenCharacters = 'Unauthorized value';
+export const labelInvalidAddress = 'Not a valid IP address';
