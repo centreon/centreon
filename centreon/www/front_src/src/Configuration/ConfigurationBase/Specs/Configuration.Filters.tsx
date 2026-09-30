@@ -1,6 +1,7 @@
 import { filter, propEq } from 'ramda';
 
 import { ResourceType } from '../../models';
+import { defaultFiltersPanelWidth } from '../Filters/Filters.styles';
 import {
   labelAlias,
   labelClear,
@@ -223,6 +224,39 @@ export default (resourceType: ResourceType) => {
 
         cy.makeSnapshot(
           `${resourceType}: keeps the selected value when the listing is mounted again`
+        );
+      });
+    });
+
+    describe('Filters panel width', () => {
+      const spacingUnit = 8;
+      const customWidth = 60;
+
+      it('renders the advanced filters panel with the default width when no width is declared', () => {
+        initialize({ resourceType });
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.get('[data-testid="advanced-filters"]').should(
+          'have.css',
+          'width',
+          `${defaultFiltersPanelWidth * spacingUnit}px`
+        );
+      });
+
+      it('renders the advanced filters panel with the declared width when a width is declared', () => {
+        initialize({ filtersPanelWidth: customWidth, resourceType });
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.get('[data-testid="advanced-filters"]').should(
+          'have.css',
+          'width',
+          `${customWidth * spacingUnit}px`
         );
       });
     });

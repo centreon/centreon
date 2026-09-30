@@ -52,4 +52,27 @@ final class CommandArgumentsFormatter
             '!' . implode('!', $args),
         );
     }
+
+    /**
+     * Reverses {@see self::format()}: splits the bang-joined, escaped storage string back into
+     * the raw arguments.
+     *
+     * @return list<string>
+     */
+    public static function parse(?string $stored): array
+    {
+        if ($stored === null || $stored === '') {
+            return [];
+        }
+
+        // The stored form always starts with '!' (format() prefixes it), so the first exploded
+        // segment is an empty string to drop.
+        $parts = explode('!', $stored);
+        array_shift($parts);
+
+        return array_map(
+            static fn (string $part): string => str_replace(['#BR#', '#T#', '#R#'], ["\n", "\t", "\r"], $part),
+            $parts,
+        );
+    }
 }

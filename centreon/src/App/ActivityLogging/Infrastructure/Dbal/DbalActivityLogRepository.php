@@ -48,12 +48,15 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         TargetTypeEnum::Command->value => 'command',
         TargetTypeEnum::Host->value => 'host',
         TargetTypeEnum::Poller->value => 'poller',
+        TargetTypeEnum::Service->value => 'service',
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',
     ];
     private const ACTION_VALUE_MAP = [
         ActionEnum::Add->value => 'a',
         ActionEnum::Update->value => 'c',
         ActionEnum::Delete->value => 'd',
+        ActionEnum::Enable->value => 'enable',
+        ActionEnum::Disable->value => 'disable',
     ];
 
     public function __construct(

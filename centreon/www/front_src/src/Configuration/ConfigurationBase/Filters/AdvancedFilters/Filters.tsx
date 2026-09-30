@@ -34,16 +34,23 @@ const Filters = <TFilters,>({
   filtersAtomKey
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useFilterStyles();
 
   const [filters, setFilters] = useAtom(filtersAtom);
 
   const { isLoading } = useLoadData({ filtersAtom, filtersAtomKey });
 
-  const { reset, isClearDisabled, reload, filtersConfiguration } = useFilters({
+  const {
+    reset,
+    isClearDisabled,
+    reload,
+    filtersConfiguration,
+    filtersPanelWidth
+  } = useFilters({
     filters,
     setFilters
   });
+
+  const { classes } = useFilterStyles({ filtersPanelWidth });
 
   return (
     <div className={classes.additionalFilters} data-testid="advanced-filters">
