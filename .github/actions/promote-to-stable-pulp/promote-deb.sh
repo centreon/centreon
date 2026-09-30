@@ -68,11 +68,13 @@ suite_sha_file() {
 # resolve the served filename from the testing suite's Packages file by
 # sha256 (the published pool layout doesn't match the upload relative_path)
 download_testing_package() {
-  local sha256=$1 arch=$2 dest=$3 filename
-  filename=$(
-    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
-      awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }'
-  )
+  local sha256=$1 arch=$2 dest=$3 filename packages_file
+  # read the index from a file: awk exits on the first match, which would
+  # SIGPIPE a piped curl on a large index (curl 23, fatal under pipefail)
+  packages_file=$(mktemp)
+  content_curl -fsSL --retry 3 --retry-delay 5 -o "$packages_file" "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages"
+  filename=$(awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }' "$packages_file")
+  rm -f "$packages_file"
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
     return 1
@@ -160,11 +162,10 @@ ensure_legacy_suite_associations() {
     return 1
   fi
   echo "[INFO] Mirroring $PACKAGES_COUNT package association(s) into $STABLE_LEGACY_REPOSITORY_NAME $STABLE_LEGACY_SUITE/main"
-  local units_file body_file sha href out code body prc n=0
+  local units_file body_file sha href out code body prc
   units_file=$(mktemp)
   while read -r sha; do
-    if ((n % 40 == 0)); then refresh_pulp_token; fi
-    n=$((n + 1))
+    refresh_pulp_token
     href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
     if [[ -z "$href" ]]; then
       echo "::error::Cannot resolve the promoted package (sha256 $sha) for the $STABLE_LEGACY_SUITE mirror"
@@ -409,9 +410,7 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   MAX_PARALLEL=8
   PRC_DIR=$(mktemp -d)
   for i in "${!PACKAGE_HREFS[@]}"; do
-    if ((i % 40 == 0)); then
-      refresh_pulp_token
-    fi
+    refresh_pulp_token
     (
       refresh_pulp_token
       package_href="${PACKAGE_HREFS[$i]}"
