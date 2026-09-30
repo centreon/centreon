@@ -97,9 +97,9 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
   return (
     <Box className="flex min-w-0 items-center gap-2 py-1">
       {icon && (
-        // The box holds the size, not the image: while the icon loads, `Image`
-        // renders its fallback in a container asking for the full width, which
-        // would squeeze the title and reflow it once the icon lands.
+        // `className` reaches only the `<img>`, and the fallback shown while
+        // the icon loads sits in a container `Image` fixes at 100%: the size
+        // has to live on the box around it.
         <Box className="size-5 shrink-0">
           <Image
             alt={icon.name}
