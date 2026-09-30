@@ -289,7 +289,6 @@ jobs:
             throw new Error(errorMessage);
 
   check-jira-reference:
-    name: Jira reference required
     needs: [get-environment]
     runs-on: ubuntu-24.04
     # automated dependency PRs (dependabot, monthly aggregation by technique-ci) carry no ticket
