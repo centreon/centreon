@@ -433,6 +433,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     AND host.host_register = '1'
                 WHERE service.service_id = :id
                     AND service.service_register = '1'
+                    AND hsr.host_host_id IS NOT NULL
                 GROUP BY
                     service.service_id,
                     esi.esi_action_url,
@@ -1034,6 +1035,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             ->appendWhere(
                 <<<'SQL'
                     WHERE service.service_register = '1'
+                        AND hsr.host_host_id IS NOT NULL
                     SQL
             )
             ->appendGroupBy(
