@@ -1,6 +1,7 @@
 import { filter, propEq } from 'ramda';
 
 import { ResourceType } from '../../models';
+import { defaultFiltersPanelWidth } from '../Filters/Filters.styles';
 import {
   labelAlias,
   labelClear,
@@ -11,6 +12,11 @@ import {
 } from '../translatedLabels';
 import initialize from './initialize';
 import { filtersConfiguration } from './utils';
+
+const openAdvancedFilters = (): void => {
+  cy.get(`[data-testid="${labelFilters}"]`).click();
+  cy.get('[data-testid="advanced-filters"]').should('be.visible');
+};
 
 export default (resourceType: ResourceType) => {
   describe('Filters', () => {
@@ -43,8 +49,7 @@ export default (resourceType: ResourceType) => {
 
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelFilters}"]`).click();
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      openAdvancedFilters();
 
       cy.get(`[data-testid="${labelName}"]`)
         .eq(1)
@@ -81,8 +86,7 @@ export default (resourceType: ResourceType) => {
 
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelFilters}"]`).click();
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      openAdvancedFilters();
 
       cy.get(`[data-testid="${labelName}"]`)
         .eq(1)
@@ -107,6 +111,39 @@ export default (resourceType: ResourceType) => {
       cy.makeSnapshot(
         `${resourceType}: clears all applied filters and sends a listing request with empty search parameters when the clear button is clicked`
       );
+    });
+
+    describe('Filters panel width', () => {
+      const spacingUnit = 8;
+      const customWidth = 60;
+
+      it('renders the advanced filters panel with the default width when no width is declared', () => {
+        initialize({ resourceType });
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.get('[data-testid="advanced-filters"]').should(
+          'have.css',
+          'width',
+          `${defaultFiltersPanelWidth * spacingUnit}px`
+        );
+      });
+
+      it('renders the advanced filters panel with the declared width when a width is declared', () => {
+        initialize({ filtersPanelWidth: customWidth, resourceType });
+
+        cy.waitForRequest('@getAll');
+
+        openAdvancedFilters();
+
+        cy.get('[data-testid="advanced-filters"]').should(
+          'have.css',
+          'width',
+          `${customWidth * spacingUnit}px`
+        );
+      });
     });
 
     it('hides the advanced filters icon when only the name field is filterable', () => {
