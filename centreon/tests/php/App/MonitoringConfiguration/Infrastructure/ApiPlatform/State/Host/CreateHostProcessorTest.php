@@ -26,25 +26,14 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceExtraDataFetcher;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostSchedulingOptionsOutputTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
-use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -609,10 +598,8 @@ final class CreateHostProcessorTest extends ApiTestCase
 
     /**
      * activeCheckEnabled/passiveCheckEnabled are omitted from the response on a Cloud platform
-     * (CreateHostProcessor nulls them). IS_CLOUD_PLATFORM is fixed for the whole kernel and can't
-     * be forced per test through the env var, so the platform is forced here by replacing the
-     * container's CreateHostProcessor instance with one built with the desired value, reusing its
-     * other real dependencies (same technique as ListHostsProviderTest::forcePlatform()).
+     * (HostSchedulingOptionsOutputTransformer nulls them). IS_CLOUD_PLATFORM is fixed for the whole
+     * kernel and can't be forced per test through the env var, see forcePlatform().
      */
     public function testItOmitsTheTriStateFieldsOnACloudPlatform(): void
     {
@@ -2878,10 +2865,10 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * The data_processing output shaping reads CreateHostProcessor's own $isCloudPlatform (bound
-     * from IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by
-     * replacing the container's processor with one built with the desired value, reusing its real
-     * dependencies. Must run before the request is made.
+     * $isCloudPlatform (bound from IS_CLOUD_PLATFORM) is read by CreateHostProcessor for the input,
+     * and by the Cloud-sensitive transformers for the output; it cannot be flipped per test through
+     * the env. Force it by replacing the container's processor with one built with the desired value,
+     * reusing its real dependencies. Must run before the request is made.
      */
     private function forcePlatform(bool $isCloudPlatform): void
     {
@@ -2889,62 +2876,27 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         /** @var CommandBus $commandBus */
         $commandBus = $container->get(CommandBus::class);
-        /** @var HostResourceTransformer $transformer */
-        $transformer = $container->get(HostResourceTransformer::class);
         /** @var Security $security */
         $security = $container->get(Security::class);
-        /** @var PollerRepository $pollerRepository */
-        $pollerRepository = $container->get(PollerRepository::class);
-        /** @var HostGroupRepository $hostGroupRepository */
-        $hostGroupRepository = $container->get(HostGroupRepository::class);
-        /** @var CommandRepository $commandRepository */
-        $commandRepository = $container->get(CommandRepository::class);
-        /** @var MediaRepository $mediaRepository */
-        $mediaRepository = $container->get(MediaRepository::class);
-        /** @var MediaUrlGenerator $mediaUrlGenerator */
-        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
-        /** @var HostNotificationsTransformer $notificationsTransformer */
-        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
-        /** @var TimePeriodRepository $timePeriodRepository */
-        $timePeriodRepository = $container->get(TimePeriodRepository::class);
-        /** @var HostTemplateRepository $hostTemplateRepository */
-        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
         /** @var HostRepository $hostRepository */
         $hostRepository = $container->get(HostRepository::class);
-        /** @var HostCategoryRepository $hostCategoryRepository */
-        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
-        /** @var HostSeverityRepository $hostSeverityRepository */
-        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
-        /** @var TimezoneRepository $timezoneRepository */
-        $timezoneRepository = $container->get(TimezoneRepository::class);
-
-        /** @var ResourceAccessRepository $resourceAccessRepository */
-        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
-        $macroTransformer = new HostMacroTransformer();
-
-        $resourceBuilder = new HostResourceBuilder(
-            $transformer,
-            $notificationsTransformer,
-            $hostRepository,
-            $pollerRepository,
-            $hostGroupRepository,
-            $commandRepository,
-            $hostTemplateRepository,
-            $hostCategoryRepository,
-            $hostSeverityRepository,
-            $timezoneRepository,
-            $mediaRepository,
-            $mediaUrlGenerator,
-            $timePeriodRepository,
-            $resourceAccessRepository,
-            $macroTransformer,
-            new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
-            $isCloudPlatform,
-        );
+        /** @var HostResourceExtraDataFetcher $extraDataFetcher */
+        $extraDataFetcher = $container->get(HostResourceExtraDataFetcher::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        $transformer = HostResourceTransformerFactory::create($isCloudPlatform, $mediaUrlGenerator);
 
         $container->set(
             CreateHostProcessor::class,
-            new CreateHostProcessor($commandBus, $security, $hostRepository, $macroTransformer, $resourceBuilder, $isCloudPlatform),
+            new CreateHostProcessor(
+                $commandBus,
+                $transformer,
+                $security,
+                $hostRepository,
+                $extraDataFetcher,
+                new HostMacroTransformer(),
+                $isCloudPlatform,
+            ),
         );
     }
 
