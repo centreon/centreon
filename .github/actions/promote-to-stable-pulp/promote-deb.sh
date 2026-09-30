@@ -71,7 +71,7 @@ download_testing_package() {
   local sha256=$1 arch=$2 dest=$3 filename
   filename=$(
     content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
-      awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }'
+      awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } !found && index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; found = 1; break } }'
   )
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
@@ -134,6 +134,30 @@ if ! pulp_resource_exists "repositories/deb/apt" "$STABLE_REPOSITORY_NAME"; then
 fi
 STABLE_REPOSITORY_HREF=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
 
+# emit the release component a package is associated with in the latest version
+# of the legacy repository: empty if none, error if ambiguous or unreadable
+legacy_release_component() {
+  local package_href=$1 latest rcs
+  refresh_pulp_token
+  latest=$(pulp deb repository show --name "$STABLE_LEGACY_REPOSITORY_NAME" | jq -r '.latest_version_href')
+  if ! rcs=$(
+    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
+      --data-urlencode "package=$package_href" \
+      --data-urlencode "repository_version=$latest" \
+      --data-urlencode "limit=100" \
+      "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
+      | jq -r '[.results[].release_component] | unique | .[]'
+  ); then
+    echo "::error::Cannot list the $STABLE_LEGACY_REPOSITORY_NAME associations of $package_href" >&2
+    return 1
+  fi
+  if [[ $(echo "$rcs" | grep -c .) -gt 1 ]]; then
+    echo "::error::$package_href is associated with several release components of $STABLE_LEGACY_REPOSITORY_NAME: $rcs" >&2
+    return 1
+  fi
+  echo "$rcs"
+}
+
 # 24.x standard clients use the dedicated legacy repository form
 # (apt-standard-24.10-stable/ with a plain-codename suite, provisioned by
 # create-repos): mirror every candidate package association into that suite so
@@ -145,20 +169,52 @@ ensure_legacy_suite_associations() {
     echo "::error::Dedicated legacy repository $STABLE_LEGACY_REPOSITORY_NAME does not exist. Pulp repositories are provisioned centrally by delivery-tooling create-repos; run create-repos before promoting."
     return 1
   fi
-  local legacy_repo_href latest legacy_rc
+  local legacy_repo_href legacy_rc ref ref_sha ref_href ref_file legacy_attempt task_href rc
   legacy_repo_href=$(pulp deb repository show --name "$STABLE_LEGACY_REPOSITORY_NAME" | jq -r '.pulp_href')
-  latest=$(pulp deb repository show --name "$STABLE_LEGACY_REPOSITORY_NAME" | jq -r '.latest_version_href')
-  legacy_rc=$(
-    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" \
-      "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/release_components/?$(
-        printf 'repository_version=%s&distribution=%s&component=main&limit=1' \
-          "$(jq -rn --arg v "$latest" '$v | @uri')" "$(jq -rn --arg v "$STABLE_LEGACY_SUITE" '$v | @uri')"
-      )" | jq -r '.results[0].pulp_href // empty'
-  )
-  if [[ -z "$legacy_rc" ]]; then
-    echo "::error::Cannot resolve the $STABLE_LEGACY_SUITE/main release component of $STABLE_LEGACY_REPOSITORY_NAME (provisioned by create-repos)"
+  # listing release components is admin-only: deduce the legacy suite's one from
+  # the reference package's association in the legacy repository (a deb build
+  # targets a single distribution), legacy-uploading it there first if needed
+  ref=$(echo "$PACKAGES" | jq -c '.[0]')
+  ref_sha=$(echo "$ref" | jq -r '.sha256')
+  ref_href=$(lookup_deb_content "packages" "--data-urlencode sha256=$ref_sha")
+  if [[ -z "$ref_href" ]]; then
+    echo "::error::Cannot resolve the reference package (sha256 $ref_sha) for the $STABLE_LEGACY_SUITE mirror"
     return 1
   fi
+  legacy_rc=$(legacy_release_component "$ref_href") || return 1
+  if [[ -z "$legacy_rc" ]]; then
+    ref_file="promoted-packages/$(basename "$(echo "$ref" | jq -r '.relative_path')")"
+    [[ -s "$ref_file" ]] || download_testing_package "$ref_sha" "$(echo "$ref" | jq -r '.architecture')" "$ref_file"
+    for legacy_attempt in 1 2 3; do
+      echo "[INFO] Establishing $STABLE_LEGACY_SUITE/main in $STABLE_LEGACY_REPOSITORY_NAME [legacy path, attempt $legacy_attempt]"
+      task_href=$(
+        pulp_upload \
+          -F "file=@\"$ref_file\"" \
+          -F "relative_path=$(echo "$ref" | jq -r '.relative_path')" \
+          -F "distribution=$STABLE_LEGACY_SUITE" \
+          -F "component=main" \
+          -F "repository=$legacy_repo_href" \
+          -F "pulp_labels=$PULP_LABELS" \
+          "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/"
+      )
+      wait_task_race "$task_href" && rc=0 || rc=$?
+      if [[ $rc -eq 0 ]]; then
+        break
+      elif [[ $rc -eq 2 && $legacy_attempt -lt 3 ]]; then
+        echo "[WARN] Legacy upload into $STABLE_LEGACY_REPOSITORY_NAME lost the repository-version race, retrying"
+        sleep $((legacy_attempt * 15))
+      else
+        echo "::error::Legacy upload into $STABLE_LEGACY_REPOSITORY_NAME failed"
+        return 1
+      fi
+    done
+    legacy_rc=$(legacy_release_component "$ref_href") || return 1
+  fi
+  if [[ -z "$legacy_rc" ]]; then
+    echo "::error::Cannot resolve the $STABLE_LEGACY_SUITE/main release component of $STABLE_LEGACY_REPOSITORY_NAME"
+    return 1
+  fi
+  echo "[INFO] Release component of $STABLE_LEGACY_REPOSITORY_NAME $STABLE_LEGACY_SUITE/main: $legacy_rc"
   echo "[INFO] Mirroring $PACKAGES_COUNT package association(s) into $STABLE_LEGACY_REPOSITORY_NAME $STABLE_LEGACY_SUITE/main"
   local units_file body_file sha href out code body prc n=0
   units_file=$(mktemp)
