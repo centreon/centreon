@@ -29,19 +29,15 @@ on:
   workflow_dispatch:
     inputs:
       jira_key:
-        description: "Jira ticket key to verify (e.g. MON-207985)"
+        description: "Jira ticket key to verify (e.g. MON-12345)"
         required: true
         type: string
-        default: "MON-207985"
-  push:
-    branches:
-      - qa-ticket-verify-skill
 
 permissions:
   contents: read
 
 concurrency:
-  group: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
+  group: qa-ticket-verify-${{ inputs.jira_key }}
   cancel-in-progress: false
 
 jobs:
@@ -75,7 +71,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: centreon/dotfiles
-          ref: feat/qa-ticket-verify-skill # develop once centreon/dotfiles#133 is merged
+          ref: develop # the centreon-qa-ci plugin lands with centreon/dotfiles#133
           token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
           path: dotfiles
 
@@ -101,7 +97,7 @@ jobs:
         id: find_pr
         env:
           GH_TOKEN: ${{ github.token }}
-          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+          TICKET_KEY: ${{ inputs.jira_key }}
           CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           pr_json_raw=$(gh pr list --repo centreon/centreon --search "$TICKET_KEY in:title,body" --state all \
@@ -191,7 +187,7 @@ jobs:
           JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
           GH_TOKEN: ${{ github.token }}
-          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+          TICKET_KEY: ${{ inputs.jira_key }}
           PR_NUMBER: ${{ steps.find_pr.outputs.number }}
           PR_URL: ${{ steps.find_pr.outputs.url }}
           TRIGGERED_BY: ${{ github.actor }}
@@ -235,7 +231,7 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
-          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+          TICKET_KEY: ${{ inputs.jira_key }}
         run: |
           run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           curl -su "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
@@ -252,7 +248,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
+          name: qa-ticket-verify-${{ inputs.jira_key }}
           path: |
             claude-output.jsonl
             claude-progress.log
