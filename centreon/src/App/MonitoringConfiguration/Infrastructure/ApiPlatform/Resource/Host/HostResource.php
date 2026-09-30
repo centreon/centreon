@@ -129,11 +129,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
             uriTemplate: '/configuration/hosts/{id}',
             processor: DeleteHostProcessor::class,
             read: false,
-            openapi: new Model\Operation(
-                responses: [
-                    404 => new Model\Response('Host resource not found'),
-                ],
-            ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to delete hosts',
         ),

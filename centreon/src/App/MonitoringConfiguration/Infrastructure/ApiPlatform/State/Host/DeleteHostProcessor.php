@@ -26,18 +26,9 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\DeleteHostCommand;
-use App\MonitoringConfiguration\Application\Command\DeleteHostResult;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Application\Vault\VaultCredentialWriter;
-use App\Shared\Domain\Aggregate\AggregateRoot;
-use App\Shared\Domain\Aggregate\AggregateRootId;
-use App\Shared\Domain\Aggregate\VaultScopedInterface;
-use App\Shared\Domain\Vault\VaultPathEnum;
-use App\Shared\Domain\VaultInterface;
-use App\Shared\Infrastructure\Logging\ExceptionFormatter;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
@@ -49,9 +40,6 @@ final readonly class DeleteHostProcessor implements ProcessorInterface
     public function __construct(
         private CommandBus $commandBus,
         private Security $security,
-        private VaultInterface $vault,
-        private VaultCredentialWriter $vaultCredentialWriter,
-        private LoggerInterface $logger,
     ) {
     }
 
@@ -63,43 +51,10 @@ final readonly class DeleteHostProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $command = new DeleteHostCommand(
+        $this->commandBus->execute(new DeleteHostCommand(
             id: new HostId($uriVariables['id']),
             deletedBy: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
-        );
-
-        $result = $this->commandBus->execute($command);
-        Assert::isInstanceOf($result, DeleteHostResult::class);
-
-        $this->purgeVaultEntry(VaultPathEnum::MonitoringHosts, $result->host);
-        foreach ($result->deletedServices as $service) {
-            $this->purgeVaultEntry(VaultPathEnum::MonitoringServices, $service);
-        }
-    }
-
-    /**
-     * Best-effort: by the time this runs, the command bus has already returned, which
-     * DoctrineTransactionMiddleware guarantees only happens after commit — the row is gone for
-     * good either way, so a vault failure here must not fail the request.
-     *
-     * @param AggregateRoot<AggregateRootId>&VaultScopedInterface $aggregate
-     */
-    private function purgeVaultEntry(VaultPathEnum $path, VaultScopedInterface&AggregateRoot $aggregate): void
-    {
-        $uuid = $aggregate->getVaultUuid($this->vault);
-        if ($uuid === null) {
-            return;
-        }
-
-        try {
-            $this->vaultCredentialWriter->delete($path, $uuid);
-        } catch (\Throwable $exception) {
-            $this->logger->error('Failed to purge a vault entry after deletion', [
-                'vault_path' => $path->value,
-                'uuid' => $uuid,
-                'exception' => ExceptionFormatter::format($exception),
-            ]);
-        }
+        ));
     }
 }
