@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -100,15 +101,19 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   child_host_ids: string|null,
  *   macros: list<array{name: string, value: string, is_password: string|int, description: string|null}>,
  * }
+ *
+ * @phpstan-import-type NotificationColumnsTypeAlias from DbalNotificationsTransformer
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
 {
+    use RemovesEmptiedDependenciesTrait;
     use DbalCriteriaApplierTrait;
     use TriStateColumnTrait;
     public const TABLE_NAME = 'host';
 
     /**
      * @param TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, Host> $transformer
+     * @param TransformerInterface<?Notifications, NotificationColumnsTypeAlias> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -117,6 +122,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         private Connection $realTimeConnection,
         #[Autowire(service: DbalHostTransformer::class)]
         private TransformerInterface $transformer,
+        #[Autowire(service: DbalNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private AccessGroupRepository $accessGroupRepository,
     ) {
     }
@@ -126,6 +133,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $dataProcessing = $host->dataProcessing;
         $extendedInformations = $host->extendedInformations;
         $schedulingOptions = $host->schedulingOptions;
+        $notifications = $host->notifications;
+        // The transformer owns every legacy storage format of the block, including what an absent
+        // one writes: the Default tri-state, false flags, and NULL everywhere else.
+        $notificationColumns = $this->notificationsTransformer->transform($notifications);
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
@@ -157,6 +168,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 'host_passive_checks_enabled' => ':passiveCheckEnabled',
                 'command_command_id' => ':check_command_id',
                 'command_command_id_arg1' => ':check_command_args',
+                'host_notifications_enabled' => ':notificationsEnabled',
+                'host_notification_options' => ':notificationOptions',
+                'host_notification_interval' => ':notificationInterval',
+                'timeperiod_tp_id2' => ':notificationPeriodId',
+                'host_first_notification_delay' => ':firstNotificationDelay',
+                'host_recovery_notification_delay' => ':recoveryNotificationDelay',
+                'contact_additive_inheritance' => ':contactAdditiveInheritance',
+                'cg_additive_inheritance' => ':contactGroupAdditiveInheritance',
             ])
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -185,6 +204,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
             ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
             ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
+            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
+            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
+            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN)
             ->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -281,6 +308,26 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('macroOrder', $macroOrder)
                 ->executeStatement();
         }
+
+        if ($notifications instanceof Notifications) {
+            foreach ($notifications->contactIds as $contactId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contact_host_relation')
+                    ->values(['contact_id' => ':contactId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactId', $contactId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+
+            foreach ($notifications->contactGroupIds as $contactGroupId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contactgroup_host_relation')
+                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactGroupId', $contactGroupId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+        }
     }
 
     public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
@@ -365,9 +412,29 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function remove(Host $host): void
     {
+        $hostId = $host->id()->value;
+        $parentDependencyIds = $this->findDependencyIds('dependency_hostParent_relation', 'host_host_id', $hostId);
+        $childDependencyIds = $this->findDependencyIds('dependency_hostChild_relation', 'host_host_id', $hostId);
+
         $qb = $this->connection->createQueryBuilder();
         $qb->delete(self::TABLE_NAME)
-            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($host->id()->value, ParameterType::INTEGER)))
+            ->where($qb->expr()->eq('host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
+            ->executeStatement();
+
+        $this->deleteDependenciesWithoutMember('dependency_hostParent_relation', $parentDependencyIds);
+        $this->deleteDependenciesWithoutMember('dependency_hostChild_relation', $childDependencyIds);
+    }
+
+    public function updateActivationStatus(HostId $id, bool $activated): void
+    {
+        // host_register = '1' mirrors findOne so a template is never toggled; contract on the interface.
+        $this->connection->createQueryBuilder()
+            ->update(self::TABLE_NAME)
+            ->set('host_activate', ':activated')
+            ->where('host_id = :id')
+            ->andWhere("host_register = '1'")
+            ->setParameter('activated', $activated ? '1' : '0')
+            ->setParameter('id', $id->value, ParameterType::INTEGER)
             ->executeStatement();
     }
 

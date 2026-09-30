@@ -260,6 +260,8 @@ CENTREON_PLUGINS_PATH=${VMWARE_PATH:-./centreon-plugins}
 
 TZ=${TZ:-UTC}
 DEBUG=${DEBUG:-false}
+# centreontrapd log verbosity (only used when --with-snmptrap is set)
+CENTREONTRAPD_LOG_LEVEL=${CENTREONTRAPD_LOG_LEVEL:-error}
 
 NAME=${POLLER_NAME}
 GORGONE_UID=${GORGONE_UID}
@@ -268,6 +270,8 @@ CENTRAL_PORT=${CENTRAL_PORT}
 ENGINE_PORT=${ENGINE_PORT}
 GORGONE_TOKEN=${GORGONE_TOKEN}
 GORGONE_SSL=${GORGONE_SSL}
+# Minimum log level for gorgoned (fatal/error/warning/notice/info/debug), defaults to info.
+GORGONE_LOG_LEVEL=${GORGONE_LOG_LEVEL:-info}
 GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI=${GORGONE_PULLWSS_CENTRAL_URI}
 
 APP_SECRET=${APP_SECRET}
@@ -433,6 +437,7 @@ EOF
       GORGONE_TOKEN: "${GORGONE_TOKEN}"
       CENTRAL_HOST: "${CENTRAL_HOST}"
       CENTRAL_PORT: "${CENTRAL_PORT}"
+      GORGONE_LOG_LEVEL: "${GORGONE_LOG_LEVEL}"
       GORGONE__GORGONE__MODULES__PULLWSS__SSL: "${GORGONE_SSL}"
       GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI: "${GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI}"
       APP_SECRET: "${APP_SECRET}"
@@ -526,6 +531,7 @@ EOF
     environment:
       TZ: "${TZ}"
       DEBUG: "${DEBUG}"
+      CENTREONTRAPD_LOG_LEVEL: "${CENTREONTRAPD_LOG_LEVEL}"
     volumes:
       - poller-snmp-spool:/var/spool/centreontrapd
       - poller-snmp-traps:/etc/snmp/centreon_traps:ro

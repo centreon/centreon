@@ -10,12 +10,12 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ObjectSchema } from 'yup';
 
-import { isFormDirtyAtom } from '../../atoms';
-import { CloseModalConfirmation } from '../../Dialogs';
-import { labelCancel, labelSave } from '../../translatedLabels';
+import { formActionsAtom, isFormDirtyAtom } from '../atoms';
+import { CloseModalConfirmation } from '../Dialogs';
+import { labelCancel, labelSave } from '../translatedLabels';
 import { useFormStyles } from './Form.styles';
 
-export type HostGroupFormProps = {
+export type ResourceFormProps = {
   id?: number;
   onSubmit?: (
     values: Record<string, unknown>,
@@ -28,9 +28,12 @@ export type HostGroupFormProps = {
   initialValues: Record<string, unknown>;
   isLoading: boolean;
   hasWriteAccess: boolean;
+  // The panel carries save and reset in its own chrome, through
+  // `formActionsAtom`.
+  areActionsInHeader?: boolean;
 } & Pick<FormActionsProps, 'onCancel'>;
 
-export type ConnectorFormLabels = {
+export type ResourceFormLabels = {
   actions: FormActionsProps['labels'];
   entity: Record<string, unknown>;
 };
@@ -74,7 +77,36 @@ const Actions = ({
   );
 };
 
-const HostGroupForm = ({
+// Inside the Formik context the panel header cannot reach.
+const PublishedActions = (): JSX.Element => {
+  const setIsDirty = useSetAtom(isFormDirtyAtom);
+  const setFormActions = useSetAtom(formActionsAtom);
+
+  const { dirty, isValid, isSubmitting, submitForm, resetForm } =
+    useFormikContext();
+
+  useEffect(() => {
+    setIsDirty(dirty);
+  }, [dirty, setIsDirty]);
+
+  useEffect(() => {
+    setFormActions({
+      canReset: dirty && !isSubmitting,
+      canSubmit: dirty && isValid && !isSubmitting,
+      isSubmitting,
+      reset: () => resetForm(),
+      submit: () => {
+        submitForm();
+      }
+    });
+  }, [dirty, isValid, isSubmitting, resetForm, submitForm, setFormActions]);
+
+  useEffect(() => () => setFormActions(null), [setFormActions]);
+
+  return <CloseModalConfirmation />;
+};
+
+const ResourceForm = ({
   mode,
   onSubmit,
   onCancel,
@@ -83,18 +115,29 @@ const HostGroupForm = ({
   validationSchema,
   initialValues,
   isLoading,
-  hasWriteAccess
-}: HostGroupFormProps): JSX.Element => {
+  hasWriteAccess,
+  areActionsInHeader = false
+}: ResourceFormProps): JSX.Element => {
   const { classes } = useFormStyles();
+
+  const getButtons = (): typeof Box => {
+    if (!hasWriteAccess) {
+      return Box;
+    }
+
+    if (areActionsInHeader) {
+      return PublishedActions;
+    }
+
+    return () => <Actions mode={mode} onCancel={onCancel} />;
+  };
 
   return (
     <Form
       areGroupsOpen
-      Buttons={
-        hasWriteAccess ? () => <Actions mode={mode} onCancel={onCancel} /> : Box
-      }
+      Buttons={getButtons()}
       groups={groups}
-      groupsClassName={classes.groups}
+      groupsClassName={areActionsInHeader ? undefined : classes.groups}
       initialValues={initialValues}
       inputs={inputs}
       isCollapsible
@@ -105,4 +148,4 @@ const HostGroupForm = ({
   );
 };
 
-export default HostGroupForm;
+export default ResourceForm;

@@ -30,17 +30,15 @@ use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
 use App\Shared\Domain\Event\AggregateDuplicated;
+use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 
 /**
- * Reacts to the creation, deletion or duplication of any poller-scoped resource (see
+ * Reacts to the creation, update, deletion or duplication of any poller-scoped resource (see
  * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
  * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
- * configuration until something else touches it.
- *
- * Created, Deleted and Duplicated are handled here (host creation and duplication are the live use
- * cases today). Extend the union to AggregateUpdated once a poller-scoped update use case fires it —
- * LogActivityEventHandler already handles that event.
+ * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
+ * also catches its enable/disable specializations.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -51,9 +49,9 @@ final readonly class FlagPollerChangedEventHandler
     }
 
     /**
-     * @param AggregateCreated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
      */
-    public function __invoke(AggregateCreated|AggregateDeleted|AggregateDuplicated $event): void
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;

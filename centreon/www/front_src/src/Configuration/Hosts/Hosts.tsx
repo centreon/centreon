@@ -96,6 +96,7 @@ const Hosts = () => {
       // autocompletes hold.
       filtersPanelWidth={60}
       form={{ defaultValues, groups, inputs, validationSchema }}
+      formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         title: t(labelHosts),

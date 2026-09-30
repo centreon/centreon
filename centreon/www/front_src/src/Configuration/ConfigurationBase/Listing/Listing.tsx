@@ -48,7 +48,7 @@ const Listing = <TFilters,>({
     sortf,
     sorto,
     selectedColumnIds,
-    openEditModal,
+    openEditForm,
     disableRowCondition
   } = useListing({ selectedColumnIdsAtom });
 
@@ -80,7 +80,7 @@ const Listing = <TFilters,>({
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
-      onRowClick={openEditModal}
+      onRowClick={openEditForm}
       onSelectColumns={selectColumns}
       onSelectRows={setSelectedRows}
       onSort={changeSort}

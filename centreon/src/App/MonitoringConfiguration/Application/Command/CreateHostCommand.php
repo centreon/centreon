@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -78,6 +79,7 @@ final readonly class CreateHostCommand
         public ?ExtendedInformations $extendedInformations = null,
         public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
         public CheckOptions $checkOptions = new CheckOptions(null),
+        public ?Notifications $notifications = null,
     ) {
     }
 }

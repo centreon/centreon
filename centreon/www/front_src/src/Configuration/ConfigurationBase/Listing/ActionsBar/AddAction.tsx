@@ -6,7 +6,7 @@ import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
-import { modalStateAtom } from '../../atoms';
+import { formStateAtom } from '../../atoms';
 import { labelAdd } from '../../translatedLabels';
 
 const Add = (): JSX.Element => {
@@ -14,12 +14,12 @@ const Add = (): JSX.Element => {
 
   const [, setSearchParams] = useSearchParams();
 
-  const setModalState = useSetAtom(modalStateAtom);
+  const setFormState = useSetAtom(formStateAtom);
 
-  const openCreatetModal = (): void => {
+  const openCreateForm = (): void => {
     setSearchParams({ mode: 'add' });
 
-    setModalState({ id: null, isOpen: true, mode: 'add' });
+    setFormState({ id: null, isOpen: true, mode: 'add', resource: null });
   };
 
   return (
@@ -28,7 +28,7 @@ const Add = (): JSX.Element => {
       data-testid="add-resource"
       icon={<AddIcon />}
       iconVariant="start"
-      onClick={openCreatetModal}
+      onClick={openCreateForm}
       size="medium"
       variant="primary"
     >

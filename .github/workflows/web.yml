@@ -2374,9 +2374,10 @@ jobs:
           echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }}. This release is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io stable' step for the missing-candidate or push error, and investigate before relying on public delivery for this version."
         shell: bash
 
-      - name: Attest SBOM on ghcr.io (best-effort, non-blocking)
+      - name: Attest SBOM on ghcr.io
+        # Hard failure: image is already pushed at this point, so this is the
+        # gh attestation verify guarantee, not delivery — must be visible.
         if: steps.promote-ghcr.outcome == 'success' && steps.promote-ghcr.outputs.digest != ''
-        continue-on-error: true
         id: attest-ghcr
         uses: ./.github/actions/attest-ghcr-image
         with:
@@ -2385,8 +2386,8 @@ jobs:
           amd64_digest: ${{ steps.promote-ghcr.outputs.amd64_digest }}
           arm64_digest: ${{ steps.promote-ghcr.outputs.arm64_digest }}
 
-      - name: Warn if ghcr.io attestation failed
-        if: steps.attest-ghcr.outcome == 'failure'
+      - name: Explain ghcr.io attestation failure
+        if: failure() && steps.attest-ghcr.outcome == 'failure'
         run: |
-          echo "::warning::SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested — see the 'Attest SBOM on ghcr.io' step and investigate before relying on gh attestation verify for this version."
+          echo "::error::SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested. To fix: check the 'Attest SBOM on ghcr.io' step logs above for the actual cause (registry auth, Sigstore/Fulcio outage); re-running this job is safe, it only re-attests the already-published digest."
         shell: bash

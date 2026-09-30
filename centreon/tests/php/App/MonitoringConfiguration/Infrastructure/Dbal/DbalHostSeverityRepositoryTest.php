@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostSeverityRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostSeverityTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
@@ -57,7 +58,7 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostSeverityRepository(
             $this->connection,
             new HostSeverityTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host severities

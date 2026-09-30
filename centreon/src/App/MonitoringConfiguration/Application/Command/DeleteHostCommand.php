@@ -21,13 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Application\Command;
 
-final readonly class HostPollerOutput
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
+
+final readonly class DeleteHostCommand
 {
+    /**
+     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value
+     *                          scopes the lookup to what that user can access via ACL, mirroring
+     *                          `CreateHostCommand::$viewerId`
+     */
     public function __construct(
-        public int $id,
-        public string $name,
+        public HostId $id,
+        public int $deletedBy,
+        public ?UserId $viewerId = null,
     ) {
     }
 }

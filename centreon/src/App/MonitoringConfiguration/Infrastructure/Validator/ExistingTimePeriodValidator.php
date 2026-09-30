@@ -30,10 +30,13 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
+ * Time periods carry no ACL scoping of their own (see DbalTimePeriodRepository), so plain
+ * existence is the whole check — unlike contacts, which are also scoped to the viewer.
+ *
  * Always declared after Assert\Positive inside an Assert\Sequentially on the property (see
- * CreateHostSchedulingOptionsInput): TimePeriodId asserts a strictly positive int and would throw
- * instead of producing a clean violation, so this validator must never run on a value Positive
- * would have rejected.
+ * CreateHostSchedulingOptionsInput, CreateHostNotificationsInput): TimePeriodId asserts a strictly
+ * positive int and would throw instead of producing a clean violation, so this validator must
+ * never run on a value Positive would have rejected.
  */
 final class ExistingTimePeriodValidator extends ConstraintValidator
 {

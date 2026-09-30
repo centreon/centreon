@@ -25,23 +25,27 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 
 #[ApiResource(
     shortName: 'Host',
     operations: [
         new Post(
             uriTemplate: '/configuration/hosts',
-            processor: CreateHostProcessor::class,
-            input: CreateHostInput::class,
             openapi: new Model\Operation(
                 responses: [
                     404 => new Model\Response('Poller or host group not found'),
@@ -51,6 +55,28 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to create hosts',
+            input: CreateHostInput::class,
+            processor: CreateHostProcessor::class,
+        ),
+        new Patch(
+            uriTemplate: '/configuration/hosts/{id}',
+            status: 204,
+            // Write-only action: no item provider (reading the whole host to toggle a bool is wasteful).
+            // The processor resolves the host and returns 404 via the handler when it is missing.
+            read: false,
+            processor: PatchHostProcessor::class,
+            input: PatchHostInput::class,
+            output: false,
+            openapi: new Model\Operation(
+                description: 'Enable or disable a single host.',
+                responses: [
+                    204 => new Model\Response('Host activation status updated'),
+                    404 => new Model\Response('Host not found'),
+                    422 => new Model\Response('Invalid input'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update hosts',
         ),
         new Post(
             uriTemplate: '/configuration/hosts/{id}/_duplicate',
@@ -77,8 +103,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',
-            provider: ListHostsProvider::class,
-            output: HostCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -122,12 +146,21 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
                 is_granted("' . HostPermissionEnum::CanRead->value . '") or
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list hosts',
+            output: HostCollectionOutput::class,
+            provider: ListHostsProvider::class,
+        ),
+        new Delete(
+            uriTemplate: '/configuration/hosts/{id}',
+            processor: DeleteHostProcessor::class,
+            read: false,
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to delete hosts',
         ),
     ],
 )]
 final class HostResource
 {
-    public HostPollerOutput $poller;
+    public PollerChoicesOutput $poller;
 
     /** @var list<HostTemplateOutput> */
     public array $templates;
@@ -155,6 +188,8 @@ final class HostResource
     public HostSchedulingOptionsOutput $schedulingOptions;
 
     public HostCheckOptionsOutput $checkOptions;
+
+    public ?HostNotificationsOutput $notifications = null;
 
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]

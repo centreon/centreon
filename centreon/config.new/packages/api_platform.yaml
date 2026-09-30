@@ -11,6 +11,7 @@ api_platform:
         App\Shared\Domain\Exception\AggregateNotFoundException: 404
         App\Shared\Domain\Exception\AggregateConflictException: 409 # unless the failed criteria name an input field, see InvalidReferenceExceptionListener
         App\Shared\Domain\Exception\EngineSecretsUnavailableException: 503
+        App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException: 502 # the deletion is committed, only the vault (an upstream dependency) failed
         App\Security\Domain\Exception\CredentialDisabledException: 401
 
     defaults:
