@@ -110,7 +110,7 @@ final class ListPollersChoicesProviderTest extends ApiTestCase
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
         self::assertSame([$name], array_column($member, 'name'));
-        self::assertSame([], array_diff(array_keys($member[0]), ['@id', '@type', 'id', 'name', 'isDefault']));
+        self::assertSame([], array_diff(array_keys($member[0]), ['@id', '@type', 'id', 'name', 'is_default']));
     }
 
     public function testItExposesTheDefaultPollerFlag(): void
@@ -127,7 +127,7 @@ final class ListPollersChoicesProviderTest extends ApiTestCase
 
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
-        $isDefaultByName = array_column($member, 'isDefault', 'name');
+        $isDefaultByName = array_column($member, 'is_default', 'name');
         self::assertTrue($isDefaultByName[$defaultName]);
         self::assertFalse($isDefaultByName[$regularName]);
     }
