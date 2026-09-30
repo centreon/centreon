@@ -13,6 +13,11 @@ import {
 import initialize from './initialize';
 import { filtersConfiguration } from './utils';
 
+const openAdvancedFilters = (): void => {
+  cy.get(`[data-testid="${labelFilters}"]`).click();
+  cy.get('[data-testid="advanced-filters"]').should('be.visible');
+};
+
 export default (resourceType: ResourceType) => {
   describe('Filters', () => {
     it('sends a listing request with the name filter when the search bar is manually updated, debounced by 500ms', () => {
@@ -44,8 +49,7 @@ export default (resourceType: ResourceType) => {
 
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelFilters}"]`).click();
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      openAdvancedFilters();
 
       cy.get(`[data-testid="${labelName}"]`)
         .eq(1)
@@ -82,8 +86,7 @@ export default (resourceType: ResourceType) => {
 
       cy.waitForRequest('@getAll');
 
-      cy.get(`[data-testid="${labelFilters}"]`).click();
-      cy.get('[data-testid="advanced-filters"]').should('be.visible');
+      openAdvancedFilters();
 
       cy.get(`[data-testid="${labelName}"]`)
         .eq(1)
