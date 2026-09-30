@@ -67,17 +67,15 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
     public function delete(int $serviceId): void
     {
         try {
-            $service = $this->readServiceRepository->findById($serviceId);
-            if ($service === null) {
-                throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
-            }
+            $serviceName = $this->readServiceRepository->findNameById($serviceId)
+                ?? throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
 
             $this->writeServiceRepository->delete($serviceId);
 
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_SERVICE,
                 $serviceId,
-                $service->getName(),
+                $serviceName,
                 ActionLog::ACTION_TYPE_DELETE,
                 $this->contact->getId()
             );
