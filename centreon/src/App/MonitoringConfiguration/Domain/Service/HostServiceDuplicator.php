@@ -29,8 +29,7 @@ interface HostServiceDuplicator
 {
     /**
      * Copies the source host's services onto the freshly duplicated host: a service exclusive to the
-     * source is cloned, a service shared with other hosts is re-linked to the copy. The author and
-     * ACL of the new services come from the current legacy session, so this must run within one.
+     * source is cloned, a service shared with other hosts is re-linked to the copy.
      *
      * @throws \Throwable
      */
