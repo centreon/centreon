@@ -147,6 +147,7 @@ const Resources = ({
                   hideResourceDeleteButton() ||
                   getDefaultRequiredSelectType(resource.resourceType)
                 }
+                // biome-ignore lint/suspicious/noArrayIndexKey: resources have no stable id
                 key={`${index}${resource.resourceType}`}
                 labelDelete={t(labelDelete)}
                 onDeleteItem={deleteResource(index)}
