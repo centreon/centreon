@@ -17,13 +17,14 @@ on:
 jobs:
   check-jira-reference:
     name: Jira reference required
+    needs: [get-environment]
     runs-on: ubuntu-24.04
     # automated dependency PRs (dependabot, monthly aggregation by technique-ci) carry no ticket
     if: |
       (github.base_ref == 'develop' || startsWith(github.base_ref, 'dev-') || startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-')) &&
       github.event.pull_request.user.type != 'Bot' &&
       ! contains(fromJSON('["technique-ci"]'), github.event.pull_request.user.login) &&
-      ! contains(github.event.pull_request.labels.*.name, 'skip-jira-reference')
+      ! contains(fromJSON(needs.get-environment.outputs.labels), 'skip-jira-reference')
     permissions:
       pull-requests: write
     steps:
@@ -73,18 +74,12 @@ jobs:
               }
             };
 
-            // read the description and labels from the API, the event payload is stale when a run is re-run after an edit
+            // read the description from the API, the event payload is stale when a run is re-run after an edit
             const { data: pull } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
-
-            if (pull.labels.some(({ name }) => name === 'skip-jira-reference')) {
-              core.info('Jira reference check skipped by label "skip-jira-reference"');
-              await upsertComment(`${commentMarker}\n⏭️ **Jira reference required**: check skipped by label \`skip-jira-reference\`.`, false);
-              return;
-            }
 
             const branchKeys = findJiraKeys(process.env.HEAD_REF);
             const descriptionKeys = findJiraKeys(pull.body);
@@ -107,17 +102,17 @@ jobs:
               '',
               'Every pull request targeting `develop`, `dev-*`, `release-*` or `hotfix-*` must be traceable to a Jira issue. To fix it:',
               '- add the key of the Jira issue to the **pull request description** (for example `Refs: MON-12345` or a link to the issue),',
-              '- then re-run the failed jobs of workflow `check-status`.',
+              '- then re-run all jobs of workflow `check-status`.',
               '',
               'Prefix the branch name with the key for the next pull requests (for example `MON-12345-short-description`).',
-              'If this pull request legitimately has no Jira issue, add label `skip-jira-reference` and re-run the failed jobs of workflow `check-status`.'
+              'If this pull request legitimately has no Jira issue, add label `skip-jira-reference` and re-run all jobs of workflow `check-status`.'
             ].join('\n');
 
             await upsertComment(message, true);
-            core.setFailed(`No Jira issue key found in the branch name "${process.env.HEAD_REF}" nor in the pull request description: add one to the description (for example "Refs: MON-12345") and re-run the failed jobs of workflow check-status`);
+            core.setFailed(`No Jira issue key found in the branch name "${process.env.HEAD_REF}" nor in the pull request description: add one to the description (for example "Refs: MON-12345") and re-run all jobs of workflow check-status`);
 
   check-status:
-    needs: [check-jira-reference]
+    needs: [get-environment, check-jira-reference]
     # the Jira reference check is skipped for other targets and automated pull requests
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
@@ -126,6 +121,13 @@ jobs:
         if: ${{ needs.check-jira-reference.result == 'failure' }}
         run: |
           echo "::error title=Jira reference required::No Jira issue key found in the branch name nor in the pull request description, see job \"Jira reference required\""
+          exit 1
+
+      # a failed get-environment skips the Jira reference check, it must not let the pull request through
+      - name: Fail if get-environment failed
+        if: ${{ needs.get-environment.result == 'failure' }}
+        run: |
+          echo "::error title=get-environment failed::Job get-environment failed, re-run all jobs of workflow check-status"
           exit 1
 
       - name: Display API rate limit usage
@@ -321,7 +323,7 @@ jobs:
   get-environment:
     if: |
       contains(fromJSON('["pull_request"]') , github.event_name) &&
-      (startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
+      (github.base_ref == 'develop' || startsWith(github.base_ref, 'dev-') || startsWith(github.base_ref, 'release-') || startsWith(github.base_ref, 'hotfix-'))
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
