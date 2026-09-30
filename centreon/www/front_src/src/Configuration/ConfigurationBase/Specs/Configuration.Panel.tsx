@@ -97,12 +97,9 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           const pageRect = page.getBoundingClientRect();
 
           // The rectangles below match the viewport too, so assert the
-          // mechanism: without this the panel hangs off whatever ancestor
-          // happens to be positioned, which is invisible in a test where the
-          // page fills the frame.
+          // mechanism: a panel hanging off the wrong ancestor passes them.
           expect(getComputedStyle(page).position).to.equal('relative');
 
-          // Above the page title, not below it.
           panelSurface().should(([panel]) => {
             const panelRect = panel.getBoundingClientRect();
 
@@ -112,7 +109,6 @@ export default (resourceType, { hasSnapshots }: Options): void => {
           });
         });
 
-        // The title it covers is still rendered underneath.
         cy.get('#header').should('exist');
       });
 

@@ -32,9 +32,8 @@ const PanelLayout = ({ form, hasWriteAccess, width }: Props): ReactElement => {
   );
 
   return (
-    // Spans the page rather than the listing, so the panel reaches the top of
-    // the page as the mock has it. Transparent to the pointer: the listing
-    // underneath stays usable while the panel is open.
+    // Spans the page, not the listing, so the panel reaches the top of it.
+    // Transparent to the pointer: the listing underneath stays usable.
     <Box
       ref={ref}
       sx={{ inset: 0, pointerEvents: 'none', position: 'absolute' }}

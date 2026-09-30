@@ -29,9 +29,8 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-// The create endpoint is API Platform, so the payload is snake_case. The form
-// holds the poller as the option the autocomplete selected; the API wants its
-// id alone.
+// API Platform takes snake_case, and the poller as an id where the form holds
+// the option the autocomplete selected.
 const adaptFormToApiPayload = (data: unknown) => {
   const { name, address, poller } = data as {
     address: string;

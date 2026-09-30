@@ -26,9 +26,8 @@ interface FormInputsState {
   groups: Array<Group>;
 }
 
-// The five sections the US defines. They also drive the pinned navigation the
-// shared form renders on its own from four groups up. The later subtasks fill
-// them; only Host configuration carries fields today.
+// The five sections of the US. They also drive the pinned navigation, which
+// the shared form renders on its own from four groups up.
 const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
   const { t } = useTranslation();
 

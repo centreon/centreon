@@ -13,9 +13,8 @@ export const hostTemplatesEndpoint = '/configuration/host_templates';
 export const hostGroupsEndpoint = '/configuration/host_groups';
 export const pollersEndpoint = '/configuration/pollers';
 
-// The form's selector, on the default `./api/latest` base. The API Platform
-// one above answers JSON-LD under `./api`, which the shared form's connected
-// autocomplete has no way to target — it always builds on the default base.
+// The form's selector. The API Platform one above is unreachable from a form:
+// the shared connected autocomplete always builds on the default base.
 export const monitoringServersEndpoint = '/configuration/monitoring-servers';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>

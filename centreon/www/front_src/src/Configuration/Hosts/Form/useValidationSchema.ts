@@ -8,8 +8,8 @@ import {
   labelRequired
 } from '../translatedLabels';
 
-// From the US. Uniqueness is not checked here: the server owns it, and a
-// client check would go stale the moment another user creates a host.
+// Uniqueness is not checked here: the server owns it, and a client check goes
+// stale the moment someone else creates a host.
 const nameMaxLength = 200;
 const addressMaxLength = 255;
 const forbiddenNameCharacters = /^[^~!$%^&*"\\|'<>?,()=]*$/;

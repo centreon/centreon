@@ -89,6 +89,19 @@ export default () => {
       cy.findByTestId('host-form-poller').should('have.value', 'Poller EU');
     });
 
+    it('shows the host icon the listing carried into the panel', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.get(`[data-testid="${panelDataTestIds.header}"]`)
+        .parent()
+        .find('img')
+        .should('have.attr', 'alt', 'server.png');
+    });
+
     it('freezes the form for a user who may only look at hosts', () => {
       initialize({ hasWriteAccess: false });
 
@@ -96,7 +109,6 @@ export default () => {
 
       cy.contains('host 0').click();
 
-      // The US gives a read-only ACL user the form, frozen.
       ['host-form-name', 'host-form-address'].forEach((field) => {
         cy.findAllByTestId(field).eq(1).should('be.disabled');
       });
@@ -115,7 +127,6 @@ export default () => {
 
       cy.contains(labelNotification).should('not.exist');
 
-      // The four others stay.
       [
         labelHostConfiguration,
         labelRelations,
@@ -139,7 +150,6 @@ export default () => {
 
       cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
 
-      // Two of the three: still not enough.
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
         'be.disabled'
       );
