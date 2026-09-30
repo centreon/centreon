@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class NotificationContactResourceTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): NotificationContactResource
+    public function transform(mixed $from, array $extraData = []): NotificationContactResource
     {
         return new NotificationContactResource(
             id: $from->id()->value,

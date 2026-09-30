@@ -38,7 +38,7 @@ final readonly class TimezoneTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): Timezone
+    public function transform(mixed $from, array $extraData = []): Timezone
     {
         return new Timezone(
             id: new TimezoneId($from['id']),
