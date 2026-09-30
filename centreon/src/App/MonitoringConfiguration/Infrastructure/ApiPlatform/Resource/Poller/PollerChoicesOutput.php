@@ -33,7 +33,9 @@ final class PollerChoicesOutput
 
         public string $name,
 
-        public bool $isDefault,
+        // Defaults to false: the host-attached poller representations (CreateHostProcessor,
+        // ListHostsProvider) do not carry this flag; only the pollers-choices endpoint sets it.
+        public bool $isDefault = false,
     ) {
     }
 }
