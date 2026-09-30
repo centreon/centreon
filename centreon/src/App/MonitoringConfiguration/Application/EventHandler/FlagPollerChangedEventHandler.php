@@ -49,7 +49,7 @@ final readonly class FlagPollerChangedEventHandler
     }
 
     /**
-     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<AggregateRoot<AggregateRootId>> $event
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
      */
     public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {

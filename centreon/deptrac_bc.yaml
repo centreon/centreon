@@ -38,6 +38,8 @@ parameters:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
               - { type: classNameRegex, value: '#^Adaptation\\$#' }
               - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^Centreon$#' }
+              - { type: classNameRegex, value: '#^CentreonDBInstance$#' }
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
@@ -75,6 +77,9 @@ parameters:
             - Centreon\Domain\Contact\Interfaces\ContactInterface
             - Centreon\Domain\Contact\Interfaces\ContactServiceInterface
             - Core\Service\Application\UseCase\DeployServices\DeployServices
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner:
+            - Centreon
+            - CentreonDBInstance
         App\MonitoringConfiguration\Infrastructure\Legacy\CapturingDeployServicesPresenter:
             - Core\Application\Common\UseCase\AbstractResponse
             - Core\Application\Common\UseCase\ResponseStatusInterface

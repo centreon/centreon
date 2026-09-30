@@ -224,7 +224,9 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         return new Host(
             id: new HostId($id),
             name: new HostName($name),
-            alias: new HostAlias('alias-' . $name),
+            // Derive the alias from the id, not the name: a name at HostName::MAX_LENGTH would push a
+            // name-based alias past HostAlias's own length limit.
+            alias: new HostAlias('alias-' . $id),
             address: new HostAddress('127.0.0.1'),
             activated: true,
             pollerId: new PollerId(1),

@@ -27,7 +27,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 
 /**
- * @template-covariant T of AggregateRoot<AggregateRootId>
+ * @template T of AggregateRoot<AggregateRootId>
  */
 abstract readonly class AggregateDuplicated implements EventInterface
 {
