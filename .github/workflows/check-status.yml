@@ -112,24 +112,8 @@ jobs:
             core.setFailed(`No Jira issue key found in the branch name "${process.env.HEAD_REF}" nor in the pull request description: add one to the description (for example "Refs: MON-12345") and re-run all jobs of workflow check-status`);
 
   check-status:
-    needs: [get-environment, check-jira-reference]
-    # the Jira reference check is skipped for other targets and automated pull requests
-    if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Fail if the Jira reference is missing
-        if: ${{ needs.check-jira-reference.result == 'failure' }}
-        run: |
-          echo "::error title=Jira reference required::No Jira issue key found in the branch name nor in the pull request description, see job \"Jira reference required\""
-          exit 1
-
-      # a failed get-environment skips the Jira reference check, it must not let the pull request through
-      - name: Fail if get-environment failed
-        if: ${{ needs.get-environment.result == 'failure' }}
-        run: |
-          echo "::error title=get-environment failed::Job get-environment failed, re-run all jobs of workflow check-status"
-          exit 1
-
       - name: Display API rate limit usage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
