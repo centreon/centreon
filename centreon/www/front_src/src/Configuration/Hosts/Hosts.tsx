@@ -43,7 +43,7 @@ const Hosts = () => {
   const canEdit = !!userPermissions?.configuration_host_write;
 
   const { columns } = useColumns();
-  const { groups, inputs } = useFormInputs();
+  const { groups, inputs } = useFormInputs({ canEdit });
   const { validationSchema } = useValidationSchema();
 
   const { api, filtersConfiguration } = useHosts();

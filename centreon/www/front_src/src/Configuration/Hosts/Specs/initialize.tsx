@@ -1,5 +1,8 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { userPermissionsAtom } from '@centreon/ui-context';
+import {
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
@@ -28,12 +31,14 @@ import {
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  isCloudPlatform?: boolean;
   deployFails?: boolean;
 }
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
+  isCloudPlatform = false,
   deployFails = false
 }: Props): void => {
   i18next.use(initReactI18next).init({
@@ -49,6 +54,8 @@ const initialize = ({
   store.set(userPermissionsAtom, {
     configuration_host_write: hasWriteAccess
   });
+
+  store.set(platformFeaturesAtom, { isCloudPlatform });
 
   cy.interceptAPIRequest({
     alias: 'getMonitoringServers',

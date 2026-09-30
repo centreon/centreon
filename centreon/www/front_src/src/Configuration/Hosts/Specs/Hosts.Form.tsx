@@ -69,6 +69,43 @@ export default () => {
       });
     });
 
+    it('freezes the form for a user who may only look at hosts', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      // The US gives a read-only ACL user the form, frozen.
+      ['host-form-name', 'host-form-address'].forEach((field) => {
+        cy.findAllByTestId(field).eq(1).should('be.disabled');
+      });
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
+        'not.exist'
+      );
+    });
+
+    it('drops the Notification section on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.contains(labelNotification).should('not.exist');
+
+      // The four others stay.
+      [
+        labelHostConfiguration,
+        labelRelations,
+        labelDataProcessing,
+        labelHostExtendedInfos
+      ].forEach((section) => {
+        cy.contains(section).should('be.visible');
+      });
+    });
+
     it('refuses to save until the mandatory fields are filled', () => {
       initialize({});
 

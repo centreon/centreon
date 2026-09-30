@@ -4,7 +4,9 @@ import {
   InputType,
   type SelectEntry
 } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { monitoringServersEndpoint } from '../api/endpoints';
@@ -27,12 +29,16 @@ interface FormInputsState {
 // The five sections the US defines. They also drive the pinned navigation the
 // shared form renders on its own from four groups up. The later subtasks fill
 // them; only Host configuration carries fields today.
-const useFormInputs = (): FormInputsState => {
+const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
   const { t } = useTranslation();
+
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
   const groups: Array<Group> = [
     { name: t(labelHostConfiguration), order: 1 },
-    { name: t(labelNotification), order: 2 },
+    // Notifications are an onPrem concern; the US has no such tab on cloud.
+    ...(isCloudPlatform ? [] : [{ name: t(labelNotification), order: 2 }]),
     { name: t(labelRelations), order: 3 },
     { name: t(labelDataProcessing), order: 4 },
     { name: t(labelHostExtendedInfos), order: 5 }
@@ -42,6 +48,7 @@ const useFormInputs = (): FormInputsState => {
     {
       dataTestId: 'host-form-name',
       fieldName: 'name',
+      getDisabled: () => !canEdit,
       group: t(labelHostConfiguration),
       label: t(labelName),
       required: true,
@@ -50,6 +57,7 @@ const useFormInputs = (): FormInputsState => {
     {
       dataTestId: 'host-form-address',
       fieldName: 'address',
+      getDisabled: () => !canEdit,
       group: t(labelHostConfiguration),
       label: t(labelIpAddress),
       required: true,
@@ -64,6 +72,7 @@ const useFormInputs = (): FormInputsState => {
       },
       dataTestId: 'host-form-poller',
       fieldName: 'poller',
+      getDisabled: () => !canEdit,
       group: t(labelHostConfiguration),
       label: t(labelMonitoringServer),
       required: true,
