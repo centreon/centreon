@@ -40,6 +40,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class DbalServiceRepository extends DbalRepository implements ServiceRepository
 {
+    use RemovesEmptiedDependenciesTrait;
     private const TABLE_NAME = 'service';
 
     /**
@@ -102,11 +103,16 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
 
     public function remove(Service $service): void
     {
+        $serviceId = $service->id()->value;
+        $parentDependencyIds = $this->findDependencyIds('dependency_serviceParent_relation', 'service_service_id', $serviceId);
+
         $qb = $this->connection->createQueryBuilder();
         $qb->delete(self::TABLE_NAME)
-            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($service->id()->value, ParameterType::INTEGER)))
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
             ->andWhere("service_register = '1'")
             ->executeStatement();
+
+        $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
     }
 
     /**

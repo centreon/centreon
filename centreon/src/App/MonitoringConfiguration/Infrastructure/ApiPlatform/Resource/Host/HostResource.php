@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
@@ -35,6 +36,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 
@@ -122,6 +124,13 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
             securityMessage: 'You are not allowed to list hosts',
             output: HostCollectionOutput::class,
             provider: ListHostsProvider::class,
+        ),
+        new Delete(
+            uriTemplate: '/configuration/hosts/{id}',
+            processor: DeleteHostProcessor::class,
+            read: false,
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to delete hosts',
         ),
     ],
 )]
