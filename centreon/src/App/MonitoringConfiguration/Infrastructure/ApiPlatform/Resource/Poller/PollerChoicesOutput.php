@@ -32,6 +32,8 @@ final class PollerChoicesOutput
         public int $id,
 
         public string $name,
+
+        public bool $isDefault,
     ) {
     }
 }

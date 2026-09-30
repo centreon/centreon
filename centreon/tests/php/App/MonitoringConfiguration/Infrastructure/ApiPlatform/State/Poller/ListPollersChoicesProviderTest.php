@@ -110,7 +110,26 @@ final class ListPollersChoicesProviderTest extends ApiTestCase
         /** @var list<array<string, mixed>> $member */
         $member = $response->toArray()['member'];
         self::assertSame([$name], array_column($member, 'name'));
-        self::assertSame([], array_diff(array_keys($member[0]), ['@id', '@type', 'id', 'name']));
+        self::assertSame([], array_diff(array_keys($member[0]), ['@id', '@type', 'id', 'name', 'isDefault']));
+    }
+
+    public function testItExposesTheDefaultPollerFlag(): void
+    {
+        $defaultName = "default-{$this->tag}";
+        $this->insertPoller($defaultName, isDefault: true);
+        $regularName = "regular-{$this->tag}";
+        $this->insertPoller($regularName, isDefault: false);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array<string, mixed>> $member */
+        $member = $response->toArray()['member'];
+        $isDefaultByName = array_column($member, 'isDefault', 'name');
+        self::assertTrue($isDefaultByName[$defaultName]);
+        self::assertFalse($isDefaultByName[$regularName]);
     }
 
     /**
@@ -216,12 +235,17 @@ final class ListPollersChoicesProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
-    private function insertPoller(string $name, bool $isCentral = false, bool $isActive = true): int
-    {
+    private function insertPoller(
+        string $name,
+        bool $isCentral = false,
+        bool $isActive = true,
+        bool $isDefault = false,
+    ): int {
         $this->connection->insert('nagios_server', [
             'name' => $name,
             'localhost' => $isCentral ? '1' : '0',
             'ns_activate' => $isActive ? '1' : '0',
+            'is_default' => $isDefault ? '1' : '0',
             'ns_ip_address' => '10.0.1.' . random_int(1, 254),
             'uid' => random_int(300000000000000, 399999999999999),
         ]);

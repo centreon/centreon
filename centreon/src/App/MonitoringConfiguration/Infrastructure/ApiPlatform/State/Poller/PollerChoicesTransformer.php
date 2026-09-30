@@ -37,6 +37,7 @@ final readonly class PollerChoicesTransformer implements TransformerInterface
         return new PollerChoicesOutput(
             id: $from->id()->value,
             name: $from->name->value,
+            isDefault: $from->isDefault,
         );
     }
 }
