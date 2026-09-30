@@ -47,7 +47,6 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     {
       dataTestId: 'host-form-name',
       fieldName: 'name',
-      getDisabled: () => !canEdit,
       group: t(labelHostConfiguration),
       label: t(labelName),
       required: true,
@@ -56,7 +55,6 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     {
       dataTestId: 'host-form-address',
       fieldName: 'address',
-      getDisabled: () => !canEdit,
       group: t(labelHostConfiguration),
       label: t(labelIpAddress),
       required: true,
@@ -71,7 +69,6 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
       },
       dataTestId: 'host-form-poller',
       fieldName: 'poller',
-      getDisabled: () => !canEdit,
       group: t(labelHostConfiguration),
       label: t(labelMonitoringServer),
       required: true,
@@ -79,7 +76,13 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     }
   ];
 
-  return { groups, inputs };
+  return {
+    groups,
+    // Frozen here rather than per input: the sections to come add dozens of
+    // fields, and one forgotten `getDisabled` is an editable field on a form
+    // its user may only read.
+    inputs: inputs.map((input) => ({ ...input, getDisabled: () => !canEdit }))
+  };
 };
 
 export default useFormInputs;

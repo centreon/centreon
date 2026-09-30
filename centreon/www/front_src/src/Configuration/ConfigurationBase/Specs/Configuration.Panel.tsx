@@ -108,8 +108,6 @@ export default (resourceType, { hasSnapshots }: Options): void => {
             expect(panelRect.right).to.equal(pageRect.right);
           });
         });
-
-        cy.get('#header').should('exist');
       });
 
       it('opens over the listing, leaving it at its width', () => {
@@ -307,7 +305,11 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.contains(resourceName).click();
 
-        cy.waitForRequest('@getDetails').then(({ response }) => {
+        cy.waitForRequest('@getDetails').then(({ request, response }) => {
+          // A module declaring no `baseEndpoint` must still read the default
+          // one. Only Hosts overrides it, and nothing else may follow it there.
+          expect(request.url.pathname).to.contain('/api/latest/configuration/');
+
           groups.forEach(({ name }) => {
             cy.contains(name);
           });

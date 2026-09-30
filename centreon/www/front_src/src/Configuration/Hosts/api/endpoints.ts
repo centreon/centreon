@@ -3,8 +3,8 @@ import {
   buildListingEndpoint
 } from '@centreon/ui';
 
-// The listing is served by API Platform at `./api`. Single-host operations
-// (get, patch, delete) exist only under the default `./api/latest`.
+// Hosts are served by API Platform at `./api`, listing and single-host
+// operations alike. Only the form's selectors below stay on the default base.
 export const hostsBaseEndpoint = './api';
 
 export const hostsListEndpoint = '/configuration/hosts';

@@ -88,8 +88,11 @@ export const getHostTemplatesResponse = () =>
 
 // The shape MON-210415 (#11809) gives the detail endpoint: objects where the
 // create takes ids. Mocked here until it lands; nothing stubs it at runtime.
+//
+// Every value differs from the listing row of the same host, so a form filled
+// from the carried row instead of from this response fails rather than passes.
 export const getHostResponse = () => ({
-  address: '10.0.0.0',
-  name: 'host 0',
+  address: '10.10.10.10',
+  name: 'host 0 as the detail endpoint spells it',
   poller: { id: 2, name: 'Poller EU' }
 });

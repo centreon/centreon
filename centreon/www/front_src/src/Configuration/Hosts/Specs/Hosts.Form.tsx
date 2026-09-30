@@ -82,11 +82,59 @@ export default () => {
         expect(request.url.pathname).to.not.contain('/api/latest');
       });
 
-      cy.findAllByTestId('host-form-name').eq(1).should('have.value', 'host 0');
+      // Values of the detail response, none of which the listing row carries.
+      cy.findAllByTestId('host-form-name')
+        .eq(1)
+        .should('have.value', 'host 0 as the detail endpoint spells it');
       cy.findAllByTestId('host-form-address')
         .eq(1)
-        .should('have.value', '10.0.0.0');
+        .should('have.value', '10.10.10.10');
       cy.findByTestId('host-form-poller').should('have.value', 'Poller EU');
+
+      // The header keeps naming the row, which is what the listing showed.
+      cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
+        'have.text',
+        'host 0'
+      );
+    });
+
+    it('saves an edited host back to the host it was opened on', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      // The same PATCH route enable and disable use, on host 0 and no other.
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
+        expect(request.body).to.deep.equals({
+          address: '10.0.0.42',
+          name: 'host 0 as the detail endpoint spells it',
+          poller_id: 2
+        });
+      });
+    });
+
+    it('names a host that has no icon of its own', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      // `skip_null_values` leaves host 1 without an `icon` key at all.
+      cy.contains('host 1').click();
+
+      cy.get(`[data-testid="${panelDataTestIds.header}"]`)
+        .should('have.text', 'host 1')
+        .parent()
+        .find('img')
+        .should('not.exist');
     });
 
     it('shows the host icon the listing carried into the panel', () => {
@@ -109,9 +157,18 @@ export default () => {
 
       cy.contains('host 0').click();
 
-      ['host-form-name', 'host-form-address'].forEach((field) => {
-        cy.findAllByTestId(field).eq(1).should('be.disabled');
-      });
+      // The host is still loaded and shown: frozen, not empty.
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-name')
+        .eq(1)
+        .should('have.value', 'host 0 as the detail endpoint spells it')
+        .and('be.disabled');
+      cy.findAllByTestId('host-form-address').eq(1).should('be.disabled');
+
+      // The autocomplete is a different rendering path from a text field, and
+      // the one that can read as greyed while still offering its options.
+      cy.findByTestId('host-form-poller').should('be.disabled');
 
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
         'not.exist'
@@ -204,7 +261,10 @@ export default () => {
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
 
       // API Platform, so the payload is snake_case and the poller is an id.
+      // The glob matches both bases, so the base itself needs asserting.
       cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/hosts');
+        expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
           name: 'srv-apache-02',

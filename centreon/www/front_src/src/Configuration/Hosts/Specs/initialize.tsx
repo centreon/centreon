@@ -72,6 +72,19 @@ const initialize = ({
     response: getHostResponse()
   });
 
+  // Any row opens the form, so a row the tests open needs a detail response
+  // of its own; host 1 is the one carrying no icon.
+  cy.interceptAPIRequest({
+    alias: 'getHost1',
+    method: Method.GET,
+    path: `**${getHostEndpoint({ id: 1 })}`,
+    response: {
+      address: '10.0.0.1',
+      name: 'host 1',
+      poller: { id: 1, name: 'Central' }
+    }
+  });
+
   cy.interceptAPIRequest({
     alias: 'createHost',
     method: Method.POST,

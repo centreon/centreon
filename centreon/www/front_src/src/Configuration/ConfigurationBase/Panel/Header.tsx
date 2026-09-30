@@ -82,8 +82,8 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
 
   const title = (resource?.name as string) || fallbackTitle;
 
-  // `Image` renders nothing without a path: a resource with no icon, or a
-  // module whose resources have none, simply shows its name.
+  // A resource with no icon, or a module whose resources have none, simply
+  // shows its name.
   const icon = resource?.icon as { name: string; url: string } | null;
 
   const { canDelete, canDuplicate, openDeleteModal, openDuplicateModal } =
@@ -96,12 +96,19 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
 
   return (
     <Box className="flex min-w-0 items-center gap-2 py-1">
-      <Image
-        alt={icon?.name as string}
-        className="size-5 shrink-0"
-        fallback={<Box />}
-        imagePath={icon?.url as string}
-      />
+      {icon && (
+        // The box holds the size, not the image: while the icon loads, `Image`
+        // renders its fallback in a container asking for the full width, which
+        // would squeeze the title and reflow it once the icon lands.
+        <Box className="size-5 shrink-0">
+          <Image
+            alt={icon.name}
+            className="size-full"
+            fallback={<Box />}
+            imagePath={icon.url}
+          />
+        </Box>
+      )}
       <Typography
         className="truncate"
         data-testid={panelDataTestIds.header}

@@ -30,7 +30,9 @@ interface UseHostsState {
 }
 
 // API Platform takes snake_case, and the poller as an id where the form holds
-// the option the autocomplete selected.
+// the option the autocomplete selected. `host_group_ids` is mandatory on cloud
+// and has no field yet, so a cloud create answers 422 until MON-209948 adds
+// the Relations section.
 const adaptFormToApiPayload = (data: unknown) => {
   const { name, address, poller } = data as {
     address: string;
@@ -61,13 +63,19 @@ const api: APIType = {
     duplicate: getDuplicateHostEndpoint,
     enable: getHostEndpoint,
     getAll: hostsListEndpoint,
-    getOne: getHostEndpoint
+    getOne: getHostEndpoint,
+    update: getHostEndpoint
   },
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,
-    enable: Method.PATCH
+    enable: Method.PATCH,
+    // The same operation enable and disable use. `PatchHostInput` accepts only
+    // `activated` today, so editing a host answers 422 until it carries the
+    // rest of the form; declaring it is what makes that visible rather than
+    // leaving the save silently doing nothing.
+    update: Method.PATCH
   },
   writeBaseEndpoint: hostsBaseEndpoint
 };
