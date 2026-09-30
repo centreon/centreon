@@ -40,7 +40,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class HostMacroTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): HostMacroOutput
+    public function transform(mixed $from, array $extraData = []): HostMacroOutput
     {
         return new HostMacroOutput(
             id: $from->id?->value,

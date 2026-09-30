@@ -52,7 +52,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
     /**
      * @throws InvalidGorgoneCommunicationTypeException When the stored communication type maps to no enum case
      */
-    public function transform(mixed $from): mixed
+    public function transform(mixed $from, array $extraData = []): mixed
     {
         return new Poller(
             id: new PollerId($from['poller_id']),

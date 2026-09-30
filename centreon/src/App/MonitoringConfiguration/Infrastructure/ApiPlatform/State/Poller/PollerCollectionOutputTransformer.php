@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class PollerCollectionOutputTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): PollerCollectionOutput
+    public function transform(mixed $from, array $extraData = []): PollerCollectionOutput
     {
         return new PollerCollectionOutput(
             id: $from->id()->value,

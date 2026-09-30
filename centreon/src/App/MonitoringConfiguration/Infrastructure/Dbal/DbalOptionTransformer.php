@@ -35,7 +35,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalOptionTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): Option
+    public function transform(mixed $from, array $extraData = []): Option
     {
         return new Option(
             name: new OptionName($from['option_name']),

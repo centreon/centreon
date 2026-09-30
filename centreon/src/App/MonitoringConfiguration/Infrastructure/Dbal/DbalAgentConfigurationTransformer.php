@@ -42,7 +42,7 @@ final readonly class DbalAgentConfigurationTransformer implements TransformerInt
     /**
      * @param RowTypeAlias $data
      */
-    public function transform(mixed $data): AgentConfiguration
+    public function transform(mixed $data, array $extraData = []): AgentConfiguration
     {
         /** @var array<string,mixed> $configuration */
         $configuration = json_decode(

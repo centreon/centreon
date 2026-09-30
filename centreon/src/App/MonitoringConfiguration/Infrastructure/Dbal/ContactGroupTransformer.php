@@ -36,7 +36,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ContactGroupTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ContactGroup
+    public function transform(mixed $from, array $extraData = []): ContactGroup
     {
         return new ContactGroup(
             id: new ContactGroupId($from['cg_id']),
