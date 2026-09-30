@@ -124,6 +124,24 @@ final class FakeHostRepository implements HostRepository
         unset($this->hosts[$host->id()->value]);
     }
 
+    public function update(Host $host): void
+    {
+        $id = $host->id()->value;
+        $this->hosts[$id] = $host;
+
+        // Rebuild this host's edges in the ancestor map (full-replace, like the real update()).
+        unset($this->parentIds[$id]);
+        foreach ($this->parentIds as $child => $parents) {
+            $this->parentIds[$child] = array_values(array_filter($parents, static fn (int $parent): bool => $parent !== $id));
+        }
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
+    }
+
     public function updateActivationStatus(HostId $id, bool $activated): void
     {
         $this->activationUpdates[] = ['id' => $id->value, 'activated' => $activated];
@@ -133,9 +151,12 @@ final class FakeHostRepository implements HostRepository
         }
     }
 
-    public function isNameUsedByHostOrTemplate(HostName $name): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
     {
-        foreach ($this->hosts as $host) {
+        foreach ($this->hosts as $id => $host) {
+            if ($excludingHostId instanceof HostId && $id === $excludingHostId->value) {
+                continue;
+            }
             if ($host->name->value === $name->value) {
                 return true;
             }
@@ -161,8 +182,9 @@ final class FakeHostRepository implements HostRepository
         return new Collection($names, HostName::class);
     }
 
-    public function findAncestorIds(Collection $ids): Collection
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection
     {
+        $exclude = $excludingHostId?->value;
         $seen = [];
         $queue = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
 
@@ -173,7 +195,15 @@ final class FakeHostRepository implements HostRepository
             }
             $seen[$current] = true;
 
+            // Drop every edge touching the excluded host, both where it is the child (skip its
+            // outgoing traversal) and where it is a parent (never queue it).
+            if ($current === $exclude) {
+                continue;
+            }
             foreach ($this->parentIds[$current] ?? [] as $parentId) {
+                if ($parentId === $exclude) {
+                    continue;
+                }
                 $queue[] = $parentId;
             }
         }
