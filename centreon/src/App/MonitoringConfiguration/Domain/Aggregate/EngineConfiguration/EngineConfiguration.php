@@ -47,14 +47,24 @@ final class EngineConfiguration extends AggregateRoot
         parent::__construct($engineConfigurationId);
     }
 
-    public static function createDefault(PollerId $pollerId, string $pollerName): self
-    {
+    public static function createDefault(
+        PollerId $pollerId,
+        string $pollerName,
+        bool $enableFlapDetection = false,
+        bool $hostDownDisableServiceChecks = false,
+    ): self {
         return new self(
             engineConfigurationId: null,
             pollerId: $pollerId,
             name: $pollerName,
             broker: new BrokerOptions(
                 brokerModuleCfgFile: sprintf('/etc/centreon-broker/%s-module.json', $pollerName),
+            ),
+            checkExecution: new CheckExecutionOptions(
+                hostDownDisableServiceChecks: $hostDownDisableServiceChecks,
+            ),
+            freshnessAndFlap: new FreshnessAndFlapOptions(
+                enableFlapDetection: $enableFlapDetection,
             ),
         );
     }

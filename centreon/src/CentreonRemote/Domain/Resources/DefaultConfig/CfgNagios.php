@@ -35,6 +35,13 @@ class CfgNagios
      */
     public static function getConfiguration(): array
     {
+        // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
+        $enabledOnCloud = filter_var(
+            $_ENV['IS_CLOUD_PLATFORM'] ?? false,
+            FILTER_VALIDATE_BOOL,
+            FILTER_NULL_ON_FAILURE
+        ) === true ? '1' : '0';
+
         return [
             'nagios_id' => 1,
             'nagios_name' => 'Centreon Engine Central',
@@ -77,7 +84,7 @@ class CfgNagios
             'auto_reschedule_checks' => '0',
             'auto_rescheduling_interval' => '30',
             'auto_rescheduling_window' => '180',
-            'enable_flap_detection' => '1',
+            'enable_flap_detection' => $enabledOnCloud,
             'low_service_flap_threshold' => '25.0',
             'high_service_flap_threshold' => '50.0',
             'low_host_flap_threshold' => '25.0',
@@ -107,7 +114,7 @@ class CfgNagios
             'nagios_server_id' => 1,
             'enable_predictive_host_dependency_checks' => '1',
             'enable_predictive_service_dependency_checks' => '1',
-            'host_down_disable_service_checks' => '1',
+            'host_down_disable_service_checks' => $enabledOnCloud,
             'cached_host_check_horizon' => 60,
             'cached_service_check_horizon' => null,
             'enable_environment_macros' => '0',
