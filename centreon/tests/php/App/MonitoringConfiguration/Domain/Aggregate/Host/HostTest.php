@@ -55,6 +55,27 @@ final class HostTest extends TestCase
         self::assertCount(1, $host->childHostIds);
     }
 
+    public function testItRejectsAHostThatIsItsOwnParent(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->host(id: 5, parentHostIds: [5]);
+    }
+
+    public function testItRejectsAHostThatIsItsOwnChild(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->host(id: 5, childHostIds: [5]);
+    }
+
+    public function testItAcceptsAKnownIdThatIsNeitherParentNorChild(): void
+    {
+        $host = $this->host(id: 5, parentHostIds: [7], childHostIds: [8]);
+
+        self::assertSame(5, $host->id()->value);
+    }
+
     public function testItEnablesTheHost(): void
     {
         $host = $this->host(activated: false);
@@ -146,9 +167,10 @@ final class HostTest extends TestCase
         bool $activated = true,
         ?SnmpCommunity $snmpCommunity = null,
         array $macros = [],
+        ?int $id = null,
     ): Host {
         return new Host(
-            id: null,
+            id: $id !== null ? new HostId($id) : null,
             name: new HostName('server-01'),
             alias: null,
             address: new HostAddress('127.0.0.1'),
