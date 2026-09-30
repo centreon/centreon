@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
@@ -61,14 +62,15 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExt
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimePeriodOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
@@ -89,10 +91,13 @@ final readonly class GetHostProvider implements ProviderInterface
 {
     /**
      * @param TransformerInterface<Host, HostResource> $transformer
+     * @param TransformerInterface<?Notifications, ?HostNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
         #[Autowire(service: HostResourceTransformer::class)]
         private TransformerInterface $transformer,
+        #[Autowire(service: HostNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private Security $security,
         private HostRepository $hostRepository,
         private PollerRepository $pollerRepository,
@@ -151,7 +156,7 @@ final readonly class GetHostProvider implements ProviderInterface
         }
 
         $resource = $this->transformer->transform($host);
-        $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
+        $resource->poller = new PollerChoicesOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
         $resource->groups = $groups;
         $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
 
@@ -223,6 +228,13 @@ final readonly class GetHostProvider implements ProviderInterface
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
+        // Cloud handles notifications through a different model; CreateHost omits the block there, so
+        // GET must too, keeping the two bodies identical. The repository stays platform-agnostic and
+        // always hydrates what is persisted, so the Cloud decision is applied here (not in findOne).
+        $resource->notifications = $this->isCloudPlatform
+            ? null
+            : $this->notificationsTransformer->transform($host->notifications);
+
         return $resource;
     }
 
@@ -248,7 +260,7 @@ final readonly class GetHostProvider implements ProviderInterface
         );
     }
 
-    private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?HostTimePeriodOutput
+    private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?TimePeriodResource
     {
         if (! $checkTimeperiodId instanceof TimePeriodId) {
             return null;
@@ -259,7 +271,7 @@ final readonly class GetHostProvider implements ProviderInterface
             ->toArray()[$checkTimeperiodId->value] ?? null;
 
         return $name instanceof TimePeriodName
-            ? new HostTimePeriodOutput($checkTimeperiodId->value, $name->value)
+            ? new TimePeriodResource($checkTimeperiodId->value, $name->value)
             : null;
     }
 
