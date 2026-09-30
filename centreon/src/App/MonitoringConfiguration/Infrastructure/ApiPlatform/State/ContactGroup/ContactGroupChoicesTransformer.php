@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ContactGroupChoicesTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ContactGroupChoicesOutput
+    public function transform(mixed $from, array $extraData = []): ContactGroupChoicesOutput
     {
         return new ContactGroupChoicesOutput(
             id: $from->id()->value,

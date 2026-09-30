@@ -38,7 +38,7 @@ final readonly class DbalStandardMacroTransformer implements TransformerInterfac
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): StandardMacro
+    public function transform(mixed $from, array $extraData = []): StandardMacro
     {
         return new StandardMacro(
             id: new StandardMacroId($from['macro_id']),

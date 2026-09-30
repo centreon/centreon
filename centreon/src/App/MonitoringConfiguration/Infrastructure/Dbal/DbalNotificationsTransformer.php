@@ -53,7 +53,7 @@ final readonly class DbalNotificationsTransformer implements TransformerInterfac
 {
     use TriStateColumnTrait;
 
-    public function transform(mixed $from): array
+    public function transform(mixed $from, array $extraData = []): array
     {
         return [
             'notificationsEnabled' => $this->triStateToColumn($from instanceof Notifications ? $from->enabled : TriStateEnum::UseDefault),

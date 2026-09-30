@@ -35,7 +35,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalPlatformMetadataTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): PlatformMetadata
+    public function transform(mixed $from, array $extraData = []): PlatformMetadata
     {
         return new PlatformMetadata(
             name: new PlatformMetadataName($from['option_name']),

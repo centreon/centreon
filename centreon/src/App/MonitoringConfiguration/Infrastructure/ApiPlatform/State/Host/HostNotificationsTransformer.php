@@ -52,7 +52,7 @@ final readonly class HostNotificationsTransformer implements TransformerInterfac
     ) {
     }
 
-    public function transform(mixed $from): ?HostNotificationsOutput
+    public function transform(mixed $from, array $extraData = []): ?HostNotificationsOutput
     {
         if (! $from instanceof Notifications) {
             return null;

@@ -37,7 +37,7 @@ final readonly class MediaResourceTransformer implements TransformerInterface
     ) {
     }
 
-    public function transform(mixed $from): MediaResource
+    public function transform(mixed $from, array $extraData = []): MediaResource
     {
         return new MediaResource(
             id: $from->id()->value,
