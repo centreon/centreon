@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -35,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
@@ -43,6 +45,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -101,6 +104,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
             schedulingOptions: $this->buildSchedulingOptions($from),
             dataProcessing: $this->buildDataProcessing($from),
             checkOptions: $this->buildCheckOptions($from),
+            notifications: $this->buildNotifications($from),
         );
     }
 
@@ -194,6 +198,45 @@ final readonly class DbalHostTransformer implements TransformerInterface
             highFlapThreshold: $from['high_flap_threshold'] !== null ? (int) $from['high_flap_threshold'] : null,
             eventHandlerCommandId: $from['event_handler_command_id'] !== null ? new CommandId((int) $from['event_handler_command_id']) : null,
             eventHandlerArgs: CommandArgumentsFormatter::parse($from['event_handler_args'] ?? null),
+        );
+    }
+
+    /**
+     * Only present on `findOne()`'s row; `findAll()`'s row carries none of these columns, so the
+     * host reads with a null block, matching a Host built without notifications. Kept
+     * platform-agnostic on purpose: the Cloud-vs-on-premise decision lives in the API layer (see
+     * GetHostProvider), exactly as CreateHostProcessor decides it, so the repository stays a plain
+     * read of what is persisted.
+     *
+     * @param RowTypeAlias|FindOneRowTypeAlias $from
+     */
+    private function buildNotifications(array $from): ?Notifications
+    {
+        if (! array_key_exists('notifications_enabled', $from)) {
+            return null;
+        }
+
+        return new Notifications(
+            enabled: $this->columnToTriState($from['notifications_enabled']),
+            contactIds: new Collection(
+                ($from['notification_contact_ids'] ?? null) !== null
+                    ? $this->parseIdList($from['notification_contact_ids'], NotificationContactId::class)
+                    : [],
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection(
+                ($from['notification_contact_group_ids'] ?? null) !== null
+                    ? $this->parseIdList($from['notification_contact_group_ids'], ContactGroupId::class)
+                    : [],
+                ContactGroupId::class,
+            ),
+            options: DbalNotificationsTransformer::optionsFromColumn($this->nullIfEmpty($from['notification_options'] ?? null)),
+            interval: $from['notification_interval'] !== null ? (int) $from['notification_interval'] : null,
+            periodId: $from['notification_period_id'] !== null ? new TimePeriodId((int) $from['notification_period_id']) : null,
+            firstDelay: $from['first_notification_delay'] !== null ? (int) $from['first_notification_delay'] : null,
+            recoveryDelay: $from['recovery_notification_delay'] !== null ? (int) $from['recovery_notification_delay'] : null,
+            contactAdditiveInheritance: (bool) ($from['contact_additive_inheritance'] ?? false),
+            contactGroupAdditiveInheritance: (bool) ($from['cg_additive_inheritance'] ?? false),
         );
     }
 
