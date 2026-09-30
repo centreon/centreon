@@ -9,10 +9,12 @@ const useGetDetails = ({ id }: { id: number | null }) => {
   const configuration = useAtomValue(configurationAtom);
 
   const resourceType = configuration?.resourceType;
+  const baseEndpoint = configuration?.api?.baseEndpoint;
   const endpoint = configuration?.api?.endpoints?.getOne;
   const decoder = configuration?.api?.decoders?.getOne;
 
   const { data, isFetching } = useFetchQuery<object>({
+    baseEndpoint,
     decoder: decoder as
       | import('ts.data.json').JsonDecoder.Decoder<object>
       | undefined,

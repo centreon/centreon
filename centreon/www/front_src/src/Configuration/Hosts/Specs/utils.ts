@@ -85,3 +85,11 @@ export const getHostTemplatesResponse = () =>
     { id: 5, name: 'generic-active-host' },
     { id: 6, name: 'generic-passive-host' }
   ]);
+
+// The shape MON-210415 (#11809) gives the detail endpoint: objects where the
+// create takes ids. Mocked here until it lands; nothing stubs it at runtime.
+export const getHostResponse = () => ({
+  address: '10.0.0.0',
+  name: 'host 0',
+  poller: { id: 2, name: 'Poller EU' }
+});

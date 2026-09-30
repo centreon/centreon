@@ -2,7 +2,7 @@ import { buildListingDecoder } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 
-import type { HostListItem, Icon, NamedEntity } from '../models';
+import type { HostDetail, HostListItem, Icon, NamedEntity } from '../models';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -15,6 +15,17 @@ const iconDecoder = JsonDecoder.object<Icon>(
     url: JsonDecoder.string
   },
   'Icon'
+);
+
+// The detail endpoint answers with objects where the create takes ids, so the
+// poller arrives named and the autocomplete can render it without a lookup.
+export const hostDecoder = JsonDecoder.object<HostDetail>(
+  {
+    address: JsonDecoder.string,
+    name: JsonDecoder.string,
+    poller: JsonDecoder.object(namedEntityDecoder, 'Poller')
+  },
+  'Host'
 );
 
 const hostsDecoder = JsonDecoder.object<HostListItem>(

@@ -25,3 +25,10 @@ export type Filters = {
   enabled: boolean;
   disabled: boolean;
 };
+
+// What the form opens on. The sections still to come each add their own.
+export interface HostDetail {
+  address: string;
+  name: string;
+  poller: NamedEntity;
+}

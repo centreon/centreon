@@ -23,6 +23,7 @@ import {
 import {
   emptyListingResponse,
   getHostGroupsResponse,
+  getHostResponse,
   getHostTemplatesResponse,
   getListingResponse,
   getPollersResponse
@@ -62,6 +63,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${monitoringServersEndpoint}?**`,
     response: getPollersResponse({ apiPlatform: false })
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getHost',
+    method: Method.GET,
+    path: `**${getHostEndpoint({ id: 0 })}`,
+    response: getHostResponse()
   });
 
   cy.interceptAPIRequest({

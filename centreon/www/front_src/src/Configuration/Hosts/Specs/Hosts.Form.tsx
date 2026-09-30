@@ -69,6 +69,26 @@ export default () => {
       });
     });
 
+    it('opens an existing host on the values the detail endpoint returns', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost').then(({ request }) => {
+        // API Platform, not the legacy detail endpoint under `api/latest`.
+        expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
+        expect(request.url.pathname).to.not.contain('/api/latest');
+      });
+
+      cy.findAllByTestId('host-form-name').eq(1).should('have.value', 'host 0');
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .should('have.value', '10.0.0.0');
+      cy.findByTestId('host-form-poller').should('have.value', 'Poller EU');
+    });
+
     it('freezes the form for a user who may only look at hosts', () => {
       initialize({ hasWriteAccess: false });
 

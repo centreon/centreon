@@ -10,6 +10,7 @@ import {
   getHostGroupsEndpoint,
   getHostTemplatesEndpoint,
   getPollersEndpoint,
+  hostDecoder,
   hostsBaseEndpoint,
   hostsListDecoder,
   hostsListEndpoint,
@@ -52,7 +53,7 @@ const api: APIType = {
   adapter: adaptFormToApiPayload,
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
-  decoders: { getAll: hostsListDecoder },
+  decoders: { getAll: hostsListDecoder, getOne: hostDecoder },
   // Every write names one host, so a selection becomes one request per row.
   endpoints: {
     create: hostsListEndpoint,
@@ -60,7 +61,8 @@ const api: APIType = {
     disable: getHostEndpoint,
     duplicate: getDuplicateHostEndpoint,
     enable: getHostEndpoint,
-    getAll: hostsListEndpoint
+    getAll: hostsListEndpoint,
+    getOne: getHostEndpoint
   },
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
