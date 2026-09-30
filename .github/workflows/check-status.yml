@@ -36,7 +36,7 @@ jobs:
           script: |
             const commentMarker = '<!-- check-jira-reference -->';
             // any project key, not preceded or followed by an alphanumeric character
-            const jiraKeyPattern = /(?<![A-Za-z0-9])([A-Z][A-Z0-9]+)-[1-9][0-9]*(?![A-Za-z0-9])/g;
+            const jiraKeyPattern = /(?<![A-Za-z0-9_])([A-Z]{2}[A-Z0-9_]*)-[1-9][0-9]*(?![A-Za-z0-9])/g;
             // uppercase identifiers followed by a number which are not Jira project keys
             const ignoredPrefixes = ['CVE', 'CWE', 'GHSA', 'ISO', 'RFC', 'SHA', 'TLS', 'UTF'];
 
