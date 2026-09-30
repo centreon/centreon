@@ -67,6 +67,7 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -246,7 +247,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         self::assertCount(1, $this->vault->deleteCalls);
         self::assertSame('existing-uuid', $this->vault->deleteCalls[0]['uuid']);
-        self::assertSame(UpdateHostCommandHandler::HOST_VAULT_PATH, $this->vault->deleteCalls[0]['customPath']);
+        self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->deleteCalls[0]['customPath']);
     }
 
     public function testItLeavesTheVaultUntouchedWhenTheHostNeverHadASecret(): void
