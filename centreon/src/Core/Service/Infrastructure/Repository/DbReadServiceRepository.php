@@ -870,50 +870,41 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
         $statement->execute();
 
-        $allInheritances = [];
+        // Index inheritances by child ID once, so that walking the template chain of each
+        // service is a lookup instead of a scan of the whole list (O(N) instead of O(N²)).
+        // A service has at most one parent template, so there is one inheritance per child.
+        $inheritanceByChildId = [];
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             /** @var array{child_id: int, parent_id: int} $row */
-            $allInheritances[] = new ServiceInheritance(
-                (int) $row['parent_id'],
-                (int) $row['child_id']
-            );
+            $childId = (int) $row['child_id'];
+            $inheritanceByChildId[$childId] = new ServiceInheritance((int) $row['parent_id'], $childId);
         }
 
         $result = [];
         foreach ($serviceIds as $serviceId) {
-            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $allInheritances);
+            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $inheritanceByChildId);
         }
 
         return $result;
     }
 
     /**
-     * Filter the global inheritance list to get only those relevant to a specific service.
+     * Walk up the template chain of a service (a service has at most one parent template).
      *
      * @param int $serviceId
-     * @param ServiceInheritance[] $allInheritances
+     * @param array<int, ServiceInheritance> $inheritanceByChildId Inheritance indexed by child ID
      *
      * @return ServiceInheritance[]
      */
-    private function filterInheritancesForService(int $serviceId, array $allInheritances): array
+    private function filterInheritancesForService(int $serviceId, array $inheritanceByChildId): array
     {
         $relevant = [];
-        $idsToProcess = [$serviceId];
-        $processed = [];
-
-        while (! empty($idsToProcess)) {
-            $currentId = array_shift($idsToProcess);
-            if (isset($processed[$currentId])) {
-                continue;
-            }
-            $processed[$currentId] = true;
-
-            foreach ($allInheritances as $inheritance) {
-                if ($inheritance->getChildId() === $currentId) {
-                    $relevant[] = $inheritance;
-                    $idsToProcess[] = $inheritance->getParentId();
-                }
-            }
+        $visited = [];
+        $currentId = $serviceId;
+        while (isset($inheritanceByChildId[$currentId]) && ! isset($visited[$currentId])) {
+            $visited[$currentId] = true;
+            $relevant[] = $inheritanceByChildId[$currentId];
+            $currentId = $inheritanceByChildId[$currentId]->getParentId();
         }
 
         return $relevant;
