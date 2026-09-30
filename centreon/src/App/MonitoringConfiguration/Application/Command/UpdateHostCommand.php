@@ -1,0 +1,92 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Application\Command;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
+
+/**
+ * Full replace (PUT) of a single host. Mirrors {@see CreateHostCommand}'s field set, plus the target
+ * $id and an explicit $activated (which POST hard-codes to true), and carries $updatedBy for the
+ * activity log / events instead of a creator.
+ */
+final readonly class UpdateHostCommand
+{
+    /**
+     * @param Collection<HostGroupId> $hostGroupIds
+     * @param Collection<HostTemplateId> $templateIds ordered: the position becomes the persisted
+     *                                                inheritance order
+     * @param Collection<HostCategoryId> $categoryIds
+     * @param Collection<HostId> $parentHostIds
+     * @param Collection<HostId> $childHostIds
+     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value scopes
+     *                          the target lookup and the poller/host-group/category/severity checks to
+     *                          what that user can access, mirroring the create path
+     */
+    public function __construct(
+        public HostId $id,
+        public HostName $name,
+        public HostAddress $address,
+        public PollerId $pollerId,
+        public bool $activated,
+        public Collection $hostGroupIds,
+        public int $updatedBy,
+        public ?UserId $viewerId = null,
+        public DataProcessing $dataProcessing = new DataProcessing(),
+        public ?HostAlias $alias = null,
+        public Collection $templateIds = new Collection([], HostTemplateId::class),
+        public Collection $categoryIds = new Collection([], HostCategoryId::class),
+        public Collection $parentHostIds = new Collection([], HostId::class),
+        public Collection $childHostIds = new Collection([], HostId::class),
+        public ?SnmpVersionEnum $snmpVersion = null,
+        // Plaintext until the handler vaults it, and LoggingMiddleware logs every payload.
+        #[Sensitive]
+        public ?string $snmpCommunity = null,
+        public ?TimezoneId $timezoneId = null,
+        public ?HostSeverityId $severityId = null,
+        public bool $deployServicesFromTemplates = true,
+        public ?ExtendedInformations $extendedInformations = null,
+        public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
+        public CheckOptions $checkOptions = new CheckOptions(null),
+        public ?Notifications $notifications = null,
+    ) {
+    }
+}
