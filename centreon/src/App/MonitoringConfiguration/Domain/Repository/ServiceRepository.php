@@ -42,5 +42,8 @@ interface ServiceRepository
      */
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
+    /**
+     * Also removes the dependencies left without a parent service by this deletion.
+     */
     public function remove(Service $service): void;
 }

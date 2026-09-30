@@ -48,6 +48,9 @@ interface HostRepository
      */
     public function findOne(HostId $id, ?UserId $viewerId = null): ?Host;
 
+    /**
+     * Also removes the dependencies left without a parent or child host by this deletion.
+     */
     public function remove(Host $host): void;
 
     /**
