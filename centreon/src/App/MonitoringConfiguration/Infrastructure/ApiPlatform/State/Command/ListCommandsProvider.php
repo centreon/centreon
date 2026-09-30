@@ -43,6 +43,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
+ * @phpstan-import-type ExtraDataTypeAlias from ListCommandResourceTransformer as ListCommandResourceExtraDataTypeAlias
+ *
  * @implements ProviderInterface<ListCommandResource>
  */
 final readonly class ListCommandsProvider implements ProviderInterface
@@ -51,10 +53,10 @@ final readonly class ListCommandsProvider implements ProviderInterface
     use SortAwareProviderTrait;
 
     /**
-     * @param TransformerInterface<Command,ListCommandResource> $transformer
+     * @param TransformerInterface<Command, ListCommandResource, ListCommandResourceExtraDataTypeAlias> $transformer
      */
     public function __construct(
-        #[Autowire(service: ResourceListCommandTransformer::class)]
+        #[Autowire(service: ListCommandResourceTransformer::class)]
         private TransformerInterface $transformer,
         private CommandRepository $commandRepository,
         private Pagination $pagination,
@@ -114,22 +116,19 @@ final readonly class ListCommandsProvider implements ProviderInterface
         $criteria = $this->handleSort($filters, $criteria);
 
         $commands = $this->commandRepository->findAll($criteria);
-        $commandResources = [];
-        if (count($commands) > 0) {
-            $counts = $this->commandRepository->countLinkedResources(array_map(
-                fn (Command $command): CommandId => $command->id(),
-                iterator_to_array($commands)
-            ));
-        }
-        foreach ($commands as $command) {
-            /** @var CommandId $id */
-            $id = $command->id();
-            $commandResource = $this->transformer->transform($command);
-            if (isset($counts) && $counts !== []) {
-                $commandResource->hydrateLinkedResourceCount($counts[$id->value]);
-            }
-            $commandResources[] = $commandResource;
-        }
+        $commandList = array_values(iterator_to_array($commands));
+        // One query for the whole page; skipped when empty, as it would otherwise run an empty IN ().
+        $counts = $commandList === [] ? [] : $this->commandRepository->countLinkedResources(array_map(
+            static fn (Command $command): CommandId => $command->id(),
+            $commandList,
+        ));
+        $commandResources = array_map(
+            fn (Command $command): ListCommandResource => $this->transformer->transform(
+                $command,
+                ['linkedResourceCount' => $counts[$command->id()->value]],
+            ),
+            $commandList,
+        );
 
         if (! $commands instanceof Paginator) {
             return $commandResources;
