@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ResourceServiceCategoryTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ServiceCategoryResource
+    public function transform(mixed $from, array $extraData = []): ServiceCategoryResource
     {
         return new ServiceCategoryResource(
             id: $from->id()->value,

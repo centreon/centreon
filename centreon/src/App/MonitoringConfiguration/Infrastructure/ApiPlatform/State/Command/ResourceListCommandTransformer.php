@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ResourceListCommandTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ListCommandResource
+    public function transform(mixed $from, array $extraData = []): ListCommandResource
     {
         return new ListCommandResource(
             id: $from->id()->value,

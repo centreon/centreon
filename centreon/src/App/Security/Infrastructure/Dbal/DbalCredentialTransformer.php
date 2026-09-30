@@ -110,7 +110,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): Credential
+    public function transform(mixed $from, array $extraData = []): Credential
     {
         $credential = new Credential(
             identifier: new CredentialIdentifier($from['c_alias']),

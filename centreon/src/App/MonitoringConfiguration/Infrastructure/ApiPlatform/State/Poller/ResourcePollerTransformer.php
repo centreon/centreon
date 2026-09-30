@@ -33,7 +33,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ResourcePollerTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): PollerResource
+    public function transform(mixed $from, array $extraData = []): PollerResource
     {
         return new PollerResource(
             id: $from->id()->value,

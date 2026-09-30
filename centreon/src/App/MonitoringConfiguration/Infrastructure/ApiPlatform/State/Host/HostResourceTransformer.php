@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class HostResourceTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): HostResource
+    public function transform(mixed $from, array $extraData = []): HostResource
     {
         return new HostResource(
             id: $from->id()->value,

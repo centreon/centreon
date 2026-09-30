@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ResourceStandardMacroTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): StandardMacroResource
+    public function transform(mixed $from, array $extraData = []): StandardMacroResource
     {
         return new StandardMacroResource(
             id: $from->id()->value,
