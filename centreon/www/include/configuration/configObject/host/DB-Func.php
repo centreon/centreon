@@ -337,15 +337,15 @@ function removeRelationLastHostDependency(int $hostId): void
 
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
         FROM dependency_serviceParent_relation
-        WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_serviceParent_relation
-        WHERE service_service_id =  :service_service_id) GROUP BY dependency_dep_id';
+        WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_serviceParent_relation
+        WHERE service_service_id = :service_service_id) GROUP BY dependency_dep_id';
 
     $countStatement = $pearDB->prepare($query);
     $deleteStatement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     while ($row = $res->fetch()) {
         $countStatement->bindValue(':service_service_id', (int) $row['service_service_id'], PDO::PARAM_INT);
         $countStatement->execute();
-        if (false !== ($result = $countStatement->fetch(PDO::FETCH_ASSOC))) {
+        while (false !== ($result = $countStatement->fetch(PDO::FETCH_ASSOC))) {
             // is last service parent
             if ($result['nb_dependency'] == 1) {
                 $deleteStatement->bindValue(':dep_id', (int) $result['id'], PDO::PARAM_INT);
@@ -356,14 +356,17 @@ function removeRelationLastHostDependency(int $hostId): void
 
     $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
               FROM dependency_hostParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
-                                         WHERE host_host_id =  ' . $hostId . ') GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
+              WHERE dependency_dep_id IN (SELECT dependency_dep_id FROM dependency_hostParent_relation
+                                          WHERE host_host_id = :host_id) GROUP BY dependency_dep_id';
+    $hostCountStatement = $pearDB->prepare($query);
+    $hostCountStatement->bindValue(':host_id', $hostId, PDO::PARAM_INT);
+    $hostCountStatement->execute();
 
-    if (false !== ($result = $dbResult->fetch())) {
+    while (false !== ($result = $hostCountStatement->fetch(PDO::FETCH_ASSOC))) {
         // is last parent
         if ($result['nb_dependency'] == 1) {
-            $pearDB->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
+            $deleteStatement->bindValue(':dep_id', (int) $result['id'], PDO::PARAM_INT);
+            $deleteStatement->execute();
         }
     }
 }
