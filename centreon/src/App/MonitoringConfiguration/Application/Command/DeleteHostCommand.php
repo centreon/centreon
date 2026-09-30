@@ -21,13 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\ActivityLogging\Domain\Aggregate;
+namespace App\MonitoringConfiguration\Application\Command;
 
-enum TargetTypeEnum: string
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
+
+final readonly class DeleteHostCommand
 {
-    case Command = 'Command';
-    case Host = 'Host';
-    case Poller = 'Poller';
-    case Service = 'Service';
-    case ServiceCategory = 'ServiceCategory';
+    /**
+     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value
+     *                          scopes the lookup to what that user can access via ACL, mirroring
+     *                          `CreateHostCommand::$viewerId`
+     */
+    public function __construct(
+        public HostId $id,
+        public int $deletedBy,
+        public ?UserId $viewerId = null,
+    ) {
+    }
 }

@@ -67,4 +67,39 @@ final class CommandArgumentsFormatterTest extends TestCase
         self::assertSame(CommandArgumentsFormatter::MAX_STORAGE_LENGTH, \mb_strlen($atCap, '8bit'));
         self::assertSame(CommandArgumentsFormatter::MAX_STORAGE_LENGTH + 1, \mb_strlen($overCap, '8bit'));
     }
+
+    public function testParseReturnsAnEmptyListForNull(): void
+    {
+        self::assertSame([], CommandArgumentsFormatter::parse(null));
+    }
+
+    public function testParseReturnsAnEmptyListForAnEmptyString(): void
+    {
+        self::assertSame([], CommandArgumentsFormatter::parse(''));
+    }
+
+    public function testParseSplitsBangJoinedArguments(): void
+    {
+        self::assertSame(['-H', '127.0.0.1'], CommandArgumentsFormatter::parse('!-H!127.0.0.1'));
+    }
+
+    public function testParseDecodesControlCharactersTheLegacyWay(): void
+    {
+        self::assertSame(
+            ["line1\nline2\tcol\rret"],
+            CommandArgumentsFormatter::parse('!line1#BR#line2#T#col#R#ret'),
+        );
+    }
+
+    public function testParseKeepsEmptyStringArgumentsAsEmptySegments(): void
+    {
+        self::assertSame(['', 'a', ''], CommandArgumentsFormatter::parse('!!a!'));
+    }
+
+    public function testParseReversesFormatForArbitraryArguments(): void
+    {
+        $args = ['-w', '80', "multi\nline\targ\rvalue", ''];
+
+        self::assertSame($args, CommandArgumentsFormatter::parse(CommandArgumentsFormatter::format($args)));
+    }
 }
