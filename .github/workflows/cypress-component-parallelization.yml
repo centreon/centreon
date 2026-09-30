@@ -38,12 +38,16 @@ on:
 jobs:
   cypress-component-test-list:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     outputs:
       specs: ${{ steps.list-specs.outputs.specs }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: List of specs
         id: list-specs
@@ -60,6 +64,8 @@ jobs:
   cypress-component-test-run:
     needs: [cypress-component-test-list]
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -72,6 +78,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:
@@ -174,9 +182,14 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:
@@ -262,9 +275,14 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      checks: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:
@@ -334,6 +352,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

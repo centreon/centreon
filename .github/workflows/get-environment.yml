@@ -73,6 +73,9 @@ on:
 jobs:
   get-environment:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
       previous_release_bundle_tag: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
@@ -139,12 +142,14 @@ jobs:
       - name: Checkout sources (current branch)
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
           fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
           ref: develop
           path: centreon-develop
           sparse-checkout: .version
