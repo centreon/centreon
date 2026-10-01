@@ -9262,6 +9262,7 @@ msgstr ""
 msgid "Host status"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host template"
 msgstr ""

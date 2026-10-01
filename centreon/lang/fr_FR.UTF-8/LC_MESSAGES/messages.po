@@ -8798,6 +8798,7 @@ msgstr "État de l'hôte"
 msgid "Host status"
 msgstr "Statut des hôtes"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host template"
 msgstr "Modèle d'hôte"
