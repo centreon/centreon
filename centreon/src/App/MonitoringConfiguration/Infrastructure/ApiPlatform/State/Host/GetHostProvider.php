@@ -27,6 +27,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -205,7 +206,7 @@ final readonly class GetHostProvider implements ProviderInterface
         // to an invalid `[]`). Mirrors CreateHostProcessor so the two bodies stay identical.
         $resource->extendedInformations = null;
         $extended = $host->extendedInformations;
-        if ($extended !== null) {
+        if ($extended instanceof ExtendedInformations) {
             $icon = $this->resolveIcon($extended->iconId);
             $geoCoordinates = $extended->geoCoordinates instanceof GeoCoordinates
                 ? (string) $extended->geoCoordinates
@@ -213,7 +214,7 @@ final readonly class GetHostProvider implements ProviderInterface
             if ($extended->noteUrl !== null
                 || $extended->note !== null
                 || $extended->actionUrl !== null
-                || $icon !== null
+                || $icon instanceof HostIconOutput
                 || $extended->altIcon !== null
                 || $extended->comment !== null
                 || $geoCoordinates !== null
