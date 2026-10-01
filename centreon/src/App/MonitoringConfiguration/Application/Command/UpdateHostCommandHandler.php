@@ -40,6 +40,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
+use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
@@ -161,9 +162,10 @@ final readonly class UpdateHostCommandHandler
 
         $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
 
-        // No secret survives this update, but the host used to have a vault entry: remove it so no
-        // orphaned secret is left behind.
-        $this->deleteVaultEntryWhenEmptied($existingVaultUuid, $snmpCommunity, $checkOptions);
+        // Whether this update leaves the host's existing vault entry orphaned (no secret survives):
+        // the purge itself is deferred to after the commit (see below), never done here, so a
+        // rollback can never destroy a still-referenced secret.
+        $orphansVaultEntry = $this->updateOrphansVaultEntry($existingVaultUuid, $snmpCommunity, $checkOptions);
 
         $host = new Host(
             id: $command->id,
@@ -194,6 +196,13 @@ final readonly class UpdateHostCommandHandler
         $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
         $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId));
 
+        // Deferred (post-commit) purge of the now-orphaned vault entry: the pre-update host still
+        // references it, so the handler resolves the right uuid from it, and a failed/rolled-back
+        // update never deletes a live secret.
+        if ($orphansVaultEntry) {
+            $this->eventBus->fire(new HostVaultPurgeRequested($existingHost));
+        }
+
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
             $this->eventBus->fire(new HostServicesDeploymentRequested(
                 $host->id(),
@@ -205,13 +214,15 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * Removes the host's vault entry when the update leaves it with no secret at all — neither an SNMP
-     * community nor a password macro reference — so a previously stored secret does not linger.
+     * Whether the update leaves the host's existing vault entry with no secret at all — neither an
+     * SNMP community nor a password macro reference — so it should be purged. Only meaningful when a
+     * vault is enabled and the host already had an entry. The purge itself is deferred to after the
+     * commit (via {@see HostVaultPurgeRequested}), so this is a pure predicate with no side effect.
      */
-    private function deleteVaultEntryWhenEmptied(?string $existingVaultUuid, ?SnmpCommunity $snmpCommunity, CheckOptions $checkOptions): void
+    private function updateOrphansVaultEntry(?string $existingVaultUuid, ?SnmpCommunity $snmpCommunity, CheckOptions $checkOptions): bool
     {
         if ($existingVaultUuid === null || ! $this->vault->isEnabled()) {
-            return;
+            return false;
         }
 
         $hasSnmpSecret = $snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value);
@@ -220,9 +231,7 @@ final readonly class UpdateHostCommandHandler
             fn (HostMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
         );
 
-        if (! $hasSnmpSecret && ! $hasPasswordMacro) {
-            $this->vault->delete(VaultPathEnum::MonitoringHosts->value, $existingVaultUuid);
-        }
+        return ! $hasSnmpSecret && ! $hasPasswordMacro;
     }
 
     /**

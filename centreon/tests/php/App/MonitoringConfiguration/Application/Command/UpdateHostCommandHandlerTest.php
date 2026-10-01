@@ -50,6 +50,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
+use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -67,7 +68,6 @@ use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
-use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -234,7 +234,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('existing-uuid', $this->vault->writeManyCalls[0]['uuid']);
     }
 
-    public function testItDeletesTheVaultEntryWhenAllSecretsAreRemoved(): void
+    public function testItRequestsADeferredVaultPurgeWhenAllSecretsAreRemoved(): void
     {
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
@@ -245,12 +245,30 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         // No SNMP community and no password macro in the new payload.
         ($this->handler)($this->command(10, snmpCommunity: null));
 
-        self::assertCount(1, $this->vault->deleteCalls);
-        self::assertSame('existing-uuid', $this->vault->deleteCalls[0]['uuid']);
-        self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->deleteCalls[0]['customPath']);
+        // The purge is deferred (post-commit) via the event carrying the pre-update host, never done
+        // inline, so a rollback cannot destroy a live secret.
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostVaultPurgeRequested::class));
+        self::assertEmpty($this->vault->deleteCalls);
+        /** @var list<HostVaultPurgeRequested> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class);
+        self::assertSame('existing-uuid', $events[0]->host->getVaultUuid($this->vault));
     }
 
-    public function testItLeavesTheVaultUntouchedWhenTheHostNeverHadASecret(): void
+    public function testItDoesNotRequestAVaultPurgeWhenASecretSurvives(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $existingReference = 'secret::vault::monitoring/hosts/existing-uuid::_HOSTSNMPCOMMUNITY';
+        $this->vault->extractedUuids[$existingReference] = 'existing-uuid';
+        $this->seedHost(10, snmpCommunity: new SnmpCommunity($existingReference));
+
+        // A new SNMP community keeps a secret on the host, so the entry must not be purged.
+        ($this->handler)($this->command(10, snmpCommunity: 'still-secret'));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
+    }
+
+    public function testItDoesNotRequestAVaultPurgeWhenTheHostNeverHadASecret(): void
     {
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
@@ -258,7 +276,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         ($this->handler)($this->command(10, snmpCommunity: null));
 
-        self::assertEmpty($this->vault->deleteCalls);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
     }
 
     public function testItDeploysServicesWhenTemplatesArePresent(): void
