@@ -155,6 +155,9 @@ tags:
   -
     name: HostSeverity
     description: "Resource 'HostSeverity' operations."
+  -
+    name: HostAddressResolution
+    description: "Resource 'HostAddressResolution' operations."
 security:
   -
     Token: []
@@ -6055,6 +6058,51 @@ paths:
             default: 30
             minimum: 0
             maximum: 30
+          style: form
+          explode: true
+  /api/configuration/hosts/_resolve:
+    get:
+      operationId: api_configurationhosts_resolve_get
+      tags:
+        - HostAddressResolution
+      responses:
+        '404':
+          description: 'Not available on Cloud platforms'
+        '422':
+          description: 'Neither an IPv4 address nor a hostname'
+        '200':
+          description: 'HostAddressResolution resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostAddressResolution.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostAddressResolution'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Resolve a hostname to an IPv4 address'
+      description: 'An IPv4 is returned as is. A hostname that does not resolve to an IPv4 is reported with "resolved" set to false. Not available on Cloud platforms.'
+      parameters:
+        -
+          name: hostname
+          in: query
+          description: 'IPv4 address or hostname (RFC 1123) to resolve to an IPv4 address'
+          required: true
+          deprecated: false
+          schema:
+            type: string
           style: form
           explode: true
 components:
@@ -12543,3 +12591,29 @@ components:
               type: integer
             name:
               type: string
+    HostAddressResolution:
+      type: object
+      properties:
+        hostname:
+          type: string
+        ip:
+          type:
+            - string
+            - 'null'
+        resolved:
+          type: boolean
+    HostAddressResolution.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            hostname:
+              type: string
+            ip:
+              type:
+                - string
+                - 'null'
+            resolved:
+              type: boolean
