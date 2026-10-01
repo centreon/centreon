@@ -21,19 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
+use App\Shared\Domain\Event\EventInterface;
 
-final class PollerChoicesOutput
+/**
+ * Deferred because a vault purge cannot be rolled back: it must only happen once the deletion is
+ * committed.
+ */
+final readonly class ServiceVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
     public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
-
-        public string $name,
-
-        public bool $isDefault,
+        public Service $service,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
+    }
+
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
     }
 }
