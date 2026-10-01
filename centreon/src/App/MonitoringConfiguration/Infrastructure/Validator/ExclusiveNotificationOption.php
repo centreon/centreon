@@ -21,31 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
-use ApiPlatform\Metadata\ApiProperty;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
+use Symfony\Component\Validator\Constraint;
 
-final class HostCollectionOutput
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class ExclusiveNotificationOption extends Constraint
 {
-    public PollerChoicesOutput $poller;
-
-    /** @var list<HostTemplateOutput> */
-    public array $templates;
-
-    public ?HostIconOutput $icon = null;
-
-    public function __construct(
-        #[ApiProperty(identifier: true)]
-        public int $id,
-
-        public string $name,
-
-        public ?string $alias,
-
-        public string $address,
-
-        public bool $activated,
-    ) {
-    }
+    public string $message = 'The "none" notification option cannot be combined with any other option.';
 }

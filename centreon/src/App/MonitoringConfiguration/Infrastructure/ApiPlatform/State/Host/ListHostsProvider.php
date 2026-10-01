@@ -41,8 +41,8 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
@@ -176,7 +176,7 @@ final readonly class ListHostsProvider implements ProviderInterface
             }
 
             $resource = $this->transformer->transform($host);
-            $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
+            $resource->poller = new PollerChoicesOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
             $resource->templates = $templates;
 
             $iconId = $host->extendedInformations?->iconId;

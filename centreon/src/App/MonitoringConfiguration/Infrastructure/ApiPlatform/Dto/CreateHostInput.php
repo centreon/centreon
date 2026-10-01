@@ -55,8 +55,8 @@ final readonly class CreateHostInput
             new Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH),
             new Assert\Regex(
                 pattern: '/(^_Module(?:_| ))|([~!$%^&*"|\'<>?,()=])/',
-                match: false,
                 message: 'This value must not start with "_Module_" and must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
+                match: false,
                 normalizer: 'trim',
             ),
             new UniqueHostName(),
@@ -89,7 +89,7 @@ final readonly class CreateHostInput
         #[Assert\Length(max: HostAlias::MAX_LENGTH, normalizer: 'trim')]
         // Stricter than legacy, deliberately: config generation writes this straight into a
         // `.cfg` line (object.class.php), so an embedded newline would inject a directive.
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, match: false, message: 'This value must not contain control characters.')]
+        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
         public ?string $alias = null,
 
         public ?SnmpVersionEnum $snmpVersion = null,
@@ -100,7 +100,7 @@ final readonly class CreateHostInput
         #[WhenVault(forVault: false, constraints: [
             new Assert\Length(max: SnmpCommunity::MAX_LENGTH, normalizer: 'trim'),
         ])]
-        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, match: false, message: 'This value must not contain control characters.')]
+        #[Assert\Regex(pattern: self::CONTROL_CHARACTERS, message: 'This value must not contain control characters.', match: false)]
         #[Sensitive]
         public ?string $snmpCommunity = null,
 
@@ -140,6 +140,13 @@ final readonly class CreateHostInput
 
         #[Assert\Valid]
         public ?CheckOptionsInput $checkOptions = null,
+
+        #[ApiProperty(description: 'Not available on a Cloud platform, where notifications follow a different model.')]
+        #[Assert\Valid]
+        #[WhenPlatform(forCloud: true, constraints: [
+            new Assert\Blank(message: 'Notifications are not available on a Cloud platform.'),
+        ])]
+        public ?CreateHostNotificationsInput $notifications = null,
     ) {
     }
 }

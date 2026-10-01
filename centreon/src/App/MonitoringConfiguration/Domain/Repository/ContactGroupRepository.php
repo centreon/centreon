@@ -24,10 +24,23 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
+use App\Shared\Domain\Collection;
 
 interface ContactGroupRepository
 {
+    /**
+     * Every requested id's name, for bulk display purposes and existence checks. An id
+     * absent from the result no longer exists.
+     *
+     * @param Collection<ContactGroupId> $ids
+     *
+     * @return Collection<ContactGroupName> indexed by contact group id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
     /**
      * @return \IteratorAggregate<int, ContactGroup>&\Countable
      */

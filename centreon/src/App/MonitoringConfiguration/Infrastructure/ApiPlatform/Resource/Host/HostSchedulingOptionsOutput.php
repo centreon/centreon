@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
+use ApiPlatform\Metadata\ApiProperty;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 
 /**
@@ -32,7 +34,8 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 final readonly class HostSchedulingOptionsOutput
 {
     public function __construct(
-        public ?HostTimePeriodOutput $checkPeriod,
+        #[ApiProperty(readableLink: true)]
+        public ?TimePeriodResource $checkPeriod,
         public ?int $maxCheckAttempts,
         public ?int $normalCheckInterval,
         public ?int $retryCheckInterval,
