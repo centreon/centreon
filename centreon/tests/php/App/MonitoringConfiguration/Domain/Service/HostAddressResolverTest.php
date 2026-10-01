@@ -1,0 +1,62 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Domain\Service;
+
+use App\MonitoringConfiguration\Domain\Model\ResolvableAddress;
+use App\MonitoringConfiguration\Domain\Service\HostAddressResolver;
+use PHPUnit\Framework\TestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeDnsResolver;
+
+final class HostAddressResolverTest extends TestCase
+{
+    public function testItResolvesAHostnameThroughTheDns(): void
+    {
+        $dnsResolver = new FakeDnsResolver(['srv01.example.com' => '192.0.2.10']);
+
+        $resolution = new HostAddressResolver($dnsResolver)->resolve(new ResolvableAddress('srv01.example.com'));
+
+        self::assertSame('srv01.example.com', $resolution->address->value);
+        self::assertSame('192.0.2.10', $resolution->ipv4);
+    }
+
+    public function testItReportsAnUnresolvedHostnameWithoutEchoingItBack(): void
+    {
+        $dnsResolver = new FakeDnsResolver();
+
+        $resolution = new HostAddressResolver($dnsResolver)->resolve(new ResolvableAddress('unknown.example.com'));
+
+        self::assertNull($resolution->ipv4);
+        self::assertSame(['unknown.example.com'], $dnsResolver->lookups);
+    }
+
+    public function testItReturnsAnIpv4AsIsWithoutQueryingTheDns(): void
+    {
+        $dnsResolver = new FakeDnsResolver();
+
+        $resolution = new HostAddressResolver($dnsResolver)->resolve(new ResolvableAddress('192.0.2.10'));
+
+        self::assertSame('192.0.2.10', $resolution->ipv4);
+        self::assertSame([], $dnsResolver->lookups);
+    }
+}
