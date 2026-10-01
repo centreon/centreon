@@ -272,6 +272,28 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItRejectsAHostReferencingItselfAsParent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        // Self as parent with no children: exercises the handler's self-reference guard (a 422),
+        // not the aggregate's raw assertion (which would be a 500).
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+                'parent_host_ids' => [$hostId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     private function insertParentRelation(int $childId, int $parentId): void
     {
         $this->connection->insert('host_hostparent_relation', [

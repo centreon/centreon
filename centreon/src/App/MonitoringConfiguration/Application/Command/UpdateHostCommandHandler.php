@@ -499,6 +499,16 @@ final readonly class UpdateHostCommandHandler
      */
     private function assertRelationsAreNotCircular(HostId $hostId, Collection $parentHostIds, Collection $childHostIds): void
     {
+        // Catch the immediate self-reference here, before the early return below and before the Host
+        // constructor's own guard would throw a raw InvalidArgumentException (→ 500): a host listed
+        // among its own parents or children is a circular relation and must surface as a 422 through
+        // the same path as the full-tree check.
+        foreach ([...$parentHostIds->toArray(), ...$childHostIds->toArray()] as $relatedId) {
+            if ($relatedId->value === $hostId->value) {
+                throw new CircularHostRelationException([$hostId->value]);
+            }
+        }
+
         if (count($parentHostIds) === 0 || count($childHostIds) === 0) {
             return;
         }
