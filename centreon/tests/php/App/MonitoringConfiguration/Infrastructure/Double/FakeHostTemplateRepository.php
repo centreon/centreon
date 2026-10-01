@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Shared\Domain\Collection;
@@ -33,6 +34,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 {
     /** @var array<int, HostTemplate> */
     public array $hostTemplates = [];
+
+    /** @var array<int, MediaId> inherited icon ids indexed by host id */
+    public array $inheritedIconIds = [];
 
     public function findNamesByIds(Collection $ids): Collection
     {
@@ -44,6 +48,18 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         }
 
         return new Collection($names, HostTemplateName::class);
+    }
+
+    public function findInheritedIconIds(Collection $hostIds): Collection
+    {
+        $iconIds = [];
+        foreach ($hostIds as $hostId) {
+            if (isset($this->inheritedIconIds[$hostId->value])) {
+                $iconIds[$hostId->value] = $this->inheritedIconIds[$hostId->value];
+            }
+        }
+
+        return new Collection($iconIds, MediaId::class);
     }
 
     public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
