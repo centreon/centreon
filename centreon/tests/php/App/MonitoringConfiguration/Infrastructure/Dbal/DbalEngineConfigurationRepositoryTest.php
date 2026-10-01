@@ -72,6 +72,8 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
         self::assertSame('1', $row['nagios_activate']);
         self::assertSame('1', $row['check_service_freshness']);
         self::assertSame('/etc/centreon-broker/testpoller-module.json', $row['broker_module_cfg_file']);
+        self::assertSame('0', $row['enable_flap_detection']);
+        self::assertSame('0', $row['host_down_disable_service_checks']);
     }
 
     public function testItInsertsCfgNagiosLoggerRow(): void
