@@ -24,8 +24,15 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Shared\Application\Command\NonTransactionalCommand;
 
-final readonly class DuplicateHostServicesCommand
+/**
+ * Best-effort, non-atomic by design: re-linking shared services commits on the configuration
+ * connection while cloning exclusive ones runs on the legacy connection, so wrapping this in a
+ * transaction would roll the re-links back whenever the (session-bound) clone cannot run — e.g. a
+ * token-authenticated request. It must therefore stay outside the command bus transaction.
+ */
+final readonly class DuplicateHostServicesCommand implements NonTransactionalCommand
 {
     public function __construct(
         public HostId $sourceHostId,
