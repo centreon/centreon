@@ -252,6 +252,28 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is not re-linked (it needs a session-bound clone)');
     }
 
+    public function testItSkipsASuffixAlreadyTakenByAHostTemplate(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $sourceId = $this->insertHost($name, $pollerId);
+        // A host TEMPLATE (host_register = '0') already owns the "_1" name: the copy must skip it and
+        // take "_2", proving the uniqueness check spans hosts and templates alike.
+        $this->insertHostTemplate($name . '_1');
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$sourceId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->connection->fetchOne(
+            "SELECT host_id FROM host WHERE host_name = :name AND host_register = '1'",
+            ['name' => $name . '_2'],
+        );
+        self::assertIsScalar($copyId, 'the copy skips the template-held "_1" and takes "_2"');
+        self::assertNotSame($sourceId, (int) $copyId);
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -279,6 +301,16 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         ]);
 
         return $hostId;
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_register' => '0',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function insertService(string $prefix): int

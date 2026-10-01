@@ -35,12 +35,16 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedExcepti
  *  - `$pearDB`   → the shared legacy connection,
  *  - `$centreon` → the current legacy session, from which the cloned services take their author and
  *                  ACL. It only exists on a session-authenticated request, so a token-authenticated
- *                  call cannot clone services and fails loudly (the caller swallows and logs it).
+ *                  call cannot clone services: it throws (the caller logs it, at info for this
+ *                  expected case) rather than returning silently.
  */
-final class LegacyServiceCloner
+final readonly class LegacyServiceCloner
 {
     private const LEGACY_SERVICE_FUNCTION = 'multipleServiceInDB';
     private const LEGACY_SERVICE_FUNCTIONS_FILE = 'www/include/configuration/configObject/service/DB-Func.php';
+
+    /** `descKey` argument of multipleServiceInDB: 0 = host duplication, keep the service description. */
+    private const LEGACY_KEEP_DESCRIPTION = 0;
 
     /**
      * Clones the given services onto the new host through the legacy procedural function.
@@ -73,7 +77,7 @@ final class LegacyServiceCloner
             // global function: it lives in www/include (required above), outside the analysed autoload.
             /** @var callable-string $duplicateServices */
             $duplicateServices = $this->legacyServiceFunctionName();
-            $duplicateServices($services, $hostCounts, $newHostId->value, 0);
+            $duplicateServices($services, $hostCounts, $newHostId->value, self::LEGACY_KEEP_DESCRIPTION);
         } finally {
             $GLOBALS['pearDB'] = $previousPearDB;
             $GLOBALS['centreon'] = $previousCentreon;

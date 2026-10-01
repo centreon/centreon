@@ -49,12 +49,14 @@ final readonly class DuplicateHostServicesEventHandler
     public function __invoke(HostServicesDuplicationRequested $event): void
     {
         try {
-            $this->commandBus->execute(new DuplicateHostServicesCommand($event->sourceHostId, $event->newHostId));
+            $this->commandBus->execute(
+                new DuplicateHostServicesCommand(sourceHostId: $event->sourceHostId, newHostId: $event->newHostId)
+            );
         } catch (ServiceDuplicationFailedException $exception) {
             if ($exception->expected) {
                 // Expected, e.g. a token-authenticated request has no legacy session: the copy simply
                 // carries no services. Logged at info so it does not drown a genuine failure.
-                $this->log('info', 'Duplicated host was created without its services', $event, $exception);
+                $this->log('info', 'Duplicated host was created without its exclusive services', $event, $exception);
 
                 return;
             }

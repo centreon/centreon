@@ -39,6 +39,6 @@ final readonly class DuplicateHostServicesCommandHandler
 
     public function __invoke(DuplicateHostServicesCommand $command): void
     {
-        $this->serviceDuplicator->duplicate($command->sourceHostId, $command->newHostId);
+        $this->serviceDuplicator->duplicate(sourceHostId: $command->sourceHostId, newHostId: $command->newHostId);
     }
 }
