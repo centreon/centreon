@@ -209,11 +209,34 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$oldPollerId]));
     }
 
-    public function testItWritesExactlyOneActivityLogLine(): void
+    public function testItWritesASingleChangeLineWhenOnlyNonActivationFieldsChange(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
         $name = $this->uniqueName('server');
+        // Stored with host_activate = '1'; the PUT keeps it activated, so only the address changes.
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        // ISO with legacy: a change that does not flip activation writes exactly one "change" line.
+        self::assertSame(['c'], $this->logActionTypes($hostId));
+    }
+
+    public function testItWritesADisableAndAChangeLineWhenActivationAndOtherFieldsChange(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        // Stored activated; the PUT turns it off and also changes the address.
         $hostId = $this->insertHost($name, $pollerId);
 
         $this->request('PUT', $this->endpoint($hostId), [
@@ -226,20 +249,8 @@ final class PutHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(200);
-        // Exactly one line for the whole update (not the legacy up-to-3), of the "change" type.
-        /** @var int|string $logCount */
-        $logCount = $this->realTimeConnection->fetchOne(
-            "SELECT COUNT(*) FROM log_action WHERE object_id = ? AND object_type = 'host'",
-            [$hostId],
-        );
-        self::assertSame(1, (int) $logCount);
-        self::assertSame(
-            'c',
-            $this->realTimeConnection->fetchOne(
-                "SELECT action_type FROM log_action WHERE object_id = ? AND object_type = 'host'",
-                [$hostId],
-            ),
-        );
+        // ISO with legacy: activation flip + other change writes two lines, a disable and a change.
+        self::assertSame(['c', 'disable'], $this->logActionTypes($hostId));
     }
 
     public function testItRejectsACircularRelation(): void
@@ -292,6 +303,24 @@ final class PutHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * The host's activity-log action types, sorted, so a caller can assert the set regardless of
+     * insertion order.
+     *
+     * @return list<string>
+     */
+    private function logActionTypes(int $hostId): array
+    {
+        /** @var list<string> $types */
+        $types = $this->realTimeConnection->fetchFirstColumn(
+            "SELECT action_type FROM log_action WHERE object_id = ? AND object_type = 'host'",
+            [$hostId],
+        );
+        sort($types);
+
+        return $types;
     }
 
     private function insertParentRelation(int $childId, int $parentId): void
