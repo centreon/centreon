@@ -194,6 +194,7 @@ const ConnectedAutocomplete = ({
         onBlur={blur}
         onChange={changeAutocomplete}
         optionProperty={connectedAutocomplete?.optionProperty}
+        queryKey={connectedAutocomplete?.queryKey}
         required={isRequired}
         searchConditions={connectedAutocomplete?.additionalConditionParameters}
         value={value ?? null}

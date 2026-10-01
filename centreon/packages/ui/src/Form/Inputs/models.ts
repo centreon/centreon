@@ -91,6 +91,9 @@ export interface InputProps {
     // The API the options are read from. Left out, the request goes to the
     // default `./api/latest` as it always has.
     baseEndpoint?: string;
+    // What the options are cached under. Left out, the field's label is used,
+    // which two fields reading different endpoints can share.
+    queryKey?: string;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;

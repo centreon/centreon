@@ -77,6 +77,9 @@ const useFormInputs = ({
         decoder: namedEntitiesListDecoder,
         endpoint: hostFormPollersEndpoint,
         getOptionLabel: (option) => (option as SelectEntry)?.name,
+        // The listing filter beside this field carries the same label and
+        // reads every poller, where this one reads only the active ones.
+        queryKey: 'host-form-poller',
         useNewAPIFormat: true
       },
       dataTestId: 'host-form-poller',
@@ -94,6 +97,7 @@ const useFormInputs = ({
         customQueryParameters: [],
         decoder: namedEntitiesListDecoder,
         endpoint: hostFormHostGroupsEndpoint,
+        queryKey: 'host-form-groups',
         useNewAPIFormat: true
       },
       dataTestId: 'host-form-groups',
