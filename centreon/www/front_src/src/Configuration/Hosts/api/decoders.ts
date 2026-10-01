@@ -22,6 +22,10 @@ const iconDecoder = JsonDecoder.object<Icon>(
 export const hostDecoder = JsonDecoder.object<HostDetail>(
   {
     address: JsonDecoder.string,
+    groups: JsonDecoder.array(
+      JsonDecoder.object(namedEntityDecoder, 'Group'),
+      'Groups'
+    ),
     name: JsonDecoder.string,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller')
   },

@@ -14,12 +14,17 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (label: string): string => label })
 }));
 
-// biome-ignore lint/correctness/useHookAtTopLevel: with the translator mocked above, it calls no React hook of its own.
-const { validationSchema } = useValidationSchema();
+const schemaFor = (isCloudPlatform: boolean) =>
+  // biome-ignore lint/correctness/useHookAtTopLevel: with the translator mocked above, it calls no React hook of its own.
+  useValidationSchema({ isCloudPlatform }).validationSchema;
 
-const errorFor = (field: string, value: unknown): string | null => {
+const errorFor = (
+  field: string,
+  value: unknown,
+  { isCloudPlatform = false } = {}
+): string | null => {
   try {
-    validationSchema.validateSyncAt(field, { [field]: value });
+    schemaFor(isCloudPlatform).validateSyncAt(field, { [field]: value });
 
     return null;
   } catch (error) {
@@ -83,6 +88,24 @@ describe('Host form validation', () => {
     it('requires one', () => {
       expect(errorFor('poller', null)).toEqual(labelRequired);
       expect(errorFor('poller', { id: 2, name: 'Poller EU' })).toBeNull();
+    });
+  });
+
+  // `CreateHostInput` counts host groups only under `WhenPlatform(forCloud)`.
+  describe('Host groups', () => {
+    it('requires at least one on a cloud platform', () => {
+      expect(errorFor('groups', [], { isCloudPlatform: true })).toEqual(
+        labelRequired
+      );
+      expect(
+        errorFor('groups', [{ id: 1, name: 'Linux servers' }], {
+          isCloudPlatform: true
+        })
+      ).toBeNull();
+    });
+
+    it('asks for none anywhere else', () => {
+      expect(errorFor('groups', [])).toBeNull();
     });
   });
 });

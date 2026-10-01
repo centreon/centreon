@@ -116,6 +116,7 @@ export default () => {
         expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          host_group_ids: [1],
           name: 'host 0 as the detail endpoint spells it',
           poller_id: 2
         });
@@ -236,6 +237,66 @@ export default () => {
       cy.contains(labelInvalidAddress).should('be.visible');
     });
 
+    it('leaves host groups optional on an onPrem platform', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      // Nothing picked in Relations, and the form is still saveable.
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
+        'be.enabled'
+      );
+    });
+
+    it('requires a host group before saving on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      // The same three fields that suffice onPrem leave cloud incomplete.
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
+        'be.disabled'
+      );
+
+      cy.findByTestId('host-form-groups').click();
+
+      cy.waitForRequest('@getHostGroups').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/host_groups'
+        );
+        expect(request.url.pathname).to.not.contain('/api/latest');
+      });
+
+      cy.get('.MuiAutocomplete-popper').contains('Linux servers').click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body).to.deep.equals({
+          address: '10.0.0.42',
+          host_group_ids: [1],
+          name: 'srv-apache-02',
+          poller_id: 2
+        });
+      });
+    });
+
     it('creates a host from the three mandatory fields', () => {
       initialize({});
 
@@ -266,6 +327,7 @@ export default () => {
         expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          host_group_ids: [],
           name: 'srv-apache-02',
           poller_id: 2
         });

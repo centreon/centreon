@@ -72,6 +72,7 @@ const initialize = ({
     path: `**${getHostEndpoint({ id: 1 })}`,
     response: {
       address: '10.0.0.1',
+      groups: [],
       name: 'host 1',
       poller: { id: 1, name: 'Central' }
     }

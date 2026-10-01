@@ -90,6 +90,7 @@ export const getHostTemplatesResponse = () =>
 // from the carried row instead of from this response fails rather than passes.
 export const getHostResponse = () => ({
   address: '10.10.10.10',
+  groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
   poller: { id: 2, name: 'Poller EU' }
 });

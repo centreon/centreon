@@ -3,7 +3,10 @@ import {
   Grain as ServiceIcon
 } from '@mui/icons-material';
 
-import { userPermissionsAtom } from '@centreon/ui-context';
+import {
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
@@ -40,11 +43,14 @@ const Hosts = () => {
   const { t } = useTranslation();
 
   const userPermissions = useAtomValue(userPermissionsAtom);
+  // Read once and handed to both hooks: the fields and the rules that guard
+  // them have to agree on the platform.
+  const isCloudPlatform = !!useAtomValue(platformFeaturesAtom)?.isCloudPlatform;
   const canEdit = !!userPermissions?.configuration_host_write;
 
   const { columns } = useColumns();
-  const { groups, inputs } = useFormInputs({ canEdit });
-  const { validationSchema } = useValidationSchema();
+  const { groups, inputs } = useFormInputs({ canEdit, isCloudPlatform });
+  const { validationSchema } = useValidationSchema({ isCloudPlatform });
 
   const { api, filtersConfiguration } = useHosts();
   const { deployServices } = useDeployServices();

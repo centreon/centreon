@@ -29,19 +29,19 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-// API Platform takes snake_case, and the poller as an id where the form holds
-// the option the autocomplete selected. `host_group_ids` is mandatory on cloud
-// and has no field yet, so a cloud create answers 422 until MON-209948 adds
-// the Relations section.
+// API Platform takes snake_case, and ids where the form holds the options the
+// autocompletes selected.
 const adaptFormToApiPayload = (data: unknown) => {
-  const { name, address, poller } = data as {
+  const { name, address, poller, groups } = data as {
     address: string;
+    groups: Array<{ id: number }> | null;
     name: string;
     poller: { id: number } | null;
   };
 
   return {
     address,
+    host_group_ids: (groups ?? []).map(({ id }) => id),
     name,
     poller_id: poller?.id
   };

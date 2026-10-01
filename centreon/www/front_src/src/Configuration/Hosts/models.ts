@@ -29,6 +29,7 @@ export type Filters = {
 // What the form opens on; each section to come adds its own.
 export interface HostDetail {
   address: string;
+  groups: Array<NamedEntity>;
   name: string;
   poller: NamedEntity;
 }

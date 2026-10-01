@@ -4,17 +4,20 @@ import {
   InputType,
   type SelectEntry
 } from '@centreon/ui';
-import { platformFeaturesAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { namedEntitiesListDecoder } from '../api/decoders';
-import { hostsBaseEndpoint, pollersEndpoint } from '../api/endpoints';
+import {
+  hostGroupsEndpoint,
+  hostsBaseEndpoint,
+  pollersEndpoint
+} from '../api/endpoints';
 import {
   labelDataProcessing,
   labelHostConfiguration,
   labelHostExtendedInfos,
+  labelHostGroups,
   labelIpAddress,
   labelMonitoringServer,
   labelName,
@@ -27,13 +30,18 @@ interface FormInputsState {
   groups: Array<Group>;
 }
 
+interface Props {
+  canEdit: boolean;
+  isCloudPlatform: boolean;
+}
+
 // The five sections of the US. They also drive the pinned navigation, which
 // the shared form renders on its own from four groups up.
-const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
+const useFormInputs = ({
+  canEdit,
+  isCloudPlatform
+}: Props): FormInputsState => {
   const { t } = useTranslation();
-
-  const platformFeatures = useAtomValue(platformFeaturesAtom);
-  const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
   const groups: Array<Group> = [
     { name: t(labelHostConfiguration), order: 1 },
@@ -79,6 +87,25 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
       label: t(labelMonitoringServer),
       required: true,
       type: InputType.SingleConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostGroupsEndpoint,
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-groups',
+      fieldName: 'groups',
+      // `CreateHostInput` counts at least one group on a cloud platform and
+      // leaves it optional elsewhere, so the field follows the platform.
+      getRequired: () => isCloudPlatform,
+      group: t(labelRelations),
+      label: t(labelHostGroups),
+      type: InputType.MultiConnectedAutocomplete
     }
   ];
 

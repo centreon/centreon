@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { number, type ObjectSchema, object, string } from 'yup';
+import { array, number, type ObjectSchema, object, string } from 'yup';
 
 import {
   labelInvalidAddress,
@@ -28,7 +28,11 @@ interface UseValidationSchemaState {
   validationSchema: ObjectSchema<object>;
 }
 
-const useValidationSchema = (): UseValidationSchemaState => {
+const useValidationSchema = ({
+  isCloudPlatform
+}: {
+  isCloudPlatform: boolean;
+}): UseValidationSchemaState => {
   const { t } = useTranslation();
 
   const validationSchema = object({
@@ -42,6 +46,11 @@ const useValidationSchema = (): UseValidationSchemaState => {
         message: t(labelInvalidAddress)
       })
       .required(t(labelRequired)),
+    // A host must belong to a group on cloud and need not anywhere else:
+    // `CreateHostInput` counts them only under `WhenPlatform(forCloud: true)`.
+    groups: isCloudPlatform
+      ? array().min(1, t(labelRequired))
+      : array().notRequired(),
     // Both fields are trimmed the way the server normalises them, so blanks
     // report as missing instead of passing to a 422.
     name: string()
