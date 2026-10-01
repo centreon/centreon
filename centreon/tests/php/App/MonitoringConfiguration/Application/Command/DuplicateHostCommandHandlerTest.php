@@ -173,6 +173,13 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDuplicated::class, 1));
         $event = $this->eventBus->getDispatchedEvents(HostDuplicated::class)[0];
         self::assertSame(42, $event->creatorId);
+
+        // The event must carry the copy, not the source: the shared LogActivityEventHandler logs it as
+        // an Add, so a source/copy mix-up would mislabel the action log and cannot be caught elsewhere.
+        $copy = $this->findCopyByName('web_1');
+        self::assertNotNull($copy);
+        self::assertInstanceOf(Host::class, $event->aggregate);
+        self::assertSame($copy->id()->value, $event->aggregate->id()->value);
     }
 
     public function testRequestsServiceDuplicationFromTheSourceOntoTheCopy(): void
@@ -209,6 +216,18 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
         self::assertFalse($this->resourceAccessRepository->allResourcesFlaggedAsChanged);
         self::assertSame([10, 20], $this->accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testNonAdminWithoutAccessGroupsFlagsNothingForReload(): void
+    {
+        // A restricted viewer belonging to no active access group: the count guard must hold, so neither
+        // every resource nor an empty group list is flagged.
+        $this->storeSourceHost(1, 'web');
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 7, viewerId: new UserId(7)));
+
+        self::assertFalse($this->resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $this->accessGroupRepository->flaggedGroupIds);
     }
 
     private function storeSourceHost(int $id, string $name): Host

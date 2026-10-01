@@ -57,6 +57,7 @@ final readonly class DuplicateHostProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
+        Assert::keyExists($uriVariables, 'id');
         Assert::integer($uriVariables['id']);
 
         $this->commandBus->execute(

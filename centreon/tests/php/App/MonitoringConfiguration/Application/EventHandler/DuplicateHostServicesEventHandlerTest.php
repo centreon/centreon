@@ -98,4 +98,18 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
 
         self::assertCount(1, $this->commandBus->executed);
     }
+
+    /**
+     * A genuine ServiceDuplicationFailedException (expected === false) must stay at error level, so a
+     * regression collapsing the discrimination to info is caught rather than silently demoting failures.
+     */
+    public function testItLogsAGenuineServiceDuplicationFailureAtError(): void
+    {
+        $this->commandBus->exception = ServiceDuplicationFailedException::legacyFunctionsUnavailable('boom');
+        $this->logger->expects(self::once())->method('log')->with('error');
+
+        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+
+        self::assertCount(1, $this->commandBus->executed);
+    }
 }

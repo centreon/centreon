@@ -211,6 +211,47 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertSame(1, (int) $copyAclCount, 'the copy inherits the source real-time ACL row');
     }
 
+    public function testItReLinksSharedServicesOntoTheCopyButLeavesExclusiveOnesToTheLegacyClone(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $sourceId = $this->insertHost($name, $pollerId);
+        $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        // A service shared with another host must be re-linked (not cloned) onto the copy; this path is
+        // pure SQL on the configuration connection and needs no legacy session, so it runs even under
+        // the token-authenticated test.
+        $sharedServiceId = $this->insertService('shared');
+        $this->linkService($sourceId, $sharedServiceId);
+        $this->linkService($otherHostId, $sharedServiceId);
+
+        // A service exclusive to the source can only be cloned through the legacy session, which a
+        // token-authenticated request lacks: it is skipped (and logged), never re-linked onto the copy.
+        $exclusiveServiceId = $this->insertService('exclusive');
+        $this->linkService($sourceId, $exclusiveServiceId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$sourceId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+
+        $sharedCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+            [$copyId, $sharedServiceId],
+        );
+        self::assertIsScalar($sharedCount);
+        self::assertSame(1, (int) $sharedCount, 'the shared service is re-linked onto the copy');
+
+        $exclusiveCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+            [$copyId, $exclusiveServiceId],
+        );
+        self::assertIsScalar($exclusiveCount);
+        self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is not re-linked (it needs a session-bound clone)');
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -238,6 +279,25 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         ]);
 
         return $hostId;
+    }
+
+    private function insertService(string $prefix): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $prefix . '-' . bin2hex(random_bytes(4)),
+            'service_register' => '1',
+            'service_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkService(int $hostId, int $serviceId): void
+    {
+        $this->connection->insert('host_service_relation', [
+            'host_host_id' => $hostId,
+            'service_service_id' => $serviceId,
+        ]);
     }
 
     private function uniqueName(string $prefix = 'host'): string

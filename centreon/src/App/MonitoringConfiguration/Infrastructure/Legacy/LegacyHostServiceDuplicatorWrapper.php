@@ -32,12 +32,14 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * Duplicates a host's services onto the freshly duplicated host.
  *
  * The relation bookkeeping runs on the configuration connection: a service shared with other hosts
- * keeps its identity and the copy only gets a new relation to it, while a service exclusive to the
- * source is cloned. Cloning has no new-architecture equivalent yet, so it is delegated to the legacy
- * procedural step (see {@see LegacyServiceCloner}).
+ * keeps its identity and the copy only gets a new relation to it. Re-linking needs no legacy session,
+ * so it always runs. A service exclusive to the source has to be cloned, which has no new-architecture
+ * equivalent yet and is delegated to the legacy procedural step (see {@see LegacyServiceCloner}); that
+ * step needs the legacy session, so under a token-authenticated request the exclusive services are
+ * left out (the caller swallows and logs it) while the shared ones are still re-linked.
  *
  * The event carrying this is delivered after the command commits, so the copy is visible to the
- * connection (see {@see HostServicesDuplicationRequested}).
+ * connection (see {@see \App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested}).
  */
 final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDuplicator
 {
@@ -50,10 +52,6 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
 
     public function duplicate(HostId $sourceHostId, HostId $newHostId): void
     {
-        // A token-authenticated call has no legacy session, so services cannot be cloned: fail before
-        // touching anything, so the copy carries none of the source's services rather than only some.
-        $this->serviceCloner->assertSessionAvailable();
-
         /** @var list<array{service_id: int|string, host_count: int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
@@ -68,7 +66,6 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
         );
 
         $servicesToClone = [];
-        $serviceCounts = [];
         foreach ($rows as $row) {
             $serviceId = (int) $row['service_id'];
             // A service linked to more than one host keeps its identity: the copy only gets a new
@@ -82,14 +79,9 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
                 continue;
             }
 
-            $servicesToClone[$serviceId] = $serviceId;
-            $serviceCounts[$serviceId] = 1;
+            $servicesToClone[] = $serviceId;
         }
 
-        if ($servicesToClone === []) {
-            return;
-        }
-
-        $this->serviceCloner->cloneServices($servicesToClone, $serviceCounts, $newHostId->value);
+        $this->serviceCloner->cloneServices($servicesToClone, $newHostId);
     }
 }

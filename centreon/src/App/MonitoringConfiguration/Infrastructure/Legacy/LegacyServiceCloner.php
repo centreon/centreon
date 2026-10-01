@@ -23,14 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 
 /**
- * The only class allowed to name the legacy service-duplication machinery.
+ * Intended as the sole seam to the legacy service-cloning machinery.
  *
- * Cloning an exclusive service has no API Platform, Core or legacy-REST equivalent — only the
- * procedural `multipleServiceInDB` (www/include/.../service/DB-Func.php), which reads `$pearDB` and
- * `$centreon` as globals. They are installed for the call and restored in a `finally`:
+ * Cloning a service exclusive to the source has no API Platform, Core or legacy-REST equivalent —
+ * only the procedural `multipleServiceInDB` (www/include/.../service/DB-Func.php), which reads
+ * `$pearDB` and `$centreon` as globals. They are installed for the call and restored in a `finally`:
  *  - `$pearDB`   → the shared legacy connection,
  *  - `$centreon` → the current legacy session, from which the cloned services take their author and
  *                  ACL. It only exists on a session-authenticated request, so a token-authenticated
@@ -38,38 +39,29 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedExcepti
  */
 final class LegacyServiceCloner
 {
-    private const LEGACY_SERVICE_FUNCTIONS = 'www/include/configuration/configObject/service/DB-Func.php';
-
-    /**
-     * Fails before any work when the copy cannot carry services, so the caller skips them entirely
-     * rather than leaving the host with only some (e.g. a token-authenticated request has no session).
-     *
-     * @throws ServiceDuplicationFailedException
-     */
-    public function assertSessionAvailable(): void
-    {
-        $session = $_SESSION['centreon'] ?? null;
-        if (! $session instanceof \Centreon) {
-            throw ServiceDuplicationFailedException::missingLegacySession();
-        }
-    }
+    private const LEGACY_SERVICE_FUNCTION = 'multipleServiceInDB';
+    private const LEGACY_SERVICE_FUNCTIONS_FILE = 'www/include/configuration/configObject/service/DB-Func.php';
 
     /**
      * Clones the given services onto the new host through the legacy procedural function.
      *
-     * @param array<int, int> $servicesToClone service id => service id
-     * @param array<int, int> $serviceCounts service id => host count (1 for an exclusive service)
+     * @param list<int> $serviceIds services exclusive to the source, to be cloned onto the copy
      *
      * @throws ServiceDuplicationFailedException
      */
-    public function cloneServices(array $servicesToClone, array $serviceCounts, int $newHostId): void
+    public function cloneServices(array $serviceIds, HostId $newHostId): void
     {
-        $session = $_SESSION['centreon'] ?? null;
-        if (! $session instanceof \Centreon) {
-            throw ServiceDuplicationFailedException::missingLegacySession();
+        if ($serviceIds === []) {
+            return;
         }
 
+        $session = $this->requireSession();
         $this->requireLegacyServiceFunctions();
+
+        // The legacy function wants the services as an id-keyed map and a parallel map of per-service
+        // host counts (always 1 here: these are the services exclusive to the source).
+        $services = array_combine($serviceIds, $serviceIds);
+        $hostCounts = array_fill_keys($serviceIds, 1);
 
         $previousPearDB = $GLOBALS['pearDB'] ?? null;
         $previousCentreon = $GLOBALS['centreon'] ?? null;
@@ -80,22 +72,32 @@ final class LegacyServiceCloner
             // Resolved behind a typed accessor so static analysis does not try to resolve the legacy
             // global function: it lives in www/include (required above), outside the analysed autoload.
             /** @var callable-string $duplicateServices */
-            $duplicateServices = $this->legacyDuplicateFunctionName();
-            $duplicateServices($servicesToClone, $serviceCounts, $newHostId, 0);
+            $duplicateServices = $this->legacyServiceFunctionName();
+            $duplicateServices($services, $hostCounts, $newHostId->value, 0);
         } finally {
             $GLOBALS['pearDB'] = $previousPearDB;
             $GLOBALS['centreon'] = $previousCentreon;
         }
     }
 
-    private function legacyDuplicateFunctionName(): string
+    private function legacyServiceFunctionName(): string
     {
-        return 'multipleServiceInDB';
+        return self::LEGACY_SERVICE_FUNCTION;
+    }
+
+    private function requireSession(): \Centreon
+    {
+        $session = $_SESSION['centreon'] ?? null;
+        if (! $session instanceof \Centreon) {
+            throw ServiceDuplicationFailedException::missingLegacySession();
+        }
+
+        return $session;
     }
 
     private function requireLegacyServiceFunctions(): void
     {
-        if (function_exists('multipleServiceInDB')) {
+        if (function_exists(self::LEGACY_SERVICE_FUNCTION)) {
             return;
         }
         if (! defined('_CENTREON_PATH_')) {
@@ -104,7 +106,7 @@ final class LegacyServiceCloner
             );
         }
 
-        require_once $this->legacyBasePath() . self::LEGACY_SERVICE_FUNCTIONS;
+        require_once $this->legacyBasePath() . self::LEGACY_SERVICE_FUNCTIONS_FILE;
     }
 
     private function legacyBasePath(): string
