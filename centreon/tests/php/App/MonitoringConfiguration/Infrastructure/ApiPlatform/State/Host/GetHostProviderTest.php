@@ -78,9 +78,11 @@ final class GetHostProviderTest extends ApiTestCase
 
     /**
      * The single strongest guarantee of the acceptance criteria "response body identical in shape
-     * to CreateHost": a host is created through the POST endpoint, then fetched through the new GET
-     * endpoint, and the two response bodies must be byte-for-byte equivalent (modulo key ordering).
-     * This exercises the whole findById hydration and the whole GetHostProvider assembly end to end.
+     * to the CreateHost response": a host is created through the POST endpoint, then fetched through
+     * the new GET endpoint, and the two *response* bodies must be equivalent (modulo key ordering).
+     * (The POST *request* takes bare ids; it is the two responses — both carrying the richer
+     * `{id, name}` objects — that must match.) This exercises the whole findById hydration and the
+     * whole GetHostProvider assembly end to end.
      */
     public function testItReturnsTheFullHostDetailIdenticalToTheCreateHostResponse(): void
     {
