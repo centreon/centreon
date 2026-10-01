@@ -206,16 +206,15 @@ final class GetHostProviderTest extends ApiTestCase
         );
         self::assertNotEmpty($passwordMacros, 'the fixture must contain a password macro');
         foreach ($passwordMacros as $macro) {
-            self::assertNull($macro['value'], "password macro '{$macro['name']}' value must not be exposed");
+            // A redacted value is null, which the serializer omits, so the key is absent entirely.
+            self::assertNull($macro['value'] ?? null, "password macro '{$macro['name']}' value must not be exposed");
         }
 
         // The whole contract, field for field, matches what CreateHost returned.
         self::assertEqualsCanonicalizing($createBody, $getBody);
 
         // The default (JSON-LD) representation of this fully-populated host validates against the
-        // resource schema. (A bare host's all-null extended_informations serialises as [] rather
-        // than an object, a platform-wide empty-object quirk shared with CreateHost, so the schema
-        // is only meaningful on a populated host.)
+        // resource schema.
         $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId);
         self::assertResponseStatusCodeSame(200);
         self::assertMatchesResourceItemJsonSchema(HostResource::class);
