@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\QueryParameter;
@@ -71,6 +72,9 @@ final readonly class HostAddressResolutionResource
 {
     public function __construct(
         public string $hostname,
+        #[ApiProperty(
+            schema: ['type' => 'string', 'description' => 'Absent from the response when "resolved" is false.'],
+        )]
         #[SerializedName('ip')]
         public ?string $ipv4,
         public bool $resolved,

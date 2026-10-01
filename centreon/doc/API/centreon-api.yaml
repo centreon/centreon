@@ -12597,9 +12597,8 @@ components:
         hostname:
           type: string
         ip:
-          type:
-            - string
-            - 'null'
+          type: string
+          description: 'Absent from the response when "resolved" is false.'
         resolved:
           type: boolean
     HostAddressResolution.jsonld:
@@ -12612,8 +12611,7 @@ components:
             hostname:
               type: string
             ip:
-              type:
-                - string
-                - 'null'
+              type: string
+              description: 'Absent from the response when "resolved" is false.'
             resolved:
               type: boolean
