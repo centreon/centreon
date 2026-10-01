@@ -4,6 +4,7 @@ parameters:
         - ./src/App/MonitoringConfiguration
         - ./src/App/Security
         - ./src/App/Shared
+        - ./src/App/Upgrade
 
     layers:
         - name: Domain
@@ -43,8 +44,9 @@ parameters:
         - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
-              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\(?!Log\\)#' } # Adaptation\Log has its own AdaptationLog layer
               - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^CentreonDB#' } # legacy global classes
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
@@ -86,3 +88,6 @@ parameters:
             - Centreon\Domain\Gorgone\Command\NodesSync
             - Centreon\Domain\Gorgone\GorgoneException
             - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface
+        App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory:
+            - CentreonDB
+            - Adaptation\Database\Connection\Model\ConnectionConfig
