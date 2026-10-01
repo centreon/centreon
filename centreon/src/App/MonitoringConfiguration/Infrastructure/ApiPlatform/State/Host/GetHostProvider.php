@@ -197,17 +197,35 @@ final readonly class GetHostProvider implements ProviderInterface
                 : null;
         }
 
-        $resource->extendedInformations = new HostExtendedInformationsOutput(
-            noteUrl: $host->extendedInformations?->noteUrl,
-            note: $host->extendedInformations?->note,
-            actionUrl: $host->extendedInformations?->actionUrl,
-            icon: $this->resolveIcon($host->extendedInformations?->iconId),
-            altIcon: $host->extendedInformations?->altIcon,
-            comment: $host->extendedInformations?->comment,
-            geoCoordinates: $host->extendedInformations?->geoCoordinates instanceof GeoCoordinates
-                ? (string) $host->extendedInformations->geoCoordinates
-                : null,
-        );
+        // Nullable sub-object, like `severity`/`timezone`: left null (and so omitted) when every
+        // field is empty, rather than emitted as an all-null object (which the serializer collapses
+        // to an invalid `[]`). Mirrors CreateHostProcessor so the two bodies stay identical.
+        $resource->extendedInformations = null;
+        $extended = $host->extendedInformations;
+        if ($extended !== null) {
+            $icon = $this->resolveIcon($extended->iconId);
+            $geoCoordinates = $extended->geoCoordinates instanceof GeoCoordinates
+                ? (string) $extended->geoCoordinates
+                : null;
+            if ($extended->noteUrl !== null
+                || $extended->note !== null
+                || $extended->actionUrl !== null
+                || $icon !== null
+                || $extended->altIcon !== null
+                || $extended->comment !== null
+                || $geoCoordinates !== null
+            ) {
+                $resource->extendedInformations = new HostExtendedInformationsOutput(
+                    noteUrl: $extended->noteUrl,
+                    note: $extended->note,
+                    actionUrl: $extended->actionUrl,
+                    icon: $icon,
+                    altIcon: $extended->altIcon,
+                    comment: $extended->comment,
+                    geoCoordinates: $geoCoordinates,
+                );
+            }
+        }
         $resource->schedulingOptions = new HostSchedulingOptionsOutput(
             checkPeriod: $this->resolveCheckPeriod($host->schedulingOptions->checkTimeperiodId),
             maxCheckAttempts: $host->schedulingOptions->maxCheckAttempts,
