@@ -63,6 +63,11 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
         ),
         new Get(
             uriTemplate: '/configuration/hosts/{id}',
+            // Without this, `{id}` also captures the sibling host-form selector routes
+            // (/configuration/hosts/pollers, /host-categories, /medias, ...): the literal segment is
+            // cast to int 0 and routed here, 500ing on HostId(0). Constrain it to digits so those
+            // GET routes keep matching their own providers.
+            requirements: ['id' => '\d+'],
             provider: GetHostProvider::class,
             openapi: new Model\Operation(
                 responses: [
