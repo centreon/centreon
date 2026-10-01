@@ -17,8 +17,10 @@ import {
   filtersConfiguration,
   filtersInitialValues,
   getEndpoints,
+  getHostTemplatesResponse,
   getListingResponse,
   groups,
+  hostTemplatesEndpoint,
   inputs,
   resourceDecoderListDecoder
 } from './utils';
@@ -71,6 +73,13 @@ const mockListingRequests = (resourceType): void => {
     path: `**${getEndpoints(resourceType).getAll}?**`,
     response: getListingResponse(resourceType)
   });
+
+  cy.interceptAPIRequest({
+    alias: 'getHostTemplates',
+    method: Method.GET,
+    path: `**${hostTemplatesEndpoint}**`,
+    response: getHostTemplatesResponse()
+  });
 };
 
 export const mockModalRequests = (resourceType): void => {
@@ -105,10 +114,12 @@ export const mockModalRequests = (resourceType): void => {
 const initialize = ({
   resourceType = ResourceType.Host,
   filters = filtersConfiguration,
+  initialValues = filtersInitialValues,
   filtersPanelWidth
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
+  initialValues?: Record<string, unknown>;
   filtersPanelWidth?: number;
 }): void => {
   const resource = resourceType.replace(' ', '_');
@@ -121,7 +132,7 @@ const initialize = ({
   });
 
   const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
-  const filtersAtom = atomWithStorage(filtersAtomKey, filtersInitialValues);
+  const filtersAtom = atomWithStorage(filtersAtomKey, initialValues);
   const isWelcomePageDisplayedAtom = atom(false);
 
   const store = createStore();
@@ -158,7 +169,7 @@ const initialize = ({
                   filtersAtom={filtersAtom}
                   filtersAtomKey={filtersAtomKey}
                   filtersConfiguration={filters}
-                  filtersInitialValues={filtersInitialValues}
+                  filtersInitialValues={initialValues}
                   filtersPanelWidth={filtersPanelWidth}
                   form={{
                     defaultValues: {
