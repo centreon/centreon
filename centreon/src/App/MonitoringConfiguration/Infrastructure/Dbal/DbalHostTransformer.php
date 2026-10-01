@@ -269,7 +269,10 @@ final readonly class DbalHostTransformer implements TransformerInterface
             name: new HostMacroName($shortName),
             value: $row['value'],
             isPassword: (bool) $row['is_password'],
-            description: $row['description'],
+            // Legacy persists an absent description as '' ; normalise it back to null so the read
+            // path matches the in-memory macro CreateHost returns (same convention as every other
+            // optional string field here).
+            description: $this->nullIfEmpty($row['description']),
         );
     }
 }
