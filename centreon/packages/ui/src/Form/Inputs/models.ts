@@ -50,7 +50,8 @@ export enum InputType {
   CheckboxGroup = 12,
   List = 13,
   File = 14,
-  Divider = 15
+  Divider = 15,
+  ExclusiveCheckboxGroup = 16
 }
 
 interface FieldsTableGetRequiredProps {
@@ -97,6 +98,13 @@ export interface InputProps {
     disableSelectAll?: boolean;
     limitTags?: number;
     decoder?: JsonDecoder.Decoder<unknown>;
+  };
+  exclusiveCheckboxGroup?: {
+    direction?: 'horizontal' | 'vertical';
+    exclusiveLabel: string;
+    exclusiveOption: string;
+    labelPlacement?: LabelPlacement;
+    options: Array<string>;
   };
   file?: {
     multiple?: boolean;
