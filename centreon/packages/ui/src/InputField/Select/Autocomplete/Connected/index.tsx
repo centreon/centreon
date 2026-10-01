@@ -126,13 +126,8 @@ const ConnectedAutocompleteField = (
           search: searchParameter
         });
       },
-      // The label alone does not identify the options: two fields can carry
-      // the same one and read different endpoints, as a listing filter and the
-      // form behind it do, and would then share each other's options.
       getQueryKey: () => [
         `autocomplete-${queryKey || props.label}`,
-        baseEndpoint,
-        getEndpoint({ page, search: searchParameter }),
         page,
         searchParameter
       ],
