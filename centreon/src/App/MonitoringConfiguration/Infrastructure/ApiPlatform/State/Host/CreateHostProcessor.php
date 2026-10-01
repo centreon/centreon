@@ -297,14 +297,14 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         // to an invalid `[]`). GetHostProvider mirrors this so the two bodies stay identical.
         $resource->extendedInformations = null;
         $extended = $host->extendedInformations;
-        if ($extended !== null) {
+        if ($extended instanceof ExtendedInformations) {
             $geoCoordinates = $extended->geoCoordinates instanceof GeoCoordinates
                 ? (string) $extended->geoCoordinates
                 : null;
             if ($extended->noteUrl !== null
                 || $extended->note !== null
                 || $extended->actionUrl !== null
-                || $icon !== null
+                || $icon instanceof HostIconOutput
                 || $extended->altIcon !== null
                 || $extended->comment !== null
                 || $geoCoordinates !== null
