@@ -21,25 +21,26 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Command;
+namespace App\MonitoringConfiguration\Domain\Event;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
-use App\Shared\Domain\Collection;
+use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
+use App\Shared\Domain\Event\EventInterface;
 
 /**
- * What `DeleteHostCommandHandler` deleted, handed back so the caller can act on it once it knows
- * the transaction has committed (e.g. purging each aggregate's vault entry, an irreversible
- * external side effect the handler itself must not risk while still inside the transaction).
+ * Deferred because a vault purge cannot be rolled back: it must only happen once the deletion is
+ * committed.
  */
-final readonly class DeleteHostResult
+final readonly class HostVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
-    /**
-     * @param Collection<Service> $deletedServices the services cascade-deleted alongside the host
-     */
     public function __construct(
         public Host $host,
-        public Collection $deletedServices,
+        public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
+    }
+
+    public function firedAt(): \DateTimeImmutable
+    {
+        return $this->firedAt;
     }
 }

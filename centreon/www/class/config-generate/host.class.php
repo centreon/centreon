@@ -198,7 +198,9 @@ class Host extends AbstractHost
         $allHostAndTemplateIds = array_values(array_unique($allHostAndTemplateIds));
 
         // 3. Batch-load all host macros (1 query)
-        $allHostMacros = $readHostMacroRepository->findByHostIds($allHostAndTemplateIds);
+        $hostMacrosByOwnerId = $this->indexMacrosByOwnerId(
+            $readHostMacroRepository->findByHostIds($allHostAndTemplateIds)
+        );
 
         // 4. Batch-load service IDs per host (2 queries)
         $serviceIdsByHostDirect = $readServiceRepository->findServiceIdsLinkedToHostIds($allHostIds);
@@ -234,8 +236,8 @@ class Host extends AbstractHost
         $allServiceAndTemplateIds = array_values(array_unique($allServiceAndTemplateIds));
 
         // 8. Batch-load all service macros (1 query)
-        $allServiceMacros = $allServiceAndTemplateIds !== []
-            ? $readServiceMacroRepository->findByServiceIds(...$allServiceAndTemplateIds)
+        $serviceMacrosByOwnerId = $allServiceAndTemplateIds !== []
+            ? $this->indexMacrosByOwnerId($readServiceMacroRepository->findByServiceIds(...$allServiceAndTemplateIds))
             : [];
 
         // ---- Per-host loop (uses only pre-loaded data, no additional queries) ----
@@ -246,14 +248,14 @@ class Host extends AbstractHost
             [$hostMacros, $hostTemplateMacros] = $this->resolveHostMacrosFromCache(
                 $host_id,
                 $hostInheritanceLines[$host_id] ?? [],
-                $allHostMacros,
+                $hostMacrosByOwnerId,
                 $isPollerEncryptionReady
             );
 
             [$serviceMacros, $serviceTemplateMacros] = $this->resolveServiceMacrosFromCache(
                 $serviceIdsByHost[$host_id] ?? [],
                 $serviceInheritanceLines,
-                $allServiceMacros,
+                $serviceMacrosByOwnerId,
                 $isPollerEncryptionReady
             );
 
@@ -426,11 +428,49 @@ class Host extends AbstractHost
     }
 
     /**
+     * Index macros by owner ID. Each macro is keyed by its position in the original list,
+     * so that the original order can be restored when collecting macros of several owners.
+     *
+     * @param Macro[] $macros
+     *
+     * @return array<int, array<int, Macro>>
+     */
+    private function indexMacrosByOwnerId(array $macros): array
+    {
+        $macrosByOwnerId = [];
+        $position = 0;
+        foreach ($macros as $macro) {
+            $macrosByOwnerId[$macro->getOwnerId()][$position++] = $macro;
+        }
+
+        return $macrosByOwnerId;
+    }
+
+    /**
+     * Collect the macros belonging to the given owners, in their original order.
+     *
+     * @param array<int, array<int, Macro>> $macrosByOwnerId Macros indexed by owner ID
+     * @param int[] $ownerIds
+     *
+     * @return Macro[]
+     */
+    private function collectMacrosOfOwners(array $macrosByOwnerId, array $ownerIds): array
+    {
+        $macros = [];
+        foreach ($ownerIds as $ownerId) {
+            $macros += $macrosByOwnerId[$ownerId] ?? [];
+        }
+        ksort($macros);
+
+        return array_values($macros);
+    }
+
+    /**
      * Resolve host macros using pre-loaded data.
      *
      * @param int $hostId
      * @param int[] $inheritanceLine Pre-computed inheritance line
-     * @param Macro[] $allHostMacros All host macros pre-loaded in bulk
+     * @param array<int, array<int, Macro>> $hostMacrosByOwnerId All host macros pre-loaded in bulk, indexed by owner ID
      * @param bool $isPollerEncryptionReady
      *
      * @return array{Macro[], Macro[]}
@@ -438,15 +478,13 @@ class Host extends AbstractHost
     private function resolveHostMacrosFromCache(
         int $hostId,
         array $inheritanceLine,
-        array $allHostMacros,
+        array $hostMacrosByOwnerId,
         bool $isPollerEncryptionReady,
     ): array {
-        $relevantIds = array_flip(array_merge([$hostId], $inheritanceLine));
-
-        $existingHostMacros = array_values(array_filter(
-            $allHostMacros,
-            fn (Macro $macro) => isset($relevantIds[$macro->getOwnerId()])
-        ));
+        $existingHostMacros = $this->collectMacrosOfOwners(
+            $hostMacrosByOwnerId,
+            array_merge([$hostId], $inheritanceLine)
+        );
 
         array_walk(
             $existingHostMacros,
@@ -472,7 +510,7 @@ class Host extends AbstractHost
      *
      * @param int[] $serviceIds Services linked to this host
      * @param array<int, int[]> $serviceInheritanceLines Pre-computed per-service
-     * @param Macro[] $allServiceMacros All service macros pre-loaded in bulk
+     * @param array<int, array<int, Macro>> $serviceMacrosByOwnerId All service macros pre-loaded in bulk, indexed by owner ID
      * @param bool $isPollerEncryptionReady
      *
      * @return array{Macro[], Macro[]}
@@ -480,7 +518,7 @@ class Host extends AbstractHost
     private function resolveServiceMacrosFromCache(
         array $serviceIds,
         array $serviceInheritanceLines,
-        array $allServiceMacros,
+        array $serviceMacrosByOwnerId,
         bool $isPollerEncryptionReady,
     ): array {
         $serviceMacros = [];
@@ -489,12 +527,10 @@ class Host extends AbstractHost
         foreach ($serviceIds as $serviceId) {
             $inheritanceLine = $serviceInheritanceLines[$serviceId] ?? [];
 
-            $relevantIds = array_flip(array_merge([$serviceId], $inheritanceLine));
-
-            $existingMacros = array_values(array_filter(
-                $allServiceMacros,
-                fn (Macro $macro) => isset($relevantIds[$macro->getOwnerId()])
-            ));
+            $existingMacros = $this->collectMacrosOfOwners(
+                $serviceMacrosByOwnerId,
+                array_merge([$serviceId], $inheritanceLine)
+            );
 
             [$directMacros, $indirectMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceId);
             $serviceMacros = array_merge($serviceMacros, array_values($directMacros));
