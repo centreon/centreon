@@ -48,6 +48,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
@@ -185,14 +187,67 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($host->activated);
     }
 
-    public function testItDispatchesHostUpdated(): void
+    public function testItDispatchesHostUpdatedWhenALoggedFieldChanges(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, name: 'server-old');
+
+        ($this->handler)($this->command(10, name: 'server-new'));
+
+        // A non-activation change: a single "change" line, no enable/disable.
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostUpdated::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostDisabled::class));
+    }
+
+    public function testItDispatchesNothingOnANoOpUpdate(): void
     {
         $this->addPoller(1);
         $this->seedHost(10);
 
+        // Same values as stored: ISO with legacy, which logs nothing and, here, triggers no side effect.
         ($this->handler)($this->command(10));
 
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostUpdated::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostDisabled::class));
+    }
+
+    public function testItDispatchesOnlyAnEnableWhenOnlyActivationIsTurnedOn(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, activated: false);
+
+        ($this->handler)($this->command(10, activated: true));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostEnabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostDisabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostUpdated::class));
+    }
+
+    public function testItDispatchesOnlyADisableWhenOnlyActivationIsTurnedOff(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, activated: true);
+
+        ($this->handler)($this->command(10, activated: false));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostDisabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostUpdated::class));
+    }
+
+    public function testItDispatchesBothADisableAndAChangeWhenActivationAndAnotherFieldChange(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, name: 'server-old', activated: true);
+
+        ($this->handler)($this->command(10, name: 'server-new', activated: false));
+
+        // Legacy writes two lines here (disable + change); mirror both events.
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostDisabled::class));
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostUpdated::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
     }
 
     public function testItCarriesThePreviousPollerWhenThePollerChanged(): void
@@ -211,9 +266,10 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     public function testItLeavesThePreviousPollerNullWhenUnchanged(): void
     {
         $this->addPoller(1);
-        $this->seedHost(10, pollerId: 1);
+        $this->seedHost(10, name: 'server-old', pollerId: 1);
 
-        ($this->handler)($this->command(10, pollerId: 1));
+        // Another field changes so a "change" line is produced, but the poller is the same.
+        ($this->handler)($this->command(10, name: 'server-new', pollerId: 1));
 
         /** @var list<HostUpdated> $events */
         $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);

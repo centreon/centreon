@@ -38,6 +38,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
@@ -192,9 +194,29 @@ final readonly class UpdateHostCommandHandler
 
         $this->repository->update($host);
 
-        // Carries the previous poller so both it and the new one are flagged when it changed.
-        $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
-        $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId));
+        // Activity log, ISO with legacy (Core\Host\...\DbWriteHostActionLogRepository::update): the
+        // activation flip and the rest of the change are logged independently, so an update writes 0,
+        // 1 or 2 lines — an enable/disable line when only the activation flipped, a "change" line when
+        // any other logged property differs, both when both happened, and nothing on a true no-op.
+        // The side-effect handlers (ACL reload, poller flag) catch these events via the AggregateUpdated
+        // supertype, so they run whenever something actually changed and are skipped on a no-op.
+        $activationFlipped = $existingHost->activated !== $host->activated;
+        $otherChanged = $this->loggedConfigChanged($existingHost, $host);
+
+        if ($activationFlipped) {
+            $this->eventBus->fire(
+                $host->activated
+                    ? new HostEnabled($host, $command->updatedBy)
+                    : new HostDisabled($host, $command->updatedBy),
+            );
+        }
+
+        if ($otherChanged) {
+            // Carries the previous poller so both it and the new one are flagged when it changed
+            // (the poller is one of the logged fields below, so a poller change lands here).
+            $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
+            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId));
+        }
 
         // Deferred (post-commit) purge of the now-orphaned vault entry: the pre-update host still
         // references it, so the handler resolves the right uuid from it, and a failed/rolled-back
@@ -211,6 +233,81 @@ final readonly class UpdateHostCommandHandler
         }
 
         return $host;
+    }
+
+    /**
+     * Whether any host property that the activity log records (other than the activation flag) differs
+     * between the stored host and the updated one. This mirrors exactly the field set legacy diffs to
+     * decide whether to write a "change" line (its NewHost carries only scalar properties): the host's
+     * own scalars and its scheduling/data-processing/extended/notification scalars, but NOT its
+     * relations (templates, groups, categories, parents, children), its macros, or its contact and
+     * contact-group lists — none of which legacy includes in that diff.
+     */
+    private function loggedConfigChanged(Host $before, Host $after): bool
+    {
+        return $this->loggedScalars($before) !== $this->loggedScalars($after);
+    }
+
+    /**
+     * The host properties whose change legacy records as a "change" line, flattened to comparable
+     * scalars (strings, ints, bools, enums and scalar lists). A strict comparison of two such maps is
+     * enough to decide whether anything other than the activation flag differs. Nullable composites
+     * (extended informations, notifications) contribute null for every one of their keys when absent,
+     * so "present vs absent" reads as a change.
+     *
+     * @return array<string, mixed>
+     */
+    private function loggedScalars(Host $host): array
+    {
+        $extended = $host->extendedInformations;
+        $scheduling = $host->schedulingOptions;
+        $dataProcessing = $host->dataProcessing;
+        $notifications = $host->notifications;
+
+        return [
+            'name' => $host->name->value,
+            'alias' => $host->alias?->value,
+            'address' => $host->address->value,
+            'poller' => $host->pollerId->value,
+            'snmpVersion' => $host->snmpVersion,
+            'snmpCommunity' => $host->snmpCommunity?->value,
+            'timezone' => $host->timezoneId?->value,
+            'severity' => $host->severityId?->value,
+            'noteUrl' => $extended?->noteUrl,
+            'note' => $extended?->note,
+            'actionUrl' => $extended?->actionUrl,
+            'iconId' => $extended?->iconId?->value,
+            'altIcon' => $extended?->altIcon,
+            'comment' => $extended?->comment,
+            'geoCoordinates' => (string) $extended?->geoCoordinates,
+            'checkTimeperiod' => $scheduling->checkTimeperiodId?->value,
+            'maxCheckAttempts' => $scheduling->maxCheckAttempts,
+            'normalCheckInterval' => $scheduling->normalCheckInterval,
+            'retryCheckInterval' => $scheduling->retryCheckInterval,
+            'activeChecks' => $scheduling->activeCheckEnabled,
+            'passiveChecks' => $scheduling->passiveCheckEnabled,
+            'checkFreshness' => $dataProcessing->checkFreshness,
+            'flapDetection' => $dataProcessing->flapDetectionEnabled,
+            'eventHandler' => $dataProcessing->eventHandlerEnabled,
+            'acknowledgmentTimeout' => $dataProcessing->acknowledgmentTimeout,
+            'freshnessThreshold' => $dataProcessing->freshnessThreshold,
+            'lowFlapThreshold' => $dataProcessing->lowFlapThreshold,
+            'highFlapThreshold' => $dataProcessing->highFlapThreshold,
+            'eventHandlerCommand' => $dataProcessing->eventHandlerCommandId?->value,
+            'eventHandlerArgs' => $dataProcessing->eventHandlerArgs,
+            // CheckOptions also carries macros (not logged), so only its logged parts contribute.
+            'checkCommand' => $host->checkOptions->checkCommandId?->value,
+            'checkCommandArgs' => $host->checkOptions->args,
+            // Notifications also carries contact/contact-group lists (not logged): only scalars here.
+            'notificationsEnabled' => $notifications?->enabled,
+            'notificationOptions' => $notifications?->options,
+            'notificationInterval' => $notifications?->interval,
+            'notificationPeriod' => $notifications?->periodId?->value,
+            'firstNotificationDelay' => $notifications?->firstDelay,
+            'recoveryNotificationDelay' => $notifications?->recoveryDelay,
+            'contactAdditiveInheritance' => $notifications?->contactAdditiveInheritance,
+            'contactGroupAdditiveInheritance' => $notifications?->contactGroupAdditiveInheritance,
+        ];
     }
 
     /**
