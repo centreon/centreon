@@ -14,6 +14,8 @@ import {
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
+  hostFormHostGroupsEndpoint,
+  hostFormPollersEndpoint,
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
@@ -90,6 +92,22 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostsListEndpoint}?**`,
     response: isEmpty ? emptyListingResponse : getListingResponse()
+  });
+
+  // The form reads its own selectors, granted by host write access; the
+  // listing filters below read the generic ones.
+  cy.interceptAPIRequest({
+    alias: 'getFormPollers',
+    method: Method.GET,
+    path: `**${hostFormPollersEndpoint}?**`,
+    response: getPollersResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormHostGroups',
+    method: Method.GET,
+    path: `**${hostFormHostGroupsEndpoint}?**`,
+    response: getHostGroupsResponse()
   });
 
   cy.interceptAPIRequest({

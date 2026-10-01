@@ -40,9 +40,11 @@ const adaptFormToApiPayload = (data: unknown) => {
   };
 
   return {
-    address,
+    // Trimmed as the schema validates them: yup casts before checking the
+    // length, so an untrimmed value passes `max` here and fails it server side.
+    address: address?.trim(),
     host_group_ids: (groups ?? []).map(({ id }) => id),
-    name,
+    name: name?.trim(),
     poller_id: poller?.id
   };
 };

@@ -251,9 +251,23 @@ export default () => {
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
       // Nothing picked in Relations, and the form is still saveable.
+      cy.findByTestId('host-form-groups').should('not.have.attr', 'required');
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
         'be.enabled'
       );
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      // Trimmed on the way out: the schema validates the trimmed value, so an
+      // untrimmed one would pass `max` here and fail it server side.
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body).to.deep.equals({
+          address: '10.0.0.42',
+          host_group_ids: [],
+          name: 'srv-apache-02',
+          poller_id: 2
+        });
+      });
     });
 
     it('requires a host group before saving on a cloud platform', () => {
@@ -274,11 +288,15 @@ export default () => {
         'be.disabled'
       );
 
+      // The field says so too: without this the rule and the input could be
+      // pinned to two flags that merely happen to agree.
+      cy.findByTestId('host-form-groups').should('have.attr', 'required');
+
       cy.findByTestId('host-form-groups').click();
 
-      cy.waitForRequest('@getHostGroups').then(({ request }) => {
+      cy.waitForRequest('@getFormHostGroups').then(({ request }) => {
         expect(request.url.pathname).to.contain(
-          '/api/configuration/host_groups'
+          '/api/configuration/hosts/host_groups'
         );
         expect(request.url.pathname).to.not.contain('/api/latest');
       });
@@ -309,10 +327,12 @@ export default () => {
 
       cy.findByTestId('host-form-poller').click();
 
-      // The same selector the listing filter reads, on API Platform rather
-      // than the default base the shared autocomplete falls back to.
-      cy.waitForRequest('@getPollers').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/api/configuration/pollers');
+      // The form's own selector, not the generic one the listing filter reads:
+      // it is granted by host write access and offers only active pollers.
+      cy.waitForRequest('@getFormPollers').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/pollers'
+        );
         expect(request.url.pathname).to.not.contain('/api/latest');
       });
 

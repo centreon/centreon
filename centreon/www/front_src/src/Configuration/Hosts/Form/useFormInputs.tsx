@@ -9,9 +9,9 @@ import { useTranslation } from 'react-i18next';
 
 import { namedEntitiesListDecoder } from '../api/decoders';
 import {
-  hostGroupsEndpoint,
-  hostsBaseEndpoint,
-  pollersEndpoint
+  hostFormHostGroupsEndpoint,
+  hostFormPollersEndpoint,
+  hostsBaseEndpoint
 } from '../api/endpoints';
 import {
   labelDataProcessing,
@@ -72,12 +72,10 @@ const useFormInputs = ({
     {
       connectedAutocomplete: {
         additionalConditionParameters: [],
-        // The list the listing filter reads, so a poller that can be filtered
-        // on is a poller that can be selected.
         baseEndpoint: hostsBaseEndpoint,
         customQueryParameters: [],
         decoder: namedEntitiesListDecoder,
-        endpoint: pollersEndpoint,
+        endpoint: hostFormPollersEndpoint,
         getOptionLabel: (option) => (option as SelectEntry)?.name,
         useNewAPIFormat: true
       },
@@ -95,7 +93,7 @@ const useFormInputs = ({
         chipColor: 'primary',
         customQueryParameters: [],
         decoder: namedEntitiesListDecoder,
-        endpoint: hostGroupsEndpoint,
+        endpoint: hostFormHostGroupsEndpoint,
         useNewAPIFormat: true
       },
       dataTestId: 'host-form-groups',
