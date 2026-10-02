@@ -52,7 +52,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
     {
         $this->logger->expects(self::never())->method('log');
 
-        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9)));
 
         self::assertCount(1, $this->commandBus->executed);
         $command = $this->commandBus->executed[0];
@@ -70,7 +70,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->throws = true;
         $this->logger->method('log')->willThrowException(new \RuntimeException('The logger failed.'));
 
-        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9)));
 
         self::assertCount(1, $this->commandBus->executed);
     }
@@ -80,7 +80,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->throws = true;
         $this->logger->expects(self::once())->method('log')->with('error');
 
-        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9)));
 
         self::assertCount(1, $this->commandBus->executed);
     }
@@ -94,7 +94,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->exception = ServiceDuplicationFailedException::missingLegacySession();
         $this->logger->expects(self::once())->method('log')->with('info');
 
-        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9)));
 
         self::assertCount(1, $this->commandBus->executed);
     }
@@ -108,7 +108,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->exception = ServiceDuplicationFailedException::legacyFunctionsUnavailable('boom');
         $this->logger->expects(self::once())->method('log')->with('error');
 
-        ($this->handler)(new HostServicesDuplicationRequested(new HostId(5), new HostId(9)));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9)));
 
         self::assertCount(1, $this->commandBus->executed);
     }

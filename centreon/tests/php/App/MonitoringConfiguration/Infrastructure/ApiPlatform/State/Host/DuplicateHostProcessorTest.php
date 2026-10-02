@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
@@ -114,7 +115,7 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         $pollerId = $this->insertPoller('Central');
         // A source already at the maximum name length: appending any "_<n>" suffix overflows the limit,
         // so the handler can never build a free name and surfaces a 409 rather than an unmapped 500.
-        $name = str_pad($this->uniqueName('web'), 200, 'x');
+        $name = str_pad($this->uniqueName('web'), HostName::MAX_LENGTH, 'x');
         $hostId = $this->insertHost($name, $pollerId);
 
         $this->login();
@@ -272,6 +273,33 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         );
         self::assertIsScalar($copyId, 'the copy skips the template-held "_1" and takes "_2"');
         self::assertNotSame($sourceId, (int) $copyId);
+    }
+
+    public function testItReLinksEveryServiceWhenNoneIsExclusive(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $sourceId = $this->insertHost($name, $pollerId);
+        $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        // Only a shared service: nothing needs the session-bound clone, so the duplication completes
+        // cleanly even under token auth — the cloner early-returns on an empty exclusive-service list.
+        $sharedServiceId = $this->insertService('shared');
+        $this->linkService($sourceId, $sharedServiceId);
+        $this->linkService($otherHostId, $sharedServiceId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$sourceId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+        $count = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+            [$copyId, $sharedServiceId],
+        );
+        self::assertIsScalar($count);
+        self::assertSame(1, (int) $count, 'the only (shared) service is re-linked onto the copy');
     }
 
     private function insertPoller(string $name): int

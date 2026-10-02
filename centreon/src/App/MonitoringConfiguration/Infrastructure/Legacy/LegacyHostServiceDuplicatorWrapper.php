@@ -36,7 +36,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * so it always runs. A service exclusive to the source has to be cloned, which has no new-architecture
  * equivalent yet and is delegated to the legacy procedural step (see {@see LegacyServiceCloner}); that
  * step needs the legacy session, so under a token-authenticated request the exclusive services are
- * left out (the caller swallows and logs it) while the shared ones are still re-linked.
+ * left out (DuplicateHostServicesEventHandler swallows and logs it) while the shared ones are still re-linked.
  *
  * The event carrying this is delivered after the command commits, so the copy is visible to the
  * connection (see {@see \App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested}).

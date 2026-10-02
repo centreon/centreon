@@ -36,7 +36,7 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $duplicator = new FakeHostServiceDuplicator();
 
         new DuplicateHostServicesCommandHandler($duplicator)(
-            new DuplicateHostServicesCommand(new HostId(5), new HostId(9)),
+            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
         );
 
         self::assertSame([['sourceHostId' => 5, 'newHostId' => 9]], $duplicator->duplicateCalls);
@@ -50,7 +50,7 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $this->expectException(\Throwable::class);
 
         new DuplicateHostServicesCommandHandler($duplicator)(
-            new DuplicateHostServicesCommand(new HostId(5), new HostId(9)),
+            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
         );
     }
 }

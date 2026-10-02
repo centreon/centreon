@@ -35,6 +35,11 @@ final class ServiceDuplicationFailedException extends \RuntimeException
         parent::__construct($message);
     }
 
+    /**
+     * `expected: true` is a structural verdict — there is simply no interactive legacy session on the
+     * request (typically token-authenticated). It is not a proof of the authentication mode, so a
+     * session that is unexpectedly absent would also be classified here and logged at info.
+     */
     public static function missingLegacySession(): self
     {
         return new self(

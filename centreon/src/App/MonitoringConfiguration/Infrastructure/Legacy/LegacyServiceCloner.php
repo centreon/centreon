@@ -35,8 +35,8 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedExcepti
  *  - `$pearDB`   → the shared legacy connection,
  *  - `$centreon` → the current legacy session, from which the cloned services take their author and
  *                  ACL. It only exists on a session-authenticated request, so a token-authenticated
- *                  call cannot clone services: it throws (the caller logs it, at info for this
- *                  expected case) rather than returning silently.
+ *                  call cannot clone services: it throws (DuplicateHostServicesEventHandler logs it,
+ *                  at info for this expected case) rather than returning silently.
  */
 final readonly class LegacyServiceCloner
 {
@@ -110,7 +110,20 @@ final readonly class LegacyServiceCloner
             );
         }
 
-        require_once $this->legacyBasePath() . self::LEGACY_SERVICE_FUNCTIONS_FILE;
+        $file = $this->legacyBasePath() . self::LEGACY_SERVICE_FUNCTIONS_FILE;
+        // Guard the require: a missing file would raise an uncatchable E_COMPILE_ERROR (not a Throwable),
+        // which would escape the event handler's catch and 5xx the already-committed copy.
+        if (! is_file($file)) {
+            throw ServiceDuplicationFailedException::legacyFunctionsUnavailable(
+                sprintf('Cannot locate the legacy service functions: "%s" does not exist.', $file)
+            );
+        }
+
+        require_once $file;
+
+        throw ServiceDuplicationFailedException::legacyFunctionsUnavailable(
+            sprintf('"%s" did not define %s().', $file, self::LEGACY_SERVICE_FUNCTION)
+        );
     }
 
     private function legacyBasePath(): string
