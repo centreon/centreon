@@ -23,8 +23,24 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 final class PutHostProcessorTest extends ApiTestCase
@@ -303,6 +319,179 @@ final class PutHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * The PUT response reflects the CreateHost response, Cloud included: on a Cloud platform the
+     * three on-premise-only pans of the contract are dropped exactly as CreateHostProcessor drops
+     * them. The platform is forced by swapping the container's processor (the technique the sibling
+     * CreateHostProcessorTest::forcePlatform() uses) — only the processor sees Cloud, so the input
+     * validator (which reads the compiled IS_CLOUD_PLATFORM) still accepts the on-premise blocks and
+     * it is the processor that must drop them on the way out.
+     */
+    public function testItOmitsTheCloudSensitiveFieldsOnACloudPlatform(): void
+    {
+        $this->login();
+        $this->forceCloudPlatform();
+
+        $pollerId = $this->insertPoller('Central');
+        $eventHandlerCommandId = $this->insertCommand($this->uniqueName('eh'), 2);
+        $contactId = $this->insertNotificationContact('notified');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $fetched = $this->request('PUT', $this->endpoint($hostId), [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'flap_detection_enabled' => 'false',
+                    'low_flap_threshold' => 10,
+                    'high_flap_threshold' => 60,
+                    'event_handler_enabled' => 'true',
+                    'event_handler_command_id' => $eventHandlerCommandId,
+                    'event_handler_args' => ['-w', '80'],
+                    'acknowledgment_timeout' => 15,
+                ],
+                'scheduling_options' => [
+                    'max_check_attempts' => 3,
+                    'active_check_enabled' => 'true',
+                    'passive_check_enabled' => 'false',
+                ],
+                'notifications' => [
+                    'enabled' => 'true',
+                    'contacts' => [$contactId],
+                    'options' => ['down', 'recovery'],
+                    'interval' => 30,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        $body = $fetched->toArray();
+
+        // 1. Notifications: the whole block is dropped on Cloud.
+        self::assertArrayNotHasKey('notifications', $body);
+
+        // 2. scheduling_options: the tri-state checks are dropped, the platform-agnostic fields stay.
+        $schedulingOptions = $body['scheduling_options'];
+        self::assertIsArray($schedulingOptions);
+        self::assertSame(3, $schedulingOptions['max_check_attempts']);
+        self::assertArrayNotHasKey('active_check_enabled', $schedulingOptions);
+        self::assertArrayNotHasKey('passive_check_enabled', $schedulingOptions);
+
+        // 3. data_processing: the on-premise-only members are nulled (and so omitted); the array
+        // member event_handler_args collapses to an empty list; the platform-agnostic fields stay.
+        $dataProcessing = $body['data_processing'];
+        self::assertIsArray($dataProcessing);
+        self::assertSame('true', $dataProcessing['check_freshness']);
+        self::assertSame(120, $dataProcessing['freshness_threshold']);
+        self::assertArrayNotHasKey('acknowledgment_timeout', $dataProcessing);
+        self::assertArrayNotHasKey('flap_detection_enabled', $dataProcessing);
+        self::assertArrayNotHasKey('low_flap_threshold', $dataProcessing);
+        self::assertArrayNotHasKey('high_flap_threshold', $dataProcessing);
+        self::assertSame([], $dataProcessing['event_handler_args']);
+    }
+
+    private function forceCloudPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: true);
+    }
+
+    /**
+     * PutHostProcessor shapes its Cloud-sensitive output from its own $isCloudPlatform (bound from
+     * IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by replacing
+     * the container's processor with one built with the desired value, reusing its real
+     * dependencies. Must run before the request is made (same technique as the sibling
+     * CreateHostProcessorTest::forcePlatform()).
+     */
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var CommandBus $commandBus */
+        $commandBus = $container->get(CommandBus::class);
+        /** @var HostResourceTransformer $transformer */
+        $transformer = $container->get(HostResourceTransformer::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var PollerRepository $pollerRepository */
+        $pollerRepository = $container->get(PollerRepository::class);
+        /** @var HostGroupRepository $hostGroupRepository */
+        $hostGroupRepository = $container->get(HostGroupRepository::class);
+        /** @var CommandRepository $commandRepository */
+        $commandRepository = $container->get(CommandRepository::class);
+        /** @var HostTemplateRepository $hostTemplateRepository */
+        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
+        /** @var HostCategoryRepository $hostCategoryRepository */
+        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
+        /** @var HostSeverityRepository $hostSeverityRepository */
+        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
+        /** @var TimezoneRepository $timezoneRepository */
+        $timezoneRepository = $container->get(TimezoneRepository::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var MediaRepository $mediaRepository */
+        $mediaRepository = $container->get(MediaRepository::class);
+        /** @var HostNotificationsTransformer $notificationsTransformer */
+        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        /** @var TimePeriodRepository $timePeriodRepository */
+        $timePeriodRepository = $container->get(TimePeriodRepository::class);
+
+        $container->set(
+            PutHostProcessor::class,
+            new PutHostProcessor(
+                $commandBus,
+                $transformer,
+                $security,
+                $pollerRepository,
+                $hostGroupRepository,
+                $commandRepository,
+                $hostTemplateRepository,
+                $hostCategoryRepository,
+                $hostSeverityRepository,
+                $timezoneRepository,
+                $hostRepository,
+                $mediaRepository,
+                $notificationsTransformer,
+                $mediaUrlGenerator,
+                $timePeriodRepository,
+                $isCloudPlatform,
+            ),
+        );
+    }
+
+    private function insertCommand(string $name, int $type): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => '$USER1$/check_ping -H $HOSTADDRESS$',
+            'command_type' => $type,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertNotificationContact(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $name . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     /**
