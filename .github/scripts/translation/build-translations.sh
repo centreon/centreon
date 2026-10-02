@@ -25,11 +25,13 @@ for i in lang/*.UTF-8 ; do
   bash -e ../.github/scripts/translation/make_translation.sh centreon "$langName"
   msgfmt "lang/$localefull/LC_MESSAGES/messages.po" -o "www/locale/$localefull/LC_MESSAGES/messages.mo" || exit 1
   msgfmt "lang/$localefull/LC_MESSAGES/help.po" -o "www/locale/$localefull/LC_MESSAGES/help.mo" || exit 1
-  php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.ser"
+  php bin/centreon-translations.php "$langShortName" "lang/$localefull/LC_MESSAGES/messages.po" "www/locale/$localefull/LC_MESSAGES/messages.json"
+  # messages.json is the catalog read by I18nService and container.php for React pages
+  if [[ ! -s "www/locale/$localefull/LC_MESSAGES/messages.json" ]]; then
+    echo "::error::React translation catalog www/locale/$localefull/LC_MESSAGES/messages.json was not generated."
+    exit 1
+  fi
 done
-
-mkdir -p www/locale/en_US.UTF-8/LC_MESSAGES
-php bin/centreon-translations.php en lang/fr_FR.UTF-8/LC_MESSAGES/messages.po www/locale/en_US.UTF-8/LC_MESSAGES/messages.ser
 
 if [[ "$(git diff --ignore-matching-lines="POT-Creation-Date" | wc -l)" != "0" ]]; then
   # avoid to always update POT-Creation-Date field
