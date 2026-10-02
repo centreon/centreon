@@ -328,11 +328,6 @@ describe('Main', () => {
     });
   });
 
-  // The intermediate userEndpoint check that used to sit here is gone:
-  // useMain.ts skips loadUser() entirely whenever hasUpgradeAvailable is
-  // true (see the skipped "does not redirect...connected" test below), so
-  // that request is never made. The redirect itself is still correct for a
-  // disconnected user, which is what this test actually verifies.
   it('redirects the user to the upgrade page when the retrieved web versions contains an available version and the user is disconnected', async () => {
     window.history.pushState({}, '', '/');
     mockUpgradeAndUserDisconnectedGetRequests();
@@ -358,15 +353,10 @@ describe('Main', () => {
     });
   });
 
-  // Skipped: reveals a real product bug, not stale test drift. useMain.ts's
-  // early-return on `hasUpgradeAvailable` (added in 5460ffbb6e, Aug 2023,
-  // an unrelated "dashboard widgets table" commit) also skips loadUser(),
-  // so the app can no longer tell a connected user from a disconnected one
-  // in this branch. Main/index.tsx's `canUpgrade` check is therefore always
-  // true whenever an upgrade is available, and every user - connected or
-  // not - gets redirected to /install/upgrade.php. Needs a bug ticket
-  // before this test can be revived; link it here once filed.
-  it.skip('does not redirect the user to the upgrade page when the retrieved web versions contains an available version and the user is connected', async () => {
+  // While an upgrade is pending, the database may miss the tables the
+  // platform APIs read (useMain.ts skips loadUser(), versions and features),
+  // so even a connected user must be sent to the upgrade page first.
+  it('redirects the user to the upgrade page without loading the user when the retrieved web versions contains an available version and the user is connected', async () => {
     window.history.pushState({}, '', '/');
     mockUpgradeAndUserConnectedGetRequests();
 
@@ -384,18 +374,16 @@ describe('Main', () => {
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        userEndpoint,
-        cancelTokenRequestParam
+      expect(decodeURI(window.location.href)).toBe(
+        // biome-ignore lint: test purpose
+        'http://localhost/install/upgrade.php'
       );
     });
 
-    await waitFor(() => {
-      expect(decodeURI(window.location.href)).toBe(
-        // biome-ignore lint: test purpose
-        'http://localhost/monitoring/resources'
-      );
-    });
+    expect(mockedAxios.get).not.toHaveBeenCalledWith(
+      userEndpoint,
+      expect.anything()
+    );
   });
 
   it('gets the translations, navigation data and the parameters related to the account when the user is already connected', async () => {

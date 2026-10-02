@@ -1,5 +1,8 @@
 {
-	"extends": ["./packages/js-config/biome/biome.json"],
+	"extends": [
+		"./packages/js-config/biome/biome.json",
+		"./packages/js-config/biome/tests.json"
+	],
 	"files": {
 		"includes": [
 			"**",
