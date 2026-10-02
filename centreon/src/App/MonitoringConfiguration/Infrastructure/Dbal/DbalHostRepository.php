@@ -37,6 +37,8 @@ use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -177,6 +179,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         #[Autowire(service: DbalNotificationsTransformer::class)]
         private TransformerInterface $notificationsTransformer,
         private AccessGroupRepository $accessGroupRepository,
+        private ResourceAccessRepository $resourceAccessRepository,
     ) {
     }
 
@@ -323,6 +326,27 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $row['macros'] = $this->findMacroRows($id->value);
 
         /** @var FindOneRowTypeAlias $row */
+
+        // The host groups, categories and severity are ACL-scoped on write
+        // (CreateHostCommandHandler), so the hydrated collections are filtered to the viewer's
+        // accessible ids here too — an out-of-scope association is dropped before the aggregate is
+        // built, so no later name lookup can surface it (no existence leak). The poller is left as
+        // is: it is mandatory and the host-level ACL guard above already implies its visibility.
+        if ($viewerId instanceof UserId) {
+            $row['group_ids'] = $this->scopeIdList(
+                $row['group_ids'] ?? null,
+                $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId),
+            );
+            $row['category_ids'] = $this->scopeIdList(
+                $row['category_ids'] ?? null,
+                $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId),
+            );
+            $row['severity_id'] = $this->scopeId(
+                $row['severity_id'] ?? null,
+                $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId),
+            );
+        }
+
         return $this->transformer->transform($row);
     }
 
@@ -888,6 +912,49 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
         return array_map(static fn (array $row): int => (int) $row['host_id'], $rows);
+    }
+
+    /**
+     * Keeps only the ids the viewer may access in a GROUP_CONCAT id column. A null $accessible means
+     * no restriction applies (the dimension is unrestricted for this user), so the list is returned
+     * unchanged; an empty result becomes null, the same "no ids" shape an absent relation hydrates to.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T>|null $accessible
+     */
+    private function scopeIdList(?string $idList, ?Collection $accessible): ?string
+    {
+        if ($idList === null || $idList === '' || ! $accessible instanceof Collection) {
+            return $idList;
+        }
+
+        $accessibleValues = array_map(static fn (AggregateRootId $id): int => $id->value, $accessible->toArray());
+        $kept = array_filter(
+            explode(',', $idList),
+            static fn (string $id): bool => in_array((int) $id, $accessibleValues, true),
+        );
+
+        return $kept === [] ? null : implode(',', $kept);
+    }
+
+    /**
+     * Single-id counterpart of {@see self::scopeIdList()} for the host severity: the value is kept
+     * only when accessible, otherwise nulled so the severity is simply absent from the aggregate.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T>|null $accessible
+     */
+    private function scopeId(int|string|null $id, ?Collection $accessible): int|string|null
+    {
+        if ($id === null || ! $accessible instanceof Collection) {
+            return $id;
+        }
+
+        $accessibleValues = array_map(static fn (AggregateRootId $accessibleId): int => $accessibleId->value, $accessible->toArray());
+
+        return in_array((int) $id, $accessibleValues, true) ? $id : null;
     }
 
     /**
