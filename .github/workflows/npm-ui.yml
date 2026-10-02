@@ -31,6 +31,7 @@ jobs:
     permissions:
       id-token: write  # Required for OIDC
       contents: read
+      pull-requests: write  # Required by get-environment and set-skip-label in called workflow
     needs: [dependency-scan]
     if: github.event.pull_request.head.repo.fork != true
     uses: ./.github/workflows/npm-publish-package.yml
