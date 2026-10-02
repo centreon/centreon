@@ -67,8 +67,9 @@ $tpl->assign('headerMenu_service_esc', _('Escalated Services'));
 $style = 'one';
 
 $groups = "''";
-// The selector form submits via GET (onChange), so the value lands in $_GET.
-$contactId = isset($_GET['contact']) ? (int) $_GET['contact'] : 0;
+// The selector's <select onChange='submit();'> is wrapped in the page's POST
+// form, so the chosen id is posted; some callers still pass it via GET. Read both.
+$contactId = (int) ($_POST['contact'] ?? $_GET['contact'] ?? 0);
 
 $contactUnavailable = false;
 if ($contactId && ! array_key_exists($contactId, $contact)) {

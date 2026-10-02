@@ -116,7 +116,8 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             $this->filterByCriteria($qb, $criteria);
         }
         // if no pagination
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -132,8 +133,8 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
         return new InMemoryPaginator(
             items: new Collection(array_map(fn (array $row): Connector => $this->createConnector($row), $rows), Connector::class),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -224,12 +225,13 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
 
     private function paginate(QueryBuilder $qb, ConnectorCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return;
         }
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int

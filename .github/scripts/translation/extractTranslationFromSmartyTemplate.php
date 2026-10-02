@@ -69,6 +69,9 @@ function do_file($file)
 
 	global $ldq, $rdq, $cmd;
 
+	// strip smarty comments so documentation mentioning {t} tags is not extracted
+	$content = preg_replace("/{$ldq}\*.*?\*{$rdq}/s", '', $content);
+
 	preg_match_all(
 			"/{$ldq}\s*({$cmd})\s*([^{$rdq}]*){$rdq}([^{$ldq}]*){$ldq}\/\\1{$rdq}/",
 			$content,

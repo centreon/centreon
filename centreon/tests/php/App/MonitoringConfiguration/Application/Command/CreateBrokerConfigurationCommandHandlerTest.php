@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\BrokerConfiguration\BrokerStrea
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Factory\BrokerConfigurationFactory;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeBrokerConfigurationRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeVault;
@@ -141,7 +142,7 @@ final class CreateBrokerConfigurationCommandHandlerTest extends TestCase
 
         // Re-vault happened under a fresh UUID (null) with the broker path + conventional key.
         self::assertCount(1, $vault->writeCalls);
-        self::assertSame(BrokerConfigurationFactory::BROKER_VAULT_CUSTOM_PATH, $vault->writeCalls[0]['customPath']);
+        self::assertSame(VaultPathEnum::Broker->value, $vault->writeCalls[0]['customPath']);
         self::assertSame('central-module-master-output_authorization', $vault->writeCalls[0]['key']);
         self::assertSame('the-real-token', $vault->writeCalls[0]['value']);
         self::assertNull($vault->writeCalls[0]['uuid']);

@@ -32,12 +32,17 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 
 final class FakePollerRepository implements PollerRepository
 {
     /** @var array<int, Poller> */
     public array $pollers = [];
+
+    /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
+    public array $flaggedResources = [];
 
     public function add(Poller $poller): void
     {
@@ -111,8 +116,9 @@ final class FakePollerRepository implements PollerRepository
             $pollers = array_values(array_filter($pollers, static fn (Poller $poller): bool => ! $poller->isCentral));
         }
 
-        if ($criteria instanceof PollerCriteria && $criteria->getPage() !== null && $criteria->getItemsPerPage() !== null) {
-            $pollers = array_slice($pollers, ($criteria->getPage() - 1) * $criteria->getItemsPerPage(), $criteria->getItemsPerPage());
+        $pagination = $criteria instanceof PollerCriteria ? $criteria->getPagination() : null;
+        if ($pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            $pollers = array_slice($pollers, $pagination->getOffset(), $pagination->itemsPerPage);
         }
 
         return new Collection($pollers, Poller::class);
@@ -121,6 +127,11 @@ final class FakePollerRepository implements PollerRepository
     public function get(PollerId $pollerId): Poller
     {
         return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
+    }
+
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
+    {
+        $this->flaggedResources[] = $resource;
     }
 
     public function withCmaCertificates(): self

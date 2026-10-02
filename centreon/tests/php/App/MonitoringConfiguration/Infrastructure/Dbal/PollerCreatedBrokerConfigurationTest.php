@@ -49,9 +49,11 @@ use App\Shared\Domain\VaultInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeVault;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class PollerCreatedBrokerConfigurationTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
     private const ON_PREM_CENTRAL_ADDRESS = '10.0.0.1';
     private const CLOUD_CENTRAL_ADDRESS = 'staging.euwest1.centreon.click/funky-donkey';
     private const CLOUD_BROKER_HOST = 'broker-funky-donkey-staging.euwest1.centreon.click';
@@ -74,6 +76,8 @@ final class PollerCreatedBrokerConfigurationTest extends KernelTestCase
         // Keep the broker event flow hermetic: the handler now depends on VaultInterface, whose
         // real implementation boots the legacy kernel. The on-prem flow never touches the vault.
         self::getContainer()->set(VaultInterface::class, new FakeVault());
+
+        $this->clearInstalledPlatformRows($this->connection, 'cfg_resource_instance_relations', 'cfg_resource', 'cfg_centreonbroker', 'nagios_server');
 
         $this->connection->insert('nagios_server', [
             'id' => 1,

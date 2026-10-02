@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostSeverityPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\Permission;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
 use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -66,6 +69,40 @@ final class DbalCredentialTransformerTest extends TestCase
         yield 'both' => [true, true, true, true];
     }
 
+    /**
+     * The legacy "Hosts > Categories" topology governs both host categories and host severities,
+     * so it maps to the read/write permission of each.
+     */
+    #[DataProvider('hostCategoriesTopologyProvider')]
+    public function testHostCategoriesTopologyGrantsCategoryAndSeverityPermissions(
+        string $topology,
+        string $expectedCategoryPermission,
+        string $expectedSeverityPermission,
+    ): void {
+        $credential = $this->transform(contactAdmin: false, isCloudAdmin: false, topologyPermissions: [$topology]);
+
+        self::assertTrue($credential->isPermissionGranted(new Permission($expectedCategoryPermission)));
+        self::assertTrue($credential->isPermissionGranted(new Permission($expectedSeverityPermission)));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function hostCategoriesTopologyProvider(): iterable
+    {
+        yield 'read' => [
+            'ROLE_CONFIGURATION_HOSTS_CATEGORIES_R',
+            HostCategoryPermissionEnum::CanRead->value,
+            HostSeverityPermissionEnum::CanRead->value,
+        ];
+
+        yield 'read/write' => [
+            'ROLE_CONFIGURATION_HOSTS_CATEGORIES_RW',
+            HostCategoryPermissionEnum::CanReadAndWrite->value,
+            HostSeverityPermissionEnum::CanReadAndWrite->value,
+        ];
+    }
+
     public function testIdentityIsMapped(): void
     {
         $credential = $this->transform(contactAdmin: false, isCloudAdmin: false);
@@ -75,7 +112,10 @@ final class DbalCredentialTransformerTest extends TestCase
         self::assertTrue($credential->active);
     }
 
-    private function transform(bool $contactAdmin, bool $isCloudAdmin): Credential
+    /**
+     * @param list<string> $topologyPermissions
+     */
+    private function transform(bool $contactAdmin, bool $isCloudAdmin, array $topologyPermissions = []): Credential
     {
         /** @var RowTypeAlias $row */
         $row = [
@@ -84,7 +124,7 @@ final class DbalCredentialTransformerTest extends TestCase
             'c_admin' => $contactAdmin ? '1' : '0',
             'c_active' => '1',
             'is_cloud_admin' => $isCloudAdmin,
-            'topology_permissions' => [],
+            'topology_permissions' => $topologyPermissions,
             'action_rules' => [],
         ];
 

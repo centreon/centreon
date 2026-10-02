@@ -51,7 +51,7 @@ final class LegacyValidationExceptionNormalizer implements NormalizerInterface, 
         $messages = array_map($this->convertViolationToLegacy(...), $normalized['violations']);
 
         return [
-            'code' => 400,
+            'code' => 422,
             'message' => implode("\n", $messages) . "\n",
         ];
     }
