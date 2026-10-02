@@ -8,6 +8,7 @@ import {
 export const hostsBaseEndpoint = './api';
 
 export const hostsListEndpoint = '/configuration/hosts';
+export const hostFormHostsEndpoint = hostsListEndpoint;
 
 export const hostTemplatesEndpoint = '/configuration/host_templates';
 export const hostGroupsEndpoint = '/configuration/host_groups';
@@ -20,7 +21,6 @@ export const hostFormPollersEndpoint = '/configuration/hosts/pollers';
 export const hostFormHostGroupsEndpoint = '/configuration/hosts/host_groups';
 export const hostFormHostCategoriesEndpoint =
   '/configuration/hosts/host_categories';
-export const hostFormHostsEndpoint = hostsListEndpoint;
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;

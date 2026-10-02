@@ -39,3 +39,4 @@ export const labelNameMustNotStartWithModule =
 // legacy host form raises when a name fails the same character check.
 export const labelNameContainsForbiddenCharacters = 'Unauthorized value';
 export const labelInvalidAddress = 'Not a valid IP address';
+export const labelParentAndChildHost = 'Circular Definition';

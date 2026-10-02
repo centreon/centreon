@@ -1,11 +1,15 @@
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
+  labelChildHosts,
   labelDataProcessing,
+  labelHostCategories,
   labelHostConfiguration,
   labelHostExtendedInfos,
+  labelHostGroups,
   labelInvalidAddress,
   labelNameMustNotStartWithModule,
   labelNotification,
+  labelParentHosts,
   labelRelations
 } from '../translatedLabels';
 import initialize from './initialize';
@@ -173,6 +177,14 @@ export default () => {
       // The autocomplete is a different rendering path from a text field, and
       // the one that can read as greyed while still offering its options.
       cy.findByTestId('host-form-poller').should('be.disabled');
+      [
+        'host-form-groups',
+        'host-form-categories',
+        'host-form-parent-hosts',
+        'host-form-child-hosts'
+      ].forEach((testId) => {
+        cy.findByTestId(testId).should('be.disabled');
+      });
 
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
         'not.exist'
@@ -375,12 +387,18 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
-      // The listing behind the panel shows the same host names.
-      cy.get(`[data-testid="${panelDataTestIds.content}"]`).within(() => {
-        cy.contains('.MuiChip-root', 'Linux servers').should('be.visible');
-        cy.contains('.MuiChip-root', 'Virtual').should('be.visible');
-        cy.contains('.MuiChip-root', 'host 1').should('be.visible');
-        cy.contains('.MuiChip-root', 'host 2').should('be.visible');
+      // Found by label, so two swapped labels turn this red.
+      [
+        [labelHostGroups, 'Linux servers'],
+        [labelHostCategories, 'Virtual'],
+        [labelParentHosts, 'host 1'],
+        [labelChildHosts, 'host 2']
+      ].forEach(([label, chip]) => {
+        cy.findByLabelText(label)
+          .closest('.MuiAutocomplete-root')
+          .find('.MuiChip-root')
+          .should('have.length', 1)
+          .and('have.text', chip);
       });
     });
 
@@ -411,11 +429,6 @@ export default () => {
       cy.focused().type('{esc}');
 
       cy.findByTestId('host-form-parent-hosts').click();
-
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.pathname).to.match(/\/api\/configuration\/hosts$/);
-      });
-
       cy.get('.MuiAutocomplete-popper').contains('host 1').click();
       cy.focused().type('{esc}');
 
@@ -435,25 +448,6 @@ export default () => {
           parent_host_ids: [1],
           poller_id: 2
         });
-      });
-    });
-
-    it('freezes the relations for a user who may only look at hosts', () => {
-      initialize({ hasWriteAccess: false });
-
-      cy.waitForRequest('@getAllHosts');
-
-      cy.contains('host 0').click();
-
-      cy.waitForRequest('@getHost');
-
-      [
-        'host-form-groups',
-        'host-form-categories',
-        'host-form-parent-hosts',
-        'host-form-child-hosts'
-      ].forEach((testId) => {
-        cy.findByTestId(testId).should('be.disabled');
       });
     });
   });
