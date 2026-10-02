@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\Repository;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\CurrentUserIdResolverInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Domain\Common\GeoCoords;
@@ -39,7 +39,6 @@ use Core\Service\Domain\Model\NewService;
 use Core\Service\Domain\Model\NotificationType;
 use Core\Service\Domain\Model\Service;
 use Core\Service\Infrastructure\Model\NotificationTypeConverter;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements WriteServiceRepositoryInterface
 {
@@ -47,14 +46,14 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
-     * @param TokenStorageInterface $tokenStorage
+     * @param CurrentUserIdResolverInterface $currentUserIdResolver
      * @param ReadServiceRepositoryInterface $readServiceRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
-        private readonly TokenStorageInterface $tokenStorage,
+        private readonly CurrentUserIdResolverInterface $currentUserIdResolver,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db,
@@ -78,7 +77,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $serviceId,
                 $serviceName,
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->getContactId()
+                $this->currentUserIdResolver->getUserId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -110,7 +109,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $serviceId,
                     $serviceName,
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->getContactId()
+                    $this->currentUserIdResolver->getUserId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             } catch (\Throwable $ex) {
@@ -140,7 +139,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $serviceId,
                 $newService->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->getContactId()
+                $this->currentUserIdResolver->getUserId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -185,7 +184,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     $actionType,
-                    $this->getContactId()
+                    $this->currentUserIdResolver->getUserId()
                 );
 
                 unset($diff['isActivated']);
@@ -197,7 +196,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->getContactId()
+                    $this->currentUserIdResolver->getUserId()
                 );
             }
 
@@ -235,7 +234,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service['id'],
                     $service['name'],
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->getContactId()
+                    $this->currentUserIdResolver->getUserId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -293,12 +292,5 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         }
 
         return $servicePropertiesArray;
-    }
-
-    private function getContactId(): ?int
-    {
-        $user = $this->tokenStorage->getToken()?->getUser();
-
-        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 }

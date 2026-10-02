@@ -69,6 +69,9 @@ services:
     Core\Common\Application\VaultEligibilityService:
         public: true
 
+    Core\Common\Application\CurrentUserIdResolverInterface:
+        class: Core\Common\Infrastructure\CurrentUserIdResolver
+
     # Reached from the new stack through App\Shared\Infrastructure\Legacy\LegacyContainer, which can
     # only resolve public services. LegacyServiceDeployerWrapper sets a token on it so that the
     # action log written by the legacy service-creation path keeps an author, as it does when the
