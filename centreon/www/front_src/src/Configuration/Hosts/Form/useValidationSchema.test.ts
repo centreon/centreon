@@ -4,6 +4,7 @@ import {
   labelInvalidAddress,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
+  labelParentAndChildHost,
   labelRequired
 } from '../translatedLabels';
 import useValidationSchema from './useValidationSchema';
@@ -106,6 +107,35 @@ describe('Host form validation', () => {
 
     it('asks for none anywhere else', () => {
       expect(errorFor('groups', [])).toBeNull();
+    });
+  });
+
+  describe('Parent and child hosts', () => {
+    const relationsError = (
+      parentHosts: Array<{ id: number }>,
+      childHosts: Array<{ id: number }>
+    ): string | null => {
+      try {
+        schemaFor(false).validateSyncAt('parentHosts', {
+          childHosts,
+          parentHosts
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it('refuses a host picked as both parent and child', () => {
+      expect(relationsError([{ id: 1 }, { id: 2 }], [{ id: 2 }])).toEqual(
+        labelParentAndChildHost
+      );
+    });
+
+    it('accepts distinct parents and children', () => {
+      expect(relationsError([{ id: 1 }], [{ id: 2 }])).toBeNull();
+      expect(relationsError([], [])).toBeNull();
     });
   });
 });

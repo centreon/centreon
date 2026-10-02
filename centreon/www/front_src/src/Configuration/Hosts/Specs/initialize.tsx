@@ -14,6 +14,7 @@ import {
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
+  hostFormHostCategoriesEndpoint,
   hostFormHostGroupsEndpoint,
   hostFormPollersEndpoint,
   hostGroupsEndpoint,
@@ -23,6 +24,7 @@ import {
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getHostCategoriesResponse,
   getHostGroupsResponse,
   getHostResponse,
   getHostTemplatesResponse,
@@ -74,8 +76,11 @@ const initialize = ({
     path: `**${getHostEndpoint({ id: 1 })}`,
     response: {
       address: '10.0.0.1',
+      categories: [],
+      child_hosts: [],
       groups: [],
       name: 'host 1',
+      parent_hosts: [],
       poller: { id: 1, name: 'Central' }
     }
   });
@@ -108,6 +113,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormHostGroupsEndpoint}?**`,
     response: getHostGroupsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormHostCategories',
+    method: Method.GET,
+    path: `**${hostFormHostCategoriesEndpoint}?**`,
+    response: getHostCategoriesResponse()
   });
 
   cy.interceptAPIRequest({

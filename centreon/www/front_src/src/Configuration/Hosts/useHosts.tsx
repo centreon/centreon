@@ -31,20 +31,30 @@ interface UseHostsState {
 
 // API Platform takes snake_case, and ids where the form holds the options the
 // autocompletes selected.
+const toIds = (entities: Array<{ id: number }> | null | undefined) =>
+  (entities ?? []).map(({ id }) => id);
+
 const adaptFormToApiPayload = (data: unknown) => {
-  const { name, address, poller, groups } = data as {
-    address: string;
-    groups: Array<{ id: number }> | null;
-    name: string;
-    poller: { id: number } | null;
-  };
+  const { name, address, poller, groups, categories, parentHosts, childHosts } =
+    data as {
+      address: string;
+      categories: Array<{ id: number }> | null;
+      childHosts: Array<{ id: number }> | null;
+      groups: Array<{ id: number }> | null;
+      name: string;
+      parentHosts: Array<{ id: number }> | null;
+      poller: { id: number } | null;
+    };
 
   return {
     // Trimmed as the schema validates them: yup casts before checking the
     // length, so an untrimmed value passes `max` here and fails it server side.
     address: address?.trim(),
-    host_group_ids: (groups ?? []).map(({ id }) => id),
+    category_ids: toIds(categories),
+    child_host_ids: toIds(childHosts),
+    host_group_ids: toIds(groups),
     name: name?.trim(),
+    parent_host_ids: toIds(parentHosts),
     poller_id: poller?.id
   };
 };

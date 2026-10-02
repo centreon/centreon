@@ -1,11 +1,15 @@
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
+  labelChildHosts,
   labelDataProcessing,
+  labelHostCategories,
   labelHostConfiguration,
   labelHostExtendedInfos,
+  labelHostGroups,
   labelInvalidAddress,
   labelNameMustNotStartWithModule,
   labelNotification,
+  labelParentHosts,
   labelRelations
 } from '../translatedLabels';
 import initialize from './initialize';
@@ -116,8 +120,11 @@ export default () => {
         expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          category_ids: [4],
+          child_host_ids: [2],
           host_group_ids: [1],
           name: 'host 0 as the detail endpoint spells it',
+          parent_host_ids: [1],
           poller_id: 2
         });
       });
@@ -170,6 +177,14 @@ export default () => {
       // The autocomplete is a different rendering path from a text field, and
       // the one that can read as greyed while still offering its options.
       cy.findByTestId('host-form-poller').should('be.disabled');
+      [
+        'host-form-groups',
+        'host-form-categories',
+        'host-form-parent-hosts',
+        'host-form-child-hosts'
+      ].forEach((testId) => {
+        cy.findByTestId(testId).should('be.disabled');
+      });
 
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
         'not.exist'
@@ -263,8 +278,11 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          category_ids: [],
+          child_host_ids: [],
           host_group_ids: [],
           name: 'srv-apache-02',
+          parent_host_ids: [],
           poller_id: 2
         });
       });
@@ -308,8 +326,11 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          category_ids: [],
+          child_host_ids: [],
           host_group_ids: [1],
           name: 'srv-apache-02',
+          parent_host_ids: [],
           poller_id: 2
         });
       });
@@ -347,8 +368,84 @@ export default () => {
         expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          category_ids: [],
+          child_host_ids: [],
           host_group_ids: [],
           name: 'srv-apache-02',
+          parent_host_ids: [],
+          poller_id: 2
+        });
+      });
+    });
+
+    it('opens an existing host on the relations the detail endpoint returns', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      // Found by label, so two swapped labels turn this red.
+      [
+        [labelHostGroups, 'Linux servers'],
+        [labelHostCategories, 'Virtual'],
+        [labelParentHosts, 'host 1'],
+        [labelChildHosts, 'host 2']
+      ].forEach(([label, chip]) => {
+        cy.findByLabelText(label)
+          .closest('.MuiAutocomplete-root')
+          .find('.MuiChip-root')
+          .should('have.length', 1)
+          .and('have.text', chip);
+      });
+    });
+
+    it('creates a host with its categories, parent and child hosts', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByTestId('host-form-categories').click();
+
+      cy.waitForRequest('@getFormHostCategories').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/host_categories'
+        );
+        expect(request.url.pathname).to.not.contain('/api/latest');
+      });
+
+      cy.get('.MuiAutocomplete-popper').contains('Physical').click();
+      // A multi-select stays open after a pick.
+      cy.focused().type('{esc}');
+
+      cy.findByTestId('host-form-parent-hosts').click();
+      cy.get('.MuiAutocomplete-popper').contains('host 1').click();
+      cy.focused().type('{esc}');
+
+      cy.findByTestId('host-form-child-hosts').click();
+      cy.get('.MuiAutocomplete-popper').contains('host 2').click();
+      cy.focused().type('{esc}');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body).to.deep.equals({
+          address: '10.0.0.42',
+          category_ids: [3],
+          child_host_ids: [2],
+          host_group_ids: [],
+          name: 'srv-apache-02',
+          parent_host_ids: [1],
           poller_id: 2
         });
       });
