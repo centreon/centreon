@@ -46,6 +46,7 @@ use App\MonitoringConfiguration\Domain\Event\CommandDeleted;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\ServiceCategoryCreated;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -184,6 +185,31 @@ final class LogActivityEventHandlerTest extends TestCase
         self::assertSame(2, $activityLog->actor->id->value);
         self::assertSame(1, $activityLog->target->id->value);
         self::assertSame('NAME', $activityLog->target->name->value);
+        self::assertSame(TargetTypeEnum::Host, $activityLog->target->type);
+        self::assertEquals($firedAt, $activityLog->performedAt);
+    }
+
+    public function testCreateActivityLogOnMassChange(): void
+    {
+        $repository = new FakeActivityLogRepository();
+
+        $handler = new LogActivityEventHandler($repository, $this->createContainer([
+            Host::class => new FakeActivityLogFactory(),
+        ]));
+
+        // HostMassChanged extends AggregateUpdated: this guards the match-arm ordering in the handler
+        // (a mass change must be matched before the generic AggregateUpdated -> Update arm).
+        $handler(new HostMassChanged(
+            aggregate: $this->host(),
+            creatorId: 2,
+            firedAt: $firedAt = new \DateTimeImmutable(),
+        ));
+
+        $activityLog = reset($repository->activityLogs);
+
+        self::assertInstanceof(ActivityLog::class, $activityLog);
+        self::assertSame(ActionEnum::MassChange, $activityLog->action);
+        self::assertSame(2, $activityLog->actor->id->value);
         self::assertSame(TargetTypeEnum::Host, $activityLog->target->type);
         self::assertEquals($firedAt, $activityLog->performedAt);
     }
