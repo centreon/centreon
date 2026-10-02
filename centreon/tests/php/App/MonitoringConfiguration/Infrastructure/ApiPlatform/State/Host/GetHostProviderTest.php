@@ -23,8 +23,23 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
@@ -73,6 +88,19 @@ final class GetHostProviderTest extends ApiTestCase
         $this->login();
 
         $this->request('GET', self::BASE_ENDPOINT . '/999999');
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * The route pins `{id}` to `\d+`. A non-numeric id must not match the route (404), never reach
+     * the provider — where `Assert::integer($uriVariables['id'])` would throw and surface as a 500.
+     * This locks that constraint: dropping it would turn this case into a documented 500.
+     */
+    public function testItReturns404ForANonNumericId(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT . '/not-a-number');
         self::assertResponseStatusCodeSame(404);
     }
 
@@ -238,8 +266,14 @@ final class GetHostProviderTest extends ApiTestCase
         $response = $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId);
         self::assertResponseStatusCodeSame(200);
 
+        $body = $response->toArray();
+
+        // With every extended field empty, the whole sub-object is nulled (and so omitted), never
+        // emitted as an all-null object the serializer would collapse to an invalid `[]`.
+        self::assertArrayNotHasKey('extended_informations', $body);
+
         /** @var array<string, mixed> $notifications */
-        $notifications = $response->toArray()['notifications'];
+        $notifications = $body['notifications'];
         // Drop the hydra/JSON-LD metadata ApiPlatform adds to every nested object.
         $notifications = array_filter($notifications, static fn (string $key): bool => ! str_starts_with($key, '@'), ARRAY_FILTER_USE_KEY);
 
@@ -288,6 +322,161 @@ final class GetHostProviderTest extends ApiTestCase
 
         $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * The GET body reflects the CreateHost response, Cloud included: on a Cloud platform the three
+     * on-premise-only pans of the contract are dropped exactly as CreateHostProcessor drops them
+     * (CreateHostProcessorTest::testItOmitsTheOnPremiseOnlyDataProcessingFieldsOnCloud,
+     * ::testItOmitsTheTriStateFieldsOnACloudPlatform, ::testItDropsTheNotificationsOnACloudPlatform).
+     * The host is created on-premises (default platform) so every on-premise field is persisted,
+     * then the provider is forced to Cloud and the host re-read: the shaping must happen on read,
+     * not leak the stored on-premise values.
+     */
+    public function testItOmitsTheCloudSensitiveFieldsOnACloudPlatform(): void
+    {
+        $this->login();
+
+        $pollerId = $this->insertPoller('Central');
+        $eventHandlerCommandId = $this->insertCommand($this->uniqueName('eh'), 2);
+        $timePeriodId = $this->insertTimePeriod($this->uniqueName('24x7'));
+        $contactId = $this->insertNotificationContact('notified');
+        $name = $this->uniqueName('server');
+
+        // Created on-premises: acknowledgment_timeout, the flap settings, event_handler_args, the
+        // tri-state checks and the notifications block are all persisted.
+        $created = $this->request('POST', self::BASE_ENDPOINT, [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.70',
+                'poller_id' => $pollerId,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'flap_detection_enabled' => 'false',
+                    'low_flap_threshold' => 10,
+                    'high_flap_threshold' => 60,
+                    'event_handler_enabled' => 'true',
+                    'event_handler_command_id' => $eventHandlerCommandId,
+                    'event_handler_args' => ['-w', '80'],
+                    'acknowledgment_timeout' => 15,
+                ],
+                'scheduling_options' => [
+                    'check_timeperiod_id' => $timePeriodId,
+                    'max_check_attempts' => 3,
+                    'active_check_enabled' => 'true',
+                    'passive_check_enabled' => 'false',
+                ],
+                'notifications' => [
+                    'enabled' => 'true',
+                    'contacts' => [$contactId],
+                    'options' => ['down', 'recovery'],
+                    'interval' => 30,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var int $hostId */
+        $hostId = $created->toArray()['id'];
+
+        $this->forceCloudPlatform();
+
+        $fetched = $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId, [
+            'headers' => ['accept' => 'application/json'],
+        ]);
+        self::assertResponseStatusCodeSame(200);
+        $getBody = $fetched->toArray();
+
+        // 1. Notifications: the whole block is dropped on Cloud.
+        self::assertArrayNotHasKey('notifications', $getBody);
+
+        // 2. scheduling_options: the tri-state checks are dropped, the platform-agnostic fields stay.
+        $schedulingOptions = $getBody['scheduling_options'];
+        self::assertIsArray($schedulingOptions);
+        self::assertSame(3, $schedulingOptions['max_check_attempts']);
+        self::assertArrayNotHasKey('active_check_enabled', $schedulingOptions);
+        self::assertArrayNotHasKey('passive_check_enabled', $schedulingOptions);
+
+        // 3. data_processing: the on-premise-only members are nulled (and so omitted); the array
+        // member event_handler_args collapses to an empty list; the platform-agnostic fields stay.
+        $dataProcessing = $getBody['data_processing'];
+        self::assertIsArray($dataProcessing);
+        self::assertSame('true', $dataProcessing['check_freshness']);
+        self::assertSame(120, $dataProcessing['freshness_threshold']);
+        self::assertArrayNotHasKey('acknowledgment_timeout', $dataProcessing);
+        self::assertArrayNotHasKey('flap_detection_enabled', $dataProcessing);
+        self::assertArrayNotHasKey('low_flap_threshold', $dataProcessing);
+        self::assertArrayNotHasKey('high_flap_threshold', $dataProcessing);
+        self::assertSame([], $dataProcessing['event_handler_args']);
+    }
+
+    private function forceCloudPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: true);
+    }
+
+    /**
+     * GetHostProvider shapes its Cloud-sensitive output from its own $isCloudPlatform (bound from
+     * IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by replacing
+     * the container's provider with one built with the desired value, reusing its real
+     * dependencies. Must run before the request is made (same technique as the sibling
+     * CreateHostProcessorTest::forcePlatform()).
+     */
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var HostResourceTransformer $transformer */
+        $transformer = $container->get(HostResourceTransformer::class);
+        /** @var HostNotificationsTransformer $notificationsTransformer */
+        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var PollerRepository $pollerRepository */
+        $pollerRepository = $container->get(PollerRepository::class);
+        /** @var HostGroupRepository $hostGroupRepository */
+        $hostGroupRepository = $container->get(HostGroupRepository::class);
+        /** @var CommandRepository $commandRepository */
+        $commandRepository = $container->get(CommandRepository::class);
+        /** @var HostTemplateRepository $hostTemplateRepository */
+        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
+        /** @var HostCategoryRepository $hostCategoryRepository */
+        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
+        /** @var HostSeverityRepository $hostSeverityRepository */
+        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
+        /** @var TimezoneRepository $timezoneRepository */
+        $timezoneRepository = $container->get(TimezoneRepository::class);
+        /** @var MediaRepository $mediaRepository */
+        $mediaRepository = $container->get(MediaRepository::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        /** @var TimePeriodRepository $timePeriodRepository */
+        $timePeriodRepository = $container->get(TimePeriodRepository::class);
+
+        $container->set(
+            GetHostProvider::class,
+            new GetHostProvider(
+                $transformer,
+                $notificationsTransformer,
+                $security,
+                $hostRepository,
+                $pollerRepository,
+                $hostGroupRepository,
+                $commandRepository,
+                $hostTemplateRepository,
+                $hostCategoryRepository,
+                $hostSeverityRepository,
+                $timezoneRepository,
+                $mediaRepository,
+                $mediaUrlGenerator,
+                $timePeriodRepository,
+                $isCloudPlatform,
+            ),
+        );
     }
 
     private function insertPoller(string $name): int
