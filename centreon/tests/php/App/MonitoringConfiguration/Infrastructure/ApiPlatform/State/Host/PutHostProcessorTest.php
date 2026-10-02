@@ -1,0 +1,584 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
+
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Shared\Application\Command\CommandBus;
+use Doctrine\DBAL\Connection;
+use Symfony\Bundle\SecurityBundle\Security;
+use Tests\App\Shared\ApiTestCase;
+
+final class PutHostProcessorTest extends ApiTestCase
+{
+    private Connection $connection;
+
+    private Connection $realTimeConnection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
+
+        // The activity log (log_action) lives in centstorage, on the realtime connection.
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $this->realTimeConnection = $realTimeConnection;
+    }
+
+    public function testItRequiresAuthentication(): void
+    {
+        $this->request('PUT', $this->endpoint(1), ['json' => []]);
+
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testItIsForbiddenForUserWithoutSufficientAcl(): void
+    {
+        $username = bin2hex(random_bytes(8));
+        $this->createApiUser($this->connection, $username, admin: false);
+        $this->login($username);
+
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($this->uniqueName('server'), $pollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testItUpdatesAHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $groupId = $this->insertHostGroup('Linux servers');
+        $hostId = $this->insertHost($this->uniqueName('server-old'), $pollerId);
+        $newName = $this->uniqueName('server-new');
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $newName,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+                'host_group_ids' => [$groupId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'id' => $hostId,
+            'name' => $newName,
+            'address' => '10.0.0.9',
+            'activated' => true,
+            'poller' => ['id' => $pollerId, 'name' => 'Central'],
+            'groups' => [
+                ['id' => $groupId, 'name' => 'Linux servers'],
+            ],
+        ]);
+
+        self::assertSame(
+            $newName,
+            $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]),
+        );
+    }
+
+    public function testItReturns404ForAnUnknownHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('PUT', $this->endpoint(999999), [
+            'json' => $this->payload($this->uniqueName('server'), $pollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testItReturns409WhenTheNameIsUsedByAnotherHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $otherName = $this->uniqueName('other');
+        $this->insertHost($otherName, $pollerId);
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($otherName, $pollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(409);
+    }
+
+    public function testItAllowsAHostToKeepItsOwnName(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($name, $pollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+    }
+
+    public function testItReturns422ForABlankName(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => '   ',
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItChangesTheActivationState(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertJsonContains(['activated' => false]);
+        self::assertSame(
+            '0',
+            $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]),
+        );
+    }
+
+    public function testItFlagsBothPollersWhenThePollerChanges(): void
+    {
+        $this->login();
+        $oldPollerId = $this->insertPoller('poller-old');
+        $newPollerId = $this->insertPoller('poller-new');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $oldPollerId);
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $oldPollerId]);
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $newPollerId]);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($name, $newPollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$newPollerId]));
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$oldPollerId]));
+    }
+
+    public function testItWritesASingleChangeLineWhenOnlyNonActivationFieldsChange(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        // Stored with host_activate = '1'; the PUT keeps it activated, so only the address changes.
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        // ISO with legacy: a change that does not flip activation writes exactly one "change" line.
+        self::assertSame(['c'], $this->logActionTypes($hostId));
+    }
+
+    public function testItWritesADisableAndAChangeLineWhenActivationAndOtherFieldsChange(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        // Stored activated; the PUT turns it off and also changes the address.
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        // ISO with legacy: activation flip + other change writes two lines, a disable and a change.
+        self::assertSame(['c', 'disable'], $this->logActionTypes($hostId));
+    }
+
+    public function testItRejectsACircularRelation(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('edited');
+        $editedId = $this->insertHost($name, $pollerId);
+        $childId = $this->insertHost($this->uniqueName('child'), $pollerId);
+        $parentId = $this->insertHost($this->uniqueName('parent'), $pollerId);
+
+        // Existing chain edited -> child -> parent. Setting parent as the edited host's parent while
+        // keeping child as its child closes the loop edited -> child -> parent -> edited.
+        $this->insertParentRelation(childId: $childId, parentId: $editedId);
+        $this->insertParentRelation(childId: $parentId, parentId: $childId);
+
+        $this->request('PUT', $this->endpoint($editedId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+                'parent_host_ids' => [$parentId],
+                'child_host_ids' => [$childId],
+            ],
+        ]);
+
+        // The circular-relation conflict names an input field (parent_host_ids), so the
+        // InvalidReferenceExceptionListener surfaces it as a 422 validation error, like the create path.
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAHostReferencingItselfAsParent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        // Self as parent with no children: exercises the handler's self-reference guard (a 422),
+        // not the aggregate's raw assertion (which would be a 500).
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+                'parent_host_ids' => [$hostId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * The PUT response reflects the CreateHost response, Cloud included: on a Cloud platform the
+     * three on-premise-only pans of the contract are dropped exactly as CreateHostProcessor drops
+     * them. The platform is forced by swapping the container's processor (the technique the sibling
+     * CreateHostProcessorTest::forcePlatform() uses) — only the processor sees Cloud, so the input
+     * validator (which reads the compiled IS_CLOUD_PLATFORM) still accepts the on-premise blocks and
+     * it is the processor that must drop them on the way out.
+     */
+    public function testItOmitsTheCloudSensitiveFieldsOnACloudPlatform(): void
+    {
+        $this->login();
+        $this->forceCloudPlatform();
+
+        $pollerId = $this->insertPoller('Central');
+        $eventHandlerCommandId = $this->insertCommand($this->uniqueName('eh'), 2);
+        $contactId = $this->insertNotificationContact('notified');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $fetched = $this->request('PUT', $this->endpoint($hostId), [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                'activated' => true,
+                'data_processing' => [
+                    'check_freshness' => 'true',
+                    'freshness_threshold' => 120,
+                    'flap_detection_enabled' => 'false',
+                    'low_flap_threshold' => 10,
+                    'high_flap_threshold' => 60,
+                    'event_handler_enabled' => 'true',
+                    'event_handler_command_id' => $eventHandlerCommandId,
+                    'event_handler_args' => ['-w', '80'],
+                    'acknowledgment_timeout' => 15,
+                ],
+                'scheduling_options' => [
+                    'max_check_attempts' => 3,
+                    'active_check_enabled' => 'true',
+                    'passive_check_enabled' => 'false',
+                ],
+                'notifications' => [
+                    'enabled' => 'true',
+                    'contacts' => [$contactId],
+                    'options' => ['down', 'recovery'],
+                    'interval' => 30,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        $body = $fetched->toArray();
+
+        // 1. Notifications: the whole block is dropped on Cloud.
+        self::assertArrayNotHasKey('notifications', $body);
+
+        // 2. scheduling_options: the tri-state checks are dropped, the platform-agnostic fields stay.
+        $schedulingOptions = $body['scheduling_options'];
+        self::assertIsArray($schedulingOptions);
+        self::assertSame(3, $schedulingOptions['max_check_attempts']);
+        self::assertArrayNotHasKey('active_check_enabled', $schedulingOptions);
+        self::assertArrayNotHasKey('passive_check_enabled', $schedulingOptions);
+
+        // 3. data_processing: the on-premise-only members are nulled (and so omitted); the array
+        // member event_handler_args collapses to an empty list; the platform-agnostic fields stay.
+        $dataProcessing = $body['data_processing'];
+        self::assertIsArray($dataProcessing);
+        self::assertSame('true', $dataProcessing['check_freshness']);
+        self::assertSame(120, $dataProcessing['freshness_threshold']);
+        self::assertArrayNotHasKey('acknowledgment_timeout', $dataProcessing);
+        self::assertArrayNotHasKey('flap_detection_enabled', $dataProcessing);
+        self::assertArrayNotHasKey('low_flap_threshold', $dataProcessing);
+        self::assertArrayNotHasKey('high_flap_threshold', $dataProcessing);
+        self::assertSame([], $dataProcessing['event_handler_args']);
+    }
+
+    private function forceCloudPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: true);
+    }
+
+    /**
+     * PutHostProcessor shapes its Cloud-sensitive output from its own $isCloudPlatform (bound from
+     * IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by replacing
+     * the container's processor with one built with the desired value, reusing its real
+     * dependencies. Must run before the request is made (same technique as the sibling
+     * CreateHostProcessorTest::forcePlatform()).
+     */
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var CommandBus $commandBus */
+        $commandBus = $container->get(CommandBus::class);
+        /** @var HostResourceTransformer $transformer */
+        $transformer = $container->get(HostResourceTransformer::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+        /** @var PollerRepository $pollerRepository */
+        $pollerRepository = $container->get(PollerRepository::class);
+        /** @var HostGroupRepository $hostGroupRepository */
+        $hostGroupRepository = $container->get(HostGroupRepository::class);
+        /** @var CommandRepository $commandRepository */
+        $commandRepository = $container->get(CommandRepository::class);
+        /** @var HostTemplateRepository $hostTemplateRepository */
+        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
+        /** @var HostCategoryRepository $hostCategoryRepository */
+        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
+        /** @var HostSeverityRepository $hostSeverityRepository */
+        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
+        /** @var TimezoneRepository $timezoneRepository */
+        $timezoneRepository = $container->get(TimezoneRepository::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var MediaRepository $mediaRepository */
+        $mediaRepository = $container->get(MediaRepository::class);
+        /** @var HostNotificationsTransformer $notificationsTransformer */
+        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        /** @var TimePeriodRepository $timePeriodRepository */
+        $timePeriodRepository = $container->get(TimePeriodRepository::class);
+
+        $container->set(
+            PutHostProcessor::class,
+            new PutHostProcessor(
+                $commandBus,
+                $transformer,
+                $security,
+                $pollerRepository,
+                $hostGroupRepository,
+                $commandRepository,
+                $hostTemplateRepository,
+                $hostCategoryRepository,
+                $hostSeverityRepository,
+                $timezoneRepository,
+                $hostRepository,
+                $mediaRepository,
+                $notificationsTransformer,
+                $mediaUrlGenerator,
+                $timePeriodRepository,
+                $isCloudPlatform,
+            ),
+        );
+    }
+
+    private function insertCommand(string $name, int $type): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => '$USER1$/check_ping -H $HOSTADDRESS$',
+            'command_type' => $type,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertNotificationContact(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $name . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * The host's activity-log action types, sorted, so a caller can assert the set regardless of
+     * insertion order.
+     *
+     * @return list<string>
+     */
+    private function logActionTypes(int $hostId): array
+    {
+        /** @var list<string> $types */
+        $types = $this->realTimeConnection->fetchFirstColumn(
+            "SELECT action_type FROM log_action WHERE object_id = ? AND object_type = 'host'",
+            [$hostId],
+        );
+        sort($types);
+
+        return $types;
+    }
+
+    private function insertParentRelation(int $childId, int $parentId): void
+    {
+        $this->connection->insert('host_hostparent_relation', [
+            'host_host_id' => $childId,
+            'host_parent_hp_id' => $parentId,
+        ]);
+    }
+
+    private function endpoint(int $id): string
+    {
+        return '/api/configuration/hosts/' . $id;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function payload(string $name, int $pollerId): array
+    {
+        return [
+            'name' => $name,
+            'address' => '10.0.0.9',
+            'poller_id' => $pollerId,
+            'activated' => true,
+        ];
+    }
+
+    private function uniqueName(string $prefix = 'host'): string
+    {
+        return $prefix . '_' . bin2hex(random_bytes(4));
+    }
+
+    private function insertPoller(string $name): int
+    {
+        $this->connection->insert('nagios_server', [
+            'name' => $name,
+            'ns_ip_address' => '127.0.0.1',
+            'uid' => random_int(1, \PHP_INT_MAX),
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostGroup(string $name): int
+    {
+        $this->connection->insert('hostgroup', ['hg_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHost(string $name, int $pollerId): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_address' => '127.0.0.1',
+            'host_activate' => '1',
+            'host_register' => '1',
+        ]);
+        $hostId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('ns_host_relation', [
+            'host_host_id' => $hostId,
+            'nagios_server_id' => $pollerId,
+        ]);
+
+        // Every registered host has a companion row in practice; update() UPDATEs it, so mirror that.
+        $this->connection->insert('extended_host_information', ['host_host_id' => $hostId]);
+
+        return $hostId;
+    }
+}

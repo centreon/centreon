@@ -298,6 +298,15 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
     }
 
+    public function testFlagAsChangedByIdSetsTheUpdatedColumn(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChangedById(new PollerId(1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
     private function buildHost(int $pollerId): Host
     {
         $host = new Host(

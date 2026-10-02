@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -43,6 +44,9 @@ final class FakePollerRepository implements PollerRepository
 
     /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
     public array $flaggedResources = [];
+
+    /** @var list<int> every poller id flagged as changed, whether via an aggregate or by id */
+    public array $flaggedPollerIds = [];
 
     public function add(Poller $poller): void
     {
@@ -132,6 +136,14 @@ final class FakePollerRepository implements PollerRepository
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
         $this->flaggedResources[] = $resource;
+        if ($resource instanceof Host) {
+            $this->flaggedPollerIds[] = $resource->pollerId->value;
+        }
+    }
+
+    public function flagAsChangedById(PollerId $pollerId): void
+    {
+        $this->flaggedPollerIds[] = $pollerId->value;
     }
 
     public function withCmaCertificates(): self
