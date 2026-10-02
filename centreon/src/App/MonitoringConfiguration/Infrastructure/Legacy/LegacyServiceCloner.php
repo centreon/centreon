@@ -59,8 +59,15 @@ final readonly class LegacyServiceCloner
             return;
         }
 
-        $session = $this->requireSession();
-        $this->requireLegacyServiceFunctions();
+        $centreon = $this->requireSession();
+
+        // Required here, with the validated session held in a local $centreon (not inside the helper):
+        // DB-Func.php calls exit() at include time when no $centreon is in scope (its top-level guard),
+        // which would kill the whole request before multipleServiceInDB ever runs.
+        $file = $this->resolveLegacyServiceFunctionsFile();
+        if ($file !== null) {
+            require_once $file;
+        }
 
         // The legacy function wants the services as an id-keyed map and a parallel map of per-service
         // host counts (always 1 here: these are the services exclusive to the source).
@@ -70,7 +77,7 @@ final readonly class LegacyServiceCloner
         $previousPearDB = $GLOBALS['pearDB'] ?? null;
         $previousCentreon = $GLOBALS['centreon'] ?? null;
         $GLOBALS['pearDB'] = \CentreonDBInstance::getDbCentreonInstance();
-        $GLOBALS['centreon'] = $session;
+        $GLOBALS['centreon'] = $centreon;
 
         try {
             // Resolved behind a typed accessor so static analysis does not try to resolve the legacy
@@ -99,10 +106,13 @@ final readonly class LegacyServiceCloner
         return $session;
     }
 
-    private function requireLegacyServiceFunctions(): void
+    /**
+     * @return string|null the legacy functions file to require, or null when already loaded
+     */
+    private function resolveLegacyServiceFunctionsFile(): ?string
     {
         if (function_exists(self::LEGACY_SERVICE_FUNCTION)) {
-            return;
+            return null;
         }
         if (! defined('_CENTREON_PATH_')) {
             throw ServiceDuplicationFailedException::legacyFunctionsUnavailable(
@@ -119,11 +129,7 @@ final readonly class LegacyServiceCloner
             );
         }
 
-        require_once $file;
-
-        throw ServiceDuplicationFailedException::legacyFunctionsUnavailable(
-            sprintf('"%s" did not define %s().', $file, self::LEGACY_SERVICE_FUNCTION)
-        );
+        return $file;
     }
 
     private function legacyBasePath(): string
