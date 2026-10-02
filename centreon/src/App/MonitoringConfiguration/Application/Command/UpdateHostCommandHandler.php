@@ -26,9 +26,11 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -226,7 +228,7 @@ final readonly class UpdateHostCommandHandler
         // The side-effect handlers (ACL reload, poller flag) catch these events via the AggregateUpdated
         // supertype, so they run whenever something actually changed and are skipped on a no-op.
         $activationFlipped = $existingHost->activated !== $host->activated;
-        $otherChanged = $this->loggedConfigChanged($existingHost, $host);
+        $loggedChange = $this->loggedConfigChanged($existingHost, $host);
 
         if ($activationFlipped) {
             $this->eventBus->fire(
@@ -236,11 +238,20 @@ final readonly class UpdateHostCommandHandler
             );
         }
 
-        if ($otherChanged) {
-            // Carries the previous poller so both it and the new one are flagged when it changed
-            // (the poller is one of the logged fields below, so a poller change lands here).
-            $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
+        // Carries the previous poller so both it and the new one are flagged when it changed (the
+        // poller is a logged field, so a poller change always lands on the loggable branch below).
+        $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
+
+        if ($loggedChange) {
+            // Writes a "change" line and, via the AggregateUpdated supertype, runs the side effects.
             $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId));
+        } elseif (! $activationFlipped && $this->nonLoggedConfigChanged($existingHost, $host)) {
+            // Only properties legacy never logs changed (host groups, templates, categories, parent/
+            // child hosts, macros or notification contacts). Logging and the side effects (engine flag,
+            // ACL reload) are independent effects of the update, not a chain reaction: fire a
+            // non-loggable event so the engine still regenerates and the ACL still reloads, with no log
+            // line. (When activation also flipped, the enable/disable event above already runs them.)
+            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId, loggable: false));
         }
 
         // Deferred (post-commit) purge of the now-orphaned vault entry: the pre-update host still
@@ -333,6 +344,87 @@ final readonly class UpdateHostCommandHandler
             'contactAdditiveInheritance' => $notifications?->contactAdditiveInheritance,
             'contactGroupAdditiveInheritance' => $notifications?->contactGroupAdditiveInheritance,
         ];
+    }
+
+    /**
+     * Whether any persisted property legacy never logs changed: host groups, templates, categories,
+     * parent/child hosts, macros or notification contacts. Combined with {@see self::loggedConfigChanged()}
+     * (the logged scalars), this tells whether the host changed at all — so the side effects (engine
+     * flag, ACL reload) run on any real change while a no-op update still triggers nothing. Erring
+     * towards a change is safe (the side effects are idempotent); missing one would leave the engine or
+     * the ACL stale.
+     */
+    private function nonLoggedConfigChanged(Host $before, Host $after): bool
+    {
+        if (! $this->sameIdSet($before->hostGroupIds, $after->hostGroupIds)) {
+            return true;
+        }
+        if (! $this->sameIdSet($before->templateIds, $after->templateIds)) {
+            return true;
+        }
+        if (! $this->sameIdSet($before->categoryIds, $after->categoryIds)) {
+            return true;
+        }
+        if (! $this->sameIdSet($before->parentHostIds, $after->parentHostIds)) {
+            return true;
+        }
+        if (! $this->sameIdSet($before->childHostIds, $after->childHostIds)) {
+            return true;
+        }
+        if ($this->macroSignature($before) !== $this->macroSignature($after)) {
+            return true;
+        }
+        return $this->contactSignature($before) !== $this->contactSignature($after);
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $before
+     * @param Collection<T> $after
+     */
+    private function sameIdSet(Collection $before, Collection $after): bool
+    {
+        $beforeValues = array_map(static fn (AggregateRootId $id): int => $id->value, $before->toArray());
+        $afterValues = array_map(static fn (AggregateRootId $id): int => $id->value, $after->toArray());
+        sort($beforeValues);
+        sort($afterValues);
+
+        return $beforeValues === $afterValues;
+    }
+
+    /**
+     * @return list<string> one entry per macro, carrying every persisted part so any change is seen
+     */
+    private function macroSignature(Host $host): array
+    {
+        return array_map(
+            static fn (HostMacro $macro): string => implode('|', [
+                $macro->name->value,
+                $macro->value,
+                $macro->isPassword ? '1' : '0',
+                $macro->description ?? '',
+            ]),
+            $host->checkOptions->macros,
+        );
+    }
+
+    /**
+     * @return array{contacts: list<int>, contactGroups: list<int>}
+     */
+    private function contactSignature(Host $host): array
+    {
+        $notifications = $host->notifications;
+        if (! $notifications instanceof Notifications) {
+            return ['contacts' => [], 'contactGroups' => []];
+        }
+
+        $contacts = array_map(static fn (NotificationContactId $id): int => $id->value, $notifications->contactIds->toArray());
+        $contactGroups = array_map(static fn (ContactGroupId $id): int => $id->value, $notifications->contactGroupIds->toArray());
+        sort($contacts);
+        sort($contactGroups);
+
+        return ['contacts' => $contacts, 'contactGroups' => $contactGroups];
     }
 
     /**

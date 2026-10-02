@@ -38,7 +38,8 @@ final readonly class HostUpdated extends AggregateUpdated
         Host $host,
         int $creatorId,
         public ?PollerId $previousPollerId = null,
+        bool $loggable = true,
     ) {
-        parent::__construct($host, $creatorId);
+        parent::__construct($host, $creatorId, loggable: $loggable);
     }
 }

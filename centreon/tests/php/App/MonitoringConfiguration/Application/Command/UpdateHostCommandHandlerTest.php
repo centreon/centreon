@@ -397,6 +397,49 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame(2, $host->severityId?->value);
     }
 
+    public function testItFiresANonLoggableUpdateWhenOnlyRelationsChange(): void
+    {
+        $this->addPoller(1);
+        $this->hostGroupRepository->hostGroups[1] = new HostGroup(new HostGroupId(1), new HostGroupName('g1'));
+        $this->hostGroupRepository->hostGroups[2] = new HostGroup(new HostGroupId(2), new HostGroupName('g2'));
+        $this->seedHost(10, hostGroupIds: new Collection([new HostGroupId(1)], HostGroupId::class));
+
+        // Adding a group changes nothing legacy logs, but the engine and ACL must still refresh.
+        ($this->handler)($this->command(
+            10,
+            hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class),
+        ));
+
+        /** @var list<HostUpdated> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);
+        self::assertCount(1, $events);
+        // The side effects run (HostUpdated is dispatched) but the activity log stays silent.
+        self::assertFalse($events[0]->loggable);
+    }
+
+    public function testItFiresALoggableUpdateWhenALoggedFieldChanges(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, name: 'server-old');
+
+        ($this->handler)($this->command(10, name: 'server-new'));
+
+        /** @var list<HostUpdated> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);
+        self::assertCount(1, $events);
+        self::assertTrue($events[0]->loggable);
+    }
+
+    public function testItFiresNoUpdateEventWhenNothingChanges(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10);
+
+        ($this->handler)($this->command(10));
+
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostUpdated::class));
+    }
+
     public function testItDoesNotPreserveWhenTheViewerIsUnrestricted(): void
     {
         $this->addPoller(1);
