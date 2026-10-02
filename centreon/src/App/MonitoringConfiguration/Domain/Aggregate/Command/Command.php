@@ -106,6 +106,15 @@ final class Command extends AggregateRoot
         $this->connector = null;
     }
 
+    public function isCentreonMonitoringAgent(): bool
+    {
+        return $this->isFromMonitoringConnector
+            && (
+                str_contains($this->name->value, CommandName::CENTREON_MONITORING_AGENT_MARKER)
+                || str_contains($this->name->value, CommandName::CMA_MARKER)
+            );
+    }
+
     public static function getWritePermissionForType(CommandTypeEnum $type): CommandPermissionEnum
     {
         return match($type) {
