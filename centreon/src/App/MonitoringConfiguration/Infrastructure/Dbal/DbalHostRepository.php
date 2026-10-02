@@ -420,22 +420,36 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('hostId', $hostId, ParameterType::INTEGER)
             ->executeStatement();
 
-        // The companion row always exists (add() always inserts it, like legacy) — so UPDATE, never INSERT.
-        $this->connection->createQueryBuilder()
-            ->update('extended_host_information')
-            ->set('ehi_notes_url', ':noteUrl')
-            ->set('ehi_notes', ':note')
-            ->set('ehi_action_url', ':actionUrl')
-            ->set('ehi_icon_image', ':iconId')
-            ->set('ehi_icon_image_alt', ':iconAlternative')
-            ->where('host_host_id = :hostId')
-            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
-            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
-            ->setParameter('note', $extendedInformations?->note)
-            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
-            ->setParameter('iconId', $extendedInformations?->iconId?->value)
-            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
-            ->executeStatement();
+        // The companion row is normally inserted by add() (like legacy), but legacy-migrated hosts can
+        // lack it. Upsert on the `host_host_id` unique key so a PUT setting notes/icon/alt on such a
+        // host persists rather than matching no row and silently dropping them. VALUES() is used (not
+        // the aliased form) as it is the one portable to every supported MariaDB and MySQL version.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO extended_host_information
+                    (host_host_id, ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt)
+                VALUES
+                    (:hostId, :noteUrl, :note, :actionUrl, :iconId, :iconAlternative)
+                ON DUPLICATE KEY UPDATE
+                    ehi_notes_url = VALUES(ehi_notes_url),
+                    ehi_notes = VALUES(ehi_notes),
+                    ehi_action_url = VALUES(ehi_action_url),
+                    ehi_icon_image = VALUES(ehi_icon_image),
+                    ehi_icon_image_alt = VALUES(ehi_icon_image_alt)
+                SQL,
+            [
+                'hostId' => $hostId,
+                'noteUrl' => $extendedInformations?->noteUrl,
+                'note' => $extendedInformations?->note,
+                'actionUrl' => $extendedInformations?->actionUrl,
+                'iconId' => $extendedInformations?->iconId?->value,
+                'iconAlternative' => $extendedInformations?->altIcon,
+            ],
+            [
+                'hostId' => ParameterType::INTEGER,
+                'iconId' => ParameterType::INTEGER,
+            ],
+        );
 
         // Every relation is replaced wholesale: clear this host's rows, then re-insert from $host,
         // exactly as add() would write them for a new host.
