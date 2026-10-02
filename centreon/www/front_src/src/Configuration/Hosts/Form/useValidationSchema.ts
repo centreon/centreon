@@ -5,6 +5,7 @@ import {
   labelInvalidAddress,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
+  labelParentAndChildHost,
   labelRequired
 } from '../translatedLabels';
 
@@ -63,6 +64,17 @@ const useValidationSchema = ({
         (value) => !moduleNamePrefix.test(value ?? '')
       )
       .required(t(labelRequired)),
+    // As the legacy form, a host cannot be both parent and child.
+    parentHosts: array().test(
+      'is-not-also-a-child',
+      t(labelParentAndChildHost),
+      (parents, { parent: values }) =>
+        !(parents ?? []).some(({ id }) =>
+          (values.childHosts ?? []).some(
+            (child: { id: number }) => child.id === id
+          )
+        )
+    ),
     poller: object({
       id: number().required(t(labelRequired)),
       name: string()
