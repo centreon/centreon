@@ -9,6 +9,9 @@ export const labelHostTemplate = 'Host template';
 export const labelStatus = 'Status';
 // The plural the catalogue carries; `Host groups` is translated in two locales.
 export const labelHostGroups = 'Hostgroups';
+export const labelHostCategories = 'Host Categories';
+export const labelParentHosts = 'Parent Hosts';
+export const labelChildHosts = 'Child Hosts';
 
 export const labelGoToServices = 'Display all Services for this host';
 export const labelDeployServices = 'Deploy Service';
