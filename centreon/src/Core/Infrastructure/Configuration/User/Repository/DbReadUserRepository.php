@@ -242,7 +242,7 @@ class DbReadUserRepository extends AbstractRepositoryDRB implements ReadUserRepo
         $this->info('Fetching user ids from database');
 
         $bindValues = [];
-        foreach ($userAliases as $key => $userAlias) {
+        foreach (array_values($userAliases) as $key => $userAlias) {
             $bindValues[':' . $key] = $userAlias;
         }
 

@@ -72,7 +72,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 return [];
             }
 
-            $ids = array_unique($ids);
+            $ids = array_values(array_unique($ids));
 
             $fields = '';
             foreach ($ids as $index => $id) {
@@ -124,7 +124,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 return [];
             }
 
-            $ids = array_unique($ids);
+            $ids = array_values(array_unique($ids));
 
             $fields = '';
             foreach ($ids as $index => $id) {
@@ -190,7 +190,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function exist(array $userIds): array
     {
         $bind = [];
-        foreach ($userIds as $key => $userId) {
+        foreach (array_values($userIds) as $key => $userId) {
             $bind[":user_{$key}"] = $userId;
         }
         if ($bind === []) {
@@ -219,7 +219,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByContactGroups(array $contactGroupIds): array
     {
         $bind = [];
-        foreach ($contactGroupIds as $key => $contactGroupId) {
+        foreach (array_values($contactGroupIds) as $key => $contactGroupId) {
             $bind[":contactGroup_{$key}"] = $contactGroupId;
         }
         if ($bind === []) {
@@ -250,7 +250,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach ($accessGroupIds as $key => $accessGroupId) {
+        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
         if ($bind === []) {
@@ -416,7 +416,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByAccessGroups(array $accessGroupIds): array
     {
         $bind = [];
-        foreach ($accessGroupIds as $key => $accessGroupId) {
+        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
         if ($bind === []) {
@@ -455,7 +455,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findAdminsByIds(array $contactIds): array
     {
         $bind = [];
-        foreach ($contactIds as $key => $contactId) {
+        foreach (array_values($contactIds) as $key => $contactId) {
             $bind[':contact' . $key] = $contactId;
         }
         if ($bind === []) {
