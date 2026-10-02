@@ -68,6 +68,7 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\Vault\VaultCredentials;
@@ -169,6 +170,30 @@ final readonly class UpdateHostCommandHandler
         // rollback can never destroy a still-referenced secret.
         $orphansVaultEntry = $this->updateOrphansVaultEntry($existingVaultUuid, $snmpCommunity, $checkOptions);
 
+        // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
+        // categories and severity are ACL-scoped (asserted above), so a restricted viewer never sees
+        // — and so can never resend — the ones outside their scope. Preserve those from the existing
+        // host instead of letting the wholesale replace drop them, even on a GET -> PUT round trip,
+        // mirroring legacy (Core PartialUpdateHost, "silently preserved"). Admins and unrestricted
+        // dimensions have nothing out of scope, so the submitted set is used unchanged.
+        $hostGroupIds = $this->preserveInaccessible(
+            $command->hostGroupIds,
+            $existingHost->hostGroupIds,
+            $command->viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($command->viewerId) : null,
+            HostGroupId::class,
+        );
+        $categoryIds = $this->preserveInaccessible(
+            $command->categoryIds,
+            $existingHost->categoryIds,
+            $command->viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($command->viewerId) : null,
+            HostCategoryId::class,
+        );
+        $severityId = $this->preserveInaccessibleSeverity(
+            $command->severityId,
+            $existingHost->severityId,
+            $command->viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($command->viewerId) : null,
+        );
+
         $host = new Host(
             id: $command->id,
             name: $command->name,
@@ -176,16 +201,16 @@ final readonly class UpdateHostCommandHandler
             address: $command->address,
             activated: $command->activated,
             pollerId: $command->pollerId,
-            hostGroupIds: $command->hostGroupIds,
+            hostGroupIds: $hostGroupIds,
             dataProcessing: $command->dataProcessing,
             templateIds: $command->templateIds,
-            categoryIds: $command->categoryIds,
+            categoryIds: $categoryIds,
             parentHostIds: $command->parentHostIds,
             childHostIds: $command->childHostIds,
             snmpVersion: $command->snmpVersion,
             snmpCommunity: $snmpCommunity,
             timezoneId: $command->timezoneId,
-            severityId: $command->severityId,
+            severityId: $severityId,
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
             checkOptions: $checkOptions,
@@ -453,6 +478,66 @@ final readonly class UpdateHostCommandHandler
         }
 
         return preg_match('/^(.*)\/(.*)::(.*)$/', $value, $matches) === 1 ? $matches[2] : null;
+    }
+
+    /**
+     * Scopes a full-replace association list to what the viewer may change. Ids outside the viewer's
+     * ACL scope are invisible to them, so they can never be resent; preserving them from the existing
+     * host keeps the wholesale relation replace from silently dropping them (legacy
+     * PartialUpdateHost). A null $accessible means the dimension is unrestricted for this viewer
+     * (nothing is out of scope), so the submitted list is used as is.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $submitted
+     * @param Collection<T> $existing
+     * @param Collection<T>|null $accessible
+     * @param class-string<T> $className
+     *
+     * @return Collection<T>
+     */
+    private function preserveInaccessible(
+        Collection $submitted,
+        Collection $existing,
+        ?Collection $accessible,
+        string $className,
+    ): Collection {
+        if (! $accessible instanceof Collection) {
+            return $submitted;
+        }
+
+        $accessibleValues = array_map(static fn (AggregateRootId $id): int => $id->value, $accessible->toArray());
+        $submittedValues = array_map(static fn (AggregateRootId $id): int => $id->value, $submitted->toArray());
+
+        $preserved = array_filter(
+            $existing->toArray(),
+            static fn (AggregateRootId $id): bool => ! in_array($id->value, $accessibleValues, true)
+                && ! in_array($id->value, $submittedValues, true),
+        );
+
+        return new Collection([...$submitted->toArray(), ...array_values($preserved)], $className);
+    }
+
+    /**
+     * Single-valued counterpart of {@see self::preserveInaccessible()} for the host severity: the
+     * submitted severity wins when present; otherwise an existing severity the viewer cannot access
+     * is preserved (a restricted viewer who sends none never meant to clear a severity they cannot
+     * even see).
+     *
+     * @param Collection<HostSeverityId>|null $accessible
+     */
+    private function preserveInaccessibleSeverity(
+        ?HostSeverityId $submitted,
+        ?HostSeverityId $existing,
+        ?Collection $accessible,
+    ): ?HostSeverityId {
+        if ($submitted instanceof HostSeverityId || ! $existing instanceof HostSeverityId || ! $accessible instanceof Collection) {
+            return $submitted;
+        }
+
+        $accessibleValues = array_map(static fn (HostSeverityId $id): int => $id->value, $accessible->toArray());
+
+        return in_array($existing->value, $accessibleValues, true) ? null : $existing;
     }
 
     /**

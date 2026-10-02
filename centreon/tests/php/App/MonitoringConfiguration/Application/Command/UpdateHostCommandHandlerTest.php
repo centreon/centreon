@@ -32,7 +32,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\Security\Domain\Aggregate\UserId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -102,6 +106,12 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
     private FakeHostTemplateRepository $hostTemplateRepository;
 
+    private FakeHostGroupRepository $hostGroupRepository;
+
+    private FakeHostSeverityRepository $hostSeverityRepository;
+
+    private FakeResourceAccessRepository $resourceAccessRepository;
+
     protected function setUp(): void
     {
         $container = self::getContainer();
@@ -115,18 +125,22 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->eventBus = new EventBusSpy();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
 
+        $this->hostGroupRepository = new FakeHostGroupRepository();
+        $this->hostSeverityRepository = new FakeHostSeverityRepository();
+        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
-        $container->set(HostGroupRepository::class, new FakeHostGroupRepository());
+        $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(CommandRepository::class, new FakeCommandRepository());
         $container->set(InheritedHostMacroRepository::class, $this->inheritedHostMacroRepository);
-        $container->set(ResourceAccessRepository::class, new FakeResourceAccessRepository());
+        $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(OptionRepository::class, new FakeOptionRepository());
         $container->set(VaultInterface::class, $this->vault);
         $container->set(VaultCredentialWriter::class, new VaultCredentialWriter($this->vault));
         $container->set(EventBus::class, $this->eventBus);
         $container->set(HostCategoryRepository::class, new FakeHostCategoryRepository());
-        $container->set(HostSeverityRepository::class, new FakeHostSeverityRepository());
+        $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
         $container->set(TimezoneRepository::class, new FakeTimezoneRepository());
         $container->set(HostTemplateRepository::class, $this->hostTemplateRepository);
 
@@ -346,8 +360,65 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
     }
 
+    public function testItPreservesOutOfScopeHostGroupsForARestrictedViewer(): void
+    {
+        $this->addPoller(1);
+        // Group 1 is visible to the viewer; group 2 belongs to a scope they cannot see.
+        $this->hostGroupRepository->hostGroups[1] = new HostGroup(new HostGroupId(1), new HostGroupName('grp-visible'));
+        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(1)], HostGroupId::class);
+        $this->seedHost(10, hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class));
+
+        // The viewer resends only the group they can see, as a GET -> PUT round trip would.
+        ($this->handler)($this->command(
+            10,
+            hostGroupIds: new Collection([new HostGroupId(1)], HostGroupId::class),
+            viewerId: new UserId(42),
+        ));
+
+        $groupIds = array_map(
+            static fn (HostGroupId $id): int => $id->value,
+            $this->hostRepository->findOne(new HostId(10))?->hostGroupIds->toArray() ?? [],
+        );
+        sort($groupIds);
+        // The out-of-scope group 2 is preserved rather than wiped.
+        self::assertSame([1, 2], $groupIds);
+    }
+
+    public function testItPreservesAnOutOfScopeSeverityForARestrictedViewer(): void
+    {
+        $this->addPoller(1);
+        // The viewer can access only severity 1; the host carries the out-of-scope severity 2.
+        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([new HostSeverityId(1)], HostSeverityId::class);
+        $this->seedHost(10, severityId: new HostSeverityId(2));
+
+        // The viewer sends no severity: they cannot see the stored one, so it must not be cleared.
+        $host = ($this->handler)($this->command(10, viewerId: new UserId(42)));
+
+        self::assertSame(2, $host->severityId?->value);
+    }
+
+    public function testItDoesNotPreserveWhenTheViewerIsUnrestricted(): void
+    {
+        $this->addPoller(1);
+        $this->hostGroupRepository->hostGroups[1] = new HostGroup(new HostGroupId(1), new HostGroupName('grp'));
+        $this->seedHost(10, hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class));
+
+        // An admin (no viewer id) replaces the groups wholesale — nothing is preserved.
+        ($this->handler)($this->command(
+            10,
+            hostGroupIds: new Collection([new HostGroupId(1)], HostGroupId::class),
+        ));
+
+        $groupIds = array_map(
+            static fn (HostGroupId $id): int => $id->value,
+            $this->hostRepository->findOne(new HostId(10))?->hostGroupIds->toArray() ?? [],
+        );
+        self::assertSame([1], $groupIds);
+    }
+
     /**
      * @param ?Collection<HostTemplateId> $templateIds
+     * @param ?Collection<HostGroupId> $hostGroupIds
      */
     private function command(
         int $id,
@@ -357,6 +428,9 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ?string $snmpCommunity = null,
         ?Collection $templateIds = null,
         CheckOptions $checkOptions = new CheckOptions(null),
+        ?Collection $hostGroupIds = null,
+        ?HostSeverityId $severityId = null,
+        ?UserId $viewerId = null,
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -364,20 +438,27 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId($pollerId),
             activated: $activated,
-            hostGroupIds: new Collection([], HostGroupId::class),
+            hostGroupIds: $hostGroupIds ?? new Collection([], HostGroupId::class),
             updatedBy: 1,
+            viewerId: $viewerId,
             templateIds: $templateIds ?? new Collection([], HostTemplateId::class),
             snmpCommunity: $snmpCommunity,
+            severityId: $severityId,
             checkOptions: $checkOptions,
         );
     }
 
+    /**
+     * @param ?Collection<HostGroupId> $hostGroupIds
+     */
     private function seedHost(
         int $id,
         int $pollerId = 1,
         string $name = 'server-01',
         bool $activated = true,
         ?SnmpCommunity $snmpCommunity = null,
+        ?Collection $hostGroupIds = null,
+        ?HostSeverityId $severityId = null,
     ): Host {
         $host = new Host(
             id: null,
@@ -387,7 +468,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             activated: $activated,
             pollerId: new PollerId($pollerId),
             templateIds: new Collection([], HostTemplateId::class),
-            hostGroupIds: new Collection([], HostGroupId::class),
+            hostGroupIds: $hostGroupIds ?? new Collection([], HostGroupId::class),
+            severityId: $severityId,
             snmpCommunity: $snmpCommunity,
         );
 
