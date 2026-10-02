@@ -1,7 +1,7 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { DataTable, Tooltip } from '@centreon/ui/components';
 import { userAtom } from '@centreon/ui-context';
@@ -19,7 +19,6 @@ import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
 import {
   labelCreateADashboard,
-  labelDataDisplayedForRepresentativeUse,
   labelSaveYourDashboardForThumbnail,
   labelWelcomeToDashboardInterface
 } from '../../../translatedLabels';
@@ -88,12 +87,6 @@ const DashboardsOverview = (): ReactElement => {
 
   const GridTable = (
     <div>
-      <Box className={classes.warningContainer}>
-        <InfoOutlinedIcon color="primary" />
-        <Typography className={classes.warning}>
-          {t(labelDataDisplayedForRepresentativeUse)}
-        </Typography>
-      </Box>
       <DataTable isEmpty={isEmptyList} variant="grid">
         {dashboards.map((dashboard) => (
           <div className={classes.dashboardItemContainer} key={dashboard.id}>
