@@ -42,6 +42,7 @@ use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\HostTemplateServicesCleaner;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -1532,17 +1533,33 @@ function updateHost_MC($hostId = null)
         $statement->execute();
     }
     // update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
-        $oldTp = [];
-        if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
-            $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-            $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-            $tplStatement->execute();
-            while ($hst = $tplStatement->fetch()) {
-                $oldTp[$hst['host_tpl_id']] = $hst['host_tpl_id'];
-            }
-        }
+    if (isset($_REQUEST['tpSelect']) && is_array($_REQUEST['tpSelect'])) {
+        $hostIdParameter = QueryParameters::create([QueryParameter::int('hostId', (int) $hostId)]);
+        $findTemplateIds = static fn (): array => array_map('intval', $pearDB->fetchFirstColumn(
+            'SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId',
+            $hostIdParameter
+        ));
+        $previousTemplateIds = $findTemplateIds();
+        $isIncrementalMode = isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0;
+        $oldTp = $isIncrementalMode ? array_combine($previousTemplateIds, $previousTemplateIds) : [];
         $hostObj->setTemplates($hostId, $_REQUEST['tpSelect'], $oldTp);
+
+        // Replacement mode may unlink templates: delete the services they had deployed on the host.
+        // Host templates are skipped, they have no deployed services.
+        $isHost = (string) $pearDB->fetchOne(
+            'SELECT `host_register` FROM `host` WHERE `host_id` = :hostId',
+            $hostIdParameter
+        ) === '1';
+        if (! $isIncrementalMode && $isHost) {
+            /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
+            $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
+            // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
+            $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
+                (int) $hostId,
+                $previousTemplateIds,
+                $findTemplateIds()
+            );
+        }
     }
 
     // Update on demand macros

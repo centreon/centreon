@@ -29,7 +29,7 @@ services:
     decorates: Core\Service\Application\Repository\WriteServiceRepositoryInterface
     arguments:
       - '@.inner'
-      - '@security.token_storage'
+      - '@Core\Common\Application\CurrentUserIdProviderInterface'
       - '@Core\Service\Application\Repository\ReadServiceRepositoryInterface'
       - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
       - '@Centreon\Infrastructure\DatabaseConnection'
