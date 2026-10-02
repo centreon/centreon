@@ -3,8 +3,8 @@ import {
   buildListingEndpoint
 } from '@centreon/ui';
 
-// The listing is served by API Platform at `./api`. Single-host operations
-// (get, patch, delete) exist only under the default `./api/latest`.
+// Hosts are served by API Platform at `./api`, listing and single-host
+// operations alike. Only the form's selectors below stay on the default base.
 export const hostsBaseEndpoint = './api';
 
 export const hostsListEndpoint = '/configuration/hosts';
@@ -12,6 +12,12 @@ export const hostsListEndpoint = '/configuration/hosts';
 export const hostTemplatesEndpoint = '/configuration/host_templates';
 export const hostGroupsEndpoint = '/configuration/host_groups';
 export const pollersEndpoint = '/configuration/pollers';
+
+// The form's own selectors, which the listing filters above must not use: they
+// are granted by host write access rather than by the poller and host group
+// ACLs, and the poller one offers only active pollers, as the legacy form did.
+export const hostFormPollersEndpoint = '/configuration/hosts/pollers';
+export const hostFormHostGroupsEndpoint = '/configuration/hosts/host_groups';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;

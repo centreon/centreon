@@ -68,14 +68,29 @@ export const getHostGroupsResponse = () =>
     { id: 2, name: 'Windows servers' }
   ]);
 
-export const getPollersResponse = () =>
-  toCollection([
-    { id: 1, name: 'Central' },
-    { id: 2, name: 'Poller EU' }
-  ]);
+const pollers = [
+  { id: 1, name: 'Central' },
+  { id: 2, name: 'Poller EU' }
+];
+
+// One list for the listing filter and the form alike, both reading the API
+// Platform selector.
+export const getPollersResponse = () => toCollection(pollers);
 
 export const getHostTemplatesResponse = () =>
   toCollection([
     { id: 5, name: 'generic-active-host' },
     { id: 6, name: 'generic-passive-host' }
   ]);
+
+// The shape MON-210415 (#11809) gives the detail endpoint: objects where the
+// create takes ids. Mocked here until it lands; nothing stubs it at runtime.
+//
+// Every value differs from the listing row of the same host, so a form filled
+// from the carried row instead of from this response fails rather than passes.
+export const getHostResponse = () => ({
+  address: '10.10.10.10',
+  groups: [{ id: 1, name: 'Linux servers' }],
+  name: 'host 0 as the detail endpoint spells it',
+  poller: { id: 2, name: 'Poller EU' }
+});

@@ -126,8 +126,11 @@ const ConnectedAutocompleteField = (
           search: searchParameter
         });
       },
+      // Two fields can carry the same label and read different APIs, and
+      // would otherwise share each other's options.
       getQueryKey: () => [
         `autocomplete-${queryKey || props.label}`,
+        baseEndpoint,
         page,
         searchParameter
       ],

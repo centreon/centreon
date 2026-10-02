@@ -144,7 +144,9 @@ const Page = <TFilters,>({
   );
 
   return (
-    <PageLayout>
+    // A positioning context only where the panel needs one: the modules that
+    // keep the modal render exactly the page they rendered before.
+    <PageLayout className={isFormInPanel && hasFormAccess ? 'relative' : ''}>
       <PageLayout.Header>
         <PageHeader>
           <PageHeader.Main>
@@ -157,19 +159,14 @@ const Page = <TFilters,>({
           )}
         </PageHeader>
       </PageLayout.Header>
-      <PageLayout.Body>
-        {isFormInPanel && hasFormAccess ? (
-          <PanelLayout
-            form={form}
-            hasWriteAccess={!!actions?.edit}
-            width={formPanelWidth}
-          >
-            {listing}
-          </PanelLayout>
-        ) : (
-          listing
-        )}
-      </PageLayout.Body>
+      <PageLayout.Body>{listing}</PageLayout.Body>
+      {isFormInPanel && hasFormAccess && (
+        <PanelLayout
+          form={form}
+          hasWriteAccess={!!actions?.edit}
+          width={formPanelWidth}
+        />
+      )}
       {hasFormAccess && !isFormInPanel && (
         <Modal form={form} hasWriteAccess={!!actions?.edit} />
       )}
