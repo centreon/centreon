@@ -63,7 +63,6 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\Security\Infrastructure\Double\FakeAccessGroupRepository;
-use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class DbalHostRepositoryTest extends KernelTestCase
 {
@@ -72,8 +71,6 @@ final class DbalHostRepositoryTest extends KernelTestCase
     private Connection $realTimeConnection;
 
     private FakeAccessGroupRepository $accessGroupRepository;
-
-    private FakeResourceAccessRepository $resourceAccessRepository;
 
     private DbalHostRepository $repository;
 
@@ -88,7 +85,6 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->realTimeConnection = $realTimeConnection;
 
         $this->accessGroupRepository = new FakeAccessGroupRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
 
         $this->repository = new DbalHostRepository(
             $this->connection,
@@ -96,7 +92,6 @@ final class DbalHostRepositoryTest extends KernelTestCase
             new DbalHostTransformer(),
             new DbalNotificationsTransformer(),
             $this->accessGroupRepository,
-            $this->resourceAccessRepository,
         );
     }
 
