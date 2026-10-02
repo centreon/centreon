@@ -406,9 +406,9 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * Every field is null here, and the serializer omits null properties rather than emitting
-     * them (same convention as the top-level `icon`/`alias`) — so `extended_informations` itself
-     * stays present, but comes back with none of its own sub-keys.
+     * Every field is null here, so `extended_informations` is a nullable sub-object left null (same
+     * convention as `severity`/`timezone`) — it is omitted from the body entirely rather than
+     * emitted as an all-null object, which the serializer would collapse to an invalid `[]`.
      */
     public function testItCreatesAHostWithoutExtendedInformations(): void
     {
@@ -424,7 +424,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        self::assertSame([], $response->toArray()['extended_informations']);
+        self::assertArrayNotHasKey('extended_informations', $response->toArray());
     }
 
     public function testItRejectsAMalformedGeoCoordinatesInExtendedInformations(): void

@@ -1513,6 +1513,79 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindOneRoundTripsNotifications(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $contactId = $this->createContact('notified-contact');
+        $contactGroupId = $this->createContactGroup('notified-group');
+        $periodId = $this->createTimePeriod('24x7');
+
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId($contactId)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId($contactGroupId)], ContactGroupId::class),
+            options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
+            interval: 30,
+            periodId: new TimePeriodId($periodId),
+            firstDelay: 10,
+            recoveryDelay: 20,
+            contactAdditiveInheritance: true,
+            contactGroupAdditiveInheritance: true,
+        ));
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertNotNull($found->notifications);
+        self::assertSame(TriStateEnum::True, $found->notifications->enabled);
+        self::assertSame(
+            [$contactId],
+            array_map(static fn (NotificationContactId $id): int => $id->value, $found->notifications->contactIds->toArray()),
+        );
+        self::assertSame(
+            [$contactGroupId],
+            array_map(static fn (ContactGroupId $id): int => $id->value, $found->notifications->contactGroupIds->toArray()),
+        );
+        self::assertSame(
+            [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
+            $found->notifications->options,
+        );
+        self::assertSame(30, $found->notifications->interval);
+        self::assertSame($periodId, $found->notifications->periodId?->value);
+        self::assertSame(10, $found->notifications->firstDelay);
+        self::assertSame(20, $found->notifications->recoveryDelay);
+        self::assertTrue($found->notifications->contactAdditiveInheritance);
+        self::assertTrue($found->notifications->contactGroupAdditiveInheritance);
+    }
+
+    /**
+     * A host carrying no notification field persists the Default tri-state and NULL everywhere else
+     * (see {@see self::testAddPersistsTheDefaultTriStateWithoutANotificationsBlock()}); findOne must
+     * read that back as the same neutral block, never as "notifications off".
+     */
+    public function testFindOneReadsBackTheDefaultNotificationsBlock(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $host = $this->hostWithNotifications($pollerId, null);
+        $this->repository->add($host);
+
+        $found = $this->repository->findOne(new HostId($host->id()->value));
+
+        self::assertNotNull($found);
+        self::assertNotNull($found->notifications);
+        self::assertSame(TriStateEnum::UseDefault, $found->notifications->enabled);
+        self::assertSame([], $found->notifications->contactIds->toArray());
+        self::assertSame([], $found->notifications->contactGroupIds->toArray());
+        self::assertSame([], $found->notifications->options);
+        self::assertNull($found->notifications->interval);
+        self::assertNull($found->notifications->periodId);
+        self::assertNull($found->notifications->firstDelay);
+        self::assertNull($found->notifications->recoveryDelay);
+        self::assertFalse($found->notifications->contactAdditiveInheritance);
+        self::assertFalse($found->notifications->contactGroupAdditiveInheritance);
+    }
+
     private function hostWithNotifications(int $pollerId, ?Notifications $notifications): Host
     {
         return new Host(
