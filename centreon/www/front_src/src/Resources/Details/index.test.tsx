@@ -11,7 +11,6 @@ import {
   fireEvent,
   RenderResult,
   render,
-  screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
 import {
@@ -22,11 +21,15 @@ import {
 
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
+import fetchMock from 'jest-fetch-mock';
 import { createStore, Provider } from 'jotai';
 import mockDate from 'mockdate';
 import { equals, path, reject } from 'ramda';
 import { BrowserRouter } from 'react-router';
 
+// The Graph tab's time period lives in these @centreon/ui atoms, which the
+// package does not export.
+import { changeCustomTimePeriodDerivedAtom } from '../../../../../packages/ui/src/TimePeriods/timePeriodsAtoms';
 import { CriteriaNames } from '../Filter/Criterias/models';
 import { getCriteriaValueDerivedAtom } from '../Filter/filterAtoms';
 import { defaultGraphOptions } from '../Graph/Performance/ExportableGraphWithTimeline/graphOptionsAtoms';
@@ -74,7 +77,6 @@ import {
   labelYesterday
 } from '../translatedLabels';
 import Details from '.';
-import { DetailsUrlQueryParameters } from './models';
 import { CustomTimePeriodProperty } from './tabs/Graph/models';
 import { buildListTimelineEventsEndpoint } from './tabs/Timeline/api';
 import { getTypeIds } from './tabs/Timeline/Event';
@@ -100,6 +102,12 @@ jest.mock('@visx/visx', () => {
     }
   };
 });
+
+// jsdom does no layout, so the chart would never leave its loading state.
+jest.mock('use-resize-observer', () => ({
+  __esModule: true,
+  default: (): unknown => ({ height: 280, ref: jest.fn(), width: 500 })
+}));
 
 const resourceServiceUuid = 'h1-s1';
 const resourceServiceId = 1;
@@ -513,17 +521,6 @@ const retrievedServices = {
   ]
 };
 
-const retrievedFilters = {
-  data: {
-    meta: {
-      limit: 30,
-      page: 1,
-      total: 0
-    },
-    result: []
-  }
-};
-
 const currentDateIsoString = '2020-01-21T06:00:00.000Z';
 const start = '2020-01-20T06:00:00.000Z';
 
@@ -596,6 +593,26 @@ const DetailsWithJotai = (): JSX.Element => (
 
 const renderDetails = (): RenderResult => render(<DetailsWithJotai />);
 
+// The Graph tab fetches its data through `fetch` (useFetchQuery), not axios.
+const mockGraphTabFetch = ({
+  performanceGraph = retrievedPerformanceGraphData,
+  timeline = retrievedTimeline
+} = {}): void => {
+  fetchMock.mockResponse((request) =>
+    Promise.resolve({
+      body: JSON.stringify(
+        request.url.includes(retrievedDetails.links.endpoints.timeline)
+          ? timeline
+          : performanceGraph
+      ),
+      headers: { 'Content-Type': 'application/json' }
+    })
+  );
+};
+
+const getFetchedUrls = (): Array<string> =>
+  fetchMock.mock.calls.map(([url]) => url as string);
+
 const mockedLocalStorageGetItem = jest.fn();
 const mockedLocalStorageSetItem = jest.fn();
 const mockedNavigate = jest.fn();
@@ -623,25 +640,17 @@ describe(Details, () => {
     mockedAxios.get.mockReset();
     mockedLocalStorageSetItem.mockReset();
     mockedLocalStorageGetItem.mockReset();
+    fetchMock.resetMocks();
   });
 
   // To migrate to Cypress
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip.each([
+  it.each([
     [label1Day, '2020-01-20T06:00:00.000Z', 20],
     [label7Days, '2020-01-14T06:00:00.000Z', 100],
     [label31Days, '2019-12-21T06:00:00.000Z', 500]
   ])(`queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`, async (period, startIsoString, timelineEventsLimit) => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
-
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedTimeline })
-      .mockResolvedValueOnce({ data: retrievedTimeline });
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -656,12 +665,11 @@ describe(Details, () => {
       expect(getByText(period) as HTMLElement).toBeEnabled();
     });
 
-    userEvent.click(getByText(period) as HTMLElement);
+    await userEvent.click(getByText(period) as HTMLElement);
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`,
-        expect.anything()
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`
       );
     });
 
@@ -669,8 +677,8 @@ describe(Details, () => {
     userEvent.click(getByText(labelDisplayEvents));
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        buildListTimelineEventsEndpoint({
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${buildListTimelineEventsEndpoint({
           endpoint: retrievedDetails.links.endpoints.timeline,
           parameters: {
             limit: timelineEventsLimit,
@@ -686,23 +694,14 @@ describe(Details, () => {
               ]
             }
           }
-        }),
-        expect.anything()
+        })}`
       );
     });
   });
 
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip('displays event annotations when the corresponding switch is triggered and the Graph tab is clicked', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({
-        data: retrievedTimeline
-      });
+  it('displays event annotations when the corresponding switch is triggered and the Graph tab is clicked', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -715,7 +714,11 @@ describe(Details, () => {
       renderDetails();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+      expect(getFetchedUrls()).toEqual([
+        expect.stringContaining(
+          retrievedDetails.links.endpoints.performance_graph
+        )
+      ]);
     });
 
     expect(queryByLabelText(labelComment)).toBeNull();
@@ -946,19 +949,11 @@ describe(Details, () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/reporting');
   });
 
-  // Deferred to MON-209082: the Graph tab no longer writes the selected time
-  // period back to the Resources URL query atoms - it now owns its own
-  // @centreon/ui TimePeriods state instead. The "graph" tab parameters this
-  // test expects to see persisted in the URL are stale. Needs a product
-  // decision on time-period persistence, not just a fixture edit.
-  it.skip('sets the details according to the details URL query parameter when given', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({
-        data: retrievedDetails
-      })
-      .mockResolvedValue({
-        data: retrievedPerformanceGraphData
-      });
+  it('sets the details according to the details URL query parameter when given', async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: retrievedDetails
+    });
+    mockGraphTabFetch();
 
     const retrievedServiceDetails = {
       id: 2,
@@ -984,7 +979,7 @@ describe(Details, () => {
       }
     ]);
 
-    const { getByText } = renderDetails();
+    const { findByText, getByText } = renderDetails();
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
@@ -993,59 +988,29 @@ describe(Details, () => {
       );
     });
 
-    await waitFor(() => expect(getByText(labelDetails)).toBeInTheDocument());
-
-    fireEvent.click(getByText(labelDetails));
-
-    const tabFromUrlQueryParameters = path(
-      ['details', 'tab'],
-      getUrlQueryParameters()
-    );
+    fireEvent.click(await findByText(labelDetails));
 
     await waitFor(() => {
-      expect(tabFromUrlQueryParameters).toEqual('details');
+      expect(path(['details', 'tab'], getUrlQueryParameters())).toEqual(
+        'details'
+      );
     });
 
-    userEvent.click(getByText(labelGraph));
+    await userEvent.click(getByText(labelGraph));
 
-    userEvent.click(getByText(label7Days));
-
-    const updatedDetailsFromQueryParameters = getUrlQueryParameters()
-      .details as DetailsUrlQueryParameters;
-
+    // The Graph tab keeps its selected time period to itself, so only the
+    // resource, the tab and the tab parameters are kept in the URL.
     await waitFor(() => {
-      expect(updatedDetailsFromQueryParameters).toEqual({
-        customTimePeriod: {
-          end: '2020-01-21T06:00:00.000Z',
-          start: '2020-01-14T06:00:00.000Z'
-        },
-        id: 2,
-        resourcesDetailsEndpoint:
-          'api/latest/monitoring/resources/hosts/1/services/2',
-        selectedTimePeriodId: 'last_7_days',
-        tab: 'graph',
-        tabParameters: {
-          graph: {
-            options: {
-              displayEvents: {
-                id: 'displayEvents',
-                label: labelDisplayEvents,
-                value: false
-              }
-            }
-          },
-          services: {
-            options: {
-              displayEvents: {
-                id: 'displayEvents',
-                label: labelDisplayEvents,
-                value: false
-              }
-            }
-          }
-        },
-        uuid: 'h3-s2'
-      });
+      expect(getUrlQueryParameters().details).toEqual(
+        expect.objectContaining({
+          id: 2,
+          resourcesDetailsEndpoint:
+            'api/latest/monitoring/resources/hosts/1/services/2',
+          tab: 'graph',
+          tabParameters: retrievedServiceDetails.tabParameters,
+          uuid: 'h3-s2'
+        })
+      );
     });
   });
 
@@ -1168,11 +1133,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip('displays the linked service graphs when the Graph tab of a host is clicked', async () => {
+  it('displays the linked service graphs when the Graph tab of a host is clicked', async () => {
     mockedAxios.get
       .mockResolvedValueOnce({
         data: {
@@ -1182,13 +1143,8 @@ describe(Details, () => {
       })
       .mockResolvedValueOnce({
         data: retrievedServices
-      })
-      .mockResolvedValueOnce({
-        data: retrievedPerformanceGraphData
-      })
-      .mockResolvedValueOnce({
-        data: retrievedPerformanceGraphData
       });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1205,24 +1161,18 @@ describe(Details, () => {
 
     await findByText(retrievedPerformanceGraphData.global.title);
 
-    userEvent.click(getByText(label7Days) as HTMLElement);
+    await userEvent.click(getByText(label7Days) as HTMLElement);
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        'ping-performance?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z',
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        './api/latestping-performance?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z'
       );
     });
   });
 
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip('queries performance graphs with a custom timeperiod when the Graph tab is selected and a custom time period is selected', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValue({ data: retrievedPerformanceGraphData });
+  it('queries performance graphs with a custom timeperiod when the Graph tab is selected and a custom time period is selected', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1236,42 +1186,34 @@ describe(Details, () => {
     const endISOString = '2020-01-21T06:00:00.000Z';
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`
       );
     });
 
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(startISOString),
         property: CustomTimePeriodProperty.start
       });
     });
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(endISOString),
         property: CustomTimePeriodProperty.end
       });
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
       );
     });
   });
 
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip('displays the correct date time on pickers when the Graph tab is selected and a time period is selected', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+  it('displays the correct date time on pickers when the Graph tab is selected and a time period is selected', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1280,93 +1222,48 @@ describe(Details, () => {
       }
     ]);
 
-    const { getByText } = renderDetails();
+    const { findByText, getByText } = renderDetails();
 
     const startISOString = '2020-01-20T06:00:00.000Z';
     const endISOString = '2020-01-21T06:00:00.000Z';
 
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(startISOString),
         property: CustomTimePeriodProperty.start
       });
     });
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date(endISOString),
         property: CustomTimePeriodProperty.end
       });
     });
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
       );
     });
 
-    expect(getByText('01/20/2020 7:00 AM')).toBeInTheDocument();
+    expect(await findByText('01/20/2020 7:00 AM')).toBeInTheDocument();
     expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
 
-    userEvent.click(getByText(label7Days) as HTMLElement);
+    await userEvent.click(getByText(label7Days) as HTMLElement);
 
-    expect(getByText('01/14/2020 7:00 AM')).toBeInTheDocument();
+    expect(await findByText('01/14/2020 7:00 AM')).toBeInTheDocument();
     expect(getByText('01/21/2020 7:00 AM')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`
       );
     });
   });
 
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip('displays an error message when Graph tab is selected and the start date of the time period is the same as the end date', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
-
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: {
-          ...serviceDetailsGraphUrlParameters,
-          customTimePeriod: {
-            end: '2021-11-02T21:00:00.000Z',
-            start: '2021-11-02T21:00:00.000Z',
-            timelineLimit: 20,
-            xAxisTickFormat: 'LT'
-          }
-        }
-      }
-    ]);
-
-    const { getByLabelText, getByText } = renderDetails();
-
-    userEvent.click(getByLabelText(labelCompactTimePeriod));
-
-    await waitFor(() => {
-      expect(getByText(labelEndDateGreaterThanStartDate)).toBeInTheDocument();
-    });
-  });
-
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip.each([
-    [labelForward, '2020-01-20T18:00:00.000Z', '2020-01-21T18:00:00.000Z'],
-    [labelBackward, '2020-01-19T18:00:00.000Z', '2020-01-20T18:00:00.000Z']
-  ])(`queries performance graphs with a custom timeperiod when the Graph tab is selected and the "%p" icon is clicked`, async (iconLabel, startISOString, endISOString) => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+  it('displays an error message when Graph tab is selected and the start date of the time period is the same as the end date', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1375,37 +1272,72 @@ describe(Details, () => {
       }
     ]);
 
-    const { getByLabelText } = renderDetails();
+    const { findByLabelText, findByText } = renderDetails();
+
+    await findByText(retrievedPerformanceGraphData.global.title);
 
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
+        date: new Date(currentDateIsoString),
+        property: CustomTimePeriodProperty.start
+      });
+    });
+    act(() => {
+      store.set(changeCustomTimePeriodDerivedAtom, {
+        date: new Date(currentDateIsoString),
+        property: CustomTimePeriodProperty.end
+      });
+    });
+
+    await userEvent.click(await findByLabelText(labelCompactTimePeriod));
+
+    expect(
+      await findByText(labelEndDateGreaterThanStartDate)
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    [labelBackward, 0, '2020-01-19T18:00:00.000Z', '2020-01-20T18:00:00.000Z'],
+    [labelForward, 1, '2020-01-20T18:00:00.000Z', '2020-01-21T18:00:00.000Z']
+  ])(`queries performance graphs with a shifted time period when the Graph tab is selected and the "%s" zone is clicked`, async (_, zoneIndex, startISOString, endISOString) => {
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
+
+    setUrlQueryParameters([
+      {
+        name: 'details',
+        value: serviceDetailsGraphUrlParameters
+      }
+    ]);
+
+    const { container, findByText } = renderDetails();
+
+    act(() => {
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date('2020-01-20T06:00:00.000Z'),
         property: CustomTimePeriodProperty.start
       });
     });
-
     act(() => {
-      context.changeCustomTimePeriod?.({
+      store.set(changeCustomTimePeriodDerivedAtom, {
         date: new Date('2020-01-21T06:00:00.000Z'),
         property: CustomTimePeriodProperty.end
       });
     });
 
+    await findByText(retrievedPerformanceGraphData.global.title);
+
+    const timeShiftZone = container.querySelectorAll(
+      'rect[class*="translationZone"]'
+    )[zoneIndex];
+
+    fireEvent.mouseOver(timeShiftZone);
+    await findByText('time shift icon');
+    fireEvent.click(timeShiftZone);
+
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
-      );
-    });
-
-    await waitFor(() => expect(getByLabelText(iconLabel)).toBeInTheDocument());
-
-    userEvent.click(getByLabelText(iconLabel));
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
       );
     });
   });
@@ -1459,15 +1391,9 @@ describe(Details, () => {
     expect(getByText(service.name)).toBeInTheDocument();
   });
 
-  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
-  // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
-  // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
-  // strategy migrated to fetch/react-query before re-enabling.
-  it.skip('displays Min, Max and Average values in the legend when the Graph tab is selected', async () => {
-    mockedAxios.get
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData })
-      .mockResolvedValueOnce({ data: retrievedTimeline });
+  it('displays Min, Max and Average values in the legend when the Graph tab is selected', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+    mockGraphTabFetch();
 
     setUrlQueryParameters([
       {
@@ -1476,21 +1402,17 @@ describe(Details, () => {
       }
     ]);
 
-    const { getByLabelText, getByText } = renderDetails();
+    const { findByTestId, getByTestId } = renderDetails();
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
+      expect(getFetchedUrls()).toContain(
+        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-20T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`
       );
     });
 
-    await waitFor(() => expect(getByLabelText(labelMin)).toBeInTheDocument());
-    expect(getByText('N/A')).toBeInTheDocument();
-    expect(getByLabelText(labelMax)).toBeInTheDocument();
-    expect(getByText('2.46k')).toBeInTheDocument();
-    expect(getByLabelText(labelAvg)).toBeInTheDocument();
-    expect(getByText('1.23k')).toBeInTheDocument();
+    expect(await findByTestId(labelMin)).toHaveTextContent(`${labelMin}: N/A`);
+    expect(getByTestId(labelMax)).toHaveTextContent(`${labelMax}: 2.46k`);
+    expect(getByTestId(labelAvg)).toHaveTextContent(`${labelAvg}: 1.23k`);
   });
 
   it('filters on a group when the corresponding chip is clicked and the Details tab is selected', async () => {
@@ -1607,18 +1529,10 @@ describe(Details, () => {
     expect(queryByText(labelCommand)).toBeInTheDocument();
   });
 
-  // Deferred to MON-209082: same react-query/fetch mocking gap as the rest of
-  // the Graph tab, plus the Timeline tab's selected time period is no longer
-  // shared with the Graph tab's own @centreon/ui TimePeriods state, so the
-  // final assertion here can no longer pass as written.
-  it.skip('queries the performance graphs with the time period selected in the "Timeline" tab when the "Graph" tab is selected and the "Timeline" tab was selected', async () => {
+  it('queries the timeline events with the time period selected in the "Timeline" tab', async () => {
     mockedAxios.get
       .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedTimeline })
-      .mockResolvedValueOnce({ data: retrievedTimeline })
-      .mockResolvedValueOnce(retrievedFilters)
-      .mockResolvedValueOnce({ data: retrievedDetails })
-      .mockResolvedValueOnce({ data: retrievedPerformanceGraphData });
+      .mockResolvedValue({ data: retrievedTimeline });
 
     setUrlQueryParameters([
       {
@@ -1627,84 +1541,46 @@ describe(Details, () => {
       }
     ]);
 
-    const { getByText } = renderDetails();
+    const { findByText, getByText } = renderDetails();
+
+    const getTimelineEndpoint = (startIsoString: string): string =>
+      buildListTimelineEventsEndpoint({
+        endpoint: retrievedDetails.links.endpoints.timeline,
+        parameters: {
+          limit: 30,
+          page: 1,
+          search: {
+            conditions: [
+              { field: 'type', values: { $in: getTypeIds() } },
+              {
+                field: '$and',
+                value: [
+                  { date: { $gt: startIsoString } },
+                  { date: { $lt: currentDateIsoString } }
+                ]
+              }
+            ]
+          }
+        }
+      });
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        buildListTimelineEventsEndpoint({
-          endpoint: retrievedDetails.links.endpoints.timeline,
-          parameters: {
-            limit: 30,
-            page: 1,
-            search: {
-              conditions: [
-                {
-                  field: 'date',
-                  values: {
-                    $gt: '2020-01-20T06:00:00.000Z',
-                    $lt: '2020-01-21T06:00:00.000Z'
-                  }
-                }
-              ],
-              lists: [
-                {
-                  field: 'type',
-                  values: getTypeIds()
-                }
-              ]
-            }
-          }
-        }),
+        getTimelineEndpoint('2020-01-20T06:00:00.000Z'),
         cancelTokenRequestParam
       )
     );
 
-    await waitFor(() =>
-      expect(
-        screen.getByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;')
-      ).toBeInTheDocument()
-    );
+    await findByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;');
 
-    userEvent.click(getByText(label7Days) as HTMLElement);
+    await userEvent.click(getByText(label7Days) as HTMLElement);
 
     await waitFor(() =>
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        buildListTimelineEventsEndpoint({
-          endpoint: retrievedDetails.links.endpoints.timeline,
-          parameters: {
-            limit: 30,
-            page: 1,
-            search: {
-              conditions: [
-                {
-                  field: 'date',
-                  values: {
-                    $gt: '2020-01-14T06:00:00.000Z',
-                    $lt: '2020-01-21T06:00:00.000Z'
-                  }
-                }
-              ],
-              lists: [
-                {
-                  field: 'type',
-                  values: getTypeIds()
-                }
-              ]
-            }
-          }
-        }),
-        expect.anything()
+        getTimelineEndpoint('2020-01-14T06:00:00.000Z'),
+        cancelTokenRequestParam
       )
     );
-
-    userEvent.click(getByText(labelGraph));
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        `${retrievedDetails.links.endpoints.performance_graph}?start=2020-01-14T06:00:00.000Z&end=2020-01-21T06:00:00.000Z`,
-        cancelTokenRequestParam
-      );
-    });
   });
 
   it('displays contacts and contact groups when the notification tab is clicked', async () => {
