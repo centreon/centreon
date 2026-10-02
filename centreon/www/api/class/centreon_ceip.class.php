@@ -43,6 +43,18 @@ require_once __DIR__ . '/webService.class.php';
  */
 class CentreonCeip extends CentreonWebService
 {
+    /**
+     * CIM editions allowed in the licensing.edition property of the license file,
+     * with the license type label historically sent to Pendo.
+     */
+    private const LICENSE_EDITION_LABELS = [
+        'IT-100' => 'IT-100 Edition',
+        'IT' => 'IT Edition',
+        'BE' => 'Business Edition',
+        'MSP' => 'MSP Edition',
+        'PRO' => 'PRO Edition',
+    ];
+
     /** @var string */
     private $uuid;
 
@@ -372,9 +384,23 @@ class CentreonCeip extends CentreonWebService
                         if ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
                             $productLicense = 'MSP Edition';
                         }
+                    }
+                    $edition = $licenseInformation[$module]['licensing']['edition'] ?? null;
+                    if (! isset($licenseEdition) && is_string($edition) && trim($edition) !== '') {
+                        $licenseEdition = trim($edition);
+                    }
+                    if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         break;
                     }
                     $environment = $licenseInformation[$module]['platform']['environment'];
+                }
+            }
+
+            // Newer licenses carry the edition explicitly: it takes precedence over the computed one
+            if (isset($licenseEdition, self::LICENSE_EDITION_LABELS[$licenseEdition])) {
+                $productLicense = self::LICENSE_EDITION_LABELS[$licenseEdition];
+                if (! isset($fingerprint) && in_array($licenseEdition, ['MSP', 'BE'], true)) {
+                    $fingerprint = $fingerprintService->calculateFingerprint();
                 }
             }
         } catch (UnknownIdentifierException) {
