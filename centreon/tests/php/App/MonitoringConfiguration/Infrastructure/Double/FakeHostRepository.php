@@ -38,6 +38,12 @@ final class FakeHostRepository implements HostRepository
     public array $hosts = [];
 
     /**
+     * When true, {@see isNameUsedByHostOrTemplate()} reports every name as taken, letting a test
+     * exercise the exhausted-suffix path without seeding hundreds of hosts.
+     */
+    public bool $forceNameUsed = false;
+
+    /**
      * When set, {@see findOne()} with a non-null viewer only returns ids listed here; any other
      * reads as not found. Null means the viewer sees everything — used to simulate ACL scoping.
      *
@@ -130,6 +136,10 @@ final class FakeHostRepository implements HostRepository
 
     public function isNameUsedByHostOrTemplate(HostName $name): bool
     {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
         foreach ($this->hosts as $host) {
             if ($host->name->value === $name->value) {
                 return true;

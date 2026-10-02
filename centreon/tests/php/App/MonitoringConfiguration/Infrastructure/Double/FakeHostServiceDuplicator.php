@@ -21,36 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Double;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-use App\Shared\Application\Command\CommandBus;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
 
-/**
- * Records what was dispatched, and can be told to fail so a caller's error handling is exercised.
- */
-final class CommandBusSpy implements CommandBus
+final class FakeHostServiceDuplicator implements HostServiceDuplicator
 {
-    /** @var list<object> */
-    public array $executed = [];
+    /** @var list<array{sourceHostId: int, newHostId: int}> */
+    public array $duplicateCalls = [];
 
-    public bool $throws = false;
+    public bool $duplicateThrows = false;
 
-    public ?\Throwable $exception = null;
-
-    public mixed $result = null;
-
-    public function execute(object $command): mixed
+    public function duplicate(HostId $sourceHostId, HostId $newHostId): void
     {
-        $this->executed[] = $command;
+        $this->duplicateCalls[] = ['sourceHostId' => $sourceHostId->value, 'newHostId' => $newHostId->value];
 
-        if ($this->exception instanceof \Throwable) {
-            throw $this->exception;
+        if ($this->duplicateThrows) {
+            throw new \RuntimeException('Unable to duplicate services');
         }
-
-        if ($this->throws) {
-            throw new \RuntimeException('The command failed.');
-        }
-
-        return $this->result;
     }
 }

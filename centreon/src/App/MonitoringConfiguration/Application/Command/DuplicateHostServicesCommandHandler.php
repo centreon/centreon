@@ -21,36 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\Shared\Double;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\Shared\Application\Command\CommandBus;
+use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
+use App\Shared\Application\Command\AsCommandHandler;
 
 /**
- * Records what was dispatched, and can be told to fail so a caller's error handling is exercised.
+ * Failures propagate; the duplication path swallows them instead, see DuplicateHostServicesEventHandler.
  */
-final class CommandBusSpy implements CommandBus
+#[AsCommandHandler]
+final readonly class DuplicateHostServicesCommandHandler
 {
-    /** @var list<object> */
-    public array $executed = [];
+    public function __construct(
+        private HostServiceDuplicator $serviceDuplicator,
+    ) {
+    }
 
-    public bool $throws = false;
-
-    public ?\Throwable $exception = null;
-
-    public mixed $result = null;
-
-    public function execute(object $command): mixed
+    public function __invoke(DuplicateHostServicesCommand $command): void
     {
-        $this->executed[] = $command;
-
-        if ($this->exception instanceof \Throwable) {
-            throw $this->exception;
-        }
-
-        if ($this->throws) {
-            throw new \RuntimeException('The command failed.');
-        }
-
-        return $this->result;
+        $this->serviceDuplicator->duplicate(sourceHostId: $command->sourceHostId, newHostId: $command->newHostId);
     }
 }
