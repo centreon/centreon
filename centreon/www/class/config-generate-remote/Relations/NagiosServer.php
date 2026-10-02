@@ -69,6 +69,7 @@ class NagiosServer extends AbstractObject
         'centreonbroker_logs_path',
         'remote_id',
         'remote_server_use_as_proxy',
+        'uid',
     ];
 
     /**

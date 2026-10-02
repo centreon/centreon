@@ -37,7 +37,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -74,20 +76,20 @@ final class DeleteHostCommandHandlerTest extends TestCase
         ($this->handler)(new DeleteHostCommand(new HostId(999), deletedBy: 1));
     }
 
-    public function testItDeletesTheHostAndReturnsItAlongsideAnEmptyServiceCollection(): void
+    public function testItDeletesTheHostAndRequestsItsVaultPurge(): void
     {
         $host = $this->host();
         $this->hostRepository->add($host);
 
-        $result = ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
 
         self::assertNull($this->hostRepository->findOne($host->id()));
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDeleted::class));
-        self::assertSame($host, $result->host);
-        self::assertCount(0, $result->deletedServices);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostVaultPurgeRequested::class));
+        self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class));
     }
 
-    public function testItDeletesExclusivelyLinkedServicesFiresServiceDeletedForEachAndReturnsThem(): void
+    public function testItDeletesExclusivelyLinkedServicesAndFiresTheirEvents(): void
     {
         $host = $this->host();
         $this->hostRepository->add($host);
@@ -96,13 +98,11 @@ final class DeleteHostCommandHandlerTest extends TestCase
         ]);
         $this->serviceRepository->add($service);
 
-        $result = ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
 
         self::assertCount(0, $this->serviceRepository->findExclusivelyLinkedToHostId($host->id()));
         self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceDeleted::class, times: 1));
-        // The full aggregate travels back, macros included: the caller (e.g. a vault purge) needs
-        // more than just the id, and the handler itself must not resolve or act on it.
-        self::assertSame($service, $result->deletedServices->toArray()[0]);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class, times: 1));
     }
 
     public function testItLeavesServicesLinkedToAnotherHostUntouched(): void
@@ -113,11 +113,11 @@ final class DeleteHostCommandHandlerTest extends TestCase
         $unrelatedService = $this->service($otherHostId);
         $this->serviceRepository->add($unrelatedService);
 
-        $result = ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
+        ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: 1));
 
         self::assertCount(1, $this->serviceRepository->findExclusivelyLinkedToHostId($otherHostId));
-        self::assertCount(0, $result->deletedServices);
         self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceDeleted::class));
+        self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class));
     }
 
     private function host(): Host

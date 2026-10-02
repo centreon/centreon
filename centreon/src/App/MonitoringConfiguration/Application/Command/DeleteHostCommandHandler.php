@@ -25,7 +25,9 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
@@ -42,23 +44,22 @@ final readonly class DeleteHostCommandHandler
     ) {
     }
 
-    public function __invoke(DeleteHostCommand $command): DeleteHostResult
+    public function __invoke(DeleteHostCommand $command): void
     {
         $host = $this->hostRepository->findOne($command->id, $command->viewerId);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
 
-        $deletedServices = $this->serviceRepository->findExclusivelyLinkedToHostId($command->id);
-        foreach ($deletedServices as $service) {
+        foreach ($this->serviceRepository->findExclusivelyLinkedToHostId($command->id) as $service) {
             $this->serviceRepository->remove($service);
             $this->eventBus->fire(new ServiceDeleted($service, $command->deletedBy));
+            $this->eventBus->fire(new ServiceVaultPurgeRequested($service));
         }
 
         $this->hostRepository->remove($host);
 
         $this->eventBus->fire(new HostDeleted($host, $command->deletedBy));
-
-        return new DeleteHostResult($host, $deletedServices);
+        $this->eventBus->fire(new HostVaultPurgeRequested($host));
     }
 }

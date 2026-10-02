@@ -28,6 +28,7 @@ use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
@@ -41,8 +42,8 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerChoicesOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
@@ -147,6 +148,8 @@ final readonly class ListHostsProvider implements ProviderInterface
         $templateIds = [];
         /** @var array<int, MediaId> $iconIds */
         $iconIds = [];
+        /** @var list<HostId> $hostIdsWithoutIcon */
+        $hostIdsWithoutIcon = [];
         foreach ($hostList as $host) {
             $pollerIds[$host->pollerId->value] = $host->pollerId;
             foreach ($host->templateIds as $templateId) {
@@ -154,7 +157,18 @@ final readonly class ListHostsProvider implements ProviderInterface
             }
             if ($host->extendedInformations?->iconId !== null) {
                 $iconIds[$host->extendedInformations->iconId->value] = $host->extendedInformations->iconId;
+            } elseif (count($host->templateIds) > 0) {
+                $hostIdsWithoutIcon[] = $host->id();
             }
+        }
+
+        // like legacy, a host without its own icon falls back to the one inherited from its templates
+        /** @var array<int, MediaId> $inheritedIconIds */
+        $inheritedIconIds = $hostIdsWithoutIcon === []
+            ? []
+            : $this->hostTemplateRepository->findInheritedIconIds(new Collection($hostIdsWithoutIcon, HostId::class))->toArray();
+        foreach ($inheritedIconIds as $inheritedIconId) {
+            $iconIds[$inheritedIconId->value] = $inheritedIconId;
         }
 
         /** @var array<int, PollerName> $pollerNames */
@@ -176,10 +190,10 @@ final readonly class ListHostsProvider implements ProviderInterface
             }
 
             $resource = $this->transformer->transform($host);
-            $resource->poller = new PollerChoicesOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
+            $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
             $resource->templates = $templates;
 
-            $iconId = $host->extendedInformations?->iconId;
+            $iconId = $host->extendedInformations->iconId ?? $inheritedIconIds[$host->id()->value] ?? null;
             $icon = $iconId !== null ? $icons[$iconId->value] ?? null : null;
             $resource->icon = $icon instanceof Media
                 ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))

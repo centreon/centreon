@@ -10,6 +10,7 @@ import {
   getHostGroupsEndpoint,
   getHostTemplatesEndpoint,
   getPollersEndpoint,
+  hostDecoder,
   hostsBaseEndpoint,
   hostsListDecoder,
   hostsListEndpoint,
@@ -28,26 +29,65 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
+// API Platform takes snake_case, and ids where the form holds the options the
+// autocompletes selected.
+const toIds = (entities: Array<{ id: number }> | null | undefined) =>
+  (entities ?? []).map(({ id }) => id);
+
+const adaptFormToApiPayload = (data: unknown) => {
+  const { name, address, poller, groups, categories, parentHosts, childHosts } =
+    data as {
+      address: string;
+      categories: Array<{ id: number }> | null;
+      childHosts: Array<{ id: number }> | null;
+      groups: Array<{ id: number }> | null;
+      name: string;
+      parentHosts: Array<{ id: number }> | null;
+      poller: { id: number } | null;
+    };
+
+  return {
+    // Trimmed as the schema validates them: yup casts before checking the
+    // length, so an untrimmed value passes `max` here and fails it server side.
+    address: address?.trim(),
+    category_ids: toIds(categories),
+    child_host_ids: toIds(childHosts),
+    host_group_ids: toIds(groups),
+    name: name?.trim(),
+    parent_host_ids: toIds(parentHosts),
+    poller_id: poller?.id
+  };
+};
+
 const api: APIType = {
   // This endpoint takes `activate`, not the `is_activated` of the older
   // migrated listings.
   activationField: 'activate',
+  adapter: adaptFormToApiPayload,
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
-  decoders: { getAll: hostsListDecoder },
+  decoders: { getAll: hostsListDecoder, getOne: hostDecoder },
   // Every write names one host, so a selection becomes one request per row.
   endpoints: {
+    create: hostsListEndpoint,
     deleteOne: getHostEndpoint,
     disable: getHostEndpoint,
     duplicate: getDuplicateHostEndpoint,
     enable: getHostEndpoint,
-    getAll: hostsListEndpoint
+    getAll: hostsListEndpoint,
+    getOne: getHostEndpoint,
+    update: getHostEndpoint
   },
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,
-    enable: Method.PATCH
+    enable: Method.PATCH,
+    // The same operation enable and disable use. `PatchHostInput` accepts only
+    // `activated` today, so editing a host answers 422 until it carries the
+    // rest of the form; declaring it is what makes that visible rather than
+    // leaving the save silently doing nothing.
+    update: Method.PATCH
   },
   writeBaseEndpoint: hostsBaseEndpoint
 };

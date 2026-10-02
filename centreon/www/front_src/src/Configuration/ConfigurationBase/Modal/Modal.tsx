@@ -3,8 +3,7 @@ import { Modal } from '@centreon/ui/components';
 import { JSX } from 'react';
 
 import { Form as FormType } from '../../models';
-import Form from './Form/Form';
-import useModal from './useModal';
+import { Form, useForm } from '../Form';
 
 interface Props {
   form: FormType;
@@ -21,7 +20,7 @@ const FormModal = ({ form, hasWriteAccess }: Props): JSX.Element => {
     id,
     initialValues,
     isLoading
-  } = useModal({ defaultValues: form.defaultValues, hasWriteAccess });
+  } = useForm({ defaultValues: form.defaultValues, hasWriteAccess });
 
   return (
     <Modal data-testid="Modal" onClose={close} open={isOpen} size="xlarge">

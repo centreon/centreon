@@ -1,14 +1,179 @@
-import type { Group, InputProps } from '@centreon/ui';
+import {
+  type Group,
+  type InputProps,
+  InputType,
+  type SelectEntry
+} from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
+
+import { namedEntitiesListDecoder } from '../api/decoders';
+import {
+  hostFormHostCategoriesEndpoint,
+  hostFormHostGroupsEndpoint,
+  hostFormHostsEndpoint,
+  hostFormPollersEndpoint,
+  hostsBaseEndpoint
+} from '../api/endpoints';
+import {
+  labelChildHosts,
+  labelDataProcessing,
+  labelHostCategories,
+  labelHostConfiguration,
+  labelHostExtendedInfos,
+  labelHostGroups,
+  labelIpAddress,
+  labelMonitoringServer,
+  labelName,
+  labelNotification,
+  labelParentHosts,
+  labelRelations
+} from '../translatedLabels';
 
 interface FormInputsState {
   inputs: Array<InputProps>;
   groups: Array<Group>;
 }
 
-// Placeholder: ConfigurationBase requires a `form`.
-const useFormInputs = (): FormInputsState => ({
-  groups: [],
-  inputs: []
-});
+interface Props {
+  canEdit: boolean;
+  isCloudPlatform: boolean;
+}
+
+// The five sections of the US. They also drive the pinned navigation, which
+// the shared form renders on its own from four groups up.
+const useFormInputs = ({
+  canEdit,
+  isCloudPlatform
+}: Props): FormInputsState => {
+  const { t } = useTranslation();
+
+  const groups: Array<Group> = [
+    { name: t(labelHostConfiguration), order: 1 },
+    // Notifications are an onPrem concern; the US has no such tab on cloud.
+    ...(isCloudPlatform ? [] : [{ name: t(labelNotification), order: 2 }]),
+    { name: t(labelRelations), order: 3 },
+    { name: t(labelDataProcessing), order: 4 },
+    { name: t(labelHostExtendedInfos), order: 5 }
+  ];
+
+  const inputs: Array<InputProps> = [
+    {
+      dataTestId: 'host-form-name',
+      fieldName: 'name',
+      group: t(labelHostConfiguration),
+      label: t(labelName),
+      required: true,
+      type: InputType.Text
+    },
+    {
+      dataTestId: 'host-form-address',
+      fieldName: 'address',
+      group: t(labelHostConfiguration),
+      label: t(labelIpAddress),
+      required: true,
+      type: InputType.Text
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormPollersEndpoint,
+        getOptionLabel: (option) => (option as SelectEntry)?.name,
+        // The listing filter beside this field carries the same label and
+        // reads every poller, where this one reads only the active ones.
+        queryKey: 'host-form-poller',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-poller',
+      fieldName: 'poller',
+      group: t(labelHostConfiguration),
+      label: t(labelMonitoringServer),
+      required: true,
+      type: InputType.SingleConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostGroupsEndpoint,
+        queryKey: 'host-form-groups',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-groups',
+      fieldName: 'groups',
+      // `CreateHostInput` counts at least one group on a cloud platform and
+      // leaves it optional elsewhere, so the field follows the platform.
+      getRequired: () => isCloudPlatform,
+      group: t(labelRelations),
+      label: t(labelHostGroups),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostCategoriesEndpoint,
+        queryKey: 'host-form-categories',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-categories',
+      fieldName: 'categories',
+      group: t(labelRelations),
+      label: t(labelHostCategories),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostsEndpoint,
+        queryKey: 'host-form-parent-hosts',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-parent-hosts',
+      fieldName: 'parentHosts',
+      group: t(labelRelations),
+      label: t(labelParentHosts),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostsEndpoint,
+        queryKey: 'host-form-child-hosts',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-child-hosts',
+      fieldName: 'childHosts',
+      group: t(labelRelations),
+      label: t(labelChildHosts),
+      type: InputType.MultiConnectedAutocomplete
+    }
+  ];
+
+  return {
+    groups,
+    // Frozen here rather than per input: the sections to come add dozens of
+    // fields, and one forgotten `getDisabled` is an editable field on a form
+    // its user may only read.
+    inputs: inputs.map((input) => ({ ...input, getDisabled: () => !canEdit }))
+  };
+};
 
 export default useFormInputs;
