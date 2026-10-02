@@ -1533,29 +1533,40 @@ function updateHost_MC($hostId = null)
         $statement->execute();
     }
     // update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
+    if (isset($_REQUEST['tpSelect']) && is_array($_REQUEST['tpSelect'])) {
         $hostIdParameter = QueryParameters::create([QueryParameter::int('hostId', (int) $hostId)]);
-        $previousTemplateIds = array_map('intval', $pearDB->fetchFirstColumn(
+        $findTemplateIds = static fn (): array => array_map('intval', $pearDB->fetchFirstColumn(
             'SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId',
             $hostIdParameter
         ));
+        $previousTemplateIds = $findTemplateIds();
         $isIncrementalMode = isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0;
-        $oldTp = $isIncrementalMode ? array_combine($previousTemplateIds, $previousTemplateIds) : [];
-        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect'], $oldTp);
-
-        // Replacement mode may unlink templates: delete the services they had deployed on the host.
+        // Replacement mode may unlink templates: their services deployed on the host must go.
         // Host templates are skipped, they have no deployed services.
-        $isHost = (string) $pearDB->fetchOne(
-            'SELECT `host_register` FROM `host` WHERE `host_id` = :hostId',
-            $hostIdParameter
-        ) === '1';
-        if (! $isIncrementalMode && $isHost) {
+        $cleanRemovedTemplateServices = ! $isIncrementalMode
+            && (string) $pearDB->fetchOne(
+                'SELECT `host_register` FROM `host` WHERE `host_id` = :hostId',
+                $hostIdParameter
+            ) === '1';
+        if ($isIncrementalMode) {
+            // Keep the current templates and only add the selected ones.
+            $hostObj->setTemplates(
+                $hostId,
+                $_REQUEST['tpSelect'],
+                array_combine($previousTemplateIds, $previousTemplateIds)
+            );
+        } else {
+            $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+        }
+
+        if ($cleanRemovedTemplateServices) {
             /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
             $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
+            // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
             $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
                 (int) $hostId,
                 $previousTemplateIds,
-                array_map('intval', array_filter($_REQUEST['tpSelect']))
+                $findTemplateIds()
             );
         }
     }
