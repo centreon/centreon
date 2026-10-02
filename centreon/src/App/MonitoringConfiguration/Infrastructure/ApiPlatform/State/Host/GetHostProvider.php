@@ -34,6 +34,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
@@ -73,7 +75,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTim
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -114,6 +119,7 @@ final readonly class GetHostProvider implements ProviderInterface
         private MediaRepository $mediaRepository,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
+        private ResourceAccessRepository $resourceAccessRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -138,16 +144,29 @@ final readonly class GetHostProvider implements ProviderInterface
             throw new HostNotFoundException([$hostId->value], 'id');
         }
 
-        return $this->buildResource($host);
+        return $this->buildResource($host, $viewerId);
     }
 
-    private function buildResource(Host $host): HostResource
+    private function buildResource(Host $host, ?UserId $viewerId): HostResource
     {
         $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
-        $groupNames = $this->hostGroupRepository->findNamesByIds($host->hostGroupIds)->toArray();
+
+        // The aggregate carries the host's full associations; here, on the read side, a restricted
+        // viewer's view is narrowed to what they may access — the host groups, categories and
+        // severity are ACL-scoped (as they are on write, CreateHostCommandHandler), so an
+        // out-of-scope one is dropped from the response rather than surfaced (no existence leak).
+        // The id list is scoped first; the name lookup then runs on a list already known to be
+        // accessible. Keeping this in the read model, not in findOne(), leaves the aggregate whole
+        // for the write paths that also load it.
+        $groupIds = $this->scopeToAccessible(
+            $host->hostGroupIds,
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null,
+            HostGroupId::class,
+        );
+        $groupNames = $this->hostGroupRepository->findNamesByIds($groupIds)->toArray();
 
         $groups = [];
-        foreach ($host->hostGroupIds as $groupId) {
+        foreach ($groupIds as $groupId) {
             if (isset($groupNames[$groupId->value])) {
                 $groups[] = new HostGroupOutput($groupId->value, $groupNames[$groupId->value]->value);
             }
@@ -179,9 +198,15 @@ final readonly class GetHostProvider implements ProviderInterface
         $resource->parentHosts = $this->toRelatedHosts($host->parentHostIds, $relatedHostNames);
         $resource->childHosts = $this->toRelatedHosts($host->childHostIds, $relatedHostNames);
 
-        $categoryNames = $this->hostCategoryRepository->findNamesByIds($host->categoryIds)->toArray();
+        // Categories are ACL-scoped like host groups above: out-of-scope ones are hidden here.
+        $categoryIds = $this->scopeToAccessible(
+            $host->categoryIds,
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            HostCategoryId::class,
+        );
+        $categoryNames = $this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray();
         $resource->categories = [];
-        foreach ($host->categoryIds as $categoryId) {
+        foreach ($categoryIds as $categoryId) {
             if (isset($categoryNames[$categoryId->value])) {
                 $resource->categories[] = new HostCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
             }
@@ -194,7 +219,12 @@ final readonly class GetHostProvider implements ProviderInterface
                 : null;
         }
 
-        if ($host->severityId instanceof HostSeverityId) {
+        // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a
+        // restricted viewer rather than surfaced.
+        if ($host->severityId instanceof HostSeverityId && $this->isAccessible(
+            $host->severityId,
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+        )) {
             $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
             $resource->severity = $severityName instanceof HostSeverityName
                 ? new HostSeverityOutput($host->severityId->value, $severityName->value)
@@ -308,6 +338,60 @@ final readonly class GetHostProvider implements ProviderInterface
         return $icon instanceof Media
             ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
             : null;
+    }
+
+    /**
+     * Keeps only the ids the viewer may access, mirroring the per-viewer ACL checks
+     * CreateHostCommandHandler enforces on write (host groups, categories, severity). A null
+     * $accessible means no restriction applies (admin, or an unrestricted dimension), so the ids
+     * pass through unchanged. The returned list is known to be in-scope, so the follow-up name
+     * lookup needs no further filtering.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     * @param Collection<T>|null $accessible
+     * @param class-string<T> $className
+     *
+     * @return Collection<T>
+     */
+    private function scopeToAccessible(Collection $ids, ?Collection $accessible, string $className): Collection
+    {
+        if (! $accessible instanceof Collection) {
+            return $ids;
+        }
+
+        $accessibleValues = array_map(static fn (AggregateRootId $id): int => $id->value, $accessible->toArray());
+
+        return new Collection(
+            array_values(array_filter(
+                $ids->toArray(),
+                static fn (AggregateRootId $id): bool => in_array($id->value, $accessibleValues, true),
+            )),
+            $className,
+        );
+    }
+
+    /**
+     * Single-id counterpart of {@see self::scopeToAccessible()} for the host's severity. A null
+     * $accessible means no restriction applies, so the id is accessible.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param T $id
+     * @param Collection<T>|null $accessible
+     */
+    private function isAccessible(AggregateRootId $id, ?Collection $accessible): bool
+    {
+        if (! $accessible instanceof Collection) {
+            return true;
+        }
+
+        return in_array(
+            $id->value,
+            array_map(static fn (AggregateRootId $accessibleId): int => $accessibleId->value, $accessible->toArray()),
+            true,
+        );
     }
 
     /**

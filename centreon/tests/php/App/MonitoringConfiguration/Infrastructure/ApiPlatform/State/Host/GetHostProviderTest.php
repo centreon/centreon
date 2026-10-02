@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostPro
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
@@ -456,6 +457,8 @@ final class GetHostProviderTest extends ApiTestCase
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var ResourceAccessRepository $resourceAccessRepository */
+        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
 
         $container->set(
             GetHostProvider::class,
@@ -474,6 +477,7 @@ final class GetHostProviderTest extends ApiTestCase
                 $mediaRepository,
                 $mediaUrlGenerator,
                 $timePeriodRepository,
+                $resourceAccessRepository,
                 $isCloudPlatform,
             ),
         );
