@@ -40,9 +40,12 @@ use Webmozart\Assert\Assert;
  *   c_alias: non-empty-string,
  *   c_admin: string,
  *   c_active: string,
- *   is_cloud_admin: bool,
- *   topology_permissions: array<string>,
- *   action_rules: array<string>
+ * }
+ *
+ * @phpstan-type ExtraDataTypeAlias = array{
+ *   isCloudAdmin?: bool,
+ *   topologyPermissions?: array<string>,
+ *   actionRules?: array<string>,
  * }
  */
 final readonly class DbalCredentialRepository extends DbalRepository implements CredentialRepository
@@ -54,7 +57,7 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
     private const MENU_ACCESS_READ_ONLY = 2;
 
     /**
-     * @param TransformerInterface<RowTypeAlias, Credential> $transformer
+     * @param TransformerInterface<RowTypeAlias, Credential, ExtraDataTypeAlias> $transformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
@@ -152,15 +155,11 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
             ? []
             : $this->buildTopologyPermissions($this->fetchTopologyRulesForNonAdmin($row['c_id']));
 
-        /** @var RowTypeAlias $rowWithPermissions */
-        $rowWithPermissions = [
-            ...$row,
-            'is_cloud_admin' => $isCloudAdmin,
-            'topology_permissions' => $topologyPermissions,
-            'action_rules' => $this->fetchActionRules($row['c_id']),
-        ];
-
-        return $this->transformer->transform($rowWithPermissions);
+        return $this->transformer->transform($row, [
+            'isCloudAdmin' => $isCloudAdmin,
+            'topologyPermissions' => $topologyPermissions,
+            'actionRules' => $this->fetchActionRules($row['c_id']),
+        ]);
     }
 
     /**

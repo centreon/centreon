@@ -38,7 +38,7 @@ final readonly class NotificationContactTransformer implements TransformerInterf
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): NotificationContact
+    public function transform(mixed $from, array $extraData = []): NotificationContact
     {
         return new NotificationContact(
             id: new NotificationContactId($from['id']),

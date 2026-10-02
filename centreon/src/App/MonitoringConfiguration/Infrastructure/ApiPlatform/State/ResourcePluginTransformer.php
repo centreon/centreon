@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ResourcePluginTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): PluginResource
+    public function transform(mixed $from, array $extraData = []): PluginResource
     {
         return new PluginResource(
             name: $from->name->value,

@@ -30,9 +30,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
-use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
-use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -103,6 +100,22 @@ final class HostNotificationsTransformerTest extends TestCase
         self::assertNull($output->timeperiod);
     }
 
+    public function testItTransformsNoNotificationsToNull(): void
+    {
+        self::assertNull((new HostNotificationsTransformer())->transform(null));
+    }
+
+    public function testItRequiresTheNameLookups(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new HostNotificationsTransformer())->transform(new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+        ));
+    }
+
     /**
      * Transforms a block referencing contact 1, contact group 2 and time period 3.
      *
@@ -112,24 +125,12 @@ final class HostNotificationsTransformerTest extends TestCase
      */
     private function transform(array $contactNames, array $contactGroupNames, array $timePeriodNames): HostNotificationsOutput
     {
-        $contactRepository = $this->createStub(NotificationContactRepository::class);
-        $contactRepository->method('findNamesByIds')
-            ->willReturn(new Collection($contactNames, NotificationContactName::class));
-        $contactGroupRepository = $this->createStub(ContactGroupRepository::class);
-        $contactGroupRepository->method('findNamesByIds')
-            ->willReturn(new Collection($contactGroupNames, ContactGroupName::class));
-        $timePeriodRepository = $this->createStub(TimePeriodRepository::class);
-        $timePeriodRepository->method('findNamesByIds')
-            ->willReturn(new Collection($timePeriodNames, TimePeriodName::class));
-
-        $transformer = new HostNotificationsTransformer($contactRepository, $contactGroupRepository, $timePeriodRepository);
-
-        $output = $transformer->transform(new Notifications(
+        $output = (new HostNotificationsTransformer())->transform(new Notifications(
             enabled: TriStateEnum::True,
             contactIds: new Collection([new NotificationContactId(1)], NotificationContactId::class),
             contactGroupIds: new Collection([new ContactGroupId(2)], ContactGroupId::class),
             periodId: new TimePeriodId(3),
-        ));
+        ), ['contactNames' => $contactNames, 'contactGroupNames' => $contactGroupNames, 'timePeriodNames' => $timePeriodNames]);
         self::assertInstanceOf(HostNotificationsOutput::class, $output);
 
         return $output;

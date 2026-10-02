@@ -39,7 +39,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalServiceTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): Service
+    public function transform(mixed $from, array $extraData = []): Service
     {
         return new Service(
             id: new ServiceId((int) $from['service_id']),

@@ -43,11 +43,16 @@ use App\Security\Domain\Aggregate\Permission;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Infrastructure\TransformerInterface;
+use Webmozart\Assert\Assert;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
+ * Adminship and permissions come from other tables than the contact row: the repository resolves
+ * them and passes them as extra data.
  *
- * @implements TransformerInterface<RowTypeAlias, Credential>
+ * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
+ * @phpstan-import-type ExtraDataTypeAlias from DbalCredentialRepository
+ *
+ * @implements TransformerInterface<RowTypeAlias, Credential, ExtraDataTypeAlias>
  */
 final readonly class DbalCredentialTransformer implements TransformerInterface
 {
@@ -110,14 +115,18 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): Credential
+    public function transform(mixed $from, array $extraData = []): Credential
     {
+        Assert::keyExists($extraData, 'isCloudAdmin');
+        Assert::keyExists($extraData, 'topologyPermissions');
+        Assert::keyExists($extraData, 'actionRules');
+
         $credential = new Credential(
             identifier: new CredentialIdentifier($from['c_alias']),
             userId: new UserId($from['c_id']),
             active: $from['c_active'] === '1',
         );
-        foreach ($from['topology_permissions'] as $topology) {
+        foreach ($extraData['topologyPermissions'] as $topology) {
             foreach ($this->mapTopologyToPermissions($topology) as $permission) {
                 $credential->grantPermission($permission);
             }
@@ -127,11 +136,11 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
         }
 
-        if ($from['is_cloud_admin']) {
+        if ($extraData['isCloudAdmin']) {
             $credential->assignRole(new Role('ROLE_CLOUD_ADMIN'));
         }
 
-        foreach ($from['action_rules'] as $actionRule) {
+        foreach ($extraData['actionRules'] as $actionRule) {
             foreach ($this->mapActionRuleToRoles($actionRule) as $role) {
                 $credential->assignRole($role);
             }
