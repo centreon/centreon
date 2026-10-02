@@ -1,5 +1,8 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { userPermissionsAtom } from '@centreon/ui-context';
+import {
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
@@ -11,6 +14,8 @@ import {
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
+  hostFormHostGroupsEndpoint,
+  hostFormPollersEndpoint,
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
@@ -19,6 +24,7 @@ import {
 import {
   emptyListingResponse,
   getHostGroupsResponse,
+  getHostResponse,
   getHostTemplatesResponse,
   getListingResponse,
   getPollersResponse
@@ -27,12 +33,14 @@ import {
 interface Props {
   isEmpty?: boolean;
   hasWriteAccess?: boolean;
+  isCloudPlatform?: boolean;
   deployFails?: boolean;
 }
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
+  isCloudPlatform = false,
   deployFails = false
 }: Props): void => {
   i18next.use(initReactI18next).init({
@@ -49,11 +57,57 @@ const initialize = ({
     configuration_host_write: hasWriteAccess
   });
 
+  store.set(platformFeaturesAtom, { isCloudPlatform });
+
+  cy.interceptAPIRequest({
+    alias: 'getHost',
+    method: Method.GET,
+    path: `**${getHostEndpoint({ id: 0 })}`,
+    response: getHostResponse()
+  });
+
+  // Any row opens the form, so a row the tests open needs a detail response
+  // of its own; host 1 is the one carrying no icon.
+  cy.interceptAPIRequest({
+    alias: 'getHost1',
+    method: Method.GET,
+    path: `**${getHostEndpoint({ id: 1 })}`,
+    response: {
+      address: '10.0.0.1',
+      groups: [],
+      name: 'host 1',
+      poller: { id: 1, name: 'Central' }
+    }
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'createHost',
+    method: Method.POST,
+    path: `**${hostsListEndpoint}`,
+    response: { id: 12, name: 'new host' }
+  });
+
   cy.interceptAPIRequest({
     alias: 'getAllHosts',
     method: Method.GET,
     path: `**${hostsListEndpoint}?**`,
     response: isEmpty ? emptyListingResponse : getListingResponse()
+  });
+
+  // The form reads its own selectors, granted by host write access; the
+  // listing filters below read the generic ones.
+  cy.interceptAPIRequest({
+    alias: 'getFormPollers',
+    method: Method.GET,
+    path: `**${hostFormPollersEndpoint}?**`,
+    response: getPollersResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormHostGroups',
+    method: Method.GET,
+    path: `**${hostFormHostGroupsEndpoint}?**`,
+    response: getHostGroupsResponse()
   });
 
   cy.interceptAPIRequest({

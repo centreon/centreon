@@ -1,2 +1,6 @@
-// Placeholder: ConfigurationBase requires a `form`.
-export const defaultValues = {};
+export const defaultValues = {
+  address: '',
+  groups: [],
+  name: '',
+  poller: null
+};

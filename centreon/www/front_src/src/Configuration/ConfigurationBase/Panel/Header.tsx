@@ -6,7 +6,7 @@ import {
 } from '@mui/icons-material';
 import { Box, Tooltip, Typography } from '@mui/material';
 
-import { IconButton } from '@centreon/ui';
+import { IconButton, Image } from '@centreon/ui';
 import { Switch } from '@centreon/ui/components';
 
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -82,6 +82,10 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
 
   const title = (resource?.name as string) || fallbackTitle;
 
+  // A resource with no icon, or a module whose resources have none, simply
+  // shows its name.
+  const icon = resource?.icon as { name: string; url: string } | null;
+
   const { canDelete, canDuplicate, openDeleteModal, openDuplicateModal } =
     useActions(row);
 
@@ -92,6 +96,19 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
 
   return (
     <Box className="flex min-w-0 items-center gap-2 py-1">
+      {icon && (
+        // `className` reaches only the `<img>`, and the fallback shown while
+        // the icon loads sits in a container `Image` fixes at 100%: the size
+        // has to live on the box around it.
+        <Box className="size-5 shrink-0">
+          <Image
+            alt={icon.name}
+            className="size-full"
+            fallback={<Box />}
+            imagePath={icon.url}
+          />
+        </Box>
+      )}
       <Typography
         className="truncate"
         data-testid={panelDataTestIds.header}
