@@ -26,16 +26,29 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Notifi
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\NotificationContactPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationContact\ListNotificationContactsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationContact\ListNotificationContactsProvider;
 
 #[ApiResource(
     shortName: 'NotificationContact',
     operations: [
         new GetCollection(
+            uriTemplate: '/configuration/hosts/contacts',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access contacts',
+            itemUriTemplate: '/configuration/contacts/{id}',
+            output: NotificationContactChoicesOutput::class,
+            provider: ListNotificationContactsChoicesProvider::class,
+        ),
+        new GetCollection(
             uriTemplate: '/configuration/contacts',
             provider: ListNotificationContactsProvider::class,
+            itemUriTemplate: '/configuration/contacts/{id}',
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -52,6 +65,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationCon
                 is_granted("' . NotificationContactPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list contacts',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/contacts/{id}'),
     ],
 )]
 final class NotificationContactResource

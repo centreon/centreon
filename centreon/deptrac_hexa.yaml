@@ -66,6 +66,16 @@ parameters:
             - App\Kernel
         App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
             - Centreon\Domain\Exception\EntityNotFoundException
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceDeployerWrapper:
+            - Centreon\Domain\Contact\Contact
+            - Centreon\Domain\Contact\Interfaces\ContactInterface
+            - Centreon\Domain\Contact\Interfaces\ContactServiceInterface
+            - Core\Service\Application\UseCase\DeployServices\DeployServices
+        App\MonitoringConfiguration\Infrastructure\Legacy\CapturingDeployServicesPresenter:
+            - Core\Application\Common\UseCase\AbstractResponse
+            - Core\Application\Common\UseCase\ResponseStatusInterface
+            - Core\Service\Application\UseCase\DeployServices\DeployServicesPresenterInterface
+            - Core\Service\Application\UseCase\DeployServices\DeployServicesResponse
         App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
             - Core\Common\Application\Repository\WriteVaultRepositoryInterface

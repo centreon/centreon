@@ -8,8 +8,9 @@ import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
-import { FilterConfiguration, ResourceType } from '../../models';
+import { Actions, FilterConfiguration, ResourceType } from '../../models';
 import ConfigurationBase from '..';
+import { panelWidthAtom } from '../atoms';
 import {
   columns,
   columnsAtomKey,
@@ -25,7 +26,10 @@ import {
   resourceDecoderListDecoder
 } from './utils';
 
-export const mockActionsRequests = (resourceType): void => {
+export const mockActionsRequests = (
+  resourceType,
+  disableFails = false
+): void => {
   cy.interceptAPIRequest({
     alias: 'deleteOne',
     method: Method.DELETE,
@@ -61,7 +65,13 @@ export const mockActionsRequests = (resourceType): void => {
     method: Method.POST,
     path: `**${getEndpoints(resourceType).disable?.()}`,
     response: {
-      results: [{ href: '/resources/1', message: null, status: 204 }]
+      results: [
+        {
+          href: '/resources/1',
+          message: disableFails ? 'Resource in use' : null,
+          status: disableFails ? 409 : 204
+        }
+      ]
     }
   });
 };
@@ -111,18 +121,41 @@ export const mockModalRequests = (resourceType): void => {
   });
 };
 
+const defaultActions = {
+  delete: () => true,
+  duplicate: () => true,
+  edit: true,
+  enableDisable: () => true,
+  massive: true,
+  viewDetails: true
+};
+
 const initialize = ({
   resourceType = ResourceType.Host,
   filters = filtersConfiguration,
   initialValues = filtersInitialValues,
-  filtersPanelWidth
+  filtersPanelWidth,
+  actions = defaultActions,
+  formVariant,
+  formPanelWidth,
+  panelWidth,
+  searchParams = ''
 }: {
   resourceType?: ResourceType;
   filters?: Array<FilterConfiguration>;
   initialValues?: Record<string, unknown>;
   filtersPanelWidth?: number;
+  actions?: Actions;
+  formVariant?: 'modal' | 'panel';
+  formPanelWidth?: number;
+  panelWidth?: number;
+  searchParams?: string;
 }): void => {
   const resource = resourceType.replace(' ', '_');
+
+  // A deep link is the URL the page opens on. Always set, so no test leaks
+  // its URL into the next.
+  window.history.pushState({}, '', searchParams || window.location.pathname);
 
   mockListingRequests(resource);
 
@@ -137,6 +170,10 @@ const initialize = ({
 
   const store = createStore();
 
+  // Always set: the store is new for each test but localStorage is not, so a
+  // width one test drags to would otherwise open the next one.
+  store.set(panelWidthAtom, panelWidth ?? null);
+
   cy.mount({
     Component: (
       <Router>
@@ -145,14 +182,7 @@ const initialize = ({
             <Provider store={store}>
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
-                  actions={{
-                    delete: () => true,
-                    duplicate: () => true,
-                    edit: true,
-                    enableDisable: () => true,
-                    massive: true,
-                    viewDetails: true
-                  }}
+                  actions={actions}
                   api={{
                     adapter: (data) => data,
                     decoders: { getAll: resourceDecoderListDecoder },
@@ -180,6 +210,8 @@ const initialize = ({
                     groups,
                     inputs
                   }}
+                  formPanelWidth={formPanelWidth}
+                  formVariant={formVariant}
                   isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
                   labels={{
                     title: `${capitalize(resourceType)}s`,

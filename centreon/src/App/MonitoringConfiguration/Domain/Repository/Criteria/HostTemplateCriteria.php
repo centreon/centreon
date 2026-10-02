@@ -34,6 +34,8 @@ final class HostTemplateCriteria implements PaginableCriteria
 
     private ?string $name = null;
 
+    private bool $excludeLocked = false;
+
     public function withName(string $name): self
     {
         // notEmpty() relies on empty(), which would wrongly reject a legitimate name of "0"
@@ -48,5 +50,18 @@ final class HostTemplateCriteria implements PaginableCriteria
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function withExcludeLocked(bool $exclude): self
+    {
+        $new = clone $this;
+        $new->excludeLocked = $exclude;
+
+        return $new;
+    }
+
+    public function excludeLocked(): bool
+    {
+        return $this->excludeLocked;
     }
 }

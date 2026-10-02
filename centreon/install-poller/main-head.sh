@@ -84,12 +84,17 @@ ENGINE_PORT=""
 # Optional / runtime
 TZ=""
 DEBUG=""
+# Preserve a caller-exported value instead of blanking it like TZ/DEBUG above.
+GORGONE_LOG_LEVEL="${GORGONE_LOG_LEVEL:-}"
 
 # Optional services (Docker mode)
 WITH_VMWARE=0
 WITH_SNMPTRAP=0
 WITH_CMA=0
 START_STACK=1
+
+# Overwrite existing docker-compose.yaml/.env without prompting (--overwrite)
+OVERWRITE=0
 
 # Path to a centreon-plugins checkout, used to build the centreon-vmware
 # image when --with-vmware is set. Empty means use the default (see

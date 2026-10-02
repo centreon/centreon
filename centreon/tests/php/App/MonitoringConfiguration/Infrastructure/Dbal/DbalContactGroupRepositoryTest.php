@@ -24,9 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -162,6 +165,55 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertNotContains("gamma_{$suffix}", $names);
     }
 
+    public function testFindAllMapsTheContactGroupTypeEnum(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $this->insertContactGroup("local_{$suffix}", type: 'local');
+        $this->insertContactGroup("ldap_{$suffix}", type: 'ldap');
+
+        $contactGroups = iterator_to_array($this->repository->findAll(
+            (new ContactGroupCriteria())->withName($suffix)
+        ));
+        $typesByName = [];
+        foreach ($contactGroups as $contactGroup) {
+            $typesByName[$contactGroup->name->value] = $contactGroup->type;
+        }
+
+        self::assertSame(ContactGroupTypeEnum::Local, $typesByName["local_{$suffix}"]);
+        self::assertSame(ContactGroupTypeEnum::Ldap, $typesByName["ldap_{$suffix}"]);
+    }
+
+    public function testFindAllExcludesLdapContactGroupsWhenRequested(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $this->insertContactGroup("local_{$suffix}", type: 'local');
+        $this->insertContactGroup("ldap_{$suffix}", type: 'ldap');
+
+        $names = $this->names($this->repository->findAll(
+            (new ContactGroupCriteria())->withName($suffix)->withExcludeLdap(true)
+        ));
+
+        self::assertContains("local_{$suffix}", $names);
+        self::assertNotContains("ldap_{$suffix}", $names);
+    }
+
+    /**
+     * cg_type is nullable in DB (no NOT NULL constraint); a NULL row is not LDAP and must stay
+     * included, both in the exclude-LDAP filter and in the domain type mapping.
+     */
+    public function testFindAllTreatsANullContactGroupTypeAsLocal(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $this->insertContactGroup("untyped_{$suffix}", type: null);
+
+        $contactGroups = iterator_to_array($this->repository->findAll(
+            (new ContactGroupCriteria())->withName($suffix)->withExcludeLdap(true)
+        ));
+
+        self::assertCount(1, $contactGroups);
+        self::assertSame(ContactGroupTypeEnum::Local, $contactGroups[array_key_first($contactGroups)]->type);
+    }
+
     public function testFindAllExcludesContactGroupsWithoutAName(): void
     {
         $suffix = bin2hex(random_bytes(6));
@@ -222,6 +274,49 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertSame(0, $paginated->getTotalItems());
     }
 
+    public function testFindNamesByIdsReturnsEachRequestedNameIndexedById(): void
+    {
+        $firstName = 'cg-first-' . uniqid();
+        $secondName = 'cg-second-' . uniqid();
+        $firstId = $this->insertContactGroup($firstName);
+        $secondId = $this->insertContactGroup($secondName);
+
+        $names = $this->repository->findNamesByIds($this->ids($firstId, $secondId))->toArray();
+
+        self::assertCount(2, $names);
+        self::assertSame($firstName, $names[$firstId]->value);
+        self::assertSame($secondName, $names[$secondId]->value);
+    }
+
+    public function testFindNamesByIdsOmitsAnUnknownId(): void
+    {
+        $knownId = $this->insertContactGroup('cg-known-' . uniqid());
+
+        // an id absent from the result is what tells the caller the contact group no longer exists
+        $names = $this->repository->findNamesByIds($this->ids($knownId, 2147483647))->toArray();
+
+        self::assertSame([$knownId], array_keys($names));
+    }
+
+    public function testFindNamesByIdsOmitsARowWithAnEmptyName(): void
+    {
+        // cg_name is nullable/emptyable in DB while ContactGroupName requires a non-empty value:
+        // such a row must read as non-existent instead of turning the lookup into a 500
+        $this->connection->insert('contactgroup', ['cg_name' => '', 'cg_alias' => 'empty-' . uniqid(), 'cg_type' => 'local', 'cg_activate' => '1']);
+        $emptyNameId = (int) $this->connection->lastInsertId();
+
+        $names = $this->repository->findNamesByIds($this->ids($emptyNameId))->toArray();
+
+        self::assertSame([], $names);
+    }
+
+    public function testFindNamesByIdsQueriesNothingForAnEmptyList(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], ContactGroupId::class));
+
+        self::assertCount(0, $names);
+    }
+
     /**
      * @return list<string>
      */
@@ -268,12 +363,23 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         return is_numeric($count) ? (int) $count : 0;
     }
 
-    private function insertContactGroup(string $name): int
+    /**
+     * @return Collection<ContactGroupId>
+     */
+    private function ids(int ...$ids): Collection
+    {
+        return new Collection(
+            array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $ids),
+            ContactGroupId::class,
+        );
+    }
+
+    private function insertContactGroup(string $name, ?string $type = 'local'): int
     {
         $this->connection->insert('contactgroup', [
             'cg_name' => $name,
             'cg_alias' => $name,
-            'cg_type' => 'local',
+            'cg_type' => $type,
             'cg_activate' => '1',
         ]);
 

@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\Shared\Domain\Collection;
 
@@ -45,4 +47,16 @@ interface HostTemplateRepository
      * @return Collection<HostTemplateName> indexed by host template id
      */
     public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * Every requested host's icon inherited from its template chain, resolved like legacy
+     * getMyHostExtendedInfoImage(): templates are walked depth-first by relation order and the
+     * first icon found wins. The host's own icon is ignored. A host with no inherited icon is
+     * absent from the result.
+     *
+     * @param Collection<HostId> $hostIds
+     *
+     * @return Collection<MediaId> indexed by host id
+     */
+    public function findInheritedIconIds(Collection $hostIds): Collection;
 }

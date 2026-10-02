@@ -125,7 +125,10 @@ $resolveCloudCentralAddress = function () use ($version): ?string {
 /**
  * Resolve central address from broker output configs (on-prem).
  * Looks for IPv4 or BBDO Client outputs with a non-empty host.
- * When multiple outputs exist, takes the most recent one (highest id).
+ * When multiple outputs exist, takes the highest `config_group_id` (the index of a flow inside
+ * its broker configuration), `config_id` only breaking ties. Ordering by `config_id` first would
+ * be wrong: a platform owns two or three broker configurations, and among the matching outputs
+ * the highest `config_id` is the module one, which dials the local broker rather than the central.
  *
  * @param array{server_id: ?int} $platform
  */
@@ -150,7 +153,7 @@ $resolveOnPremCentralAddress = function (array $platform) use ($pearDB): ?string
                 AND cbi_host.config_group = 'output'
                 AND cbi_host.config_key = 'host'
                 AND TRIM(cbi_host.config_value) != ''
-            ORDER BY cbi_host.id DESC
+            ORDER BY cbi_host.config_group_id DESC, cbi_host.config_id DESC
             LIMIT 1
             SQL,
         QueryParameters::create([

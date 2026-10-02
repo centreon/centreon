@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -102,6 +103,22 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
+    }
+
+    public function findNameById(HostSeverityId $id): ?HostSeverityName
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hc.hc_name')
+            ->from(self::TABLE_NAME, 'hc')
+            ->where('hc.level IS NOT NULL') // a levelless row is a category, not a severity
+            ->andWhere($qb->expr()->eq('hc.hc_id', $qb->createNamedParameter($id->value)))
+            ->setMaxResults(1);
+
+        // `hc_name` is nullable; a nameless row reads as "not found", as in the sibling repositories.
+        /** @var false|string|null $name */
+        $name = $qb->executeQuery()->fetchOne();
+
+        return is_string($name) && $name !== '' ? new HostSeverityName($name) : null;
     }
 
     private function filterByCriteria(QueryBuilder $qb, HostSeverityCriteria $criteria): void

@@ -58,6 +58,45 @@ final class LegacyVaultWrapperTest extends TestCase
         $this->wrapper = new LegacyVaultWrapper($container);
     }
 
+    public function testItResolvesNothingUntilALegacyServiceIsActuallyNeeded(): void
+    {
+        $container = $this->createMock(LegacyContainer::class);
+        $container->expects(self::never())->method('get');
+
+        $wrapper = new LegacyVaultWrapper($container);
+
+        self::assertTrue($wrapper->isVaultPath('secret::path'));
+        self::assertFalse($wrapper->isVaultPath('plaintext'));
+    }
+
+    public function testResolvingAPlaintextValueTouchesNoLegacyService(): void
+    {
+        $container = $this->createMock(LegacyContainer::class);
+        $container->expects(self::never())->method('get');
+
+        self::assertSame('public', new LegacyVaultWrapper($container)->resolve('public'));
+    }
+
+    public function testItResolvesAVaultPathToItsSecret(): void
+    {
+        $path = 'secret::hashicorp_vault::monitoring/hosts/3f2a::_HOSTSNMPCOMMUNITY';
+        $this->readRepository->expects(self::once())
+            ->method('findFromPath')
+            ->with($path)
+            ->willReturn(['_HOSTSNMPCOMMUNITY' => 'public']);
+
+        self::assertSame('public', $this->wrapper->resolve($path));
+    }
+
+    public function testItFailsWhenTheVaultHoldsNoSecretUnderTheKey(): void
+    {
+        $this->readRepository->method('findFromPath')->willReturn([]);
+
+        $this->expectException(\RuntimeException::class);
+
+        $this->wrapper->resolve('secret::hashicorp_vault::monitoring/hosts/3f2a::_HOSTSNMPCOMMUNITY');
+    }
+
     public function testWriteManyReturnsOnlyRequestedKeysWhenEntryHoldsOthers(): void
     {
         $this->writeRepository->expects($this->once())->method('setCustomPath')->with('monitoring/hosts');
@@ -95,5 +134,52 @@ final class LegacyVaultWrapperTest extends TestCase
         $this->expectExceptionMessage('Unable to write vault credential "_HOSTKEY"');
 
         $this->wrapper->writeMany('monitoring/hosts', ['_HOSTKEY' => 'value']);
+    }
+
+    public function testWriteManyForwardsDeletesAsKeysToUpsert(): void
+    {
+        $this->writeRepository->expects($this->once())->method('setCustomPath')->with('monitoring/hosts');
+        // The list of keys to drop is handed to upsert() as the keys of its third argument.
+        $this->writeRepository->expects($this->once())
+            ->method('upsert')
+            ->with('existing-uuid', ['_HOSTKEY' => 'value'], ['_DROPPED' => ''])
+            ->willReturn([
+                '_HOSTKEY' => 'secret::vault::monitoring/hosts/existing-uuid::_HOSTKEY',
+            ]);
+
+        $result = $this->wrapper->writeMany('monitoring/hosts', ['_HOSTKEY' => 'value'], 'existing-uuid', ['_DROPPED']);
+
+        self::assertSame([
+            '_HOSTKEY' => 'secret::vault::monitoring/hosts/existing-uuid::_HOSTKEY',
+        ], $result);
+    }
+
+    public function testExtractUuidReturnsTheEntryUuid(): void
+    {
+        $container = $this->createMock(LegacyContainer::class);
+        $container->expects(self::never())->method('get');
+
+        $wrapper = new LegacyVaultWrapper($container);
+
+        self::assertSame(
+            '3f2a-uuid',
+            $wrapper->extractUuid('secret::hashicorp_vault::monitoring/hosts/3f2a-uuid::_HOSTSNMPCOMMUNITY'),
+        );
+    }
+
+    public function testExtractUuidReturnsNullWhenValueIsNotAVaultPath(): void
+    {
+        $container = $this->createMock(LegacyContainer::class);
+        $container->expects(self::never())->method('get');
+
+        self::assertNull(new LegacyVaultWrapper($container)->extractUuid('plaintext'));
+    }
+
+    public function testDeleteSetsCustomPathThenDeletesByUuid(): void
+    {
+        $this->writeRepository->expects($this->once())->method('setCustomPath')->with('monitoring/hosts');
+        $this->writeRepository->expects($this->once())->method('delete')->with('entry-uuid');
+
+        $this->wrapper->delete('monitoring/hosts', 'entry-uuid');
     }
 }

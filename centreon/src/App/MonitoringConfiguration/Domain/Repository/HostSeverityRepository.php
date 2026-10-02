@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 
 interface HostSeverityRepository
@@ -32,4 +34,9 @@ interface HostSeverityRepository
      * @return \IteratorAggregate<int, HostSeverity>&\Countable
      */
     public function findAll(?HostSeverityCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Never returns a category, though both share the `hostcategories` table.
+     */
+    public function findNameById(HostSeverityId $id): ?HostSeverityName;
 }

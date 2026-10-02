@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -62,6 +63,33 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
 
         private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostCategoryId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostCategoryName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hc.hc_id', 'hc.hc_name')
+            ->from(self::TABLE_NAME, 'hc')
+            ->where('hc.level IS NULL') // a levelled row is a severity, not a category
+            ->andWhere($qb->expr()->in('hc.hc_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{hc_id: int|string, hc_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        // `hc_name` is nullable; a nameless row reads as "not found".
+        $names = [];
+        foreach ($rows as $row) {
+            if (($name = (string) $row['hc_name']) !== '') {
+                $names[(int) $row['hc_id']] = new HostCategoryName($name);
+            }
+        }
+
+        return new Collection($names, HostCategoryName::class);
     }
 
     public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable

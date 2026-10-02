@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\TimezoneCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalTimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\TimezoneTransformer;
@@ -52,6 +53,18 @@ final class DbalTimezoneRepositoryTest extends KernelTestCase
 
         // unique per test run so assertions are isolated from the pre-seeded IANA timezone rows
         $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    public function testFindNameByIdResolvesAnExistingTimezone(): void
+    {
+        $timezoneId = $this->insertTimezone("Europe/Paris-{$this->tag}");
+
+        self::assertSame("Europe/Paris-{$this->tag}", $this->repository->findNameById(new TimezoneId($timezoneId))?->value);
+    }
+
+    public function testFindNameByIdReturnsNullForAnUnknownTimezone(): void
+    {
+        self::assertNull($this->repository->findNameById(new TimezoneId(999999)));
     }
 
     public function testFindAllReturnsAllTimezones(): void
