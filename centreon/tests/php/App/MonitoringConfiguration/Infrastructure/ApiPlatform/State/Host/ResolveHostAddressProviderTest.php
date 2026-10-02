@@ -23,9 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
-use App\MonitoringConfiguration\Domain\Service\HostAddressResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostAddressResolutionResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ResolveHostAddressProvider;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Uid\Uuid;
@@ -47,6 +45,13 @@ final class ResolveHostAddressProviderTest extends ApiTestCase
 
     private Connection $connection;
 
+    /**
+     * IS_CLOUD_PLATFORM as found in the ENV and SERVER superglobals before forceCloudPlatform().
+     *
+     * @var array{mixed, mixed}|null
+     */
+    private ?array $previousCloudPlatformEnv = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -54,6 +59,26 @@ final class ResolveHostAddressProviderTest extends ApiTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->previousCloudPlatformEnv !== null) {
+            [$previousEnv, $previousServer] = $this->previousCloudPlatformEnv;
+            if ($previousEnv === null) {
+                unset($_ENV['IS_CLOUD_PLATFORM']);
+            } else {
+                $_ENV['IS_CLOUD_PLATFORM'] = $previousEnv;
+            }
+            if ($previousServer === null) {
+                unset($_SERVER['IS_CLOUD_PLATFORM']);
+            } else {
+                $_SERVER['IS_CLOUD_PLATFORM'] = $previousServer;
+            }
+            $this->previousCloudPlatformEnv = null;
+        }
+
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -80,7 +105,7 @@ final class ResolveHostAddressProviderTest extends ApiTestCase
         $this->grantHostTopologyRole($this->createNonAdminContact($username), self::ACL_ACCESS_READ_WRITE);
         $this->login($username);
 
-        // answered by /etc/hosts, so the test needs no network
+        // answered by FakeDnsResolver's localhost record, so the test needs no network
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['hostname' => 'localhost']]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(HostAddressResolutionResource::class);
@@ -178,10 +203,41 @@ final class ResolveHostAddressProviderTest extends ApiTestCase
         self::assertStringContainsString("[hostname] {$expectedViolation}", $message);
     }
 
-    public function testItIsNotAvailableOnCloudPlatforms(): void
+    /**
+     * @return iterable<string, array{?string, array<string, string>}>
+     */
+    public static function provideCloudRequests(): iterable
     {
-        $this->login();
+        yield 'valid request' => ['admin', ['hostname' => 'localhost']];
+
+        yield 'invalid hostname' => ['admin', ['hostname' => 'srv_01']];
+
+        yield 'missing hostname' => ['admin', []];
+
+        yield 'unauthenticated' => [null, ['hostname' => 'localhost']];
+    }
+
+    /**
+     * @param array<string, string> $query
+     */
+    #[DataProvider('provideCloudRequests')]
+    public function testItDoesNotExistOnCloudPlatforms(?string $username, array $query): void
+    {
         $this->forceCloudPlatform();
+        if ($username !== null) {
+            $this->login($username);
+        }
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => $query]);
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testItDoesNotExistOnCloudPlatformsForAUserGrantedOnlyTheHostReadTopologyRole(): void
+    {
+        $this->forceCloudPlatform();
+        $username = 'resolve_' . Uuid::v4();
+        $this->grantHostTopologyRole($this->createNonAdminContact($username), self::ACL_ACCESS_READ_ONLY);
+        $this->login($username);
 
         $this->request('GET', self::BASE_ENDPOINT, ['query' => ['hostname' => 'localhost']]);
         self::assertResponseStatusCodeSame(404);
@@ -249,16 +305,25 @@ final class ResolveHostAddressProviderTest extends ApiTestCase
     }
 
     /**
-     * `isCloudPlatform` is a constructor argument autowired from the IS_CLOUD_PLATFORM env var, so
-     * the platform is forced by replacing the Provider instance in the container.
+     * The route condition reads IS_CLOUD_PLATFORM at request time through the container's env()
+     * (not at compile time), so setting the env var and booting a fresh kernel is enough.
      */
     private function forceCloudPlatform(): void
     {
-        $container = self::getContainer();
+        $this->previousCloudPlatformEnv = [
+            $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+            $_SERVER['IS_CLOUD_PLATFORM'] ?? null,
+        ];
+        $_ENV['IS_CLOUD_PLATFORM'] = $_SERVER['IS_CLOUD_PLATFORM'] = '1';
 
-        /** @var HostAddressResolver $hostAddressResolver */
-        $hostAddressResolver = $container->get(HostAddressResolver::class);
+        // the client shares static::$kernel: rebooting it gives both a container with no env cached
+        $kernel = self::$kernel;
+        Assert::notNull($kernel);
+        $kernel->shutdown();
+        $kernel->boot();
 
-        $container->set(ResolveHostAddressProvider::class, new ResolveHostAddressProvider($hostAddressResolver, true));
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
     }
 }

@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Model\ResolvableAddress;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ResolveHostAddressProvider;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidResolvableAddress;
+use App\Shared\Infrastructure\ApiPlatform\Routing\PlatformCondition;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -40,6 +41,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(
             uriTemplate: '/configuration/hosts/_resolve',
+            // Legacy only offers the "Resolve" button on-premise: on Cloud the lookup would run against
+            // Centreon's own infrastructure rather than the customer's network.
+            condition: PlatformCondition::ON_PREMISE_ONLY,
             parameters: [
                 'hostname' => new QueryParameter(
                     schema: ['type' => 'string'],

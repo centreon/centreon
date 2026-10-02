@@ -28,8 +28,6 @@ use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Model\ResolvableAddress;
 use App\MonitoringConfiguration\Domain\Service\HostAddressResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostAddressResolutionResource;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -39,19 +37,11 @@ final readonly class ResolveHostAddressProvider implements ProviderInterface
 {
     public function __construct(
         private HostAddressResolver $hostAddressResolver,
-        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
-        private bool $isCloudPlatform = false,
     ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): HostAddressResolutionResource
     {
-        // Legacy only offers the "Resolve" button on-premise: on Cloud the lookup would run against
-        // Centreon's own infrastructure rather than the customer's network.
-        if ($this->isCloudPlatform) {
-            throw new NotFoundHttpException('Host address resolution is not available on Cloud platforms.');
-        }
-
         // Guaranteed by the parameter constraints, which run before the provider.
         $hostname = $operation->getParameters()?->get('hostname')?->getValue();
         Assert::string($hostname);
