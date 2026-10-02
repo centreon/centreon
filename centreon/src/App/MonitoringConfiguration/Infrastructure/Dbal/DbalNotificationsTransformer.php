@@ -102,7 +102,12 @@ final readonly class DbalNotificationsTransformer implements TransformerInterfac
      */
     public static function optionsFromColumn(?string $column): array
     {
-        if ($column === null || $column === '') {
+        if ($column === null) {
+            return [];
+        }
+
+        $column = trim($column);
+        if ($column === '') {
             return [];
         }
 
