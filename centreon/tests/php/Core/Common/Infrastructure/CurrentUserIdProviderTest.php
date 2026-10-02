@@ -33,30 +33,28 @@ beforeEach(function (): void {
     $this->provider = new CurrentUserIdProvider($this->tokenStorage);
     $this->previousSession = $_SESSION ?? null;
     $_SESSION = [];
+    $this->legacySession = static function (int $userId): object {
+        $legacyUser = (new \ReflectionClass(\CentreonUser::class))->newInstanceWithoutConstructor();
+        $legacyUser->user_id = $userId;
+
+        return (object) ['user' => $legacyUser];
+    };
 });
 
 afterEach(function (): void {
     $_SESSION = $this->previousSession;
 });
 
-function legacySession(int $userId): object
-{
-    $legacyUser = (new \ReflectionClass(\CentreonUser::class))->newInstanceWithoutConstructor();
-    $legacyUser->user_id = $userId;
-
-    return (object) ['user' => $legacyUser];
-}
-
 it('should return the user of the Symfony token', function (): void {
     $contact = (new Contact())->setId(12);
     $this->tokenStorage->setToken(new PreAuthenticatedToken($contact, 'api', []));
-    $_SESSION['centreon'] = legacySession(34);
+    $_SESSION['centreon'] = ($this->legacySession)(34);
 
     expect($this->provider->getUserId())->toBe(12);
 });
 
 it('should fall back to the user of the legacy session', function (): void {
-    $_SESSION['centreon'] = legacySession(34);
+    $_SESSION['centreon'] = ($this->legacySession)(34);
 
     expect($this->provider->getUserId())->toBe(34);
 });

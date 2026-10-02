@@ -121,3 +121,56 @@ it('should delete every service of the removed templates when no template remain
 
     $this->cleaner->cleanServicesFromRemovedTemplates($this->hostId, [4], []);
 });
+
+it('should stop on an inheritance loop between templates', function (): void {
+    // Templates [4] become [5]: template 4 inherits from 6, which inherits back from 4.
+    $this->readHostRepository
+        ->method('findParents')
+        ->willReturnMap([
+            [5, []],
+            [4, [['child_id' => 4, 'parent_id' => 6, 'order' => 0], ['child_id' => 6, 'parent_id' => 4, 'order' => 0]]],
+            [6, [['child_id' => 6, 'parent_id' => 4, 'order' => 0], ['child_id' => 4, 'parent_id' => 6, 'order' => 0]]],
+        ]);
+    $visitedTemplateIds = [];
+    $this->readServiceTemplateRepository
+        ->expects($this->exactly(2))
+        ->method('findIdsByHostTemplateId')
+        ->willReturnCallback(function (int $templateId) use (&$visitedTemplateIds): array {
+            $visitedTemplateIds[] = $templateId;
+
+            return [];
+        });
+
+    $this->cleaner->cleanServicesFromRemovedTemplates($this->hostId, [4], [5]);
+
+    expect($visitedTemplateIds)->toBe([4, 6]);
+});
+
+it('should keep the services of a parent still inherited through a remaining template', function (): void {
+    // Templates [4] become [5]: both inherit from 6, so the services of 6 stay.
+    $this->readHostRepository
+        ->method('findParents')
+        ->willReturnMap([
+            [5, [['child_id' => 5, 'parent_id' => 6, 'order' => 0]]],
+            [4, [['child_id' => 4, 'parent_id' => 6, 'order' => 0]]],
+            [6, []],
+        ]);
+    $this->readServiceTemplateRepository
+        ->method('findIdsByHostTemplateId')
+        ->willReturnMap([
+            [4, [10]],
+            [6, [20]],
+        ]);
+    $this->readServiceTemplateRepository
+        ->method('isLinkedToAnyHostTemplate')
+        ->willReturnCallback(
+            static fn (int $serviceTemplateId, array $hostTemplateIds): bool => $serviceTemplateId === 20
+                && in_array(6, $hostTemplateIds, true)
+        );
+    $this->writeServiceRepository
+        ->expects($this->once())
+        ->method('deleteByHostIdAndServiceTemplateId')
+        ->with($this->hostId, 10);
+
+    $this->cleaner->cleanServicesFromRemovedTemplates($this->hostId, [4], [5]);
+});
