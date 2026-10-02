@@ -6066,6 +6066,8 @@ paths:
       tags:
         - HostAddressResolution
       responses:
+        '401':
+          description: 'Authentication required'
         '404':
           description: 'Not available on Cloud platforms'
         '422':
@@ -12593,6 +12595,9 @@ components:
               type: string
     HostAddressResolution:
       type: object
+      required:
+        - hostname
+        - resolved
       properties:
         hostname:
           type: string
@@ -12607,6 +12612,9 @@ components:
           $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
+          required:
+            - hostname
+            - resolved
           properties:
             hostname:
               type: string

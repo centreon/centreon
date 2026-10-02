@@ -62,6 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 description: 'An IPv4 is returned as is. A hostname that does not resolve to an IPv4 is reported '
                     . 'with "resolved" set to false. Not available on Cloud platforms.',
                 responses: [
+                    401 => new Model\Response('Authentication required'),
                     404 => new Model\Response('Not available on Cloud platforms'),
                     422 => new Model\Response('Neither an IPv4 address nor a hostname'),
                 ],
@@ -75,12 +76,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class HostAddressResolutionResource
 {
     public function __construct(
+        #[ApiProperty(required: true)]
         public string $hostname,
         #[ApiProperty(
             schema: ['type' => 'string', 'description' => 'Absent from the response when "resolved" is false.'],
         )]
         #[SerializedName('ip')]
         public ?string $ipv4,
+        #[ApiProperty(required: true)]
         public bool $resolved,
     ) {
     }
