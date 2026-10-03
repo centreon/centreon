@@ -232,7 +232,6 @@ sub get_alarms {
         FROM mod_dsm_cache mdc, hosts
         WHERE mdc.host_id = hosts.host_id AND
             hosts.enabled = '1'
-        GROUP BY mdc.host_id, mdc.pool_prefix
         "
     );
     if ($status == -1) {
@@ -240,40 +239,52 @@ sub get_alarms {
         return 1;
     }
 
-    my $rows = [];
-    my @sql_where = ();
-    while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
-        push @{$self->{current_alarms}}, $row;
-        push @sql_where, "(services.host_id = $row->[1] AND services.description LIKE " . $self->{db_centstorage}->quote($row->[4] . '%') . ")";
+    while (my $alarm_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
+        last if (scalar(@$alarm_batch) == 0);
+        push @{$self->{current_alarms}}, @$alarm_batch;
     }
 
     return 1 if (scalar(@{$self->{current_alarms}}) == 0);
 
-    ($status, $sth) = $self->{db_centstorage}->query(
+    my %pools = ();
+    my @sql_where = ();
+    my @bind_values = ($self->{dsmd_config}->{macro_config}); # bind for cv.name
+
+    # $alarm->[X]
+    # 0 = cache_id, 1 = host_id, 2 = ctime, 3 = status, 4 = pool_prefix, 5 = id (alarm id), 6 = macros, 7 = output
+    foreach my $alarm (@{$self->{current_alarms}}) {
+        next if (defined($pools{$alarm->[1]}->{$alarm->[4]}));
+        $pools{$alarm->[1]}->{$alarm->[4]} = 1;
+        push @sql_where, "(services.host_id = ? AND services.description LIKE ?)";
+        push @bind_values, $alarm->[1], $alarm->[4] . '%';
+    }
+    return 1 if (scalar(@sql_where) == 0);
+
+    $sth = $self->{db_centstorage}->{instance}->prepare(
         "SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
-        "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = '" . $self->{dsmd_config}->{macro_config} . "', hosts " .
-        "WHERE (" . join('OR', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id"
+        "LEFT JOIN customvariables cv ON cv.host_id = services.host_id AND cv.service_id = services.service_id AND cv.name = ?, hosts " .
+        "WHERE (" . join(' OR ', @sql_where) . ") AND services.enabled = '1' AND services.host_id = hosts.host_id"
     );
-    if ($status == -1) {
-        $self->{logger}->writeLogError("Cannot get alarms");
+    if (!defined($sth) || !$sth->execute(@bind_values)) {
+        $self->{logger}->writeLogError("Cannot get alarms: " . $DBI::errstr);
         return 1;
     }
 
-    $rows = [];
-    while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
-                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
-        $self->{current_pools_status}->{$row->[2]} = {} if (!defined($self->{current_pools_status}->{$row->[2]}));
-        $self->{current_pools_status}->{$row->[2]}->{$row->[4]} = {
-            host_name => $row->[0],
-            instance_id => $row->[1],
-            service_id => $row->[3],
-            last_check => $row->[5],
-            state => $row->[6],
-            alarm_id => $row->[7]
-        };
+    # 0 = host_name, 1 = instance_id, 2 = host_id, 3 = service_id, 4 = service description, 5 = service last check, 6 = service state, 7 = alarm value (=cache_id##alarm_id. can also be empty or "raw::empty" with latest centengine version >= 25.10)
+    while (my $slot_batch = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})) {
+        last if (scalar(@$slot_batch) == 0);
+        foreach my $slot (@$slot_batch) {
+            $self->{current_pools_status}->{$slot->[2]} = {} if (!defined($self->{current_pools_status}->{$slot->[2]}));
+            $self->{current_pools_status}->{$slot->[2]}->{$slot->[4]} = {
+                host_name => $slot->[0],
+                instance_id => $slot->[1],
+                service_id => $slot->[3],
+                last_check => $slot->[5],
+                state => $slot->[6],
+                alarm_id => $slot->[7]
+            };
+        }
     }
-
     return 0;
 }
 
