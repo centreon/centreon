@@ -55,7 +55,7 @@ if (isset($_GET['id']) && $_GET['id'] && is_numeric($_GET['id'])) {
                 switch ($mimeType) {
                     case 'image/jpeg':
                         /**
-                         * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
                          */
                         $image = @imagecreatefromjpeg($imgPath);
                         if (! $image || ! imagejpeg($image)) {
@@ -74,9 +74,15 @@ if (isset($_GET['id']) && $_GET['id'] && is_numeric($_GET['id'])) {
                         break;
                     case 'image/png':
                         /**
-                         * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
                          */
                         $image = @imagecreatefrompng($imgPath);
+                        if ($image) {
+                            // Preserve transparency, otherwise transparent areas
+                            // are flattened to black on output.
+                            imagealphablending($image, false);
+                            imagesavealpha($image, true);
+                        }
                         if (! $image || ! imagepng($image)) {
                             CentreonLog::create()->error(
                                 CentreonLog::TYPE_BUSINESS_LOG,
@@ -93,7 +99,7 @@ if (isset($_GET['id']) && $_GET['id'] && is_numeric($_GET['id'])) {
                         break;
                     case 'image/gif':
                         /**
-                         * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
+                         * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
                          */
                         $image = @imagecreatefromgif($imgPath);
                         if (! $image || ! imagegif($image)) {
