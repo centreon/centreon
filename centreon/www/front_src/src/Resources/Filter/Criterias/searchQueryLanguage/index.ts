@@ -91,13 +91,45 @@ interface ParametersParse {
   search: string;
 }
 
+/**
+ * Tokenize the search string, preserving quoted strings as single tokens.
+ * This allows service names containing colons to be searched by quoting them.
+ * e.g. 'type:host "DB: Backup" status:ok' => ['type:host', '"DB: Backup"', 'status:ok']
+ *
+ * @see https://github.com/centreon/centreon/issues/9331
+ */
+const tokenizeSearch = (searchInput: string): string[] => {
+  const tokens: string[] = [];
+  const regex = /"([^"]*)"|\S+/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(searchInput)) !== null) {
+    tokens.push(match[0]);
+  }
+
+  return tokens;
+};
+
+const isQuotedString = (token: string): boolean =>
+  token.startsWith('"') && token.endsWith('"') && token.length > 1;
+
+const unquote = (token: string): string =>
+  isQuotedString(token) ? token.slice(1, -1) : token;
+
 const parse = ({
   search,
   criteriaName = criteriaValueNameById
 }: ParametersParse): Array<Criteria> => {
+  const tokens = tokenizeSearch(search);
+
   const [criteriaParts, rawSearchParts] = partition(
-    allPass([includes(':'), isCriteriaPart, isFilledCriteria]),
-    search.split(' ')
+    allPass([
+      (token: string): boolean => !isQuotedString(token),
+      includes(':'),
+      isCriteriaPart,
+      isFilledCriteria
+    ]),
+    tokens
   );
 
   const criterias: Array<Criteria> = criteriaParts.map((criteria) => {
@@ -145,7 +177,7 @@ const parse = ({
       name: 'search',
       object_type: null,
       type: 'text',
-      value: rawSearchParts.join(' ').trim()
+      value: rawSearchParts.map(unquote).join(' ').trim()
     }
   ];
 
@@ -204,11 +236,24 @@ const build = (criterias: Array<Criteria>): string => {
     })
     .join(' ');
 
+  /**
+   * When the search text contains a colon, wrap it in quotes so that
+   * re-parsing (round-trip) does not misinterpret the colon as a
+   * criteria delimiter.
+   *
+   * @see https://github.com/centreon/centreon/issues/9331
+   */
+  const searchValue = search?.value as string;
+  const quotedSearchValue =
+    searchValue && includes(':', searchValue)
+      ? `"${searchValue}"`
+      : searchValue;
+
   if (isEmpty(builtCriterias.trim())) {
-    return search?.value as string;
+    return quotedSearchValue;
   }
 
-  return [builtCriterias, search?.value].join(' ');
+  return [builtCriterias, quotedSearchValue].join(' ');
 };
 
 const getCriteriaNameSuggestions = (word: string): Array<string> => {
