@@ -32,6 +32,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
@@ -47,12 +49,16 @@ use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Application\Vault\VaultCredentialReader;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\Security\Infrastructure\Double\FakeAccessGroupRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeVault;
 
 final class DuplicateHostCommandHandlerTest extends TestCase
 {
@@ -64,6 +70,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
     private EventBusSpy $eventBus;
 
+    private FakeVault $vault;
+
     private DuplicateHostCommandHandler $handler;
 
     protected function setUp(): void
@@ -72,10 +80,18 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->accessGroupRepository = new FakeAccessGroupRepository();
         $this->eventBus = new EventBusSpy();
+        $this->vault = new FakeVault();
+        // Off by default: the secrets then copy verbatim, exercised by the relation-copying tests; the
+        // vault-specific tests turn it on and drive the reader/writer through the fake.
+        $this->vault->vaultEnabled = false;
+
         $this->handler = new DuplicateHostCommandHandler(
             $this->repository,
             $this->resourceAccessRepository,
             $this->accessGroupRepository,
+            $this->vault,
+            new VaultCredentialReader($this->vault),
+            new VaultCredentialWriter($this->vault),
             $this->eventBus,
         );
     }
@@ -230,6 +246,60 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame([], $this->accessGroupRepository->flaggedGroupIds);
     }
 
+    public function testRemintsVaultedSecretsIntoAFreshVaultEntry(): void
+    {
+        $this->vault->vaultEnabled = true;
+
+        $snmpReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTSNMPCOMMUNITY';
+        $macroReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTPASSWORD';
+        // getVaultUuid resolves the source's entry from its SNMP community reference.
+        $this->vault->extractedUuids[$snmpReference] = 'src-uuid';
+        // resolveAll reads each reference back to plaintext before it is rewritten.
+        $this->vault->resolved[$snmpReference] = 'public';
+        $this->vault->resolved[$macroReference] = 's3cr3t';
+        $this->repository->hosts[1] = $this->buildVaultedHost(1, 'web', $snmpReference, $macroReference);
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+
+        // The source's secrets are read back to plaintext and rewritten under a single fresh entry
+        // (null UUID), never the source's — so the copy cannot share the source's vault paths.
+        self::assertCount(1, $this->vault->writeManyCalls);
+        $write = $this->vault->writeManyCalls[0];
+        self::assertSame(VaultPathEnum::MonitoringHosts->value, $write['customPath']);
+        self::assertNull($write['uuid'], 'a fresh vault entry is minted, not the source one');
+        self::assertSame(
+            ['_HOSTSNMPCOMMUNITY' => 'public', '_HOSTPASSWORD' => 's3cr3t'],
+            $write['secrets'],
+        );
+
+        // The copy carries the fresh references, not the source's vault paths.
+        $copy = $this->findCopyByName('web_1');
+        self::assertNotNull($copy);
+        self::assertNotNull($copy->snmpCommunity);
+        self::assertNotSame($snmpReference, $copy->snmpCommunity->value);
+        self::assertStringStartsWith('secret::', $copy->snmpCommunity->value);
+
+        $macro = $copy->checkOptions->macros[0];
+        self::assertNotSame($macroReference, $macro->value);
+        self::assertStringStartsWith('secret::', $macro->value);
+    }
+
+    public function testDoesNotTouchTheVaultWhenNoSecretIsVaulted(): void
+    {
+        // Vault enabled but the source stores plaintext (e.g. the vault was turned on after it was
+        // created): there is no entry to re-mint, so the values copy verbatim and the vault is untouched.
+        $this->vault->vaultEnabled = true;
+        $source = $this->storeSourceHost(1, 'web');
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        $copy = $this->findCopyByName('web_1');
+        self::assertNotNull($copy);
+        self::assertSame($source->snmpCommunity, $copy->snmpCommunity);
+        self::assertSame($source->checkOptions, $copy->checkOptions);
+    }
+
     private function storeSourceHost(int $id, string $name): Host
     {
         $host = $this->buildHost($id, $name);
@@ -262,6 +332,25 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             schedulingOptions: new SchedulingOptions(),
             dataProcessing: new DataProcessing(),
             checkOptions: new CheckOptions(null),
+        );
+    }
+
+    private function buildVaultedHost(int $id, string $name, string $snmpReference, string $macroReference): Host
+    {
+        return new Host(
+            id: new HostId($id),
+            name: new HostName($name),
+            alias: new HostAlias('alias-' . $id),
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity($snmpReference),
+            checkOptions: new CheckOptions(null, [], [
+                new HostMacro(new HostMacroName('password'), $macroReference, true),
+            ]),
         );
     }
 

@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
@@ -34,7 +37,13 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Application\Vault\VaultCredentialReader;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Vault\VaultCredentials;
+use App\Shared\Domain\Vault\VaultKeyEnum;
+use App\Shared\Domain\Vault\VaultPathEnum;
+use App\Shared\Domain\VaultInterface;
 
 #[AsCommandHandler]
 final readonly class DuplicateHostCommandHandler
@@ -49,6 +58,9 @@ final readonly class DuplicateHostCommandHandler
         private HostRepository $repository,
         private ResourceAccessRepository $resourceAccessRepository,
         private AccessGroupRepository $accessGroupRepository,
+        private VaultInterface $vault,
+        private VaultCredentialReader $vaultReader,
+        private VaultCredentialWriter $vaultWriter,
         private EventBus $eventBus,
     ) {
     }
@@ -61,6 +73,12 @@ final readonly class DuplicateHostCommandHandler
         if (! $source instanceof Host) {
             throw new HostNotFoundException([$command->hostId->value], 'id');
         }
+
+        // A vaulted secret is stored as a `secret::` reference to the source's vault entry; copying it
+        // verbatim would make the copy share the source's vault paths, so editing or deleting one
+        // host's secret would silently hit the other. The source's secrets are re-minted into a fresh
+        // entry so the copy owns its own paths (legacy duplicateHostSecretsInVault).
+        [$snmpCommunity, $checkOptions] = $this->duplicateSecrets($source);
 
         $copy = new Host(
             id: null,
@@ -75,16 +93,13 @@ final readonly class DuplicateHostCommandHandler
             parentHostIds: $source->parentHostIds,
             childHostIds: $source->childHostIds,
             snmpVersion: $source->snmpVersion,
-            // Secret references are copied verbatim: source and copy then share one vault entry.
-            // Minting a fresh entry (legacy duplicateHostSecretsInVault) is deliberately not done here;
-            // a disabled vault stores plaintext, which copies correctly either way.
-            snmpCommunity: $source->snmpCommunity,
+            snmpCommunity: $snmpCommunity,
             timezoneId: $source->timezoneId,
             severityId: $source->severityId,
             extendedInformations: $source->extendedInformations,
             schedulingOptions: $source->schedulingOptions,
             dataProcessing: $source->dataProcessing,
-            checkOptions: $source->checkOptions,
+            checkOptions: $checkOptions,
         );
 
         $this->repository->add($copy);
@@ -107,6 +122,77 @@ final readonly class DuplicateHostCommandHandler
         // The aggregate does not model services; they are duplicated by a legacy step delivered after
         // the commit (the copy must be visible to the legacy connection), like host creation deploys them.
         $this->eventBus->fire(new HostServicesDuplicationRequested(sourceHostId: $command->hostId, newHostId: $copy->id()));
+    }
+
+    /**
+     * Re-mints the source host's vaulted secrets (its SNMP community and password macros) into a fresh
+     * vault entry so the copy never shares the source's vault paths. The source stores them as
+     * `secret::` references to its own entry; they are resolved back to plaintext and rewritten under a
+     * new UUID, leaving fresh references on the copy. Every host secret lands under a single entry (one
+     * UUID), the same layout as creation and legacy (duplicateHostSecretsInVault).
+     *
+     * @return array{0: ?SnmpCommunity, 1: CheckOptions}
+     */
+    private function duplicateSecrets(Host $source): array
+    {
+        // Vault off, or nothing vaulted: the stored values are plaintext (or empty) and copy correctly
+        // as-is, with no entry to mint.
+        if (! $this->vault->isEnabled() || $source->getVaultUuid($this->vault) === null) {
+            return [$source->snmpCommunity, $source->checkOptions];
+        }
+
+        // Gather only the fields actually vaulted; a plaintext field (e.g. a vault enabled after the
+        // source was created) is left untouched and copied verbatim below.
+        $credentials = VaultCredentials::empty();
+
+        $sourceSnmp = $source->snmpCommunity;
+        if ($sourceSnmp instanceof SnmpCommunity && $this->vault->isVaultPath($sourceSnmp->value)) {
+            $credentials = $credentials->with(VaultKeyEnum::HostSnmpCommunity, $sourceSnmp->value);
+        }
+
+        foreach ($source->checkOptions->macros as $macro) {
+            if ($macro->isPassword && $this->vault->isVaultPath($macro->value)) {
+                $credentials = $credentials->with($this->macroVaultKey($macro), $macro->value);
+            }
+        }
+
+        // Resolve the source's references to plaintext, then write them under a fresh entry (null UUID)
+        // so the copy's secrets share one new UUID, as creation and legacy keep them.
+        $newReferences = $this->vaultWriter->write(
+            VaultPathEnum::MonitoringHosts,
+            $this->vaultReader->resolveAll($credentials),
+        );
+
+        // A field absent from the rewrite was not vaulted, so it keeps the source's value verbatim.
+        $snmpKey = VaultKeyEnum::HostSnmpCommunity->value;
+        $snmpCommunity = isset($newReferences[$snmpKey])
+            ? new SnmpCommunity($newReferences[$snmpKey])
+            : $source->snmpCommunity;
+
+        $macros = array_map(
+            function (HostMacro $macro) use ($newReferences): HostMacro {
+                $key = $this->macroVaultKey($macro);
+                if ($macro->isPassword && isset($newReferences[$key])) {
+                    return new HostMacro($macro->name, $newReferences[$key], true, $macro->description);
+                }
+
+                return $macro;
+            },
+            $source->checkOptions->macros,
+        );
+
+        return [
+            $snmpCommunity,
+            new CheckOptions($source->checkOptions->checkCommandId, $source->checkOptions->args, $macros),
+        ];
+    }
+
+    /**
+     * The vault key for a password macro, `_HOST<NAME>`, matching creation and legacy.
+     */
+    private function macroVaultKey(HostMacro $macro): string
+    {
+        return '_HOST' . $macro->name->value;
     }
 
     /**
