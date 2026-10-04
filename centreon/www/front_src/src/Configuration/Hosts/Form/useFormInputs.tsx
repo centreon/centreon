@@ -9,12 +9,16 @@ import { useTranslation } from 'react-i18next';
 
 import { namedEntitiesListDecoder } from '../api/decoders';
 import {
+  hostFormHostCategoriesEndpoint,
   hostFormHostGroupsEndpoint,
+  hostFormHostsEndpoint,
   hostFormPollersEndpoint,
   hostsBaseEndpoint
 } from '../api/endpoints';
 import {
+  labelChildHosts,
   labelDataProcessing,
+  labelHostCategories,
   labelHostConfiguration,
   labelHostExtendedInfos,
   labelHostGroups,
@@ -22,6 +26,7 @@ import {
   labelMonitoringServer,
   labelName,
   labelNotification,
+  labelParentHosts,
   labelRelations
 } from '../translatedLabels';
 
@@ -107,6 +112,57 @@ const useFormInputs = ({
       getRequired: () => isCloudPlatform,
       group: t(labelRelations),
       label: t(labelHostGroups),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostCategoriesEndpoint,
+        queryKey: 'host-form-categories',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-categories',
+      fieldName: 'categories',
+      group: t(labelRelations),
+      label: t(labelHostCategories),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostsEndpoint,
+        queryKey: 'host-form-parent-hosts',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-parent-hosts',
+      fieldName: 'parentHosts',
+      group: t(labelRelations),
+      label: t(labelParentHosts),
+      type: InputType.MultiConnectedAutocomplete
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [],
+        baseEndpoint: hostsBaseEndpoint,
+        chipColor: 'primary',
+        customQueryParameters: [],
+        decoder: namedEntitiesListDecoder,
+        endpoint: hostFormHostsEndpoint,
+        queryKey: 'host-form-child-hosts',
+        useNewAPIFormat: true
+      },
+      dataTestId: 'host-form-child-hosts',
+      fieldName: 'childHosts',
+      group: t(labelRelations),
+      label: t(labelChildHosts),
       type: InputType.MultiConnectedAutocomplete
     }
   ];

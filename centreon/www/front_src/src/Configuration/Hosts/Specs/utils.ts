@@ -77,6 +77,12 @@ const pollers = [
 // Platform selector.
 export const getPollersResponse = () => toCollection(pollers);
 
+export const getHostCategoriesResponse = () =>
+  toCollection([
+    { id: 3, name: 'Physical' },
+    { id: 4, name: 'Virtual' }
+  ]);
+
 export const getHostTemplatesResponse = () =>
   toCollection([
     { id: 5, name: 'generic-active-host' },
@@ -90,7 +96,10 @@ export const getHostTemplatesResponse = () =>
 // from the carried row instead of from this response fails rather than passes.
 export const getHostResponse = () => ({
   address: '10.10.10.10',
+  categories: [{ id: 4, name: 'Virtual' }],
+  child_hosts: [{ id: 2, name: 'host 2' }],
   groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
+  parent_hosts: [{ id: 1, name: 'host 1' }],
   poller: { id: 2, name: 'Poller EU' }
 });
