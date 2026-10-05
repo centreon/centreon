@@ -29,9 +29,6 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  */
 class CentreonCommand
 {
-    /** @var string letters, digits, hyphen and underscore — the column names getParameters() accepts */
-    private const COLUMN_NAME_PATTERN = '/^[a-zA-Z0-9_-]+\z/';
-
     /** @var string[] */
     public $aTypeMacro = ['1' => 'HOST', '2' => 'SERVICE'];
 
@@ -325,51 +322,6 @@ class CentreonCommand
         }
 
         return $items;
-    }
-
-    /**
-     * @param $id
-     * @param array $parameters column names to select
-     * @throws Exception
-     * @throws InvalidArgumentException when a column name is not a plain identifier
-     * @return array|mixed
-     */
-    public function getParameters($id, $parameters = [])
-    {
-        $queryValues = [];
-        $explodedValues = '';
-        $arr = [];
-        if (empty($id)) {
-            return [];
-        }
-        if (count($parameters) > 0) {
-            foreach ($parameters as $v) {
-                // A column name cannot be bound as a query parameter, so it is
-                // interpolated and must be restricted to an allowlist. Backticks are
-                // excluded, so the quoting below cannot be broken out of.
-                if (preg_match(self::COLUMN_NAME_PATTERN, (string) $v) !== 1) {
-                    throw new InvalidArgumentException("Invalid column name: {$v}");
-                }
-                $explodedValues .= "`{$v}`,";
-            }
-            $explodedValues = rtrim($explodedValues, ',');
-        } else {
-            $explodedValues = '*';
-        }
-
-        $query = 'SELECT ' . $explodedValues . ' FROM command WHERE command_id = ?';
-        $queryValues[] = (int) $id;
-        $stmt = $this->db->prepare($query);
-        $dbResult = $stmt->execute($queryValues);
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-
-        if ($stmt->rowCount()) {
-            $arr = $stmt->fetch();
-        }
-
-        return $arr;
     }
 
     /**
