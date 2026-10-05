@@ -1,8 +1,10 @@
 import { type ListingModel, useFetchQuery } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
 import { find } from 'ramda';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { formStateAtom } from '../../ConfigurationBase/atoms';
 import type { FormPoller, NamedEntity } from '../models';
 import { formPollersListDecoder } from './decoders';
 import { getFormPollersEndpoint, hostsBaseEndpoint } from './endpoints';
@@ -13,6 +15,8 @@ const useDefaultPoller = ({
 }: {
   enabled: boolean;
 }): NamedEntity | null => {
+  const formState = useAtomValue(formStateAtom);
+
   const { data } = useFetchQuery<ListingModel<FormPoller>>({
     baseEndpoint: hostsBaseEndpoint,
     decoder: formPollersListDecoder,
@@ -21,7 +25,7 @@ const useDefaultPoller = ({
     queryOptions: { enabled, suspense: false }
   });
 
-  return useMemo(() => {
+  const fetchedDefault = useMemo(() => {
     const defaultPoller = find(
       ({ isDefault }) => isDefault,
       data?.result ?? []
@@ -31,6 +35,19 @@ const useDefaultPoller = ({
       ? { id: defaultPoller.id, name: defaultPoller.name }
       : null;
   }, [data]);
+
+  // New defaults reinitialise the form, so one arriving while a host is being
+  // created would wipe what was typed: that form goes without it.
+  const isCreating = formState.isOpen && formState.mode === 'add';
+  const [defaultPoller, setDefaultPoller] = useState(fetchedDefault);
+
+  useEffect(() => {
+    if (!isCreating) {
+      setDefaultPoller(fetchedDefault);
+    }
+  }, [fetchedDefault, isCreating]);
+
+  return defaultPoller;
 };
 
 export default useDefaultPoller;

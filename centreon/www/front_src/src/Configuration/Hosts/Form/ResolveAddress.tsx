@@ -2,7 +2,7 @@ import type { InputPropsWithoutGroup } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
 
 import { type FormikValues, useFormikContext } from 'formik';
-import type { ReactElement } from 'react';
+import { type ReactElement, useEffect, useRef } from 'react';
 
 // Not through `../api`, whose decoders import the sections rendering this.
 import useResolveAddress from '../api/useResolveAddress';
@@ -18,11 +18,17 @@ const ResolveAddress = ({
   const { isResolving, resolve } = useResolveAddress();
 
   const hostname = ((values.address as string | undefined) ?? '').trim();
+  const currentAddress = useRef(hostname);
+
+  useEffect(() => {
+    currentAddress.current = hostname;
+  }, [hostname]);
 
   const resolveAddress = async (): Promise<void> => {
     const ip = await resolve(hostname);
 
-    if (!ip) {
+    // The address may have been edited while the name was resolving.
+    if (!ip || currentAddress.current !== hostname) {
       return;
     }
 

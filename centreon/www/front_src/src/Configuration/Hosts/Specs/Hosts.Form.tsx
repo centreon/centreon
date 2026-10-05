@@ -25,7 +25,7 @@ import {
   labelUnreachable,
   labelYes
 } from '../translatedLabels';
-import initialize from './initialize';
+import initialize, { pollersForbiddenMessage } from './initialize';
 import {
   refusedAddressResponse,
   resolvedAddressResponse,
@@ -111,6 +111,8 @@ export default () => {
       cy.findAllByTestId('host-form-address')
         .eq(1)
         .should('have.value', '10.10.10.10');
+      // Once the default is known too, so it cannot be what this checks.
+      cy.waitForRequest('@getFormPollers');
       cy.findByTestId('host-form-poller').should('have.value', 'Poller EU');
 
       // The header keeps naming the row, which is what the listing showed.
@@ -435,6 +437,97 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body.poller_id).to.equal(3);
       });
+    });
+
+    it('keeps what was typed when the default monitoring server arrives late', () => {
+      initialize({ pollersDelay: 1500 });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+
+      // The request went out with the page, so only time tells the response
+      // has landed: nothing visible changes when it does.
+      cy.wait(2000);
+
+      // A late default would reinitialise the form; this one goes without.
+      cy.findAllByTestId('host-form-name')
+        .eq(1)
+        .should('have.value', 'srv-apache-02');
+      cy.findByTestId('host-form-poller').should('have.value', '');
+    });
+
+    it('opens the creation form with no monitoring server when none is the default', () => {
+      initialize({ hasDefaultPoller: false });
+
+      cy.waitForRequest('@getAllHosts');
+      cy.waitForRequest('@getFormPollers');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').should('exist');
+      cy.findByTestId('host-form-poller').should('have.value', '');
+    });
+
+    it('does not look the default monitoring server up for a user who may only look at hosts', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      // The selector would answer 403, and the listing would say so.
+      cy.findAllByTestId('host-form-name').should('exist');
+      cy.contains(pollersForbiddenMessage).should('not.exist');
+    });
+
+    it('resolves an address once while a lookup is running', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .type(resolvedAddressResponse.hostname);
+
+      cy.findByTestId('host-form-address-resolve').click();
+      cy.findByTestId('host-form-address-resolve')
+        .should('be.disabled')
+        .click({ force: true });
+
+      cy.waitForRequest('@resolveAddress');
+
+      cy.getRequestCalls('@resolveAddress').then((calls) => {
+        expect(calls).to.have.length(1);
+      });
+    });
+
+    it('keeps an address edited while its previous value was resolving', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .type(resolvedAddressResponse.hostname);
+
+      cy.findByTestId('host-form-address-resolve').click();
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('srv-b');
+
+      cy.waitForRequest('@resolveAddress');
+
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .should('have.value', 'srv-b');
     });
 
     it('leaves host groups optional on an onPrem platform', () => {

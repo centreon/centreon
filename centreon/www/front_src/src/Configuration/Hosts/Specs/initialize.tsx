@@ -50,7 +50,12 @@ interface Props {
   deployFails?: boolean;
   isAdditiveInheritanceEnabled?: boolean;
   addressResolution?: keyof typeof addressResolutions;
+  hasDefaultPoller?: boolean;
+  pollersDelay?: number;
 }
+
+// What the selector answers a user it does not grant.
+export const pollersForbiddenMessage = 'You are not allowed to list pollers';
 
 const addressResolutions = {
   refused: { response: refusedAddressResponse, statusCode: 422 },
@@ -64,7 +69,9 @@ const initialize = ({
   isCloudPlatform = false,
   deployFails = false,
   isAdditiveInheritanceEnabled = false,
-  addressResolution = 'resolved'
+  addressResolution = 'resolved',
+  hasDefaultPoller = true,
+  pollersDelay
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -125,9 +132,14 @@ const initialize = ({
   // listing filters below read the generic ones.
   cy.interceptAPIRequest({
     alias: 'getFormPollers',
+    delay: pollersDelay,
     method: Method.GET,
     path: `**${hostFormPollersEndpoint}?**`,
-    response: getPollersResponse()
+    // Granted by write access only, as the API does.
+    response: hasWriteAccess
+      ? getPollersResponse({ hasDefault: hasDefaultPoller })
+      : { code: 403, message: pollersForbiddenMessage },
+    statusCode: hasWriteAccess ? 200 : 403
   });
 
   cy.interceptAPIRequest({

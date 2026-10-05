@@ -79,7 +79,12 @@ const pollers = [
 // One list for the listing filter and the form alike, both reading the API
 // Platform selector; only the form's carries `is_default`, which the filter
 // ignores.
-export const getPollersResponse = () => toCollection(pollers);
+export const getPollersResponse = ({ hasDefault = true } = {}) =>
+  toCollection(
+    hasDefault
+      ? pollers
+      : pollers.map((poller) => ({ ...poller, is_default: false }))
+  );
 
 export const resolvedAddressResponse = {
   hostname: 'srv-apache-02.example.com',
