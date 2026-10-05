@@ -3845,6 +3845,7 @@ paths:
                   monitoring_default_acknowledgement_with_services: { type: boolean, description: 'Default monitoring acknowledgement with services option', example: true }
                   monitoring_default_downtime_fixed: { type: boolean, description: 'Default monitoring downtime fixed option', example: true }
                   monitoring_default_downtime_with_services: { type: boolean, description: 'Default set downtimes on services attached to hosts option', example: true }
+                  is_additive_inheritance_enabled: { type: boolean, description: 'Whether the contact and contact group additive inheritance is enabled (inheritance mode set to vertical)', example: false }
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
