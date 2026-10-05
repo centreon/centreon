@@ -25,6 +25,9 @@ export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
 export const hostFormContactGroupsEndpoint =
   '/configuration/hosts/contact_groups';
 export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
+export const hostFormHostSeveritiesEndpoint =
+  '/configuration/hosts/host_severities';
+export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 
 // No host-scoped timezone selector exists: this one is open to any
 // authenticated user, so it has no ACL to get wrong.

@@ -165,6 +165,30 @@ export const untouchedDataProcessingPayload = {
   low_flap_threshold: null
 };
 
+export const getHostSeveritiesResponse = () =>
+  toCollection([
+    { id: 1, name: 'Critical' },
+    { id: 2, name: 'Minor' }
+  ]);
+
+export const getMediasResponse = () =>
+  toCollection([
+    { id: 12, name: 'server.png', url: hostIcon },
+    { id: 13, name: 'router.png', url: hostIcon }
+  ]);
+
+// What a create sends when nothing of the Host Extended Infos section was
+// touched, onPrem; cloud sends neither `alt_icon` nor `comment`.
+export const untouchedExtendedInformationsPayload = {
+  action_url: null,
+  alt_icon: null,
+  comment: null,
+  geo_coordinates: null,
+  icon_id: null,
+  note: null,
+  note_url: null
+};
+
 // What a create sends when nothing of the Notification section was touched.
 export const untouchedNotificationsPayload = {
   contact_groups: [],
@@ -204,6 +228,14 @@ export const getHostResponse = () => ({
     freshness_threshold: 120,
     high_flap_threshold: 50
   },
+  // `note_url` and `alt_icon` are unset, so the endpoint leaves them out.
+  extended_informations: {
+    action_url: 'https://example.com/actions/host-0',
+    comment: 'Racked in room B',
+    geo_coordinates: '48.8566,2.3522',
+    icon: { id: 12, name: 'server.png', url: hostIcon },
+    note: 'Front web server'
+  },
   groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
   // `recovery_delay` is unset, so the endpoint leaves it out.
@@ -229,6 +261,7 @@ export const getHostResponse = () => ({
     normal_check_interval: 5,
     passive_check_enabled: 'true'
   },
+  severity: { id: 2, name: 'Minor' },
   // No `snmp_community`: the endpoint never returns it.
   snmp_version: '2c',
   timezone: { id: 2, name: 'Europe/Paris' }

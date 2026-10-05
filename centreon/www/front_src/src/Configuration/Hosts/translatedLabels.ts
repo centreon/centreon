@@ -97,3 +97,16 @@ export const labelEventHandlerEnabled = 'Event Handler Enabled';
 export const labelEventHandlerArguments = 'Args';
 export const labelSeconds = 'seconds';
 export const labelMustBeAPercentage = 'Must be an integer between 0 and 100';
+
+// Host Extended Infos
+export const labelNote = 'Note';
+export const labelNoteUrl = 'Note URL';
+export const labelActionUrl = 'Action URL';
+export const labelIcon = 'Icon';
+export const labelAltIcon = 'Alt icon';
+export const labelGeographicCoordinates = 'Geographic coordinates';
+export const labelHostSeverity = 'Host severity';
+export const labelComments = 'Comments';
+export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
+export const labelMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';
