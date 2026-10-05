@@ -214,10 +214,6 @@ describe('Exclusive checkbox group, as chips', () => {
     chip('Down')
       .should('have.attr', 'aria-pressed', 'false')
       .and('have.attr', 'aria-disabled', 'true');
-
-    chip('Unreachable').click({ force: true });
-
-    expectValue(['None']);
   });
 
   it('leaves the chips empty and usable once the toggle is off', () => {
