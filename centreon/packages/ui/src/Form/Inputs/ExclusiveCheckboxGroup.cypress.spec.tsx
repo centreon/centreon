@@ -22,10 +22,12 @@ const ValueDisplay = (): JSX.Element => {
 
 const initialize = ({
   notificationOptions = [],
-  disabled = false
+  disabled = false,
+  variant
 }: {
   disabled?: boolean;
   notificationOptions?: Array<string> | null;
+  variant?: 'checkboxes' | 'chips';
 } = {}): void => {
   cy.mount({
     Component: (
@@ -38,7 +40,8 @@ const initialize = ({
               direction: 'horizontal',
               exclusiveLabel: 'No notifications',
               exclusiveOption: 'None',
-              options
+              options,
+              variant
             },
             fieldName: 'notificationOptions',
             getDisabled: () => disabled,
@@ -170,5 +173,68 @@ describe('Exclusive checkbox group', () => {
     toggle().should('be.disabled');
     cy.findByLabelText('Down').should('be.checked').and('be.disabled');
     expectValue(['Down']);
+  });
+});
+
+describe('Exclusive checkbox group, as chips', () => {
+  const chip = (option: string): Cypress.Chainable =>
+    cy.findByTestId(`notification-options-${option}`);
+
+  it('displays the options as chips and the exclusive one as the toggle', () => {
+    initialize({ variant: 'chips' });
+
+    ['Down', 'Unreachable', 'Recovery'].forEach((option) => {
+      chip(option).should('have.attr', 'aria-pressed', 'false');
+    });
+    chip('None').should('not.exist');
+    toggle().should('not.be.checked');
+    cy.findByRole('checkbox', { name: 'Down' }).should('not.exist');
+  });
+
+  it('toggles a chip on and off', () => {
+    initialize({ variant: 'chips' });
+
+    chip('Down').click();
+    chip('Recovery').click();
+
+    expectValue(['Down', 'Recovery']);
+    chip('Down').should('have.attr', 'aria-pressed', 'true');
+
+    chip('Down').click();
+
+    expectValue(['Recovery']);
+  });
+
+  it('clears and disables the chips while the toggle is on', () => {
+    initialize({ notificationOptions: ['Down', 'Recovery'], variant: 'chips' });
+
+    toggle().click();
+
+    expectValue(['None']);
+    chip('Down')
+      .should('have.attr', 'aria-pressed', 'false')
+      .and('have.attr', 'aria-disabled', 'true');
+
+    chip('Unreachable').click({ force: true });
+
+    expectValue(['None']);
+  });
+
+  it('leaves the chips empty and usable once the toggle is off', () => {
+    initialize({ notificationOptions: ['None'], variant: 'chips' });
+
+    toggle().click();
+
+    expectValue([]);
+    chip('Unreachable').click();
+
+    expectValue(['Unreachable']);
+  });
+
+  it('disables the chips and the toggle when the input is disabled', () => {
+    initialize({ disabled: true, variant: 'chips' });
+
+    chip('Down').should('have.attr', 'aria-disabled', 'true');
+    toggle().should('be.disabled');
   });
 });
