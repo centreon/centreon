@@ -28,14 +28,18 @@ use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
 
 final class FakeHostServiceDuplicator implements HostServiceDuplicator
 {
-    /** @var list<array{sourceHostId: int, newHostId: int}> */
+    /** @var list<array{sourceHostId: int, newHostId: int, duplicatedBy: int}> */
     public array $duplicateCalls = [];
 
     public bool $duplicateThrows = false;
 
-    public function duplicate(HostId $sourceHostId, HostId $newHostId): void
+    public function duplicate(HostId $sourceHostId, HostId $newHostId, int $duplicatedBy): void
     {
-        $this->duplicateCalls[] = ['sourceHostId' => $sourceHostId->value, 'newHostId' => $newHostId->value];
+        $this->duplicateCalls[] = [
+            'sourceHostId' => $sourceHostId->value,
+            'newHostId' => $newHostId->value,
+            'duplicatedBy' => $duplicatedBy,
+        ];
 
         if ($this->duplicateThrows) {
             throw new \RuntimeException('Unable to duplicate services');

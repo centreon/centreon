@@ -35,8 +35,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * keeps its identity and the copy only gets a new relation to it. Re-linking needs no legacy session,
  * so it always runs. A service exclusive to the source has to be cloned, which has no new-architecture
  * equivalent yet and is delegated to the legacy procedural step (see {@see LegacyServiceCloner}); that
- * step needs the legacy session, so under a token-authenticated request the exclusive services are
- * left out (DuplicateHostServicesEventHandler swallows and logs it) while the shared ones are still re-linked.
+ * step needs a legacy session, which {@see LegacyServiceCloner} rebuilds from $duplicatedBy when the
+ * request carries none (e.g. token-authenticated), so the exclusive services are cloned either way.
  *
  * The event carrying this is delivered after the command commits, so the copy is visible to the
  * connection (see {@see \App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested}).
@@ -50,7 +50,7 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
     ) {
     }
 
-    public function duplicate(HostId $sourceHostId, HostId $newHostId): void
+    public function duplicate(HostId $sourceHostId, HostId $newHostId, int $duplicatedBy): void
     {
         /** @var list<array{service_id: int|string, host_count: int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
@@ -82,6 +82,6 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
             $servicesToClone[] = $serviceId;
         }
 
-        $this->serviceCloner->cloneServices($servicesToClone, $newHostId);
+        $this->serviceCloner->cloneServices($servicesToClone, $newHostId, $duplicatedBy);
     }
 }

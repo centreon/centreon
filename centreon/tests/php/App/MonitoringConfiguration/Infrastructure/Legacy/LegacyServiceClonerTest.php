@@ -24,58 +24,30 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Only the empty-list short-circuit is unit-testable: the real clone opens the legacy connections
+ * ($pearDB/$pearDBO via CentreonDBInstance) and rebuilds a legacy session, so it is covered end to end
+ * on the CDE, and through {@see LegacyHostServiceDuplicatorWrapperTest} for the re-link decision.
+ */
 final class LegacyServiceClonerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        unset($_SESSION['centreon'], $GLOBALS['pearDB'], $GLOBALS['centreon']);
+        unset($_SESSION['centreon'], $GLOBALS['pearDB'], $GLOBALS['pearDBO'], $GLOBALS['centreon']);
     }
 
     public function testItDoesNothingForAnEmptyServiceList(): void
     {
-        unset($_SESSION['centreon']);
         $pearDbBefore = $GLOBALS['pearDB'] ?? null;
         $centreonBefore = $GLOBALS['centreon'] ?? null;
 
-        // An empty list returns before any session is required or any legacy file is loaded.
-        (new LegacyServiceCloner())->cloneServices([], new HostId(9));
+        // An empty list returns before any connection is opened, session rebuilt or legacy file loaded.
+        (new LegacyServiceCloner())->cloneServices([], new HostId(9), 42);
 
         self::assertSame($pearDbBefore, $GLOBALS['pearDB'] ?? null);
         self::assertSame($centreonBefore, $GLOBALS['centreon'] ?? null);
-    }
-
-    public function testItFailsWithAnExpectedVerdictWhenNoLegacySessionIsAvailable(): void
-    {
-        unset($_SESSION['centreon']);
-
-        try {
-            (new LegacyServiceCloner())->cloneServices([5], new HostId(9));
-            self::fail('expected a ServiceDuplicationFailedException');
-        } catch (ServiceDuplicationFailedException $exception) {
-            // A missing session is a structural, expected verdict (logged at info, not an error).
-            self::assertTrue($exception->expected);
-        }
-    }
-
-    public function testItFailsWithAnUnexpectedVerdictWhenTheLegacyFunctionsCannotBeLoaded(): void
-    {
-        // A valid session is present, but the legacy service functions are not loadable in this context
-        // (the www file is outside the test autoload and _CENTREON_PATH_ is undefined).
-        if (function_exists('multipleServiceInDB') || defined('_CENTREON_PATH_')) {
-            self::markTestSkipped('legacy service functions are reachable in this environment');
-        }
-        $_SESSION['centreon'] = (new \ReflectionClass(\Centreon::class))->newInstanceWithoutConstructor();
-
-        try {
-            (new LegacyServiceCloner())->cloneServices([5], new HostId(9));
-            self::fail('expected a ServiceDuplicationFailedException');
-        } catch (ServiceDuplicationFailedException $exception) {
-            // An unavailable legacy function is a genuine failure an operator must act on.
-            self::assertFalse($exception->expected);
-        }
     }
 }

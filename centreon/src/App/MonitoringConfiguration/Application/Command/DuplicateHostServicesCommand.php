@@ -37,6 +37,7 @@ final readonly class DuplicateHostServicesCommand implements NonTransactionalCom
     public function __construct(
         public HostId $sourceHostId,
         public HostId $newHostId,
+        public int $duplicatedBy,
     ) {
     }
 }

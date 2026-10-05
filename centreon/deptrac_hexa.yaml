@@ -47,6 +47,8 @@ parameters:
               - { type: classNameRegex, value: '#^Centreon*\\#' }
               - { type: classNameRegex, value: '#^Centreon$#' }
               - { type: classNameRegex, value: '#^CentreonDBInstance$#' }
+              - { type: classNameRegex, value: '#^CentreonUser$#' }
+              - { type: classNameRegex, value: '#^CentreonLogAction$#' }
               - { type: classNameRegex, value: '#^Core\\#' }
               - { type: classNameRegex, value: '#^EventSubscriber\\#' }
               - { type: classNameRegex, value: '#^Security\\#' }
@@ -76,6 +78,8 @@ parameters:
         App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner:
             - Centreon
             - CentreonDBInstance
+            - CentreonUser
+            - CentreonLogAction
         App\MonitoringConfiguration\Infrastructure\Legacy\CapturingDeployServicesPresenter:
             - Core\Application\Common\UseCase\AbstractResponse
             - Core\Application\Common\UseCase\ResponseStatusInterface

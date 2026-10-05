@@ -30,13 +30,14 @@ use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedExcepti
  * Intended as the sole seam to the legacy service-cloning machinery.
  *
  * Cloning a service exclusive to the source has no API Platform, Core or legacy-REST equivalent —
- * only the procedural `multipleServiceInDB` (www/include/.../service/DB-Func.php), which reads
- * `$pearDB` and `$centreon` as globals. They are installed for the call and restored in a `finally`:
- *  - `$pearDB`   → the shared legacy connection,
- *  - `$centreon` → the current legacy session, from which the cloned services take their author and
- *                  ACL. It only exists on a session-authenticated request, so a token-authenticated
- *                  call cannot clone services: it throws (DuplicateHostServicesEventHandler logs it,
- *                  at info for this expected case) rather than returning silently.
+ * only the procedural `multipleServiceInDB` (www/include/.../service/DB-Func.php), which reads three
+ * globals, installed for the call and restored in a `finally`:
+ *  - `$pearDB`   → the configuration connection (SELECTs, CentreonUserLog),
+ *  - `$pearDBO`  → the real-time/storage connection the action log (`insertLog`) writes through,
+ *  - `$centreon` → the legacy session the cloned services take their author and ACL from. An
+ *                  interactive request already carries one; a session-less (e.g. token-authenticated)
+ *                  request has none, so a minimal one is rebuilt from the acting contact so the clone
+ *                  runs either way.
  */
 final readonly class LegacyServiceCloner
 {
@@ -50,23 +51,15 @@ final readonly class LegacyServiceCloner
      * Clones the given services onto the new host through the legacy procedural function.
      *
      * @param list<int> $serviceIds services exclusive to the source, to be cloned onto the copy
+     * @param int $duplicatedBy the acting contact, used to rebuild the legacy session when the request
+     *                          carries none
      *
      * @throws ServiceDuplicationFailedException
      */
-    public function cloneServices(array $serviceIds, HostId $newHostId): void
+    public function cloneServices(array $serviceIds, HostId $newHostId, int $duplicatedBy): void
     {
         if ($serviceIds === []) {
             return;
-        }
-
-        $centreon = $this->requireSession();
-
-        // Required here, with the validated session held in a local $centreon (not inside the helper):
-        // DB-Func.php calls exit() at include time when no $centreon is in scope (its top-level guard),
-        // which would kill the whole request before multipleServiceInDB ever runs.
-        $file = $this->resolveLegacyServiceFunctionsFile();
-        if ($file !== null) {
-            require_once $file;
         }
 
         // The legacy function wants the services as an id-keyed map and a parallel map of per-service
@@ -75,11 +68,25 @@ final readonly class LegacyServiceCloner
         $hostCounts = array_fill_keys($serviceIds, 1);
 
         $previousPearDB = $GLOBALS['pearDB'] ?? null;
+        $previousPearDBO = $GLOBALS['pearDBO'] ?? null;
         $previousCentreon = $GLOBALS['centreon'] ?? null;
+        // Installed first: rebuilding the session below constructs a CentreonUser, whose constructor
+        // reads $pearDB; and the legacy action log writes through $pearDBO.
         $GLOBALS['pearDB'] = \CentreonDBInstance::getDbCentreonInstance();
-        $GLOBALS['centreon'] = $centreon;
+        $GLOBALS['pearDBO'] = \CentreonDBInstance::getDbCentreonStorageInstance();
 
         try {
+            // Held in a local $centreon kept in scope at the require below: DB-Func.php's top-level
+            // guard `if (! isset($centreon)) exit();` would otherwise kill the whole request at include
+            // time. Also published as the global the legacy function reads.
+            $centreon = $this->resolveLegacySession($duplicatedBy);
+            $GLOBALS['centreon'] = $centreon;
+
+            $file = $this->resolveLegacyServiceFunctionsFile();
+            if ($file !== null) {
+                require_once $file;
+            }
+
             // Resolved behind a typed accessor so static analysis does not try to resolve the legacy
             // global function: it lives in www/include (required above), outside the analysed autoload.
             /** @var callable-string $duplicateServices */
@@ -87,6 +94,7 @@ final readonly class LegacyServiceCloner
             $duplicateServices($services, $hostCounts, $newHostId->value, self::LEGACY_KEEP_DESCRIPTION);
         } finally {
             $GLOBALS['pearDB'] = $previousPearDB;
+            $GLOBALS['pearDBO'] = $previousPearDBO;
             $GLOBALS['centreon'] = $previousCentreon;
         }
     }
@@ -96,14 +104,31 @@ final readonly class LegacyServiceCloner
         return self::LEGACY_SERVICE_FUNCTION;
     }
 
-    private function requireSession(): \Centreon
+    /**
+     * The interactive request's own legacy session when it has one, otherwise a minimal one rebuilt
+     * from the acting contact. multipleServiceInDB only reaches `$centreon->CentreonLogAction` (the
+     * action-log author) and `$centreon->user->access` (the ACL used to scope the cloned service), so
+     * nothing else of the session needs to exist.
+     */
+    private function resolveLegacySession(int $duplicatedBy): \Centreon
     {
         $session = $_SESSION['centreon'] ?? null;
-        if (! $session instanceof \Centreon) {
-            throw ServiceDuplicationFailedException::missingLegacySession();
+        if ($session instanceof \Centreon) {
+            return $session;
         }
 
-        return $session;
+        // new CentreonUser() builds its own CentreonACL (which resolves contact_admin from the database
+        // when not given) and CentreonUserLog, reading the $pearDB installed by the caller. The
+        // `\Centreon` wrapper is created without its heavy constructor: the clone step reads only `user`
+        // and `CentreonLogAction`.
+        $user = new \CentreonUser(['contact_id' => $duplicatedBy]);
+
+        /** @var \Centreon $centreon */
+        $centreon = (new \ReflectionClass(\Centreon::class))->newInstanceWithoutConstructor();
+        $centreon->user = $user;
+        $centreon->CentreonLogAction = new \CentreonLogAction($user);
+
+        return $centreon;
     }
 
     /**

@@ -50,7 +50,11 @@ final readonly class DuplicateHostServicesEventHandler
     {
         try {
             $this->commandBus->execute(
-                new DuplicateHostServicesCommand(sourceHostId: $event->sourceHostId, newHostId: $event->newHostId)
+                new DuplicateHostServicesCommand(
+                    sourceHostId: $event->sourceHostId,
+                    newHostId: $event->newHostId,
+                    duplicatedBy: $event->duplicatedBy,
+                )
             );
         } catch (ServiceDuplicationFailedException $exception) {
             if ($exception->expected) {

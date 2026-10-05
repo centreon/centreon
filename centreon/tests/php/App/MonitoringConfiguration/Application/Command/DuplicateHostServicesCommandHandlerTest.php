@@ -38,10 +38,10 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $resourceAccessRepository = new FakeResourceAccessRepository();
 
         new DuplicateHostServicesCommandHandler($duplicator, $resourceAccessRepository)(
-            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
+            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42),
         );
 
-        self::assertSame([['sourceHostId' => 5, 'newHostId' => 9]], $duplicator->duplicateCalls);
+        self::assertSame([['sourceHostId' => 5, 'newHostId' => 9, 'duplicatedBy' => 42]], $duplicator->duplicateCalls);
         // Once the copy has its services, their ACL rows are scoped for the source's groups.
         self::assertSame([['sourceHostId' => 5, 'newHostId' => 9]], $resourceAccessRepository->duplicatedHostServiceAccess);
     }
@@ -55,7 +55,7 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
 
         try {
             new DuplicateHostServicesCommandHandler($duplicator, $resourceAccessRepository)(
-                new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
+                new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42),
             );
             self::fail('expected the duplication failure to propagate');
         } catch (\Throwable) {

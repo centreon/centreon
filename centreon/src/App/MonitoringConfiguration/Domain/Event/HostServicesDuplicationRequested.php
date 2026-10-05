@@ -36,6 +36,9 @@ final readonly class HostServicesDuplicationRequested implements DeliveredAfterC
     public function __construct(
         public HostId $sourceHostId,
         public HostId $newHostId,
+        // The actor who triggered the duplication, so the deferred legacy clone can be attributed and
+        // ACL-scoped to them even on a token-authenticated request (no ambient legacy session).
+        public int $duplicatedBy,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
     }

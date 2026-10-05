@@ -31,12 +31,11 @@ interface HostServiceDuplicator
      * Copies the source host's services onto the freshly duplicated host: a service exclusive to the
      * source is cloned, a service shared with other hosts is re-linked to the copy.
      *
-     * Unlike its sibling {@see ServiceDeployer}, this port takes no actor: the legacy step it wraps
-     * sources the author and ACL of the cloned services from the ambient session, not from a passed
-     * UserId. Threading the actor explicitly would require rebuilding the whole legacy session and is
-     * deferred until the services are modelled by their own aggregate.
+     * $duplicatedBy is the contact that triggered the duplication. The legacy clone step sources the
+     * author and ACL of the cloned services from the ambient legacy session; on a token-authenticated
+     * request there is none, so the actor is passed explicitly for the session to be rebuilt from it.
      *
      * @throws \Throwable
      */
-    public function duplicate(HostId $sourceHostId, HostId $newHostId): void;
+    public function duplicate(HostId $sourceHostId, HostId $newHostId, int $duplicatedBy): void;
 }

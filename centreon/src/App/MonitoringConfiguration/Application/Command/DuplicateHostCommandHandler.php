@@ -112,7 +112,11 @@ final readonly class DuplicateHostCommandHandler
 
         // The aggregate does not model services; they are duplicated by a legacy step delivered after
         // the commit (the copy must be visible to the legacy connection), like host creation deploys them.
-        $this->eventBus->fire(new HostServicesDuplicationRequested(sourceHostId: $command->hostId, newHostId: $copy->id()));
+        $this->eventBus->fire(new HostServicesDuplicationRequested(
+            sourceHostId: $command->hostId,
+            newHostId: $copy->id(),
+            duplicatedBy: $command->duplicatedBy,
+        ));
     }
 
     /**

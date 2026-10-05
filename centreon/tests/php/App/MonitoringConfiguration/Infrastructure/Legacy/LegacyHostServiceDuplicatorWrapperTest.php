@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use App\MonitoringConfiguration\Infrastructure\Legacy\LegacyHostServiceDuplicatorWrapper;
 use App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner;
 use Doctrine\DBAL\Connection;
@@ -42,15 +41,9 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        // Real cloner: the exclusive-clone path needs a legacy session, which the integration context
-        // has none of. Tests that reach it assert the resulting "no session" verdict; the re-link path
-        // runs on this connection and needs no session.
+        // The re-link decision runs on this connection and needs no legacy session; the exclusive-clone
+        // path (session rebuild + legacy multipleServiceInDB) is covered end to end on the CDE.
         $this->wrapper = new LegacyHostServiceDuplicatorWrapper($this->connection, new LegacyServiceCloner());
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SESSION['centreon']);
     }
 
     public function testASharedServiceIsRelinkedOntoTheCopyNotCloned(): void
@@ -64,7 +57,7 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $this->linkService(9503, 8801);
 
         // No exclusive service, so the cloner is called with an empty list and needs no session.
-        $this->wrapper->duplicate(sourceHostId: new HostId(9501), newHostId: new HostId(9502));
+        $this->wrapper->duplicate(sourceHostId: new HostId(9501), newHostId: new HostId(9502), duplicatedBy: 1);
 
         self::assertSame(
             1,
@@ -78,30 +71,9 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $this->insertHost(9601, 'wrapper-empty-source');
         $this->insertHost(9602, 'wrapper-empty-copy');
 
-        $this->wrapper->duplicate(sourceHostId: new HostId(9601), newHostId: new HostId(9602));
+        $this->wrapper->duplicate(sourceHostId: new HostId(9601), newHostId: new HostId(9602), duplicatedBy: 1);
 
         self::assertSame(0, $this->countServiceLinks(9602), 'nothing is linked onto a copy whose source has no service');
-    }
-
-    public function testAnExclusiveServiceIsRoutedToTheCloner(): void
-    {
-        $this->insertHost(9701, 'wrapper-exclusive-source');
-        $this->insertHost(9702, 'wrapper-exclusive-copy');
-        $this->insertService(8901, 'exclusive-service');
-        // Linked to the source only (host_count = 1): it must be cloned, not re-linked.
-        $this->linkService(9701, 8901);
-        unset($_SESSION['centreon']);
-
-        try {
-            $this->wrapper->duplicate(sourceHostId: new HostId(9701), newHostId: new HostId(9702));
-            self::fail('expected the exclusive service to reach the session-bound cloner');
-        } catch (ServiceDuplicationFailedException $exception) {
-            // Reaching the cloner with no legacy session yields the expected verdict — proof the
-            // exclusive service was routed to it rather than silently re-linked.
-            self::assertTrue($exception->expected);
-        }
-
-        self::assertSame(0, $this->countServiceLinks(9702, 8901), 'an exclusive service is never re-linked');
     }
 
     private function insertHost(int $id, string $name): void
