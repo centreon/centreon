@@ -75,8 +75,8 @@ export const Text = ({
   return (
     <div className={classes.graphText} ref={ref}>
       <FluidTypography
-        max="40px"
-        pref={14}
+        max="150px"
+        pref={52}
         sx={{ color, fontWeight: 'bold', textAlign: 'center' }}
         text={
           formatMetricValueWithUnit({
