@@ -1,5 +1,7 @@
 import { RichTextEditor } from '@centreon/ui';
 
+import { makeStyles } from 'tss-react/mui';
+
 import { isRichTextEditorEmpty } from '../../../utils';
 
 interface Props {
@@ -11,19 +13,30 @@ interface Props {
   };
 }
 
+const useStyles = makeStyles()(() => ({
+  content: {
+    marginTop: '-8px'
+  }
+}));
+
 const GenericText = ({ panelOptions }: Props): JSX.Element | null => {
+  const { classes } = useStyles();
+
   const displayDescription =
     panelOptions?.description?.enabled &&
     panelOptions?.description?.content &&
     !isRichTextEditorEmpty(panelOptions?.description?.content);
 
+  if (!displayDescription) {
+    return null;
+  }
+
   return (
     <RichTextEditor
+      contentClassName={classes.content}
       disabled
       editable={false}
-      editorState={
-        (displayDescription && panelOptions?.description?.content) || undefined
-      }
+      editorState={panelOptions?.description?.content}
     />
   );
 };

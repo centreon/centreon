@@ -54,7 +54,12 @@ const internalWidgets: Array<
     panelDefaultHeight: 3,
     panelDefaultWidth: 6
   },
-  { name: 'generictext', panelDefaultHeight: 3, panelDefaultWidth: 6 },
+  {
+    name: 'generictext',
+    panelDefaultHeight: 2,
+    panelDefaultWidth: 6,
+    panelMinHeight: 1
+  },
   {
     name: 'graph',
     panelDefaultHeight: 4,
