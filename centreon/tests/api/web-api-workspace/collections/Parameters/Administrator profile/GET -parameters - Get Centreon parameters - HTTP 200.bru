@@ -23,6 +23,18 @@ tests {
   test("Additive inheritance flag is exposed as a boolean.", function () {
     expect(res.getBody().is_additive_inheritance_enabled).to.be.a("boolean");
   });
+
+  test("Interval length is exposed as an integer.", function () {
+    const intervalLength = res.getBody().monitoring_interval_length;
+    expect(intervalLength).to.be.a("number");
+    expect(Number.isInteger(intervalLength)).to.equal(true);
+  });
+
+  test("Statistics refresh interval is exposed as an integer.", function () {
+    const refreshInterval = res.getBody().statistics_default_refresh_interval;
+    expect(refreshInterval).to.be.a("number");
+    expect(Number.isInteger(refreshInterval)).to.equal(true);
+  });
 }
 
 settings {
