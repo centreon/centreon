@@ -28,6 +28,8 @@ export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
 export const hostFormHostSeveritiesEndpoint =
   '/configuration/hosts/host_severities';
 export const hostFormMediasEndpoint = '/configuration/hosts/medias';
+export const hostFormHostTemplatesEndpoint =
+  '/configuration/hosts/host_templates';
 
 // No host-scoped timezone selector exists: this one is open to any
 // authenticated user, so it has no ACL to get wrong.
@@ -102,6 +104,9 @@ export const getHostTemplatesEndpoint = getSelectorEndpoint(
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
 export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);
+export const getFormHostTemplatesEndpoint = getSelectorEndpoint(
+  hostFormHostTemplatesEndpoint
+);
 
 // There is no filter on the default poller, so it is looked for in one page
 // wide enough for any realistic number of pollers.

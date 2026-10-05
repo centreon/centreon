@@ -17,6 +17,7 @@ import {
   labelArgs,
   labelCheckCommand,
   labelCheckPeriod,
+  labelCreateServicesLinkedToTemplates,
   labelHostConfiguration,
   labelInvalidAddress,
   labelIpAddress,
@@ -33,11 +34,13 @@ import {
   labelRetryCheckInterval,
   labelSnmpCommunity,
   labelSnmpVersion,
+  labelTemplates,
   labelTimezone
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
 import ResolveAddress from '../ResolveAddress';
-import { buildSelector } from '../selector';
+import { buildSelector, toIds } from '../selector';
+import Templates, { type TemplateRow } from '../Templates';
 import {
   defaultTriState,
   type TriState,
@@ -99,11 +102,13 @@ interface HostConfigurationDetail {
   address: string;
   alias: string;
   checkOptions: CheckOptionsValues;
+  createServicesLinkedToTemplates: boolean;
   name: string;
   poller: NamedEntity;
   schedulingOptions: SchedulingOptionsValues;
   snmpCommunity: string;
   snmpVersion: SnmpVersionOption | null;
+  templates: Array<TemplateRow>;
   timezone: NamedEntity | null;
 }
 
@@ -213,11 +218,14 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     address: '',
     alias: '',
     checkOptions: defaultCheckOptions,
+    // As legacy creates a host: its templates' services along with it.
+    createServicesLinkedToTemplates: true,
     name: '',
     poller: null,
     schedulingOptions: defaultSchedulingOptions,
     snmpCommunity: '',
     snmpVersion: null,
+    templates: [],
     timezone: null
   },
   detailDecoders: {
@@ -227,6 +235,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     checkOptions: JsonDecoder.optional(
       JsonDecoder.nullable(checkOptionsDecoder)
     ).map((value) => value ?? defaultCheckOptions),
+    // Never read back. Off, as legacy opens an existing host: saving it does
+    // not create its templates' services again unless asked to.
+    createServicesLinkedToTemplates: JsonDecoder.constant(false),
     name: JsonDecoder.string,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller'),
     schedulingOptions: JsonDecoder.optional(
@@ -244,12 +255,20 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         )
       )
     ).map((value) => value ?? null),
+    // In the order they are inherited from.
+    templates: JsonDecoder.optional(
+      JsonDecoder.array<TemplateRow>(
+        JsonDecoder.object(namedEntityDecoder, 'Template'),
+        'Templates'
+      )
+    ).map((value) => value ?? []),
     timezone: JsonDecoder.optional(
       JsonDecoder.nullable(JsonDecoder.object(namedEntityDecoder, 'Timezone'))
     ).map((value) => value ?? null)
   },
   detailKeyMap: {
     checkOptions: 'check_options',
+    createServicesLinkedToTemplates: 'create_services_linked_to_templates',
     schedulingOptions: 'scheduling_options',
     snmpCommunity: 'snmp_community',
     snmpVersion: 'snmp_version'
@@ -376,6 +395,46 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           ]
         },
         label: 'host-form-check-options',
+        type: InputType.Grid
+      },
+      // Templates in the first column; the second is left to the macros.
+      {
+        fieldName: 'templates-layout',
+        grid: {
+          className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
+          columns: [
+            {
+              fieldName: 'templates-block',
+              grid: {
+                className: 'grid-cols-1',
+                columns: [
+                  {
+                    custom: { Component: Templates },
+                    dataTestId: 'host-form-templates',
+                    fieldName: 'templates',
+                    label: t(labelTemplates),
+                    type: InputType.Custom
+                  },
+                  // Cloud always creates them.
+                  ...(isCloudPlatform
+                    ? []
+                    : [
+                        {
+                          dataTestId:
+                            'host-form-create-services-linked-to-templates',
+                          fieldName: 'createServicesLinkedToTemplates',
+                          label: t(labelCreateServicesLinkedToTemplates),
+                          type: InputType.Switch
+                        }
+                      ])
+                ]
+              },
+              label: 'host-form-templates-block',
+              type: InputType.Grid
+            }
+          ]
+        },
+        label: 'host-form-templates-layout',
         type: InputType.Grid
       },
       // The host's details beside its scheduling once the panel is wide enough,
@@ -515,20 +574,24 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       alias,
       address,
       checkOptions = defaultCheckOptions,
+      createServicesLinkedToTemplates = true,
       poller,
       schedulingOptions = defaultSchedulingOptions,
       snmpCommunity,
       snmpVersion,
+      templates = [],
       timezone
     } = values as {
       address: string;
       alias: string;
       checkOptions?: CheckOptionsValues;
+      createServicesLinkedToTemplates?: boolean;
       name: string;
       poller: { id: number } | null;
       schedulingOptions?: SchedulingOptionsValues;
       snmpCommunity?: string;
       snmpVersion?: SnmpVersionOption | null;
+      templates?: Array<TemplateRow>;
       timezone?: NamedEntity | null;
     };
 
@@ -544,6 +607,10 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         args: checkOptions.command ? textToArguments(checkOptions.args) : [],
         command_id: checkOptions.command?.id ?? null
       },
+      // Refused on cloud, which always creates them.
+      ...(!isCloudPlatform && {
+        create_services_linked_to_templates: createServicesLinkedToTemplates
+      }),
       name: name?.trim(),
       poller_id: poller?.id,
       scheduling_options: {
@@ -563,6 +630,10 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       // is left out rather than sent empty.
       ...(snmpCommunity && { snmp_community: snmpCommunity }),
       snmp_version: snmpVersion?.id ?? null,
+      // In order, rows left unpicked aside.
+      template_ids: toIds(
+        templates.filter((template): template is NamedEntity => !!template)
+      ),
       timezone_id: timezone?.id ?? null
     };
   }
