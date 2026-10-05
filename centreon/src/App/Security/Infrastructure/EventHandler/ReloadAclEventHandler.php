@@ -27,8 +27,11 @@ use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
+use App\Shared\Domain\Event\AggregateDuplicated;
 use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -44,6 +47,11 @@ use Webmozart\Assert\Assert;
  * creator sees their new resource without waiting for the cron. On a later enable/disable, or on a
  * deletion, the flag alone drives the recompute — the cron purges stale rows for a deleted resource.
  * Caught via the {@see AggregateUpdated} supertype (enable/disable) and {@see AggregateDeleted}.
+ *
+ * A duplication ({@see AggregateDuplicated}) only flags: the copy's own ACL scope is seeded from the
+ * source by the duplication handler, so there is nothing to grant to the current user here (the grant
+ * is gated on {@see AggregateCreated}). The copy is addressed as a single aggregate; the batch form of
+ * {@see AggregateDuplicated} is not ACL-scoped today (commands), so the guard below skips it.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler
@@ -55,7 +63,10 @@ final readonly class ReloadAclEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted $event): void
+    /**
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
+     */
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
         if (! $event->aggregate instanceof AclScopedInterface) {
             return;

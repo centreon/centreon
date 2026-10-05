@@ -33,8 +33,6 @@ use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -57,7 +55,6 @@ final readonly class DuplicateHostCommandHandler
     public function __construct(
         private HostRepository $repository,
         private ResourceAccessRepository $resourceAccessRepository,
-        private AccessGroupRepository $accessGroupRepository,
         private VaultInterface $vault,
         private VaultCredentialReader $vaultReader,
         private VaultCredentialWriter $vaultWriter,
@@ -112,11 +109,9 @@ final readonly class DuplicateHostCommandHandler
             newHostId: $copy->id(),
         );
 
-        // Flag the centAcl cron so it recomputes the ACL scoping afterwards.
-        $this->flagAclReload($command->viewerId);
-
-        // Action log (with field detail) and the poller's `nagios_server.updated` flag are written
-        // by the shared event handlers reacting to AggregateDuplicated.
+        // The shared handlers reacting to AggregateDuplicated do the rest: the action log (with field
+        // detail), the poller's `nagios_server.updated` flag, and the centAcl reload flag
+        // (ReloadAclEventHandler flags only here — the copy's scope was already seeded above).
         $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy));
 
         // The aggregate does not model services; they are duplicated by a legacy step delivered after
@@ -220,20 +215,5 @@ final readonly class DuplicateHostCommandHandler
         }
 
         throw new HostAlreadyExistsException(['name' => $sourceName->value]);
-    }
-
-    private function flagAclReload(?UserId $viewerId): void
-    {
-        // Admin: the copy may become visible through any group's resource-scoping rule.
-        if (! $viewerId instanceof UserId) {
-            $this->resourceAccessRepository->flagAllResourcesAsChanged();
-
-            return;
-        }
-
-        $accessGroupIds = $this->accessGroupRepository->findActiveGroupIdsForUser($viewerId);
-        if (count($accessGroupIds) > 0) {
-            $this->accessGroupRepository->flagGroupsAsChanged($accessGroupIds);
-        }
     }
 }

@@ -48,14 +48,12 @@ use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
-use Tests\App\Security\Infrastructure\Double\FakeAccessGroupRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -65,8 +63,6 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     private FakeHostRepository $repository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
-
-    private FakeAccessGroupRepository $accessGroupRepository;
 
     private EventBusSpy $eventBus;
 
@@ -78,7 +74,6 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $this->repository = new FakeHostRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
-        $this->accessGroupRepository = new FakeAccessGroupRepository();
         $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
         // Off by default: the secrets then copy verbatim, exercised by the relation-copying tests; the
@@ -88,7 +83,6 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->handler = new DuplicateHostCommandHandler(
             $this->repository,
             $this->resourceAccessRepository,
-            $this->accessGroupRepository,
             $this->vault,
             new VaultCredentialReader($this->vault),
             new VaultCredentialWriter($this->vault),
@@ -211,39 +205,6 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy);
         self::assertSame($copy->id()->value, $event->newHostId->value);
-    }
-
-    public function testAdminFlagsEveryResourceForReload(): void
-    {
-        $this->storeSourceHost(1, 'web');
-
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
-
-        self::assertTrue($this->resourceAccessRepository->allResourcesFlaggedAsChanged);
-        self::assertSame([], $this->accessGroupRepository->flaggedGroupIds);
-    }
-
-    public function testNonAdminFlagsOnlyOwnAccessGroupsForReload(): void
-    {
-        $this->storeSourceHost(1, 'web');
-        $this->accessGroupRepository->groupIdsByUserId[7] = [10, 20];
-
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 7, viewerId: new UserId(7)));
-
-        self::assertFalse($this->resourceAccessRepository->allResourcesFlaggedAsChanged);
-        self::assertSame([10, 20], $this->accessGroupRepository->flaggedGroupIds);
-    }
-
-    public function testNonAdminWithoutAccessGroupsFlagsNothingForReload(): void
-    {
-        // A restricted viewer belonging to no active access group: the count guard must hold, so neither
-        // every resource nor an empty group list is flagged.
-        $this->storeSourceHost(1, 'web');
-
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 7, viewerId: new UserId(7)));
-
-        self::assertFalse($this->resourceAccessRepository->allResourcesFlaggedAsChanged);
-        self::assertSame([], $this->accessGroupRepository->flaggedGroupIds);
     }
 
     public function testRemintsVaultedSecretsIntoAFreshVaultEntry(): void
