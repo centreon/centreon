@@ -40,6 +40,7 @@ class MonitoringResourceController extends AbstractController
     public const TAB_TIMELINE_NAME = 'timeline';
     public const TAB_SHORTCUTS_NAME = 'shortcuts';
     private const RESOURCE_LISTING_URI = '/monitoring/resources';
+    private const BA_DETAILS_URI = '/monitoring/bam/bas';
     private const ALLOWED_TABS = [
         self::TAB_DETAILS_NAME,
         self::TAB_GRAPH_NAME,
@@ -162,6 +163,17 @@ class MonitoringResourceController extends AbstractController
                 'metaId' => $metaId,
             ]
         );
+    }
+
+    /**
+     * Build uri to access a business activity's details page
+     *
+     * @param int $baId
+     * @return string
+     */
+    public function buildBaDetailsUri(int $baId): string
+    {
+        return $this->getBaseUri() . self::BA_DETAILS_URI . '/' . $baId;
     }
 
     /**
