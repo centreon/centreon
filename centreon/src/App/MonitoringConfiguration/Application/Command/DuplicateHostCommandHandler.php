@@ -71,10 +71,8 @@ final readonly class DuplicateHostCommandHandler
             throw new HostNotFoundException([$command->hostId->value], 'id');
         }
 
-        // A vaulted secret is stored as a `secret::` reference to the source's vault entry; copying it
-        // verbatim would make the copy share the source's vault paths, so editing or deleting one
-        // host's secret would silently hit the other. The source's secrets are re-minted into a fresh
-        // entry so the copy owns its own paths (legacy duplicateHostSecretsInVault).
+        // Re-mint the source's vaulted secrets into the copy's own entry (see duplicateSecrets()):
+        // copied verbatim they would share the source's vault paths.
         [$snmpCommunity, $checkOptions] = $this->duplicateSecrets($source);
 
         // The aggregate owns which fields carry over to a copy; the handler only supplies what needs

@@ -50,8 +50,9 @@ use Webmozart\Assert\Assert;
  *
  * A duplication ({@see AggregateDuplicated}) only flags: the copy's own ACL scope is seeded from the
  * source by the duplication handler, so there is nothing to grant to the current user here (the grant
- * is gated on {@see AggregateCreated}). The copy is addressed as a single aggregate; the batch form of
- * {@see AggregateDuplicated} is not ACL-scoped today (commands), so the guard below skips it.
+ * is gated on {@see AggregateCreated}). A batch duplication carries an array aggregate, which the
+ * {@see AclScopedInterface} guard below skips; only the single-aggregate form (e.g. HostDuplicated) is
+ * handled here.
  */
 #[AsEventHandler]
 final readonly class ReloadAclEventHandler

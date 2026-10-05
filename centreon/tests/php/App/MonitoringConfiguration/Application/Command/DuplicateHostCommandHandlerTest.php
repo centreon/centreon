@@ -261,6 +261,54 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame($source->checkOptions, $copy->checkOptions);
     }
 
+    public function testRemintsOnlyTheVaultedSecretsAndKeepsPlaintextVerbatim(): void
+    {
+        $this->vault->vaultEnabled = true;
+
+        // SNMP community is plaintext; the source's vault entry is reached through the vaulted macro.
+        $macroReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTTOKEN';
+        $this->vault->extractedUuids[$macroReference] = 'src-uuid';
+        $this->vault->resolved[$macroReference] = 's3cr3t';
+        $this->repository->hosts[1] = new Host(
+            id: new HostId(1),
+            name: new HostName('web'),
+            alias: new HostAlias('alias-1'),
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity('public'),
+            checkOptions: new CheckOptions(null, [], [
+                new HostMacro(new HostMacroName('token'), $macroReference, isPassword: true),
+                new HostMacro(new HostMacroName('plain'), 'visible-value', isPassword: false),
+            ]),
+        );
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+
+        // Only the vaulted macro is re-minted: the fresh entry holds just that key.
+        self::assertCount(1, $this->vault->writeManyCalls);
+        $write = $this->vault->writeManyCalls[0];
+        self::assertNull($write['uuid']);
+        self::assertSame(['_HOSTTOKEN' => 's3cr3t'], $write['secrets']);
+
+        $copy = $this->findCopyByName('web_1');
+        self::assertNotNull($copy);
+        // Plaintext SNMP community: absent from the rewrite, copied verbatim.
+        self::assertSame('public', $copy->snmpCommunity?->value);
+
+        $macrosByName = [];
+        foreach ($copy->checkOptions->macros as $macro) {
+            $macrosByName[$macro->name->value] = $macro->value;
+        }
+        // The vaulted macro gets a fresh reference; the plaintext macro is untouched.
+        self::assertNotSame($macroReference, $macrosByName['TOKEN']);
+        self::assertStringStartsWith('secret::', $macrosByName['TOKEN']);
+        self::assertSame('visible-value', $macrosByName['PLAIN']);
+    }
+
     private function storeSourceHost(int $id, string $name): Host
     {
         $host = $this->buildHost($id, $name);

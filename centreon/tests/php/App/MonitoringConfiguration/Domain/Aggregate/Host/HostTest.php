@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
@@ -30,10 +31,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\TestCase;
@@ -144,7 +148,9 @@ final class HostTest extends TestCase
             activated: false,
             snmpCommunity: new SnmpCommunity('source-community'),
             macros: [new HostMacro(new HostMacroName('old'), 'old-ref', isPassword: true)],
+            notifications: $this->notifications(),
         );
+        self::assertNotNull($source->notifications, 'guard: the source must carry notifications for the next assertion to be meaningful');
         $newCheckOptions = new CheckOptions(null, macros: [new HostMacro(new HostMacroName('token'), 'new-ref', isPassword: true)]);
 
         $copy = $source->duplicate(new HostName('server-01_1'), new SnmpCommunity('new-ref'), $newCheckOptions);
@@ -184,6 +190,7 @@ final class HostTest extends TestCase
         bool $activated = true,
         ?SnmpCommunity $snmpCommunity = null,
         array $macros = [],
+        ?Notifications $notifications = null,
     ): Host {
         return new Host(
             id: null,
@@ -198,6 +205,16 @@ final class HostTest extends TestCase
             childHostIds: $this->hostIds($childHostIds),
             snmpCommunity: $snmpCommunity,
             checkOptions: new CheckOptions(null, macros: $macros),
+            notifications: $notifications,
+        );
+    }
+
+    private function notifications(): Notifications
+    {
+        return new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
         );
     }
 
