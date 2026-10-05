@@ -394,7 +394,7 @@ export default () => {
       cy.findByTestId('host-form-address-resolve').should('be.enabled');
     });
 
-    it('offers no resolution for an address that already is an IPv4', () => {
+    it('offers no resolution for an address that already is an IP', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -403,6 +403,11 @@ export default () => {
 
       cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
       cy.findByTestId('host-form-address-resolve').should('be.disabled');
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('fe80::1');
+      cy.findByTestId('host-form-address-resolve').should('be.disabled');
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
 
       cy.findAllByTestId('host-form-address').eq(1).type('.example.com');
       cy.findByTestId('host-form-address-resolve').should('be.enabled');
@@ -510,7 +515,9 @@ export default () => {
     });
 
     it('resolves an address once while a lookup is running', () => {
-      initialize({});
+      // Unresolved, so the address stays a name: only the running lookup
+      // can disable the button.
+      initialize({ addressResolution: 'unresolved' });
 
       cy.waitForRequest('@getAllHosts');
 
@@ -533,7 +540,7 @@ export default () => {
     });
 
     it('keeps an address edited while its previous value was resolving', () => {
-      initialize({});
+      initialize({ resolveDelay: 1500 });
 
       cy.waitForRequest('@getAllHosts');
 
@@ -548,10 +555,13 @@ export default () => {
       cy.findAllByTestId('host-form-address').eq(1).clear().type('srv-b');
 
       cy.waitForRequest('@resolveAddress');
+      // The request went out at the click; nothing visible marks its answer.
+      cy.wait(2000);
 
       cy.findAllByTestId('host-form-address')
         .eq(1)
-        .should('have.value', 'srv-b');
+        .should('have.value', 'srv-b'); // Nor is a result it did not apply reported.
+      cy.contains(resolvedAddressResponse.ip).should('not.exist');
     });
 
     it('creates a host with its alias, trimmed', () => {
@@ -570,6 +580,30 @@ export default () => {
 
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body.alias).to.equal('Apache front');
+      });
+    });
+
+    it('sends no alias for a host whose alias was cleared', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-alias')
+        .eq(1)
+        .should(
+          'have.value',
+          'alias of host 0 as the detail endpoint spells it'
+        )
+        .clear();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.alias).to.equal(null);
       });
     });
 

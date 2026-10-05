@@ -65,13 +65,13 @@ describe('Host form validation', () => {
   });
 
   describe('Alias', () => {
-    it('accepts none at all', () => {
-      expect(errorFor('alias', '')).toBeNull();
-    });
-
     it('refuses an alias longer than the 200 characters the API stores', () => {
       expect(errorFor('alias', 'a'.repeat(200))).toBeNull();
       expect(errorFor('alias', 'a'.repeat(201))).not.toBeNull();
+    });
+
+    it('measures the alias without its surrounding blanks', () => {
+      expect(errorFor('alias', ` ${'a'.repeat(200)} `)).toBeNull();
     });
   });
 

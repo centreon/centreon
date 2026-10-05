@@ -1,4 +1,4 @@
-import type { InputPropsWithoutGroup } from '@centreon/ui';
+import { type InputPropsWithoutGroup, useSnackbar } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
 
 import { type FormikValues, useFormikContext } from 'formik';
@@ -7,8 +7,9 @@ import { type ReactElement, useEffect, useRef } from 'react';
 // Not through `../api`, whose decoders import the sections rendering this.
 import useResolveAddress from '../api/useResolveAddress';
 
-// An IPv4 comes back unchanged, so there is nothing to resolve.
-const ipv4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+// Already an address: an IPv4 comes back unchanged and the API refuses an
+// IPv6, so there is nothing to resolve.
+const ipAddress = /^(\d{1,3}(\.\d{1,3}){3}|.*:.*)$/;
 
 // Replaces the address with the IPv4 its name resolves to.
 const ResolveAddress = ({
@@ -19,6 +20,7 @@ const ResolveAddress = ({
   const { values, setFieldValue, setFieldTouched } =
     useFormikContext<FormikValues>();
   const { isResolving, resolve } = useResolveAddress();
+  const { showSuccessMessage } = useSnackbar();
 
   const hostname = ((values.address as string | undefined) ?? '').trim();
   const currentAddress = useRef(hostname);
@@ -37,6 +39,8 @@ const ResolveAddress = ({
 
     await setFieldValue('address', ip);
     setFieldTouched('address', true);
+    // What was resolved into what: data only, nothing to translate.
+    showSuccessMessage(`${hostname} → ${ip}`);
   };
 
   return (
@@ -44,7 +48,7 @@ const ResolveAddress = ({
       data-testid={dataTestId}
       disabled={
         !hostname ||
-        ipv4.test(hostname) ||
+        ipAddress.test(hostname) ||
         isResolving ||
         !!getDisabled?.(values)
       }

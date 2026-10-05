@@ -52,10 +52,11 @@ interface Props {
   addressResolution?: keyof typeof addressResolutions;
   hasDefaultPoller?: boolean;
   pollersDelay?: number;
+  resolveDelay?: number;
 }
 
 // What the selector answers a user it does not grant.
-export const pollersForbiddenMessage = 'You are not allowed to list pollers';
+export const pollersForbiddenMessage = 'You are not allowed to access pollers';
 
 const addressResolutions = {
   refused: { response: refusedAddressResponse, statusCode: 422 },
@@ -71,7 +72,8 @@ const initialize = ({
   isAdditiveInheritanceEnabled = false,
   addressResolution = 'resolved',
   hasDefaultPoller = true,
-  pollersDelay
+  pollersDelay,
+  resolveDelay
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -145,6 +147,7 @@ const initialize = ({
 
   cy.interceptAPIRequest({
     alias: 'resolveAddress',
+    delay: resolveDelay,
     method: Method.GET,
     path: `**${resolveAddressEndpoint}?**`,
     ...addressResolutions[addressResolution]
