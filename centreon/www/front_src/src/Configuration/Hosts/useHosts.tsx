@@ -1,21 +1,27 @@
 import { Method } from '@centreon/ui';
 
+import { mergeAll } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
 import {
   getDuplicateHostEndpoint,
+  getHostDecoder,
   getHostEndpoint,
   getHostGroupsEndpoint,
   getHostTemplatesEndpoint,
   getPollersEndpoint,
-  hostDecoder,
   hostsBaseEndpoint,
   hostsListDecoder,
   hostsListEndpoint,
   namedEntitiesListDecoder
 } from './api';
+import {
+  type FormValues,
+  getAvailableSections,
+  type PlatformContext
+} from './Form/sections';
 import {
   labelHostGroup,
   labelHostTemplate,
@@ -29,44 +35,21 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-// API Platform takes snake_case, and ids where the form holds the options the
-// autocompletes selected.
-const toIds = (entities: Array<{ id: number }> | null | undefined) =>
-  (entities ?? []).map(({ id }) => id);
+const getAdapter = (context: PlatformContext) => (data: unknown) =>
+  mergeAll(
+    getAvailableSections(context).map(({ section }) =>
+      section.toPayload(data as FormValues)
+    )
+  );
 
-const adaptFormToApiPayload = (data: unknown) => {
-  const { name, address, poller, groups, categories, parentHosts, childHosts } =
-    data as {
-      address: string;
-      categories: Array<{ id: number }> | null;
-      childHosts: Array<{ id: number }> | null;
-      groups: Array<{ id: number }> | null;
-      name: string;
-      parentHosts: Array<{ id: number }> | null;
-      poller: { id: number } | null;
-    };
-
-  return {
-    // Trimmed as the schema validates them: yup casts before checking the
-    // length, so an untrimmed value passes `max` here and fails it server side.
-    address: address?.trim(),
-    category_ids: toIds(categories),
-    child_host_ids: toIds(childHosts),
-    host_group_ids: toIds(groups),
-    name: name?.trim(),
-    parent_host_ids: toIds(parentHosts),
-    poller_id: poller?.id
-  };
-};
-
-const api: APIType = {
+const getApi = (context: PlatformContext): APIType => ({
   // This endpoint takes `activate`, not the `is_activated` of the older
   // migrated listings.
   activationField: 'activate',
-  adapter: adaptFormToApiPayload,
+  adapter: getAdapter(context),
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
-  decoders: { getAll: hostsListDecoder, getOne: hostDecoder },
+  decoders: { getAll: hostsListDecoder, getOne: getHostDecoder(context) },
   // Every write names one host, so a selection becomes one request per row.
   endpoints: {
     create: hostsListEndpoint,
@@ -90,10 +73,12 @@ const api: APIType = {
     update: Method.PATCH
   },
   writeBaseEndpoint: hostsBaseEndpoint
-};
+});
 
-const useHosts = (): UseHostsState => {
+const useHosts = ({ isCloudPlatform }: PlatformContext): UseHostsState => {
   const { t } = useTranslation();
+
+  const api = useMemo(() => getApi({ isCloudPlatform }), [isCloudPlatform]);
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
