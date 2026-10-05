@@ -14,6 +14,8 @@ export interface DefaultParameters {
   monitoring_default_refresh_interval: string;
   resource_status_view_mode: ListingVariant;
   is_resource_status_full_search_enabled: boolean;
+  // Absent from servers that predate it.
+  is_additive_inheritance_enabled?: boolean;
 }
 
 type Translation = KeyValuePair<string, string>;

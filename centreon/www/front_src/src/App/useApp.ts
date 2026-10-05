@@ -6,6 +6,7 @@ import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  isAdditiveInheritanceEnabledAtom,
   isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
   platformVersionsAtom,
@@ -94,6 +95,9 @@ const useApp = (): UseAppState => {
   const setIsResourceStatusFullSearchEnabled = useSetAtom(
     isResourceStatusFullSearchEnabledAtom
   );
+  const setIsAdditiveInheritanceEnabled = useSetAtom(
+    isAdditiveInheritanceEnabledAtom
+  );
 
   const { getNavigation } = useNavigation();
 
@@ -150,6 +154,9 @@ const useApp = (): UseAppState => {
         });
         setIsResourceStatusFullSearchEnabled(
           retrievedParameters.is_resource_status_full_search_enabled
+        );
+        setIsAdditiveInheritanceEnabled(
+          retrievedParameters.is_additive_inheritance_enabled ?? false
         );
       })
       .catch((error) => {
