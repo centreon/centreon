@@ -534,6 +534,43 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testDuplicateHostServiceAccessWritesNothingWhenNoGroupSeesTheSource(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9501, 'host_name' => 'dup-svc-nogroup-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9502, 'host_name' => 'dup-svc-nogroup-copy', 'host_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7801, 'service_description' => 'svc-7801', 'service_register' => '1']);
+        // The copy has a service, but no group sees the source (no host-level centreon_acl row).
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9502, 'service_service_id' => 7801]);
+
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9501), newHostId: new HostId(9502));
+
+        self::assertSame(
+            0,
+            $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id IS NOT NULL', [9502]),
+        );
+    }
+
+    public function testDuplicateHostServiceAccessIsIdempotent(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9601, 'host_name' => 'dup-svc-idem-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9602, 'host_name' => 'dup-svc-idem-copy', 'host_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7901, 'service_description' => 'svc-7901', 'service_register' => '1']);
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9602, 'service_service_id' => 7901]);
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9601, 'service_id' => null]);
+
+        // Called twice (e.g. the legacy updateACL('DUP') already wrote the same row): ON DUPLICATE KEY
+        // UPDATE makes the second call a no-op rather than a duplicate-key failure.
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9601), newHostId: new HostId(9602));
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9601), newHostId: new HostId(9602));
+
+        self::assertSame(
+            1,
+            $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id = ?', [9602, 7901]),
+            'the service ACL row is written once and the second call neither throws nor duplicates it',
+        );
+    }
+
     public function testUserWithNoAclGroupHasAccessToNoContact(): void
     {
         $contactId = $this->createContact('no-group-contacts-' . uniqid());

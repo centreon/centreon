@@ -201,6 +201,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDuplicationRequested::class, 1));
         $event = $this->eventBus->getDispatchedEvents(HostServicesDuplicationRequested::class)[0];
         self::assertSame(1, $event->sourceHostId->value);
+        // The actor is threaded onto the event so the deferred clone can rebuild the legacy session.
+        self::assertSame(42, $event->duplicatedBy);
 
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy);
@@ -357,6 +359,26 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             $this->vault->deleteCalls,
             'the minted copy entry is purged on failure, never the source one',
         );
+    }
+
+    public function testDoesNotPurgeTheSourceVaultEntryWhenTheCopySharesItAndPersistenceFails(): void
+    {
+        // Vault disabled: duplicateSecrets copies the source's `secret::` references verbatim, so the
+        // copy carries the SOURCE's vault UUID. A purge on failure must never delete that shared entry.
+        $this->vault->vaultEnabled = false;
+        $snmpReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTSNMPCOMMUNITY';
+        $this->vault->extractedUuids[$snmpReference] = 'src-uuid';
+        $this->repository->hosts[1] = $this->buildVaultedHost(1, 'web', $snmpReference, 'secret::vault::monitoring/hosts/src-uuid::_HOSTPASSWORD');
+        $this->resourceAccessRepository->duplicateHostAccessThrows = true;
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            self::fail('expected the persistence failure to propagate');
+        } catch (\RuntimeException) {
+            // expected
+        }
+
+        self::assertSame([], $this->vault->deleteCalls, 'the source entry shared by the copy is never purged');
     }
 
     private function storeSourceHost(int $id, string $name): Host

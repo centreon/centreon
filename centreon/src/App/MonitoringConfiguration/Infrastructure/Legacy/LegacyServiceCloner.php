@@ -70,12 +70,14 @@ final readonly class LegacyServiceCloner
         $previousPearDB = $GLOBALS['pearDB'] ?? null;
         $previousPearDBO = $GLOBALS['pearDBO'] ?? null;
         $previousCentreon = $GLOBALS['centreon'] ?? null;
-        // Installed first: rebuilding the session below constructs a CentreonUser, whose constructor
-        // reads $pearDB; and the legacy action log writes through $pearDBO.
-        $GLOBALS['pearDB'] = \CentreonDBInstance::getDbCentreonInstance();
-        $GLOBALS['pearDBO'] = \CentreonDBInstance::getDbCentreonStorageInstance();
 
         try {
+            // Installed inside the try so the finally always restores them, even if opening the storage
+            // connection throws. Rebuilding the session below constructs a CentreonUser, whose
+            // constructor reads $pearDB; the legacy action log writes through $pearDBO.
+            $GLOBALS['pearDB'] = \CentreonDBInstance::getDbCentreonInstance();
+            $GLOBALS['pearDBO'] = \CentreonDBInstance::getDbCentreonStorageInstance();
+
             // Held in a local $centreon kept in scope at the require below: DB-Func.php's top-level
             // guard `if (! isset($centreon)) exit();` would otherwise kill the whole request at include
             // time. Also published as the global the legacy function reads.

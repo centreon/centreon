@@ -104,8 +104,13 @@ final readonly class DuplicateHostCommandHandler
             $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy));
         } catch (\Throwable $exception) {
             // The DB writes roll back with the command-bus transaction, but the vault entry minted for
-            // the copy does not: purge it so a failed duplication leaves nothing dangling.
-            $this->purgeMintedVaultEntry($source, $copy);
+            // the copy does not: purge it so a failed duplication leaves nothing dangling. The purge
+            // runs best-effort — its own failure must never replace the original cause; the entry then
+            // stays as the accepted orphan, the same as a rolled-back creation.
+            try {
+                $this->purgeMintedVaultEntry($source, $copy);
+            } catch (\Throwable) {
+            }
 
             throw $exception;
         }

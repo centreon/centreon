@@ -86,25 +86,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         self::assertCount(1, $this->commandBus->executed);
     }
 
-    /**
-     * The expected failure (e.g. a token-authenticated request has no legacy session) must not be
-     * logged at error, or every such duplication would raise a false alarm and drown genuine failures.
-     */
-    public function testItLogsAnExpectedFailureAtInfoNotError(): void
-    {
-        $this->commandBus->exception = ServiceDuplicationFailedException::missingLegacySession();
-        $this->logger->expects(self::once())->method('log')->with('info');
-
-        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42));
-
-        self::assertCount(1, $this->commandBus->executed);
-    }
-
-    /**
-     * A genuine ServiceDuplicationFailedException (expected === false) must stay at error level, so a
-     * regression collapsing the discrimination to info is caught rather than silently demoting failures.
-     */
-    public function testItLogsAGenuineServiceDuplicationFailureAtError(): void
+    public function testItLogsAServiceDuplicationFailureAtError(): void
     {
         $this->commandBus->exception = ServiceDuplicationFailedException::legacyFunctionsUnavailable('boom');
         $this->logger->expects(self::once())->method('log')->with('error');

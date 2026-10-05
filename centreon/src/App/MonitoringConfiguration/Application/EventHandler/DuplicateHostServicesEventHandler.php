@@ -25,15 +25,14 @@ namespace App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostServicesCommand;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
-use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Log\LoggerInterface;
 
 /**
- * A failure is logged and swallowed: the copy is already committed, and legacy behaves the same,
- * service duplication being a separate step there. An expected failure (no legacy session, e.g. a
- * token-authenticated request) is logged at info; a genuine one at error.
+ * A failure is logged at error and swallowed: the copy is already committed, and legacy behaves the
+ * same, service duplication being a separate step there — an escaping exception would turn a
+ * duplicated host into a 5xx.
  */
 #[AsEventHandler]
 final readonly class DuplicateHostServicesEventHandler
@@ -56,16 +55,6 @@ final readonly class DuplicateHostServicesEventHandler
                     duplicatedBy: $event->duplicatedBy,
                 )
             );
-        } catch (ServiceDuplicationFailedException $exception) {
-            if ($exception->expected) {
-                // Expected, e.g. a token-authenticated request has no legacy session: the copy simply
-                // carries no services. Logged at info so it does not drown a genuine failure.
-                $this->log('info', 'Duplicated host was created without its exclusive services', $event, $exception);
-
-                return;
-            }
-
-            $this->log('error', self::FAILURE_MESSAGE, $event, $exception);
         } catch (\Throwable $exception) {
             $this->log('error', self::FAILURE_MESSAGE, $event, $exception);
         }
