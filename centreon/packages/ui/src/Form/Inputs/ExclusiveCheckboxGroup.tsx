@@ -55,6 +55,8 @@ const ExclusiveCheckboxGroup = ({
     );
   };
 
+  // A disabled chip only stops the pointer: a click dispatched on it, by
+  // assistive technology for one, still reaches this handler.
   const toggleChip = (option: string) => (): void => {
     if (disabled || isExclusive) {
       return;
