@@ -5,6 +5,7 @@ import type { JsonDecoder } from 'ts.data.json';
 import type { ObjectShape } from 'yup';
 
 export interface PlatformContext {
+  isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform: boolean;
 }
 
@@ -27,5 +28,8 @@ export interface FormSection<TDetail extends object = Record<never, never>> {
   isAvailable?: (context: PlatformContext) => boolean;
   // Untranslated: it is also the group name.
   label: string;
-  toPayload: (values: FormValues) => Record<string, unknown>;
+  toPayload: (
+    values: FormValues,
+    context: PlatformContext
+  ) => Record<string, unknown>;
 }
