@@ -359,6 +359,118 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findInheritedIconIds(new Collection([], HostId::class)));
     }
 
+    public function testFindInheritanceLineReturnsTheDirectTemplatesWithTheirMacros(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $passwordId = $this->insertMacro($templateId, '$_HOSTPWD$', 'secret::vault::x', isPassword: true, order: 1);
+        $plainId = $this->insertMacro($templateId, '$_HOSTPLAIN$', 'value', isPassword: false, order: 0);
+
+        $line = $this->inheritanceLine($templateId);
+
+        self::assertSame([$templateId], array_keys($line));
+        $macros = $line[$templateId]->macros->toArray();
+        self::assertCount(2, $macros);
+        // In macro_order, with their own ids, as direct macros of the template.
+        self::assertSame('PLAIN', $macros[0]->name->value);
+        self::assertSame($plainId, $macros[0]->id?->value);
+        self::assertSame('value', $macros[0]->value);
+        self::assertFalse($macros[0]->isPassword);
+        self::assertTrue($macros[0]->isDirect());
+        self::assertSame($passwordId, $macros[1]->id?->value);
+        self::assertTrue($macros[1]->isPassword);
+    }
+
+    public function testFindInheritanceLineIsDepthFirstByRelationOrderNearestFirst(): void
+    {
+        // host -> [first -> [first-parent], second]: first's own ancestors come before second.
+        $firstParentId = $this->insertHostTemplate("first-parent-{$this->tag}");
+        $firstId = $this->insertHostTemplate("first-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $firstParentId, 1);
+        $secondId = $this->insertHostTemplate("second-{$this->tag}");
+
+        self::assertSame([$firstId, $firstParentId, $secondId], array_keys($this->inheritanceLine($firstId, $secondId)));
+    }
+
+    public function testFindInheritanceLineKeepsASharedAncestorAtItsNearestPosition(): void
+    {
+        $sharedId = $this->insertHostTemplate("shared-{$this->tag}");
+        $firstId = $this->insertHostTemplate("first-{$this->tag}");
+        $secondId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $sharedId, 1);
+        $this->linkHostToTemplate($secondId, $sharedId, 1);
+
+        self::assertSame([$firstId, $sharedId, $secondId], array_keys($this->inheritanceLine($firstId, $secondId)));
+    }
+
+    public function testFindInheritanceLineSkipsInactiveAncestors(): void
+    {
+        $inactiveId = $this->insertHostTemplate("inactive-{$this->tag}");
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $inactiveId]);
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->linkHostToTemplate($templateId, $inactiveId, 1);
+
+        self::assertSame([$templateId], array_keys($this->inheritanceLine($templateId)));
+    }
+
+    public function testFindInheritanceLineSkipsAnIdThatIsNotAHostTemplate(): void
+    {
+        $hostId = $this->insertRegularHost("host-{$this->tag}");
+
+        self::assertSame([], $this->inheritanceLine($hostId));
+    }
+
+    public function testFindInheritanceLineSurvivesATemplateLoop(): void
+    {
+        $firstId = $this->insertHostTemplate("first-{$this->tag}");
+        $secondId = $this->insertHostTemplate("second-{$this->tag}");
+        $this->linkHostToTemplate($firstId, $secondId, 1);
+        $this->linkHostToTemplate($secondId, $firstId, 1);
+
+        self::assertSame([$firstId, $secondId], array_keys($this->inheritanceLine($firstId)));
+    }
+
+    public function testFindInheritanceLineIgnoresARowNotInTheHostMacroForm(): void
+    {
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        $this->insertMacro($templateId, 'NOT_A_HOST_MACRO', 'x', isPassword: false, order: 0);
+
+        self::assertSame([], $this->inheritanceLine($templateId)[$templateId]->macros->toArray());
+    }
+
+    public function testFindInheritanceLineReturnsAnEmptyCollectionForNoIds(): void
+    {
+        self::assertSame([], $this->inheritanceLine());
+    }
+
+    /**
+     * @return array<int, HostTemplate> the line, indexed by template id, in order
+     */
+    private function inheritanceLine(int ...$templateIds): array
+    {
+        $line = [];
+        foreach ($this->repository->findInheritanceLine(new Collection(
+            array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
+            HostTemplateId::class,
+        )) as $template) {
+            $line[$template->id()->value] = $template;
+        }
+
+        return $line;
+    }
+
+    private function insertMacro(int $hostId, string $name, string $value, bool $isPassword, int $order): int
+    {
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => $name,
+            'host_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : null,
+            'host_host_id' => $hostId,
+            'macro_order' => $order,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     /**
      * @param \IteratorAggregate<int, HostTemplate>&\Countable $result
      *

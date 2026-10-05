@@ -23,18 +23,33 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+
+/**
+ * The macro wire object, shared by every endpoint returning host macros: `{ id, name, value,
+ * is_password, parent }`.
+ */
 final readonly class HostMacroOutput
 {
     /**
+     * @param ?int $id the macro's id in the table its parent points to; null only for a command macro
+     *                 the command never recorded (see Command::macros())
      * @param string $name the short macro name (upper-cased), without the $_HOST…$ wrapper
-     * @param ?string $value always null for a password macro, whose secret is never echoed back;
+     * @param ?string $value always null for a password macro, whose secret is never echoed back (R3);
      *                       the null is then dropped from the payload by skip_null_values
+     * @param ?string $parent "template" or "command" for an inherited macro, null for a direct one
      */
     public function __construct(
+        // Always serialized, null included: together with parent it addresses the macro on write.
+        #[Context(normalizationContext: [AbstractObjectNormalizer::SKIP_NULL_VALUES => false])]
+        public ?int $id,
         public string $name,
         public ?string $value,
         public bool $isPassword,
-        public ?string $description,
+        // Always serialized, null included: null is what marks a direct macro.
+        #[Context(normalizationContext: [AbstractObjectNormalizer::SKIP_NULL_VALUES => false])]
+        public ?string $parent,
     ) {
     }
 }

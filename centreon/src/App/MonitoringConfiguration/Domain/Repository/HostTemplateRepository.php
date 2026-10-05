@@ -59,4 +59,17 @@ interface HostTemplateRepository
      * @return Collection<MediaId> indexed by host id
      */
     public function findInheritedIconIds(Collection $hostIds): Collection;
+
+    /**
+     * The full multi-level inheritance line of the given direct templates, with their own macros:
+     * each direct template (in the given order) followed by its own ancestors, depth-first by
+     * relation `order`, nearest to the host first, each template appearing once (its nearest
+     * position). Ancestors are restricted to active templates, like legacy getTemplateChain(); an id
+     * that is not a host template is skipped.
+     *
+     * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
+     *
+     * @return Collection<HostTemplate>
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection;
 }

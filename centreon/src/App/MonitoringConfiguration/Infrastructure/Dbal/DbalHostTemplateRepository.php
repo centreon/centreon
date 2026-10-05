@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -195,6 +198,160 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         }
 
         return new Collection($iconIds, MediaId::class);
+    }
+
+    public function findInheritanceLine(Collection $directTemplateIds): Collection
+    {
+        $directIds = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $directTemplateIds->toArray()));
+        if ($directIds === []) {
+            return new Collection([], HostTemplate::class);
+        }
+
+        // One query fetches every relation reachable from the direct templates through active
+        // templates (legacy getTemplateChain: activated, register = '0'), in `order`; the
+        // depth-first walk is done in PHP. UNION dedupes reached ids, so a template loop already in
+        // the data cannot make the recursion run forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT host_id
+                FROM host
+                WHERE host_id IN (:ids) AND host_register = '0'
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+                INNER JOIN host t ON t.host_id = htr.host_tpl_id AND t.host_activate = '1' AND t.host_register = '0'
+            )
+            SELECT htr.host_host_id, htr.host_tpl_id, t.host_name AS tpl_name
+            FROM host_template_relation htr
+            INNER JOIN chain c ON c.id = htr.host_host_id
+            INNER JOIN host t ON t.host_id = htr.host_tpl_id AND t.host_activate = '1' AND t.host_register = '0'
+            ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
+            SQL;
+
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, tpl_name: string}> $rows */
+        $rows = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $directIds],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchAllAssociative();
+
+        /** @var array<int, list<int>> $parentIdsById */
+        $parentIdsById = [];
+        $names = $this->findDirectTemplateNames($directIds);
+        foreach ($rows as $row) {
+            $parentIdsById[(int) $row['host_host_id']][] = (int) $row['host_tpl_id'];
+            $names[(int) $row['host_tpl_id']] = $row['tpl_name'];
+        }
+
+        $line = [];
+        $visited = [];
+        foreach ($directIds as $directId) {
+            // A direct id that is not a host template has no name and is skipped.
+            if (isset($names[$directId])) {
+                $this->walkInheritanceLine($directId, $parentIdsById, $visited, $line);
+            }
+        }
+
+        $macrosByOwner = $this->findMacrosByOwner($line);
+
+        return new Collection(
+            array_map(
+                static fn (int $id): HostTemplate => new HostTemplate(
+                    new HostTemplateId($id),
+                    new HostTemplateName($names[$id]),
+                    new Collection($macrosByOwner[$id] ?? [], HostMacro::class),
+                ),
+                $line,
+            ),
+            HostTemplate::class,
+        );
+    }
+
+    /**
+     * Legacy CentreonHost::getTemplateChain() walk: the template, then each of its own templates in
+     * order, depth-first; a template already walked keeps its nearest position.
+     *
+     * @param array<int, list<int>> $parentIdsById
+     * @param array<int, true> $visited
+     * @param list<int> $line
+     */
+    private function walkInheritanceLine(int $id, array $parentIdsById, array &$visited, array &$line): void
+    {
+        if (isset($visited[$id])) {
+            return;
+        }
+        $visited[$id] = true;
+        $line[] = $id;
+
+        foreach ($parentIdsById[$id] ?? [] as $parentId) {
+            $this->walkInheritanceLine($parentId, $parentIdsById, $visited, $line);
+        }
+    }
+
+    /**
+     * @param list<int> $ids
+     *
+     * @return array<int, string> template name indexed by id, host templates only
+     */
+    private function findDirectTemplateNames(array $ids): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('host_id', 'host_name')
+            ->from(self::TABLE_NAME)
+            ->where('host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{host_id: int|string, host_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['host_id']] = $row['host_name'];
+        }
+
+        return $names;
+    }
+
+    /**
+     * The custom macros the given templates own, grouped by template, in `macro_order`.
+     *
+     * @param list<int> $ownerIds
+     *
+     * @return array<int, list<HostMacro>>
+     */
+    private function findMacrosByOwner(array $ownerIds): array
+    {
+        if ($ownerIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('host_macro_id', 'host_host_id', 'host_macro_name', 'host_macro_value', 'is_password')
+            ->from('on_demand_macro_host')
+            ->where($qb->expr()->in('host_host_id', $qb->createNamedParameter($ownerIds, ArrayParameterType::INTEGER)))
+            ->orderBy('macro_order')
+            ->addOrderBy('host_macro_id');
+
+        /** @var list<array{host_macro_id: int|string, host_host_id: int|string, host_macro_name: string, host_macro_value: string, is_password: int|string|null}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $byOwner = [];
+        foreach ($rows as $row) {
+            // Stored as the engine form $_HOST<NAME>$; a row not in that form is not a host macro.
+            if (preg_match('/^\$_HOST(.+)\$$/', $row['host_macro_name'], $matches) !== 1) {
+                continue;
+            }
+
+            $byOwner[(int) $row['host_host_id']][] = new HostMacro(
+                new HostMacroName($matches[1]),
+                $row['host_macro_value'],
+                isPassword: (bool) (int) ($row['is_password'] ?? 0),
+                id: new HostMacroId((int) $row['host_macro_id']),
+            );
+        }
+
+        return $byOwner;
     }
 
     /**

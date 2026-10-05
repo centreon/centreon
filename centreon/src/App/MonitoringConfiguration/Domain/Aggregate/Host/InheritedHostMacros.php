@@ -1,0 +1,140 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+
+/**
+ * The macros a host (or template) inherits, one per name, each tagged with its origin type.
+ *
+ * Resolution follows legacy: walking the inheritance line nearest-to-host first, the closest
+ * template definition wins over any farther ancestor; check-command macros are the lowest priority
+ * and only fill names no template defines (legacy comparaPriority: fromTpl > fromCommand).
+ */
+final readonly class InheritedHostMacros
+{
+    /** Command macros the engine fills itself — never inheritable custom host macros. */
+    /**
+     * @param array<string, HostMacro> $macrosByName
+     */
+    private function __construct(private array $macrosByName)
+    {
+    }
+
+    public static function none(): self
+    {
+        return new self([]);
+    }
+
+    /**
+     * @param list<HostTemplate> $inheritanceLine the full template line, nearest to the host first
+     * @param ?Command $checkCommand the host's check command; only a check-type command contributes,
+     *                               like legacy getMacroByIdAndType()
+     */
+    public static function resolve(array $inheritanceLine, ?Command $checkCommand): self
+    {
+        $macrosByName = [];
+        foreach ($inheritanceLine as $template) {
+            foreach ($template->macrosAsInherited() as $macro) {
+                $macrosByName[$macro->name->value] ??= $macro;
+            }
+        }
+
+        if ($checkCommand instanceof Command && $checkCommand->type === CommandTypeEnum::Check) {
+            foreach ($checkCommand->macros() as $commandMacro) {
+                if ($commandMacro->type !== CommandMacroTypeEnum::Host) {
+                    continue;
+                }
+                $macro = self::fromCommandMacro($commandMacro);
+                $macrosByName[$macro->name->value] ??= $macro;
+            }
+        }
+
+        return new self($macrosByName);
+    }
+
+    public function findByName(HostMacroName $name): ?HostMacro
+    {
+        return $this->macrosByName[$name->value] ?? null;
+    }
+
+    public function findBySource(HostMacroParentEnum $parent, HostMacroId $id): ?HostMacro
+    {
+        foreach ($this->macrosByName as $macro) {
+            if ($macro->isIdentifiedBy($parent, $id)) {
+                return $macro;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Keeps only the macros that do not merely repeat what is inherited (R7): a macro equivalent to
+     * the inherited macro of the same name is dropped, so the host relies on inheritance instead of
+     * storing a redundant copy.
+     *
+     * @param list<HostMacro> $macros
+     *
+     * @return list<HostMacro>
+     */
+    public function withoutRedundant(array $macros): array
+    {
+        return array_values(array_filter(
+            $macros,
+            function (HostMacro $macro): bool {
+                $inherited = $this->findByName($macro->name);
+
+                return ! $inherited instanceof HostMacro || ! $macro->isEquivalentTo($inherited);
+            },
+        ));
+    }
+
+    /**
+     * @return list<HostMacro>
+     */
+    public function toList(): array
+    {
+        return array_values($this->macrosByName);
+    }
+
+    /**
+     * A command macro carries no value: the host supplies it (legacy getMacroByIdAndType()).
+     */
+    private static function fromCommandMacro(CommandMacro $macro): HostMacro
+    {
+        return new HostMacro(
+            new HostMacroName($macro->name),
+            '',
+            isPassword: false,
+            id: $macro->id instanceof CommandMacroId ? new HostMacroId($macro->id->value) : null,
+            parent: HostMacroParentEnum::Command,
+        );
+    }
+}

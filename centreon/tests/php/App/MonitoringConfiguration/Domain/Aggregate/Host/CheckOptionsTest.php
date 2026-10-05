@@ -152,10 +152,10 @@ final class CheckOptionsTest extends TestCase
 
     public function testEqualsComparesTheMacros(): void
     {
-        $options = new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true, 'd')]);
+        $options = new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true)]);
 
-        self::assertTrue($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true, 'd')])));
-        self::assertFalse($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'x', true, 'd')])));
+        self::assertTrue($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true)])));
+        self::assertFalse($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'x', true)])));
         self::assertFalse($options->equals(new CheckOptions(null)));
     }
 }

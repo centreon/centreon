@@ -99,7 +99,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   severity_id: int|string|null,
  *   parent_host_ids: string|null,
  *   child_host_ids: string|null,
- *   macros: list<array{name: string, value: string, is_password: string|int, description: string|null}>,
+ *   macros: list<array{id: int|string, name: string, value: string, is_password: string|int|null}>,
  * }
  *
  * @phpstan-import-type NotificationColumnsTypeAlias from DbalNotificationsTransformer
@@ -302,8 +302,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('macroValue', $macro->value)
                 // Legacy stores 1 for a password macro and NULL otherwise, never 0.
                 ->setParameter('isPassword', $macro->isPassword ? 1 : null)
-                // Legacy coerces a missing description to '' (never NULL) in this column.
-                ->setParameter('description', $macro->description ?? '')
+                // The description is no longer part of the macro: stored as '' (never NULL), which is
+                // how legacy stores a blank one.
+                ->setParameter('description', '')
                 ->setParameter('hostId', $hostId)
                 ->setParameter('macroOrder', $macroOrder)
                 ->executeStatement();
@@ -628,17 +629,17 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     }
 
     /**
-     * @return list<array{name: string, value: string, is_password: string|int, description: string|null}>
+     * @return list<array{id: int|string, name: string, value: string, is_password: string|int|null}>
      */
     private function findMacroRows(int $hostId): array
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('host_macro_name AS name', 'host_macro_value AS value', 'is_password', 'description')
+        $qb->select('host_macro_id AS id', 'host_macro_name AS name', 'host_macro_value AS value', 'is_password')
             ->from('on_demand_macro_host')
             ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
             ->orderBy('macro_order');
 
-        /** @var list<array{name: string, value: string, is_password: string|int, description: string|null}> */
+        /** @var list<array{id: int|string, name: string, value: string, is_password: string|int|null}> */
         return $qb->executeQuery()->fetchAllAssociative();
     }
 

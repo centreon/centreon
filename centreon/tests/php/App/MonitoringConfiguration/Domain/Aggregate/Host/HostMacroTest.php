@@ -24,19 +24,23 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use PHPUnit\Framework\TestCase;
 
 final class HostMacroTest extends TestCase
 {
     public function testItHoldsItsFields(): void
     {
-        $macro = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'SNMP');
+        $macro = new HostMacro(new HostMacroName('community'), 'public', isPassword: false, id: new HostMacroId(4));
 
         self::assertSame('COMMUNITY', $macro->name->value);
         self::assertSame('public', $macro->value);
         self::assertFalse($macro->isPassword);
-        self::assertSame('SNMP', $macro->description);
+        self::assertSame(4, $macro->id?->value);
+        self::assertTrue($macro->isDirect());
+        self::assertFalse($macro->isInherited());
     }
 
     public function testItRejectsAValueLongerThan4096(): void
@@ -46,37 +50,105 @@ final class HostMacroTest extends TestCase
         new HostMacro(new HostMacroName('big'), str_repeat('a', 4097), isPassword: false);
     }
 
-    public function testItAllowsANullDescription(): void
+    public function testAMacroWithAParentIsInherited(): void
     {
-        $macro = new HostMacro(new HostMacroName('secret'), 's3cr3t', isPassword: true);
+        $macro = new HostMacro(new HostMacroName('foo'), '', isPassword: false, parent: HostMacroParentEnum::Command);
 
-        self::assertNull($macro->description);
+        self::assertTrue($macro->isInherited());
+        self::assertFalse($macro->isDirect());
+    }
+
+    public function testEquivalenceComparesNameValueAndPasswordOnly(): void
+    {
+        $direct = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, id: new HostMacroId(1));
+        $inherited = new HostMacro(new HostMacroName('FOO'), 'bar', isPassword: false, id: new HostMacroId(9), parent: HostMacroParentEnum::Template);
+
+        self::assertTrue($direct->isEquivalentTo($inherited));
+        self::assertFalse($direct->overrides($inherited));
+    }
+
+    public function testADifferentValueIsAnOverride(): void
+    {
+        $inherited = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, parent: HostMacroParentEnum::Template);
+        $direct = new HostMacro(new HostMacroName('foo'), 'baz', isPassword: false);
+
+        self::assertFalse($direct->isEquivalentTo($inherited));
+        self::assertTrue($direct->overrides($inherited));
+    }
+
+    public function testAnEmptyValueDiffersFromASetOne(): void
+    {
+        $inherited = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, parent: HostMacroParentEnum::Template);
+
+        self::assertTrue((new HostMacro(new HostMacroName('foo'), '', isPassword: false))->overrides($inherited));
+    }
+
+    public function testAChangeOfPasswordFlagAloneIsAnOverride(): void
+    {
+        $inherited = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, parent: HostMacroParentEnum::Template);
+        $direct = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: true);
+
+        self::assertTrue($direct->overrides($inherited));
+    }
+
+    public function testValuesAreComparedInTheirRawStoredForm(): void
+    {
+        // R10: two references are different values even if they might resolve to the same secret.
+        $inherited = new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/a::_HOSTPWD', isPassword: true, parent: HostMacroParentEnum::Template);
+        $direct = new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/b::_HOSTPWD', isPassword: true);
+
+        self::assertTrue($direct->overrides($inherited));
+    }
+
+    public function testAMacroOfAnotherNameNeverOverrides(): void
+    {
+        $inherited = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, parent: HostMacroParentEnum::Template);
+
+        self::assertFalse((new HostMacro(new HostMacroName('other'), 'baz', isPassword: false))->overrides($inherited));
+    }
+
+    public function testItIsIdentifiedByItsParentAndId(): void
+    {
+        $macro = new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, id: new HostMacroId(3), parent: HostMacroParentEnum::Template);
+
+        self::assertTrue($macro->isIdentifiedBy(HostMacroParentEnum::Template, new HostMacroId(3)));
+        self::assertFalse($macro->isIdentifiedBy(HostMacroParentEnum::Command, new HostMacroId(3)));
+        self::assertFalse($macro->isIdentifiedBy(null, new HostMacroId(3)));
+        self::assertFalse($macro->isIdentifiedBy(HostMacroParentEnum::Template, new HostMacroId(4)));
+    }
+
+    public function testInheritedFromKeepsTheIdAndTagsTheParent(): void
+    {
+        $macro = (new HostMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(3)))
+            ->inheritedFrom(HostMacroParentEnum::Template);
+
+        self::assertSame(3, $macro->id?->value);
+        self::assertSame(HostMacroParentEnum::Template, $macro->parent);
+        self::assertSame('bar', $macro->value);
         self::assertTrue($macro->isPassword);
     }
 
-    public function testItAcceptsADescriptionAtTheByteLimit(): void
+    public function testPromotingToDirectDropsTheSourceIdentity(): void
     {
-        $macro = new HostMacro(
-            new HostMacroName('big'),
-            'v',
-            isPassword: false,
-            description: str_repeat('a', HostMacro::MAX_DESCRIPTION_LENGTH),
-        );
+        $macro = (new HostMacro(new HostMacroName('foo'), 'bar', isPassword: true, id: new HostMacroId(3), parent: HostMacroParentEnum::Template))
+            ->promoteToDirect();
 
-        self::assertSame(HostMacro::MAX_DESCRIPTION_LENGTH, mb_strlen((string) $macro->description, '8bit'));
+        self::assertNull($macro->id);
+        self::assertTrue($macro->isDirect());
+        self::assertSame('bar', $macro->value);
+        self::assertTrue($macro->isPassword);
     }
 
-    public function testItRejectsADescriptionExceedingTheByteLimit(): void
+    public function testRenameAndWithValueKeepTheIdentity(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $macro = (new HostMacro(new HostMacroName('foo'), 'bar', isPassword: false, id: new HostMacroId(3)))
+            ->rename(new HostMacroName('baz'))
+            ->withValue('qux', isPassword: true);
 
-        // A single multibyte character is 2 bytes: MAX_DESCRIPTION_LENGTH such characters are within the
-        // character limit but twice the byte budget of the TEXT column.
-        new HostMacro(
-            new HostMacroName('big'),
-            'v',
-            isPassword: false,
-            description: str_repeat('é', HostMacro::MAX_DESCRIPTION_LENGTH),
-        );
+        self::assertSame('BAZ', $macro->name->value);
+        self::assertSame('qux', $macro->value);
+        self::assertTrue($macro->isPassword);
+        self::assertSame(3, $macro->id?->value);
+        self::assertTrue($macro->isDirect());
     }
 }

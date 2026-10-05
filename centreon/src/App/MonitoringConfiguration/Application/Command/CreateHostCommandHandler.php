@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -56,19 +58,14 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroInheritanceResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
-use App\Shared\Domain\Vault\VaultCredentials;
-use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
 #[AsCommandHandler]
@@ -89,12 +86,10 @@ final readonly class CreateHostCommandHandler
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
-        private InheritedHostMacroRepository $inheritedHostMacroRepository,
-        private HostMacroInheritanceResolver $hostMacroInheritanceResolver,
+        private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private OptionRepository $optionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private VaultInterface $vault,
-        private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
     ) {
     }
@@ -137,9 +132,9 @@ final readonly class CreateHostCommandHandler
         // above: existence and the "must be a check command" rule are validated at the API boundary
         // (CheckCommandTypeValidator, →422), but this getById() stays as the last word so a command
         // deleted between validation and execution surfaces as a 404 rather than a broken write.
-        if ($command->checkOptions->checkCommandId instanceof CommandId) {
-            $this->commandRepository->getById($command->checkOptions->checkCommandId);
-        }
+        $checkCommand = $command->checkOptions->checkCommandId instanceof CommandId
+            ? $this->commandRepository->getById($command->checkOptions->checkCommandId)
+            : null;
 
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
@@ -153,8 +148,8 @@ final readonly class CreateHostCommandHandler
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity ? $this->extractVaultUuid($snmpCommunity->value) : null;
 
         // Resolve inherited macros from the requested templates and the check command together, so a
-        // submitted macro that merely duplicates an inherited one is dropped (keepOverridesOnly).
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
+        // submitted macro that merely duplicates an inherited one is dropped (R7).
+        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $checkCommand, $vaultUuid);
 
         $host = new Host(
             id: null,
@@ -205,60 +200,20 @@ final readonly class CreateHostCommandHandler
      * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
      *                           join the same entry (null when there is none, or the vault is off)
      */
-    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds, ?string $vaultUuid): CheckOptions
-    {
-        $inherited = $this->inheritedHostMacroRepository->findInheritedMacros(
-            $templateIds,
-            $checkOptions->checkCommandId,
-        )->toArray();
-        $macros = $this->hostMacroInheritanceResolver->keepOverridesOnly($checkOptions->macros, $inherited);
-        $macros = $this->vaultizePasswordMacros($macros, $vaultUuid);
+    private function prepareCheckOptions(
+        CheckOptions $checkOptions,
+        Collection $templateIds,
+        ?Command $checkCommand,
+        ?string $vaultUuid,
+    ): CheckOptions {
+        $inherited = InheritedHostMacros::resolve(
+            array_values($this->hostTemplateRepository->findInheritanceLine($templateIds)->toArray()),
+            $checkCommand,
+        );
+        $macros = $inherited->withoutRedundant($checkOptions->macros);
+        $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid);
 
         return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
-    }
-
-    /**
-     * @param list<HostMacro> $macros
-     * @param ?string $vaultUuid the SNMP community's vault entry to reuse, or null to mint a fresh one
-     *
-     * @return list<HostMacro>
-     */
-    private function vaultizePasswordMacros(array $macros, ?string $vaultUuid): array
-    {
-        // Nothing to vault: leave the vault untouched (not even a feature-flag probe) when no macro
-        // needs a secret, so a host without password macros never reaches the vault at all.
-        $hasPasswordMacro = array_any($macros, static fn (HostMacro $macro): bool => $macro->isPassword);
-        if (! $hasPasswordMacro) {
-            return $macros;
-        }
-
-        if (! $this->vault->isEnabled()) {
-            return $macros;
-        }
-
-        $credentials = VaultCredentials::fromArray([]);
-        foreach ($macros as $macro) {
-            if ($macro->isPassword) {
-                // Vault key convention matches legacy: `_HOST<NAME>`, without the `$...$` wrapper.
-                $credentials = $credentials->with('_HOST' . $macro->name->value, $macro->value);
-            }
-        }
-
-        // Reuse the SNMP community's entry (or mint one when $vaultUuid is null) so every host secret
-        // shares a single UUID, as legacy does.
-        $vaultedValues = $this->vaultCredentialWriter->write(VaultPathEnum::MonitoringHosts, $credentials, $vaultUuid);
-
-        return array_map(
-            static function (HostMacro $macro) use ($vaultedValues): HostMacro {
-                $key = '_HOST' . $macro->name->value;
-                if ($macro->isPassword && isset($vaultedValues[$key])) {
-                    return new HostMacro($macro->name, $vaultedValues[$key], true, $macro->description);
-                }
-
-                return $macro;
-            },
-            $macros,
-        );
     }
 
     /**
