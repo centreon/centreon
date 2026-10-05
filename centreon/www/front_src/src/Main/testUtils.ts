@@ -2,7 +2,9 @@ import { ListingVariant } from '@centreon/ui-context';
 
 export const retrievedUser = {
   alias: 'Admin alias',
+  can_manage_api_tokens: true,
   default_page: '/monitoring/resources',
+  id: 1,
   is_export_button_enabled: true,
   locale: 'fr_FR.UTF8',
   name: 'Admin',

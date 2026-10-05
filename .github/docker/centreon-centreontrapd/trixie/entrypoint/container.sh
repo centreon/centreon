@@ -7,6 +7,22 @@ fi
 
 set -e
 
+# Override the --severity flag baked into the image's CMD with CENTREONTRAPD_LOG_LEVEL.
+# Must run before container.d/99-logs.sh, which is sourced (not forked) below and
+# itself execs "$@" — anything placed after the loop never runs.
+if [ -n "${CENTREONTRAPD_LOG_LEVEL}" ]; then
+  remaining=$#
+  while [ "$remaining" -gt 0 ]; do
+    arg=$1
+    shift
+    case "$arg" in
+      --severity=*) arg="--severity=${CENTREONTRAPD_LOG_LEVEL}" ;;
+    esac
+    set -- "$@" "$arg"
+    remaining=$((remaining - 1))
+  done
+fi
+
 BASEDIR="/usr/local/lib/centreon-centreontrapd/container.d"
 for file in $(find "$BASEDIR" -maxdepth 1 -type f | xargs -n1 basename | sort); do
   case "$file" in

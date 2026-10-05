@@ -145,6 +145,7 @@ export interface UserPermissions {
   top_counter: boolean;
   poller_statistics: boolean;
   configuration_host_group_write: boolean;
+  configuration_host_write: boolean;
   see_check_commands: boolean;
   manage_check_commands: boolean;
   see_notification_commands: boolean;

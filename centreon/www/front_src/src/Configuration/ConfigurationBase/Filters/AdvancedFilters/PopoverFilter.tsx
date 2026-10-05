@@ -26,7 +26,7 @@ const PopoverFilter = <TFilters,>({
   areAdvancedFiltersVisible
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
-  const { classes } = useFilterStyles();
+  const { classes } = useFilterStyles({});
 
   const { changedFiltersCount } = useCoutChangedFilters({ filtersAtom });
 
@@ -47,6 +47,11 @@ const PopoverFilter = <TFilters,>({
           dataTestId={labelFilters}
           icon={<TuneIcon fontSize="small" />}
           popperPlacement="bottom-end"
+          // The anchor is this icon, 8px inside the search field's right edge,
+          // so without the offset the panel hangs left of the bar.
+          popperProps={{
+            modifiers: [{ name: 'offset', options: { offset: [8, 0] } }]
+          }}
           title={t(labelFilters)}
         >
           {(): JSX.Element => (

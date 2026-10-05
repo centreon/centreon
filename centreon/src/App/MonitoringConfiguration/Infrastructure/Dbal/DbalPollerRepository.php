@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
@@ -37,6 +38,9 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -372,7 +376,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             $this->filterByPollerCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -389,8 +394,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return new InMemoryPaginator(
             items: $this->createPollers($rows),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -420,6 +425,25 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         return $poller;
+    }
+
+    /**
+     * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
+     */
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
+    {
+        // Only Host implements PollerScopedInterface today — extend this match when a second
+        // poller-scoped resource type needs the same bookkeeping (see PollerScopedInterface).
+        if (! $resource instanceof Host) {
+            throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class));
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME)
+            ->set('updated', $qb->createNamedParameter('1'))
+            ->where('id = :poller_id')
+            ->setParameter('poller_id', $resource->pollerId->value)
+            ->executeStatement();
     }
 
     public function withCmaCertificates(): self
@@ -475,6 +499,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             $qb->andWhere($qb->expr()->like('p.name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
+        if ($criteria->isActiveOnly()) {
+            $qb->andWhere($qb->expr()->eq('p.ns_activate', $qb->createNamedParameter('1')));
+        }
+
         if ($criteria->excludeUnknownCentral()) {
             // a central not registered as a remote server's address is excluded, matching legacy's
             // "isLocalhost() && address not in remoteServersIps" rule, expressed here in SQL to keep
@@ -504,12 +532,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
     private function paginatePollers(QueryBuilder $qb, PollerCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return;
         }
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 
     private function countPollersOnQueryBuilder(QueryBuilder $qb): int

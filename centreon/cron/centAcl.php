@@ -28,6 +28,8 @@ include_once _CENTREON_PATH_ . '/www/class/centreonMeta.class.php';
 include_once _CENTREON_PATH_ . '/www/class/centreonContactgroup.class.php';
 include_once _CENTREON_PATH_ . '/www/class/centreonLog.class.php';
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 $centreonDbName = $conf_centreon['db'];
 $centreonLog = new CentreonLog();
 

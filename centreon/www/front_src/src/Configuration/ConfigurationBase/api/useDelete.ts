@@ -21,7 +21,10 @@ const useDelete = (): UseDeleteProps => {
 
   const queryClient = useQueryClient();
 
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
+
   const { isMutating, mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint: () => endpoint,
     method: Method.POST,
     onSuccess: () => {

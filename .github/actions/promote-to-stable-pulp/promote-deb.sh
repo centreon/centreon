@@ -68,11 +68,13 @@ suite_sha_file() {
 # resolve the served filename from the testing suite's Packages file by
 # sha256 (the published pool layout doesn't match the upload relative_path)
 download_testing_package() {
-  local sha256=$1 arch=$2 dest=$3 filename
-  filename=$(
-    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
-      awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }'
-  )
+  local sha256=$1 arch=$2 dest=$3 filename packages_file
+  # read the index from a file: awk exits on the first match, which would
+  # SIGPIPE a piped curl on a large index (curl 23, fatal under pipefail)
+  packages_file=$(mktemp)
+  content_curl -fsSL --retry 3 --retry-delay 5 -o "$packages_file" "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages"
+  filename=$(awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }' "$packages_file")
+  rm -f "$packages_file"
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
     return 1
@@ -160,11 +162,10 @@ ensure_legacy_suite_associations() {
     return 1
   fi
   echo "[INFO] Mirroring $PACKAGES_COUNT package association(s) into $STABLE_LEGACY_REPOSITORY_NAME $STABLE_LEGACY_SUITE/main"
-  local units_file body_file sha href out code body prc n=0
+  local units_file body_file sha href out code body prc
   units_file=$(mktemp)
   while read -r sha; do
-    if ((n % 40 == 0)); then refresh_pulp_token; fi
-    n=$((n + 1))
+    refresh_pulp_token
     href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
     if [[ -z "$href" ]]; then
       echo "::error::Cannot resolve the promoted package (sha256 $sha) for the $STABLE_LEGACY_SUITE mirror"
@@ -206,21 +207,10 @@ ensure_legacy_suite_associations() {
   return 1
 }
 
-# "already promoted" is decided against the stable repository's OWN version
-# (it's always dedicated, never shared, so it only ever receives stable content)
-STABLE_SHAS_FILE=$(mktemp)
-STABLE_VERSION_HREF=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.latest_version_href')
-url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
-  printf 'repository_version=%s&fields=sha256&limit=1000' \
-    "$(jq -rn --arg v "$STABLE_VERSION_HREF" '$v | @uri')"
-)"
-while [[ -n "$url" ]]; do
-  refresh_pulp_token
-  page=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" "$url")
-  echo "$page" | jq -r '.results[].sha256' >> "$STABLE_SHAS_FILE"
-  url=$(echo "$page" | jq -r '.next // empty')
-done
-sort -u "$STABLE_SHAS_FILE" -o "$STABLE_SHAS_FILE"
+# "already promoted" is decided against the stable SUITE: the stable repository
+# is shared by every major version, so a package another version's stable suite
+# publishes with the same bytes is in the repository without being in this suite
+STABLE_SHAS_FILE=$(suite_sha_file "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" "$STABLE_SUITE") || exit 1
 
 mkdir -p promoted-packages
 
@@ -420,9 +410,7 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   MAX_PARALLEL=8
   PRC_DIR=$(mktemp -d)
   for i in "${!PACKAGE_HREFS[@]}"; do
-    if ((i % 40 == 0)); then
-      refresh_pulp_token
-    fi
+    refresh_pulp_token
     (
       refresh_pulp_token
       package_href="${PACKAGE_HREFS[$i]}"
