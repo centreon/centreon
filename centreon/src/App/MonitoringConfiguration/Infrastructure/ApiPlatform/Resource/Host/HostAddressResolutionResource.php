@@ -52,7 +52,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                     constraints: [
                         new Assert\Type('string'),
                         new Assert\NotBlank(normalizer: 'trim'),
-                        new Assert\Length(max: ResolvableAddress::MAX_LENGTH),
+                        new Assert\Length(max: ResolvableAddress::MAX_LENGTH, normalizer: 'trim'),
                         new ValidResolvableAddress(),
                     ],
                 ),
