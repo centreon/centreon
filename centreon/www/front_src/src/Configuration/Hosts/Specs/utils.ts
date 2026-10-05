@@ -68,14 +68,36 @@ export const getHostGroupsResponse = () =>
     { id: 2, name: 'Windows servers' }
   ]);
 
+// The default is neither the first poller nor the one the tests pick, nor the
+// one host 0 runs on.
 const pollers = [
-  { id: 1, name: 'Central' },
-  { id: 2, name: 'Poller EU' }
+  { id: 1, is_default: false, name: 'Central' },
+  { id: 2, is_default: false, name: 'Poller EU' },
+  { id: 3, is_default: true, name: 'Poller US' }
 ];
 
 // One list for the listing filter and the form alike, both reading the API
-// Platform selector.
+// Platform selector; only the form's carries `is_default`, which the filter
+// ignores.
 export const getPollersResponse = () => toCollection(pollers);
+
+export const resolvedAddressResponse = {
+  hostname: 'srv-apache-02.example.com',
+  ip: '192.168.1.42',
+  resolved: true
+};
+
+// `ip` is left out, not null, when the name does not resolve.
+export const unresolvedAddressResponse = {
+  hostname: 'srv-apache-02.example.com',
+  resolved: false
+};
+
+// The legacy shape the platform gives a validation failure.
+export const refusedAddressResponse = {
+  code: 422,
+  message: '[hostname] This value must be an IPv4 address or a hostname.\n'
+};
 
 export const getHostCategoriesResponse = () =>
   toCollection([

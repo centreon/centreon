@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
 import { type Actions, ResourceType } from '../models';
-import { useDeployServices } from './api';
+import { useDefaultPoller, useDeployServices } from './api';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
@@ -64,9 +64,15 @@ const Hosts = () => {
     isAdditiveInheritanceEnabled,
     isCloudPlatform
   });
+  // Only a user who may create reads the default; the edit form opens on the
+  // host's own poller whatever this holds.
+  const defaultPoller = useDefaultPoller({ enabled: canEdit });
   const defaultValues = useMemo(
-    () => getDefaultValues({ isCloudPlatform }),
-    [isCloudPlatform]
+    () => ({
+      ...getDefaultValues({ isCloudPlatform }),
+      ...(defaultPoller && { poller: defaultPoller })
+    }),
+    [isCloudPlatform, defaultPoller]
   );
   const { deployServices } = useDeployServices();
 

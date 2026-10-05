@@ -24,7 +24,8 @@ import {
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
-  pollersEndpoint
+  pollersEndpoint,
+  resolveAddressEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
@@ -36,7 +37,10 @@ import {
   getHostTemplatesResponse,
   getListingResponse,
   getPollersResponse,
-  getTimePeriodsResponse
+  getTimePeriodsResponse,
+  refusedAddressResponse,
+  resolvedAddressResponse,
+  unresolvedAddressResponse
 } from './utils';
 
 interface Props {
@@ -45,14 +49,22 @@ interface Props {
   isCloudPlatform?: boolean;
   deployFails?: boolean;
   isAdditiveInheritanceEnabled?: boolean;
+  addressResolution?: keyof typeof addressResolutions;
 }
+
+const addressResolutions = {
+  refused: { response: refusedAddressResponse, statusCode: 422 },
+  resolved: { response: resolvedAddressResponse, statusCode: 200 },
+  unresolved: { response: unresolvedAddressResponse, statusCode: 200 }
+};
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
   deployFails = false,
-  isAdditiveInheritanceEnabled = false
+  isAdditiveInheritanceEnabled = false,
+  addressResolution = 'resolved'
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -116,6 +128,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormPollersEndpoint}?**`,
     response: getPollersResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'resolveAddress',
+    method: Method.GET,
+    path: `**${resolveAddressEndpoint}?**`,
+    ...addressResolutions[addressResolution]
   });
 
   cy.interceptAPIRequest({

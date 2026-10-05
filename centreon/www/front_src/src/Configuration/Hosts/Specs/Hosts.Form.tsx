@@ -10,6 +10,7 @@ import {
   labelHostConfiguration,
   labelHostExtendedInfos,
   labelHostGroups,
+  labelHostNotFound,
   labelInvalidAddress,
   labelLinkedContactGroups,
   labelLinkedContacts,
@@ -20,11 +21,16 @@ import {
   labelParentHosts,
   labelRecovery,
   labelRelations,
+  labelResolve,
   labelUnreachable,
   labelYes
 } from '../translatedLabels';
 import initialize from './initialize';
-import { untouchedNotificationsPayload } from './utils';
+import {
+  refusedAddressResponse,
+  resolvedAddressResponse,
+  untouchedNotificationsPayload
+} from './utils';
 
 // `ConfigurationBase`'s specs pass `formVariant` explicitly, so this is the
 // only place a revert to the modal would turn something red.
@@ -286,6 +292,149 @@ export default () => {
       cy.findAllByTestId('host-form-address').eq(1).type('not a host!').blur();
 
       cy.contains(labelInvalidAddress).should('be.visible');
+    });
+
+    it('replaces the address with the IP its name resolves to', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .type(` ${resolvedAddressResponse.hostname} `);
+
+      cy.findByTestId('host-form-address-resolve')
+        .should('have.text', labelResolve)
+        .click();
+
+      // The glob matches both bases, so the base itself needs asserting.
+      cy.waitForRequest('@resolveAddress').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/_resolve'
+        );
+        expect(request.url.pathname).to.not.contain('/api/latest');
+        expect(request.url.searchParams.get('hostname')).to.equal(
+          resolvedAddressResponse.hostname
+        );
+      });
+
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .should('have.value', resolvedAddressResponse.ip);
+    });
+
+    it('keeps an address that does not resolve and says so', () => {
+      initialize({ addressResolution: 'unresolved' });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .type(resolvedAddressResponse.hostname);
+
+      cy.findByTestId('host-form-address-resolve').click();
+
+      cy.waitForRequest('@resolveAddress');
+
+      cy.contains(labelHostNotFound).should('be.visible');
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .should('have.value', resolvedAddressResponse.hostname);
+    });
+
+    it('shows why the API refuses to resolve an address', () => {
+      initialize({ addressResolution: 'refused' });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address').eq(1).type('srv_01');
+
+      cy.findByTestId('host-form-address-resolve').click();
+
+      cy.waitForRequest('@resolveAddress');
+
+      cy.contains(refusedAddressResponse.message.trim()).should('be.visible');
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .should('have.value', 'srv_01');
+    });
+
+    it('offers to resolve the address only once there is one', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByTestId('host-form-address-resolve').should('be.disabled');
+
+      // Blanks are trimmed before they are sent, so they count as nothing.
+      cy.findAllByTestId('host-form-address').eq(1).type('   ');
+      cy.findByTestId('host-form-address-resolve').should('be.disabled');
+
+      cy.findAllByTestId('host-form-address').eq(1).type('srv-apache-02');
+      cy.findByTestId('host-form-address-resolve').should('be.enabled');
+    });
+
+    it('does not let a user who may only look at hosts resolve an address', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      // The address is there, so only the missing write access disables it.
+      cy.findAllByTestId('host-form-address')
+        .eq(1)
+        .should('have.value', '10.10.10.10');
+      cy.findByTestId('host-form-address-resolve').should('be.disabled');
+    });
+
+    it('offers no resolve button on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address').eq(1).type('srv-apache-02');
+
+      cy.findByTestId('host-form-address-resolve').should('not.exist');
+    });
+
+    it('opens the creation form on the default monitoring server', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      // The form's own selector, the one the poller field reads.
+      cy.waitForRequest('@getFormPollers').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/pollers'
+        );
+        expect(request.url.pathname).to.not.contain('/api/latest');
+      });
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByTestId('host-form-poller').should('have.value', 'Poller US');
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.poller_id).to.equal(3);
+      });
     });
 
     it('leaves host groups optional on an onPrem platform', () => {
