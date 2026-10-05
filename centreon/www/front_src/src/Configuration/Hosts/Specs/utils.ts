@@ -1,3 +1,10 @@
+// A 16x16 inline PNG rather than a committed fixture: `useLoadImage` only needs
+// `new Image()` to fire `onload`, which a data URI does.
+export const hostIcon =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFUlEQVR42mNg6O4mDY1qGNUwfDUAAED3FhAEZJ4nAAAAAElFTkSuQmCC';
+
+// `skip_null_values` is applied on this endpoint: an unset field is absent from
+// the JSON entirely, so host 1 carries neither `alias` nor `icon`.
 export const getListingResponse = () => ({
   '@context': '/centreon/api/contexts/Host',
   '@id': '/centreon/api/configuration/hosts',
@@ -7,22 +14,36 @@ export const getListingResponse = () => ({
       activated: true,
       address: '10.0.0.0',
       alias: 'alias for host 0',
+      icon: { id: 12, name: 'server.png', url: hostIcon },
       id: 0,
       name: 'host 0',
       poller: { id: 1, name: 'Central' },
-      templates: [{ id: 5, name: 'generic-active-host' }]
+      templates: [
+        { id: 5, name: 'generic-active-host' },
+        { id: 6, name: 'generic-passive-host' }
+      ]
     },
     {
       activated: false,
       address: '10.0.0.1',
-      alias: null,
       id: 1,
       name: 'host 1',
       poller: { id: 1, name: 'Central' },
       templates: []
+    },
+    // A second activated host: a deactivated row is not selectable, so without
+    // this there is only one row a massive action can act on.
+    {
+      activated: true,
+      address: '10.0.0.2',
+      alias: 'alias for host 2',
+      id: 2,
+      name: 'host 2',
+      poller: { id: 1, name: 'Central' },
+      templates: []
     }
   ],
-  totalItems: 2
+  totalItems: 3
 });
 
 export const emptyListingResponse = {
@@ -32,3 +53,53 @@ export const emptyListingResponse = {
   member: [],
   totalItems: 0
 };
+
+const toCollection = (member: Array<object>) => ({
+  '@context': '/centreon/api/contexts/Collection',
+  '@id': '/centreon/api/configuration',
+  '@type': 'Collection',
+  member,
+  totalItems: member.length
+});
+
+export const getHostGroupsResponse = () =>
+  toCollection([
+    { id: 1, name: 'Linux servers' },
+    { id: 2, name: 'Windows servers' }
+  ]);
+
+const pollers = [
+  { id: 1, name: 'Central' },
+  { id: 2, name: 'Poller EU' }
+];
+
+// One list for the listing filter and the form alike, both reading the API
+// Platform selector.
+export const getPollersResponse = () => toCollection(pollers);
+
+export const getHostCategoriesResponse = () =>
+  toCollection([
+    { id: 3, name: 'Physical' },
+    { id: 4, name: 'Virtual' }
+  ]);
+
+export const getHostTemplatesResponse = () =>
+  toCollection([
+    { id: 5, name: 'generic-active-host' },
+    { id: 6, name: 'generic-passive-host' }
+  ]);
+
+// The shape MON-210415 (#11809) gives the detail endpoint: objects where the
+// create takes ids. Mocked here until it lands; nothing stubs it at runtime.
+//
+// Every value differs from the listing row of the same host, so a form filled
+// from the carried row instead of from this response fails rather than passes.
+export const getHostResponse = () => ({
+  address: '10.10.10.10',
+  categories: [{ id: 4, name: 'Virtual' }],
+  child_hosts: [{ id: 2, name: 'host 2' }],
+  groups: [{ id: 1, name: 'Linux servers' }],
+  name: 'host 0 as the detail endpoint spells it',
+  parent_hosts: [{ id: 1, name: 'host 1' }],
+  poller: { id: 2, name: 'Poller EU' }
+});

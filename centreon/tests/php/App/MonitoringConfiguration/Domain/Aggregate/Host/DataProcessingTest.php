@@ -107,11 +107,13 @@ final class DataProcessingTest extends TestCase
         new DataProcessing(eventHandlerArgs: ['a!b']);
     }
 
-    public function testRejectsAnEventHandlerArgContainingAControlCharacter(): void
+    public function testAcceptsAnEventHandlerArgContainingAControlCharacter(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        // Newlines, tabs and carriage returns are allowed: the storage formatter encodes them as
+        // #BR#/#T#/#R#, matching legacy, so they round-trip through the single legacy column.
+        $dataProcessing = new DataProcessing(eventHandlerArgs: ["a\nb"]);
 
-        new DataProcessing(eventHandlerArgs: ["a\nb"]);
+        self::assertSame(["a\nb"], $dataProcessing->eventHandlerArgs);
     }
 
     public function testRejectsAnEventHandlerArgContainingAnEscapeToken(): void

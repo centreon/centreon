@@ -107,6 +107,38 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertSame('command', $objectType);
     }
 
+    public function testServiceTargetIsStoredWithTheCanonicalSingularToken(): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::Add,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('a_service'),
+                type: TargetTypeEnum::Service,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->createQueryBuilder()
+            ->select('object_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame('service', $objectType);
+    }
+
     public function testFind(): void
     {
         $activityLog = new ActivityLog(
@@ -261,6 +293,45 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertEquals(ActionEnum::Update, $found->action);
         self::assertSame('old', $found->details['old_value']);
         self::assertSame('new', $found->details['new_value']);
+    }
+
+    /**
+     * @dataProvider provideActivationActions
+     */
+    public function testAddAndFindWithActivationAction(ActionEnum $action): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: $action,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('toggled-host'),
+                type: TargetTypeEnum::Host,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        $found = $this->repository->find($activityLog->id());
+
+        // Round-trips the new 'enable'/'disable' legacy tokens through ACTION_VALUE_MAP both ways.
+        self::assertNotNull($found);
+        self::assertEquals($action, $found->action);
+    }
+
+    /**
+     * @return iterable<string, array{ActionEnum}>
+     */
+    public static function provideActivationActions(): iterable
+    {
+        yield 'enable' => [ActionEnum::Enable];
+
+        yield 'disable' => [ActionEnum::Disable];
     }
 
     public function testAddAndFindWithDeleteAction(): void

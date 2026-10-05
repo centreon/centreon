@@ -38,12 +38,14 @@ use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
@@ -314,6 +316,23 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'address' => '10.0.0.9',
                 'poller_id' => $pollerId,
                 'data_processing' => ['event_handler_args' => ['a#BR#b']],
+            ],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsEventHandlerArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.9',
+                'poller_id' => $pollerId,
+                // One argument longer than the TEXT column can hold once formatted.
+                'data_processing' => ['event_handler_args' => [str_repeat('a', 65536)]],
             ],
         ]);
         self::assertResponseStatusCodeSame(422);
@@ -1509,6 +1528,938 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItCreatesAHostWithACheckCommandAndArguments(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandName = $this->uniqueName('check');
+        $commandId = $this->insertCommand($commandName, 2); // check
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.20',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'args' => ['-w', '5'],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        // The resolved command name must reach the response, not just its id.
+        self::assertJsonContains([
+            'check_options' => [
+                'command' => ['id' => $commandId, 'name' => $commandName],
+                'args' => ['-w', '5'],
+            ],
+        ]);
+
+        // Arguments are persisted bang-joined in the legacy column.
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        /** @var array{command_command_id: int, command_command_id_arg1: string} $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT command_command_id, command_command_id_arg1 FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertSame($commandId, (int) $row['command_command_id']);
+        self::assertSame('!-w!5', $row['command_command_id_arg1']);
+    }
+
+    public function testItReturnsAnEmptyCheckOptionsObjectWhenNoneIsProvided(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.24',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['check_options' => ['args' => []]]);
+        // The null command is dropped from the payload by the platform-wide skip_null_values default.
+        /** @var array{check_options: array<string, mixed>} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('command', $payload['check_options']);
+    }
+
+    public function testItRejectsACommandThatIsNotACheckCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $notificationCommandId = $this->insertCommand($this->uniqueName('notif'), 1); // notification
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.21',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $notificationCommandId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsAnUnknownCheckCommand(): void
+    {
+        // Existence is validated at the API boundary (→422), mirroring an unknown poller_id — not
+        // deferred to the handler's 404, which only guards the delete-between-validation-and-write race.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.22',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => 2147483646],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsExceedingStorage(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.25',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    // One argument longer than the TEXT column can hold once formatted.
+                    'args' => [str_repeat('a', 65536)],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsCheckCommandArgumentsWithoutACommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.23',
+                'poller_id' => $pollerId,
+                'check_options' => ['args' => ['-w', '5']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACheckCommandArgumentContainingTheStorageDelimiter(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.26',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $commandId, 'args' => ['a!b']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsACheckCommandArgumentContainingAnEscapeToken(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.27',
+                'poller_id' => $pollerId,
+                'check_options' => ['command_id' => $commandId, 'args' => ['a#BR#b']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItCreatesAHostWithCustomMacros(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'macros' => [
+                        ['name' => 'community', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                        ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'check_options' => [
+                'macros' => [
+                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                    ['name' => 'TOKEN', 'is_password' => true],
+                ],
+            ],
+        ]);
+
+        // The password macro's value is never echoed back.
+        /** @var array{id: int, check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('value', $payload['check_options']['macros'][1]);
+
+        $hostId = $payload['id'];
+        /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            [$hostId],
+        );
+        self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
+        self::assertSame('$_HOSTTOKEN$', $rows[1]['host_macro_name']);
+        self::assertSame(1, (int) $rows[1]['is_password']);
+    }
+
+    public function testItStripsAMacroInheritedFromTheCheckCommand(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        // The command declares $_HOSTFOO$, so a submitted FOO with the same (empty) value is redundant.
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFOO$');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.31',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [
+                        ['name' => 'foo', 'value' => '', 'is_password' => false],
+                        ['name' => 'own', 'value' => 'kept', 'is_password' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['OWN'], $names);
+    }
+
+    public function testItRejectsAReservedMacroName(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // "SNMPCOMMUNITY" resolves to $_HOSTSNMPCOMMUNITY$, a reserved macro in nagios_macro. Seed it
+        // explicitly rather than rely on the platform install data, which the integration database
+        // does not guarantee (macro_id is auto-increment, so only the name matters here).
+        $this->connection->insert('nagios_macro', ['macro_name' => '$_HOSTSNMPCOMMUNITY$']);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'snmpcommunity', 'value' => 'x']]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItAcceptsAMacroNameWithLegacyPermissiveCharacters(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // Legacy imposes no character-set rule on macro names (only upper-cases and stores them), so a
+        // name with spaces or symbols must be accepted and stored upper-cased, not rejected.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'bad name!', 'value' => 'x']]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        $payload = $response->toArray();
+        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
+        self::assertSame(['BAD NAME!'], $names);
+    }
+
+    public function testItRejectsAMacroValueExceedingMaxLength(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'big', 'value' => str_repeat('a', 4097)]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItCreatesAHostWithNotifications(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $contactId = $this->insertNotificationContact('notified');
+        $contactGroupId = $this->insertContactGroup('supervisors');
+        $periodId = $this->insertTimePeriod('24x7');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.30',
+                'poller_id' => $pollerId,
+                'notifications' => [
+                    'enabled' => 'true',
+                    'contacts' => [$contactId],
+                    'contact_groups' => [$contactGroupId],
+                    'options' => ['down', 'recovery'],
+                    'interval' => 30,
+                    'timeperiod_id' => $periodId,
+                    'first_delay' => 10,
+                    'recovery_delay' => 20,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertMatchesResourceItemJsonSchema(HostResource::class);
+        self::assertJsonContains([
+            'notifications' => [
+                'enabled' => 'true',
+                'contacts' => [['id' => $contactId, 'name' => $this->contactName($contactId)]],
+                'contact_groups' => [['id' => $contactGroupId, 'name' => $this->contactGroupName($contactGroupId)]],
+                'options' => ['down', 'recovery'],
+                'interval' => 30,
+                'timeperiod' => ['id' => $periodId, 'name' => '24x7'],
+                'first_delay' => 10,
+                'recovery_delay' => 20,
+                'contact_additive_inheritance' => false,
+                'contact_group_additive_inheritance' => false,
+            ],
+        ]);
+
+        // column by column storage is DbalHostRepositoryTest's job; the options alone prove the API
+        // strings reach the engine format end to end
+        /** @var array{host_id: numeric-string, host_notification_options: string|null}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_id, host_notification_options FROM host WHERE host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($row);
+        self::assertSame('d,r', $row['host_notification_options']);
+
+        $hostId = (int) $row['host_id'];
+        self::assertSame(
+            [$contactId],
+            $this->linkedIds('SELECT contact_id AS id FROM contact_host_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$contactGroupId],
+            $this->linkedIds('SELECT contactgroup_cg_id AS id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
+    /**
+     * The notification columns are written either way, so the response reports the persisted
+     * state rather than dropping the key — a client never has to handle two shapes.
+     *
+     * The Cloud counterpart is testItDropsTheNotificationsOnACloudPlatform.
+     */
+    public function testItReportsTheDefaultNotificationsWhenTheBlockIsAbsent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => ['name' => $name, 'address' => '10.0.0.31', 'poller_id' => $pollerId],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array<string, mixed> $notifications */
+        $notifications = $response->toArray()['notifications'];
+        // drop the hydra/JSON-LD metadata ApiPlatform adds to every nested object
+        $notifications = array_filter($notifications, static fn (string $key): bool => ! str_starts_with($key, '@'), ARRAY_FILTER_USE_KEY);
+
+        self::assertSame(
+            [
+                'enabled' => 'use_default',
+                'contacts' => [],
+                'contact_groups' => [],
+                'options' => [],
+                'contact_additive_inheritance' => false,
+                'contact_group_additive_inheritance' => false,
+            ],
+            $notifications,
+        );
+
+        self::assertSame(
+            '2',
+            $this->connection->fetchOne('SELECT host_notifications_enabled FROM host WHERE host_name = ?', [$name]),
+        );
+    }
+
+    public function testItLogsTheNotificationFieldsOnCreation(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $contactId = $this->insertNotificationContact('logged');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'notifications' => ['enabled' => 'false', 'contacts' => [$contactId], 'options' => ['unreachable']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        // log_action / log_action_modification live in centstorage, not the configuration database
+        $details = $this->realTimeConnection->fetchAllKeyValue(
+            'SELECT lam.field_name, lam.field_value
+             FROM log_action_modification lam
+             INNER JOIN log_action la ON la.action_log_id = lam.action_log_id
+             WHERE la.object_name = ?',
+            [$name],
+        );
+
+        self::assertSame('0', $details['host_notifications_enabled'] ?? null);
+        // the engine's letter format, matching the column the log entry is named after
+        self::assertSame('u', $details['host_notification_options'] ?? null);
+        self::assertSame((string) $contactId, $details['host_cs'] ?? null);
+    }
+
+    public function testItLogsTheOtherPropertiesOfTheHostOnCreation(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => ['name' => $name, 'address' => '10.0.0.34', 'poller_id' => $pollerId],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        // log_action / log_action_modification live in centstorage, not the configuration database
+        $details = $this->realTimeConnection->fetchAllKeyValue(
+            'SELECT lam.field_name, lam.field_value
+             FROM log_action_modification lam
+             INNER JOIN log_action la ON la.action_log_id = lam.action_log_id
+             WHERE la.object_name = ?',
+            [$name],
+        );
+
+        self::assertSame((string) $pollerId, $details['nagios_server_id'] ?? null);
+        // an unset property is logged as an empty string, a tri-state as its 0, 1 or 2 value
+        self::assertSame('', $details['host_alias'] ?? null);
+        self::assertSame('2', $details['host_active_checks_enabled'] ?? null);
+    }
+
+    public function testItDeduplicatesRepeatedContactAndContactGroupIds(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $contactId = $this->insertNotificationContact('repeated');
+        $contactGroupId = $this->insertContactGroup('repeated-group');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'notifications' => [
+                    'contacts' => [$contactId, $contactId],
+                    'contact_groups' => [$contactGroupId, $contactGroupId],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        // neither relation table carries a unique index, so a repeated id would otherwise become
+        // a duplicate row and notify the same contact twice
+        /** @var numeric-string $rawHostId */
+        $rawHostId = $this->connection->fetchOne('SELECT host_id FROM host WHERE host_name = ?', [$name]);
+        $hostId = (int) $rawHostId;
+        self::assertSame(
+            [$contactId],
+            $this->linkedIds('SELECT contact_id AS id FROM contact_host_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$contactGroupId],
+            $this->linkedIds('SELECT contactgroup_cg_id AS id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
+    public function testItRejectsAnUnknownContact(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'notifications' => ['contacts' => [2147483647]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.contacts] One or more contacts do not exist or are not accessible.', $this->validationMessage($response));
+    }
+
+    public function testItRejectsAnUnknownContactGroup(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                'notifications' => ['contact_groups' => [2147483647]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.contact_groups] One or more contact groups do not exist or are not accessible.', $this->validationMessage($response));
+    }
+
+    public function testItRejectsAnUnknownNotificationPeriod(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.36',
+                'poller_id' => $pollerId,
+                'notifications' => ['timeperiod_id' => 2147483647],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.timeperiod_id] This time period does not exist.', $this->validationMessage($response));
+    }
+
+    public function testItRejectsTheNoneOptionCombinedWithAnother(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.37',
+                'poller_id' => $pollerId,
+                'notifications' => ['options' => ['none', 'down']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.options] The "none" notification option cannot be combined with any other option.', $this->validationMessage($response));
+    }
+
+    /**
+     * Repeating "none" combines it with nothing: it is collapsed like any other repeated option.
+     */
+    public function testItAcceptsARepeatedNoneOption(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.46',
+                'poller_id' => $pollerId,
+                'notifications' => ['options' => ['none', 'none']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['notifications' => ['options' => ['none']]]);
+        self::assertSame(
+            'n',
+            $this->connection->fetchOne('SELECT host_notification_options FROM host WHERE host_name = ?', [$name]),
+        );
+    }
+
+    public function testItRejectsAnUnknownNotificationOption(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.38',
+                'poller_id' => $pollerId,
+                'notifications' => ['options' => ['exploded']],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.options[0]] The value you selected is not a valid choice.', $this->validationMessage($response));
+    }
+
+    public function testItRejectsANegativeNotificationInterval(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.39',
+                'poller_id' => $pollerId,
+                'notifications' => ['interval' => -1],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.interval] This value should be either positive or zero.', $this->validationMessage($response));
+    }
+
+    /**
+     * An existing contact outside the creator's Access Groups is rejected like a missing one, so a
+     * restricted user cannot probe which contacts exist.
+     */
+    public function testARestrictedCreatorCannotReferenceAnInaccessibleContact(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $inaccessibleContactId = $this->insertNotificationContact('outsider');
+        $username = bin2hex(random_bytes(8));
+        $userId = $this->createNonAdminContact($username);
+        $this->grantHostReadAndWriteTopologyRole($userId);
+        $this->restrictContactToPollers($userId, [$pollerId]);
+
+        $this->login($username);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.42',
+                'poller_id' => $pollerId,
+                'notifications' => ['contacts' => [$inaccessibleContactId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.contacts] One or more contacts do not exist or are not accessible.', $this->validationMessage($response));
+    }
+
+    public function testARestrictedCreatorCannotReferenceAnInaccessibleContactGroup(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $inaccessibleContactGroupId = $this->insertContactGroup('outsiders');
+        $username = bin2hex(random_bytes(8));
+        $userId = $this->createNonAdminContact($username);
+        $this->grantHostReadAndWriteTopologyRole($userId);
+        $this->restrictContactToPollers($userId, [$pollerId]);
+
+        $this->login($username);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.43',
+                'poller_id' => $pollerId,
+                'notifications' => ['contact_groups' => [$inaccessibleContactGroupId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString('[notifications.contact_groups] One or more contact groups do not exist or are not accessible.', $this->validationMessage($response));
+    }
+
+    public function testARestrictedCreatorCanReferenceTheContactsAndContactGroupsOfItsAccessGroup(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $contactId = $this->insertNotificationContact('granted');
+        $contactGroupId = $this->insertContactGroup('granted');
+        $username = bin2hex(random_bytes(8));
+        $userId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadAndWriteTopologyRole($userId);
+        $this->restrictContactToPollers($userId, [$pollerId]);
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+        $this->connection->insert('acl_group_contactgroups_relations', [
+            'acl_group_id' => $aclGroupId,
+            'cg_cg_id' => $contactGroupId,
+        ]);
+
+        $this->login($username);
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.44',
+                'poller_id' => $pollerId,
+                'notifications' => ['contacts' => [$contactId], 'contact_groups' => [$contactGroupId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'notifications' => [
+                'contacts' => [['id' => $contactId]],
+                'contact_groups' => [['id' => $contactGroupId]],
+            ],
+        ]);
+    }
+
+    /**
+     * Only the processor half of the Cloud branch is reachable here: the WhenPlatform constraint
+     * reads IS_CLOUD_PLATFORM through the compiled container, so the block still passes validation
+     * and it is the processor that must drop it.
+     */
+    public function testItDropsTheNotificationsOnACloudPlatform(): void
+    {
+        $this->login();
+        $this->forceCloudPlatform();
+        $pollerId = $this->insertPoller('Central');
+        $contactId = $this->insertNotificationContact('notified');
+        $name = $this->uniqueName('host');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.45',
+                'poller_id' => $pollerId,
+                'notifications' => ['enabled' => 'true', 'contacts' => [$contactId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertArrayNotHasKey('notifications', $response->toArray());
+
+        /** @var array{host_id: numeric-string, host_notifications_enabled: string}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_id, host_notifications_enabled FROM host WHERE host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($row);
+        self::assertSame('2', $row['host_notifications_enabled']);
+        self::assertSame(
+            [],
+            $this->linkedIds('SELECT contact_id AS id FROM contact_host_relation WHERE host_host_id = ?', (int) $row['host_id']),
+        );
+    }
+
+    /**
+     * Zero is a meaningful value for all three, not an empty one: a 0 interval means "notify
+     * once", a 0 delay means "notify immediately".
+     */
+    public function testItAcceptsZeroForEveryDelayAndInterval(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'notifications' => ['interval' => 0, 'first_delay' => 0, 'recovery_delay' => 0],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains(['notifications' => ['interval' => 0, 'first_delay' => 0, 'recovery_delay' => 0]]);
+
+        /** @var array{host_notification_interval: numeric-string|null, host_first_notification_delay: numeric-string|null,
+         *      host_recovery_notification_delay: numeric-string|null}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_notification_interval, host_first_notification_delay, host_recovery_notification_delay
+             FROM host WHERE host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($row);
+        self::assertSame(0, (int) $row['host_notification_interval']);
+        self::assertSame(0, (int) $row['host_first_notification_delay']);
+        self::assertSame(0, (int) $row['host_recovery_notification_delay']);
+    }
+
+    /**
+     * The shipped `inheritance_mode` is '3', so additive inheritance is off and legacy drops the
+     * flags silently — the API must not persist what it was asked for either.
+     */
+    public function testItDropsTheAdditiveInheritanceFlagsWhenThePlatformOptionIsDisabled(): void
+    {
+        $this->login();
+        $this->connection->executeStatement('DELETE FROM options WHERE `key` = :key', ['key' => 'inheritance_mode']);
+        $this->connection->executeStatement(
+            'INSERT INTO options (`key`, `value`) VALUES (:key, :value)',
+            ['key' => 'inheritance_mode', 'value' => '3'],
+        );
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.41',
+                'poller_id' => $pollerId,
+                'notifications' => [
+                    'contact_additive_inheritance' => true,
+                    'contact_group_additive_inheritance' => true,
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'notifications' => [
+                'contact_additive_inheritance' => false,
+                'contact_group_additive_inheritance' => false,
+            ],
+        ]);
+
+        /** @var array{contact_additive_inheritance: numeric-string|null, cg_additive_inheritance: numeric-string|null}|false $row */
+        $row = $this->connection->fetchAssociative(
+            'SELECT contact_additive_inheritance, cg_additive_inheritance FROM host WHERE host_name = ?',
+            [$name],
+        );
+        self::assertIsArray($row);
+        self::assertSame(0, (int) $row['contact_additive_inheritance']);
+        self::assertSame(0, (int) $row['cg_additive_inheritance']);
+    }
+
+    /**
+     * ApiPlatform reports every violation in one newline-separated "message" string, each line
+     * prefixed by the offending property path — there is no per-field "detail" to assert on.
+     */
+    private function validationMessage(ResponseInterface $response): string
+    {
+        /** @var array{message?: string} $body */
+        $body = $response->toArray(false);
+
+        return $body['message'] ?? '';
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function linkedIds(string $sql, int $hostId): array
+    {
+        /** @var list<array{id: int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($sql, [$hostId]);
+
+        return array_map(static fn (array $row): int => (int) $row['id'], $rows);
+    }
+
+    private function contactName(int $contactId): string
+    {
+        $name = $this->connection->fetchOne('SELECT contact_name FROM contact WHERE contact_id = ?', [$contactId]);
+        self::assertIsString($name);
+
+        return $name;
+    }
+
+    private function contactGroupName(int $contactGroupId): string
+    {
+        $name = $this->connection->fetchOne('SELECT cg_name FROM contactgroup WHERE cg_id = ?', [$contactGroupId]);
+        self::assertIsString($name);
+
+        return $name;
+    }
+
+    private function insertNotificationContact(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => $name . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContactGroup(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertTimePeriod(string $name): int
+    {
+        $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     /**
      * @param array<mixed> $payload
      *
@@ -1629,6 +2580,8 @@ final class CreateHostProcessorTest extends ApiTestCase
         $mediaRepository = $container->get(MediaRepository::class);
         /** @var MediaUrlGenerator $mediaUrlGenerator */
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        /** @var HostNotificationsTransformer $notificationsTransformer */
+        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
         /** @var HostTemplateRepository $hostTemplateRepository */
@@ -1657,6 +2610,7 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $timezoneRepository,
                 $hostRepository,
                 $mediaRepository,
+                $notificationsTransformer,
                 $mediaUrlGenerator,
                 $timePeriodRepository,
                 $isCloudPlatform,
@@ -1678,13 +2632,6 @@ final class CreateHostProcessorTest extends ApiTestCase
     private function insertHostGroup(string $name): int
     {
         $this->connection->insert('hostgroup', ['hg_name' => $name]);
-
-        return (int) $this->connection->lastInsertId();
-    }
-
-    private function insertTimePeriod(string $name): int
-    {
-        $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
 
         return (int) $this->connection->lastInsertId();
     }
@@ -1867,5 +2814,16 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'hg_hg_id' => $hostGroupId,
             ]);
         }
+    }
+
+    private function insertCommand(string $name, int $type, string $commandLine = '$USER1$/check_ping -H $HOSTADDRESS$'): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => $name,
+            'command_line' => $commandLine,
+            'command_type' => $type,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 }

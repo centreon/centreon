@@ -45,14 +45,19 @@ const ConnectedAutocomplete = ({
   const isMultiple = equals(type, InputType.MultiConnectedAutocomplete);
 
   const getEndpoint = (parameters: GetEndpointParams): string => {
+    // Once a value is selected the field prepends a `$ni` condition excluding
+    // it, so the typed text is not necessarily the first condition -- and
+    // clearing the text leaves no `$lk` condition at all.
+    const searchedValue = parameters?.search?.conditions?.find(
+      (condition) => condition?.values?.$lk
+    )?.values?.$lk as string | undefined;
+
     const nameQueryParameters =
-      connectedAutocomplete?.useNewAPIFormat && parameters?.search
+      connectedAutocomplete?.useNewAPIFormat && searchedValue
         ? [
             {
               name: 'name[lk]',
-              value: (
-                (parameters.search.conditions?.[0]?.values?.$lk ?? '') as string
-              ).slice(1, -1)
+              value: searchedValue.slice(1, -1)
             }
           ]
         : [];
@@ -166,6 +171,7 @@ const ConnectedAutocomplete = ({
   return useMemoComponent({
     Component: (
       <TypedAutocompleteField
+        baseEndpoint={connectedAutocomplete?.baseEndpoint}
         chipProps={chipProps}
         dataTestId={dataTestId}
         decoder={connectedAutocomplete?.decoder}
@@ -187,6 +193,7 @@ const ConnectedAutocomplete = ({
         onBlur={blur}
         onChange={changeAutocomplete}
         optionProperty={connectedAutocomplete?.optionProperty}
+        queryKey={connectedAutocomplete?.queryKey}
         required={isRequired}
         searchConditions={connectedAutocomplete?.additionalConditionParameters}
         value={value ?? null}
