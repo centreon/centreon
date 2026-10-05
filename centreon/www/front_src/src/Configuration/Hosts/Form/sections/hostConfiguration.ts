@@ -1,7 +1,8 @@
 import { InputType, type SelectEntry } from '@centreon/ui';
 
+import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
-import { number, object, string } from 'yup';
+import { array, number, object, string } from 'yup';
 
 import {
   commandsEndpoint,
@@ -14,15 +15,19 @@ import type { NamedEntity } from '../../models';
 import {
   labelActiveChecksEnabled,
   labelAlias,
+  labelAlreadyExists,
   labelArgs,
   labelCheckCommand,
   labelCheckPeriod,
   labelCreateServicesLinkedToTemplates,
+  labelCustomMacros,
+  labelDescription,
   labelHostConfiguration,
   labelInvalidAddress,
   labelIpAddress,
   labelMaxCheckAttempts,
   labelMonitoringServer,
+  labelMustBeAtMostCharacters,
   labelMustBeIntegerOfAtLeastOne,
   labelName,
   labelNameContainsForbiddenCharacters,
@@ -35,9 +40,11 @@ import {
   labelSnmpCommunity,
   labelSnmpVersion,
   labelTemplates,
-  labelTimezone
+  labelTimezone,
+  labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
+import Macros, { type MacroRow } from '../Macros';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector, toIds } from '../selector';
 import Templates, { type TemplateRow } from '../Templates';
@@ -55,6 +62,11 @@ const nameMaxLength = 200;
 const aliasMaxLength = 200;
 const addressMaxLength = 255;
 const snmpCommunityMaxLength = 255;
+// `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters,
+// the value 4096 characters, the description 65535 bytes.
+const macroNameMaxLength = 248;
+const macroValueMaxLength = 4096;
+const macroDescriptionMaxBytes = 65535;
 // The set `CreateHostInput` forbids, character for character. A backslash is
 // not among them, so the form must not refuse `C:\temp` either.
 const forbiddenNameCharacters = /^[^~!$%^&*"|'<>?,()=]*$/;
@@ -96,6 +108,7 @@ interface CheckOptionsValues {
   // Typed as legacy shows them, `!arg1!arg2`; the API takes the list.
   args: string;
   command: NamedEntity | null;
+  macros: Array<MacroRow>;
 }
 
 interface HostConfigurationDetail {
@@ -123,8 +136,56 @@ const defaultSchedulingOptions: SchedulingOptionsValues = {
 
 const defaultCheckOptions: CheckOptionsValues = {
   args: '',
-  command: null
+  command: null,
+  macros: []
 };
+
+// As the server stores the name: trimmed, upper-cased.
+const toMacroName = (name: string): string => name.trim().toUpperCase();
+
+interface MacroDetail {
+  description: string;
+  isPassword: boolean;
+  name: string;
+  value?: string | null;
+}
+
+const macroDecoder = JsonDecoder.object<MacroDetail>(
+  {
+    description: JsonDecoder.optional(
+      JsonDecoder.nullable(JsonDecoder.string)
+    ).map((value) => value ?? ''),
+    isPassword: JsonDecoder.optional(JsonDecoder.boolean).map(
+      (value) => value ?? false
+    ),
+    name: JsonDecoder.string,
+    // Never sent back for a password.
+    value: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string))
+  },
+  'Macro',
+  { isPassword: 'is_password' }
+).map(
+  ({ value, ...macro }): MacroRow => ({
+    ...macro,
+    hasStoredPassword: macro.isPassword,
+    value: value ?? ''
+  })
+);
+
+const toMacroPayload = ({
+  description,
+  hasStoredPassword,
+  isPassword,
+  name,
+  value
+}: MacroRow) => ({
+  description: description || null,
+  is_password: isPassword,
+  name: toMacroName(name),
+  // A password left empty is the one already stored: none is sent, rather
+  // than a fake value the server would store.
+  ...(!(isPassword && hasStoredPassword && value === '') && { value })
+});
 
 // The detail endpoint leaves unset values out rather than sending null.
 const optionalNumberDecoder = JsonDecoder.optional(
@@ -169,7 +230,10 @@ const checkOptionsDecoder = JsonDecoder.object<CheckOptionsValues>(
       JsonDecoder.nullable(
         JsonDecoder.object(namedEntityDecoder, 'Check command')
       )
-    ).map((value) => value ?? null)
+    ).map((value) => value ?? null),
+    macros: JsonDecoder.optional(JsonDecoder.array(macroDecoder, 'Macros')).map(
+      (value) => value ?? []
+    )
   },
   'Check options'
 );
@@ -184,6 +248,57 @@ const getAtLeastOneSchema = (message: string) =>
     .typeError(message)
     .integer(message)
     .min(1, message);
+
+const getMacrosSchema = (t: TFunction) =>
+  array()
+    .of(
+      object({
+        description: string().test(
+          'fits-storage',
+          t(labelMustBeAtMostCharacters, {
+            label: t(labelDescription),
+            max: macroDescriptionMaxBytes
+          }),
+          // Bytes, as the server counts them.
+          (value) =>
+            new TextEncoder().encode(value ?? '').length <=
+            macroDescriptionMaxBytes
+        ),
+        name: string()
+          .trim()
+          .max(
+            macroNameMaxLength,
+            t(labelMustBeAtMostCharacters, {
+              label: t(labelName),
+              max: macroNameMaxLength
+            })
+          )
+          .required(t(labelRequired)),
+        value: string().max(
+          macroValueMaxLength,
+          t(labelMustBeAtMostCharacters, {
+            label: t(labelValue),
+            max: macroValueMaxLength
+          })
+        )
+      })
+    )
+    // The server silently keeps the first of two macros of the same name.
+    // Reserved names are left to it.
+    .test('unique-names', function checkUniqueNames(macros) {
+      const names = (macros ?? []).map(({ name }) => toMacroName(name ?? ''));
+      const duplicateIndex = names.findIndex(
+        (name, index) => name !== '' && names.indexOf(name) !== index
+      );
+
+      return (
+        duplicateIndex === -1 ||
+        this.createError({
+          message: t(labelAlreadyExists),
+          path: `${this.path}[${duplicateIndex}].name`
+        })
+      );
+    });
 
 const getSchedulingNumberInput = ({
   fieldName,
@@ -397,7 +512,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         label: 'host-form-check-options',
         type: InputType.Grid
       },
-      // Templates in the first column; the second is left to the macros.
+      // Templates beside the host's own macros.
       {
         fieldName: 'templates-layout',
         grid: {
@@ -431,6 +546,13 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
               },
               label: 'host-form-templates-block',
               type: InputType.Grid
+            },
+            {
+              custom: { Component: Macros },
+              dataTestId: 'host-form-check-options-macros',
+              fieldName: 'checkOptions.macros',
+              label: t(labelCustomMacros),
+              type: InputType.Custom
             }
           ]
         },
@@ -540,6 +662,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       })
       .required(t(labelRequired)),
     alias: string().trim().max(aliasMaxLength),
+    checkOptions: object({ macros: getMacrosSchema(t) }),
     // Both fields are trimmed the way the server normalises them, so blanks
     // report as missing instead of passing to a 422.
     name: string()
@@ -605,7 +728,8 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       check_options: {
         // Left over from a command since removed, they would be refused.
         args: checkOptions.command ? textToArguments(checkOptions.args) : [],
-        command_id: checkOptions.command?.id ?? null
+        command_id: checkOptions.command?.id ?? null,
+        macros: (checkOptions.macros ?? []).map(toMacroPayload)
       },
       // Refused on cloud, which always creates them.
       ...(!isCloudPlatform && {
