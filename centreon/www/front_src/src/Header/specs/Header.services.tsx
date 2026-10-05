@@ -92,7 +92,7 @@ export default (): void =>
         cy.makeSnapshot();
       });
 
-      it.only('redirects on click on the counter', () => {
+      it('redirects on click on the counter', () => {
         const serviceStubs = {
           critical: { unhandled: '12' },
           ok: '12134',

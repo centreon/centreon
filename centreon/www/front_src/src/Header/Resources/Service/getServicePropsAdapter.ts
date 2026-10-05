@@ -10,10 +10,10 @@ import {
   getResourcesUrl,
   okCriterias,
   pendingCriterias,
+  serviceCriteria as resourceTypeCriterias,
   unhandledStateCriterias,
   unknownCriterias,
-  warningCriterias,
-  serviceCriteria as resourceTypeCriterias
+  warningCriterias
 } from '../getResourcesUrl';
 import type { Adapter } from '../useResourceCounters';
 import {
