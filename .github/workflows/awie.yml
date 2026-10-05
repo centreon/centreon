@@ -488,6 +488,7 @@ jobs:
       contents: read
       packages: read
       checks: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs:
       [get-environment, changes, dockerize, xray-prepare-test-plan]
     if: |

@@ -523,6 +523,7 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs: [changes, get-environment]
     if: |
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
@@ -1323,6 +1324,7 @@ jobs:
       contents: read
       packages: read
       checks: write
+      actions: write  # Required by regroup-artifacts in called workflow
     needs:
       [
         get-environment,
