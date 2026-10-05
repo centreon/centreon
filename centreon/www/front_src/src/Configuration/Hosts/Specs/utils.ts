@@ -143,6 +143,26 @@ export const untouchedSchedulingOptionsPayload = {
   retry_check_interval: null
 };
 
+export const getCommandsResponse = () =>
+  toCollection([
+    { id: 7, name: 'restart-httpd' },
+    { id: 8, name: 'notify-by-email' }
+  ]);
+
+// What a create sends when nothing of the Data Processing section was touched,
+// onPrem; cloud sends the four fields it allows alone.
+export const untouchedDataProcessingPayload = {
+  acknowledgment_timeout: null,
+  check_freshness: 'use_default',
+  event_handler_args: [],
+  event_handler_command_id: null,
+  event_handler_enabled: 'use_default',
+  flap_detection_enabled: 'use_default',
+  freshness_threshold: null,
+  high_flap_threshold: null,
+  low_flap_threshold: null
+};
+
 // What a create sends when nothing of the Notification section was touched.
 export const untouchedNotificationsPayload = {
   contact_groups: [],
@@ -171,6 +191,17 @@ export const getHostResponse = () => ({
   alias: 'alias of host 0 as the detail endpoint spells it',
   categories: [{ id: 4, name: 'Virtual' }],
   child_hosts: [{ id: 2, name: 'host 2' }],
+  // `low_flap_threshold` is unset, so the endpoint leaves it out.
+  data_processing: {
+    acknowledgment_timeout: 15,
+    check_freshness: 'true',
+    event_handler: { id: 7, name: 'restart-httpd' },
+    event_handler_args: ['80', 'graceful'],
+    event_handler_enabled: 'false',
+    flap_detection_enabled: 'true',
+    freshness_threshold: 120,
+    high_flap_threshold: 50
+  },
   groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
   // `recovery_delay` is unset, so the endpoint leaves it out.

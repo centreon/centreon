@@ -2,6 +2,7 @@ import type { ValidationError } from 'yup';
 
 import {
   labelInvalidAddress,
+  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
   labelNameContainsForbiddenCharacters,
@@ -218,6 +219,50 @@ describe('Host form validation', () => {
       expect(schedulingError(field, 1.5)).toEqual(
         labelMustBeIntegerOfAtLeastOne
       );
+    });
+  });
+
+  describe('Data processing', () => {
+    const dataProcessingError = (
+      field: string,
+      value: unknown
+    ): string | null => {
+      try {
+        schemaFor(false).validateSyncAt(`dataProcessing.${field}`, {
+          dataProcessing: { [field]: value }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it('accepts a freshness threshold of 0, which leaves it to the engine', () => {
+      expect(dataProcessingError('freshnessThreshold', '')).toBeNull();
+      expect(dataProcessingError('freshnessThreshold', 0)).toBeNull();
+      expect(dataProcessingError('freshnessThreshold', -1)).toEqual(
+        labelMustBePositiveIntegerOrZero
+      );
+    });
+
+    it('refuses an acknowledgement timeout below 1', () => {
+      expect(dataProcessingError('acknowledgmentTimeout', 1)).toBeNull();
+      expect(dataProcessingError('acknowledgmentTimeout', 0)).toEqual(
+        labelMustBeIntegerOfAtLeastOne
+      );
+    });
+
+    it.each([
+      'lowFlapThreshold',
+      'highFlapThreshold'
+    ])('accepts a %s from 0 to 100 only', (field) => {
+      expect(dataProcessingError(field, '')).toBeNull();
+      expect(dataProcessingError(field, 0)).toBeNull();
+      expect(dataProcessingError(field, 100)).toBeNull();
+      expect(dataProcessingError(field, 101)).toEqual(labelMustBeAPercentage);
+      expect(dataProcessingError(field, -1)).toEqual(labelMustBeAPercentage);
+      expect(dataProcessingError(field, 12.5)).toEqual(labelMustBeAPercentage);
     });
   });
 
