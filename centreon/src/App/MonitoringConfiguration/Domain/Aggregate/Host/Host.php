@@ -141,7 +141,8 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
 
     /**
      * Everything but the activation and the relations (templates, groups, categories, parents,
-     * children), which are tracked on their own.
+     * children), which are tracked on their own. Contacts and contact groups are still compared,
+     * through Notifications::equals().
      */
     public function hasSameConfigurationAs(self $other): bool
     {
