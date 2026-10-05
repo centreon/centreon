@@ -162,6 +162,30 @@ final class CommandResource
             openapiContext: ['example' => 'This command is used to check the HTTP service']
         )]
         public ?string $comment,
+
+        /**
+         * @var list<CommandMacroOutput>
+         */
+        #[ApiProperty(
+            description: 'The on-demand macros used in the command line ($_HOSTxxx$ and $_SERVICExxx$). The id is null when the macro is not stored',
+            writable: false,
+            openapiContext: [
+                'type' => 'array',
+                'items' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'id' => ['type' => 'integer', 'nullable' => true],
+                        'name' => ['type' => 'string'],
+                        'type' => ['type' => 'string', 'enum' => ['host', 'service']],
+                    ],
+                ],
+                'example' => [
+                    ['id' => 1, 'name' => 'USERNAME', 'type' => 'host'],
+                    ['id' => null, 'name' => 'PORT', 'type' => 'service'],
+                ],
+            ],
+        )]
+        public array $macros = [],
     ) {
     }
 }

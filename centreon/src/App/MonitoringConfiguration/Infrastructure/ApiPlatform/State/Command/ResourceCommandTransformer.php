@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ResourceConnectorTransformer;
@@ -58,6 +60,14 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
                 ? $this->connectorTransformer->transform($from->connector())
                 : null,
             comment: $from->comment?->value,
+            macros: array_map(
+                static fn (CommandMacro $macro): CommandMacroOutput => new CommandMacroOutput(
+                    id: $macro->id,
+                    name: $macro->name,
+                    type: mb_strtolower($macro->type->name),
+                ),
+                $from->macros(),
+            ),
         );
     }
 }
