@@ -7,6 +7,7 @@ import { hostFormPollersEndpoint } from '../../api/endpoints';
 import { namedEntityDecoder } from '../../api/namedEntityDecoders';
 import type { NamedEntity } from '../../models';
 import {
+  labelAlias,
   labelHostConfiguration,
   labelInvalidAddress,
   labelIpAddress,
@@ -24,6 +25,7 @@ import type { FormSection } from './models';
 // Uniqueness is not checked here: the server owns it, and a client check goes
 // stale the moment someone else creates a host.
 const nameMaxLength = 200;
+const aliasMaxLength = 200;
 const addressMaxLength = 255;
 // The set `CreateHostInput` forbids, character for character. A backslash is
 // not among them, so the form must not refuse `C:\temp` either.
@@ -39,6 +41,7 @@ const address =
 
 interface HostConfigurationDetail {
   address: string;
+  alias: string;
   name: string;
   poller: NamedEntity;
 }
@@ -46,11 +49,14 @@ interface HostConfigurationDetail {
 export const hostConfiguration: FormSection<HostConfigurationDetail> = {
   defaultValues: {
     address: '',
+    alias: '',
     name: '',
     poller: null
   },
   detailDecoders: {
     address: JsonDecoder.string,
+    // Left out of the response when the host has none.
+    alias: JsonDecoder.optional(JsonDecoder.string).map((value) => value ?? ''),
     name: JsonDecoder.string,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller')
   },
@@ -62,14 +68,20 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       grid: {
         // The resolve route does not exist on cloud.
         className: isCloudPlatform
-          ? 'grid-cols-3'
-          : 'grid-cols-[repeat(3,minmax(0,1fr))_auto]',
+          ? 'grid-cols-4'
+          : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
         columns: [
           {
             dataTestId: 'host-form-name',
             fieldName: 'name',
             label: t(labelName),
             required: true,
+            type: InputType.Text
+          },
+          {
+            dataTestId: 'host-form-alias',
+            fieldName: 'alias',
+            label: t(labelAlias),
             type: InputType.Text
           },
           {
@@ -122,6 +134,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         message: t(labelInvalidAddress)
       })
       .required(t(labelRequired)),
+    alias: string().trim().max(aliasMaxLength),
     // Both fields are trimmed the way the server normalises them, so blanks
     // report as missing instead of passing to a 422.
     name: string()
@@ -143,8 +156,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
   }),
   label: labelHostConfiguration,
   toPayload: (values) => {
-    const { name, address, poller } = values as {
+    const { name, alias, address, poller } = values as {
       address: string;
+      alias: string;
       name: string;
       poller: { id: number } | null;
     };
@@ -154,6 +168,8 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       // length, so an untrimmed value passes `max` here and fails it server
       // side.
       address: address?.trim(),
+      // The API has no empty alias: none is null.
+      alias: alias?.trim() || null,
       name: name?.trim(),
       poller_id: poller?.id
     };

@@ -111,6 +111,12 @@ export default () => {
       cy.findAllByTestId('host-form-address')
         .eq(1)
         .should('have.value', '10.10.10.10');
+      cy.findAllByTestId('host-form-alias')
+        .eq(1)
+        .should(
+          'have.value',
+          'alias of host 0 as the detail endpoint spells it'
+        );
       // Once the default is known too, so it cannot be what this checks.
       cy.waitForRequest('@getFormPollers');
       cy.findByTestId('host-form-poller').should('have.value', 'Poller EU');
@@ -140,6 +146,7 @@ export default () => {
         expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          alias: 'alias of host 0 as the detail endpoint spells it',
           category_ids: [4],
           child_host_ids: [2],
           host_group_ids: [1],
@@ -547,6 +554,25 @@ export default () => {
         .should('have.value', 'srv-b');
     });
 
+    it('creates a host with its alias, trimmed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+      cy.waitForRequest('@getFormPollers');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-alias').eq(1).type('  Apache front  ');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.alias).to.equal('Apache front');
+      });
+    });
+
     it('leaves host groups optional on an onPrem platform', () => {
       initialize({});
 
@@ -573,6 +599,7 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          alias: null,
           category_ids: [],
           child_host_ids: [],
           host_group_ids: [],
@@ -622,6 +649,7 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          alias: null,
           category_ids: [],
           child_host_ids: [],
           host_group_ids: [1],
@@ -664,6 +692,7 @@ export default () => {
         expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          alias: null,
           category_ids: [],
           child_host_ids: [],
           host_group_ids: [],
@@ -738,6 +767,7 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body).to.deep.equals({
           address: '10.0.0.42',
+          alias: null,
           category_ids: [3],
           child_host_ids: [2],
           host_group_ids: [],

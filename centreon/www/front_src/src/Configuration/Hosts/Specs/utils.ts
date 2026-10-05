@@ -153,6 +153,7 @@ export const getHostTemplatesResponse = () =>
 // from the carried row instead of from this response fails rather than passes.
 export const getHostResponse = () => ({
   address: '10.10.10.10',
+  alias: 'alias of host 0 as the detail endpoint spells it',
   categories: [{ id: 4, name: 'Virtual' }],
   child_hosts: [{ id: 2, name: 'host 2' }],
   groups: [{ id: 1, name: 'Linux servers' }],
