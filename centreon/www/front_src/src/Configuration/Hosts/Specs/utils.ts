@@ -139,6 +139,7 @@ export const getTimezonesResponse = () =>
 // sends the three numbers alone.
 export const untouchedSchedulingOptionsPayload = {
   active_check_enabled: 'use_default',
+  check_timeperiod_id: null,
   max_check_attempts: null,
   normal_check_interval: null,
   passive_check_enabled: 'use_default',
@@ -148,8 +149,15 @@ export const untouchedSchedulingOptionsPayload = {
 export const getCommandsResponse = () =>
   toCollection([
     { id: 7, name: 'restart-httpd' },
-    { id: 8, name: 'notify-by-email' }
+    { id: 8, name: 'notify-by-email' },
+    { id: 9, name: 'check-host-alive' }
   ]);
+
+// What a create sends when no check command was picked, on both platforms.
+export const untouchedCheckOptionsPayload = {
+  args: [],
+  command_id: null
+};
 
 // What a create sends when nothing of the Data Processing section was touched,
 // onPrem; cloud sends the four fields it allows alone.
@@ -216,6 +224,11 @@ export const getHostResponse = () => ({
   address: '10.10.10.10',
   alias: 'alias of host 0 as the detail endpoint spells it',
   categories: [{ id: 4, name: 'Virtual' }],
+  check_options: {
+    args: ['3', '80%'],
+    command: { id: 9, name: 'check-host-alive' },
+    macros: []
+  },
   child_hosts: [{ id: 2, name: 'host 2' }],
   // `low_flap_threshold` is unset, so the endpoint leaves it out.
   data_processing: {
@@ -252,11 +265,10 @@ export const getHostResponse = () => ({
   },
   parent_hosts: [{ id: 1, name: 'host 1' }],
   poller: { id: 2, name: 'Poller EU' },
-  // `retry_check_interval` is unset, so the endpoint leaves it out; the check
-  // period is not a field of this form yet and must be ignored.
+  // `retry_check_interval` is unset, so the endpoint leaves it out.
   scheduling_options: {
     active_check_enabled: 'false',
-    check_period: { id: 1, name: '24x7' },
+    check_period: { id: 2, name: 'workhours' },
     max_check_attempts: 3,
     normal_check_interval: 5,
     passive_check_enabled: 'true'

@@ -13,10 +13,10 @@ import { namedEntityDecoder } from '../../api/namedEntityDecoders';
 import type { NamedEntity } from '../../models';
 import {
   labelAcknowledgementTimeout,
+  labelArgs,
   labelCheckFreshness,
   labelDataProcessing,
   labelEventHandler,
-  labelEventHandlerArguments,
   labelEventHandlerEnabled,
   labelFlapDetectionEnabled,
   labelFlappingOptions,
@@ -29,6 +29,7 @@ import {
   labelMustBePositiveIntegerOrZero,
   labelSeconds
 } from '../../translatedLabels';
+import { argumentsToText, textToArguments } from '../commandArguments';
 import { buildSelector } from '../selector';
 import {
   defaultTriState,
@@ -68,21 +69,6 @@ const defaultDataProcessing: DataProcessingValues = {
   freshnessThreshold: '',
   highFlapThreshold: '',
   lowFlapThreshold: ''
-};
-
-// The way the server stores them: each argument behind a `!`.
-const argumentsToText = (args: Array<string>): string =>
-  args.map((argument) => `!${argument}`).join('');
-
-// The leading `!` is optional, so `a!b` and `!a!b` are the same two arguments.
-const textToArguments = (text: string): Array<string> => {
-  if (text === '') {
-    return [];
-  }
-
-  const [first, ...rest] = text.split('!');
-
-  return first === '' ? rest : [first, ...rest];
 };
 
 // The detail endpoint leaves unset values out rather than sending null.
@@ -237,7 +223,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
               {
                 dataTestId: 'host-form-data-processing-eventHandlerArgs',
                 fieldName: 'dataProcessing.eventHandlerArgs',
-                label: t(labelEventHandlerArguments),
+                label: t(labelArgs),
                 text: { placeholder: '!arg1!arg2' },
                 type: InputType.Text
               }

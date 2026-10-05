@@ -52,6 +52,8 @@ export const labelMustBeIntegerOfAtLeastOne =
 export const labelSnmpCommunity = 'SNMP Community';
 export const labelSnmpVersion = 'Version';
 export const labelTimezone = 'Timezone';
+export const labelCheckCommand = 'Check Command';
+export const labelCheckPeriod = 'Check Period';
 export const labelMaxCheckAttempts = 'Max Check Attempts';
 export const labelNormalCheckInterval = 'Normal Check Interval';
 export const labelRetryCheckInterval = 'Retry Check Interval';
@@ -94,7 +96,8 @@ export const labelLowFlapThreshold = 'Low Flap Threshold';
 export const labelHighFlapThreshold = 'High Flap Threshold';
 export const labelEventHandler = 'Event Handler';
 export const labelEventHandlerEnabled = 'Event Handler Enabled';
-export const labelEventHandlerArguments = 'Args';
+// Legacy's label for the arguments of the check command and the event handler.
+export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
 export const labelMustBeAPercentage = 'Must be an integer between 0 and 100';
 
