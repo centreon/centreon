@@ -1,120 +1,49 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import DvrIcon from '@mui/icons-material/Dvr';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import UpdateIcon from '@mui/icons-material/Update';
-import {
-  Button,
-  CardHeader,
-  CircularProgress,
-  Typography
-} from '@mui/material';
+import { CardHeader, Typography } from '@mui/material';
 
 import { IconButton, useDeepCompare } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, isEmpty } from 'ramda';
-import { useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
 
-import {
-  dashboardAtom,
-  duplicatePanelDerivedAtom,
-  isEditingAtom
-} from '../../atoms';
-import { useLastRefresh } from '../../hooks/useLastRefresh';
-import useResetDashboardFromSavedState from '../../hooks/useResetDashboardFromSavedState';
-import {
-  labelMoreActions,
-  labelResourcesStatus,
-  labelSeeMore
-} from '../../translatedLabels';
-import ExpandableButton from './ExpandableButton';
-import MorePanelActions from './MorePanelActions';
-import { ExpandableData } from './models';
+import { dashboardAtom } from '../../atoms';
+import { labelRefreshThePage } from '../../translatedLabels';
 import { usePanelHeaderStyles } from './usePanelStyles';
 import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
 interface PanelHeaderProps {
-  changeViewMode: (displayType: unknown) => void;
   displayMoreActions: boolean;
-  displayShrinkRefresh: boolean;
-  forceDisplayShrinkRefresh: boolean;
   id: string;
-  linkToResourceStatus?: string;
-  pageType: string | null;
-  setRefreshCount?: (id: string) => void;
   name: string;
-  expandableData?: ExpandableData;
 }
 
+/**
+ * Title strip for widgets that have a title. The "last updated" indicator,
+ * the "more actions" (…) trigger and the drag handle all live in a single
+ * floating overlay shared with titleless widgets (see Item.tsx's
+ * overlayInfo / overlayActions, Layout.tsx, PanelLastRefresh,
+ * PanelMoreActionsButton) so the interaction is identical either way,
+ * rather than duplicated here.
+ */
 const PanelHeader = ({
   id,
-  setRefreshCount,
-  linkToResourceStatus,
   displayMoreActions,
-  changeViewMode,
-  pageType,
-  displayShrinkRefresh,
-  forceDisplayShrinkRefresh,
-  name,
-  expandableData
+  name
 }: PanelHeaderProps): JSX.Element | null => {
-  const { t } = useTranslation();
-  const [moreActionsOpen, setMoreActionsOpen] = useState(null);
-
   const { classes } = usePanelHeaderStyles();
+  const { t } = useTranslation();
 
   const dashboard = useAtomValue(dashboardAtom);
-  const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
-
-  const [isEditing, setIsEditing] = useAtom(isEditingAtom);
-
-  const resetDashboardFromSavedState = useResetDashboardFromSavedState();
 
   const panel = useMemo(
     () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
     useDeepCompare([dashboard.layout])
   );
-
-  const widgetPrefixQuery = useMemo(
-    () => `${panel?.panelConfiguration.path}_${id}`,
-    [panel?.panelConfiguration.path, id]
-  );
-
-  const queryClient = useQueryClient();
-  const isFetching = useIsFetching({ queryKey: [widgetPrefixQuery] });
-
-  const { labelRefresh, isLastRefreshMoreThanADay } =
-    useLastRefresh(isFetching);
-
-  const hasQueryData = !isEmpty(
-    queryClient.getQueriesData({
-      queryKey: [widgetPrefixQuery]
-    })
-  );
-
-  const duplicate = (event: MouseEvent): void => {
-    event.preventDefault();
-    if (!isEditing) {
-      resetDashboardFromSavedState();
-    }
-    setIsEditing(() => true);
-    duplicatePanel(id);
-  };
-
-  const refresh = (): void => {
-    setRefreshCount?.(id);
-  };
-
-  const openMoreActions = (event: React.MouseEvent): void =>
-    setMoreActionsOpen(event.target as never);
-  const closeMoreActions = (): void => setMoreActionsOpen(null);
-
-  const page = t(pageType || labelResourcesStatus);
 
   const isWebPageWidget = equals(name, 'centreon-widget-webpage');
 
@@ -123,100 +52,21 @@ const PanelHeader = ({
   return (
     <CardHeader
       action={
-        displayMoreActions ? (
+        displayMoreActions && isWebPageWidget ? (
           <div className={classes.panelActionsIcons}>
-            {hasQueryData && (
-              <div>
-                {forceDisplayShrinkRefresh ||
-                (displayShrinkRefresh && isLastRefreshMoreThanADay) ? (
-                  <IconButton
-                    disabled={!!isFetching}
-                    onClick={refresh}
-                    size="small"
-                    title={labelRefresh}
-                    tooltipPlacement="top"
-                  >
-                    {isFetching ? (
-                      <CircularProgress size={22} />
-                    ) : (
-                      <UpdateIcon sx={{ height: 22, width: 22 }} />
-                    )}
-                  </IconButton>
-                ) : (
-                  <Button
-                    className={classes.panelHeaderRefreshButton}
-                    disabled={!!isFetching}
-                    onClick={refresh}
-                    size="small"
-                    startIcon={
-                      isFetching ? (
-                        <CircularProgress size={22} />
-                      ) : (
-                        <UpdateIcon sx={{ height: 22, width: 22 }} />
-                      )
-                    }
-                  >
-                    {labelRefresh}
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {linkToResourceStatus && (
-              <Link
-                data-testid={t(labelSeeMore, { page })}
-                style={{ all: 'unset' }}
-                target="_blank"
-                to={linkToResourceStatus as string}
-              >
-                <IconButton
-                  ariaLabel={t(labelSeeMore, { page })}
-                  onClick={changeViewMode}
-                  title={t(labelSeeMore, { page })}
-                >
-                  <DvrIcon fontSize="small" />
-                </IconButton>
-              </Link>
-            )}
-
-            {isWebPageWidget && (
-              <IconButton
-                onClick={refresWebpageWidget}
-                size="small"
-                title={'Refresh the page'}
-                tooltipPlacement="top"
-              >
-                <UpdateIcon sx={{ height: 22, width: 22 }} />
-              </IconButton>
-            )}
-
-            {!expandableData || !expandableData?.isExpanded ? (
-              <IconButton
-                ariaLabel={t(labelMoreActions) as string}
-                onClick={openMoreActions}
-                title={t(labelMoreActions) as string}
-              >
-                <MoreHorizIcon fontSize="small" />
-              </IconButton>
-            ) : (
-              <ExpandableButton expandableData={expandableData} />
-            )}
-            <MorePanelActions
-              anchor={moreActionsOpen}
-              close={closeMoreActions}
-              duplicate={duplicate}
-              expandableData={expandableData}
-              id={id}
-            />
+            <IconButton
+              onClick={refresWebpageWidget}
+              size="small"
+              title={t(labelRefreshThePage)}
+              tooltipPlacement="top"
+            >
+              <UpdateIcon sx={{ height: 22, width: 22 }} />
+            </IconButton>
           </div>
-        ) : (
-          <ExpandableButton expandableData={expandableData} />
-        )
+        ) : null
       }
       classes={{
-        content: displayShrinkRefresh
-          ? classes.panelHeaderContentWithShrink
-          : classes.panelHeaderContent
+        content: classes.panelHeaderContent
       }}
       className={classes.panelHeader}
       title={

@@ -1,3 +1,4 @@
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Card, useTheme } from '@mui/material';
 
 import { useAtomValue } from 'jotai';
@@ -26,11 +27,14 @@ interface DashboardItemProps {
   >;
   className?: string;
   disablePadding?: boolean;
+  hasVisibleHeader?: boolean;
   header?: ReactElement | ((params: Parameters) => ReactElement);
   id: string;
   onMouseDown?: (e: MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
   onTouchEnd?: (e: React.TouchEvent<HTMLDivElement>) => void;
+  overlayActions?: ReactElement | ((params: Parameters) => ReactElement);
+  overlayInfo?: ReactElement | ((params: Parameters) => ReactElement);
   style?: CSSProperties;
   ref?: RefObject<HTMLDivElement>;
 }
@@ -40,6 +44,7 @@ const Item = ({
   style,
   className,
   header,
+  hasVisibleHeader,
   onMouseDown,
   onMouseUp,
   onTouchEnd,
@@ -47,14 +52,19 @@ const Item = ({
   disablePadding = false,
   canMove = false,
   additionalMemoProps = [],
+  overlayActions,
+  overlayInfo,
   ref
 }: DashboardItemProps): ReactElement => {
   const { isInViewport, setElement } = useViewportIntersection({
     rootMargin: '140px 0px 140px 0px'
   });
   const hasHeader = !isNil(header);
+  const showHeaderSpace = hasVisibleHeader ?? hasHeader;
 
-  const { classes, cx } = useDashboardItemStyles({ hasHeader });
+  const { classes, cx } = useDashboardItemStyles({
+    hasHeader: showHeaderSpace
+  });
   const theme = useTheme();
 
   const isResizingItem = useAtomValue(isResizingItemAtom);
@@ -104,15 +114,34 @@ const Item = ({
           {({ isExpanded, label, key, ...rest }) => {
             const canControl = isExpanded ? false : canMove;
 
+            const expandableParams = {
+              isExpanded,
+              key,
+              label,
+              ref: ref as RefObject<HTMLDivElement>,
+              ...rest
+            };
+
             const childrenHeader = equals(type(header), 'Function')
-              ? (header as (params: Parameters) => ReactElement)({
-                  isExpanded,
-                  key,
-                  label,
-                  ref: ref as RefObject<HTMLDivElement>,
-                  ...rest
-                })
+              ? (header as (params: Parameters) => ReactElement)(
+                  expandableParams
+                )
               : (header as ReactElement);
+
+            const childrenOverlayActions = equals(
+              type(overlayActions),
+              'Function'
+            )
+              ? (overlayActions as (params: Parameters) => ReactElement)(
+                  expandableParams
+                )
+              : (overlayActions as ReactElement);
+
+            const childrenOverlayInfo = equals(type(overlayInfo), 'Function')
+              ? (overlayInfo as (params: Parameters) => ReactElement)(
+                  expandableParams
+                )
+              : (overlayInfo as ReactElement);
 
             return (
               <div className={classes.widgetSubContainer} key={key}>
@@ -120,18 +149,54 @@ const Item = ({
                   className={classes.widgetContainer}
                   data-padding={!disablePadding}
                 >
+                  {(childrenOverlayActions || childrenOverlayInfo) && (
+                    <div
+                      className={cx(
+                        'cf-widget-overlay-corner',
+                        classes.widgetOverlayCorner
+                      )}
+                    >
+                      {childrenOverlayActions && (
+                        <div
+                          className={cx(
+                            'cf-widget-overlay-actions',
+                            classes.widgetOverlayActions
+                          )}
+                        >
+                          {canControl && (
+                            <div
+                              {...listeners}
+                              className={cx(
+                                'cf-widget-drag-handle',
+                                classes.widgetOverlayDragHandle
+                              )}
+                              data-testid={`${id}_move_panel`}
+                            >
+                              <DragIndicatorIcon fontSize="small" />
+                            </div>
+                          )}
+                          {childrenOverlayActions}
+                        </div>
+                      )}
+                      {childrenOverlayInfo && (
+                        <div
+                          className={cx(
+                            'cf-widget-overlay-info',
+                            classes.widgetOverlayInfo
+                          )}
+                        >
+                          {childrenOverlayInfo}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {childrenHeader && (
                     <div
-                      className={classes.widgetHeader}
-                      data-can-move={canControl}
-                    >
-                      {canControl && (
-                        <div
-                          {...listeners}
-                          className={classes.widgetHeaderDraggable}
-                          data-testid={`${id}_move_panel`}
-                        />
+                      className={cx(
+                        classes.widgetHeader,
+                        !showHeaderSpace && classes.widgetHeaderCollapsed
                       )}
+                    >
                       {childrenHeader}
                     </div>
                   )}
@@ -159,6 +224,9 @@ const Item = ({
           style,
           className,
           header,
+          hasVisibleHeader,
+          overlayActions,
+          overlayInfo,
           theme.palette.mode,
           canMove,
           isInViewport,

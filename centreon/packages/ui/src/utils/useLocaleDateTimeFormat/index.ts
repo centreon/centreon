@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import humanizeDuration from 'humanize-duration';
 import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
 
 import { useLocale } from '../useLocale';
 import shortLocales from './sortLocales';
@@ -17,7 +18,7 @@ export interface LocaleDateTimeFormat {
   format: (dateFormat: FormatParameters) => string;
   toDate: (date: Date | string) => string;
   toDateTime: (date: Date | string) => string;
-  toHumanizedDuration: (duration: number) => string;
+  toHumanizedDuration: (duration: number, largest?: number) => string;
   toIsoString: (date: Date) => string;
   toTime: (date: Date | string) => string;
 }
@@ -67,7 +68,7 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
     return `${new Date(date).toISOString().substring(0, 19)}Z`;
   };
 
-  const toHumanizedDuration = (duration: number): string => {
+  const toHumanizedDuration = (duration: number, largest?: number): string => {
     const humanizer = humanizeDuration.humanizer();
     humanizer.languages = shortLocales;
     const normalizedLocale = locale.substring(0, 2).toUpperCase();
@@ -78,7 +79,8 @@ const useLocaleDateTimeFormat = (): LocaleDateTimeFormat => {
       language: `short${normalizedLocale}`,
       round: true,
       serialComma: false,
-      spacer: ''
+      spacer: '',
+      ...(isNil(largest) ? {} : { largest })
     });
   };
 
