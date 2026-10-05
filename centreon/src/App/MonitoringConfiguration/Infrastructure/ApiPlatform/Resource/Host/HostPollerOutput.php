@@ -21,19 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use ApiPlatform\Metadata\ApiProperty;
-
-final class PollerChoicesOutput
+final readonly class HostPollerOutput
 {
     public function __construct(
-        #[ApiProperty(identifier: true)]
         public int $id,
-
         public string $name,
-
-        public bool $isDefault,
     ) {
     }
 }
