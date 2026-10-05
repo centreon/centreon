@@ -21,7 +21,7 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
+import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
 import type { Filters } from './models';
 import {
   labelCreateHost,
@@ -52,7 +52,11 @@ const Hosts = () => {
   const { groups, inputs } = useFormInputs({ canEdit, isCloudPlatform });
   const { validationSchema } = useValidationSchema({ isCloudPlatform });
 
-  const { api, filtersConfiguration } = useHosts();
+  const { api, filtersConfiguration } = useHosts({ isCloudPlatform });
+  const defaultValues = useMemo(
+    () => getDefaultValues({ isCloudPlatform }),
+    [isCloudPlatform]
+  );
   const { deployServices } = useDeployServices();
 
   const actions: Actions = useMemo(
