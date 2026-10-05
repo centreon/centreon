@@ -325,6 +325,9 @@ export default () => {
       cy.findAllByTestId('host-form-address')
         .eq(1)
         .should('have.value', resolvedAddressResponse.ip);
+      cy.contains(
+        `${resolvedAddressResponse.hostname} → ${resolvedAddressResponse.ip}`
+      ).should('be.visible');
     });
 
     it('keeps an address that does not resolve and says so', () => {
@@ -384,19 +387,33 @@ export default () => {
       cy.findByTestId('host-form-address-resolve').should('be.enabled');
     });
 
+    it('offers no resolution for an address that already is an IPv4', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+      cy.findByTestId('host-form-address-resolve').should('be.disabled');
+
+      cy.findAllByTestId('host-form-address').eq(1).type('.example.com');
+      cy.findByTestId('host-form-address-resolve').should('be.enabled');
+    });
+
     it('does not let a user who may only look at hosts resolve an address', () => {
       initialize({ hasWriteAccess: false });
 
       cy.waitForRequest('@getAllHosts');
 
-      cy.contains('host 0').click();
+      cy.contains('host 1').click();
 
-      cy.waitForRequest('@getHost');
+      cy.waitForRequest('@getHost1');
 
-      // The address is there, so only the missing write access disables it.
+      // A name, so only the missing write access disables it.
       cy.findAllByTestId('host-form-address')
         .eq(1)
-        .should('have.value', '10.10.10.10');
+        .should('have.value', 'host-1.example.com');
       cy.findByTestId('host-form-address-resolve').should('be.disabled');
     });
 

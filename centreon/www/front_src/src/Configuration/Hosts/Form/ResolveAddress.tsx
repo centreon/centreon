@@ -7,6 +7,9 @@ import { type ReactElement, useEffect, useRef } from 'react';
 // Not through `../api`, whose decoders import the sections rendering this.
 import useResolveAddress from '../api/useResolveAddress';
 
+// An IPv4 comes back unchanged, so there is nothing to resolve.
+const ipv4 = /^\d{1,3}(\.\d{1,3}){3}$/;
+
 // Replaces the address with the IPv4 its name resolves to.
 const ResolveAddress = ({
   dataTestId,
@@ -39,7 +42,12 @@ const ResolveAddress = ({
   return (
     <Button
       data-testid={dataTestId}
-      disabled={!hostname || isResolving || !!getDisabled?.(values)}
+      disabled={
+        !hostname ||
+        ipv4.test(hostname) ||
+        isResolving ||
+        !!getDisabled?.(values)
+      }
       onClick={resolveAddress}
       variant="primary"
     >

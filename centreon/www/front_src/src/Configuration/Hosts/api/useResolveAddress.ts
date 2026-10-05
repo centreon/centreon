@@ -31,7 +31,7 @@ interface UseResolveAddressState {
 // shows as is.
 const useResolveAddress = (): UseResolveAddressState => {
   const { t } = useTranslation();
-  const { showErrorMessage } = useSnackbar();
+  const { showErrorMessage, showSuccessMessage } = useSnackbar();
 
   const { mutateAsync, isMutating } = useMutationQuery<
     Resolution,
@@ -55,6 +55,9 @@ const useResolveAddress = (): UseResolveAddressState => {
 
       return null;
     }
+
+    // What was resolved into what: data only, nothing to translate.
+    showSuccessMessage(`${hostname} → ${response.ip}`);
 
     return response.ip;
   };

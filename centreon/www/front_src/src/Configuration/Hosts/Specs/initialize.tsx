@@ -104,7 +104,8 @@ const initialize = ({
     method: Method.GET,
     path: `**${getHostEndpoint({ id: 1 })}`,
     response: {
-      address: '10.0.0.1',
+      // A name, so resolving it is not already moot.
+      address: 'host-1.example.com',
       categories: [],
       child_hosts: [],
       groups: [],
