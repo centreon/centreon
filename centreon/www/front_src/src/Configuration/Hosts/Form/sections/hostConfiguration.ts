@@ -1,8 +1,4 @@
-import {
-  type InputPropsWithoutGroup,
-  InputType,
-  type SelectEntry
-} from '@centreon/ui';
+import { InputType, type SelectEntry } from '@centreon/ui';
 
 import { JsonDecoder } from 'ts.data.json';
 import { number, object, string } from 'yup';
@@ -23,7 +19,7 @@ import {
 } from '../../translatedLabels';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector } from '../selector';
-import type { FormSection, SectionContext } from './models';
+import type { FormSection } from './models';
 
 // Uniqueness is not checked here: the server owns it, and a client check goes
 // stale the moment someone else creates a host.
@@ -40,44 +36,6 @@ const moduleNamePrefix = /^_Module[_ ]/;
 // Directory names, so `srv_01` must reach the API rather than stop here.
 const address =
   /^(\d{1,3}(\.\d{1,3}){3}|[\da-fA-F:]+:[\da-fA-F:.]*|\w([\w-]*\w)?(\.\w([\w-]*\w)?)*)$/;
-
-// The resolve route does not exist on cloud.
-const getAddressInput = ({
-  isCloudPlatform,
-  t
-}: SectionContext): InputPropsWithoutGroup => {
-  const addressInput = {
-    dataTestId: 'host-form-address',
-    fieldName: 'address',
-    label: t(labelIpAddress),
-    required: true,
-    type: InputType.Text
-  };
-
-  if (isCloudPlatform) {
-    return addressInput;
-  }
-
-  return {
-    fieldName: 'address-row',
-    grid: {
-      className: 'grid-cols-[1fr_auto]',
-      columns: [
-        addressInput,
-        {
-          custom: { Component: ResolveAddress },
-          dataTestId: 'host-form-address-resolve',
-          fieldName: 'address-resolve',
-          label: t(labelResolve),
-          type: InputType.Custom
-        }
-      ]
-    },
-    label: 'host-form-address-row',
-    required: true,
-    type: InputType.Grid
-  };
-};
 
 interface HostConfigurationDetail {
   address: string;
@@ -96,28 +54,61 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     name: JsonDecoder.string,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller')
   },
-  getInputs: (context) => [
+  // One row at every panel width, as designed: the fields share it equally
+  // and the resolve button keeps its own width.
+  getInputs: ({ isCloudPlatform, t }) => [
     {
-      dataTestId: 'host-form-name',
-      fieldName: 'name',
-      label: context.t(labelName),
-      required: true,
-      type: InputType.Text
-    },
-    getAddressInput(context),
-    {
-      connectedAutocomplete: buildSelector({
-        endpoint: hostFormPollersEndpoint,
-        getOptionLabel: (option) => (option as SelectEntry)?.name,
-        // The listing filter beside this field carries the same label and
-        // reads every poller, where this one reads only the active ones.
-        queryKey: 'host-form-poller'
-      }),
-      dataTestId: 'host-form-poller',
-      fieldName: 'poller',
-      label: context.t(labelMonitoringServer),
-      required: true,
-      type: InputType.SingleConnectedAutocomplete
+      fieldName: 'basic-information',
+      grid: {
+        // The resolve route does not exist on cloud.
+        className: isCloudPlatform
+          ? 'grid-cols-3'
+          : 'grid-cols-[repeat(3,minmax(0,1fr))_auto]',
+        columns: [
+          {
+            dataTestId: 'host-form-name',
+            fieldName: 'name',
+            label: t(labelName),
+            required: true,
+            type: InputType.Text
+          },
+          {
+            connectedAutocomplete: buildSelector({
+              endpoint: hostFormPollersEndpoint,
+              getOptionLabel: (option) => (option as SelectEntry)?.name,
+              // The listing filter beside this field carries the same label
+              // and reads every poller, where this one reads only the active
+              // ones.
+              queryKey: 'host-form-poller'
+            }),
+            dataTestId: 'host-form-poller',
+            fieldName: 'poller',
+            label: t(labelMonitoringServer),
+            required: true,
+            type: InputType.SingleConnectedAutocomplete
+          },
+          {
+            dataTestId: 'host-form-address',
+            fieldName: 'address',
+            label: t(labelIpAddress),
+            required: true,
+            type: InputType.Text
+          },
+          ...(isCloudPlatform
+            ? []
+            : [
+                {
+                  custom: { Component: ResolveAddress },
+                  dataTestId: 'host-form-address-resolve',
+                  fieldName: 'address-resolve',
+                  label: t(labelResolve),
+                  type: InputType.Custom
+                }
+              ])
+        ]
+      },
+      label: 'host-form-basic-information',
+      type: InputType.Grid
     }
   ],
   getSchema: ({ t }) => ({
