@@ -14,6 +14,7 @@ import {
   labelInvalidAddress,
   labelLinkedContactGroups,
   labelLinkedContacts,
+  labelMustBeIntegerOfAtLeastOne,
   labelNameMustNotStartWithModule,
   labelNo,
   labelNone,
@@ -22,6 +23,8 @@ import {
   labelRecovery,
   labelRelations,
   labelResolve,
+  labelSnmpVersion,
+  labelTimezone,
   labelUnreachable,
   labelYes
 } from '../translatedLabels';
@@ -29,7 +32,8 @@ import initialize, { pollersForbiddenMessage } from './initialize';
 import {
   refusedAddressResponse,
   resolvedAddressResponse,
-  untouchedNotificationsPayload
+  untouchedNotificationsPayload,
+  untouchedSchedulingOptionsPayload
 } from './utils';
 
 // `ConfigurationBase`'s specs pass `formVariant` explicitly, so this is the
@@ -162,7 +166,19 @@ export default () => {
             timeperiod_id: 1
           },
           parent_host_ids: [1],
-          poller_id: 2
+          poller_id: 2,
+          // The check period the response carried is not sent back: the form
+          // has no such field yet.
+          scheduling_options: {
+            active_check_enabled: 'false',
+            max_check_attempts: 3,
+            normal_check_interval: 5,
+            passive_check_enabled: 'true',
+            retry_check_interval: null
+          },
+          // No `snmp_community`: left empty, it is left unchanged.
+          snmp_version: '2c',
+          timezone_id: 2
         });
       });
     });
@@ -640,7 +656,10 @@ export default () => {
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
           parent_host_ids: [],
-          poller_id: 2
+          poller_id: 2,
+          scheduling_options: untouchedSchedulingOptionsPayload,
+          snmp_version: null,
+          timezone_id: null
         });
       });
     });
@@ -689,7 +708,15 @@ export default () => {
           host_group_ids: [1],
           name: 'srv-apache-02',
           parent_host_ids: [],
-          poller_id: 2
+          poller_id: 2,
+          // The check toggles are refused on cloud.
+          scheduling_options: {
+            max_check_attempts: null,
+            normal_check_interval: null,
+            retry_check_interval: null
+          },
+          snmp_version: null,
+          timezone_id: null
         });
       });
     });
@@ -733,7 +760,10 @@ export default () => {
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
           parent_host_ids: [],
-          poller_id: 2
+          poller_id: 2,
+          scheduling_options: untouchedSchedulingOptionsPayload,
+          snmp_version: null,
+          timezone_id: null
         });
       });
     });
@@ -808,7 +838,10 @@ export default () => {
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
           parent_host_ids: [1],
-          poller_id: 2
+          poller_id: 2,
+          scheduling_options: untouchedSchedulingOptionsPayload,
+          snmp_version: null,
+          timezone_id: null
         });
       });
     });
@@ -822,11 +855,9 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
-      cy.findByRole('button', { name: labelNo }).should(
-        'have.attr',
-        'aria-pressed',
-        'true'
-      );
+      cy.findByTestId('host-form-notifications-enabled')
+        .findByRole('button', { name: labelNo })
+        .should('have.attr', 'aria-pressed', 'true');
 
       [
         [labelLinkedContacts, 'admin'],
@@ -877,11 +908,9 @@ export default () => {
 
       cy.waitForRequest('@getHost1');
 
-      cy.findByRole('button', { name: labelDefault }).should(
-        'have.attr',
-        'aria-pressed',
-        'true'
-      );
+      cy.findByTestId('host-form-notifications-enabled')
+        .findByRole('button', { name: labelDefault })
+        .should('have.attr', 'aria-pressed', 'true');
 
       cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
 
@@ -908,12 +937,12 @@ export default () => {
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
       // Default is preselected, and is not No.
-      cy.findByRole('button', { name: labelDefault }).should(
-        'have.attr',
-        'aria-pressed',
-        'true'
-      );
-      cy.findByRole('button', { name: labelYes }).click();
+      cy.findByTestId('host-form-notifications-enabled')
+        .findByRole('button', { name: labelDefault })
+        .should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-notifications-enabled')
+        .findByRole('button', { name: labelYes })
+        .click();
 
       cy.findByTestId('host-form-notifications-contacts').click();
       cy.waitForRequest('@getFormContacts').then(({ request }) => {
@@ -1069,6 +1098,162 @@ export default () => {
           contact_group_additive_inheritance: false
         });
       });
+    });
+
+    it('opens an existing host on its SNMP, timezone and scheduling settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      // Write-only: nothing to open on.
+      cy.findAllByTestId('host-form-snmp-community')
+        .eq(1)
+        .should('have.value', '')
+        .and('have.attr', 'type', 'password');
+      cy.findByLabelText(labelSnmpVersion).should('have.value', '2c');
+      cy.findByTestId('host-form-timezone').should(
+        'have.value',
+        'Europe/Paris'
+      );
+
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .should('have.value', '3');
+      cy.findAllByTestId('host-form-scheduling-options-normalCheckInterval')
+        .eq(1)
+        .should('have.value', '5');
+      // Left out of the response, so still empty.
+      cy.findAllByTestId('host-form-scheduling-options-retryCheckInterval')
+        .eq(1)
+        .should('have.value', '');
+
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-false'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId(
+        'host-form-scheduling-options-passiveCheckEnabled-true'
+      ).should('have.attr', 'aria-pressed', 'true');
+    });
+
+    it('creates a host with its SNMP, timezone and scheduling settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findAllByTestId('host-form-snmp-community').eq(1).type('public');
+
+      cy.findByLabelText(labelSnmpVersion).click();
+      cy.get('.MuiAutocomplete-popper').contains('2c').click();
+
+      cy.findByTestId('host-form-timezone').click();
+      // No host-scoped timezone selector exists; this one is on API Platform.
+      cy.waitForRequest('@getFormTimezones').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/timezones');
+        expect(request.url.pathname).to.not.contain('/api/latest');
+      });
+      cy.get('.MuiAutocomplete-popper').contains('Europe/Paris').click();
+
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .type('3');
+      cy.findAllByTestId('host-form-scheduling-options-retryCheckInterval')
+        .eq(1)
+        .type('1');
+
+      // Default is preselected, and is not No.
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-use_default'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-true'
+      ).click();
+      cy.findByTestId(
+        'host-form-scheduling-options-passiveCheckEnabled-false'
+      ).click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body).to.include({
+          snmp_community: 'public',
+          snmp_version: '2c',
+          timezone_id: 2
+        });
+        expect(request.body.scheduling_options).to.deep.equals({
+          active_check_enabled: 'true',
+          max_check_attempts: 3,
+          normal_check_interval: null,
+          passive_check_enabled: 'false',
+          retry_check_interval: 1
+        });
+      });
+    });
+
+    it('refuses a check interval below 1', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-scheduling-options-normalCheckInterval')
+        .eq(1)
+        .type('0')
+        .blur();
+
+      cy.contains(labelMustBeIntegerOfAtLeastOne).should('be.visible');
+    });
+
+    it('offers no check toggles on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .should('be.visible');
+      cy.findByTestId('host-form-scheduling-options-activeCheckEnabled').should(
+        'not.exist'
+      );
+      cy.findByTestId(
+        'host-form-scheduling-options-passiveCheckEnabled'
+      ).should('not.exist');
+    });
+
+    it('lets a user who may only look at hosts change none of them', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-snmp-community')
+        .eq(1)
+        .should('be.disabled');
+      cy.findByLabelText(labelSnmpVersion).should('be.disabled');
+      cy.findByLabelText(labelTimezone).should('be.disabled');
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .should('be.disabled');
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-true'
+      ).should('be.disabled');
     });
   });
 };
