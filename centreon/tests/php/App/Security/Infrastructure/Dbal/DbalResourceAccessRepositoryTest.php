@@ -486,6 +486,54 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame(0, $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ?', [9202]));
     }
 
+    public function testDuplicateHostServiceAccessScopesTheCopysServicesForTheSourcesGroups(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9301, 'host_name' => 'dup-svc-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9302, 'host_name' => 'dup-svc-copy', 'host_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7701, 'service_description' => 'svc-7701', 'service_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7702, 'service_description' => 'svc-7702', 'service_register' => '1']);
+        // The copy already carries its services (cloned/re-linked) before the ACL step runs.
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9302, 'service_service_id' => 7701]);
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9302, 'service_service_id' => 7702]);
+        // The source host is visible to two groups at host level.
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9301, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9301, 'service_id' => null]);
+
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9301), newHostId: new HostId(9302));
+
+        /** @var list<array{group_id: int|string, service_id: int|string}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, service_id FROM centreon_acl WHERE host_id = ? AND service_id IS NOT NULL ORDER BY group_id, service_id',
+            [9302],
+        );
+
+        // Every (source group × copy service) pair is scoped.
+        self::assertSame(
+            [
+                ['group_id' => 10, 'service_id' => 7701],
+                ['group_id' => 10, 'service_id' => 7702],
+                ['group_id' => 20, 'service_id' => 7701],
+                ['group_id' => 20, 'service_id' => 7702],
+            ],
+            array_map(
+                static fn (array $row): array => ['group_id' => (int) $row['group_id'], 'service_id' => (int) $row['service_id']],
+                $rows,
+            ),
+        );
+    }
+
+    public function testDuplicateHostServiceAccessWritesNothingWhenTheCopyHasNoService(): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9401, 'service_id' => null]);
+
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9401), newHostId: new HostId(9402));
+
+        self::assertSame(
+            0,
+            $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id IS NOT NULL', [9402]),
+        );
+    }
+
     public function testUserWithNoAclGroupHasAccessToNoContact(): void
     {
         $contactId = $this->createContact('no-group-contacts-' . uniqid());

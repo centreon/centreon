@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 
 /**
@@ -34,11 +35,20 @@ final readonly class DuplicateHostServicesCommandHandler
 {
     public function __construct(
         private HostServiceDuplicator $serviceDuplicator,
+        private ResourceAccessRepository $resourceAccessRepository,
     ) {
     }
 
     public function __invoke(DuplicateHostServicesCommand $command): void
     {
         $this->serviceDuplicator->duplicate(sourceHostId: $command->sourceHostId, newHostId: $command->newHostId);
+
+        // Now that the copy has its services, scope them in centreon_acl for the groups that already see
+        // the source host, so a non-admin sees them without waiting for the centAcl cron (which only
+        // recomputes the actor's groups, not every group that sees the source).
+        $this->resourceAccessRepository->duplicateHostServiceAccess(
+            sourceHostId: $command->sourceHostId,
+            newHostId: $command->newHostId,
+        );
     }
 }

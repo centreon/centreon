@@ -71,6 +71,10 @@ final readonly class DuplicateHostCommandHandler
             throw new HostNotFoundException([$command->hostId->value], 'id');
         }
 
+        // Resolve the free name before touching the vault: a 409 (every suffix taken, or too long) must
+        // not leave a freshly-minted vault entry behind.
+        $newName = $this->generateAvailableName($source->name);
+
         // Re-mint the source's vaulted secrets into the copy's own entry (see duplicateSecrets()):
         // copied verbatim they would share the source's vault paths.
         [$snmpCommunity, $checkOptions] = $this->duplicateSecrets($source);
@@ -78,29 +82,50 @@ final readonly class DuplicateHostCommandHandler
         // The aggregate owns which fields carry over to a copy; the handler only supplies what needs
         // external resolution: the first free name (repository) and the re-minted secrets (vault).
         $copy = $source->duplicate(
-            newName: $this->generateAvailableName($source->name),
+            newName: $newName,
             snmpCommunity: $snmpCommunity,
             checkOptions: $checkOptions,
         );
 
-        $this->repository->add($copy);
+        try {
+            $this->repository->add($copy);
 
-        // The copy inherits the source's ACL scope: its configuration relations
-        // (acl_resources_host(ex)_relations) and its real-time centreon_acl rows. This mirrors legacy
-        // (centreonACL::duplicateHostAcl + updateACL('DUP')).
-        $this->resourceAccessRepository->duplicateHostAccess(
-            sourceHostId: $command->hostId,
-            newHostId: $copy->id(),
-        );
+            // The copy inherits the source's ACL scope: its configuration relations
+            // (acl_resources_host(ex)_relations) and its real-time centreon_acl rows. This mirrors legacy
+            // (centreonACL::duplicateHostAcl + updateACL('DUP')).
+            $this->resourceAccessRepository->duplicateHostAccess(
+                sourceHostId: $command->hostId,
+                newHostId: $copy->id(),
+            );
 
-        // The shared handlers reacting to AggregateDuplicated do the rest: the action log (with field
-        // detail), the poller's `nagios_server.updated` flag, and the centAcl reload flag
-        // (ReloadAclEventHandler flags only here — the copy's scope was already seeded above).
-        $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy));
+            // The shared handlers reacting to AggregateDuplicated do the rest: the action log (with field
+            // detail), the poller's `nagios_server.updated` flag, and the centAcl reload flag
+            // (ReloadAclEventHandler flags only here — the copy's scope was already seeded above).
+            $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy));
+        } catch (\Throwable $exception) {
+            // The DB writes roll back with the command-bus transaction, but the vault entry minted for
+            // the copy does not: purge it so a failed duplication leaves nothing dangling.
+            $this->purgeMintedVaultEntry($source, $copy);
+
+            throw $exception;
+        }
 
         // The aggregate does not model services; they are duplicated by a legacy step delivered after
         // the commit (the copy must be visible to the legacy connection), like host creation deploys them.
         $this->eventBus->fire(new HostServicesDuplicationRequested(sourceHostId: $command->hostId, newHostId: $copy->id()));
+    }
+
+    /**
+     * Deletes the vault entry minted for the copy when the duplication fails after the vault write.
+     * Guarded on the UUID differing from the source's, so a shared entry is never removed; a copy with
+     * no vaulted secret has no UUID and nothing to purge.
+     */
+    private function purgeMintedVaultEntry(Host $source, Host $copy): void
+    {
+        $copyUuid = $copy->getVaultUuid($this->vault);
+        if ($copyUuid !== null && $copyUuid !== $source->getVaultUuid($this->vault)) {
+            $this->vaultWriter->delete(VaultPathEnum::MonitoringHosts, $copyUuid);
+        }
     }
 
     /**

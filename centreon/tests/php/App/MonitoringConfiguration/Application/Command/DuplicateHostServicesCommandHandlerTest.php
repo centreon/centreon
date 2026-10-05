@@ -28,29 +28,41 @@ use App\MonitoringConfiguration\Application\Command\DuplicateHostServicesCommand
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostServiceDuplicator;
+use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class DuplicateHostServicesCommandHandlerTest extends TestCase
 {
-    public function testItDuplicatesTheServicesOfTheRequestedHost(): void
+    public function testItDuplicatesTheServicesThenScopesThemInTheAcl(): void
     {
         $duplicator = new FakeHostServiceDuplicator();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
 
-        new DuplicateHostServicesCommandHandler($duplicator)(
+        new DuplicateHostServicesCommandHandler($duplicator, $resourceAccessRepository)(
             new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
         );
 
         self::assertSame([['sourceHostId' => 5, 'newHostId' => 9]], $duplicator->duplicateCalls);
+        // Once the copy has its services, their ACL rows are scoped for the source's groups.
+        self::assertSame([['sourceHostId' => 5, 'newHostId' => 9]], $resourceAccessRepository->duplicatedHostServiceAccess);
     }
 
-    public function testItLetsADuplicationFailurePropagate(): void
+    public function testItDoesNotScopeTheServiceAclWhenDuplicationFails(): void
     {
         $duplicator = new FakeHostServiceDuplicator();
         $duplicator->duplicateThrows = true;
 
-        $this->expectException(\Throwable::class);
+        $resourceAccessRepository = new FakeResourceAccessRepository();
 
-        new DuplicateHostServicesCommandHandler($duplicator)(
-            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
-        );
+        try {
+            new DuplicateHostServicesCommandHandler($duplicator, $resourceAccessRepository)(
+                new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9)),
+            );
+            self::fail('expected the duplication failure to propagate');
+        } catch (\Throwable) {
+            // expected
+        }
+
+        // The failure propagates before any service exists, so nothing is scoped.
+        self::assertSame([], $resourceAccessRepository->duplicatedHostServiceAccess);
     }
 }

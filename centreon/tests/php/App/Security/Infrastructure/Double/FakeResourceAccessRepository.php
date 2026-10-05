@@ -68,6 +68,11 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var list<array{sourceHostId: int, newHostId: int}> */
     public array $duplicatedHostAccess = [];
 
+    /** @var list<array{sourceHostId: int, newHostId: int}> */
+    public array $duplicatedHostServiceAccess = [];
+
+    public bool $duplicateHostAccessThrows = false;
+
     public function __construct()
     {
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
@@ -134,7 +139,19 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void
     {
+        if ($this->duplicateHostAccessThrows) {
+            throw new \RuntimeException('duplicateHostAccess failed');
+        }
+
         $this->duplicatedHostAccess[] = [
+            'sourceHostId' => $sourceHostId->value,
+            'newHostId' => $newHostId->value,
+        ];
+    }
+
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        $this->duplicatedHostServiceAccess[] = [
             'sourceHostId' => $sourceHostId->value,
             'newHostId' => $newHostId->value,
         ];

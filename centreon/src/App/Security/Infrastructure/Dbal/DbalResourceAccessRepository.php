@@ -99,8 +99,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         }
 
         // Real-time cache (centreon_storage connection): copy the source's host-level rows per group so
-        // a non-admin sees the copy immediately. Legacy updateACL('DUP'); its service loop is empty here
-        // because the copy has no services yet.
+        // a non-admin sees the copy immediately. Legacy updateACL('DUP'); the service-level rows are
+        // written by duplicateHostServiceAccess() after the copy's services exist.
         /** @var list<int|string> $groupIds */
         $groupIds = $this->realTimeConnection->fetchFirstColumn(
             'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :sourceHostId AND service_id IS NULL',
@@ -112,6 +112,38 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
                 ['groupId' => (int) $groupId, 'hostId' => $newHostId->value],
             );
+        }
+    }
+
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        // The copy's services (cloned + re-linked), read from the configuration connection where
+        // host_service_relation lives; nothing to scope when the copy has no service.
+        /** @var list<int|string> $serviceIds */
+        $serviceIds = $this->connection->fetchFirstColumn(
+            'SELECT service_service_id FROM host_service_relation WHERE host_host_id = :newHostId',
+            ['newHostId' => $newHostId->value],
+        );
+        if ($serviceIds === []) {
+            return;
+        }
+
+        // Groups that already see the source host (its host-level rows), from the real-time cache.
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['sourceHostId' => $sourceHostId->value],
+        );
+
+        foreach ($groupIds as $groupId) {
+            foreach ($serviceIds as $serviceId) {
+                // ON DUPLICATE KEY UPDATE keeps it idempotent, as legacy updateACL('DUP') does.
+                $this->realTimeConnection->executeStatement(
+                    'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                        ON DUPLICATE KEY UPDATE service_id = VALUES(service_id)',
+                    ['groupId' => (int) $groupId, 'hostId' => $newHostId->value, 'serviceId' => (int) $serviceId],
+                );
+            }
         }
     }
 

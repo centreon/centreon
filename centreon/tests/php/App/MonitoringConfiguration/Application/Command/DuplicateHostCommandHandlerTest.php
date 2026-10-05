@@ -309,6 +309,56 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame('visible-value', $macrosByName['PLAIN']);
     }
 
+    public function testDoesNotMintAVaultEntryWhenTheNameConflicts(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $snmpReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTSNMPCOMMUNITY';
+        $this->repository->hosts[1] = $this->buildVaultedHost(1, 'web', $snmpReference, 'secret::vault::monitoring/hosts/src-uuid::_HOSTPASSWORD');
+        // Every candidate name is taken: the 409 fires during name generation, which now runs before
+        // the vault write — so nothing is minted.
+        $this->repository->forceNameUsed = true;
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            self::fail('expected a HostAlreadyExistsException');
+        } catch (HostAlreadyExistsException) {
+            // expected
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls, 'the name is resolved before the vault, so a 409 mints nothing');
+        self::assertSame([], $this->vault->deleteCalls);
+    }
+
+    public function testPurgesTheMintedVaultEntryWhenPersistenceFails(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $snmpReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTSNMPCOMMUNITY';
+        $macroReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTPASSWORD';
+        $this->vault->extractedUuids[$snmpReference] = 'src-uuid';
+        $this->vault->resolved[$snmpReference] = 'public';
+        $this->vault->resolved[$macroReference] = 's3cr3t';
+        // The copy's freshly-minted SNMP reference (synthetic from FakeVault::writeMany) resolves to its
+        // own UUID, distinct from the source's.
+        $this->vault->extractedUuids['secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY'] = 'new-uuid';
+        $this->repository->hosts[1] = $this->buildVaultedHost(1, 'web', $snmpReference, $macroReference);
+        // Fail after the vault write, inside the transaction.
+        $this->resourceAccessRepository->duplicateHostAccessThrows = true;
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            self::fail('expected the persistence failure to propagate');
+        } catch (\RuntimeException) {
+            // expected
+        }
+
+        self::assertCount(1, $this->vault->writeManyCalls, 'the copy entry was minted');
+        self::assertSame(
+            [['customPath' => VaultPathEnum::MonitoringHosts->value, 'uuid' => 'new-uuid']],
+            $this->vault->deleteCalls,
+            'the minted copy entry is purged on failure, never the source one',
+        );
+    }
+
     private function storeSourceHost(int $id, string $name): Host
     {
         $host = $this->buildHost($id, $name);
