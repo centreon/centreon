@@ -12,7 +12,8 @@ import {
   pendingCriterias,
   unhandledStateCriterias,
   unknownCriterias,
-  warningCriterias
+  warningCriterias,
+  serviceCriteria as resourceTypeCriterias
 } from '../getResourcesUrl';
 import type { Adapter } from '../useResourceCounters';
 import {
@@ -54,10 +55,6 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   t,
   data
 }) => {
-  const resourceTypeCriterias = {
-    name: 'resource_types',
-    value: []
-  };
   const stateCriterias = { name: 'states', value: [] };
 
   const allStatusesServicesCriterias = [
