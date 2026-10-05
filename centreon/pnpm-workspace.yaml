@@ -32,6 +32,21 @@ overrides:
 minimumReleaseAge: 10080
 
 allowBuilds:
-  '@badeball/cypress-cucumber-preprocessor': set this to true or false
-  msw: set this to true or false
-  protobufjs: set this to true or false
+  '@badeball/cypress-cucumber-preprocessor': true
+  '@bundled-es-modules/glob': true
+  '@parcel/watcher': true
+  '@swc/core': true
+  '@tailwindcss/oxide': true
+  core-js: true
+  core-js-pure: true
+  cpu-features: true
+  cucumber-expressions: true
+  cypress: true
+  es5-ext: true
+  esbuild: true
+  msw: true
+  protobufjs: true
+  puppeteer: true
+  ssh2: true
+  style-dictionary: true
+  unrs-resolver: true
