@@ -95,6 +95,39 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
     }
 
     /**
+     * Builds a configuration copy of this host under $newName, with no id until it is persisted.
+     *
+     * Every field is carried over verbatim except the name and the secrets: the SNMP community and the
+     * check options are supplied by the caller, because re-minting a vaulted secret into the copy's own
+     * vault entry needs the vault (infrastructure), which the aggregate must not reach. Notifications
+     * are not carried over, matching what the create path models for a host.
+     */
+    public function duplicate(HostName $newName, ?SnmpCommunity $snmpCommunity, CheckOptions $checkOptions): self
+    {
+        return new self(
+            id: null,
+            name: $newName,
+            alias: $this->alias,
+            address: $this->address,
+            activated: $this->activated,
+            pollerId: $this->pollerId,
+            templateIds: $this->templateIds,
+            hostGroupIds: $this->hostGroupIds,
+            categoryIds: $this->categoryIds,
+            parentHostIds: $this->parentHostIds,
+            childHostIds: $this->childHostIds,
+            snmpVersion: $this->snmpVersion,
+            snmpCommunity: $snmpCommunity,
+            timezoneId: $this->timezoneId,
+            severityId: $this->severityId,
+            extendedInformations: $this->extendedInformations,
+            schedulingOptions: $this->schedulingOptions,
+            dataProcessing: $this->dataProcessing,
+            checkOptions: $checkOptions,
+        );
+    }
+
+    /**
      * The UUID of this host's vault entry, if it has one, or null when none of its vault-eligible
      * fields currently hold a `secret::` reference (vault disabled, or nothing vaulted yet).
      *

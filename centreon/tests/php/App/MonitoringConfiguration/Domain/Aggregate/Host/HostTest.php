@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -133,6 +134,43 @@ final class HostTest extends TestCase
         );
 
         self::assertSame('uuid-4', $host->getVaultUuid($vault));
+    }
+
+    public function testItDuplicatesWithTheGivenNameAndSuppliedSecretsCarryingTheRestOver(): void
+    {
+        $source = $this->host(
+            parentHostIds: [10],
+            childHostIds: [11],
+            activated: false,
+            snmpCommunity: new SnmpCommunity('source-community'),
+            macros: [new HostMacro(new HostMacroName('old'), 'old-ref', isPassword: true)],
+        );
+        $newCheckOptions = new CheckOptions(null, macros: [new HostMacro(new HostMacroName('token'), 'new-ref', isPassword: true)]);
+
+        $copy = $source->duplicate(new HostName('server-01_1'), new SnmpCommunity('new-ref'), $newCheckOptions);
+
+        // Supplied by the caller: the name and the re-minted secrets, never the source's.
+        self::assertSame('server-01_1', $copy->name->value);
+        self::assertSame('new-ref', $copy->snmpCommunity?->value);
+        self::assertSame($newCheckOptions, $copy->checkOptions);
+
+        // Carried over verbatim from the source.
+        self::assertSame($source->address, $copy->address);
+        self::assertSame($source->pollerId, $copy->pollerId);
+        self::assertSame($source->activated, $copy->activated);
+        self::assertSame($source->parentHostIds, $copy->parentHostIds);
+        self::assertSame($source->childHostIds, $copy->childHostIds);
+
+        // Notifications are not carried over, matching what the create path models for a host.
+        self::assertNull($copy->notifications);
+    }
+
+    public function testADuplicateHasNoIdUntilItIsPersisted(): void
+    {
+        $copy = $this->host()->duplicate(new HostName('copy'), null, new CheckOptions(null));
+
+        $this->expectException(MissingIdException::class);
+        $copy->id();
     }
 
     /**

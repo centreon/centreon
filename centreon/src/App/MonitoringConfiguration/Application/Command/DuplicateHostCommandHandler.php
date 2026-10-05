@@ -77,25 +77,11 @@ final readonly class DuplicateHostCommandHandler
         // entry so the copy owns its own paths (legacy duplicateHostSecretsInVault).
         [$snmpCommunity, $checkOptions] = $this->duplicateSecrets($source);
 
-        $copy = new Host(
-            id: null,
-            name: $this->generateAvailableName($source->name),
-            alias: $source->alias,
-            address: $source->address,
-            activated: $source->activated,
-            pollerId: $source->pollerId,
-            templateIds: $source->templateIds,
-            hostGroupIds: $source->hostGroupIds,
-            categoryIds: $source->categoryIds,
-            parentHostIds: $source->parentHostIds,
-            childHostIds: $source->childHostIds,
-            snmpVersion: $source->snmpVersion,
+        // The aggregate owns which fields carry over to a copy; the handler only supplies what needs
+        // external resolution: the first free name (repository) and the re-minted secrets (vault).
+        $copy = $source->duplicate(
+            newName: $this->generateAvailableName($source->name),
             snmpCommunity: $snmpCommunity,
-            timezoneId: $source->timezoneId,
-            severityId: $source->severityId,
-            extendedInformations: $source->extendedInformations,
-            schedulingOptions: $source->schedulingOptions,
-            dataProcessing: $source->dataProcessing,
             checkOptions: $checkOptions,
         );
 
