@@ -12,6 +12,7 @@ import { BrowserRouter as Router } from 'react-router';
 
 import Hosts from '..';
 import {
+  commandsEndpoint,
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
@@ -30,6 +31,7 @@ import {
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getCommandsResponse,
   getContactGroupsResponse,
   getContactsResponse,
   getHostCategoriesResponse,
@@ -195,6 +197,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${timezonesEndpoint}?**`,
     response: getTimezonesResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormCommands',
+    method: Method.GET,
+    path: `**${commandsEndpoint}?**`,
+    response: getCommandsResponse()
   });
 
   cy.interceptAPIRequest({

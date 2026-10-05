@@ -14,6 +14,7 @@ import {
   labelInvalidAddress,
   labelLinkedContactGroups,
   labelLinkedContacts,
+  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
   labelNameMustNotStartWithModule,
   labelNo,
@@ -32,6 +33,7 @@ import initialize, { pollersForbiddenMessage } from './initialize';
 import {
   refusedAddressResponse,
   resolvedAddressResponse,
+  untouchedDataProcessingPayload,
   untouchedNotificationsPayload,
   untouchedSchedulingOptionsPayload
 } from './utils';
@@ -153,6 +155,18 @@ export default () => {
           alias: 'alias of host 0 as the detail endpoint spells it',
           category_ids: [4],
           child_host_ids: [2],
+          // The arguments go back as the list they came as.
+          data_processing: {
+            acknowledgment_timeout: 15,
+            check_freshness: 'true',
+            event_handler_args: ['80', 'graceful'],
+            event_handler_command_id: 7,
+            event_handler_enabled: 'false',
+            flap_detection_enabled: 'true',
+            freshness_threshold: 120,
+            high_flap_threshold: 50,
+            low_flap_threshold: null
+          },
           host_group_ids: [1],
           name: 'host 0 as the detail endpoint spells it',
           notifications: {
@@ -652,6 +666,7 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
+          data_processing: untouchedDataProcessingPayload,
           host_group_ids: [],
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
@@ -705,6 +720,13 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
+          // The onPrem-only fields are refused on cloud.
+          data_processing: {
+            check_freshness: 'use_default',
+            event_handler_command_id: null,
+            event_handler_enabled: 'use_default',
+            freshness_threshold: null
+          },
           host_group_ids: [1],
           name: 'srv-apache-02',
           parent_host_ids: [],
@@ -756,6 +778,7 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
+          data_processing: untouchedDataProcessingPayload,
           host_group_ids: [],
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
@@ -834,6 +857,7 @@ export default () => {
           alias: null,
           category_ids: [3],
           child_host_ids: [2],
+          data_processing: untouchedDataProcessingPayload,
           host_group_ids: [],
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
@@ -1254,6 +1278,164 @@ export default () => {
       cy.findByTestId(
         'host-form-scheduling-options-activeCheckEnabled-true'
       ).should('be.disabled');
+    });
+
+    it('opens an existing host on its data processing settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-data-processing-checkFreshness-true').should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('have.value', '120');
+      cy.findAllByTestId('host-form-data-processing-acknowledgmentTimeout')
+        .eq(1)
+        .should('have.value', '15');
+      cy.findByTestId(
+        'host-form-data-processing-flapDetectionEnabled-true'
+      ).should('have.attr', 'aria-pressed', 'true');
+      // Left out of the response, so still empty.
+      cy.findAllByTestId('host-form-data-processing-lowFlapThreshold')
+        .eq(1)
+        .should('have.value', '');
+      cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
+        .eq(1)
+        .should('have.value', '50');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-false'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-eventHandler').should(
+        'have.value',
+        'restart-httpd'
+      );
+      // The list the API returns, written the way legacy writes it.
+      cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
+        .eq(1)
+        .should('have.value', '!80!graceful');
+    });
+
+    it('creates a host with its data processing settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      // Default is preselected, and is not No.
+      cy.findByTestId(
+        'host-form-data-processing-checkFreshness-use_default'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-checkFreshness-true').click();
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .type('300');
+      cy.findAllByTestId('host-form-data-processing-acknowledgmentTimeout')
+        .eq(1)
+        .type('10');
+      cy.findByTestId(
+        'host-form-data-processing-flapDetectionEnabled-false'
+      ).click();
+      cy.findAllByTestId('host-form-data-processing-lowFlapThreshold')
+        .eq(1)
+        .type('20');
+      cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
+        .eq(1)
+        .type('40');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-true'
+      ).click();
+
+      cy.findByTestId('host-form-data-processing-eventHandler').click();
+      // No host-scoped command selector exists; this one is on API Platform
+      // and, as legacy, offers active commands only.
+      cy.waitForRequest('@getFormCommands').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/commands');
+        expect(request.url.pathname).to.not.contain('/api/latest');
+        expect(request.url.searchParams.get('is_activated')).to.equal('true');
+      });
+      cy.get('.MuiAutocomplete-popper').contains('restart-httpd').click();
+
+      // The leading `!` is optional.
+      cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
+        .eq(1)
+        .type('80!!graceful');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.data_processing).to.deep.equals({
+          acknowledgment_timeout: 10,
+          check_freshness: 'true',
+          event_handler_args: ['80', '', 'graceful'],
+          event_handler_command_id: 7,
+          event_handler_enabled: 'true',
+          flap_detection_enabled: 'false',
+          freshness_threshold: 300,
+          high_flap_threshold: 40,
+          low_flap_threshold: 20
+        });
+      });
+    });
+
+    it('refuses a flap threshold above 100', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
+        .eq(1)
+        .type('101')
+        .blur();
+
+      cy.contains(labelMustBeAPercentage).should('be.visible');
+    });
+
+    it('offers only the cloud data processing settings on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByTestId('host-form-data-processing-checkFreshness').should(
+        'exist'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('exist');
+      cy.findByTestId('host-form-data-processing-eventHandlerEnabled').should(
+        'exist'
+      );
+      cy.findByTestId('host-form-data-processing-eventHandler').should('exist');
+
+      [
+        'acknowledgmentTimeout',
+        'flapDetectionEnabled',
+        'lowFlapThreshold',
+        'highFlapThreshold',
+        'eventHandlerArgs'
+      ].forEach((field) => {
+        cy.findByTestId(`host-form-data-processing-${field}`).should(
+          'not.exist'
+        );
+      });
     });
   });
 };
