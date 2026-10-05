@@ -89,15 +89,9 @@ const ExclusiveCheckboxGroup = ({
 
   return useMemoComponent({
     Component: isChips ? (
-      <Box
+      <div
+        className="flex flex-wrap items-center gap-x-6 gap-y-3"
         data-testid={baseTestId}
-        sx={{
-          alignItems: 'center',
-          columnGap: 3,
-          display: 'flex',
-          flexWrap: 'wrap',
-          rowGap: 1.5
-        }}
       >
         {options.map((option) => {
           const isSelected = !isExclusive && includes(option, value);
@@ -105,6 +99,8 @@ const ExclusiveCheckboxGroup = ({
           return (
             <Chip
               aria-pressed={isSelected}
+              // The theme sizes chips for status badges, 12px or 20px tall.
+              className="h-6 rounded-3xl text-sm [&_.MuiChip-label]:px-3 [&_.MuiChip-label]:leading-[21px]"
               clickable
               color={isSelected ? 'primary' : 'default'}
               data-testid={`${baseTestId}-${option}`}
@@ -113,19 +109,12 @@ const ExclusiveCheckboxGroup = ({
               label={t(option)}
               onClick={toggleChip(option)}
               size="small"
-              // The theme sizes chips for status badges, 12px or 20px tall.
-              sx={{
-                '& .MuiChip-label': { lineHeight: '21px', px: 1.5 },
-                borderRadius: 3,
-                fontSize: 14,
-                height: 24
-              }}
               variant={isSelected ? 'filled' : 'outlined'}
             />
           );
         })}
         {exclusiveToggle}
-      </Box>
+      </div>
     ) : (
       <Box sx={{ alignItems: 'center', columnGap: 2, display: 'flex' }}>
         <CheckboxGroupComponent

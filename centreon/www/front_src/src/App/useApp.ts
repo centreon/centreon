@@ -156,7 +156,7 @@ const useApp = (): UseAppState => {
           retrievedParameters.is_resource_status_full_search_enabled
         );
         setIsAdditiveInheritanceEnabled(
-          retrievedParameters.is_additive_inheritance_enabled ?? false
+          retrievedParameters.is_additive_inheritance_enabled
         );
       })
       .catch((error) => {

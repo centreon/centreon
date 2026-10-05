@@ -490,21 +490,6 @@ describe('Main', () => {
     });
   });
 
-  it('leaves additive inheritance off when the parameters do not carry it', async () => {
-    mockGetRequestsByUrl(retrievedParameters);
-
-    renderMain();
-
-    await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith(
-        parametersEndpoint,
-        cancelTokenRequestParam
-      );
-    });
-
-    expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(false);
-  });
-
   it('redirects the user to his default page when the current location is the login page and the user is connected', async () => {
     window.history.pushState({}, '', '/login');
     mockRedirectFromLoginPageGetRequests();

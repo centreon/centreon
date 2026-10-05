@@ -39,9 +39,7 @@ const useFormInputs = ({
     availableSections
   );
 
-  // Made read-only here rather than per input: the sections to come add dozens of
-  // fields, and one forgotten `getDisabled` is an editable field on a form
-  // its user may only read. A grid's columns are inputs too.
+  // Once for every input, grid columns included, so none is left editable.
   const disableWithoutWriteAccess = <Input extends Omit<InputProps, 'group'>>(
     input: Input
   ): Input => ({

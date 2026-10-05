@@ -7,8 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useMemoComponent } from '../..';
 import type { InputPropsWithoutGroup } from './models';
 
-// One choice among a few, as joined buttons. Unlike the radio, each option's
-// value is stored exactly as given.
 const SegmentedButtons = ({
   dataTestId,
   fieldName,
@@ -52,19 +50,10 @@ const SegmentedButtons = ({
               return (
                 <Button
                   aria-pressed={isSelected}
+                  className="h-7 px-3 py-0 font-medium text-sm leading-[21px] normal-case"
                   data-testid={`${dataTestId}-${optionValue}`}
                   key={optionValue}
                   onClick={select(optionValue)}
-                  // The button's own padding and type would make it 36px.
-                  sx={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    height: 28,
-                    lineHeight: '21px',
-                    px: 1.5,
-                    py: 0,
-                    textTransform: 'none'
-                  }}
                   variant={isSelected ? 'contained' : 'outlined'}
                 >
                   {t(optionLabel)}
