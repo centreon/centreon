@@ -38,12 +38,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -217,7 +219,7 @@ final class HostTest extends TestCase
         self::assertFalse($original->hasSameConfigurationAs($original->with(dataProcessing: new DataProcessing(TriStateEnum::True))));
         self::assertFalse($original->hasSameConfigurationAs($original->with(checkOptions: new CheckOptions(new CommandId(5)))));
         self::assertFalse($original->hasSameConfigurationAs($original->with(extendedInformations: new ExtendedInformations(note: 'a'))));
-        self::assertFalse($original->hasSameConfigurationAs($original->with(notifications: Notifications::default())));
+        self::assertFalse($original->hasSameConfigurationAs($original->with(notifications: Notifications::default()->with(interval: 5))));
     }
 
     public function testSameConfigurationTreatsEqualOptionalSubObjectsAsSame(): void
@@ -227,6 +229,51 @@ final class HostTest extends TestCase
         $copy = $original->with(extendedInformations: new ExtendedInformations(note: 'a'), notifications: Notifications::default());
 
         self::assertTrue($original->hasSameConfigurationAs($copy));
+    }
+
+    public function testSameConfigurationTreatsNoNotificationsAsTheDefaultNotifications(): void
+    {
+        $withoutNotifications = $this->persistedHost();
+        $withDefault = $withoutNotifications->with(notifications: Notifications::default());
+        $withUntouchedDefault = $withoutNotifications->with(notifications: Notifications::default()->with());
+
+        self::assertTrue($withoutNotifications->hasSameConfigurationAs($withDefault));
+        self::assertTrue($withDefault->hasSameConfigurationAs($withoutNotifications));
+        self::assertTrue($withoutNotifications->hasSameConfigurationAs($withUntouchedDefault));
+        self::assertFalse($withoutNotifications->hasSameConfigurationAs(
+            $withoutNotifications->with(notifications: Notifications::default()->with(interval: 5)),
+        ));
+    }
+
+    #[DataProvider('relationProvider')]
+    public function testSameConfigurationIgnoresTheRelations(string $relation): void
+    {
+        $other = match ($relation) {
+            'templateIds' => $this->persistedHost(templateIds: new Collection([new HostTemplateId(3)], HostTemplateId::class)),
+            'hostGroupIds' => $this->persistedHost(hostGroupIds: new Collection([new HostGroupId(4)], HostGroupId::class)),
+            'categoryIds' => $this->persistedHost(categoryIds: new Collection([new HostCategoryId(5)], HostCategoryId::class)),
+            'parentHostIds' => $this->persistedHost(parentHostIds: new Collection([new HostId(6)], HostId::class)),
+            'childHostIds' => $this->persistedHost(childHostIds: new Collection([new HostId(7)], HostId::class)),
+            default => self::fail("Unknown relation {$relation}"),
+        };
+
+        self::assertTrue($this->persistedHost()->hasSameConfigurationAs($other));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function relationProvider(): iterable
+    {
+        yield 'templates' => ['templateIds'];
+
+        yield 'host groups' => ['hostGroupIds'];
+
+        yield 'categories' => ['categoryIds'];
+
+        yield 'parents' => ['parentHostIds'];
+
+        yield 'children' => ['childHostIds'];
     }
 
     /**
@@ -267,8 +314,20 @@ final class HostTest extends TestCase
         return new Collection(array_map(static fn (int $id): HostId => new HostId($id), $ids), HostId::class);
     }
 
-    private function persistedHost(): Host
-    {
+    /**
+     * @param Collection<HostTemplateId>|null $templateIds
+     * @param Collection<HostGroupId>|null $hostGroupIds
+     * @param Collection<HostCategoryId>|null $categoryIds
+     * @param Collection<HostId>|null $parentHostIds
+     * @param Collection<HostId>|null $childHostIds
+     */
+    private function persistedHost(
+        ?Collection $templateIds = null,
+        ?Collection $hostGroupIds = null,
+        ?Collection $categoryIds = null,
+        ?Collection $parentHostIds = null,
+        ?Collection $childHostIds = null,
+    ): Host {
         return new Host(
             id: new HostId(12),
             name: new HostName('server-01'),
@@ -276,8 +335,11 @@ final class HostTest extends TestCase
             address: new HostAddress('127.0.0.1'),
             activated: true,
             pollerId: new PollerId(1),
-            templateIds: new Collection([], HostTemplateId::class),
-            hostGroupIds: new Collection([], HostGroupId::class),
+            templateIds: $templateIds ?? new Collection([], HostTemplateId::class),
+            hostGroupIds: $hostGroupIds ?? new Collection([], HostGroupId::class),
+            categoryIds: $categoryIds ?? new Collection([], HostCategoryId::class),
+            parentHostIds: $parentHostIds ?? new Collection([], HostId::class),
+            childHostIds: $childHostIds ?? new Collection([], HostId::class),
         );
     }
 }

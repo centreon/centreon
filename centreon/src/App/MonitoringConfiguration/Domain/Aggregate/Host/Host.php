@@ -192,9 +192,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
 
     private function hasSameNotificationsAs(?Notifications $other): bool
     {
-        return $this->notifications instanceof Notifications && $other instanceof Notifications
-            ? $this->notifications->equals($other)
-            : $this->notifications === $other;
+        return ($this->notifications ?? Notifications::default())->equals($other ?? Notifications::default());
     }
 
     /**

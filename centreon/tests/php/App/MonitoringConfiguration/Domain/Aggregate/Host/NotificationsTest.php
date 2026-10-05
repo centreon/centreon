@@ -240,6 +240,22 @@ final class NotificationsTest extends TestCase
         self::assertFalse($notifications->equals($other));
     }
 
+    public function testEqualsIgnoresTheOrderOfContactsAndContactGroups(): void
+    {
+        $notifications = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(3), new NotificationContactId(1)], NotificationContactId::class),
+            new Collection([new ContactGroupId(8), new ContactGroupId(2)], ContactGroupId::class),
+        );
+        $reordered = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(1), new NotificationContactId(3)], NotificationContactId::class),
+            new Collection([new ContactGroupId(2), new ContactGroupId(8)], ContactGroupId::class),
+        );
+
+        self::assertTrue($notifications->equals($reordered));
+    }
+
     /**
      * @param list<NotificationOptionEnum> $options
      */

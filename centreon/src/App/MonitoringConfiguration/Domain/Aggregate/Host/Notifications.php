@@ -204,6 +204,9 @@ final readonly class Notifications
      */
     private function idValues(Collection $ids): array
     {
-        return array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+        $values = array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+        sort($values);
+
+        return $values;
     }
 }
