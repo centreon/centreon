@@ -1,2 +1,10 @@
 @import "../../../packages/ui/src/ThemeProvider/tailwindcss.css";
 @source "../../../packages/ui/src";
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("./assets/fonts/SpaceGrotesk-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
