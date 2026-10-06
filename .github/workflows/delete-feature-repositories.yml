@@ -84,7 +84,7 @@ jobs:
     if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
     # same runner as the deliver-pulp / promote-pulp jobs: the Pulp api must be
     # reachable from here, and continue-on-error would mask a network failure
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
     # non-blocking during the Pulp migration, consistent with the deliver-pulp /
     # promote-pulp jobs: a Pulp-side failure must not fail the PR-close workflow.
     continue-on-error: true
