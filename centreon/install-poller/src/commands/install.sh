@@ -110,6 +110,14 @@ function _installParseArguments() {
     --with-cma)
       WITH_CMA=1
       ;;
+    --cma-hostname)
+      shift
+      if [ $# -eq 0 ] || [ "${1#--}" != "$1" ]; then
+        consoleError "--cma-hostname requires a hostname."
+        exit 1
+      fi
+      CMA_HOSTNAME=$1
+      ;;
     --registry)
       shift
       FORCE_REGISTRY=$1

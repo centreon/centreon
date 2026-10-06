@@ -45,6 +45,7 @@ function help() {
   echo -e "  --vmware-path string\t\tPath to a centreon-plugins checkout, used to build centreon-vmware (default: ./centreon-plugins)"
   echo -e "  --with-snmptrap\t\tInclude snmptrapd and centreontrapd services"
   echo -e "  --with-cma\t\t\tEnable Centreon Monitoring Agent support (persisted CMA CA + port 4317)"
+  echo -e "  --cma-hostname string\t\tcentengine hostname, i.e. CN of the CMA CA; must match the poller address agents use (default: centengine)"
   echo ""
   echo "Notes:"
   echo -e "  --cloud\t\t\tGorgone address: same host as --central_url, port 443, ssl=true"

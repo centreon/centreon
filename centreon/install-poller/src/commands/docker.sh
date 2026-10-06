@@ -272,6 +272,11 @@ GORGONE_SSL=${GORGONE_SSL}
 GORGONE_LOG_LEVEL=${GORGONE_LOG_LEVEL:-info}
 GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI=${GORGONE_PULLWSS_CENTRAL_URI}
 
+# centengine hostname = CN of the CMA CA, generated once into the poller-cma-pki
+# volume. Must match the poller address agents connect to. Changing it later
+# requires removing that volume (new CA, new fingerprint).
+ENGINE_HOSTNAME=${CMA_HOSTNAME:-centengine}
+
 APP_SECRET=${APP_SECRET}
 SALT=${SALT}
 EOF
@@ -378,7 +383,7 @@ EOF
       - .env
       - .env.smtp
     container_name: "${NAME}-centengine"
-    hostname: centengine
+    hostname: "${ENGINE_HOSTNAME:-centengine}"
     restart: unless-stopped
     environment:
       NAME: "${NAME}"
