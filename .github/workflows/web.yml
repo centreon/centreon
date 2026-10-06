@@ -1141,7 +1141,7 @@ jobs:
   #         retention-days: 1
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-slim
     needs: [get-environment, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1264,7 +1264,7 @@ jobs:
           retention-days: 1
 
   deliver:
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-small
     needs: [changes, get-environment, bruno-api-test, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1309,7 +1309,7 @@ jobs:
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
   deliver-pulp:
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-small
     needs: [changes, get-environment, bruno-api-test, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1385,7 +1385,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-small
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
