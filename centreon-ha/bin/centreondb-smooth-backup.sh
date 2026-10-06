@@ -66,7 +66,7 @@ check_readonly() {
         return 0
     fi
     
-    readonly_value=$(mysql -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SELECT @@global.read_only')
+    readonly_value=$(mariadb -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SELECT @@global.read_only')
     if [ "$?" -ne "0" ] ; then
         output_log "ERROR: cannot get readonly option value" 1
 	exit 1
@@ -83,20 +83,20 @@ set_readonly() {
         return 0
     fi
     # we let the default if we don't know before
-        mysql -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=$readonly_value"
+        mariadb -N -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "SET GLOBAL read_only=$readonly_value"
 }
 
 get_current_logbin_file() {
 	up_logbin=$1
 
 	if [ "$up_logbin" -eq 1 ] ; then
-		mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
+		mariadb-admin --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
 	fi
 
 	if [ -z "$DBROOTPASSWORD" ] ; then
-		file=$(mysql -B -u "$DBROOTUSER" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+		file=$(mariadb -B -u "$DBROOTUSER" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
 	else
-		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+		file=$(mariadb -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
 	fi
 	if [ "$?" -ne "0" ] ; then
 		output_log "ERROR: connection MySQL to get index file." 1
@@ -348,7 +348,7 @@ if [ "$PACEMAKER_ON" = "1" ] ; then
 fi
 i=0
 output_log "Stopping mysqld:" 0 1
-mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown 
+mariadb-admin --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown 
 while ps -o args --no-headers -C mysqld >/dev/null; do
 	if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
 		output_log ""

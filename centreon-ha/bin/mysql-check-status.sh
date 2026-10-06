@@ -85,9 +85,9 @@ replication_status()
 	slave_status_error_append=""
 	slave_address=""
 	if [ "$connexion_status_server1" -eq 0 ] ; then
-		mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_IO_Running: Yes'
+		mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_IO_Running: Yes'
 		status_io_thread1=$?
-		mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_SQL_Running: Yes'
+		mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_SQL_Running: Yes'
 		status_sql_thread1=$?
 	else
 		status_io_thread1=100
@@ -95,9 +95,9 @@ replication_status()
 	fi
 	
 	if [ "$connexion_status_server2" -eq 0 ] ; then
-		mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_IO_Running: Yes'
+		mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_IO_Running: Yes'
 		status_io_thread2=$?
-		mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_SQL_Running: Yes'
+		mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -qi 'Slave_SQL_Running: Yes'
 		status_sql_thread2=$?
 	else
 		status_io_thread2=100
@@ -117,7 +117,7 @@ replication_status()
 
 			# Cas ou le thread SQL est arrete a cause d'une erreur
 			if [ "$status_sql_thread1" -ne 0 ] ; then
-				last_error=$(mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -i 'Last_Error' | awk '{ for (i = 2; i < NF; i++) { myerror = myerror " " $i } } END { print myerror } ')
+				last_error=$(mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMEMASTER" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -i 'Last_Error' | awk '{ for (i = 2; i < NF; i++) { myerror = myerror " " $i } } END { print myerror } ')
 				if [ -n "$last_error" ] ; then
 					slave_status=1
 					append_error_msg "slave_status_error" "SQL Thread is stopped because of an error (error='$last_error')." "slave_status_error_append"
@@ -130,7 +130,7 @@ replication_status()
 
 			# Cas ou le thread SQL est arrete a cause d'une erreur
 			if [ "$status_sql_thread2" -ne 0 ] ; then
-				last_error=$(mysql -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -i 'Last_Error' | awk '{ for (i = 2; i < NF; i++) { myerror = myerror " " $i } } END { print myerror }')
+				last_error=$(mariadb -f -u "$DBROOTUSER" -h "$DBHOSTNAMESLAVE" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -i 'Last_Error' | awk '{ for (i = 2; i < NF; i++) { myerror = myerror " " $i } } END { print myerror }')
 				if [ -n "$last_error" ] ; then
 					slave_status=1
 					append_error_msg "slave_status_error" "SQL Thread is stopped because of an error (error='$last_error')." "slave_status_error_append"
@@ -180,18 +180,18 @@ replication_status()
 			append_error_msg "position_status_error" "Can't get master position on '$master_address'." "position_status_error_append"	
 		else
 			# get master position
-			temp_read=$(mysql -f -u "$DBROOTUSER" -h "$master_address" "-p$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' | grep -iE 'File|Position')
+			temp_read=$(mariadb -f -u "$DBROOTUSER" -h "$master_address" "-p$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' | grep -iE 'File|Position')
 			master_file=$(echo "$temp_read" | grep -i 'File' | awk '{ print $2 }')
 			master_position=$(echo "$temp_read" | grep -i 'Position' | awk '{ print $2 }')
 
 			# get slave position (pas besoin de verifier)
-			temp_read=$(mysql -f -u "$DBROOTUSER" -h "$slave_address" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -iE '[^a-zA-Z_]Master_Log_File|Read_Master_Log_Pos')
+			temp_read=$(mariadb -f -u "$DBROOTUSER" -h "$slave_address" "-p$DBROOTPASSWORD" -e 'SHOW SLAVE STATUS\G' | grep -iE '[^a-zA-Z_]Master_Log_File|Read_Master_Log_Pos')
 			slave_file=$(echo "$temp_read" | grep -i 'Master_Log_File' | awk '{ print $2 }')
 			slave_position=$(echo "$temp_read" | grep -i 'Read_Master_Log_Pos' | awk '{ print $2 }')
 
 			# Slave I/O thread wrong
 
-			temp_read=$(mysql -f -u "$DBROOTUSER" -h "$slave_address" "-p$DBROOTPASSWORD" -e 'SHOW PROCESSLIST\G' | grep -qiE 'Waiting to reconnect after a failed binlog dump request|Connecting to master|Reconnecting after a failed binlog dump request|Waiting to reconnect after a failed master event read|Waiting for the slave SQL thread to free enough relay log space|Waiting for the next event in relay log|Reading event from the relay log|Has read all relay log; waiting for the slave I/O thread to update it')
+			temp_read=$(mariadb -f -u "$DBROOTUSER" -h "$slave_address" "-p$DBROOTPASSWORD" -e 'SHOW PROCESSLIST\G' | grep -qiE 'Waiting to reconnect after a failed binlog dump request|Connecting to master|Reconnecting after a failed binlog dump request|Waiting to reconnect after a failed master event read|Waiting for the slave SQL thread to free enough relay log space|Waiting for the next event in relay log|Reading event from the relay log|Has read all relay log; waiting for the slave I/O thread to update it')
 
 			
 			echo "$temp_read" | grep -qiE 'Waiting to reconnect after a failed binlog dump request|Connecting to master|Reconnecting after a failed binlog dump request|Waiting to reconnect after a failed master event read|Waiting for the slave SQL thread to free enough relay log space'
