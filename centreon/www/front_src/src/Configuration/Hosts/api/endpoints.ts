@@ -21,6 +21,10 @@ export const hostFormPollersEndpoint = '/configuration/hosts/pollers';
 export const hostFormHostGroupsEndpoint = '/configuration/hosts/host_groups';
 export const hostFormHostCategoriesEndpoint =
   '/configuration/hosts/host_categories';
+export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
+export const hostFormContactGroupsEndpoint =
+  '/configuration/hosts/contact_groups';
+export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;

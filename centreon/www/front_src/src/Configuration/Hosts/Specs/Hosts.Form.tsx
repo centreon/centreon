@@ -2,17 +2,29 @@ import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelChildHosts,
   labelDataProcessing,
+  labelDefault,
+  labelDown,
+  labelDowntimeScheduled,
+  labelFlapping,
   labelHostCategories,
   labelHostConfiguration,
   labelHostExtendedInfos,
   labelHostGroups,
   labelInvalidAddress,
+  labelLinkedContactGroups,
+  labelLinkedContacts,
   labelNameMustNotStartWithModule,
+  labelNo,
+  labelNone,
   labelNotification,
   labelParentHosts,
-  labelRelations
+  labelRecovery,
+  labelRelations,
+  labelUnreachable,
+  labelYes
 } from '../translatedLabels';
 import initialize from './initialize';
+import { untouchedNotificationsPayload } from './utils';
 
 // `ConfigurationBase`'s specs pass `formVariant` explicitly, so this is the
 // only place a revert to the modal would turn something red.
@@ -124,6 +136,16 @@ export default () => {
           child_host_ids: [2],
           host_group_ids: [1],
           name: 'host 0 as the detail endpoint spells it',
+          notifications: {
+            contact_groups: [3],
+            contacts: [1],
+            enabled: 'false',
+            first_delay: 1,
+            interval: 3,
+            options: ['down', 'recovery'],
+            recovery_delay: null,
+            timeperiod_id: 1
+          },
           parent_host_ids: [1],
           poller_id: 2
         });
@@ -158,14 +180,14 @@ export default () => {
         .should('have.attr', 'alt', 'server.png');
     });
 
-    it('freezes the form for a user who may only look at hosts', () => {
+    it('makes the form read-only for a user who may only look at hosts', () => {
       initialize({ hasWriteAccess: false });
 
       cy.waitForRequest('@getAllHosts');
 
       cy.contains('host 0').click();
 
-      // The host is still loaded and shown: frozen, not empty.
+      // The host is still loaded and shown: read-only, not empty.
       cy.waitForRequest('@getHost');
 
       cy.findAllByTestId('host-form-name')
@@ -181,10 +203,24 @@ export default () => {
         'host-form-groups',
         'host-form-categories',
         'host-form-parent-hosts',
-        'host-form-child-hosts'
+        'host-form-child-hosts',
+        'host-form-notifications-contacts',
+        'host-form-notifications-contact-groups',
+        'host-form-notifications-timeperiod'
       ].forEach((testId) => {
         cy.findByTestId(testId).should('be.disabled');
       });
+      cy.findAllByTestId('host-form-notifications-interval')
+        .eq(1)
+        .should('be.disabled');
+      cy.findByTestId('host-form-notifications-enabled')
+        .findByRole('button', { name: labelYes })
+        .should('be.disabled');
+      cy.findByTestId(`host-form-notifications-options-${labelDown}`).should(
+        'have.attr',
+        'aria-disabled',
+        'true'
+      );
 
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
         'not.exist'
@@ -282,6 +318,7 @@ export default () => {
           child_host_ids: [],
           host_group_ids: [],
           name: 'srv-apache-02',
+          notifications: untouchedNotificationsPayload,
           parent_host_ids: [],
           poller_id: 2
         });
@@ -372,6 +409,7 @@ export default () => {
           child_host_ids: [],
           host_group_ids: [],
           name: 'srv-apache-02',
+          notifications: untouchedNotificationsPayload,
           parent_host_ids: [],
           poller_id: 2
         });
@@ -445,8 +483,267 @@ export default () => {
           child_host_ids: [2],
           host_group_ids: [],
           name: 'srv-apache-02',
+          notifications: untouchedNotificationsPayload,
           parent_host_ids: [1],
           poller_id: 2
+        });
+      });
+    });
+
+    it('opens an existing host on its notification settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByRole('button', { name: labelNo }).should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+
+      [
+        [labelLinkedContacts, 'admin'],
+        [labelLinkedContactGroups, 'Supervisors']
+      ].forEach(([label, chip]) => {
+        cy.findByLabelText(label)
+          .closest('.MuiAutocomplete-root')
+          .find('.MuiChip-root')
+          .should('have.length', 1)
+          .and('have.text', chip);
+      });
+
+      cy.findAllByTestId('host-form-notifications-interval')
+        .eq(1)
+        .should('have.value', '3');
+      cy.findAllByTestId('host-form-notifications-firstDelay')
+        .eq(1)
+        .should('have.value', '1');
+      // Left out of the response, so still empty.
+      cy.findAllByTestId('host-form-notifications-recoveryDelay')
+        .eq(1)
+        .should('have.value', '');
+      cy.findByTestId('host-form-notifications-timeperiod').should(
+        'have.value',
+        '24x7'
+      );
+
+      cy.findByTestId(`host-form-notifications-options-${labelDown}`).should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findByTestId(
+        `host-form-notifications-options-${labelRecovery}`
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId(
+        `host-form-notifications-options-${labelUnreachable}`
+      ).should('have.attr', 'aria-pressed', 'false');
+    });
+
+    it('opens a host with no notification settings on their defaults', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      // Host 1's detail response has no `notifications` block at all.
+      cy.contains('host 1').click();
+
+      cy.waitForRequest('@getHost1');
+
+      cy.findByRole('button', { name: labelDefault }).should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost1').then(({ request }) => {
+        expect(request.body.notifications).to.deep.equals(
+          untouchedNotificationsPayload
+        );
+      });
+    });
+
+    it('creates a host with its notification settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      // Default is preselected, and is not No.
+      cy.findByRole('button', { name: labelDefault }).should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findByRole('button', { name: labelYes }).click();
+
+      cy.findByTestId('host-form-notifications-contacts').click();
+      cy.waitForRequest('@getFormContacts').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/contacts'
+        );
+      });
+      cy.get('.MuiAutocomplete-popper').contains('admin').click();
+      // A multi-select stays open after a pick.
+      cy.focused().type('{esc}');
+
+      cy.findByTestId('host-form-notifications-contact-groups').click();
+      cy.waitForRequest('@getFormContactGroups').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/contact_groups'
+        );
+      });
+      cy.get('.MuiAutocomplete-popper').contains('Supervisors').click();
+      cy.focused().type('{esc}');
+
+      cy.findAllByTestId('host-form-notifications-interval').eq(1).type('5');
+
+      cy.findByTestId('host-form-notifications-timeperiod').click();
+      cy.waitForRequest('@getFormTimePeriods').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/timeperiods'
+        );
+      });
+      cy.get('.MuiAutocomplete-popper').contains('workhours').click();
+
+      cy.findByTestId(`host-form-notifications-options-${labelDown}`).click();
+      cy.findByTestId(
+        `host-form-notifications-options-${labelFlapping}`
+      ).click();
+      cy.findByTestId(
+        `host-form-notifications-options-${labelUnreachable}`
+      ).click();
+      cy.findByTestId(
+        `host-form-notifications-options-${labelDowntimeScheduled}`
+      ).click();
+
+      cy.findAllByTestId('host-form-notifications-firstDelay').eq(1).type('0');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      // `enabled` as the string the API takes, not a boolean.
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.notifications).to.deep.equals({
+          contact_groups: [3],
+          contacts: [1],
+          enabled: 'true',
+          first_delay: 0,
+          interval: 5,
+          options: ['down', 'flapping', 'unreachable', 'downtime_scheduled'],
+          recovery_delay: null,
+          timeperiod_id: 2
+        });
+      });
+    });
+
+    it('sends None alone once it is chosen', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByTestId(`host-form-notifications-options-${labelDown}`).click();
+      cy.findByLabelText(labelNone).click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.notifications.options).to.deep.equals(['none']);
+      });
+    });
+
+    it('hides the additive inheritance toggles the platform does not use', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').should('exist');
+      cy.findByTestId(
+        'host-form-notifications-contact-additive-inheritance'
+      ).should('not.exist');
+      cy.findByTestId(
+        'host-form-notifications-contact-group-additive-inheritance'
+      ).should('not.exist');
+    });
+
+    it('sends the additive inheritance toggles where the platform uses them', () => {
+      initialize({ isAdditiveInheritanceEnabled: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByTestId(
+        'host-form-notifications-contact-additive-inheritance'
+      ).click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.notifications).to.deep.equals({
+          ...untouchedNotificationsPayload,
+          contact_additive_inheritance: true,
+          contact_group_additive_inheritance: false
+        });
+      });
+    });
+
+    it('opens and saves back the additive inheritance a host carries', () => {
+      initialize({ isAdditiveInheritanceEnabled: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-notifications-contact-additive-inheritance')
+        .find('input')
+        .should('be.checked');
+      cy.findByTestId(
+        'host-form-notifications-contact-group-additive-inheritance'
+      )
+        .find('input')
+        .should('not.be.checked');
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.notifications).to.include({
+          contact_additive_inheritance: true,
+          contact_group_additive_inheritance: false
         });
       });
     });

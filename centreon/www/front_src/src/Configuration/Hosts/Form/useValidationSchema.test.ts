@@ -2,6 +2,7 @@ import type { ValidationError } from 'yup';
 
 import {
   labelInvalidAddress,
+  labelMustBePositiveIntegerOrZero,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
   labelParentAndChildHost,
@@ -136,6 +137,39 @@ describe('Host form validation', () => {
     it('accepts distinct parents and children', () => {
       expect(relationsError([{ id: 1 }], [{ id: 2 }])).toBeNull();
       expect(relationsError([], [])).toBeNull();
+    });
+  });
+
+  describe('Notification delays', () => {
+    const delayError = (field: string, value: unknown): string | null => {
+      try {
+        schemaFor(false).validateSyncAt(`notifications.${field}`, {
+          notifications: { [field]: value }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it.each([
+      'interval',
+      'firstDelay',
+      'recoveryDelay'
+    ])('accepts an empty %s, 0 and a positive integer', (field) => {
+      expect(delayError(field, '')).toBeNull();
+      expect(delayError(field, 0)).toBeNull();
+      expect(delayError(field, 12)).toBeNull();
+    });
+
+    it.each([
+      'interval',
+      'firstDelay',
+      'recoveryDelay'
+    ])('refuses a negative or fractional %s', (field) => {
+      expect(delayError(field, -1)).toEqual(labelMustBePositiveIntegerOrZero);
+      expect(delayError(field, 1.5)).toEqual(labelMustBePositiveIntegerOrZero);
     });
   });
 });

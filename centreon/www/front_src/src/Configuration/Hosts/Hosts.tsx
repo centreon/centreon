@@ -4,6 +4,7 @@ import {
 } from '@mui/icons-material';
 
 import {
+  isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -46,13 +47,23 @@ const Hosts = () => {
   // Read once and handed to both hooks: the fields and the rules that guard
   // them have to agree on the platform.
   const isCloudPlatform = !!useAtomValue(platformFeaturesAtom)?.isCloudPlatform;
+  const isAdditiveInheritanceEnabled = useAtomValue(
+    isAdditiveInheritanceEnabledAtom
+  );
   const canEdit = !!userPermissions?.configuration_host_write;
 
   const { columns } = useColumns();
-  const { groups, inputs } = useFormInputs({ canEdit, isCloudPlatform });
+  const { groups, inputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
   const { validationSchema } = useValidationSchema({ isCloudPlatform });
 
-  const { api, filtersConfiguration } = useHosts({ isCloudPlatform });
+  const { api, filtersConfiguration } = useHosts({
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
   const defaultValues = useMemo(
     () => getDefaultValues({ isCloudPlatform }),
     [isCloudPlatform]

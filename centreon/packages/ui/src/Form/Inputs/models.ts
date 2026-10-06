@@ -51,7 +51,8 @@ export enum InputType {
   List = 13,
   File = 14,
   Divider = 15,
-  ExclusiveCheckboxGroup = 16
+  ExclusiveCheckboxGroup = 16,
+  SegmentedButtons = 17
 }
 
 interface FieldsTableGetRequiredProps {
@@ -111,6 +112,8 @@ export interface InputProps {
     exclusiveOption: string;
     labelPlacement?: LabelPlacement;
     options: Array<string>;
+    // The options as chips instead of checkboxes; the exclusive one stays a switch.
+    variant?: 'checkboxes' | 'chips';
   };
   file?: {
     multiple?: boolean;
@@ -167,6 +170,12 @@ export interface InputProps {
     row?: boolean;
   };
   required?: boolean;
+  segmentedButtons?: {
+    options: Array<{
+      label: string;
+      value: string;
+    }>;
+  };
   switchInput?: {
     getChecked?: (value: unknown) => boolean;
   };
