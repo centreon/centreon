@@ -1555,19 +1555,44 @@ function updateHost_MC($hostId = null)
                 $_REQUEST['tpSelect'],
                 array_combine($previousTemplateIds, $previousTemplateIds)
             );
-        } else {
+        } elseif (! $cleanRemovedTemplateServices) {
             $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
-        }
+        } else {
+            // The cleaner writes through another connection, so both steps cannot share one transaction.
+            // The new templates are only committed once the cleanup succeeded: on failure the host keeps
+            // its previous templates and services, and the mass change goes on with the other hosts.
+            $ownTransaction = ! $pearDB->isTransactionActive();
+            try {
+                if ($ownTransaction) {
+                    $pearDB->startTransaction();
+                }
+                $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
 
-        if ($cleanRemovedTemplateServices) {
-            /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
-            $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
-            // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
-            $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
-                (int) $hostId,
-                $previousTemplateIds,
-                $findTemplateIds()
-            );
+                /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
+                $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
+                // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
+                $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
+                    (int) $hostId,
+                    $previousTemplateIds,
+                    $findTemplateIds()
+                );
+
+                if ($ownTransaction) {
+                    $pearDB->commitTransaction();
+                }
+            } catch (Throwable $ex) {
+                // A transaction opened by the caller is the caller's to roll back.
+                if (! $ownTransaction) {
+                    throw $ex;
+                }
+                if ($pearDB->isTransactionActive()) {
+                    $pearDB->rollBackTransaction();
+                }
+                $logger->error('Failed to replace the host templates, previous templates kept', [
+                    'host_id' => (int) $hostId,
+                    'exception' => $ex,
+                ]);
+            }
         }
     }
 
