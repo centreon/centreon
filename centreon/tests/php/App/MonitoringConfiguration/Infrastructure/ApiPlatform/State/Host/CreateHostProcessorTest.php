@@ -1849,6 +1849,119 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertSame([null, null], array_column($payload['check_options']['macros'], 'parent'));
     }
 
+    public function testItNeverReturnsTheValueOfAnInheritedPassword(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTTPLPWD$',
+            'host_macro_value' => 'tpl-secret',
+            'is_password' => 1,
+            'host_host_id' => $templateId,
+        ]);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.37',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        $macro = $payload['check_options']['macros'][0];
+        self::assertSame(['TPLPWD', true, 'template'], [$macro['name'], $macro['is_password'], $macro['parent']]);
+        self::assertArrayNotHasKey('value', $macro);
+    }
+
+    public function testItRejectsAnUnknownInheritedMacroId(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.38',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => 123456, 'parent' => 'template', 'name' => 'unknown', 'value' => 'x', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] One or more macros do not exist on this host.\n",
+        ]);
+    }
+
+    public function testItAcceptsACommandMacroSentWithAStaleId(): void
+    {
+        // Command macros are resolved by name: their on_demand_macro_command ids are rewritten on
+        // every command save, so a stale one is never an error.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.39',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [['id' => 999999, 'parent' => 'command', 'name' => 'fromcommand', 'value' => 'set', 'is_password' => false]],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertSame(
+            'set',
+            $this->connection->fetchOne(
+                "SELECT host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? AND host_macro_name = '\$_HOSTFROMCOMMAND\$'",
+                [$payload['id']],
+            ),
+        );
+    }
+
+    public function testItIgnoresASubmittedMacroDescription(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [
+                    ['name' => 'own', 'value' => 'kept', 'is_password' => false, 'description' => 'dropped'],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertSame(
+            '',
+            $this->connection->fetchOne('SELECT description FROM on_demand_macro_host WHERE host_host_id = ?', [$payload['id']]),
+        );
+    }
+
     public function testItStripsAMacroInheritedFromTheCheckCommand(): void
     {
         $this->login();
