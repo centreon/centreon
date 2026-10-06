@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostServicesCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostServicesCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostServiceDuplicator;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
@@ -38,7 +39,7 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
         $resourceAccessRepository = new FakeResourceAccessRepository();
 
         new DuplicateHostServicesCommandHandler($duplicator, $resourceAccessRepository)(
-            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42),
+            new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: new UserId(42)),
         );
 
         self::assertSame([['sourceHostId' => 5, 'newHostId' => 9, 'duplicatedBy' => 42]], $duplicator->duplicateCalls);
@@ -55,7 +56,7 @@ final class DuplicateHostServicesCommandHandlerTest extends TestCase
 
         try {
             new DuplicateHostServicesCommandHandler($duplicator, $resourceAccessRepository)(
-                new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42),
+                new DuplicateHostServicesCommand(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: new UserId(42)),
             );
             self::fail('expected the duplication failure to propagate');
         } catch (\Throwable) {

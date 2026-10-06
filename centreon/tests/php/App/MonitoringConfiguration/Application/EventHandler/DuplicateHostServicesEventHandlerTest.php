@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Application\EventHandler\DuplicateHostServicesEv
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
+use App\Security\Domain\Aggregate\UserId;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -52,14 +53,14 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
     {
         $this->logger->expects(self::never())->method('log');
 
-        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: new UserId(42)));
 
         self::assertCount(1, $this->commandBus->executed);
         $command = $this->commandBus->executed[0];
         self::assertInstanceOf(DuplicateHostServicesCommand::class, $command);
         self::assertSame(5, $command->sourceHostId->value);
         self::assertSame(9, $command->newHostId->value);
-        self::assertSame(42, $command->duplicatedBy);
+        self::assertSame(42, $command->duplicatedBy->value);
     }
 
     /**
@@ -71,7 +72,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->throws = true;
         $this->logger->method('log')->willThrowException(new \RuntimeException('The logger failed.'));
 
-        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: new UserId(42)));
 
         self::assertCount(1, $this->commandBus->executed);
     }
@@ -81,7 +82,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->throws = true;
         $this->logger->expects(self::once())->method('log')->with('error');
 
-        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: new UserId(42)));
 
         self::assertCount(1, $this->commandBus->executed);
     }
@@ -91,7 +92,7 @@ final class DuplicateHostServicesEventHandlerTest extends TestCase
         $this->commandBus->exception = ServiceDuplicationFailedException::legacyFunctionsUnavailable('boom');
         $this->logger->expects(self::once())->method('log')->with('error');
 
-        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: 42));
+        ($this->handler)(new HostServicesDuplicationRequested(sourceHostId: new HostId(5), newHostId: new HostId(9), duplicatedBy: new UserId(42)));
 
         self::assertCount(1, $this->commandBus->executed);
     }

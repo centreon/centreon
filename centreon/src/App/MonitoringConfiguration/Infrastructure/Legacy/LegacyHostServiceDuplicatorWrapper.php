@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
 use App\MonitoringConfiguration\Domain\Service\ServiceCloner;
+use App\Security\Domain\Aggregate\UserId;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -51,7 +52,7 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
     ) {
     }
 
-    public function duplicate(HostId $sourceHostId, HostId $newHostId, int $duplicatedBy): void
+    public function duplicate(HostId $sourceHostId, HostId $newHostId, UserId $duplicatedBy): void
     {
         /** @var list<array{service_id: int|string, host_count: int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative(

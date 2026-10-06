@@ -24,19 +24,20 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
 
 interface ServiceCloner
 {
     /**
      * Clones the services exclusive to the source host onto the freshly duplicated host.
      *
-     * $duplicatedBy is the acting contact: the cloned services take their author and ACL scope from the
+     * $duplicatedBy is the acting user: the cloned services take their author and ACL scope from the
      * ambient legacy session, so when the request carries none (e.g. token-authenticated) a session is
-     * rebuilt from this contact for the clone to run either way.
+     * rebuilt from this user for the clone to run either way.
      *
      * @param list<int> $serviceIds services exclusive to the source, to be cloned onto the copy
      *
      * @throws \Throwable
      */
-    public function cloneServices(array $serviceIds, HostId $newHostId, int $duplicatedBy): void;
+    public function cloneServices(array $serviceIds, HostId $newHostId, UserId $duplicatedBy): void;
 }

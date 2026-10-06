@@ -25,18 +25,19 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Service\ServiceCloner;
+use App\Security\Domain\Aggregate\UserId;
 
 final class FakeServiceCloner implements ServiceCloner
 {
     /** @var list<array{serviceIds: list<int>, newHostId: int, duplicatedBy: int}> */
     public array $cloneCalls = [];
 
-    public function cloneServices(array $serviceIds, HostId $newHostId, int $duplicatedBy): void
+    public function cloneServices(array $serviceIds, HostId $newHostId, UserId $duplicatedBy): void
     {
         $this->cloneCalls[] = [
             'serviceIds' => $serviceIds,
             'newHostId' => $newHostId->value,
-            'duplicatedBy' => $duplicatedBy,
+            'duplicatedBy' => $duplicatedBy->value,
         ];
     }
 }

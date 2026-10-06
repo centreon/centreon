@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Command\NonTransactionalCommand;
 
 /**
@@ -37,7 +38,7 @@ final readonly class DuplicateHostServicesCommand implements NonTransactionalCom
     public function __construct(
         public HostId $sourceHostId,
         public HostId $newHostId,
-        public int $duplicatedBy,
+        public UserId $duplicatedBy,
     ) {
     }
 }

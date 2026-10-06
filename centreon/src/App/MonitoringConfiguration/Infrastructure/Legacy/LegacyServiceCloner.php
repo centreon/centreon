@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use App\MonitoringConfiguration\Domain\Service\ServiceCloner;
+use App\Security\Domain\Aggregate\UserId;
 
 /**
  * Intended as the sole seam to the legacy service-cloning machinery.
@@ -74,7 +75,7 @@ final readonly class LegacyServiceCloner implements ServiceCloner
      *
      * @throws ServiceDuplicationFailedException
      */
-    public function cloneServices(array $serviceIds, HostId $newHostId, int $duplicatedBy): void
+    public function cloneServices(array $serviceIds, HostId $newHostId, UserId $duplicatedBy): void
     {
         if ($serviceIds === []) {
             return;
@@ -182,14 +183,16 @@ final readonly class LegacyServiceCloner implements ServiceCloner
      * action-log author) and `$centreon->user->access` (the ACL used to scope the cloned service), so
      * nothing else of the session needs to exist.
      */
-    private function resolveLegacySession(int $duplicatedBy): \Centreon
+    private function resolveLegacySession(UserId $duplicatedBy): \Centreon
     {
         $session = $_SESSION['centreon'] ?? null;
         if ($session instanceof \Centreon) {
             return $session;
         }
 
-        return ($this->sessionRebuilder ?? $this->defaultSessionRebuilder())($duplicatedBy);
+        // Unwrapped to the raw contact id at the legacy seam: the rebuilt CentreonUser is keyed on a
+        // plain `contact_id`, so the session rebuilder stays in legacy terms.
+        return ($this->sessionRebuilder ?? $this->defaultSessionRebuilder())($duplicatedBy->value);
     }
 
     /**

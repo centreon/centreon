@@ -26,6 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Legacy;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Exception\ServiceDuplicationFailedException;
 use App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCloner;
+use App\Security\Domain\Aggregate\UserId;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -54,7 +55,7 @@ final class LegacyServiceClonerTest extends TestCase
             cloneInvoker: $this->failingCloneInvoker(),
         );
 
-        $cloner->cloneServices([], new HostId(9), 42);
+        $cloner->cloneServices([], new HostId(9), new UserId(42));
 
         self::assertSame($pearDbBefore, $GLOBALS['pearDB'] ?? null);
         self::assertSame($centreonBefore, $GLOBALS['centreon'] ?? null);
@@ -75,7 +76,7 @@ final class LegacyServiceClonerTest extends TestCase
             },
         );
 
-        $cloner->cloneServices([7], new HostId(9), 42);
+        $cloner->cloneServices([7], new HostId(9), new UserId(42));
 
         self::assertSame($session, $usedSession, 'the session carried by the request is reused as-is');
     }
@@ -102,7 +103,7 @@ final class LegacyServiceClonerTest extends TestCase
             },
         );
 
-        $cloner->cloneServices([7], new HostId(9), 42);
+        $cloner->cloneServices([7], new HostId(9), new UserId(42));
 
         self::assertSame(42, $rebuiltFor, 'the session is rebuilt from the acting contact');
         self::assertSame($rebuilt, $sessionDuringClone, 'the rebuilt session is handed to the clone step');
@@ -125,7 +126,7 @@ final class LegacyServiceClonerTest extends TestCase
             },
         );
 
-        $cloner->cloneServices([7, 9], new HostId(42), 1);
+        $cloner->cloneServices([7, 9], new HostId(42), new UserId(1));
 
         // The legacy function wants the services as an id-keyed map and a parallel map of per-service
         // host counts, always 1 for services exclusive to the source.
@@ -153,7 +154,7 @@ final class LegacyServiceClonerTest extends TestCase
             cloneInvoker: $this->noopCloneInvoker(),
         );
 
-        $cloner->cloneServices([7], new HostId(9), 42);
+        $cloner->cloneServices([7], new HostId(9), new UserId(42));
 
         self::assertSame($previousPearDB, $GLOBALS['pearDB']);
         self::assertSame($previousPearDBO, $GLOBALS['pearDBO']);
@@ -178,7 +179,7 @@ final class LegacyServiceClonerTest extends TestCase
         );
 
         try {
-            $cloner->cloneServices([7], new HostId(9), 42);
+            $cloner->cloneServices([7], new HostId(9), new UserId(42));
             self::fail('the clone failure must propagate');
         } catch (\RuntimeException $exception) {
             self::assertSame('legacy clone blew up', $exception->getMessage());
@@ -203,7 +204,7 @@ final class LegacyServiceClonerTest extends TestCase
             },
         );
 
-        $cloner->cloneServices([7], new HostId(9), 42);
+        $cloner->cloneServices([7], new HostId(9), new UserId(42));
 
         self::assertSame(
             $baseline,
@@ -227,7 +228,7 @@ final class LegacyServiceClonerTest extends TestCase
         );
 
         try {
-            $cloner->cloneServices([7], new HostId(9), 42);
+            $cloner->cloneServices([7], new HostId(9), new UserId(42));
             self::fail('the clone failure must propagate');
         } catch (\RuntimeException) {
         }

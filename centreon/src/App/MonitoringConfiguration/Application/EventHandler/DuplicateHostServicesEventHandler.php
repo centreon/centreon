@@ -74,7 +74,7 @@ final readonly class DuplicateHostServicesEventHandler
             $this->logger->log($level, $message, [
                 'source_host_id' => $event->sourceHostId->value,
                 'new_host_id' => $event->newHostId->value,
-                'duplicated_by' => $event->duplicatedBy,
+                'duplicated_by' => $event->duplicatedBy->value,
                 'exception' => $exception,
             ]);
         } catch (\Throwable) {

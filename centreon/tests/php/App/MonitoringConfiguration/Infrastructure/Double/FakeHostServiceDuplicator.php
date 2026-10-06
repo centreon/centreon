@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
+use App\Security\Domain\Aggregate\UserId;
 
 final class FakeHostServiceDuplicator implements HostServiceDuplicator
 {
@@ -33,12 +34,12 @@ final class FakeHostServiceDuplicator implements HostServiceDuplicator
 
     public bool $duplicateThrows = false;
 
-    public function duplicate(HostId $sourceHostId, HostId $newHostId, int $duplicatedBy): void
+    public function duplicate(HostId $sourceHostId, HostId $newHostId, UserId $duplicatedBy): void
     {
         $this->duplicateCalls[] = [
             'sourceHostId' => $sourceHostId->value,
             'newHostId' => $newHostId->value,
-            'duplicatedBy' => $duplicatedBy,
+            'duplicatedBy' => $duplicatedBy->value,
         ];
 
         if ($this->duplicateThrows) {

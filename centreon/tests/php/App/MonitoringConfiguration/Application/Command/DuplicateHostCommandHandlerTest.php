@@ -202,7 +202,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $event = $this->eventBus->getDispatchedEvents(HostServicesDuplicationRequested::class)[0];
         self::assertSame(1, $event->sourceHostId->value);
         // The actor is threaded onto the event so the deferred clone can rebuild the legacy session.
-        self::assertSame(42, $event->duplicatedBy);
+        self::assertSame(42, $event->duplicatedBy->value);
 
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy);

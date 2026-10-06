@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -120,7 +121,7 @@ final readonly class DuplicateHostCommandHandler
         $this->eventBus->fire(new HostServicesDuplicationRequested(
             sourceHostId: $command->hostId,
             newHostId: $copy->id(),
-            duplicatedBy: $command->duplicatedBy,
+            duplicatedBy: new UserId($command->duplicatedBy),
         ));
     }
 

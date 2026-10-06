@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Event;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
@@ -38,7 +39,7 @@ final readonly class HostServicesDuplicationRequested implements DeliveredAfterC
         public HostId $newHostId,
         // The actor who triggered the duplication, so the deferred legacy clone can be attributed and
         // ACL-scoped to them even on a token-authenticated request (no ambient legacy session).
-        public int $duplicatedBy,
+        public UserId $duplicatedBy,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
     ) {
     }

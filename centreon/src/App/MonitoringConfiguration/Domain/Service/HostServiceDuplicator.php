@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
 
 interface HostServiceDuplicator
 {
@@ -31,11 +32,11 @@ interface HostServiceDuplicator
      * Copies the source host's services onto the freshly duplicated host: a service exclusive to the
      * source is cloned, a service shared with other hosts is re-linked to the copy.
      *
-     * $duplicatedBy is the contact that triggered the duplication. The legacy clone step sources the
+     * $duplicatedBy is the user that triggered the duplication. The legacy clone step sources the
      * author and ACL of the cloned services from the ambient legacy session; on a token-authenticated
      * request there is none, so the actor is passed explicitly for the session to be rebuilt from it.
      *
      * @throws \Throwable
      */
-    public function duplicate(HostId $sourceHostId, HostId $newHostId, int $duplicatedBy): void;
+    public function duplicate(HostId $sourceHostId, HostId $newHostId, UserId $duplicatedBy): void;
 }

@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Infrastructure\Legacy\LegacyHostServiceDuplicatorWrapper;
+use App\Security\Domain\Aggregate\UserId;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCloner;
@@ -63,7 +64,7 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $this->linkServiceToHost(9501, 8801);
         $this->linkServiceToHost(9503, 8801);
 
-        $this->wrapper->duplicate(sourceHostId: new HostId(9501), newHostId: new HostId(9502), duplicatedBy: 1);
+        $this->wrapper->duplicate(sourceHostId: new HostId(9501), newHostId: new HostId(9502), duplicatedBy: new UserId(1));
 
         self::assertSame(
             1,
@@ -78,7 +79,7 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $this->insertHost(9601, 'wrapper-empty-source');
         $this->insertHost(9602, 'wrapper-empty-copy');
 
-        $this->wrapper->duplicate(sourceHostId: new HostId(9601), newHostId: new HostId(9602), duplicatedBy: 1);
+        $this->wrapper->duplicate(sourceHostId: new HostId(9601), newHostId: new HostId(9602), duplicatedBy: new UserId(1));
 
         self::assertSame(0, $this->countServiceLinks(9602), 'nothing is linked onto a copy whose source has no service');
         self::assertSame([], $this->clonedServiceIds(), 'the cloner is called with an empty list');
@@ -92,7 +93,7 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         // The service is linked to the source only, so it is exclusive (host_count = 1) and must be cloned.
         $this->linkServiceToHost(9701, 8802);
 
-        $this->wrapper->duplicate(sourceHostId: new HostId(9701), newHostId: new HostId(9702), duplicatedBy: 7);
+        $this->wrapper->duplicate(sourceHostId: new HostId(9701), newHostId: new HostId(9702), duplicatedBy: new UserId(7));
 
         self::assertSame(
             0,
@@ -116,7 +117,7 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $this->linkServiceToHost(9801, 8803);
         $this->linkServiceToHostGroup(7701, 8803);
 
-        $this->wrapper->duplicate(sourceHostId: new HostId(9801), newHostId: new HostId(9802), duplicatedBy: 1);
+        $this->wrapper->duplicate(sourceHostId: new HostId(9801), newHostId: new HostId(9802), duplicatedBy: new UserId(1));
 
         self::assertSame(
             1,
@@ -138,7 +139,7 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         $this->linkServiceToHost(9903, 8810);
         $this->linkServiceToHost(9901, 8811);
 
-        $this->wrapper->duplicate(sourceHostId: new HostId(9901), newHostId: new HostId(9902), duplicatedBy: 3);
+        $this->wrapper->duplicate(sourceHostId: new HostId(9901), newHostId: new HostId(9902), duplicatedBy: new UserId(3));
 
         self::assertSame(1, $this->countServiceLinks(9902, 8810), 'the shared service is re-linked onto the copy');
         self::assertSame(0, $this->countServiceLinks(9902, 8811), 'the exclusive service is left to the cloner, not re-linked');
