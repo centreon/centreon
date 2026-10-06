@@ -96,11 +96,11 @@ const formatResource = ({
 };
 
 export {
-  emptyEmail,
   defaultEmailBody,
   defaultEmailSubject,
-  hostEvents,
-  serviceEvents,
+  emptyEmail,
   formatMessages,
-  formatResource
+  formatResource,
+  hostEvents,
+  serviceEvents
 };
