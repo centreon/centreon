@@ -24,7 +24,8 @@ import {
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
-  pollersEndpoint
+  pollersEndpoint,
+  resolveAddressEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
@@ -36,7 +37,10 @@ import {
   getHostTemplatesResponse,
   getListingResponse,
   getPollersResponse,
-  getTimePeriodsResponse
+  getTimePeriodsResponse,
+  refusedAddressResponse,
+  resolvedAddressResponse,
+  unresolvedAddressResponse
 } from './utils';
 
 interface Props {
@@ -45,14 +49,31 @@ interface Props {
   isCloudPlatform?: boolean;
   deployFails?: boolean;
   isAdditiveInheritanceEnabled?: boolean;
+  addressResolution?: keyof typeof addressResolutions;
+  hasDefaultPoller?: boolean;
+  pollersDelay?: number;
+  resolveDelay?: number;
 }
+
+// What the selector answers a user it does not grant.
+export const pollersForbiddenMessage = 'You are not allowed to access pollers';
+
+const addressResolutions = {
+  refused: { response: refusedAddressResponse, statusCode: 422 },
+  resolved: { response: resolvedAddressResponse, statusCode: 200 },
+  unresolved: { response: unresolvedAddressResponse, statusCode: 200 }
+};
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
   deployFails = false,
-  isAdditiveInheritanceEnabled = false
+  isAdditiveInheritanceEnabled = false,
+  addressResolution = 'resolved',
+  hasDefaultPoller = true,
+  pollersDelay,
+  resolveDelay
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -85,7 +106,8 @@ const initialize = ({
     method: Method.GET,
     path: `**${getHostEndpoint({ id: 1 })}`,
     response: {
-      address: '10.0.0.1',
+      // A name, so resolving it is not already moot.
+      address: 'host-1.example.com',
       categories: [],
       child_hosts: [],
       groups: [],
@@ -113,9 +135,22 @@ const initialize = ({
   // listing filters below read the generic ones.
   cy.interceptAPIRequest({
     alias: 'getFormPollers',
+    delay: pollersDelay,
     method: Method.GET,
     path: `**${hostFormPollersEndpoint}?**`,
-    response: getPollersResponse()
+    // Granted by write access only, as the API does.
+    response: hasWriteAccess
+      ? getPollersResponse({ hasDefault: hasDefaultPoller })
+      : { code: 403, message: pollersForbiddenMessage },
+    statusCode: hasWriteAccess ? 200 : 403
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'resolveAddress',
+    delay: resolveDelay,
+    method: Method.GET,
+    path: `**${resolveAddressEndpoint}?**`,
+    ...addressResolutions[addressResolution]
   });
 
   cy.interceptAPIRequest({

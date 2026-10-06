@@ -3,6 +3,10 @@ export type NamedEntity = {
   name: string;
 };
 
+export type FormPoller = NamedEntity & {
+  isDefault: boolean;
+};
+
 export type Icon = NamedEntity & {
   url: string;
 };
