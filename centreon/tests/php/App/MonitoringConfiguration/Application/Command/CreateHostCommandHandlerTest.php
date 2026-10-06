@@ -307,6 +307,48 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($host->checkOptions->macros[0]->isDirect());
     }
 
+    public function testAPromotedTemplatePasswordIsCopiedUnderTheHostOwnVaultEntry(): void
+    {
+        // R4 with a vault: the template's secret is read and written again under the host's entry
+        // (the one shared with its SNMP community), never shared through the template's path.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY]
+            = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
+        $templateSecret = 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTTPLPWD';
+        $this->vault->resolved[$templateSecret] = 'tpl-secret';
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            snmpCommunity: 'public',
+            macroChanges: [
+                new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ],
+        ));
+
+        $macroWrite = null;
+        foreach ($this->vault->writeManyCalls as $call) {
+            if (array_key_exists('_HOSTMYPWD', $call['secrets'])) {
+                $macroWrite = $call;
+            }
+        }
+        self::assertNotNull($macroWrite, 'The promoted password should have been written to the vault.');
+        self::assertSame('tpl-secret', $macroWrite['secrets']['_HOSTMYPWD']);
+        self::assertSame('host-uuid', $macroWrite['uuid']);
+        self::assertStringNotContainsString('tpl-uuid', $host->checkOptions->macros[0]->value);
+        self::assertStringContainsString('_HOSTMYPWD', $host->checkOptions->macros[0]->value);
+    }
+
     public function testItAcceptsACheckCommandMacroOnCreate(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
