@@ -3,10 +3,9 @@ import { Button, List, ListItem, Typography } from '@mui/material';
 import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
-import { isEmpty } from 'ramda';
+import { isEmpty, isNotNil } from 'ramda';
 import { ReactElement } from 'react';
 
-import FederatedComponent from '../../../components/FederatedComponents';
 import CloudInstallCommand from './CloudInstallCommand/CloudInstallCommand';
 import ExportConfiguration from './ExportConfiguration';
 
@@ -86,16 +85,9 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
 
-      {platformFeatures?.isCloudPlatform && (
-        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
-          <FederatedComponent path="/cloud-extensions" />
-        </ListItem>
-      )}
-
-      {/* Explicitly false, not falsy: the atom is null until /platform/features
-          resolves, and a loose check would flash this on-premise entry on a
-          cloud platform. */}
-      {platformFeatures?.isCloudPlatform === false && (
+      {/* Wait for /platform/features: the modal reads isCloudPlatform once to
+          decide whether the central address is asked or derived. */}
+      {isNotNil(platformFeatures) && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <CloudInstallCommand closeSubMenu={closeSubMenu} />
         </ListItem>

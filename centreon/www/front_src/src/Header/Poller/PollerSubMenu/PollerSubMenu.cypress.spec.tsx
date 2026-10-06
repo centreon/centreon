@@ -86,10 +86,19 @@ describe('PollerSubMenu', () => {
       cy.findByTestId(labelCreateNewPoller).should('be.visible');
     });
 
-    it('hides the button on a cloud platform', () => {
+    it('displays the button on a cloud platform', () => {
       initialize({ isCloudPlatform: true });
 
-      cy.findByTestId(labelCreateNewPoller).should('not.exist');
+      cy.findByTestId(labelCreateNewPoller).should('be.visible');
+    });
+
+    it('opens the modal without the central address field on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.findByTestId(labelCreateNewPoller).click();
+
+      cy.findByRole('dialog').should('be.visible');
+      cy.findByTestId('centreon-central-address').should('not.exist');
     });
 
     it('hides the button while the platform features are not resolved', () => {
