@@ -26,6 +26,8 @@ export const hostFormContactGroupsEndpoint =
   '/configuration/hosts/contact_groups';
 export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
 
+export const timezonesEndpoint = '/configuration/timezones';
+
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;
 
