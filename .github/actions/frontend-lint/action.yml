@@ -57,7 +57,7 @@ runs:
       with:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
-        version: 2.3.11
+        version: 2.5.14
 
     - uses: mongolyy/reviewdog-action-biome@58f27dce74f1f648943d3a88de554385727ce11b # v2.11.1
       with:
@@ -66,4 +66,4 @@ runs:
         reporter: github-pr-check
         filter_mode: nofilter
         fail_level: error
-        biome_flags: ${{ inputs.lint_path }}
+        biome_flags: --diagnostic-level=warn ${{ inputs.lint_path }}
