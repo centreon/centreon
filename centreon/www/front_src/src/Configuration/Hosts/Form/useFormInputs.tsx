@@ -26,7 +26,9 @@ const useFormInputs = ({
   const context = { isAdditiveInheritanceEnabled, isCloudPlatform, t };
   const availableSections = getAvailableSections(context);
 
+  // Sections are told apart by their headers, as designed: no divider.
   const groups: Array<Group> = availableSections.map(({ order, section }) => ({
+    isDividerHidden: true,
     name: t(section.label),
     order
   }));

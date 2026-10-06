@@ -64,6 +64,17 @@ describe('Host form validation', () => {
     });
   });
 
+  describe('Alias', () => {
+    it('refuses an alias longer than the 200 characters the API stores', () => {
+      expect(errorFor('alias', 'a'.repeat(200))).toBeNull();
+      expect(errorFor('alias', 'a'.repeat(201))).not.toBeNull();
+    });
+
+    it('measures the alias without its surrounding blanks', () => {
+      expect(errorFor('alias', ` ${'a'.repeat(200)} `)).toBeNull();
+    });
+  });
+
   describe('Address', () => {
     it.each([
       ['an IPv4 address', '10.0.0.42', null],
@@ -153,23 +164,23 @@ describe('Host form validation', () => {
       }
     };
 
-    it.each([
-      'interval',
-      'firstDelay',
-      'recoveryDelay'
-    ])('accepts an empty %s, 0 and a positive integer', (field) => {
-      expect(delayError(field, '')).toBeNull();
-      expect(delayError(field, 0)).toBeNull();
-      expect(delayError(field, 12)).toBeNull();
-    });
+    it.each(['interval', 'firstDelay', 'recoveryDelay'])(
+      'accepts an empty %s, 0 and a positive integer',
+      (field) => {
+        expect(delayError(field, '')).toBeNull();
+        expect(delayError(field, 0)).toBeNull();
+        expect(delayError(field, 12)).toBeNull();
+      }
+    );
 
-    it.each([
-      'interval',
-      'firstDelay',
-      'recoveryDelay'
-    ])('refuses a negative or fractional %s', (field) => {
-      expect(delayError(field, -1)).toEqual(labelMustBePositiveIntegerOrZero);
-      expect(delayError(field, 1.5)).toEqual(labelMustBePositiveIntegerOrZero);
-    });
+    it.each(['interval', 'firstDelay', 'recoveryDelay'])(
+      'refuses a negative or fractional %s',
+      (field) => {
+        expect(delayError(field, -1)).toEqual(labelMustBePositiveIntegerOrZero);
+        expect(delayError(field, 1.5)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+      }
+    );
   });
 });

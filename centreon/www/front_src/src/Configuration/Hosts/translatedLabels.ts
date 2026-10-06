@@ -12,6 +12,8 @@ export const labelHostGroups = 'Hostgroups';
 export const labelHostCategories = 'Host Categories';
 export const labelParentHosts = 'Parent Hosts';
 export const labelChildHosts = 'Child Hosts';
+export const labelResolve = 'Resolve';
+export const labelHostNotFound = 'Host not found';
 
 export const labelGoToServices = 'Display all Services for this host';
 export const labelDeployServices = 'Deploy Service';
