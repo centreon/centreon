@@ -37,18 +37,55 @@ display_result_one()
 	fi
 }
 
+get_db_role()
+{
+	# Set db_role to MASTER, SLAVE or UNKNOWN for host $1, and db_role_error
+	# when its read_only cannot be read.
+	# The mariadb-centreon resource agent enables read_only on start and before
+	# a demote, and disables it on promote. MariaDB returns it as 0/1 up to
+	# 11.x, and as an OFF/ON/NO_LOCK/NO_LOCK_NO_ADMIN enum since 12.0.
+	db_role_error=""
+	# Only stdout is classified, so that a client notice on stderr (an ignored
+	# option file for instance) cannot hide the role. stderr is kept apart to
+	# explain a failure.
+	db_read_only_errfile=$(mktemp 2>/dev/null) || db_read_only_errfile=/dev/null
+	db_read_only=$(mariadb -N -B -u "$DBROOTUSER" -h "$1" "-p$DBROOTPASSWORD" -e 'SELECT @@global.read_only' 2>"$db_read_only_errfile")
+	db_read_only_rc=$?
+	db_read_only_stderr=$(tr '\n' ' ' < "$db_read_only_errfile")
+	[ "$db_read_only_errfile" != "/dev/null" ] && rm -f "$db_read_only_errfile"
+	case "$db_read_only" in
+		0|OFF)
+			db_role="MASTER"
+			;;
+		1|ON|NO_LOCK|NO_LOCK_NO_ADMIN)
+			db_role="SLAVE"
+			;;
+		*)
+			db_role="UNKNOWN"
+			if [ "$db_read_only_rc" -ne 0 ] ; then
+				db_role_error="Can't read read_only on '$1' (exit=$db_read_only_rc, error='${db_read_only_stderr% }')."
+			else
+				db_read_only=$(printf '%s' "$db_read_only" | tr '\n' ' ')
+				db_role_error="Unexpected read_only value on '$1' (value='$db_read_only', client messages='${db_read_only_stderr% }')."
+			fi
+			# One line, with backslashes escaped for display_result_one (echo -e)
+			db_role_error="${db_role_error//\\/\\\\}"
+			;;
+	esac
+}
+
 display_result()
 {
-	if [[ "$slave_address" == "$DBHOSTNAMEMASTER" ]] ; then
-		display_result_one "$connexion_status_server2" "Connection MASTER Status '$DBHOSTNAMESLAVE'" "$report_connexion2"
-		display_result_one "$connexion_status_server1" "Connection SLAVE Status '$DBHOSTNAMEMASTER'" "$report_connexion1"
-	elif [[ "$slave_address" == "$DBHOSTNAMESLAVE" ]] ; then
-		display_result_one "$connexion_status_server1" "Connection MASTER Status '$DBHOSTNAMEMASTER'" "$report_connexion1"
-		display_result_one "$connexion_status_server2" "Connection SLAVE Status '$DBHOSTNAMESLAVE'" "$report_connexion2"
+	# Display the primary first, or keep the configured order when no single
+	# node is known to be writable.
+	if [ "$role_server2" = "MASTER" ] && [ "$role_server1" != "MASTER" ] ; then
+		display_result_one "$connexion_status_server2" "Connection $role_server2 Status '$DBHOSTNAMESLAVE'" "$report_connexion2"
+		display_result_one "$connexion_status_server1" "Connection $role_server1 Status '$DBHOSTNAMEMASTER'" "$report_connexion1"
 	else
-		display_result_one "$connexion_status_server1" "Connection SLAVE Status '$DBHOSTNAMEMASTER'" "$report_connexion1"
-		display_result_one "$connexion_status_server2" "Connection SLAVE Status '$DBHOSTNAMESLAVE'" "$report_connexion2"
+		display_result_one "$connexion_status_server1" "Connection $role_server1 Status '$DBHOSTNAMEMASTER'" "$report_connexion1"
+		display_result_one "$connexion_status_server2" "Connection $role_server2 Status '$DBHOSTNAMESLAVE'" "$report_connexion2"
 	fi
+	display_result_one $role_status "Role Status" "$role_status_error"
 	display_result_one $slave_status "Slave Thread Status" "$slave_status_error"
 	display_result_one $position_status "Position Status" "$position_status_error"
 }
@@ -76,6 +113,25 @@ replication_status()
 	report_connexion2=$(mysql_connection_test "$DBHOSTNAMESLAVE" 1 2>&1)
 	connexion_status_server2=$?
 	connexion_status_servername2="$DBHOSTNAMESLAVE"
+
+	#######
+	# Find roles from read_only, independent of the replication threads
+	# (which can be stopped)
+	#######
+	role_server1="UNKNOWN"
+	role_server2="UNKNOWN"
+	role_error_server1=""
+	role_error_server2=""
+	if [ "$connexion_status_server1" -eq 0 ] ; then
+		get_db_role "$DBHOSTNAMEMASTER"
+		role_server1="$db_role"
+		role_error_server1="$db_role_error"
+	fi
+	if [ "$connexion_status_server2" -eq 0 ] ; then
+		get_db_role "$DBHOSTNAMESLAVE"
+		role_server2="$db_role"
+		role_error_server2="$db_role_error"
+	fi
 
 	#######
 	# Find slave
@@ -161,6 +217,54 @@ replication_status()
 			slave_status=1
 			append_error_msg "slave_status_error" "No slave (maybe because we cannot check a server)." "slave_status_error_append"
 		fi
+	fi
+
+	#######
+	# Check roles: exactly one master, which must not run replication threads
+	#######
+	role_status=0
+	role_status_error=""
+	role_status_error_append=""
+	# Unknown roles: SKIP for an unreachable server, WARNING for an unreadable one
+	if [ "$connexion_status_server1" -ne 0 ] ; then
+		role_status=-2
+		append_error_msg "role_status_error" "Skip check on '$DBHOSTNAMEMASTER'." "role_status_error_append"
+	elif [ -n "$role_error_server1" ] ; then
+		role_status=-1
+		append_error_msg "role_status_error" "$role_error_server1" "role_status_error_append"
+	fi
+	if [ "$connexion_status_server2" -ne 0 ] ; then
+		[ "$role_status" -eq 0 ] && role_status=-2
+		append_error_msg "role_status_error" "Skip check on '$DBHOSTNAMESLAVE'." "role_status_error_append"
+	elif [ -n "$role_error_server2" ] ; then
+		role_status=-1
+		append_error_msg "role_status_error" "$role_error_server2" "role_status_error_append"
+	fi
+
+	# Number of masters: an unreachable server cannot be the master, an
+	# unreadable one might be
+	if [ "$role_server1" = "MASTER" ] && [ "$role_server2" = "MASTER" ] ; then
+		role_status=1
+		append_error_msg "role_status_error" "Two masters: read_only is disabled on both servers." "role_status_error_append"
+	elif [ "$role_server1" = "SLAVE" ] && [ "$role_server2" = "SLAVE" ] ; then
+		role_status=1
+		append_error_msg "role_status_error" "No master: read_only is enabled on both servers." "role_status_error_append"
+	elif [ "$role_server1" = "SLAVE" ] && [ "$connexion_status_server2" -ne 0 ] ; then
+		role_status=1
+		append_error_msg "role_status_error" "No reachable master: read_only is enabled on '$DBHOSTNAMEMASTER'." "role_status_error_append"
+	elif [ "$role_server2" = "SLAVE" ] && [ "$connexion_status_server1" -ne 0 ] ; then
+		role_status=1
+		append_error_msg "role_status_error" "No reachable master: read_only is enabled on '$DBHOSTNAMESLAVE'." "role_status_error_append"
+	fi
+
+	# A master must not replicate (total is below 2 when a thread runs)
+	if [ "$role_server1" = "MASTER" ] && [ "$total1" -lt 2 ] ; then
+		role_status=1
+		append_error_msg "role_status_error" "The master '$DBHOSTNAMEMASTER' runs a replication thread." "role_status_error_append"
+	fi
+	if [ "$role_server2" = "MASTER" ] && [ "$total2" -lt 2 ] ; then
+		role_status=1
+		append_error_msg "role_status_error" "The master '$DBHOSTNAMESLAVE' runs a replication thread." "role_status_error_append"
 	fi
 
 	# verifier la position de l'esclave
