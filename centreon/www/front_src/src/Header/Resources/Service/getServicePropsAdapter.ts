@@ -8,9 +8,9 @@ import type { ServiceStatusResponse } from '../../api/decoders';
 import {
   criticalCriterias,
   getResourcesUrl,
+  getServiceCriterias,
   okCriterias,
   pendingCriterias,
-  serviceCriteria as resourceTypeCriterias,
   unhandledStateCriterias,
   unknownCriterias,
   warningCriterias
@@ -53,8 +53,14 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   applyFilter,
   navigate,
   t,
-  data
+  data,
+  installedModules
 }) => {
+  const resourceTypeCriterias = getServiceCriterias({
+    isAnomalyDetectionInstalled: installedModules.includes(
+      'centreon-anomaly-detection'
+    )
+  });
   const stateCriterias = { name: 'states', value: [] };
 
   const allStatusesServicesCriterias = [
@@ -72,6 +78,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
   });
 
   const unhandledCriticalServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: criticalCriterias.value as Array<SelectEntry>
   });
@@ -85,6 +92,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const unhandledWarningServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: warningCriterias.value as Array<SelectEntry>
   });
@@ -98,6 +106,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const unhandledUnknownServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     states: unhandledStateCriterias.value,
     statuses: unknownCriterias.value as Array<SelectEntry>
   });
@@ -111,6 +120,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const okServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     statuses: okCriterias.value as Array<SelectEntry>
   });
 
@@ -123,6 +133,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
       });
 
   const servicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     statuses: allStatusesServicesCriterias
   });
 
@@ -137,6 +148,7 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
         }
       });
   const pendingServicesCriterias = getDefaultCriterias({
+    resourceTypes: resourceTypeCriterias.value,
     statuses: pendingCriterias.value as Array<SelectEntry>
   });
 
