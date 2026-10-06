@@ -36,7 +36,8 @@ jobs:
           ACTIONLINT_EXECUTABLE: ${{ steps.get_actionlint.outputs.executable }}
         run: |
           "$ACTIONLINT_EXECUTABLE" \
-            -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common|perf-testing)" is unknown' \
+            -ignore 'label "centreon-(collect-arm64|perf-testing)" is unknown' \
+            -ignore 'label "centreon-ubuntu-26\.04[a-z-]*" is unknown' \
             -ignore 'label "infrastructure" is unknown' \
             -ignore '"github.head_ref" is potentially untrusted' \
             -pyflakes= \
