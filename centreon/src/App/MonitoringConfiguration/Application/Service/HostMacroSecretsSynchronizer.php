@@ -35,9 +35,10 @@ use App\Shared\Domain\VaultInterface;
  * UUID it shares with its SNMP community, like legacy), never under a template's or another host's.
  *
  * - a plaintext value is written to the host's entry;
- * - a reference to another entry (a password inherited from a template and promoted to direct, R4)
- *   has its secret copied under the host's entry — never shared, so editing or deleting the
- *   template cannot change or purge the host's secret;
+ * - a reference to another entry has its secret copied under the host's entry — never shared, so
+ *   editing or deleting the template cannot change or purge the host's secret. The only such
+ *   references are those HostMacroChangesResolver carries over when an inherited password is
+ *   promoted to direct with its stored value kept (R4): the API rejects any submitted reference;
  * - a reference already in the host's entry is left untouched, even after a rename (R5);
  * - an empty value is stored as is, nothing vaulted (R8);
  * - a key of the host's entry no macro references any more (macro removed, reverted to inherited by

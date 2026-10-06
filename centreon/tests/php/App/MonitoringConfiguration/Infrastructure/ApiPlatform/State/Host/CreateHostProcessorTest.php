@@ -36,7 +36,6 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
@@ -1801,6 +1800,30 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItRejectsAVaultReferenceAsAMacroValue(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // No password value is ever echoed back, so a client has no legitimate reference to send;
+        // accepting one would copy another resource's secret under this host's vault entry.
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [[
+                    'name' => 'pwd',
+                    'value' => 'secret::hashicorp_vault::monitoring/hosts/other-uuid::_HOSTPWD',
+                    'is_password' => true,
+                ]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains(['violations' => [['propertyPath' => 'check_options.macros[0].value']]]);
+    }
+
     public function testItRejectsAMacroReferringToAMacroTheHostDoesNotOwn(): void
     {
         $this->login();
@@ -1816,7 +1839,9 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
+        // Raised by the handler, reported against the field the macros were submitted in.
         self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains(['violations' => [['propertyPath' => 'check_options']]]);
     }
 
     public function testItRejectsAReservedMacroName(): void
@@ -2653,7 +2678,6 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $mediaUrlGenerator,
                 $timePeriodRepository,
                 new HostMacroTransformer(),
-                new HostMacroChangesResolver(),
                 $isCloudPlatform,
             ),
         );

@@ -36,9 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -64,12 +62,10 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
@@ -126,7 +122,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
         private HostMacroTransformer $macroTransformer,
-        private HostMacroChangesResolver $macroChangesResolver,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -187,8 +182,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $checkOptions = new CheckOptions(
             $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
             $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
-            $checkOptionsInput instanceof CheckOptionsInput ? $this->resolveNewMacros($checkOptionsInput->macros) : [],
         );
+        $macroChanges = $checkOptionsInput instanceof CheckOptionsInput
+            ? array_values(array_map($this->macroTransformer->toChange(...), $checkOptionsInput->macros))
+            : [];
 
         // Cloud handles notifications through a different model and the input
         // validator rejects the block there, so the host simply carries none — and the
@@ -219,6 +216,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             schedulingOptions: $schedulingOptions,
             checkOptions: $checkOptions,
             notifications: $notifications,
+            macroChanges: $macroChanges,
         );
 
         $host = $this->commandBus->execute($command);
@@ -443,23 +441,5 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         }
 
         return $related;
-    }
-
-    /**
-     * A host being created owns no macro yet, so every submitted macro must be new: one referring to
-     * an existing macro is reported as unknown. Redundancy with inherited macros (R7) is resolved by
-     * the handler, which knows the templates and the check command.
-     *
-     * @param list<HostMacroInput> $inputs
-     *
-     * @return list<HostMacro>
-     */
-    private function resolveNewMacros(array $inputs): array
-    {
-        return $this->macroChangesResolver->resolve(
-            array_map($this->macroTransformer->toChange(...), $inputs),
-            [],
-            InheritedHostMacros::none(),
-        );
     }
 }

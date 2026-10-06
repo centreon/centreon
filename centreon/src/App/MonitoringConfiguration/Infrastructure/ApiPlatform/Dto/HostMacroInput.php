@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\ReservedMacroName;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Domain\VaultInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -52,8 +53,16 @@ final readonly class HostMacroInput
 
         // Masked in logs: may carry a password macro's plaintext (see HostMacro::$value). Null keeps
         // the stored value of an existing password macro; an empty string is an explicit value.
+        // A vault reference is never accepted: no password value is ever echoed back, so a client
+        // has no legitimate reference to send, and accepting one would let it copy another
+        // resource's secret under this host's vault entry.
         #[Sensitive]
         #[Assert\Length(max: HostMacro::MAX_VALUE_LENGTH)]
+        #[Assert\Regex(
+            pattern: '/^' . VaultInterface::VAULT_PATH_PREFIX . '/',
+            match: false,
+            message: 'A macro value cannot be a vault reference.',
+        )]
         public ?string $value = null,
 
         public bool $isPassword = false,
