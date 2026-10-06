@@ -197,6 +197,35 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
     }
 
     /**
+     * Whether saving this host left the vault entry $before kept its secrets in without any secret:
+     * $before referenced an entry and none of this host's vault-eligible fields (SNMP community,
+     * password macros) references it any more. The entry is then empty — or only holds keys no host
+     * field points to — and can be deleted once the save is committed.
+     */
+    public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
+    {
+        $uuid = $before->getVaultUuid($vault);
+
+        return $uuid !== null && ! $this->referencesVaultEntry($uuid, $vault);
+    }
+
+    private function referencesVaultEntry(string $uuid, VaultInterface $vault): bool
+    {
+        $values = array_map(
+            static fn (HostMacro $macro): string => $macro->value,
+            array_filter($this->checkOptions->macros, static fn (HostMacro $macro): bool => $macro->isPassword),
+        );
+        if ($this->snmpCommunity instanceof SnmpCommunity) {
+            $values[] = $this->snmpCommunity->value;
+        }
+
+        return array_any(
+            $values,
+            static fn (string $value): bool => $vault->isVaultPath($value) && $vault->extractUuid($value) === $uuid,
+        );
+    }
+
+    /**
      * @param Collection<HostId> $hostIds
      *
      * @return array<int>
