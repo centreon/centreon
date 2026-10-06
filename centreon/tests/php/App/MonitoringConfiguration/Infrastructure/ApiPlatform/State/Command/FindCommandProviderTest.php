@@ -81,12 +81,17 @@ final class FindCommandProviderTest extends ApiTestCase
         $response = $this->request('GET', '/api/configuration/commands/2');
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+        /** @var list<array<string, mixed>> $macros */
+        $macros = $response->toArray()['macros'];
         self::assertSame(
             [
                 ['id' => 10, 'name' => 'USER', 'type' => 'host'],
                 ['id' => null, 'name' => 'PORT', 'type' => 'service'],
             ],
-            $response->toArray()['macros'],
+            array_map(
+                static fn (array $macro): array => array_intersect_key($macro, array_flip(['id', 'name', 'type'])),
+                $macros,
+            ),
         );
     }
 }

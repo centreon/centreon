@@ -23,13 +23,18 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+
 final readonly class CommandMacroOutput
 {
     /**
-     * @param ?int $id null when the macro is used in the command line but not stored
+     * @param ?int $id null when the macro is used in the command line but not stored;
+     *                 always serialized, even when null, so clients can tell stored macros apart
      * @param string $type host|service
      */
     public function __construct(
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => false])]
         public ?int $id,
         public string $name,
         public string $type,
