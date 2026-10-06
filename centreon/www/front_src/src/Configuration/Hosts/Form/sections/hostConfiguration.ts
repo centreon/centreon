@@ -70,11 +70,9 @@ const snmpVersionOptions = snmpVersions.map((version) => ({
 
 type SnmpVersionOption = (typeof snmpVersionOptions)[number];
 
-// The select cannot be cleared, so going back to no version is an option of its
-// own, as the legacy form's blank entry was. Picking it empties the field.
+// Fallback to empty the field: the select cannot be cleared.
 const noSnmpVersionId = 'none';
 
-// A number field holds `''` until something is typed.
 type OptionalNumber = number | '';
 
 interface SchedulingOptionsValues {
@@ -104,17 +102,14 @@ const defaultSchedulingOptions: SchedulingOptionsValues = {
   retryCheckInterval: ''
 };
 
-// The detail endpoint leaves unset values out rather than sending null.
 const optionalNumberDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
 ).map((value): OptionalNumber => value ?? '');
 
-// Left out on cloud, where the server keeps them unset.
 const optionalTriStateDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(triStateDecoder)
 ).map((value) => value ?? defaultTriState);
 
-// The check period lives in this block of the API too, as `check_period`.
 const schedulingOptionsDecoder = JsonDecoder.object<SchedulingOptionsValues>(
   {
     activeCheckEnabled: optionalTriStateDecoder,
@@ -192,7 +187,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     schedulingOptions: JsonDecoder.optional(
       JsonDecoder.nullable(schedulingOptionsDecoder)
     ).map((value) => value ?? defaultSchedulingOptions),
-    // Write-only: the API never returns it, so the field opens empty.
     snmpCommunity: JsonDecoder.constant(''),
     snmpVersion: JsonDecoder.optional(
       JsonDecoder.nullable(
@@ -291,8 +285,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         label: 'host-form-basic-information',
         type: InputType.Grid
       },
-      // The host's details beside its scheduling once the panel is wide enough,
-      // one under the other otherwise.
       {
         fieldName: 'monitoring-layout',
         grid: {
@@ -323,8 +315,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                           ? null
                           : value
                       ),
-                    // Not forwarded by the static autocomplete yet: its input
-                    // is tested by its label meanwhile.
                     dataTestId: 'host-form-snmp-version',
                     fieldName: 'snmpVersion',
                     label: t(labelSnmpVersion),
@@ -349,8 +339,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             {
               fieldName: 'scheduling-options',
               grid: {
-                // Enabling checks is an onPrem setting; cloud has the numbers
-                // alone, side by side.
                 className: isCloudPlatform
                   ? 'grid-cols-1 @[600px]:grid-cols-3'
                   : 'grid-cols-1 @[600px]:grid-cols-2',
@@ -472,14 +460,12 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           schedulingOptions.normalCheckInterval
         ),
         retry_check_interval: toApiNumber(schedulingOptions.retryCheckInterval),
-        // Refused on cloud, where the server keeps them unset.
         ...(!isCloudPlatform && {
           active_check_enabled: schedulingOptions.activeCheckEnabled,
           passive_check_enabled: schedulingOptions.passiveCheckEnabled
         })
       },
-      // Never read back, so an empty field means "unchanged", not "none": it
-      // is left out rather than sent empty.
+      // Write-only: empty means unchanged.
       ...(snmpCommunity && { snmp_community: snmpCommunity }),
       snmp_version: snmpVersion?.id ?? null,
       timezone_id: timezone?.id ?? null

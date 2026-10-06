@@ -47,8 +47,6 @@ export const labelMustBePositiveIntegerOrZero =
 export const labelMustBeIntegerOfAtLeastOne =
   'An integer with a minimum value of 1 is required';
 
-// Host Configuration, spelled as the legacy host form spells it. The legacy
-// form calls the SNMP version just `Version`, beside the community.
 export const labelSnmpCommunity = 'SNMP Community';
 export const labelSnmpVersion = 'Version';
 export const labelTimezone = 'Timezone';

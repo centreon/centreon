@@ -135,8 +135,6 @@ export const getTimezonesResponse = () =>
     { id: 3, name: 'America/New_York' }
   ]);
 
-// What a create sends when no scheduling option was touched, onPrem; cloud
-// sends the three numbers alone.
 export const untouchedSchedulingOptionsPayload = {
   active_check_enabled: 'use_default',
   max_check_attempts: null,
@@ -189,8 +187,6 @@ export const getHostResponse = () => ({
   },
   parent_hosts: [{ id: 1, name: 'host 1' }],
   poller: { id: 2, name: 'Poller EU' },
-  // `retry_check_interval` is unset, so the endpoint leaves it out; the check
-  // period is not a field of this form yet and must be ignored.
   scheduling_options: {
     active_check_enabled: 'false',
     check_period: { id: 1, name: '24x7' },
@@ -198,7 +194,6 @@ export const getHostResponse = () => ({
     normal_check_interval: 5,
     passive_check_enabled: 'true'
   },
-  // No `snmp_community`: the endpoint never returns it.
   snmp_version: '2c',
   timezone: { id: 7, name: 'Europe/Paris' }
 });

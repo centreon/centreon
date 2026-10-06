@@ -167,8 +167,6 @@ export default () => {
           },
           parent_host_ids: [1],
           poller_id: 2,
-          // The check period the response carried is not sent back: the form
-          // has no such field yet.
           scheduling_options: {
             active_check_enabled: 'false',
             max_check_attempts: 3,
@@ -176,7 +174,6 @@ export default () => {
             passive_check_enabled: 'true',
             retry_check_interval: null
           },
-          // No `snmp_community`: left empty, it is left unchanged.
           snmp_version: '2c',
           timezone_id: 7
         });
@@ -709,7 +706,6 @@ export default () => {
           name: 'srv-apache-02',
           parent_host_ids: [],
           poller_id: 2,
-          // The check toggles are refused on cloud.
           scheduling_options: {
             max_check_attempts: null,
             normal_check_interval: null,
@@ -911,7 +907,6 @@ export default () => {
       cy.findByTestId('host-form-notifications-enabled')
         .findByRole('button', { name: labelDefault })
         .should('have.attr', 'aria-pressed', 'true');
-      // Nor any scheduling options.
       cy.findByTestId(
         'host-form-scheduling-options-activeCheckEnabled-use_default'
       ).should('have.attr', 'aria-pressed', 'true');
@@ -924,7 +919,6 @@ export default () => {
         expect(request.body.notifications).to.deep.equals(
           untouchedNotificationsPayload
         );
-        // Nor any SNMP, timezone or scheduling setting.
         expect(request.body.scheduling_options).to.deep.equals(
           untouchedSchedulingOptionsPayload
         );
@@ -1121,7 +1115,6 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
-      // Write-only: nothing to open on.
       cy.findAllByTestId('host-form-snmp-community')
         .eq(1)
         .should('have.value', '')
@@ -1138,7 +1131,6 @@ export default () => {
       cy.findAllByTestId('host-form-scheduling-options-normalCheckInterval')
         .eq(1)
         .should('have.value', '5');
-      // Left out of the response, so still empty.
       cy.findAllByTestId('host-form-scheduling-options-retryCheckInterval')
         .eq(1)
         .should('have.value', '');
@@ -1160,7 +1152,6 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
-      // The version cannot be cleared: going back to none is an option.
       cy.findByLabelText(labelSnmpVersion).click();
       cy.get('.MuiAutocomplete-popper').contains(labelNone).click();
       cy.findByLabelText(labelSnmpVersion).should('have.value', '');
@@ -1211,7 +1202,6 @@ export default () => {
       cy.get('.MuiAutocomplete-popper').contains('2c').click();
 
       cy.findByTestId('host-form-timezone').click();
-      // No host-scoped timezone selector exists; this one is on API Platform.
       cy.waitForRequest('@getFormTimezones').then(({ request }) => {
         expect(request.url.pathname).to.contain('/api/configuration/timezones');
         expect(request.url.pathname).to.not.contain('/api/latest');
@@ -1225,7 +1215,6 @@ export default () => {
         .eq(1)
         .type('1');
 
-      // Default is preselected, and is not No.
       cy.findByTestId(
         'host-form-scheduling-options-activeCheckEnabled-use_default'
       ).should('have.attr', 'aria-pressed', 'true');
