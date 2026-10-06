@@ -617,11 +617,10 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
         self::assertSame('public', $rows[0]['host_macro_value']);
         self::assertNull($rows[0]['is_password']);
-        // The description is no longer part of the macro: stored as '' like a blank legacy one.
-        self::assertSame('', $rows[0]['description']);
+        // Dropped properties are left to their column default.
+        self::assertNull($rows[0]['description']);
         self::assertSame('$_HOSTSECRET$', $rows[1]['host_macro_name']);
         self::assertSame(1, (int) $rows[1]['is_password']);
-        // macro_order is a legacy display property: left to its column default.
         self::assertSame([0, 0], array_map(static fn (array $row): int => (int) $row['macro_order'], $rows));
     }
 

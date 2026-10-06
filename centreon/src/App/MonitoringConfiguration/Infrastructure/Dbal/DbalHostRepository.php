@@ -287,7 +287,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
         }
 
-        // macro_order is a legacy display property nothing downstream reads: left to its column default.
         foreach ($host->checkOptions->macros as $macro) {
             $this->connection->createQueryBuilder()
                 ->insert('on_demand_macro_host')
@@ -295,16 +294,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                     'host_macro_name' => ':macroName',
                     'host_macro_value' => ':macroValue',
                     'is_password' => ':isPassword',
-                    'description' => ':description',
                     'host_host_id' => ':hostId',
                 ])
                 ->setParameter('macroName', $macro->name->toStorageName())
                 ->setParameter('macroValue', $macro->value)
                 // Legacy stores 1 for a password macro and NULL otherwise, never 0.
                 ->setParameter('isPassword', $macro->isPassword ? 1 : null)
-                // The description is no longer part of the macro: stored as '' (never NULL), which is
-                // how legacy stores a blank one.
-                ->setParameter('description', '')
                 ->setParameter('hostId', $hostId)
                 ->executeStatement();
         }
