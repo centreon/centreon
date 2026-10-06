@@ -12,19 +12,23 @@ interface FormInputsState {
 
 interface Props {
   canEdit: boolean;
+  isAdditiveInheritanceEnabled: boolean;
   isCloudPlatform: boolean;
 }
 
 const useFormInputs = ({
   canEdit,
+  isAdditiveInheritanceEnabled,
   isCloudPlatform
 }: Props): FormInputsState => {
   const { t } = useTranslation();
 
-  const context = { isCloudPlatform, t };
+  const context = { isAdditiveInheritanceEnabled, isCloudPlatform, t };
   const availableSections = getAvailableSections(context);
 
+  // Sections are told apart by their headers, as designed: no divider.
   const groups: Array<Group> = availableSections.map(({ order, section }) => ({
+    isDividerHidden: true,
     name: t(section.label),
     order
   }));
@@ -37,12 +41,23 @@ const useFormInputs = ({
     availableSections
   );
 
+  // Once for every input, grid columns included, so none is left editable.
+  const disableWithoutWriteAccess = <Input extends Omit<InputProps, 'group'>>(
+    input: Input
+  ): Input => ({
+    ...input,
+    getDisabled: () => !canEdit,
+    ...(input.grid && {
+      grid: {
+        ...input.grid,
+        columns: input.grid.columns.map(disableWithoutWriteAccess)
+      }
+    })
+  });
+
   return {
     groups,
-    // Frozen here rather than per input: the sections to come add dozens of
-    // fields, and one forgotten `getDisabled` is an editable field on a form
-    // its user may only read.
-    inputs: inputs.map((input) => ({ ...input, getDisabled: () => !canEdit }))
+    inputs: inputs.map(disableWithoutWriteAccess)
   };
 };
 

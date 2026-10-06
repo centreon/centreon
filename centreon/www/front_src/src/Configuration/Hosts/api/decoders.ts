@@ -8,7 +8,7 @@ import {
   type HostDetail,
   type PlatformContext
 } from '../Form/sections';
-import type { HostListItem, Icon } from '../models';
+import type { FormPoller, HostListItem, Icon } from '../models';
 import { namedEntityDecoder } from './namedEntityDecoders';
 
 const iconDecoder = JsonDecoder.object<Icon>(
@@ -59,4 +59,15 @@ export const hostsListDecoder = buildListingDecoder({
   entityDecoder: hostsDecoder,
   entityDecoderName: 'Host',
   listingDecoderName: 'Hosts List'
+});
+
+export const formPollersListDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
+  entityDecoder: JsonDecoder.object<FormPoller>(
+    { ...namedEntityDecoder, isDefault: JsonDecoder.boolean },
+    'Poller',
+    { isDefault: 'is_default' }
+  ),
+  entityDecoderName: 'Poller',
+  listingDecoderName: 'Pollers List'
 });

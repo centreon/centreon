@@ -1,8 +1,9 @@
-import { Box } from '@mui/material';
+import { Box, Chip } from '@mui/material';
 
 import { type FormikValues, useFormikContext } from 'formik';
 import { equals, includes, path, reject, split } from 'ramda';
 import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useMemoComponent } from '../..';
 import { CheckboxGroup as CheckboxGroupComponent } from '../../Checkbox';
@@ -19,6 +20,7 @@ const ExclusiveCheckboxGroup = ({
   getDisabled,
   dataTestId
 }: InputPropsWithoutGroup): JSX.Element => {
+  const { t } = useTranslation();
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
   const fieldNamePath = split('.', fieldName);
@@ -53,10 +55,63 @@ const ExclusiveCheckboxGroup = ({
     );
   };
 
+  const toggleChip = (option: string) => (): void => {
+    setFieldValue(
+      fieldName,
+      includes(option, value)
+        ? reject(equals(option), value)
+        : [...value, option]
+    );
+  };
+
   const baseTestId = dataTestId || fieldName;
 
+  const isChips = equals(exclusiveCheckboxGroup?.variant, 'chips');
+
+  const exclusiveToggle = (
+    <Switch
+      change={changeToggle}
+      dataTestId={`${baseTestId}-exclusive`}
+      fieldName={fieldName}
+      getDisabled={() => disabled}
+      label={exclusiveCheckboxGroup?.exclusiveLabel as string}
+      switchInput={{
+        getChecked: (fieldValue) =>
+          includes(exclusiveOption, (fieldValue as Array<string>) ?? [])
+      }}
+      type={InputType.Switch}
+    />
+  );
+
   return useMemoComponent({
-    Component: (
+    Component: isChips ? (
+      <div
+        className="flex flex-wrap items-center gap-x-6 gap-y-3"
+        data-testid={baseTestId}
+      >
+        {options.map((option) => {
+          const isSelected = !isExclusive && includes(option, value);
+
+          return (
+            <Chip
+              aria-pressed={isSelected}
+              // The theme sizes chips for status badges, 12px or 20px tall.
+              className="h-6 rounded-3xl text-sm [&_.MuiChip-label]:px-3 [&_.MuiChip-label]:leading-[21px]"
+              clickable
+              color={isSelected ? 'primary' : 'default'}
+              data-testid={`${baseTestId}-${option}`}
+              disabled={disabled || isExclusive}
+              key={option}
+              label={t(option)}
+              onClick={toggleChip(option)}
+              size="small"
+              variant={isSelected ? 'filled' : 'outlined'}
+            />
+          );
+        })}
+        {exclusiveToggle}
+      </div>
+    ) : (
       <Box sx={{ alignItems: 'center', columnGap: 2, display: 'flex' }}>
         <CheckboxGroupComponent
           dataTestId={baseTestId}
@@ -67,18 +122,7 @@ const ExclusiveCheckboxGroup = ({
           options={options}
           values={isExclusive ? [] : value}
         />
-        <Switch
-          change={changeToggle}
-          dataTestId={`${baseTestId}-exclusive`}
-          fieldName={fieldName}
-          getDisabled={() => disabled}
-          label={exclusiveCheckboxGroup?.exclusiveLabel as string}
-          switchInput={{
-            getChecked: (fieldValue) =>
-              includes(exclusiveOption, (fieldValue as Array<string>) ?? [])
-          }}
-          type={InputType.Switch}
-        />
+        {exclusiveToggle}
       </Box>
     ),
     memoProps: [
@@ -88,7 +132,8 @@ const ExclusiveCheckboxGroup = ({
       exclusiveOption,
       exclusiveCheckboxGroup?.exclusiveLabel,
       exclusiveCheckboxGroup?.direction,
-      exclusiveCheckboxGroup?.labelPlacement
+      exclusiveCheckboxGroup?.labelPlacement,
+      exclusiveCheckboxGroup?.variant
     ]
   });
 };

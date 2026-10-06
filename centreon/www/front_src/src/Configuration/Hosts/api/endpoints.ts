@@ -21,6 +21,12 @@ export const hostFormPollersEndpoint = '/configuration/hosts/pollers';
 export const hostFormHostGroupsEndpoint = '/configuration/hosts/host_groups';
 export const hostFormHostCategoriesEndpoint =
   '/configuration/hosts/host_categories';
+export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
+export const hostFormContactGroupsEndpoint =
+  '/configuration/hosts/contact_groups';
+export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
+
+export const timezonesEndpoint = '/configuration/timezones';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;
@@ -30,6 +36,16 @@ export const getDeployServicesEndpoint = ({
 }: {
   id: number | string;
 }): string => `/configuration/hosts/${id}/services/deploy`;
+
+// On-premise only: the route does not exist on cloud.
+export const resolveAddressEndpoint = '/configuration/hosts/_resolve';
+
+export const getResolveAddressEndpoint = ({
+  hostname
+}: {
+  hostname: string;
+}): string =>
+  `${resolveAddressEndpoint}?hostname=${encodeURIComponent(hostname)}`;
 
 export const getDuplicateHostEndpoint = ({
   id
@@ -77,3 +93,15 @@ export const getHostTemplatesEndpoint = getSelectorEndpoint(
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
 export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);
+
+// There is no filter on the default poller, so it is looked for in one page
+// wide enough for any realistic number of pollers.
+export const getFormPollersEndpoint = (): string =>
+  buildListingEndpoint({
+    apiFormat: 'JSON-LD',
+    baseEndpoint: hostFormPollersEndpoint,
+    parameters: {
+      limit: 100,
+      page: 1
+    } as BuildListingEndpointParameters['parameters']
+  });

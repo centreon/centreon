@@ -2091,7 +2091,7 @@ jobs:
         shell: bash
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-slim
     permissions:
       contents: read
     needs: [get-environment, e2e-test]
@@ -2336,7 +2336,7 @@ jobs:
           ticket_reason_for_creation: "Nightly"
 
   deliver-pulp:
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
     needs:
       [
         changes,
@@ -2390,7 +2390,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
@@ -2427,7 +2427,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.is_cloud == 'false'
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
     permissions:
       contents: read
       packages: write
