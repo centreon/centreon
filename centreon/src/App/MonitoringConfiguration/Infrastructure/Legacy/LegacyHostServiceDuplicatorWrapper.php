@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
+use App\MonitoringConfiguration\Domain\Service\ServiceCloner;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -46,7 +47,7 @@ final readonly class LegacyHostServiceDuplicatorWrapper implements HostServiceDu
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        private LegacyServiceCloner $serviceCloner,
+        private ServiceCloner $serviceCloner,
     ) {
     }
 

@@ -1,0 +1,31 @@
+meta {
+  name: GET /configuration/hosts - Get the duplicated copy - HTTP 200
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts?search={"name":"{{Host1Name}}_1"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The duplicated copy exists under the first free _1 suffix", function () {
+    const body = res.getBody();
+    expect(body.result).to.have.lengthOf(1);
+
+    const copy = body.result[0];
+    expect(copy.name).to.eql(`${bru.getEnvVar("Host1Name")}_1`);
+    bru.setEnvVar("CopyHostId", copy.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
