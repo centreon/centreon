@@ -21,6 +21,7 @@ import {
   labelName,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
+  labelNone,
   labelNormalCheckInterval,
   labelPassiveChecksEnabled,
   labelRequired,
@@ -68,6 +69,10 @@ const snmpVersionOptions = snmpVersions.map((version) => ({
 }));
 
 type SnmpVersionOption = (typeof snmpVersionOptions)[number];
+
+// The select cannot be cleared, so going back to no version is an option of its
+// own, as the legacy form's blank entry was. Picking it empties the field.
+const noSnmpVersionId = 'none';
 
 // A number field holds `''` until something is typed.
 type OptionalNumber = number | '';
@@ -305,7 +310,19 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                     type: InputType.Password
                   },
                   {
-                    autocomplete: { options: snmpVersionOptions },
+                    autocomplete: {
+                      options: [
+                        { id: noSnmpVersionId, name: t(labelNone) },
+                        ...snmpVersionOptions
+                      ]
+                    },
+                    change: ({ setFieldValue, value }) =>
+                      setFieldValue(
+                        'snmpVersion',
+                        (value as SelectEntry | null)?.id === noSnmpVersionId
+                          ? null
+                          : value
+                      ),
                     // Not forwarded by the static autocomplete yet: its input
                     // is tested by its label meanwhile.
                     dataTestId: 'host-form-snmp-version',

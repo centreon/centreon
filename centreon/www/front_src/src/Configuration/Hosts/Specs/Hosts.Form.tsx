@@ -178,7 +178,7 @@ export default () => {
           },
           // No `snmp_community`: left empty, it is left unchanged.
           snmp_version: '2c',
-          timezone_id: 2
+          timezone_id: 7
         });
       });
     });
@@ -911,6 +911,10 @@ export default () => {
       cy.findByTestId('host-form-notifications-enabled')
         .findByRole('button', { name: labelDefault })
         .should('have.attr', 'aria-pressed', 'true');
+      // Nor any scheduling options.
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-use_default'
+      ).should('have.attr', 'aria-pressed', 'true');
 
       cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
 
@@ -920,6 +924,14 @@ export default () => {
         expect(request.body.notifications).to.deep.equals(
           untouchedNotificationsPayload
         );
+        // Nor any SNMP, timezone or scheduling setting.
+        expect(request.body.scheduling_options).to.deep.equals(
+          untouchedSchedulingOptionsPayload
+        );
+        expect(request.body).to.include({
+          snmp_version: null,
+          timezone_id: null
+        });
       });
     });
 
@@ -1139,6 +1151,47 @@ export default () => {
       ).should('have.attr', 'aria-pressed', 'true');
     });
 
+    it('clears the SNMP version, timezone and scheduling settings of a host', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      // The version cannot be cleared: going back to none is an option.
+      cy.findByLabelText(labelSnmpVersion).click();
+      cy.get('.MuiAutocomplete-popper').contains(labelNone).click();
+      cy.findByLabelText(labelSnmpVersion).should('have.value', '');
+      cy.findByTestId('host-form-timezone')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .clear();
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-use_default'
+      ).click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body).to.include({
+          snmp_version: null,
+          timezone_id: null
+        });
+        expect(request.body.scheduling_options).to.deep.equals({
+          active_check_enabled: 'use_default',
+          max_check_attempts: null,
+          normal_check_interval: 5,
+          passive_check_enabled: 'true',
+          retry_check_interval: null
+        });
+      });
+    });
+
     it('creates a host with its SNMP, timezone and scheduling settings', () => {
       initialize({});
 
@@ -1189,7 +1242,7 @@ export default () => {
         expect(request.body).to.include({
           snmp_community: 'public',
           snmp_version: '2c',
-          timezone_id: 2
+          timezone_id: 7
         });
         expect(request.body.scheduling_options).to.deep.equals({
           active_check_enabled: 'true',

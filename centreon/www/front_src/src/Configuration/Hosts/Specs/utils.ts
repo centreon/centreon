@@ -131,7 +131,7 @@ export const getTimePeriodsResponse = () =>
 export const getTimezonesResponse = () =>
   toCollection([
     { id: 1, name: 'Europe/London' },
-    { id: 2, name: 'Europe/Paris' },
+    { id: 7, name: 'Europe/Paris' },
     { id: 3, name: 'America/New_York' }
   ]);
 
@@ -200,5 +200,5 @@ export const getHostResponse = () => ({
   },
   // No `snmp_community`: the endpoint never returns it.
   snmp_version: '2c',
-  timezone: { id: 2, name: 'Europe/Paris' }
+  timezone: { id: 7, name: 'Europe/Paris' }
 });
