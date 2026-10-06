@@ -34,8 +34,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
  * The macros a host (or template) inherits, one per name, each tagged with its origin type.
  *
  * Resolution follows legacy: walking the inheritance line nearest-to-host first, the closest
- * template definition wins over any farther ancestor; check-command macros are the lowest priority
- * and only fill names no template defines (legacy comparaPriority: fromTpl > fromCommand).
+ * template definition wins over any farther ancestor; command macros are the lowest priority and
+ * only fill names no template defines (legacy comparaPriority: fromTpl > fromCommand), the first
+ * command declaring a name winning.
  */
 final readonly class InheritedHostMacros
 {
@@ -53,10 +54,11 @@ final readonly class InheritedHostMacros
 
     /**
      * @param list<HostTemplate> $inheritanceLine the full template line, nearest to the host first
-     * @param ?Command $checkCommand the host's check command; only a check-type command contributes,
-     *                               like legacy getMacroByIdAndType()
+     * @param list<Command> $commands the commands whose host macros are inherited, in priority order
+     *                                (see InheritedHostMacrosResolver); only a check-type command
+     *                                contributes, like legacy getMacroByIdAndType()
      */
-    public static function resolve(array $inheritanceLine, ?Command $checkCommand): self
+    public static function resolve(array $inheritanceLine, array $commands): self
     {
         $macrosByName = [];
         foreach ($inheritanceLine as $template) {
@@ -65,8 +67,11 @@ final readonly class InheritedHostMacros
             }
         }
 
-        if ($checkCommand instanceof Command && $checkCommand->type === CommandTypeEnum::Check) {
-            foreach ($checkCommand->macros(CommandMacroTypeEnum::Host) as $commandMacro) {
+        foreach ($commands as $command) {
+            if ($command->type !== CommandTypeEnum::Check) {
+                continue;
+            }
+            foreach ($command->macros(CommandMacroTypeEnum::Host) as $commandMacro) {
                 $macro = self::fromCommandMacro($commandMacro);
                 $macrosByName[$macro->name->value] ??= $macro;
             }

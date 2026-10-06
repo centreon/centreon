@@ -80,7 +80,7 @@ final class HostMacroChangesResolverTest extends TestCase
                 new HostMacro(new HostMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostMacroId(12)),
                 new HostMacro(new HostMacroName('shared'), 'x', isPassword: false, id: new HostMacroId(13)),
             ], HostMacro::class)),
-        ], $command);
+        ], [$command]);
     }
 
     public function testANewMacroBecomesADirectMacro(): void

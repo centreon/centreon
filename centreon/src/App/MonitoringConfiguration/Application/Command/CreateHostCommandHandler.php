@@ -24,12 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -61,6 +59,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -86,6 +85,7 @@ final readonly class CreateHostCommandHandler
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
+        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private OptionRepository $optionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
@@ -132,9 +132,9 @@ final readonly class CreateHostCommandHandler
         // above: existence and the "must be a check command" rule are validated at the API boundary
         // (CheckCommandTypeValidator, →422), but this getById() stays as the last word so a command
         // deleted between validation and execution surfaces as a 404 rather than a broken write.
-        $checkCommand = $command->checkOptions->checkCommandId instanceof CommandId
-            ? $this->commandRepository->getById($command->checkOptions->checkCommandId)
-            : null;
+        if ($command->checkOptions->checkCommandId instanceof CommandId) {
+            $this->commandRepository->getById($command->checkOptions->checkCommandId);
+        }
 
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
@@ -149,7 +149,7 @@ final readonly class CreateHostCommandHandler
 
         // Resolve inherited macros from the requested templates and the check command together, so a
         // submitted macro that merely duplicates an inherited one is dropped (R7).
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $checkCommand, $vaultUuid);
+        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
 
         $host = new Host(
             id: null,
@@ -200,16 +200,9 @@ final readonly class CreateHostCommandHandler
      * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
      *                           join the same entry (null when there is none, or the vault is off)
      */
-    private function prepareCheckOptions(
-        CheckOptions $checkOptions,
-        Collection $templateIds,
-        ?Command $checkCommand,
-        ?string $vaultUuid,
-    ): CheckOptions {
-        $inherited = InheritedHostMacros::resolve(
-            array_values($this->hostTemplateRepository->findInheritanceLine($templateIds)->toArray()),
-            $checkCommand,
-        );
+    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds, ?string $vaultUuid): CheckOptions
+    {
+        $inherited = $this->inheritedHostMacrosResolver->resolve($templateIds, $checkOptions->checkCommandId);
         $macros = $inherited->withoutRedundant($checkOptions->macros);
         $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid);
 

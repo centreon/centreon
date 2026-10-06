@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
@@ -412,6 +413,56 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame([$templateId], array_keys($this->inheritanceLine($templateId)));
     }
 
+    public function testFindInheritanceLineSkipsAnInactiveDirectTemplate(): void
+    {
+        // Legacy getTemplateChain() keeps active templates only, the direct ones included.
+        $inactiveId = $this->insertHostTemplate("inactive-{$this->tag}");
+        $this->connection->update('host', ['host_activate' => '0'], ['host_id' => $inactiveId]);
+        $activeId = $this->insertHostTemplate("active-{$this->tag}");
+
+        self::assertSame([$activeId], array_keys($this->inheritanceLine($inactiveId, $activeId)));
+    }
+
+    public function testFindInheritanceLineLoadsTheTemplateCheckCommand(): void
+    {
+        $commandId = $this->insertCommand();
+        $withCommandId = $this->insertHostTemplate("with-command-{$this->tag}");
+        $this->connection->update('host', ['command_command_id' => $commandId], ['host_id' => $withCommandId]);
+        $withoutCommandId = $this->insertHostTemplate("without-command-{$this->tag}");
+        $this->linkHostToTemplate($withCommandId, $withoutCommandId, 1);
+
+        $line = $this->inheritanceLine($withCommandId);
+
+        self::assertSame($commandId, $line[$withCommandId]->checkCommandId?->value);
+        self::assertNull($line[$withoutCommandId]->checkCommandId);
+    }
+
+    public function testFindInheritanceLineLoadsTheCheckCommandsOfTheLinkedServiceTemplates(): void
+    {
+        // Legacy getServicesTemplates(): each linked service template, in relation order, followed
+        // by its own templates nearest first; services (register = '1') and command-less ones are
+        // skipped.
+        $firstCommandId = $this->insertCommand();
+        $parentCommandId = $this->insertCommand();
+        $secondCommandId = $this->insertCommand();
+        $parentServiceId = $this->insertService(templateId: null, commandId: $parentCommandId);
+        $firstServiceId = $this->insertService(templateId: $parentServiceId, commandId: $firstCommandId);
+        $commandlessServiceId = $this->insertService(templateId: null, commandId: null);
+        $secondServiceId = $this->insertService(templateId: null, commandId: $secondCommandId);
+        $regularServiceId = $this->insertService(templateId: null, commandId: $this->insertCommand(), register: '1');
+        $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        foreach ([$firstServiceId, $commandlessServiceId, $regularServiceId, $secondServiceId] as $serviceId) {
+            $this->connection->insert('host_service_relation', ['host_host_id' => $templateId, 'service_service_id' => $serviceId]);
+        }
+
+        $commandIds = array_map(
+            static fn (CommandId $id): int => $id->value,
+            $this->inheritanceLine($templateId)[$templateId]->serviceTemplateCheckCommandIds->toArray(),
+        );
+
+        self::assertSame([$firstCommandId, $parentCommandId, $secondCommandId], $commandIds);
+    }
+
     public function testFindInheritanceLineSkipsAnIdThatIsNotAHostTemplate(): void
     {
         $hostId = $this->insertRegularHost("host-{$this->tag}");
@@ -456,6 +507,29 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         }
 
         return $line;
+    }
+
+    private function insertCommand(): int
+    {
+        $this->connection->insert('command', [
+            'command_name' => 'cmd-' . Uuid::v4()->toBase58(),
+            'command_line' => '$USER1$/check',
+            'command_type' => 2,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertService(?int $templateId, ?int $commandId, string $register = '0'): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => 'svc-' . Uuid::v4()->toBase58(),
+            'service_register' => $register,
+            'service_template_model_stm_id' => $templateId,
+            'command_command_id' => $commandId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function insertMacro(int $hostId, string $name, string $value, bool $isPassword, int $order): int

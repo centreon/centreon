@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
@@ -208,28 +209,28 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         }
 
         // One query fetches every relation reachable from the direct templates through active
-        // templates (legacy getTemplateChain: activated, register = '0'), in `order`; the
-        // depth-first walk is done in PHP. UNION dedupes reached ids, so a template loop already in
-        // the data cannot make the recursion run forever.
+        // templates (legacy getTemplateChain: activated, register = '0', at every level, the direct
+        // templates included), in `order`; the depth-first walk is done in PHP. UNION dedupes
+        // reached ids, so a template loop already in the data cannot make the recursion run forever.
         $sql = <<<'SQL'
             WITH RECURSIVE chain (id) AS (
                 SELECT host_id
                 FROM host
-                WHERE host_id IN (:ids) AND host_register = '0'
+                WHERE host_id IN (:ids) AND host_activate = '1' AND host_register = '0'
                 UNION
                 SELECT htr.host_tpl_id
                 FROM host_template_relation htr
                 INNER JOIN chain c ON c.id = htr.host_host_id
                 INNER JOIN host t ON t.host_id = htr.host_tpl_id AND t.host_activate = '1' AND t.host_register = '0'
             )
-            SELECT htr.host_host_id, htr.host_tpl_id, t.host_name AS tpl_name
+            SELECT htr.host_host_id, htr.host_tpl_id, t.host_name AS tpl_name, t.command_command_id AS tpl_command_id
             FROM host_template_relation htr
             INNER JOIN chain c ON c.id = htr.host_host_id
             INNER JOIN host t ON t.host_id = htr.host_tpl_id AND t.host_activate = '1' AND t.host_register = '0'
             ORDER BY htr.host_host_id, htr.`order`, htr.host_tpl_id
             SQL;
 
-        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, tpl_name: string}> $rows */
+        /** @var list<array{host_host_id: int|string, host_tpl_id: int|string, tpl_name: string, tpl_command_id: int|string|null}> $rows */
         $rows = $this->connection->executeQuery(
             $sql,
             ['ids' => $directIds],
@@ -238,34 +239,126 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
         /** @var array<int, list<int>> $parentIdsById */
         $parentIdsById = [];
-        $names = $this->findDirectTemplateNames($directIds);
+        $templates = $this->findDirectTemplates($directIds);
         foreach ($rows as $row) {
             $parentIdsById[(int) $row['host_host_id']][] = (int) $row['host_tpl_id'];
-            $names[(int) $row['host_tpl_id']] = $row['tpl_name'];
+            $templates[(int) $row['host_tpl_id']] = [
+                'name' => $row['tpl_name'],
+                'command_id' => $row['tpl_command_id'] !== null ? (int) $row['tpl_command_id'] : null,
+            ];
         }
 
         $line = [];
         $visited = [];
         foreach ($directIds as $directId) {
-            // A direct id that is not a host template has no name and is skipped.
-            if (isset($names[$directId])) {
+            // A direct id that is not an active host template is skipped.
+            if (isset($templates[$directId])) {
                 $this->walkInheritanceLine($directId, $parentIdsById, $visited, $line);
             }
         }
 
         $macrosByOwner = $this->findMacrosByOwner($line);
+        $serviceTemplateCommandIds = $this->findServiceTemplateCheckCommandIds($line);
 
         return new Collection(
             array_map(
                 static fn (int $id): HostTemplate => new HostTemplate(
                     new HostTemplateId($id),
-                    new HostTemplateName($names[$id]),
+                    new HostTemplateName($templates[$id]['name']),
                     new Collection($macrosByOwner[$id] ?? [], HostMacro::class),
+                    $templates[$id]['command_id'] !== null ? new CommandId($templates[$id]['command_id']) : null,
+                    new Collection(
+                        array_map(static fn (int $commandId): CommandId => new CommandId($commandId), $serviceTemplateCommandIds[$id] ?? []),
+                        CommandId::class,
+                    ),
                 ),
                 $line,
             ),
             HostTemplate::class,
         );
+    }
+
+    /**
+     * The check commands of the service templates linked to each template, like legacy
+     * CentreonHost::getServicesTemplates(): each linked service template (register = '0', in
+     * relation order) followed by its own templates, nearest first, keeping those with a command.
+     *
+     * @param list<int> $templateIds
+     *
+     * @return array<int, list<int>> command ids indexed by host template id
+     */
+    private function findServiceTemplateCheckCommandIds(array $templateIds): array
+    {
+        if ($templateIds === []) {
+            return [];
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hsr.host_host_id', 's.service_id')
+            ->from('host_service_relation', 'hsr')
+            ->innerJoin('hsr', 'service', 's', "s.service_id = hsr.service_service_id AND s.service_register = '0'")
+            ->where($qb->expr()->in('hsr.host_host_id', $qb->createNamedParameter($templateIds, ArrayParameterType::INTEGER)))
+            ->orderBy('hsr.hsr_id');
+
+        /** @var list<array{host_host_id: int|string, service_id: int|string}> $links */
+        $links = $qb->executeQuery()->fetchAllAssociative();
+        if ($links === []) {
+            return [];
+        }
+
+        $services = $this->findServiceTemplateChains(array_map(static fn (array $link): int => (int) $link['service_id'], $links));
+
+        $commandIds = [];
+        foreach ($links as $link) {
+            $serviceId = (int) $link['service_id'];
+            $visited = [];
+            while ($serviceId !== null && isset($services[$serviceId]) && ! isset($visited[$serviceId])) {
+                $visited[$serviceId] = true;
+                if ($services[$serviceId]['command_id'] !== null) {
+                    $commandIds[(int) $link['host_host_id']][] = $services[$serviceId]['command_id'];
+                }
+                $serviceId = $services[$serviceId]['parent_id'];
+            }
+        }
+
+        return $commandIds;
+    }
+
+    /**
+     * The given services and every template they inherit from, through service_template_model_stm_id.
+     *
+     * @param list<int> $serviceIds
+     *
+     * @return array<int, array{command_id: ?int, parent_id: ?int}> indexed by service id
+     */
+    private function findServiceTemplateChains(array $serviceIds): array
+    {
+        $services = [];
+        $toFetch = array_values(array_unique($serviceIds));
+        while ($toFetch !== []) {
+            $qb = $this->connection->createQueryBuilder();
+            $qb->select('service_id', 'command_command_id', 'service_template_model_stm_id')
+                ->from('service')
+                ->where($qb->expr()->in('service_id', $qb->createNamedParameter($toFetch, ArrayParameterType::INTEGER)));
+
+            /** @var list<array{service_id: int|string, command_command_id: int|string|null, service_template_model_stm_id: int|string|null}> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+
+            $toFetch = [];
+            foreach ($rows as $row) {
+                $parentId = $row['service_template_model_stm_id'] !== null ? (int) $row['service_template_model_stm_id'] : null;
+                $services[(int) $row['service_id']] = [
+                    'command_id' => $row['command_command_id'] !== null ? (int) $row['command_command_id'] : null,
+                    'parent_id' => $parentId,
+                ];
+                if ($parentId !== null && ! isset($services[$parentId])) {
+                    $toFetch[] = $parentId;
+                }
+            }
+            $toFetch = array_values(array_diff(array_unique($toFetch), array_keys($services)));
+        }
+
+        return $services;
     }
 
     /**
@@ -292,25 +385,29 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     /**
      * @param list<int> $ids
      *
-     * @return array<int, string> template name indexed by id, host templates only
+     * @return array<int, array{name: string, command_id: ?int}> indexed by id, active host templates only
      */
-    private function findDirectTemplateNames(array $ids): array
+    private function findDirectTemplates(array $ids): array
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('host_id', 'host_name')
+        $qb->select('host_id', 'host_name', 'command_command_id')
             ->from(self::TABLE_NAME)
             ->where('host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->andWhere("host_activate = '1'")
             ->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)));
 
-        /** @var list<array{host_id: int|string, host_name: string}> $rows */
+        /** @var list<array{host_id: int|string, host_name: string, command_command_id: int|string|null}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
-        $names = [];
+        $templates = [];
         foreach ($rows as $row) {
-            $names[(int) $row['host_id']] = $row['host_name'];
+            $templates[(int) $row['host_id']] = [
+                'name' => $row['host_name'],
+                'command_id' => $row['command_command_id'] !== null ? (int) $row['command_command_id'] : null,
+            ];
         }
 
-        return $names;
+        return $templates;
     }
 
     /**

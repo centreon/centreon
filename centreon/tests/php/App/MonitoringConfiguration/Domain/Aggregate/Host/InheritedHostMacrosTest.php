@@ -46,7 +46,7 @@ final class InheritedHostMacrosTest extends TestCase
 {
     public function testTemplateMacrosAreTaggedWithTheirOriginAndKeepTheirId(): void
     {
-        $inherited = InheritedHostMacros::resolve([$this->template(1, [$this->macro(11, 'tpl', 'value', true)])], null);
+        $inherited = InheritedHostMacros::resolve([$this->template(1, [$this->macro(11, 'tpl', 'value', true)])], []);
 
         $macro = $inherited->findByName(new HostMacroName('tpl'));
         self::assertInstanceOf(HostMacro::class, $macro);
@@ -61,7 +61,7 @@ final class InheritedHostMacrosTest extends TestCase
         $inherited = InheritedHostMacros::resolve([
             $this->template(1, [$this->macro(11, 'shared', 'from-nearest')]),
             $this->template(2, [$this->macro(21, 'shared', 'from-farther'), $this->macro(22, 'farther-only', 'x')]),
-        ], null);
+        ], []);
 
         self::assertSame('from-nearest', $inherited->findByName(new HostMacroName('shared'))?->value);
         self::assertSame('x', $inherited->findByName(new HostMacroName('farther-only'))?->value);
@@ -74,7 +74,7 @@ final class InheritedHostMacrosTest extends TestCase
             new CommandMacro(new CommandMacroId(31), 'CMDONLY', CommandMacroTypeEnum::Host),
         ]);
 
-        $inherited = InheritedHostMacros::resolve([$this->template(1, [$this->macro(11, 'shared', 'from-template')])], $command);
+        $inherited = InheritedHostMacros::resolve([$this->template(1, [$this->macro(11, 'shared', 'from-template')])], [$command]);
 
         // A name both define resolves to the template's definition, value included.
         $shared = $inherited->findByName(new HostMacroName('shared'));
@@ -91,7 +91,7 @@ final class InheritedHostMacrosTest extends TestCase
 
     public function testACommandMacroNeverRecordedIsStillInheritedWithoutId(): void
     {
-        $inherited = InheritedHostMacros::resolve([], $this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTFOO$'));
+        $inherited = InheritedHostMacros::resolve([], [$this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTFOO$')]);
 
         $macro = $inherited->findByName(new HostMacroName('foo'));
         self::assertInstanceOf(HostMacro::class, $macro);
@@ -102,7 +102,7 @@ final class InheritedHostMacrosTest extends TestCase
     {
         $inherited = InheritedHostMacros::resolve(
             [],
-            $this->command(CommandTypeEnum::Check, '$USER1$/check -C $_HOSTSNMPCOMMUNITY$ -v $_HOSTSNMPVERSION$ -a $_HOSTFOO$'),
+            [$this->command(CommandTypeEnum::Check, '$USER1$/check -C $_HOSTSNMPCOMMUNITY$ -v $_HOSTSNMPVERSION$ -a $_HOSTFOO$')],
         );
 
         self::assertSame(['FOO'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $inherited->toList()));
@@ -110,14 +110,39 @@ final class InheritedHostMacrosTest extends TestCase
 
     public function testServiceMacrosOfTheCheckCommandAreNeverInherited(): void
     {
-        $inherited = InheritedHostMacros::resolve([], $this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTFOO$ -p $_SERVICEPORT$'));
+        $inherited = InheritedHostMacros::resolve([], [$this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTFOO$ -p $_SERVICEPORT$')]);
 
         self::assertSame(['FOO'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $inherited->toList()));
     }
 
+    public function testTheFirstCommandDeclaringANameWins(): void
+    {
+        $inherited = InheritedHostMacros::resolve([], [
+            $this->command(CommandTypeEnum::Check, '$USER1$/first -a $_HOSTSHARED$', [
+                new CommandMacro(new CommandMacroId(1), 'SHARED', CommandMacroTypeEnum::Host),
+            ]),
+            $this->command(CommandTypeEnum::Check, '$USER1$/second -a $_HOSTSHARED$ -b $_HOSTSECONDONLY$', [
+                new CommandMacro(new CommandMacroId(2), 'SHARED', CommandMacroTypeEnum::Host),
+            ]),
+        ]);
+
+        self::assertSame(1, $inherited->findByName(new HostMacroName('shared'))?->id?->value);
+        self::assertNotNull($inherited->findByName(new HostMacroName('secondonly')));
+    }
+
+    public function testANonCheckCommandAmongOthersIsSkipped(): void
+    {
+        $inherited = InheritedHostMacros::resolve([], [
+            $this->command(CommandTypeEnum::Notification, '$USER1$/notify -a $_HOSTNOTIFY$'),
+            $this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTCHECK$'),
+        ]);
+
+        self::assertSame(['CHECK'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $inherited->toList()));
+    }
+
     public function testANonCheckCommandContributesNothing(): void
     {
-        $inherited = InheritedHostMacros::resolve([], $this->command(CommandTypeEnum::Notification, '$USER1$/notify -a $_HOSTFOO$'));
+        $inherited = InheritedHostMacros::resolve([], [$this->command(CommandTypeEnum::Notification, '$USER1$/notify -a $_HOSTFOO$')]);
 
         self::assertSame([], $inherited->toList());
     }
@@ -126,9 +151,9 @@ final class InheritedHostMacrosTest extends TestCase
     {
         $inherited = InheritedHostMacros::resolve(
             [$this->template(1, [$this->macro(5, 'tpl', 'x')])],
-            $this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTCMD$', [
+            [$this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTCMD$', [
                 new CommandMacro(new CommandMacroId(5), 'CMD', CommandMacroTypeEnum::Host),
-            ]),
+            ])],
         );
 
         self::assertSame('TPL', $inherited->findBySource(HostMacroParentEnum::Template, new HostMacroId(5))?->name->value);
@@ -142,7 +167,7 @@ final class InheritedHostMacrosTest extends TestCase
         $inherited = InheritedHostMacros::resolve([
             $this->template(1, [$this->macro(11, 'shared', 'near')]),
             $this->template(2, [$this->macro(21, 'shared', 'far')]),
-        ], null);
+        ], []);
 
         self::assertNull($inherited->findBySource(HostMacroParentEnum::Template, new HostMacroId(21)));
     }
@@ -152,7 +177,7 @@ final class InheritedHostMacrosTest extends TestCase
         $inherited = InheritedHostMacros::resolve([$this->template(1, [
             $this->macro(11, 'same', 'v'),
             $this->macro(12, 'other-value', 'v'),
-        ])], null);
+        ])], []);
 
         $kept = $inherited->withoutRedundant([
             new HostMacro(new HostMacroName('same'), 'v', isPassword: false),
@@ -168,7 +193,7 @@ final class InheritedHostMacrosTest extends TestCase
         $inherited = InheritedHostMacros::resolve([$this->template(1, [
             $this->macro(11, 'shadowed', 'v'),
             $this->macro(12, 'kept', 'v'),
-        ])], null);
+        ])], []);
 
         $remaining = $inherited->notOverriddenBy([new HostMacro(new HostMacroName('shadowed'), 'other', isPassword: false)]);
 
