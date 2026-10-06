@@ -159,7 +159,11 @@ class ParametersController extends AbstractController
                     $isAdditiveInheritanceEnabled = (int) $option->getValue() === self::ADDITIVE_INHERITANCE_MODE;
                     break;
                 case self::INTERVAL_LENGTH:
-                    $intervalLength = (int) $option->getValue();
+                    // The legacy form stores the 'NULL' string when the field is left empty
+                    $storedIntervalLength = (int) $option->getValue();
+                    $intervalLength = $storedIntervalLength > 0
+                        ? $storedIntervalLength
+                        : self::DEFAULT_INTERVAL_LENGTH;
                     break;
                 default:
                     break;
