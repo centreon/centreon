@@ -88,6 +88,7 @@ final readonly class LegacyServiceCloner implements ServiceCloner
         $previousPearDB = $GLOBALS['pearDB'] ?? null;
         $previousPearDBO = $GLOBALS['pearDBO'] ?? null;
         $previousCentreon = $GLOBALS['centreon'] ?? null;
+        $previousErrorHandler = $this->currentErrorHandler();
 
         try {
             // Installed inside the try so the finally always restores the globals, even if opening the
@@ -108,6 +109,10 @@ final readonly class LegacyServiceCloner implements ServiceCloner
                 $newHostId->value,
             );
         } finally {
+            // The legacy clone machinery (CentreonDB/CentreonUser, multipleServiceInDB) may register an
+            // error handler without restoring it; unwind any it left on the stack so the request keeps
+            // the handler it started with.
+            $this->restoreErrorHandlerTo($previousErrorHandler);
             $GLOBALS['pearDB'] = $previousPearDB;
             $GLOBALS['pearDBO'] = $previousPearDBO;
             $GLOBALS['centreon'] = $previousCentreon;
@@ -146,6 +151,28 @@ final readonly class LegacyServiceCloner implements ServiceCloner
         }
 
         return $file;
+    }
+
+    /**
+     * The error handler currently on top of the stack, read without disturbing it.
+     */
+    private function currentErrorHandler(): ?callable
+    {
+        $handler = set_error_handler(static fn (int $errno, string $errstr): bool => false);
+        restore_error_handler();
+
+        return $handler;
+    }
+
+    /**
+     * Pops any error handlers left above the given one, back to the state captured before the call.
+     * Bounded so a mismatch never spins forever.
+     */
+    private function restoreErrorHandlerTo(?callable $handler): void
+    {
+        for ($attempt = 0; $attempt < 50 && $this->currentErrorHandler() !== $handler; $attempt++) {
+            restore_error_handler();
+        }
     }
 
     /**

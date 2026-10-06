@@ -343,9 +343,9 @@ final class DuplicateHostProcessorTest extends ApiTestCase
 
         // The ticket requires one action-log "a" (add) line per copy, with field detail — fixing the
         // legacy inconsistency where a duplicate left the log empty. It is written through the new
-        // ActivityLogging stack on the configuration connection (not the legacy CentreonLogAction), so
-        // it is assertable here.
-        $logRow = $this->connection->fetchAssociative(
+        // ActivityLogging stack, whose repository binds the real-time connection, so log_action and
+        // log_action_modification live in centreon_storage and are read through $this->realTimeConnection.
+        $logRow = $this->realTimeConnection->fetchAssociative(
             "SELECT action_log_id, action_type, object_name FROM log_action WHERE object_type = 'host' AND object_id = ?",
             [$copyId],
         );
@@ -353,7 +353,7 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertSame('a', $logRow['action_type'], 'the duplication is logged as an add (a) action');
         self::assertSame($name . '_1', $logRow['object_name'], 'the action-log line names the copy');
 
-        $detailCount = $this->connection->fetchOne(
+        $detailCount = $this->realTimeConnection->fetchOne(
             'SELECT COUNT(*) FROM log_action_modification WHERE action_log_id = ?',
             [$logRow['action_log_id']],
         );
