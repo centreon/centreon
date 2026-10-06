@@ -361,6 +361,30 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         );
     }
 
+    public function testAVaultPurgeFailureDoesNotMaskThePersistenceError(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $snmpReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTSNMPCOMMUNITY';
+        $macroReference = 'secret::vault::monitoring/hosts/src-uuid::_HOSTPASSWORD';
+        $this->vault->extractedUuids[$snmpReference] = 'src-uuid';
+        $this->vault->resolved[$snmpReference] = 'public';
+        $this->vault->resolved[$macroReference] = 's3cr3t';
+        // The copy's fresh entry has a distinct UUID, so the purge guard allows the delete.
+        $this->vault->extractedUuids['secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY'] = 'new-uuid';
+        $this->repository->hosts[1] = $this->buildVaultedHost(1, 'web', $snmpReference, $macroReference);
+        // Persistence fails (the real cause) AND the compensating vault purge also fails.
+        $this->resourceAccessRepository->duplicateHostAccessThrows = true;
+        $this->vault->deleteThrows = true;
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            self::fail('expected the persistence failure to propagate');
+        } catch (\RuntimeException $exception) {
+            // The original cause surfaces, not the swallowed purge failure.
+            self::assertSame('duplicateHostAccess failed', $exception->getMessage());
+        }
+    }
+
     public function testDoesNotPurgeTheSourceVaultEntryWhenTheCopySharesItAndPersistenceFails(): void
     {
         // Vault disabled: duplicateSecrets copies the source's `secret::` references verbatim, so the
