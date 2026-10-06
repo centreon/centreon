@@ -44,6 +44,17 @@ export const labelInvalidAddress = 'Not a valid IP address';
 export const labelParentAndChildHost = 'Circular Definition';
 export const labelMustBePositiveIntegerOrZero =
   'Must be a positive integer or 0';
+export const labelMustBeIntegerOfAtLeastOne =
+  'An integer with a minimum value of 1 is required';
+
+export const labelSnmpCommunity = 'SNMP Community';
+export const labelSnmpVersion = 'Version';
+export const labelTimezone = 'Timezone';
+export const labelMaxCheckAttempts = 'Max Check Attempts';
+export const labelNormalCheckInterval = 'Normal Check Interval';
+export const labelRetryCheckInterval = 'Retry Check Interval';
+export const labelActiveChecksEnabled = 'Active Checks Enabled';
+export const labelPassiveChecksEnabled = 'Passive Checks Enabled';
 
 // Yes / No / Default fields
 export const labelYes = 'Yes';

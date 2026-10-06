@@ -25,7 +25,8 @@ import {
   hostsListEndpoint,
   hostTemplatesEndpoint,
   pollersEndpoint,
-  resolveAddressEndpoint
+  resolveAddressEndpoint,
+  timezonesEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
@@ -38,6 +39,7 @@ import {
   getListingResponse,
   getPollersResponse,
   getTimePeriodsResponse,
+  getTimezonesResponse,
   refusedAddressResponse,
   resolvedAddressResponse,
   unresolvedAddressResponse
@@ -186,6 +188,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormTimePeriodsEndpoint}?**`,
     response: getTimePeriodsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormTimezones',
+    method: Method.GET,
+    path: `**${timezonesEndpoint}?**`,
+    response: getTimezonesResponse()
   });
 
   cy.interceptAPIRequest({

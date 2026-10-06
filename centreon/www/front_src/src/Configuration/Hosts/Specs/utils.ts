@@ -128,6 +128,21 @@ export const getTimePeriodsResponse = () =>
     { id: 2, name: 'workhours' }
   ]);
 
+export const getTimezonesResponse = () =>
+  toCollection([
+    { id: 1, name: 'Europe/London' },
+    { id: 7, name: 'Europe/Paris' },
+    { id: 3, name: 'America/New_York' }
+  ]);
+
+export const untouchedSchedulingOptionsPayload = {
+  active_check_enabled: 'use_default',
+  max_check_attempts: null,
+  normal_check_interval: null,
+  passive_check_enabled: 'use_default',
+  retry_check_interval: null
+};
+
 // What a create sends when nothing of the Notification section was touched.
 export const untouchedNotificationsPayload = {
   contact_groups: [],
@@ -171,5 +186,14 @@ export const getHostResponse = () => ({
     timeperiod: { id: 1, name: '24x7' }
   },
   parent_hosts: [{ id: 1, name: 'host 1' }],
-  poller: { id: 2, name: 'Poller EU' }
+  poller: { id: 2, name: 'Poller EU' },
+  scheduling_options: {
+    active_check_enabled: 'false',
+    check_period: { id: 1, name: '24x7' },
+    max_check_attempts: 3,
+    normal_check_interval: 5,
+    passive_check_enabled: 'true'
+  },
+  snmp_version: '2c',
+  timezone: { id: 7, name: 'Europe/Paris' }
 });
