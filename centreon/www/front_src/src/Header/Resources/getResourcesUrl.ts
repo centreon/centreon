@@ -6,7 +6,11 @@ const hostCriterias = {
 };
 const serviceCriteria = {
   name: 'resource_types',
-  value: [{ id: 'service', name: 'Service' }]
+  value: [
+    { id: 'service', name: 'Service' },
+    { id: 'metaservice', name: 'Meta-Service' },
+    { id: 'anomaly-detection', name: 'Anomaly detection' }
+  ]
 };
 
 interface StatusCriterias {
