@@ -416,11 +416,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($hostMacros as $macroName) {
             $this->connection->executeStatement(
-                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_type)',
                 [
                     'cmd_id' => $commandId->value,
                     'macro_name' => $macroName,
-                    'macro_description' => '',
                     'macro_type' => '1',
                 ]
             );
@@ -428,11 +427,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($serviceMacros as $macroName) {
             $this->connection->executeStatement(
-                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_type)',
                 [
                     'cmd_id' => $commandId->value,
                     'macro_name' => $macroName,
-                    'macro_description' => '',
                     'macro_type' => '2',
                 ]
             );

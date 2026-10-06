@@ -154,6 +154,17 @@ final class DbalCommandRepositoryTest extends KernelTestCase
             self::assertNotNull($macro->id);
         }
         self::assertEquals($macros, $this->repository->getById($command->id())->macros());
+
+        // The macro description is a dropped property: left to its column default.
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        self::assertSame(
+            [null, null],
+            $connection->fetchFirstColumn(
+                'SELECT command_macro_desciption FROM on_demand_macro_command WHERE command_command_id = ?',
+                [$command->id()->value],
+            ),
+        );
     }
 
     public function testUpdateRefreshesStoredMacroIds(): void
