@@ -48,7 +48,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
 
     public function transform(mixed $from): CommandResource
     {
-        return new CommandResource(
+        $resource = new CommandResource(
             id: $from->id()->value,
             name: $from->name->value,
             type: $from->type->name,
@@ -60,14 +60,16 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
                 ? $this->connectorTransformer->transform($from->connector())
                 : null,
             comment: $from->comment?->value,
-            macros: array_map(
-                static fn (CommandMacro $macro): CommandMacroOutput => new CommandMacroOutput(
-                    id: $macro->id,
-                    name: $macro->name,
-                    type: mb_strtolower($macro->type->name),
-                ),
-                $from->macros(),
-            ),
         );
+        $resource->setMacrosLoader(static fn (): array => array_map(
+            static fn (CommandMacro $macro): CommandMacroOutput => new CommandMacroOutput(
+                id: $macro->id,
+                name: $macro->name,
+                type: mb_strtolower($macro->type->name),
+            ),
+            $from->macros(),
+        ));
+
+        return $resource;
     }
 }

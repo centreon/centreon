@@ -83,6 +83,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class CommandResource
 {
+    /**
+     * @var list<CommandMacroOutput>|(\Closure(): list<CommandMacroOutput>)
+     */
+    private array|\Closure $macros = [];
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
@@ -162,30 +167,48 @@ final class CommandResource
             openapiContext: ['example' => 'This command is used to check the HTTP service']
         )]
         public ?string $comment,
+    ) {
+    }
 
-        /**
-         * @var list<CommandMacroOutput>
-         */
-        #[ApiProperty(
-            description: 'The on-demand macros used in the command line ($_HOSTxxx$ and $_SERVICExxx$). The id is null when the macro is not stored',
-            writable: false,
-            openapiContext: [
-                'type' => 'array',
-                'items' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'id' => ['type' => 'integer', 'nullable' => true],
-                        'name' => ['type' => 'string'],
-                        'type' => ['type' => 'string', 'enum' => ['host', 'service']],
-                    ],
-                ],
-                'example' => [
-                    ['id' => 1, 'name' => 'USERNAME', 'type' => 'host'],
-                    ['id' => null, 'name' => 'PORT', 'type' => 'service'],
+    /**
+     * Macros are loaded lazily: only when the resource is serialized, so DELETE and the
+     * PATCH provider (whose resource is never rendered) do not query them.
+     *
+     * @param \Closure(): list<CommandMacroOutput> $macrosLoader
+     */
+    public function setMacrosLoader(\Closure $macrosLoader): void
+    {
+        $this->macros = $macrosLoader;
+    }
+
+    /**
+     * @return list<CommandMacroOutput>
+     */
+    #[ApiProperty(
+        description: 'The on-demand macros used in the command line ($_HOSTxxx$ and $_SERVICExxx$). The id is null when the macro is not stored',
+        writable: false,
+        openapiContext: [
+            'type' => 'array',
+            'items' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => ['type' => 'integer', 'nullable' => true],
+                    'name' => ['type' => 'string'],
+                    'type' => ['type' => 'string', 'enum' => ['host', 'service']],
                 ],
             ],
-        )]
-        public array $macros = [],
-    ) {
+            'example' => [
+                ['id' => 1, 'name' => 'USERNAME', 'type' => 'host'],
+                ['id' => null, 'name' => 'PORT', 'type' => 'service'],
+            ],
+        ],
+    )]
+    public function getMacros(): array
+    {
+        if ($this->macros instanceof \Closure) {
+            $this->macros = ($this->macros)();
+        }
+
+        return $this->macros;
     }
 }
