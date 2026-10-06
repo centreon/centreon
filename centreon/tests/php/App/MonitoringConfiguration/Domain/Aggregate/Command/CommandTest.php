@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
@@ -98,18 +99,18 @@ final class CommandTest extends TestCase
         $command = $this->createCommand(
             'check $_HOSTUSER$ $_SERVICEUSER$ $_HOSTPORT$',
             [
-                new CommandMacro(10, 'USER', CommandMacroTypeEnum::Service),
-                new CommandMacro(11, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(10), 'USER', CommandMacroTypeEnum::Service),
+                new CommandMacro(new CommandMacroId(11), 'USER', CommandMacroTypeEnum::Host),
                 // stale macro, no longer in the command line
-                new CommandMacro(12, 'OLD', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(12), 'OLD', CommandMacroTypeEnum::Host),
             ],
         );
 
         self::assertEquals(
             [
-                new CommandMacro(11, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(11), 'USER', CommandMacroTypeEnum::Host),
                 new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Host),
-                new CommandMacro(10, 'USER', CommandMacroTypeEnum::Service),
+                new CommandMacro(new CommandMacroId(10), 'USER', CommandMacroTypeEnum::Service),
             ],
             $command->macros(),
         );
@@ -120,12 +121,22 @@ final class CommandTest extends TestCase
         $command = $this->createCommand(
             'check $_HOSTUSER$',
             [
-                new CommandMacro(3, 'USER', CommandMacroTypeEnum::Host),
-                new CommandMacro(4, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(4), 'USER', CommandMacroTypeEnum::Host),
             ],
         );
 
-        self::assertEquals([new CommandMacro(3, 'USER', CommandMacroTypeEnum::Host)], $command->macros());
+        self::assertEquals([new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
+    }
+
+    public function testStoredMacrosMatchCaseInsensitively(): void
+    {
+        $command = $this->createCommand(
+            'check $_HOSTUser$',
+            [new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host)],
+        );
+
+        self::assertEquals([new CommandMacro(new CommandMacroId(3), 'User', CommandMacroTypeEnum::Host)], $command->macros());
     }
 
     public function testSnmpHostMacrosAreExcluded(): void
@@ -155,14 +166,14 @@ final class CommandTest extends TestCase
             {
                 ++$this->calls;
 
-                return [new CommandMacro(7, 'USER', CommandMacroTypeEnum::Host)];
+                return [new CommandMacro(new CommandMacroId(7), 'USER', CommandMacroTypeEnum::Host)];
             }
         };
         $command = $this->createCommand('check $_HOSTUSER$', $loader->load(...));
 
         self::assertSame(0, $loader->calls);
         $command->macros();
-        self::assertEquals([new CommandMacro(7, 'USER', CommandMacroTypeEnum::Host)], $command->macros());
+        self::assertEquals([new CommandMacro(new CommandMacroId(7), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
         self::assertSame(1, $loader->calls);
     }
 

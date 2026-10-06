@@ -23,19 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-/**
- * An on-demand macro used in a command line ($_HOSTxxx$ or $_SERVICExxx$).
- * A command macro has no value: it only declares the macro the command expects.
- */
-final readonly class CommandMacro
+use Webmozart\Assert\Assert;
+
+final readonly class CommandMacroId
 {
-    /**
-     * @param ?CommandMacroId $id null when the macro is not stored (e.g. commands created by monitoring connectors)
-     */
-    public function __construct(
-        public ?CommandMacroId $id,
-        public string $name,
-        public CommandMacroTypeEnum $type,
-    ) {
+    public function __construct(public int $value)
+    {
+        Assert::positiveInteger($value);
     }
 }

@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
@@ -49,7 +50,7 @@ final class ResourceCommandTransformerTest extends TestCase
             {
                 ++$this->calls;
 
-                return [new CommandMacro(5, 'USER', CommandMacroTypeEnum::Host)];
+                return [new CommandMacro(new CommandMacroId(5), 'USER', CommandMacroTypeEnum::Host)];
             }
         };
         $command = new Command(

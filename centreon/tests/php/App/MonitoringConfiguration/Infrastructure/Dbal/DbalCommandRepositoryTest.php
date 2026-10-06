@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
@@ -124,7 +125,7 @@ final class DbalCommandRepositoryTest extends KernelTestCase
 
         self::assertEquals(
             [
-                new CommandMacro(50, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(50), 'USER', CommandMacroTypeEnum::Host),
                 new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Service),
             ],
             $command->macros(),

@@ -58,7 +58,8 @@ final class Command extends AggregateRoot
 
     /**
      * Macros used in the command line: host macros then service macros, each in order of appearance.
-     * The id comes from the stored macros (first one wins on duplicates), null when the macro is not stored.
+     * The id comes from the stored macros (names match case-insensitively, first one wins on duplicates),
+     * null when the macro is not stored.
      *
      * @return list<CommandMacro>
      */
@@ -70,18 +71,26 @@ final class Command extends AggregateRoot
 
         $storedIds = [];
         foreach ($this->storedMacros as $storedMacro) {
-            $storedIds[$storedMacro->type->value][$storedMacro->name] ??= $storedMacro->id;
+            $storedIds[$storedMacro->type->value][mb_strtoupper($storedMacro->name)] ??= $storedMacro->id;
         }
 
         $macros = [];
         foreach ($this->commandLine->extractHostMacros() as $name) {
-            if (in_array($name, self::EXCLUDED_HOST_MACROS, true)) {
+            if (in_array(mb_strtoupper($name), self::EXCLUDED_HOST_MACROS, true)) {
                 continue;
             }
-            $macros[] = new CommandMacro($storedIds[CommandMacroTypeEnum::Host->value][$name] ?? null, $name, CommandMacroTypeEnum::Host);
+            $macros[] = new CommandMacro(
+                $storedIds[CommandMacroTypeEnum::Host->value][mb_strtoupper($name)] ?? null,
+                $name,
+                CommandMacroTypeEnum::Host,
+            );
         }
         foreach ($this->commandLine->extractServiceMacros() as $name) {
-            $macros[] = new CommandMacro($storedIds[CommandMacroTypeEnum::Service->value][$name] ?? null, $name, CommandMacroTypeEnum::Service);
+            $macros[] = new CommandMacro(
+                $storedIds[CommandMacroTypeEnum::Service->value][mb_strtoupper($name)] ?? null,
+                $name,
+                CommandMacroTypeEnum::Service,
+            );
         }
 
         return $macros;

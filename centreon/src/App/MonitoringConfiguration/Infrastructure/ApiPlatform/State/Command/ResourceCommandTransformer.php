@@ -63,7 +63,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
         );
         $resource->setMacrosLoader(static fn (): array => array_map(
             static fn (CommandMacro $macro): CommandMacroOutput => new CommandMacroOutput(
-                id: $macro->id,
+                id: $macro->id?->value,
                 name: $macro->name,
                 type: mb_strtolower($macro->type->name),
             ),

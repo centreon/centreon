@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
@@ -494,7 +495,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                 ? CommandMacroTypeEnum::tryFrom((int) $row['command_macro_type'])
                 : null;
             if ($type !== null) {
-                $macros[] = new CommandMacro((int) $row['command_macro_id'], $row['command_macro_name'], $type);
+                $macros[] = new CommandMacro(new CommandMacroId((int) $row['command_macro_id']), $row['command_macro_name'], $type);
             }
         }
 
