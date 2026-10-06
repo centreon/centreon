@@ -44,7 +44,7 @@ function help() {
   echo -e "  --with-vmware\t\t\tInclude centreon-vmware service"
   echo -e "  --vmware-path string\t\tPath to a centreon-plugins checkout, used to build centreon-vmware (default: ./centreon-plugins)"
   echo -e "  --with-snmptrap\t\tInclude snmptrapd and centreontrapd services"
-  echo -e "  --with-cma\t\t\tEnable Centreon Monitoring Agent support (TLS certs mounts + port 4317)"
+  echo -e "  --with-cma\t\t\tEnable Centreon Monitoring Agent support (TLS certs mounts + persisted CMA CA + port 4317)"
   echo ""
   echo "Notes:"
   echo -e "  --cloud\t\t\tGorgone address: same host as --central_url, port 443, ssl=true"
