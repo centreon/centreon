@@ -29,7 +29,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
@@ -43,7 +42,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
-use Webmozart\Assert\Assert;
 
 final readonly class CreateHostCommand
 {
@@ -57,9 +55,6 @@ final readonly class CreateHostCommand
      * @param ?UserId $viewerId null means the creator is unrestricted (admin); a non-null value
      *                          scopes the poller/host-group existence checks to what that user
      *                          can access, mirroring `HostCriteria::withViewerId()` on the read side
-     * @param CheckOptions $checkOptions the check command and its arguments only: the macros are
-     *                                   submitted as $macroChanges and resolved by the handler
-     * @param list<HostMacroChange> $macroChanges the submitted macros, in the order to store them
      */
     public function __construct(
         public HostName $name,
@@ -85,11 +80,6 @@ final readonly class CreateHostCommand
         public SchedulingOptions $schedulingOptions = new SchedulingOptions(),
         public CheckOptions $checkOptions = new CheckOptions(null),
         public ?Notifications $notifications = null,
-        // Masked in logs: a change may carry a password macro's plaintext.
-        #[Sensitive]
-        public array $macroChanges = [],
     ) {
-        Assert::isEmpty($checkOptions->macros, 'Macros are submitted as macro changes, resolved by the handler.');
-        Assert::allIsInstanceOf($macroChanges, HostMacroChange::class);
     }
 }

@@ -61,7 +61,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -87,7 +86,6 @@ final readonly class CreateHostCommandHandler
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
-        private HostMacroChangesResolver $hostMacroChangesResolver,
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private OptionRepository $optionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
@@ -151,7 +149,7 @@ final readonly class CreateHostCommandHandler
 
         // Resolve inherited macros from the requested templates and the check command together, so a
         // submitted macro that merely duplicates an inherited one is dropped (R7).
-        $checkOptions = $this->prepareCheckOptions($command, $checkCommand, $vaultUuid);
+        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $checkCommand, $vaultUuid);
 
         $host = new Host(
             id: null,
@@ -194,25 +192,28 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Resolves the submitted macros against what the host inherits (from its templates or its check
-     * command), dropping those that merely repeat an inherited one, and moves any password macro's
-     * plaintext into the vault, leaving a `secret::` reference in its place, before the host is
-     * persisted. A host being created owns no macro yet, so a change referring to a direct macro
-     * is unknown.
+     * Drops macros the host merely inherits (from its templates or its check command) and moves any
+     * password macro's plaintext into the vault, leaving a `secret::` reference in its place, before
+     * the host is persisted.
      *
+     * @param Collection<HostTemplateId> $templateIds
      * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
      *                           join the same entry (null when there is none, or the vault is off)
      */
-    private function prepareCheckOptions(CreateHostCommand $command, ?Command $checkCommand, ?string $vaultUuid): CheckOptions
-    {
+    private function prepareCheckOptions(
+        CheckOptions $checkOptions,
+        Collection $templateIds,
+        ?Command $checkCommand,
+        ?string $vaultUuid,
+    ): CheckOptions {
         $inherited = InheritedHostMacros::resolve(
-            array_values($this->hostTemplateRepository->findInheritanceLine($command->templateIds)->toArray()),
+            array_values($this->hostTemplateRepository->findInheritanceLine($templateIds)->toArray()),
             $checkCommand,
         );
-        $macros = $this->hostMacroChangesResolver->resolve($command->macroChanges, [], $inherited);
+        $macros = $inherited->withoutRedundant($checkOptions->macros);
         $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid);
 
-        return new CheckOptions($command->checkOptions->checkCommandId, $command->checkOptions->args, $macros);
+        return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
     }
 
     /**

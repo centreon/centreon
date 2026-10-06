@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
@@ -63,10 +64,12 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
@@ -123,6 +126,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
         private HostMacroTransformer $macroTransformer,
+        private HostMacroChangesResolver $macroChangesResolver,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -183,10 +187,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $checkOptions = new CheckOptions(
             $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
             $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
+            $checkOptionsInput instanceof CheckOptionsInput ? $this->resolveNewMacros($checkOptionsInput->macros) : [],
         );
-        $macroChanges = $checkOptionsInput instanceof CheckOptionsInput
-            ? array_values(array_map($this->macroTransformer->toChange(...), $checkOptionsInput->macros))
-            : [];
 
         // Cloud handles notifications through a different model and the input
         // validator rejects the block there, so the host simply carries none — and the
@@ -217,7 +219,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             schedulingOptions: $schedulingOptions,
             checkOptions: $checkOptions,
             notifications: $notifications,
-            macroChanges: $macroChanges,
         );
 
         $host = $this->commandBus->execute($command);
@@ -236,7 +237,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $icon = $this->resolveIcon($host->extendedInformations?->iconId);
 
         $checkCommandOutput = null;
-        $checkCommand = null;
         if ($host->checkOptions->checkCommandId instanceof CommandId) {
             // The command exists (the handler already validated it), so this resolves it purely to
             // surface its name in the response, the same way the poller name is resolved above.
@@ -305,18 +305,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
-        // Every macro the host effectively has: its own, then those it still inherits, each with the
-        // id + parent a client resends to change it. The own macros are read back as stored, since
-        // their ids are only assigned on insertion.
-        $directMacros = $this->hostRepository->findOne($host->id())?->checkOptions->macros ?? $host->checkOptions->macros;
-        $inherited = InheritedHostMacros::resolve(
-            array_values($this->hostTemplateRepository->findInheritanceLine($host->templateIds)->toArray()),
-            $checkCommand,
-        );
-        $macroOutputs = array_map(
-            $this->macroTransformer->transform(...),
-            [...$directMacros, ...$inherited->notOverriddenBy($directMacros)],
-        );
+        $macroOutputs = array_map($this->macroTransformer->transform(...), $host->checkOptions->macros);
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
         $resource->notifications = $this->notificationsTransformer->transform($host->notifications);
@@ -454,5 +443,23 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         }
 
         return $related;
+    }
+
+    /**
+     * A host being created owns no macro yet, so every submitted macro must be new: one referring to
+     * an existing macro is reported as unknown. Redundancy with inherited macros (R7) is resolved by
+     * the handler, which knows the templates and the check command.
+     *
+     * @param list<HostMacroInput> $inputs
+     *
+     * @return list<HostMacro>
+     */
+    private function resolveNewMacros(array $inputs): array
+    {
+        return $this->macroChangesResolver->resolve(
+            array_map($this->macroTransformer->toChange(...), $inputs),
+            [],
+            InheritedHostMacros::none(),
+        );
     }
 }
