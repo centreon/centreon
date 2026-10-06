@@ -1,5 +1,6 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
+  isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -14,9 +15,12 @@ import {
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
+  hostFormContactGroupsEndpoint,
+  hostFormContactsEndpoint,
   hostFormHostCategoriesEndpoint,
   hostFormHostGroupsEndpoint,
   hostFormPollersEndpoint,
+  hostFormTimePeriodsEndpoint,
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
@@ -24,12 +28,15 @@ import {
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getContactGroupsResponse,
+  getContactsResponse,
   getHostCategoriesResponse,
   getHostGroupsResponse,
   getHostResponse,
   getHostTemplatesResponse,
   getListingResponse,
-  getPollersResponse
+  getPollersResponse,
+  getTimePeriodsResponse
 } from './utils';
 
 interface Props {
@@ -37,13 +44,15 @@ interface Props {
   hasWriteAccess?: boolean;
   isCloudPlatform?: boolean;
   deployFails?: boolean;
+  isAdditiveInheritanceEnabled?: boolean;
 }
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
-  deployFails = false
+  deployFails = false,
+  isAdditiveInheritanceEnabled = false
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -60,6 +69,7 @@ const initialize = ({
   });
 
   store.set(platformFeaturesAtom, { isCloudPlatform });
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   cy.interceptAPIRequest({
     alias: 'getHost',
@@ -120,6 +130,27 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormHostCategoriesEndpoint}?**`,
     response: getHostCategoriesResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormContacts',
+    method: Method.GET,
+    path: `**${hostFormContactsEndpoint}?**`,
+    response: getContactsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormContactGroups',
+    method: Method.GET,
+    path: `**${hostFormContactGroupsEndpoint}?**`,
+    response: getContactGroupsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormTimePeriods',
+    method: Method.GET,
+    path: `**${hostFormTimePeriodsEndpoint}?**`,
+    response: getTimePeriodsResponse()
   });
 
   cy.interceptAPIRequest({
