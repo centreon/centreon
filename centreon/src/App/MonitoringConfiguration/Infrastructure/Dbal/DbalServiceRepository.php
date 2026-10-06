@@ -126,7 +126,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         $qb->select('svc_svc_id', 'svc_macro_name AS name', 'svc_macro_value AS value', 'is_password', 'description')
             ->from('on_demand_macro_service')
             ->where($qb->expr()->in('svc_svc_id', $qb->createNamedParameter($serviceIds, ArrayParameterType::INTEGER)))
-            ->orderBy('svc_macro_id');
+            ->orderBy('macro_order');
 
         /** @var list<array{svc_svc_id: int|string, name: string, value: string, is_password: string|int, description: string|null}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();

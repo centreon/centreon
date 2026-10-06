@@ -1801,13 +1801,13 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    public function testItRejectsAMacroDescription(): void
+    public function testItDoesNotStoreASubmittedMacroDescription(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
 
-        // The description is a dropped macro property: sending it is an error, not silently ignored.
-        $this->request('POST', self::BASE_ENDPOINT, [
+        // The description is a dropped macro property: not part of the macro object, it is not read.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
             'json' => [
                 'name' => $this->uniqueName('server'),
                 'address' => '10.0.0.41',
@@ -1818,11 +1818,12 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(422);
-        self::assertJsonContains([
-            'code' => 422,
-            'message' => "[check_options.macros[0].description] This field is not allowed.\n",
-        ]);
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertNull(
+            $this->connection->fetchOne('SELECT description FROM on_demand_macro_host WHERE host_host_id = ?', [$payload['id']]),
+        );
     }
 
     public function testItRejectsAVaultReferenceAsAMacroValue(): void

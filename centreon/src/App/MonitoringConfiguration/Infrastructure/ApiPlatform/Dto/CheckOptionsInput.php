@@ -25,8 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
-use Symfony\Component\Serializer\Attribute\Context;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -64,8 +62,6 @@ final readonly class CheckOptionsInput
         ])]
         public array $args = [],
 
-        // A macro is exactly the macro wire object: any other field is rejected rather than ignored.
-        #[Context(denormalizationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false])]
         #[Assert\Valid]
         public array $macros = [],
     ) {
