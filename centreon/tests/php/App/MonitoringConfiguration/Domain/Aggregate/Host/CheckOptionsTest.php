@@ -158,4 +158,18 @@ final class CheckOptionsTest extends TestCase
         self::assertFalse($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'x', true)])));
         self::assertFalse($options->equals(new CheckOptions(null)));
     }
+
+    public function testNamesDifferingOnlyByCaseOrSurroundingSpacesAreTheSameMacro(): void
+    {
+        // Names are trimmed and upper-cased before any comparison (legacy insertMacro() dedupes
+        // case-insensitively, the first one winning).
+        $first = new HostMacro(new HostMacroName(' dup '), 'first', isPassword: false);
+        $second = new HostMacro(new HostMacroName('DUP'), 'second', isPassword: false);
+        $third = new HostMacro(new HostMacroName('Dup'), 'third', isPassword: false);
+
+        $options = new CheckOptions(null, macros: [$first, $second, $third]);
+
+        self::assertSame([$first], $options->macros);
+        self::assertSame('DUP', $options->macros[0]->name->value);
+    }
 }
