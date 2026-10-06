@@ -83,6 +83,36 @@ export const getHostCategoriesResponse = () =>
     { id: 4, name: 'Virtual' }
   ]);
 
+export const getContactsResponse = () =>
+  toCollection([
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getContactGroupsResponse = () =>
+  toCollection([
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
+  ]);
+
+export const getTimePeriodsResponse = () =>
+  toCollection([
+    { id: 1, name: '24x7' },
+    { id: 2, name: 'workhours' }
+  ]);
+
+// What a create sends when nothing of the Notification section was touched.
+export const untouchedNotificationsPayload = {
+  contact_groups: [],
+  contacts: [],
+  enabled: 'use_default',
+  first_delay: null,
+  interval: null,
+  options: [],
+  recovery_delay: null,
+  timeperiod_id: null
+};
+
 export const getHostTemplatesResponse = () =>
   toCollection([
     { id: 5, name: 'generic-active-host' },
@@ -100,6 +130,18 @@ export const getHostResponse = () => ({
   child_hosts: [{ id: 2, name: 'host 2' }],
   groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
+  // `recovery_delay` is unset, so the endpoint leaves it out.
+  notifications: {
+    contact_additive_inheritance: true,
+    contact_group_additive_inheritance: false,
+    contact_groups: [{ id: 3, name: 'Supervisors' }],
+    contacts: [{ id: 1, name: 'admin' }],
+    enabled: 'false',
+    first_delay: 1,
+    interval: 3,
+    options: ['down', 'recovery'],
+    timeperiod: { id: 1, name: '24x7' }
+  },
   parent_hosts: [{ id: 1, name: 'host 1' }],
   poller: { id: 2, name: 'Poller EU' }
 });

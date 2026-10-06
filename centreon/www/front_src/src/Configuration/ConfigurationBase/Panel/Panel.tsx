@@ -73,7 +73,10 @@ const FormPanel = ({
       onClose={close}
       onResize={onResize}
       selectedTab={
-        <div className="px-5 pb-5" data-testid={panelDataTestIds.content}>
+        <div
+          className="@container px-5 pb-5"
+          data-testid={panelDataTestIds.content}
+        >
           <ResetDialog />
           <Form
             areActionsInHeader

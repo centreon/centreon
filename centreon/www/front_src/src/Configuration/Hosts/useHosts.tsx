@@ -38,7 +38,7 @@ interface UseHostsState {
 const getAdapter = (context: PlatformContext) => (data: unknown) =>
   mergeAll(
     getAvailableSections(context).map(({ section }) =>
-      section.toPayload(data as FormValues)
+      section.toPayload(data as FormValues, context)
     )
   );
 
@@ -75,10 +75,16 @@ const getApi = (context: PlatformContext): APIType => ({
   writeBaseEndpoint: hostsBaseEndpoint
 });
 
-const useHosts = ({ isCloudPlatform }: PlatformContext): UseHostsState => {
+const useHosts = ({
+  isAdditiveInheritanceEnabled,
+  isCloudPlatform
+}: PlatformContext): UseHostsState => {
   const { t } = useTranslation();
 
-  const api = useMemo(() => getApi({ isCloudPlatform }), [isCloudPlatform]);
+  const api = useMemo(
+    () => getApi({ isAdditiveInheritanceEnabled, isCloudPlatform }),
+    [isAdditiveInheritanceEnabled, isCloudPlatform]
+  );
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
