@@ -8,9 +8,9 @@ const userEndpoint =
 const countResourcesEndpoint = `${monitoringEndpoint}/resources/count`;
 
 export {
+  countResourcesEndpoint,
+  hostsEndpoint,
   monitoringEndpoint,
   resourcesEndpoint,
-  userEndpoint,
-  hostsEndpoint,
-  countResourcesEndpoint
+  userEndpoint
 };

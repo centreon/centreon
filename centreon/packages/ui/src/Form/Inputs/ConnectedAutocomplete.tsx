@@ -57,7 +57,6 @@ const ConnectedAutocomplete = ({
         ? [
             {
               name: 'name[lk]',
-              // The field wraps the typed text in `%`.
               value: searchedValue.slice(1, -1)
             }
           ]

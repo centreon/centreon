@@ -29,7 +29,7 @@
     "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.13.3 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.9",
+    "@biomejs/biome": "^2.5.14",
     "@centreon/js-config": "workspace:*",
     "@cypress/code-coverage": "3.14.4",
     "@cypress/react": "^9.0.1",
@@ -39,8 +39,8 @@
     "@rspack/plugin-react-refresh": "^1.5.2",
     "@simonsmith/cypress-image-snapshot": "9.1.0",
     "@svgr/webpack": "^8.1.0",
-    "@swc/core": "^1.13.3",
-    "@swc/core-linux-x64-gnu": "^1.13.3",
+    "@swc/core": "^1.16.2",
+    "@swc/core-linux-x64-gnu": "^1.16.2",
     "@swc/jest": "^0.2.39",
     "@tailwindcss/postcss": "^4.1.7",
     "@testing-library/cypress": "^10.1.0",
@@ -91,7 +91,7 @@
     "resolve-url-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "swc-loader": "^0.2.6",
-    "swc-plugin-coverage-instrument": "^0.0.28",
+    "swc-plugin-coverage-instrument": "^0.0.33",
     "typescript": "^5.8.2",
     "webpack-merge": "^6.0.1"
   },
