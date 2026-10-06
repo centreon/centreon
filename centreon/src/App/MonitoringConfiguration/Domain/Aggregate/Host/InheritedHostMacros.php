@@ -66,10 +66,7 @@ final readonly class InheritedHostMacros
         }
 
         if ($checkCommand instanceof Command && $checkCommand->type === CommandTypeEnum::Check) {
-            foreach ($checkCommand->macros() as $commandMacro) {
-                if ($commandMacro->type !== CommandMacroTypeEnum::Host) {
-                    continue;
-                }
+            foreach ($checkCommand->macros(CommandMacroTypeEnum::Host) as $commandMacro) {
                 $macro = self::fromCommandMacro($commandMacro);
                 $macrosByName[$macro->name->value] ??= $macro;
             }

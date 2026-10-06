@@ -108,6 +108,13 @@ final class InheritedHostMacrosTest extends TestCase
         self::assertSame(['FOO'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $inherited->toList()));
     }
 
+    public function testServiceMacrosOfTheCheckCommandAreNeverInherited(): void
+    {
+        $inherited = InheritedHostMacros::resolve([], $this->command(CommandTypeEnum::Check, '$USER1$/check -a $_HOSTFOO$ -p $_SERVICEPORT$'));
+
+        self::assertSame(['FOO'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $inherited->toList()));
+    }
+
     public function testANonCheckCommandContributesNothing(): void
     {
         $inherited = InheritedHostMacros::resolve([], $this->command(CommandTypeEnum::Notification, '$USER1$/notify -a $_HOSTFOO$'));
