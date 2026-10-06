@@ -129,14 +129,17 @@ final class CommandTest extends TestCase
         self::assertEquals([new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
     }
 
-    public function testStoredMacrosMatchCaseInsensitively(): void
+    public function testNonUppercaseMacrosAreIgnored(): void
     {
         $command = $this->createCommand(
-            'check $_HOSTUser$',
-            [new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host)],
+            'check $_HOSTUser$ $_HOSTuser$ $_HOSTUSER$ $_SERVICEport$ $_HOSTsnmpcommunity$',
+            [
+                new CommandMacro(new CommandMacroId(3), 'User', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(4), 'USER', CommandMacroTypeEnum::Host),
+            ],
         );
 
-        self::assertEquals([new CommandMacro(new CommandMacroId(3), 'User', CommandMacroTypeEnum::Host)], $command->macros());
+        self::assertEquals([new CommandMacro(new CommandMacroId(4), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
     }
 
     public function testSnmpHostMacrosAreExcluded(): void
