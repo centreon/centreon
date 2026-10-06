@@ -19,6 +19,10 @@ tests {
     const body = res.getBody();
     expect(body).to.be.an("object");
   });
+
+  test("Additive inheritance flag is exposed as a boolean.", function () {
+    expect(res.getBody().is_additive_inheritance_enabled).to.be.a("boolean");
+  });
 }
 
 settings {
