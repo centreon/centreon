@@ -94,6 +94,23 @@ final class CommandTest extends TestCase
         );
     }
 
+    public function testMacrosCanBeFilteredByType(): void
+    {
+        $command = $this->createCommand('check $_HOSTUSER$ $_SERVICEPORT$ $_HOSTPASSWORD$');
+
+        self::assertEquals(
+            [
+                new CommandMacro(null, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'PASSWORD', CommandMacroTypeEnum::Host),
+            ],
+            $command->macros(CommandMacroTypeEnum::Host),
+        );
+        self::assertEquals(
+            [new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Service)],
+            $command->macros(CommandMacroTypeEnum::Service),
+        );
+    }
+
     public function testMacrosIdsAreMatchedOnNameAndType(): void
     {
         $command = $this->createCommand(

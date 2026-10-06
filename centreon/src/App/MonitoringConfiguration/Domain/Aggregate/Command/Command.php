@@ -60,9 +60,11 @@ final class Command extends AggregateRoot
      * Macros used in the command line: host macros then service macros, each in order of appearance.
      * The id comes from the stored macros (first one wins on duplicates), null when the macro is not stored.
      *
+     * @param ?CommandMacroTypeEnum $type only the macros of this type, all of them when null
+     *
      * @return list<CommandMacro>
      */
-    public function macros(): array
+    public function macros(?CommandMacroTypeEnum $type = null): array
     {
         if ($this->storedMacros instanceof \Closure) {
             $this->storedMacros = ($this->storedMacros)();
@@ -74,22 +76,27 @@ final class Command extends AggregateRoot
         }
 
         $macros = [];
-        foreach ($this->commandLine->extractHostMacros() as $name) {
-            if (in_array($name, self::EXCLUDED_HOST_MACROS, true)) {
-                continue;
+        if ($type !== CommandMacroTypeEnum::Service) {
+            foreach ($this->commandLine->extractHostMacros() as $name) {
+                if (in_array($name, self::EXCLUDED_HOST_MACROS, true)) {
+                    continue;
+                }
+                $macros[] = new CommandMacro(
+                    $storedIds[CommandMacroTypeEnum::Host->value][$name] ?? null,
+                    $name,
+                    CommandMacroTypeEnum::Host,
+                );
             }
-            $macros[] = new CommandMacro(
-                $storedIds[CommandMacroTypeEnum::Host->value][$name] ?? null,
-                $name,
-                CommandMacroTypeEnum::Host,
-            );
         }
-        foreach ($this->commandLine->extractServiceMacros() as $name) {
-            $macros[] = new CommandMacro(
-                $storedIds[CommandMacroTypeEnum::Service->value][$name] ?? null,
-                $name,
-                CommandMacroTypeEnum::Service,
-            );
+
+        if ($type !== CommandMacroTypeEnum::Host) {
+            foreach ($this->commandLine->extractServiceMacros() as $name) {
+                $macros[] = new CommandMacro(
+                    $storedIds[CommandMacroTypeEnum::Service->value][$name] ?? null,
+                    $name,
+                    CommandMacroTypeEnum::Service,
+                );
+            }
         }
 
         return $macros;
