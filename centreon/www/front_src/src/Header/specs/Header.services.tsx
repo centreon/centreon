@@ -108,35 +108,47 @@ export default (): void =>
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22},{%22id%22:%22anomaly-detection%22,%22name%22:%22Anomaly%20detection%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22CRITICAL%22,%22name%22:%22Critical%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22CRITICAL%22,%22name%22:%22Critical%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@unknownCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22},{%22id%22:%22anomaly-detection%22,%22name%22:%22Anomaly%20detection%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22UNKNOWN%22,%22name%22:%22Unknown%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22UNKNOWN%22,%22name%22:%22Unknown%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@okCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22},{%22id%22:%22anomaly-detection%22,%22name%22:%22Anomaly%20detection%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22OK%22,%22name%22:%22Ok%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22OK%22,%22name%22:%22Ok%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@warningCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22},{%22id%22:%22anomaly-detection%22,%22name%22:%22Anomaly%20detection%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22WARNING%22,%22name%22:%22Warning%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22WARNING%22,%22name%22:%22Warning%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
 
         cy.get('@pendingCounter').click();
 
         cy.url().should(
           'include',
-          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22},{%22id%22:%22anomaly-detection%22,%22name%22:%22Anomaly%20detection%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22PENDING%22,%22name%22:%22Pending%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22PENDING%22,%22name%22:%22Pending%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+        );
+      });
+
+      it('includes the anomaly detection resource type in the redirection when the module is installed', () => {
+        initialize({}, { installedModules: ['centreon-anomaly-detection'] });
+        getElements();
+
+        cy.get('@criticalCounter').click();
+
+        cy.url().should(
+          'include',
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22service%22,%22name%22:%22Service%22},{%22id%22:%22metaservice%22,%22name%22:%22Meta-Service%22},{%22id%22:%22anomaly-detection%22,%22name%22:%22Anomaly%20detection%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22CRITICAL%22,%22name%22:%22Critical%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
       });
     });
