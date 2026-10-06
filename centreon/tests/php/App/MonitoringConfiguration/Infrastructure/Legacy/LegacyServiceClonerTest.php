@@ -188,6 +188,57 @@ final class LegacyServiceClonerTest extends TestCase
         self::assertSame($previousCentreon, $GLOBALS['centreon']);
     }
 
+    public function testItUnwindsEveryErrorHandlerLeftByTheClone(): void
+    {
+        $baseline = $this->currentErrorHandler();
+
+        $cloner = new LegacyServiceCloner(
+            connectionInstaller: $this->noopConnectionInstaller(),
+            sessionRebuilder: $this->stubSessionRebuilder(),
+            // The legacy clone machinery registers error handlers and does not clean them up.
+            cloneInvoker: static function (): void {
+                set_error_handler(static fn (): bool => false);
+                set_error_handler(static fn (): bool => false);
+                set_error_handler(static fn (): bool => false);
+            },
+        );
+
+        $cloner->cloneServices([7], new HostId(9), 42);
+
+        self::assertSame(
+            $baseline,
+            $this->currentErrorHandler(),
+            'every error handler the clone left is unwound back to the one in place before the call',
+        );
+    }
+
+    public function testItRestoresTheErrorHandlerEvenWhenTheCloneFails(): void
+    {
+        $baseline = $this->currentErrorHandler();
+
+        $cloner = new LegacyServiceCloner(
+            connectionInstaller: $this->noopConnectionInstaller(),
+            sessionRebuilder: $this->stubSessionRebuilder(),
+            cloneInvoker: static function (): never {
+                set_error_handler(static fn (): bool => false);
+
+                throw new \RuntimeException('legacy clone blew up');
+            },
+        );
+
+        try {
+            $cloner->cloneServices([7], new HostId(9), 42);
+            self::fail('the clone failure must propagate');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame(
+            $baseline,
+            $this->currentErrorHandler(),
+            'the error handler is restored even when the clone throws',
+        );
+    }
+
     public function testTheLegacyFileIsSkippedWhenTheFunctionIsAlreadyLoaded(): void
     {
         self::assertNull(
@@ -236,6 +287,17 @@ final class LegacyServiceClonerTest extends TestCase
     private function stubCentreon(): \Centreon
     {
         return new \ReflectionClass(\Centreon::class)->newInstanceWithoutConstructor();
+    }
+
+    /**
+     * The error handler currently on top of the stack, read without disturbing it.
+     */
+    private function currentErrorHandler(): ?callable
+    {
+        $handler = set_error_handler(static fn (int $errno, string $errstr): bool => false);
+        restore_error_handler();
+
+        return $handler;
     }
 
     /**

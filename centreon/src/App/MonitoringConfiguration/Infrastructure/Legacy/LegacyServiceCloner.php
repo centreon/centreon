@@ -121,7 +121,8 @@ final readonly class LegacyServiceCloner implements ServiceCloner
 
     /**
      * Resolves the legacy functions file to require: the reuse-or-fail guard a broken deployment would
-     * trip, kept pure so it is testable without the legacy constant and filesystem it reads in production.
+     * trip. The `_CENTREON_PATH_` lookup and the `function_exists` check are lifted to parameters so it
+     * is testable without the legacy constant in place (it still touches the filesystem via is_file).
      *
      * @param bool $alreadyLoaded whether `multipleServiceInDB` is already declared
      * @param string|null $basePath the legacy install path (`_CENTREON_PATH_`), or null when undefined

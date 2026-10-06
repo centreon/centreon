@@ -126,6 +126,29 @@ final class LegacyHostServiceDuplicatorWrapperTest extends KernelTestCase
         self::assertSame([], $this->clonedServiceIds());
     }
 
+    public function testAHostWithBothSharedAndExclusiveServicesSplitsThemInOnePass(): void
+    {
+        $this->insertHost(9901, 'wrapper-mixed-source');
+        $this->insertHost(9902, 'wrapper-mixed-copy');
+        $this->insertHost(9903, 'wrapper-mixed-other');
+        $this->insertService(8810, 'mixed-shared-service');
+        $this->insertService(8811, 'mixed-exclusive-service');
+        // One service shared with another host, one exclusive to the source, on the same host.
+        $this->linkServiceToHost(9901, 8810);
+        $this->linkServiceToHost(9903, 8810);
+        $this->linkServiceToHost(9901, 8811);
+
+        $this->wrapper->duplicate(sourceHostId: new HostId(9901), newHostId: new HostId(9902), duplicatedBy: 3);
+
+        self::assertSame(1, $this->countServiceLinks(9902, 8810), 'the shared service is re-linked onto the copy');
+        self::assertSame(0, $this->countServiceLinks(9902, 8811), 'the exclusive service is left to the cloner, not re-linked');
+        self::assertSame(
+            [['serviceIds' => [8811], 'newHostId' => 9902, 'duplicatedBy' => 3]],
+            $this->serviceCloner->cloneCalls,
+            'the cloner is called once with only the exclusive service',
+        );
+    }
+
     private function insertHost(int $id, string $name): void
     {
         $this->connection->insert('host', ['host_id' => $id, 'host_name' => $name, 'host_register' => '1']);

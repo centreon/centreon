@@ -28,9 +28,9 @@ use App\Shared\Application\Command\NonTransactionalCommand;
 
 /**
  * Best-effort, non-atomic by design: re-linking shared services commits on the configuration
- * connection while cloning exclusive ones runs on the legacy connection, so wrapping this in a
- * transaction would roll the re-links back whenever the (session-bound) clone cannot run — e.g. a
- * token-authenticated request. It must therefore stay outside the command bus transaction.
+ * connection while cloning exclusive ones runs through the legacy CentreonDBInstance connection,
+ * which no Doctrine transaction covers. Wrapping this in the command bus transaction would give
+ * false atomicity — a rollback could not undo the legacy clone's writes — so it stays outside it.
  */
 final readonly class DuplicateHostServicesCommand implements NonTransactionalCommand
 {
