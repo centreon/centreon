@@ -287,7 +287,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
         }
 
-        foreach ($host->checkOptions->macros as $macroOrder => $macro) {
+        // macro_order is a legacy display property nothing downstream reads: left to its column default.
+        foreach ($host->checkOptions->macros as $macro) {
             $this->connection->createQueryBuilder()
                 ->insert('on_demand_macro_host')
                 ->values([
@@ -296,7 +297,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                     'is_password' => ':isPassword',
                     'description' => ':description',
                     'host_host_id' => ':hostId',
-                    'macro_order' => ':macroOrder',
                 ])
                 ->setParameter('macroName', $macro->name->toStorageName())
                 ->setParameter('macroValue', $macro->value)
@@ -306,7 +306,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 // how legacy stores a blank one.
                 ->setParameter('description', '')
                 ->setParameter('hostId', $hostId)
-                ->setParameter('macroOrder', $macroOrder)
                 ->executeStatement();
         }
 
@@ -637,7 +636,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $qb->select('host_macro_id AS id', 'host_macro_name AS name', 'host_macro_value AS value', 'is_password')
             ->from('on_demand_macro_host')
             ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
-            ->orderBy('macro_order');
+            ->orderBy('host_macro_id');
 
         /** @var list<array{id: int|string, name: string, value: string, is_password: string|int|null}> */
         return $qb->executeQuery()->fetchAllAssociative();

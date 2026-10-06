@@ -42,7 +42,7 @@ final class HostTemplate extends AggregateRoot
     public readonly Collection $serviceTemplateCheckCommandIds;
 
     /**
-     * @param ?Collection<HostMacro> $macros the template's own custom macros, in `macro_order`;
+     * @param ?Collection<HostMacro> $macros the template's own custom macros, in insertion order;
      *                                       possibly lazy
      * @param ?CommandId $checkCommandId the template's own check command, null when none is set
      * @param ?Collection<CommandId> $serviceTemplateCheckCommandIds the check commands of the service

@@ -1746,7 +1746,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         $hostId = $payload['id'];
         /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$hostId],
         );
         self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);

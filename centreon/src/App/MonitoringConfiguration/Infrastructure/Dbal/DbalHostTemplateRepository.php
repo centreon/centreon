@@ -411,7 +411,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     }
 
     /**
-     * The custom macros the given templates own, grouped by template, in `macro_order`.
+     * The custom macros the given templates own, grouped by template, in insertion order.
      *
      * @param list<int> $ownerIds
      *
@@ -427,8 +427,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         $qb->select('host_macro_id', 'host_host_id', 'host_macro_name', 'host_macro_value', 'is_password')
             ->from('on_demand_macro_host')
             ->where($qb->expr()->in('host_host_id', $qb->createNamedParameter($ownerIds, ArrayParameterType::INTEGER)))
-            ->orderBy('macro_order')
-            ->addOrderBy('host_macro_id');
+            ->orderBy('host_macro_id');
 
         /** @var list<array{host_macro_id: int|string, host_host_id: int|string, host_macro_name: string, host_macro_value: string, is_password: int|string|null}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();

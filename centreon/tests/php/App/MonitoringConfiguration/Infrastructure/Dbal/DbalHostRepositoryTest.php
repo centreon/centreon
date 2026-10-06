@@ -606,10 +606,10 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         $this->repository->add($host);
 
-        /** @var list<array{host_macro_name: string, host_macro_value: string, is_password: ?string, description: ?string}> $rows */
+        /** @var list<array{host_macro_name: string, host_macro_value: string, is_password: ?string, description: ?string, macro_order: int|string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, host_macro_value, is_password, description
-             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_name, host_macro_value, is_password, description, macro_order
+             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$host->id()->value],
         );
 
@@ -621,6 +621,8 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('', $rows[0]['description']);
         self::assertSame('$_HOSTSECRET$', $rows[1]['host_macro_name']);
         self::assertSame(1, (int) $rows[1]['is_password']);
+        // macro_order is a legacy display property: left to its column default.
+        self::assertSame([0, 0], array_map(static fn (array $row): int => (int) $row['macro_order'], $rows));
     }
 
     public function testAddLeavesTheCheckCommandNullWhenNoneIsSet(): void
@@ -1049,7 +1051,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         /** @var list<int|string> $ids */
         $ids = $this->connection->fetchFirstColumn(
-            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$hostId],
         );
         self::assertSame((int) $ids[0], $host->checkOptions->macros[0]->id?->value);

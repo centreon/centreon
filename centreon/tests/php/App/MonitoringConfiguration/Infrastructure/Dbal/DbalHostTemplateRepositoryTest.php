@@ -363,6 +363,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
     public function testFindInheritanceLineReturnsTheDirectTemplatesWithTheirMacros(): void
     {
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
+        // macro_order is a legacy display property: ignored, the macros come in insertion order.
         $passwordId = $this->insertMacro($templateId, '$_HOSTPWD$', 'secret::vault::x', isPassword: true, order: 1);
         $plainId = $this->insertMacro($templateId, '$_HOSTPLAIN$', 'value', isPassword: false, order: 0);
 
@@ -371,14 +372,14 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame([$templateId], array_keys($line));
         $macros = $line[$templateId]->macros->toArray();
         self::assertCount(2, $macros);
-        // In macro_order, with their own ids, as direct macros of the template.
-        self::assertSame('PLAIN', $macros[0]->name->value);
-        self::assertSame($plainId, $macros[0]->id?->value);
-        self::assertSame('value', $macros[0]->value);
-        self::assertFalse($macros[0]->isPassword);
-        self::assertTrue($macros[0]->isDirect());
-        self::assertSame($passwordId, $macros[1]->id?->value);
-        self::assertTrue($macros[1]->isPassword);
+        // With their own ids, as direct macros of the template.
+        self::assertSame($passwordId, $macros[0]->id?->value);
+        self::assertTrue($macros[0]->isPassword);
+        self::assertSame('PLAIN', $macros[1]->name->value);
+        self::assertSame($plainId, $macros[1]->id?->value);
+        self::assertSame('value', $macros[1]->value);
+        self::assertFalse($macros[1]->isPassword);
+        self::assertTrue($macros[1]->isDirect());
     }
 
     public function testFindInheritanceLineIsDepthFirstByRelationOrderNearestFirst(): void
