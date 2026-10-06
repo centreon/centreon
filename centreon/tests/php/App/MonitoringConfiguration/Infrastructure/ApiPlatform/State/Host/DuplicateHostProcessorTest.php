@@ -226,8 +226,11 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         $this->linkService($sourceId, $sharedServiceId);
         $this->linkService($otherHostId, $sharedServiceId);
 
-        // A service exclusive to the source can only be cloned through the legacy session, which a
-        // token-authenticated request lacks: it is skipped (and logged), never re-linked onto the copy.
+        // A service exclusive to the source is cloned through the legacy procedural multipleServiceInDB,
+        // which needs the legacy www runtime (_CENTREON_PATH_ + the DB-Func.php file). The integration
+        // harness has neither, so that step fails and is swallowed+logged, and the exclusive service is
+        // not materialised on the copy here — the real clone is validated end to end on the CDE. (Under
+        // token auth the session itself is no longer the blocker: it is rebuilt from the actor.)
         $exclusiveServiceId = $this->insertService('exclusive');
         $this->linkService($sourceId, $exclusiveServiceId);
 
@@ -250,7 +253,7 @@ final class DuplicateHostProcessorTest extends ApiTestCase
             [$copyId, $exclusiveServiceId],
         );
         self::assertIsScalar($exclusiveCount);
-        self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is not re-linked (it needs a session-bound clone)');
+        self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is cloned by the legacy runtime (absent in integration), never re-linked; the clone is validated on the CDE');
     }
 
     public function testItSkipsASuffixAlreadyTakenByAHostTemplate(): void
@@ -282,11 +285,25 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         $sourceId = $this->insertHost($name, $pollerId);
         $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
 
-        // Only a shared service: nothing needs the session-bound clone, so the duplication completes
-        // cleanly even under token auth — the cloner early-returns on an empty exclusive-service list.
+        // Only a shared service: nothing needs the legacy clone, so the duplication completes cleanly
+        // even under token auth — the cloner early-returns on an empty exclusive-service list, and the
+        // service ACL scoping (duplicateHostServiceAccess) runs.
         $sharedServiceId = $this->insertService('shared');
         $this->linkService($sourceId, $sharedServiceId);
         $this->linkService($otherHostId, $sharedServiceId);
+
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'grp-' . $name,
+            'acl_group_alias' => 'grp-' . $name,
+            'acl_group_activate' => '1',
+        ]);
+        $groupId = (int) $this->connection->lastInsertId();
+        // The source host is scoped to that group in the real-time cache (host-level row).
+        $this->realTimeConnection->insert('centreon_acl', [
+            'group_id' => $groupId,
+            'host_id' => $sourceId,
+            'service_id' => null,
+        ]);
 
         $this->login();
 
@@ -300,6 +317,15 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         );
         self::assertIsScalar($count);
         self::assertSame(1, (int) $count, 'the only (shared) service is re-linked onto the copy');
+
+        // duplicateHostServiceAccess scoped the copy's service to the source's group in the real-time
+        // cache, so a non-admin sees it without waiting for the centAcl cron.
+        $serviceAclCount = $this->realTimeConnection->fetchOne(
+            'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id = ? AND group_id = ?',
+            [$copyId, $sharedServiceId, $groupId],
+        );
+        self::assertIsScalar($serviceAclCount);
+        self::assertSame(1, (int) $serviceAclCount, 'the copy service is ACL-scoped for the source group');
     }
 
     private function insertPoller(string $name): int
