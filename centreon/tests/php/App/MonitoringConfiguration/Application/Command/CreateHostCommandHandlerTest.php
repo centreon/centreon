@@ -349,6 +349,35 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertStringContainsString('_HOSTMYPWD', $host->checkOptions->macros[0]->value);
     }
 
+    public function testAnUntouchedTemplatePasswordEchoedBackStaysInherited(): void
+    {
+        // Same name, value kept (null): nothing differs from the template's macro, so no direct macro
+        // is created and the template's secret is neither read nor copied.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $templateSecret = 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTTPLPWD';
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: [
+                new HostMacroChange(new HostMacroName('tplpwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ],
+        ));
+
+        self::assertSame([], $host->checkOptions->macros);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
     public function testItAcceptsACheckCommandMacroOnCreate(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
