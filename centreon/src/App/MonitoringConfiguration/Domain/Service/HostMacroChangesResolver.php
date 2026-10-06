@@ -44,10 +44,13 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException
  * - Whatever ends up equivalent to the inherited macro of its name is dropped (R7): the host relies
  *   on inheritance instead, so echoing back an untouched inherited macro never materialises a copy.
  *
- * A check-command macro is resolved by name, never by id: a command macro is never a password and
- * always carries an empty value, so its id holds nothing a write needs, and on_demand_macro_command
- * ids are both incomplete (rows missing for some commands) and unstable (rewritten on every command
- * save). An unknown command macro id is therefore treated as a new macro, never as an error.
+ * A check-command macro is resolved by name, never by id: whatever id is sent with
+ * `parent: command`, the change refers to the macro the host inherits under its name. A command
+ * macro is never a password and always carries an empty value, so its id holds nothing a write
+ * needs, and on_demand_macro_command ids are both incomplete (rows missing for some commands) and
+ * unstable (rewritten on every command save); an unknown one is never an error. So a command-only
+ * name submitted with an empty value stays inherited (R7), while the same name defined by a template
+ * in the inheritance line wins over the command, so an empty value then genuinely overrides it.
  */
 final readonly class HostMacroChangesResolver
 {
@@ -68,8 +71,8 @@ final readonly class HostMacroChangesResolver
         foreach ($changes as $change) {
             $source = $this->findSource($change, $current, $inherited);
 
-            if ($change->id instanceof HostMacroId && ! $source instanceof HostMacro && $change->parent !== HostMacroParentEnum::Command) {
-                $unknownIds[] = $change->id->value;
+            if (! $this->isResolvedByName($change) && ! $source instanceof HostMacro) {
+                $unknownIds[] = (int) $change->id?->value;
 
                 continue;
             }
@@ -95,12 +98,29 @@ final readonly class HostMacroChangesResolver
     }
 
     /**
+     * A new macro has no source to find, and a command macro is found by name: neither can refer to
+     * an unknown macro.
+     */
+    private function isResolvedByName(HostMacroChange $change): bool
+    {
+        if ($change->isNew()) {
+            return true;
+        }
+
+        return $change->parent === HostMacroParentEnum::Command;
+    }
+
+    /**
      * @param list<HostMacro> $current
      */
     private function findSource(HostMacroChange $change, array $current, InheritedHostMacros $inherited): ?HostMacro
     {
         if (! $change->id instanceof HostMacroId) {
             return null;
+        }
+
+        if ($change->parent === HostMacroParentEnum::Command) {
+            return $inherited->findByName($change->name);
         }
 
         if (! $change->parent instanceof HostMacroParentEnum) {

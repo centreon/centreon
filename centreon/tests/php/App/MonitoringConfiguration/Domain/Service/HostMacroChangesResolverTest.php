@@ -59,12 +59,13 @@ final class HostMacroChangesResolverTest extends TestCase
     {
         $this->resolver = new HostMacroChangesResolver();
 
-        // Template macros: TPLVAL (11, plain), TPLPWD (12, password); command macro CMD (31).
+        // Template macros: TPLVAL (11, plain), TPLPWD (12, password), SHARED (13, 'x');
+        // command macros: CMD (31), UNRECORDED (no row), SHARED (shadowed by the template).
         $command = new Command(
             new CommandId(1),
             new CommandName('check'),
             CommandTypeEnum::Check,
-            new CommandLine('$USER1$/check -a $_HOSTCMD$ -b $_HOSTUNRECORDED$'),
+            new CommandLine('$USER1$/check -a $_HOSTCMD$ -b $_HOSTUNRECORDED$ -c $_HOSTSHARED$'),
             isShellEnabled: false,
             isActivated: true,
             isFromMonitoringConnector: false,
@@ -77,6 +78,7 @@ final class HostMacroChangesResolverTest extends TestCase
             new HostTemplate(new HostTemplateId(1), new HostTemplateName('tpl'), new Collection([
                 new HostMacro(new HostMacroName('tplval'), 'inherited', isPassword: false, id: new HostMacroId(11)),
                 new HostMacro(new HostMacroName('tplpwd'), self::TEMPLATE_SECRET, isPassword: true, id: new HostMacroId(12)),
+                new HostMacro(new HostMacroName('shared'), 'x', isPassword: false, id: new HostMacroId(13)),
             ], HostMacro::class)),
         ], $command);
     }
@@ -235,6 +237,50 @@ final class HostMacroChangesResolverTest extends TestCase
         ], [], $this->inherited);
 
         self::assertSame(['UNRECORDED'], $this->names($macros));
+    }
+
+    public function testAnEmptyCommandOnlyMacroStaysInheritedWhateverIdIsSent(): void
+    {
+        $macros = $this->resolver->resolve([
+            $this->change('cmd', '', id: 31, parent: HostMacroParentEnum::Command),
+            $this->change('cmd', '', id: 999, parent: HostMacroParentEnum::Command),
+            $this->change('unrecorded', '', id: 31, parent: HostMacroParentEnum::Command),
+        ], [], $this->inherited);
+
+        self::assertSame([], $macros);
+    }
+
+    public function testAnEmptyValueOverridesATemplateMacroTheCommandAlsoDeclares(): void
+    {
+        // The template wins over the command for SHARED, so '' differs from what is inherited.
+        $macros = $this->resolver->resolve([$this->change('shared', '')], [], $this->inherited);
+
+        self::assertSame(['SHARED'], $this->names($macros));
+        self::assertSame('', $macros[0]->value);
+        self::assertTrue($macros[0]->isDirect());
+    }
+
+    public function testAnEmptyValueSentAsTheCommandMacroStillOverridesTheTemplate(): void
+    {
+        // Resolved by name, so the outcome is the same as for a new macro.
+        $macros = $this->resolver->resolve(
+            [$this->change('shared', '', id: 31, parent: HostMacroParentEnum::Command)],
+            [],
+            $this->inherited,
+        );
+
+        self::assertSame(['SHARED'], $this->names($macros));
+        self::assertNull($macros[0]->id);
+    }
+
+    public function testTheTemplateValueOnANameTheCommandAlsoDeclaresStaysInherited(): void
+    {
+        $macros = $this->resolver->resolve([
+            $this->change('shared', 'x'),
+            $this->change('shared', 'x', id: 999, parent: HostMacroParentEnum::Command),
+        ], [], $this->inherited);
+
+        self::assertSame([], $macros);
     }
 
     public function testAnUnknownDirectOrTemplateIdIsRejected(): void

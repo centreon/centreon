@@ -76,7 +76,11 @@ final class InheritedHostMacrosTest extends TestCase
 
         $inherited = InheritedHostMacros::resolve([$this->template(1, [$this->macro(11, 'shared', 'from-template')])], $command);
 
-        self::assertSame(HostMacroParentEnum::Template, $inherited->findByName(new HostMacroName('shared'))?->parent);
+        // A name both define resolves to the template's definition, value included.
+        $shared = $inherited->findByName(new HostMacroName('shared'));
+        self::assertSame(HostMacroParentEnum::Template, $shared?->parent);
+        self::assertSame('from-template', $shared->value);
+        self::assertSame(11, $shared->id?->value);
         $commandMacro = $inherited->findByName(new HostMacroName('cmdonly'));
         self::assertInstanceOf(HostMacro::class, $commandMacro);
         self::assertSame(HostMacroParentEnum::Command, $commandMacro->parent);
