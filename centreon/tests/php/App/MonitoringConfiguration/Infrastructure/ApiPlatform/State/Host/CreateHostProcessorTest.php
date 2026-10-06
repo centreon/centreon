@@ -1765,7 +1765,6 @@ final class CreateHostProcessorTest extends ApiTestCase
             'host_macro_name' => '$_HOSTFROMTEMPLATE$',
             'host_macro_value' => 'tpl-value',
             'host_host_id' => $templateId,
-            'macro_order' => 0,
         ]);
         $templateMacroId = (int) $this->connection->lastInsertId();
         $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
@@ -1812,7 +1811,6 @@ final class CreateHostProcessorTest extends ApiTestCase
             'host_macro_name' => '$_HOSTFROMTEMPLATE$',
             'host_macro_value' => 'tpl-value',
             'host_host_id' => $templateId,
-            'macro_order' => 0,
         ]);
         $templateMacroId = (int) $this->connection->lastInsertId();
         $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
@@ -1840,7 +1838,7 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         /** @var list<array{host_macro_name: string, host_macro_value: string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$payload['id']],
         );
         self::assertSame(
