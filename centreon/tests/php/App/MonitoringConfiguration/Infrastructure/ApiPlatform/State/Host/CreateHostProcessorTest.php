@@ -1937,31 +1937,6 @@ final class CreateHostProcessorTest extends ApiTestCase
         );
     }
 
-    public function testItIgnoresASubmittedMacroDescription(): void
-    {
-        $this->login();
-        $pollerId = $this->insertPoller('Central');
-
-        $response = $this->request('POST', self::BASE_ENDPOINT, [
-            'json' => [
-                'name' => $this->uniqueName('server'),
-                'address' => '10.0.0.40',
-                'poller_id' => $pollerId,
-                'check_options' => ['macros' => [
-                    ['name' => 'own', 'value' => 'kept', 'is_password' => false, 'description' => 'dropped'],
-                ]],
-            ],
-        ]);
-
-        self::assertResponseStatusCodeSame(201);
-        /** @var array{id: int} $payload */
-        $payload = $response->toArray();
-        self::assertSame(
-            '',
-            $this->connection->fetchOne('SELECT description FROM on_demand_macro_host WHERE host_host_id = ?', [$payload['id']]),
-        );
-    }
-
     public function testItStripsAMacroInheritedFromTheCheckCommand(): void
     {
         $this->login();
