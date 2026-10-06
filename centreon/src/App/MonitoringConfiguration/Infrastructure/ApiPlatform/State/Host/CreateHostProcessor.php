@@ -37,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -235,6 +236,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $icon = $this->resolveIcon($host->extendedInformations?->iconId);
 
         $checkCommandOutput = null;
+        $checkCommand = null;
         if ($host->checkOptions->checkCommandId instanceof CommandId) {
             // The command exists (the handler already validated it), so this resolves it purely to
             // surface its name in the response, the same way the poller name is resolved above.
@@ -303,7 +305,18 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
-        $macroOutputs = array_map($this->macroTransformer->transform(...), $host->checkOptions->macros);
+        // Every macro the host effectively has: its own, then those it still inherits, each with the
+        // id + parent a client resends to change it. The own macros are read back as stored, since
+        // their ids are only assigned on insertion.
+        $directMacros = $this->hostRepository->findOne($host->id())?->checkOptions->macros ?? $host->checkOptions->macros;
+        $inherited = InheritedHostMacros::resolve(
+            array_values($this->hostTemplateRepository->findInheritanceLine($host->templateIds)->toArray()),
+            $checkCommand,
+        );
+        $macroOutputs = array_map(
+            $this->macroTransformer->transform(...),
+            [...$directMacros, ...$inherited->notOverriddenBy($directMacros)],
+        );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
         $resource->notifications = $this->notificationsTransformer->transform($host->notifications);

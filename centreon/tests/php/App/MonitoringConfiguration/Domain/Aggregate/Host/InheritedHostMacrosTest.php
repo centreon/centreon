@@ -156,6 +156,18 @@ final class InheritedHostMacrosTest extends TestCase
         self::assertSame(['OTHER-VALUE', 'OWN'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $kept));
     }
 
+    public function testNotOverriddenByKeepsOnlyTheInheritedMacrosNoDirectMacroShadows(): void
+    {
+        $inherited = InheritedHostMacros::resolve([$this->template(1, [
+            $this->macro(11, 'shadowed', 'v'),
+            $this->macro(12, 'kept', 'v'),
+        ])], null);
+
+        $remaining = $inherited->notOverriddenBy([new HostMacro(new HostMacroName('shadowed'), 'other', isPassword: false)]);
+
+        self::assertSame(['KEPT'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $remaining));
+    }
+
     public function testNoneInheritsNothing(): void
     {
         self::assertSame([], InheritedHostMacros::none()->toList());

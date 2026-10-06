@@ -41,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
@@ -276,6 +277,55 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
                 new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
             ],
         ));
+    }
+
+    public function testItPromotesAnInheritedPasswordReferredToByIdOnCreate(): void
+    {
+        // R4: renamed with its value kept, a template password becomes a direct macro of the host.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), 'tpl-secret', isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: [
+                new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ],
+        ));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('MYPWD', $host->checkOptions->macros[0]->name->value);
+        self::assertSame('tpl-secret', $host->checkOptions->macros[0]->value);
+        self::assertTrue($host->checkOptions->macros[0]->isDirect());
+    }
+
+    public function testItAcceptsACheckCommandMacroOnCreate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9, commandLine: '$USER1$/check -a $_HOSTFROMCOMMAND$');
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkOptions: new CheckOptions(new CommandId(9)),
+            macroChanges: [
+                new HostMacroChange(new HostMacroName('fromcommand'), 'set', isPassword: false, id: new HostMacroId(999), parent: HostMacroParentEnum::Command),
+            ],
+        ));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('set', $host->checkOptions->macros[0]->value);
     }
 
     public function testItStripsMacrosIdenticalToAnInheritedOne(): void

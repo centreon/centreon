@@ -39,7 +39,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
  */
 final readonly class InheritedHostMacros
 {
-    /** Command macros the engine fills itself — never inheritable custom host macros. */
     /**
      * @param array<string, HostMacro> $macrosByName
      */
@@ -113,6 +112,27 @@ final readonly class InheritedHostMacros
 
                 return ! $inherited instanceof HostMacro || ! $macro->isEquivalentTo($inherited);
             },
+        ));
+    }
+
+    /**
+     * The inherited macros a host still relies on: those none of its direct macros shadows by name.
+     * Together with the direct macros, they are every macro the host effectively has.
+     *
+     * @param list<HostMacro> $direct
+     *
+     * @return list<HostMacro>
+     */
+    public function notOverriddenBy(array $direct): array
+    {
+        $directNames = [];
+        foreach ($direct as $macro) {
+            $directNames[$macro->name->value] = true;
+        }
+
+        return array_values(array_filter(
+            $this->macrosByName,
+            static fn (HostMacro $macro): bool => ! isset($directNames[$macro->name->value]),
         ));
     }
 
