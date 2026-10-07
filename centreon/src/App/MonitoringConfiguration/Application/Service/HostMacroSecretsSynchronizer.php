@@ -92,7 +92,10 @@ final readonly class HostMacroSecretsSynchronizer
             }
             $firstIndexByName[$macro->name->value] = $index;
             // An empty password is stored as is, nothing vaulted.
-            if (! $macro->isPassword || $macro->value === '') {
+            if (! $macro->isPassword) {
+                continue;
+            }
+            if ($macro->value === '') {
                 continue;
             }
 
