@@ -312,7 +312,7 @@ final readonly class PutHostProcessor implements ProcessorInterface
         // Every macro the host effectively has: its own, then those it still inherits, each with the
         // id + parent a client resends to change it. The own macros are read back as stored, since a
         // macro created by this update only gets its id on insertion.
-        $directMacros = $this->hostRepository->findOne($host->id())?->checkOptions->macros ?? $host->checkOptions->macros;
+        $directMacros = $this->hostRepository->findMacros($host->id());
         $inherited = $this->inheritedHostMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
         $macroOutputs = array_map(
             $this->macroTransformer->transform(...),

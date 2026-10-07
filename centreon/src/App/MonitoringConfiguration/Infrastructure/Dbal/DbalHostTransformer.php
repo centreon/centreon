@@ -110,6 +110,25 @@ final readonly class DbalHostTransformer implements TransformerInterface
     }
 
     /**
+     * Also used by {@see DbalHostRepository::findMacros()}, which reads the same rows without the host.
+     *
+     * @param array{id: int|string, name: string, value: string, is_password: string|int|null} $row
+     */
+    public static function createMacro(array $row): HostMacro
+    {
+        // Stored as the full engine form ($_HOST<NAME>$, see HostMacroName::toStorageName()); strip
+        // the '$_HOST' prefix and trailing '$' to get back the short name the VO's constructor expects.
+        $shortName = mb_substr($row['name'], 6, -1);
+
+        return new HostMacro(
+            name: new HostMacroName($shortName),
+            value: $row['value'],
+            isPassword: (bool) $row['is_password'],
+            id: new HostMacroId((int) $row['id']),
+        );
+    }
+
+    /**
      * Only present on `findOne()`'s row; `findAll()`'s row carries none of these columns, so the
      * host reads with a null block, matching a Host built without notifications. Kept
      * platform-agnostic on purpose: the Cloud-vs-on-premise decision lives in the API layer, so the
@@ -144,25 +163,6 @@ final readonly class DbalHostTransformer implements TransformerInterface
             recoveryDelay: $from['recovery_notification_delay'] !== null ? (int) $from['recovery_notification_delay'] : null,
             contactAdditiveInheritance: (bool) ($from['contact_additive_inheritance'] ?? false),
             contactGroupAdditiveInheritance: (bool) ($from['cg_additive_inheritance'] ?? false),
-        );
-    }
-
-    /**
-     * Also used by {@see DbalHostRepository::findMacros()}, which reads the same rows without the host.
-     *
-     * @param array{id: int|string, name: string, value: string, is_password: string|int|null} $row
-     */
-    public static function createMacro(array $row): HostMacro
-    {
-        // Stored as the full engine form ($_HOST<NAME>$, see HostMacroName::toStorageName()); strip
-        // the '$_HOST' prefix and trailing '$' to get back the short name the VO's constructor expects.
-        $shortName = mb_substr($row['name'], 6, -1);
-
-        return new HostMacro(
-            name: new HostMacroName($shortName),
-            value: $row['value'],
-            isPassword: (bool) $row['is_password'],
-            id: new HostMacroId((int) $row['id']),
         );
     }
 

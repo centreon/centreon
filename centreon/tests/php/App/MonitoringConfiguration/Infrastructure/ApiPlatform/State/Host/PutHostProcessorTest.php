@@ -458,7 +458,7 @@ final class PutHostProcessorTest extends ApiTestCase
         /** @var array{check_options: array{macros: list<array{id: ?int, parent: ?string}>}} $payload */
         $payload = $response->toArray();
         self::assertSame([['id' => $macroId, 'parent' => null]], array_map(
-            static fn (array $macro): array => ['id' => $macro['id'], 'parent' => $macro['parent']],
+            static fn (array $macro): array => ['id' => $macro['id'] ?? null, 'parent' => $macro['parent'] ?? null],
             $payload['check_options']['macros'],
         ));
     }
@@ -551,7 +551,7 @@ final class PutHostProcessorTest extends ApiTestCase
                 ['id' => $templateMacroId, 'name' => 'SHARED', 'parent' => 'template'],
             ],
             array_map(
-                static fn (array $macro): array => ['id' => $macro['id'], 'name' => $macro['name'], 'parent' => $macro['parent']],
+                static fn (array $macro): array => ['id' => $macro['id'] ?? null, 'name' => $macro['name'], 'parent' => $macro['parent'] ?? null],
                 $payload['check_options']['macros'],
             ),
         );
