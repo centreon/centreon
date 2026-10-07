@@ -35,6 +35,7 @@ use App\Shared\Domain\Event\AggregateDeleted;
 use App\Shared\Domain\Event\AggregateDisabled;
 use App\Shared\Domain\Event\AggregateDuplicated;
 use App\Shared\Domain\Event\AggregateEnabled;
+use App\Shared\Domain\Event\AggregateMassChanged;
 use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 use Psr\Container\ContainerInterface;
@@ -69,10 +70,11 @@ final readonly class LogActivityEventHandler
         $factory = $this->activityLogFactories->get($aggregates[0]::class);
 
         $action = match (true) {
-            // Checked before AggregateUpdated: both extend it, and enable/disable must log their
-            // own line rather than a generic "update".
+            // Checked before AggregateUpdated: they all extend it, and enable/disable/mass change must
+            // log their own line rather than a generic "update".
             $event instanceof AggregateEnabled => ActionEnum::Enable,
             $event instanceof AggregateDisabled => ActionEnum::Disable,
+            $event instanceof AggregateMassChanged => ActionEnum::MassChange,
             $event instanceof AggregateCreated, $event instanceof AggregateDuplicated => ActionEnum::Add,
             $event instanceof AggregateUpdated => ActionEnum::Update,
             $event instanceof AggregateDeleted => ActionEnum::Delete,

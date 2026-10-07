@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use PHPUnit\Framework\TestCase;
 
@@ -120,5 +121,50 @@ final class ExtendedInformationsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         new ExtendedInformations(altIcon: str_repeat('a', 201));
+    }
+
+    public function testWithKeepsEveryValueWhenNothingIsProvided(): void
+    {
+        $original = new ExtendedInformations('https://a.example', 'note', 'https://b.example', new MediaId(2), 'icon', 'comment', new GeoCoordinates('48.85', '2.35'));
+
+        self::assertTrue($original->equals($original->with()));
+    }
+
+    public function testWithReplacesOnlyTheProvidedValues(): void
+    {
+        $original = new ExtendedInformations(note: 'note', comment: 'comment');
+
+        $changed = $original->with(note: 'other', geoCoordinates: new GeoCoordinates('1', '2'));
+
+        self::assertSame('other', $changed->note);
+        self::assertSame('comment', $changed->comment);
+        self::assertSame('1', $changed->geoCoordinates?->latitude);
+    }
+
+    public function testWithClearsAValueSetToNull(): void
+    {
+        $original = new ExtendedInformations(note: 'note', iconId: new MediaId(2), geoCoordinates: new GeoCoordinates('1', '2'));
+
+        $changed = $original->with(note: null, iconId: null, geoCoordinates: null);
+
+        self::assertNull($changed->note);
+        self::assertNull($changed->iconId);
+        self::assertNull($changed->geoCoordinates);
+    }
+
+    public function testWithStillEnforcesTheInvariants(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new ExtendedInformations())->with(altIcon: str_repeat('a', ExtendedInformations::MAX_ALT_ICON_LENGTH + 1));
+    }
+
+    public function testEqualsComparesTheGeoCoordinates(): void
+    {
+        $informations = new ExtendedInformations(geoCoordinates: new GeoCoordinates('1', '2'));
+
+        self::assertTrue($informations->equals(new ExtendedInformations(geoCoordinates: new GeoCoordinates('1', '2'))));
+        self::assertFalse($informations->equals(new ExtendedInformations(geoCoordinates: new GeoCoordinates('1', '3'))));
+        self::assertFalse($informations->equals(new ExtendedInformations()));
     }
 }
