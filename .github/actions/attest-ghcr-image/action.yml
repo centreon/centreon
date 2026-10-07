@@ -3,10 +3,10 @@ description: >
   Generate one SBOM attestation per platform (amd64, arm64) for an image
   already promoted to ghcr.io, both attached to the multi-arch index digest
   so tag-based `gh attestation verify` finds them. Call after
-  promote-docker-to-ghcr using its digest/amd64_digest/arm64_digest outputs —
-  wrap with continue-on-error and a distinct warning, since a failure here
-  doesn't mean delivery failed. Build provenance is attested separately, at
-  build time.
+  promote-docker-to-ghcr using its digest/amd64_digest/arm64_digest outputs.
+  A failure here doesn't mean delivery failed (the image is already pushed),
+  but should still fail the job — it's the gh attestation verify guarantee.
+  Build provenance is attested separately, at build time.
 inputs:
   ghcr_image:
     description: "Image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)"

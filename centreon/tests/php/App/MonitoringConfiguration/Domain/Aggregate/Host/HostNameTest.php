@@ -35,6 +35,13 @@ final class HostNameTest extends TestCase
         self::assertSame('my-host', $name->value);
     }
 
+    public function testItReplacesInnerSpacesWithUnderscores(): void
+    {
+        $name = new HostName('my host name');
+
+        self::assertSame('my_host_name', $name->value);
+    }
+
     public function testItRejectsAWhitespaceOnlyName(): void
     {
         $this->expectException(\InvalidArgumentException::class);

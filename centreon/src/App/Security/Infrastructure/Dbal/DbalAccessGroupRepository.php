@@ -27,6 +27,7 @@ use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Shared\Domain\Collection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -98,5 +99,20 @@ final readonly class DbalAccessGroupRepository implements AccessGroupRepository
             array_map(static fn (array $row): AccessGroupId => new AccessGroupId((int) $row['acl_group_id']), $rows),
             AccessGroupId::class,
         );
+    }
+
+    public function flagGroupsAsChanged(Collection $accessGroupIds): void
+    {
+        $accessGroupIdValues = array_map(static fn (AccessGroupId $id): int => $id->value, $accessGroupIds->toArray());
+        if ($accessGroupIdValues === []) {
+            return;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update('acl_groups')
+            ->set('acl_group_changed', '1')
+            ->where($qb->expr()->in('acl_group_id', $qb->createNamedParameter($accessGroupIdValues, ArrayParameterType::INTEGER)));
+
+        $qb->executeStatement();
     }
 }

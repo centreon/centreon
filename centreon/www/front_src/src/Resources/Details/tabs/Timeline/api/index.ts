@@ -30,4 +30,4 @@ const listTimelineEvents =
     });
   };
 
-export { listTimelineEvents, buildListTimelineEventsEndpoint };
+export { buildListTimelineEventsEndpoint, listTimelineEvents };

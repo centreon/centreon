@@ -16,7 +16,7 @@ const Row = ({
 
   return (
     <div
-      className={`grid grid-cols-1 items-baseline gap-x-7 gap-y-1 py-6 md:grid-cols-[188px_1fr] ${
+      className={`grid grid-cols-1 items-center gap-x-7 gap-y-1 py-6 md:grid-cols-[188px_1fr] ${
         withTopDivider ? 'border-t border-divider' : ''
       }`}
     >

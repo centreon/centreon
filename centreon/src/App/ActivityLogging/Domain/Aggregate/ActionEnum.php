@@ -28,4 +28,7 @@ enum ActionEnum: string
     case Add = 'Add';
     case Update = 'Update';
     case Delete = 'Delete';
+    case Enable = 'Enable';
+    case Disable = 'Disable';
+    case MassChange = 'MassChange';
 }

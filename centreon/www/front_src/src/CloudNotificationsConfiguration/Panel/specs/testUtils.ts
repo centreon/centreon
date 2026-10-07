@@ -282,12 +282,12 @@ const emailBodyText = [
 ];
 
 export {
+  emailBodyText,
   formData,
-  usersResponse,
   getNotificationResponse,
   hostGroupsResponse,
-  serviceGroupsResponse,
   platformVersions,
-  emailBodyText,
-  timePeriodsResponse
+  serviceGroupsResponse,
+  timePeriodsResponse,
+  usersResponse
 };

@@ -41,11 +41,20 @@ if (preg_match('/([0-9]+)_([0-9]+)/', $chartId, $matches)) {
 $metrics = [];
 
 // Get list metrics
-$query = 'SELECT m.metric_id, m.metric_name, i.host_name, i.service_description
+// Meta services use host "_Module_Meta" and description "meta_<id>": show "Meta - <display_name>" instead
+$query = <<<'SQL'
+    SELECT m.metric_id, m.metric_name,
+        CASE
+            WHEN i.host_name = '_Module_Meta' THEN CONCAT('Meta - ', COALESCE(NULLIF(s.display_name, ''), i.service_description))
+            ELSE CONCAT(i.host_name, ' - ', i.service_description)
+        END AS fullname
     FROM metrics m
     INNER JOIN index_data i
-    ON i.id = m.index_id AND i.service_id = :serviceId
-    AND i.host_id = :hostId';
+        ON i.id = m.index_id AND i.service_id = :serviceId
+        AND i.host_id = :hostId
+    LEFT JOIN services s
+        ON s.host_id = i.host_id AND s.service_id = i.service_id
+    SQL;
 
 $stmt = $pearDBO->prepare($query);
 $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
@@ -53,7 +62,7 @@ $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
 $stmt->execute();
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $metrics[] = ['id' => $chartId . '_' . $row['metric_id'], 'title' => $row['host_name'] . ' - ' . $row['service_description'] . ' : ' . $row['metric_name']];
+    $metrics[] = ['id' => $chartId . '_' . $row['metric_id'], 'title' => $row['fullname'] . ' : ' . $row['metric_name']];
 }
 
 $period_start = isset($_GET['start']) ? filter_var($_GET['start'], FILTER_VALIDATE_INT) : 'undefined';

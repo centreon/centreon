@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\Shared\Domain\Collection;
 
@@ -45,4 +47,30 @@ interface HostTemplateRepository
      * @return Collection<HostTemplateName> indexed by host template id
      */
     public function findNamesByIds(Collection $ids): Collection;
+
+    /**
+     * Every requested host's icon inherited from its template chain, resolved like legacy
+     * getMyHostExtendedInfoImage(): templates are walked depth-first by relation order and the
+     * first icon found wins. The host's own icon is ignored. A host with no inherited icon is
+     * absent from the result.
+     *
+     * @param Collection<HostId> $hostIds
+     *
+     * @return Collection<MediaId> indexed by host id
+     */
+    public function findInheritedIconIds(Collection $hostIds): Collection;
+
+    /**
+     * The full multi-level inheritance line of the given direct templates, with what a host inherits
+     * from each (its own macros, its check command, the check commands of its linked service
+     * templates): each direct template (in the given order) followed by its own ancestors,
+     * depth-first by relation `order`, nearest to the host first, each template appearing once (its
+     * nearest position). Only active templates are kept, at every level, like legacy
+     * getTemplateChain(); an id that is not an active host template is skipped.
+     *
+     * @param Collection<HostTemplateId> $directTemplateIds the host's (or template's) direct templates, in order
+     *
+     * @return Collection<HostTemplate>
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection;
 }

@@ -41,4 +41,12 @@ interface AccessGroupRepository
      * @return Collection<AccessGroupId>
      */
     public function findActiveGroupIdsForUser(UserId $userId): Collection;
+
+    /**
+     * Flags the given Access Groups as changed, so the `centAcl` cron recomputes their
+     * resource scoping (including `centreon_acl`) on its next run.
+     *
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function flagGroupsAsChanged(Collection $accessGroupIds): void;
 }

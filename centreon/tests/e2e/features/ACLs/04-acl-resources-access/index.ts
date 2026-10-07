@@ -19,6 +19,15 @@ const modifiedAclResource = {
   name: `${aclResource.name}_modified`
 };
 
+const resourcesAccessFormTabs = [
+  { label: 'General Information', navId: 'c1', panelId: 'tab1' },
+  { label: 'Host Resources', navId: 'c2', panelId: 'tab2' },
+  { label: 'Service Resources', navId: 'c3', panelId: 'tab3' },
+  { label: 'Meta Services', navId: 'c4', panelId: 'tab4' },
+  { label: 'Filters', navId: 'c5', panelId: 'tab5' },
+  { label: 'Image folders', navId: 'c6', panelId: 'tab6' }
+];
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -322,6 +331,49 @@ Then('the modifications are saved', () => {
   cy.getIframeBody()
     .find('input[name="acl_res_activate[acl_res_activate]"][value="0"]')
     .should('be.checked');
+});
+
+When('I open the Resources access for editing', () => {
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
+  cy.wait('@getTimeZone');
+
+  cy.getIframeBody().contains('td.ListColLeft > a', aclResource.name).click();
+  cy.wait('@getTimeZone');
+});
+
+Then('every tab of the form can be opened by clicking on it', () => {
+  // The message container is always in the DOM and usually empty, which makes
+  // it invisible yet still hit-tested. Assert head-on that it no longer
+  // intercepts clicks: the per-tab clicks below only catch that when a tab
+  // happens to fall within its hardcoded position, which depends on label
+  // widths and would stop holding without any test turning red.
+  cy.getIframeBody()
+    .find('#centreonMsg')
+    .then(($container) => {
+      const container = $container[0];
+      const { left, top, width, height } = container.getBoundingClientRect();
+      const topmostElement = container.ownerDocument.elementFromPoint(
+        left + width / 2,
+        top + height / 2
+      );
+
+      expect(
+        topmostElement,
+        'the message container must not intercept clicks'
+      ).not.to.equal(container);
+    });
+
+  resourcesAccessFormTabs.forEach(({ label, navId, panelId }) => {
+    // Deliberately a plain click: Cypress hit-tests the tab, so an element
+    // overlaying the tab bar fails the test instead of being silently bypassed
+    // as { force: true } would do.
+    cy.getIframeBody().contains('#mainnav li a', label).click();
+
+    // montre() both activates the tab and hides every other panel.
+    cy.getIframeBody().find(`#${navId}`).should('have.class', 'a');
+    cy.getIframeBody().find(`#${panelId}`).should('be.visible');
+    cy.getIframeBody().find('div.tab:visible').should('have.length', 1);
+  });
 });
 
 When('I delete the Resources access', () => {

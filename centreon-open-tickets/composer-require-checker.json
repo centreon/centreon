@@ -49,7 +49,6 @@
     "./www/modules/centreon-open-tickets/webServices/rest/centreon_openticket_history.class.php",
     "./www/modules/centreon-open-tickets/webServices/rest/centreon_openticket.class.php",
     "./www/modules/centreon-open-tickets/php/clear_cache.php",
-    "./www/modules/centreon-open-tickets/php/generate_routes.php",
     "./www/modules/centreon-open-tickets/php/install.php",
     "./www/modules/centreon-open-tickets/php/uninstall.php",
     "./www/modules/centreon-open-tickets/upgrade/25.01.1/php/upgrade.php",
