@@ -72,7 +72,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 return [];
             }
 
-            $ids = array_values(array_unique($ids));
+            $ids = array_unique($ids);
 
             $fields = '';
             foreach ($ids as $index => $id) {
@@ -124,7 +124,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 return [];
             }
 
-            $ids = array_values(array_unique($ids));
+            $ids = array_unique($ids);
 
             $fields = '';
             foreach ($ids as $index => $id) {

@@ -135,7 +135,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                 return [];
             }
 
-            $ids = array_values(array_unique($ids));
+            $ids = array_unique($ids);
 
             $fields = '';
             foreach ($ids as $index => $id) {
