@@ -339,6 +339,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
 
     /**
      *  test do not merge
+     *  comment my PR
      */
     public function setUserOptions(): void
     {
