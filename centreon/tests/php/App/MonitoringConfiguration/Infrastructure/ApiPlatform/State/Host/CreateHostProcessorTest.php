@@ -1784,7 +1784,8 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        /** @var array{id: int, check_options: array{macros: list<array{id: ?int, name: string, value?: string, parent: ?string}>}} $payload */
+        // skip_null_values drops `parent` from a direct macro, hence the optional key.
+        /** @var array{id: int, check_options: array{macros: list<array{id: ?int, name: string, value?: string, parent?: string}>}} $payload */
         $payload = $response->toArray();
         $macros = $payload['check_options']['macros'];
 
@@ -1796,10 +1797,10 @@ final class CreateHostProcessorTest extends ApiTestCase
         $ownId = (int) $ownId;
         self::assertSame(['OWN', 'FROMTEMPLATE', 'FROMCOMMAND'], array_column($macros, 'name'));
         // The direct macro carries the id it was stored under.
-        self::assertSame(['id' => $ownId, 'parent' => null], ['id' => $macros[0]['id'], 'parent' => $macros[0]['parent']]);
-        self::assertSame(['id' => $templateMacroId, 'parent' => 'template'], ['id' => $macros[1]['id'], 'parent' => $macros[1]['parent']]);
+        self::assertSame(['id' => $ownId, 'parent' => null], ['id' => $macros[0]['id'], 'parent' => $macros[0]['parent'] ?? null]);
+        self::assertSame(['id' => $templateMacroId, 'parent' => 'template'], ['id' => $macros[1]['id'], 'parent' => $macros[1]['parent'] ?? null]);
         self::assertSame('tpl-value', $macros[1]['value'] ?? null);
-        self::assertSame('command', $macros[2]['parent']);
+        self::assertSame('command', $macros[2]['parent'] ?? null);
     }
 
     public function testItOverridesAnInheritedMacroReferredToByIdOnCreate(): void
@@ -1833,7 +1834,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        /** @var array{id: int, check_options: array{macros: list<array{name: string, value?: string, parent: ?string}>}} $payload */
+        /** @var array{id: int, check_options: array{macros: list<array{name: string, value?: string, parent?: string}>}} $payload */
         $payload = $response->toArray();
 
         /** @var list<array{host_macro_name: string, host_macro_value: string}> $rows */
@@ -1846,7 +1847,10 @@ final class CreateHostProcessorTest extends ApiTestCase
             $rows,
         );
         // Both are now direct overrides: nothing is reported as inherited any more.
-        self::assertSame([null, null], array_column($payload['check_options']['macros'], 'parent'));
+        self::assertSame(
+            [null, null],
+            array_map(static fn (array $macro): ?string => $macro['parent'] ?? null, $payload['check_options']['macros']),
+        );
     }
 
     public function testItNeverReturnsTheValueOfAnInheritedPassword(): void
@@ -1902,6 +1906,40 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'code' => 422,
             'message' => "[check_options] One or more macros do not exist on this host.\n",
+        ]);
+    }
+
+    public function testItRejectsKeepingTheValueOfAnInheritedMacroThatIsNotAPassword(): void
+    {
+        // A null value keeps the stored value, which only a password has a use for: the template's
+        // plain macro is echoed back, so the client must send its value.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTPLAIN$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'renamed', 'value' => null, 'is_password' => true],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] A value is required: these macros are not stored as passwords, so their value cannot be kept.\n",
         ]);
     }
 
@@ -1961,12 +1999,12 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        /** @var array{check_options: array{macros: list<array{name: string, parent: ?string}>}} $payload */
+        /** @var array{check_options: array{macros: list<array{name: string, parent?: string}>}} $payload */
         $payload = $response->toArray();
         // FOO is not stored on the host: it is still returned, as inherited from the command.
         self::assertSame(
             [['name' => 'OWN', 'parent' => null], ['name' => 'FOO', 'parent' => 'command']],
-            array_map(static fn (array $macro): array => ['name' => $macro['name'], 'parent' => $macro['parent']], $payload['check_options']['macros']),
+            array_map(static fn (array $macro): array => ['name' => $macro['name'], 'parent' => $macro['parent'] ?? null], $payload['check_options']['macros']),
         );
     }
 

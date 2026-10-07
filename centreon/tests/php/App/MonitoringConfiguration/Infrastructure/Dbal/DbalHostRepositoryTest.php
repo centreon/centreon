@@ -1844,6 +1844,36 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindMacrosReturnsTheHostOwnMacrosWithTheirIds(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-find-macros', $pollerId);
+        $otherHostId = $this->createHost('server-other', $pollerId);
+        $this->insertHostMacro($hostId, '$_HOSTCOMMUNITY$', 'public', isPassword: false, order: 0);
+        $this->insertHostMacro($hostId, '$_HOSTTOKEN$', 's3cr3t', isPassword: true, order: 1);
+        $this->insertHostMacro($otherHostId, '$_HOSTELSEWHERE$', 'x', isPassword: false, order: 0);
+
+        $macros = $this->repository->findMacros(new HostId($hostId));
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$hostId],
+        );
+        self::assertSame(['COMMUNITY', 'TOKEN'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros));
+        self::assertSame(array_map('intval', $ids), array_map(static fn (HostMacro $macro): ?int => $macro->id?->value, $macros));
+        self::assertTrue($macros[1]->isPassword);
+        self::assertTrue($macros[0]->isDirect());
+    }
+
+    public function testFindMacrosReturnsNothingForAHostWithoutMacros(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-no-macros', $pollerId);
+
+        self::assertSame([], $this->repository->findMacros(new HostId($hostId)));
+    }
+
     private function hostWithNotifications(int $pollerId, ?Notifications $notifications): Host
     {
         return new Host(

@@ -117,6 +117,11 @@ final class FakeHostRepository implements HostRepository
         return $host;
     }
 
+    public function findMacros(HostId $id): array
+    {
+        return $this->hosts[$id->value]->checkOptions->macros ?? [];
+    }
+
     public function remove(Host $host): void
     {
         unset($this->hosts[$host->id()->value]);
