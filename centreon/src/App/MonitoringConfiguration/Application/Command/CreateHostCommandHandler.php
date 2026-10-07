@@ -148,7 +148,7 @@ final readonly class CreateHostCommandHandler
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity ? $this->extractVaultUuid($snmpCommunity->value) : null;
 
         // Resolve inherited macros from the requested templates and the check command together, so a
-        // submitted macro that merely duplicates an inherited one is dropped (R7).
+        // submitted macro that merely duplicates an inherited one is dropped.
         $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
 
         $host = new Host(

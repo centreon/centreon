@@ -97,7 +97,7 @@ final readonly class InheritedHostMacros
     }
 
     /**
-     * Keeps only the macros that do not merely repeat what is inherited (R7): a macro equivalent to
+     * Keeps only the macros that do not merely repeat what is inherited: a macro equivalent to
      * the inherited macro of the same name is dropped, so the host relies on inheritance instead of
      * storing a redundant copy.
      *

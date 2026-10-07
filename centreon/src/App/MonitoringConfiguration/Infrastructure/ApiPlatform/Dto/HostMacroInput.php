@@ -86,7 +86,7 @@ final readonly class HostMacroInput
     #[Assert\Callback]
     public function validateValueIsProvided(ExecutionContextInterface $context): void
     {
-        // Mirrors the HostMacroChange invariant (R2, R9) as a field violation: a null value keeps
+        // Mirrors the HostMacroChange invariant as a field violation: a null value keeps
         // the stored value, which only an existing password macro has a use for since its value is
         // never echoed back. Whether the stored macro really is a password is checked on write.
         if ($this->value === null && ($this->id === null || ! $this->isPassword)) {

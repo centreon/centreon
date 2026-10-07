@@ -93,7 +93,7 @@ final class HostMacroTest extends TestCase
 
     public function testValuesAreComparedInTheirRawStoredForm(): void
     {
-        // R10: two references are different values even if they might resolve to the same secret.
+        // Two references are different values even if they might resolve to the same secret.
         $inherited = new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/a::_HOSTPWD', isPassword: true, parent: HostMacroParentEnum::Template);
         $direct = new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/b::_HOSTPWD', isPassword: true);
 

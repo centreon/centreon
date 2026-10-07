@@ -95,7 +95,6 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testAnEmptyStringIsAValidValue(): void
     {
-        // R8
         $macros = $this->resolver->resolve([$this->change('own', '', isPassword: true)], [], $this->inherited);
 
         self::assertSame('', $macros[0]->value);
@@ -104,7 +103,6 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testAPasswordKeepsItsStoredValueWhenNullIsSent(): void
     {
-        // R1
         $current = [$this->direct(5, 'pwd', self::HOST_SECRET, isPassword: true)];
 
         $macros = $this->resolver->resolve([$this->change('pwd', null, isPassword: true, id: 5)], $current, $this->inherited);
@@ -115,7 +113,6 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testADirectPasswordRenamedKeepsItsValueAndId(): void
     {
-        // R5
         $current = [$this->direct(5, 'pwd', self::HOST_SECRET, isPassword: true)];
 
         $macros = $this->resolver->resolve([$this->change('renamed', null, isPassword: true, id: 5)], $current, $this->inherited);
@@ -146,7 +143,7 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testAnInheritedPasswordRenamedBecomesDirectCarryingTheInheritedRawValue(): void
     {
-        // R4: the raw template reference is carried over; moving it under the host's vault entry
+        // The raw template reference is carried over; moving it under the host's vault entry
         // is the caller's job (HostMacroSecretsSynchronizer).
         $macros = $this->resolver->resolve(
             [$this->change('mypwd', null, isPassword: true, id: 12, parent: HostMacroParentEnum::Template)],
@@ -163,7 +160,6 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testAnInheritedMacroWithANewValueBecomesDirect(): void
     {
-        // R6
         $macros = $this->resolver->resolve(
             [$this->change('tplval', 'overridden', id: 11, parent: HostMacroParentEnum::Template)],
             [],
@@ -177,7 +173,7 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testAnInheritedMacroWhosePasswordFlagAloneChangesBecomesDirect(): void
     {
-        // R6, R7: is_password alone is an override.
+        // is_password alone is an override.
         $macros = $this->resolver->resolve(
             [$this->change('tplval', 'inherited', isPassword: true, id: 11, parent: HostMacroParentEnum::Template)],
             [],
@@ -190,7 +186,7 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testAnUntouchedInheritedMacroEchoedBackStaysInherited(): void
     {
-        // Q5 via R7: no direct copy is materialised.
+        // No direct copy is materialised.
         $macros = $this->resolver->resolve([
             $this->change('tplval', 'inherited', id: 11, parent: HostMacroParentEnum::Template),
             $this->change('tplpwd', null, isPassword: true, id: 12, parent: HostMacroParentEnum::Template),
@@ -202,7 +198,6 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testADirectOverrideSetBackToTheInheritedValueCollapses(): void
     {
-        // R7
         $current = [$this->direct(5, 'tplval', 'overridden')];
 
         $macros = $this->resolver->resolve([$this->change('tplval', 'inherited', id: 5)], $current, $this->inherited);
@@ -212,7 +207,7 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testANewMacroMatchingAnInheritedOneIsNotAnOverride(): void
     {
-        // R7: a matching name alone never makes an override.
+        // A matching name alone never makes an override.
         $macros = $this->resolver->resolve([
             $this->change('tplval', 'inherited'),
             $this->change('cmd', ''),
@@ -306,7 +301,7 @@ final class HostMacroChangesResolverTest extends TestCase
 
     public function testKeepingTheStoredValueOfANonPasswordMacroIsRejected(): void
     {
-        // R9: the stored macro is not a password, so its value is echoed and must be resent.
+        // The stored macro is not a password, so its value is echoed and must be resent.
         $current = [$this->direct(5, 'plain', 'x')];
 
         $this->expectException(HostMacroValueRequiredException::class);

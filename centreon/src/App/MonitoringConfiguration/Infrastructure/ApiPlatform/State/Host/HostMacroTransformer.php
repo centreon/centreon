@@ -45,7 +45,7 @@ final readonly class HostMacroTransformer implements TransformerInterface
         return new HostMacroOutput(
             id: $from->id?->value,
             name: $from->name->value,
-            // A password macro's stored value is a vault reference (or secret) — never echoed (R3).
+            // A password macro's stored value is a vault reference (or secret) — never echoed.
             value: $from->isPassword ? null : $from->value,
             isPassword: $from->isPassword,
             parent: $from->parent?->value,

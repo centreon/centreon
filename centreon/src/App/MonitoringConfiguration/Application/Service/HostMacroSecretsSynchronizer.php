@@ -38,11 +38,11 @@ use App\Shared\Domain\VaultInterface;
  * - a reference to another entry has its secret copied under the host's entry — never shared, so
  *   editing or deleting the template cannot change or purge the host's secret. The only such
  *   references are those HostMacroChangesResolver carries over when an inherited password is
- *   promoted to direct with its stored value kept (R4): the API rejects any submitted reference;
- * - a reference already in the host's entry is left untouched, even after a rename (R5);
- * - an empty value is stored as is, nothing vaulted (R8);
- * - a key of the host's entry no macro references any more (macro removed, reverted to inherited by
- *   R7, or no longer a password) is deleted from the entry.
+ *   promoted to direct with its stored value kept: the API rejects any submitted reference;
+ * - a reference already in the host's entry is left untouched, even after a rename;
+ * - an empty value is stored as is, nothing vaulted;
+ * - a key of the host's entry no macro references any more (macro removed, reverted to inherited as
+ *   redundant, or no longer a password) is deleted from the entry.
  *
  * Vault keys follow legacy: `_HOST<NAME>`, without the `$...$` wrapper.
  */
@@ -91,7 +91,7 @@ final readonly class HostMacroSecretsSynchronizer
                 continue;
             }
             $firstIndexByName[$macro->name->value] = $index;
-            // An empty password is stored as is, nothing vaulted (R8).
+            // An empty password is stored as is, nothing vaulted.
             if (! $macro->isPassword || $macro->value === '') {
                 continue;
             }
@@ -107,7 +107,7 @@ final readonly class HostMacroSecretsSynchronizer
                 : $macro->value;
         }
 
-        // A renamed macro keeps its reference (R5), so its key may be the name another macro now
+        // A renamed macro keeps its reference, so its key may be the name another macro now
         // claims: that one would overwrite the secret the renamed macro still points to. Move the
         // renamed macro under its own name instead.
         $claimedKeys = [];

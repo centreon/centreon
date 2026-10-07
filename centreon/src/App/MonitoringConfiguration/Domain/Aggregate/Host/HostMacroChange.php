@@ -32,7 +32,7 @@ use Webmozart\Assert\Assert;
  * turns it into the direct macro to persist.
  *
  * A null value means "keep the stored value". It is only meaningful for an existing password macro,
- * whose value is never echoed back (R1, R2, R9); an empty string is an explicit value (R8).
+ * whose value is never echoed back; an empty string is an explicit value.
  */
 final readonly class HostMacroChange
 {

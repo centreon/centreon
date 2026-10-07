@@ -27,8 +27,8 @@ use App\Shared\Domain\Exception\AggregateConflictException;
 
 /**
  * A submitted macro asks to keep its stored value (null) while the macro it refers to is not a
- * stored password: only a password's value is never echoed back, so only it can be kept that way
- * (R1, R2, R9). Reported against `checkOptions`, the payload field the macros are submitted in.
+ * stored password: only a password's value is never echoed back, so only it can be kept that way.
+ * Reported against `checkOptions`, the payload field the macros are submitted in.
  */
 final class HostMacroValueRequiredException extends AggregateConflictException
 {

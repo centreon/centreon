@@ -63,7 +63,7 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
 
     public function testItLeavesAReferenceAlreadyInTheHostEntryUntouched(): void
     {
-        // R1 / R5: a kept or renamed direct password keeps its reference.
+        // A kept or renamed direct password keeps its reference.
         $macros = $this->synchronizer->synchronize(
             [$this->macro('renamed', self::HOST_PWD, true, 5)],
             [$this->macro('pwd', self::HOST_PWD, true, 5)],
@@ -77,7 +77,7 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
 
     public function testItCopiesAnInheritedSecretUnderTheHostEntry(): void
     {
-        // R4: never the template's path.
+        // Never the template's path.
         $this->vault->resolved = [self::TEMPLATE_PWD => 'template-secret'];
 
         $macros = $this->synchronizer->synchronize([$this->macro('mypwd', self::TEMPLATE_PWD, true)], [], self::HOST_UUID);
@@ -96,7 +96,6 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
 
     public function testAnEmptyPasswordIsNotVaulted(): void
     {
-        // R8
         $macros = $this->synchronizer->synchronize([$this->macro('pwd', '', true)], [], self::HOST_UUID);
 
         self::assertSame('', $macros[0]->value);
@@ -105,7 +104,7 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
 
     public function testItDeletesTheKeyOfAPasswordNoLongerOwned(): void
     {
-        // Removed, collapsed to inherited (R7), or turned into a plain macro.
+        // Removed, collapsed to inherited, or turned into a plain macro.
         $macros = $this->synchronizer->synchronize(
             [$this->macro('pwd', 'now-plain', false, 5)],
             [$this->macro('pwd', self::HOST_PWD, true, 5)],

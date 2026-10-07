@@ -32,7 +32,7 @@ use Webmozart\Assert\Assert;
  *
  * Values are always held in their raw stored form: the literal value, or the `secret::` reference
  * of a vaulted password. Every comparison is made on that raw form, never on vault-resolved
- * plaintext (rule R10), so a promotion never re-wraps an already-vaulted reference.
+ * plaintext, so a promotion never re-wraps an already-vaulted reference.
  */
 final readonly class HostMacro
 {
@@ -72,8 +72,8 @@ final readonly class HostMacro
     }
 
     /**
-     * Whether both macros define the same thing: same name, same raw value, same password flag
-     * (R7, R10). Identity (id) and origin (parent) are not compared: an override equivalent to the
+     * Whether both macros define the same thing: same name, same raw value, same password flag.
+     * Identity (id) and origin (parent) are not compared: an override equivalent to the
      * macro it shadows is redundant whatever row it lives in.
      */
     public function isEquivalentTo(self $other): bool
@@ -85,7 +85,7 @@ final readonly class HostMacro
 
     /**
      * Whether this macro genuinely overrides $inherited: it shadows it by name while differing in
-     * value and/or password flag (R6, R7). A matching name alone never makes an override.
+     * value and/or password flag. A matching name alone never makes an override.
      */
     public function overrides(self $inherited): bool
     {
@@ -107,7 +107,7 @@ final readonly class HostMacro
     }
 
     /**
-     * Turns an inherited macro into a new direct macro of the host (R4, R6). It loses the source's
+     * Turns an inherited macro into a new direct macro of the host. It loses the source's
      * id: the host gets its own row.
      */
     public function promoteToDirect(): self

@@ -35,13 +35,13 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException
  * Turns the macros submitted on a host write into the direct macros the host must own, resolving
  * each one by id + parent rather than by name.
  *
- * - A new macro (no id) becomes a direct macro (R2, R8).
+ * - A new macro (no id) becomes a direct macro.
  * - A direct macro keeps its id: a rename and/or new value updates it in place; a null value keeps
- *   the stored password (R1, R5).
- * - An inherited macro that is changed becomes a new direct macro (R4, R6); a null value copies the
+ *   the stored password.
+ * - An inherited macro that is changed becomes a new direct macro; a null value copies the
  *   inherited password's raw stored form, left for the caller to move under the host's own vault
  *   entry.
- * - Whatever ends up equivalent to the inherited macro of its name is dropped (R7): the host relies
+ * - Whatever ends up equivalent to the inherited macro of its name is dropped: the host relies
  *   on inheritance instead, so echoing back an untouched inherited macro never materialises a copy.
  *
  * A check-command macro is resolved by name, never by id: whatever id is sent with
@@ -49,7 +49,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException
  * macro is never a password and always carries an empty value, so its id holds nothing a write
  * needs, and on_demand_macro_command ids are both incomplete (rows missing for some commands) and
  * unstable (rewritten on every command save); an unknown one is never an error. So a command-only
- * name submitted with an empty value stays inherited (R7), while the same name defined by a template
+ * name submitted with an empty value stays inherited, while the same name defined by a template
  * in the inheritance line wins over the command, so an empty value then genuinely overrides it.
  */
 final readonly class HostMacroChangesResolver

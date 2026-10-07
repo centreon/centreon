@@ -447,7 +447,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 
     /**
      * A host being created owns no macro yet, so every submitted macro must be new: one referring to
-     * an existing macro is reported as unknown. Redundancy with inherited macros (R7) is resolved by
+     * an existing macro is reported as unknown. Redundancy with inherited macros is resolved by
      * the handler, which knows the templates and the check command.
      *
      * @param list<HostMacroInput> $inputs
