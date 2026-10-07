@@ -599,17 +599,17 @@ final class DbalHostRepositoryTest extends KernelTestCase
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: new Collection([], HostGroupId::class),
             checkOptions: new CheckOptions(null, macros: [
-                new HostMacro(new HostMacroName('community'), 'public', isPassword: false, description: 'SNMP'),
+                new HostMacro(new HostMacroName('community'), 'public', isPassword: false),
                 new HostMacro(new HostMacroName('secret'), 'secret::vault::x', isPassword: true),
             ]),
         );
 
         $this->repository->add($host);
 
-        /** @var list<array{host_macro_name: string, host_macro_value: string, is_password: ?string, description: ?string}> $rows */
+        /** @var list<array{host_macro_name: string, host_macro_value: string, is_password: ?string, description: ?string, macro_order: int|string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, host_macro_value, is_password, description
-             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_name, host_macro_value, is_password, description, macro_order
+             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$host->id()->value],
         );
 
@@ -617,9 +617,11 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
         self::assertSame('public', $rows[0]['host_macro_value']);
         self::assertNull($rows[0]['is_password']);
-        self::assertSame('SNMP', $rows[0]['description']);
+        // Dropped properties are left to their column default.
+        self::assertNull($rows[0]['description']);
         self::assertSame('$_HOSTSECRET$', $rows[1]['host_macro_name']);
         self::assertSame(1, (int) $rows[1]['is_password']);
+        self::assertSame([0, 0], array_map(static fn (array $row): int => (int) $row['macro_order'], $rows));
     }
 
     public function testAddLeavesTheCheckCommandNullWhenNoneIsSet(): void
@@ -1045,6 +1047,15 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertFalse($host->checkOptions->macros[0]->isPassword);
         self::assertSame('TOKEN', $host->checkOptions->macros[1]->name->value);
         self::assertTrue($host->checkOptions->macros[1]->isPassword);
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$hostId],
+        );
+        self::assertSame((int) $ids[0], $host->checkOptions->macros[0]->id?->value);
+        self::assertSame((int) $ids[1], $host->checkOptions->macros[1]->id?->value);
+        self::assertTrue($host->checkOptions->macros[0]->isDirect());
     }
 
     public function testFindOneReturnsNullWhenTheViewerHasNoAccess(): void

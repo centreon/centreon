@@ -21,19 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
-final readonly class CommandMacroOutput
+/**
+ * Where an inherited macro comes from. Only the origin type is exposed, never which template.
+ * A direct macro (owned by the host itself) has no parent.
+ */
+enum HostMacroParentEnum: string
 {
-    /**
-     * @param ?int $id null when the macro is used in the command line but not stored; the null is
-     *                 then dropped from the payload by skip_null_values
-     * @param string $type host|service
-     */
-    public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $type,
-    ) {
-    }
+    case Template = 'template';
+    case Command = 'command';
 }

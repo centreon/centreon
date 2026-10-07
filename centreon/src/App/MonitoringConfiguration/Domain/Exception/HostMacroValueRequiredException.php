@@ -21,19 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-final readonly class CommandMacroOutput
+use App\Shared\Domain\Exception\AggregateConflictException;
+
+/**
+ * A submitted macro asks to keep its stored value (null) while the macro it refers to is not a
+ * stored password: only a password's value is never echoed back, so only it can be kept that way.
+ * Reported against `checkOptions`, the payload field the macros are submitted in.
+ */
+final class HostMacroValueRequiredException extends AggregateConflictException
 {
     /**
-     * @param ?int $id null when the macro is used in the command line but not stored; the null is
-     *                 then dropped from the payload by skip_null_values
-     * @param string $type host|service
+     * @param list<string> $names
      */
-    public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $type,
-    ) {
+    public function __construct(array $names)
+    {
+        parent::__construct(['checkOptions' => $names], 'A value is required: these macros are not stored as passwords, so their value cannot be kept.');
     }
 }
