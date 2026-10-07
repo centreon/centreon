@@ -106,19 +106,27 @@ final readonly class DbalNotificationsTransformer implements TransformerInterfac
             return [];
         }
 
-        return array_map(
-            static fn (string $letter): NotificationOptionEnum => match ($letter) {
+        $options = [];
+        foreach (explode(',', $column) as $letter) {
+            $option = match (trim($letter)) {
                 'd' => NotificationOptionEnum::Down,
                 'u' => NotificationOptionEnum::Unreachable,
                 'r' => NotificationOptionEnum::Recovery,
                 'f' => NotificationOptionEnum::Flapping,
                 's' => NotificationOptionEnum::DowntimeScheduled,
                 'n' => NotificationOptionEnum::None,
-                default => throw new \UnexpectedValueException(
-                    sprintf('Unexpected notification option column value "%s".', $letter)
-                ),
-            },
-            explode(',', $column),
-        );
+                default => null,
+            };
+            if ($option !== null) {
+                $options[$option->name] = $option;
+            }
+        }
+
+        // Legacy (massive change, CLAPI) can store "n" next to real options: the real options win.
+        if (count($options) > 1) {
+            unset($options[NotificationOptionEnum::None->name]);
+        }
+
+        return array_values($options);
     }
 }

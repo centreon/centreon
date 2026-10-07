@@ -361,13 +361,14 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $pollerId = $this->createPoller('Central');
         $hostId = $this->createHost('server-01', $pollerId);
         $before = $this->findHost($hostId);
+        $iconId = $this->createImage('server.png');
 
         $this->repository->update($before->with(
             extendedInformations: new ExtendedInformations(
                 noteUrl: 'https://example.com/notes',
                 note: 'a note',
                 actionUrl: null,
-                iconId: new MediaId($this->createImage('server.png')),
+                iconId: new MediaId($iconId),
                 altIcon: 'server icon',
                 comment: 'a comment',
                 geoCoordinates: GeoCoordinates::fromString('48.8566,2.3522'),
@@ -395,14 +396,38 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('server icon', $extendedInformations->altIcon);
         self::assertSame('a comment', $extendedInformations->comment);
         self::assertSame('48.8566,2.3522', (string) $extendedInformations->geoCoordinates);
+        self::assertSame(
+            [$iconId],
+            $this->connection->fetchFirstColumn('SELECT ehi_icon_image FROM extended_host_information WHERE host_host_id = ?', [$hostId]),
+        );
         $row = $this->connection->fetchAssociative(
-            'SELECT host_notifications_enabled, host_notification_interval, host_first_notification_delay
+            'SELECT host_notifications_enabled, host_notification_options, host_notification_interval, host_first_notification_delay
              FROM host WHERE host_id = ?',
             [$hostId],
         );
         self::assertSame(
-            ['host_notifications_enabled' => '1', 'host_notification_interval' => 15, 'host_first_notification_delay' => 2],
+            [
+                'host_notifications_enabled' => '1',
+                'host_notification_options' => 'd',
+                'host_notification_interval' => 15,
+                'host_first_notification_delay' => 2,
+            ],
             $row,
+        );
+    }
+
+    public function testFindOneToleratesLegacyNotificationOptionsCombiningNone(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $this->connection->update('host', ['host_notification_options' => 'd, u,n'], ['host_id' => $hostId]);
+
+        $notifications = $this->findHost($hostId)->notifications;
+
+        self::assertNotNull($notifications);
+        self::assertSame(
+            [NotificationOptionEnum::Down, NotificationOptionEnum::Unreachable],
+            $notifications->options,
         );
     }
 
