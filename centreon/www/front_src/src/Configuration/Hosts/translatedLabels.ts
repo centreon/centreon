@@ -50,11 +50,18 @@ export const labelMustBeIntegerOfAtLeastOne =
 export const labelSnmpCommunity = 'SNMP Community';
 export const labelSnmpVersion = 'Version';
 export const labelTimezone = 'Timezone';
+export const labelCheckCommand = 'Check Command';
+export const labelCheckPeriod = 'Check Period';
 export const labelMaxCheckAttempts = 'Max Check Attempts';
 export const labelNormalCheckInterval = 'Normal Check Interval';
 export const labelRetryCheckInterval = 'Retry Check Interval';
 export const labelActiveChecksEnabled = 'Active Checks Enabled';
 export const labelPassiveChecksEnabled = 'Passive Checks Enabled';
+// Templates, spelled as the legacy host form and the shared list spell them.
+export const labelAddNewEntry = 'Add new entry';
+export const labelEditTemplate = 'Modify';
+export const labelCreateServicesLinkedToTemplates =
+  'Create Services linked to the Template too';
 
 // Yes / No / Default fields
 export const labelYes = 'Yes';
@@ -79,3 +86,30 @@ export const labelRecovery = 'Recovery';
 export const labelFlapping = 'Flapping';
 export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNone = 'None';
+
+export const labelFreshnessControlOptions = 'Freshness Control options';
+export const labelCheckFreshness = 'Check Freshness';
+export const labelFreshnessThreshold = 'Freshness Threshold';
+export const labelAcknowledgementTimeout = 'Acknowledgement timeout';
+export const labelFlappingOptions = 'Flapping options';
+export const labelFlapDetectionEnabled = 'Flap Detection Enabled';
+export const labelLowFlapThreshold = 'Low Flap Threshold';
+export const labelHighFlapThreshold = 'High Flap Threshold';
+export const labelEventHandler = 'Event Handler';
+export const labelEventHandlerEnabled = 'Event Handler Enabled';
+// Legacy's label for the arguments of the check command and the event handler.
+export const labelArgs = 'Args';
+export const labelSeconds = 'seconds';
+
+// Host Extended Infos
+export const labelNote = 'Note';
+export const labelNoteUrl = 'Note URL';
+export const labelActionUrl = 'Action URL';
+export const labelIcon = 'Icon';
+export const labelAltIcon = 'Alt icon';
+export const labelGeographicCoordinates = 'Geographic coordinates';
+export const labelHostSeverity = 'Host severity';
+export const labelComments = 'Comments';
+export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
+export const labelMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';

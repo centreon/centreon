@@ -38,6 +38,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var array<int, MediaId> inherited icon ids indexed by host id */
     public array $inheritedIconIds = [];
 
+    /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
+    public array $receivedLineTemplateIds = [];
+
     public function findNamesByIds(Collection $ids): Collection
     {
         $names = [];
@@ -65,5 +68,23 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hostTemplates), HostTemplate::class);
+    }
+
+    /**
+     * Returns the known templates among the requested ones, in order: the fake has no relations, so
+     * a test describing a multi-level line passes the whole line as direct templates.
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection
+    {
+        $this->receivedLineTemplateIds = [];
+        $line = [];
+        foreach ($directTemplateIds as $id) {
+            $this->receivedLineTemplateIds[] = $id->value;
+            if (isset($this->hostTemplates[$id->value])) {
+                $line[] = $this->hostTemplates[$id->value];
+            }
+        }
+
+        return new Collection($line, HostTemplate::class);
     }
 }

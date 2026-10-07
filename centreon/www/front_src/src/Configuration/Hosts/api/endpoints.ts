@@ -1,6 +1,7 @@
 import {
   type BuildListingEndpointParameters,
-  buildListingEndpoint
+  buildListingEndpoint,
+  type SearchParameter
 } from '@centreon/ui';
 
 // Hosts are served by API Platform at `./api`, listing and single-host
@@ -25,8 +26,17 @@ export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
 export const hostFormContactGroupsEndpoint =
   '/configuration/hosts/contact_groups';
 export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
+export const hostFormHostSeveritiesEndpoint =
+  '/configuration/hosts/host_severities';
+export const hostFormMediasEndpoint = '/configuration/hosts/medias';
+export const hostFormHostTemplatesEndpoint =
+  '/configuration/hosts/host_templates';
 
 export const timezonesEndpoint = '/configuration/timezones';
+
+// No host-scoped command selector exists: this one is granted by the command
+// ACLs rather than by host write access.
+export const commandsEndpoint = '/configuration/commands';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;
@@ -53,19 +63,15 @@ export const getDuplicateHostEndpoint = ({
   id: number | string;
 }): string => `/configuration/hosts/${id}/_duplicate`;
 
-type SearchParameter = {
-  conditions?: Array<{ values?: { $lk?: string; $ni?: Array<string> } }>;
-};
-
 // Selectors take `name[lk]`, not the `search` payload the autocomplete builds.
 const getSelectorEndpoint =
   (baseEndpoint: string) =>
   ({ search, page }: { search?: SearchParameter; page?: number }): string => {
     // Once a value is selected the autocomplete prepends a `$ni` condition
     // excluding it, so the typed text is not necessarily the first one.
-    const searchedValue = search?.conditions?.find(
-      (condition) => condition?.values?.$lk
-    )?.values?.$lk;
+    const searchedValue = search?.conditions
+      ?.map((condition) => condition?.values?.$lk)
+      .find((value): value is string => typeof value === 'string');
 
     const customQueryParameters = search
       ? [
@@ -93,6 +99,9 @@ export const getHostTemplatesEndpoint = getSelectorEndpoint(
 );
 export const getHostGroupsEndpoint = getSelectorEndpoint(hostGroupsEndpoint);
 export const getPollersEndpoint = getSelectorEndpoint(pollersEndpoint);
+export const getFormHostTemplatesEndpoint = getSelectorEndpoint(
+  hostFormHostTemplatesEndpoint
+);
 
 // There is no filter on the default poller, so it is looked for in one page
 // wide enough for any realistic number of pollers.
