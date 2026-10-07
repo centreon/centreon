@@ -172,6 +172,26 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
         self::assertSame(['_HOSTOLD' => 'fresh-secret'], array_column($this->vault->writeCalls, 'value', 'key'));
     }
 
+    public function testChainedRenamesEachKeepTheirOwnSecret(): void
+    {
+        // A was renamed to C (keeps _HOSTA) and B to A (keeps _HOSTB), while a new B claims _HOSTB.
+        // Moving A under _HOSTA claims the key C still points to, so C must move too.
+        $hostA = 'secret::vault::monitoring/hosts/host-uuid::_HOSTA';
+        $hostB = 'secret::vault::monitoring/hosts/host-uuid::_HOSTB';
+        $this->vault->extractedUuids += [$hostA => self::HOST_UUID, $hostB => self::HOST_UUID];
+        $this->vault->resolved = [$hostA => 'secret-of-a', $hostB => 'secret-of-b'];
+
+        $this->synchronizer->synchronize(
+            [$this->macro('c', $hostA, true, 1), $this->macro('a', $hostB, true, 2), $this->macro('b', 'fresh-secret', true)],
+            [$this->macro('a', $hostA, true, 1), $this->macro('b', $hostB, true, 2)],
+            self::HOST_UUID,
+        );
+
+        $written = array_column($this->vault->writeCalls, 'value', 'key');
+        ksort($written);
+        self::assertSame(['_HOSTA' => 'secret-of-b', '_HOSTB' => 'fresh-secret', '_HOSTC' => 'secret-of-a'], $written);
+    }
+
     public function testItNeverTouchesTheVaultWithoutPasswordMacros(): void
     {
         $this->vault->vaultEnabled = true;

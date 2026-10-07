@@ -112,23 +112,28 @@ final readonly class HostMacroSecretsSynchronizer
 
         // A renamed macro keeps its reference, so its key may be the name another macro now
         // claims: that one would overwrite the secret the renamed macro still points to. Move the
-        // renamed macro under its own name instead.
+        // renamed macro under its own name instead. Moving it claims a new key, which may in turn be
+        // the one another renamed macro points to (chained renames): repeat until no key is claimed.
         $claimedKeys = [];
         foreach (array_keys($toWrite) as $index) {
             $claimedKeys[$this->keyFor($macros[$index])] = true;
         }
-        foreach ($macros as $index => $macro) {
-            if (
-                $firstIndexByName[$macro->name->value] === $index
-                && $macro->isPassword
-                && $this->isInHostEntry($macro->value, $hostVaultUuid)
-                && isset($claimedKeys[$this->keyOf($macro->value)])
-                && $this->keyOf($macro->value) !== $this->keyFor($macro)
-            ) {
-                $toWrite[$index] = $this->vault->resolve($macro->value);
-                $claimedKeys[$this->keyFor($macro)] = true;
+        do {
+            $claimedKeyCount = count($claimedKeys);
+            foreach ($macros as $index => $macro) {
+                if (
+                    $firstIndexByName[$macro->name->value] === $index
+                    && ! isset($toWrite[$index])
+                    && $macro->isPassword
+                    && $this->isInHostEntry($macro->value, $hostVaultUuid)
+                    && isset($claimedKeys[$this->keyOf($macro->value)])
+                    && $this->keyOf($macro->value) !== $this->keyFor($macro)
+                ) {
+                    $toWrite[$index] = $this->vault->resolve($macro->value);
+                    $claimedKeys[$this->keyFor($macro)] = true;
+                }
             }
-        }
+        } while (count($claimedKeys) > $claimedKeyCount);
 
         $credentials = VaultCredentials::empty();
         foreach (array_keys($previousKeys) as $key) {
