@@ -314,7 +314,8 @@ describe('Host form validation', () => {
       ['note', 512],
       ['noteUrl', 2048],
       ['actionUrl', 2048],
-      ['altIcon', 200]
+      ['altIcon', 200],
+      ['comment', 65535]
     ])('refuses a value of %s longer than the API stores', (field, max) => {
       expect(extendedInfosError(field, 'a'.repeat(max))).toBeNull();
       expect(extendedInfosError(field, 'a'.repeat(max + 1))).toEqual(

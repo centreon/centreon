@@ -1599,6 +1599,63 @@ export default () => {
       cy.findByTestId('host-form-severity').should('have.value', '');
     });
 
+    it('clears the extended infos and severity of a host', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note').eq(1).clear();
+      cy.findAllByTestId('host-form-extended-infos-actionUrl')
+        .eq(1)
+        .clear()
+        .type('   ');
+      cy.findByTestId('host-form-extended-infos-icon')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+      cy.findByTestId('host-form-extended-infos-icon-preview')
+        .find('img')
+        .should('not.exist');
+      cy.findByTestId('host-form-severity')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.extended_informations).to.include({
+          action_url: null,
+          icon_id: null,
+          note: null
+        });
+        expect(request.body.severity_id).to.equal(null);
+      });
+    });
+
+    it('lets a user who may only look at hosts change no extended info', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note')
+        .eq(1)
+        .should('be.disabled');
+      cy.findAllByTestId('host-form-extended-infos-comment')
+        .eq(1)
+        .should('be.disabled');
+      cy.findByTestId('host-form-extended-infos-icon').should('be.disabled');
+      cy.findByTestId('host-form-severity').should('be.disabled');
+    });
+
     it('creates a host with its extended infos and severity', () => {
       initialize({});
 
