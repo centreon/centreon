@@ -1220,6 +1220,10 @@ export default () => {
         .closest('.MuiAutocomplete-root')
         .find('.MuiAutocomplete-clearIndicator')
         .click({ force: true });
+      cy.findByTestId('host-form-scheduling-options-checkPeriod')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
       cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
         .eq(1)
         .clear();
@@ -1236,6 +1240,7 @@ export default () => {
         });
         expect(request.body.scheduling_options).to.deep.equals({
           active_check_enabled: 'use_default',
+          check_timeperiod_id: null,
           max_check_attempts: null,
           normal_check_interval: 5,
           passive_check_enabled: 'true',
