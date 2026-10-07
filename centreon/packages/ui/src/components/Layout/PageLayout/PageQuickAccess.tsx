@@ -38,16 +38,21 @@ export const PageQuickAccess = ({
     <Menu>
       <Menu.Button data-testid="quickaccess" />
       <Menu.Items>
-        {elements?.map((element) => (
-          <Menu.Item
-            isActive={isActive(element.id)}
-            isDisabled={isDisabled?.(element.id)}
-            key={`${element.id}`}
-            onClick={navigateToElement(element.id)}
-          >
-            {element.name}
-          </Menu.Item>
-        ))}
+        <div
+          className="max-h-[50vh] overflow-y-auto"
+          data-testid="quickaccess-elements"
+        >
+          {elements?.map((element) => (
+            <Menu.Item
+              isActive={isActive(element.id)}
+              isDisabled={isDisabled?.(element.id)}
+              key={`${element.id}`}
+              onClick={navigateToElement(element.id)}
+            >
+              {element.name}
+            </Menu.Item>
+          ))}
+        </div>
         <Menu.Divider key="divider" />
         <div className="px-2 pb-2 flex gap-4">
           <Button

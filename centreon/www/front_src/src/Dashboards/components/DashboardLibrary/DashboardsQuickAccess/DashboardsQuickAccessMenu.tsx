@@ -16,6 +16,7 @@ import {
   labelDashboards
 } from '../../../translatedLabels';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
+import { pageAtom, searchAtom } from '../DashboardListing/atom';
 import { useDashboardsQuickAccess } from './useDashboardsQuickAccess';
 
 type DashboardsQuickAccessMenuProps = {
@@ -30,6 +31,8 @@ const DashboardsQuickAccessMenu = ({
   const { createDashboard } = useDashboardConfig();
 
   const setIsEditing = useSetAtom(isEditingAtom);
+  const setSearch = useSetAtom(searchAtom);
+  const setPage = useSetAtom(pageAtom);
 
   const navigate = useNavigate();
   const navigateToDashboard = (dashboardId: string | number) => (): void =>
@@ -42,6 +45,8 @@ const DashboardsQuickAccessMenu = ({
 
   const navigateToDashboardLibrary = (): void => {
     setIsEditing(false);
+    setSearch('');
+    setPage(undefined);
     navigate(
       generatePath(routeMap.dashboards, { layout: DashboardLayout.Library })
     );
