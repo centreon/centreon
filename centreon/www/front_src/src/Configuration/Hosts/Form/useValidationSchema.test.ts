@@ -4,7 +4,6 @@ import {
   labelAlreadyExists,
   labelInvalidAddress,
   labelInvalidGeographicCoordinates,
-  labelMustBeAPercentage,
   labelMustBeAtMostCharacters,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
@@ -256,17 +255,20 @@ describe('Host form validation', () => {
       );
     });
 
-    it.each([
-      'lowFlapThreshold',
-      'highFlapThreshold'
-    ])('accepts a %s from 0 to 100 only', (field) => {
-      expect(dataProcessingError(field, '')).toBeNull();
-      expect(dataProcessingError(field, 0)).toBeNull();
-      expect(dataProcessingError(field, 100)).toBeNull();
-      expect(dataProcessingError(field, 101)).toEqual(labelMustBeAPercentage);
-      expect(dataProcessingError(field, -1)).toEqual(labelMustBeAPercentage);
-      expect(dataProcessingError(field, 12.5)).toEqual(labelMustBeAPercentage);
-    });
+    it.each(['lowFlapThreshold', 'highFlapThreshold'])(
+      'accepts a %s of 0 or more, leaving the 100 cap to the server',
+      (field) => {
+        expect(dataProcessingError(field, '')).toBeNull();
+        expect(dataProcessingError(field, 0)).toBeNull();
+        expect(dataProcessingError(field, 101)).toBeNull();
+        expect(dataProcessingError(field, -1)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+        expect(dataProcessingError(field, 12.5)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+      }
+    );
   });
 
   describe('SNMP community', () => {
@@ -313,7 +315,8 @@ describe('Host form validation', () => {
       ['note', 512],
       ['noteUrl', 2048],
       ['actionUrl', 2048],
-      ['altIcon', 200]
+      ['altIcon', 200],
+      ['comment', 65535]
     ])('refuses a value of %s longer than the API stores', (field, max) => {
       expect(extendedInfosError(field, 'a'.repeat(max))).toBeNull();
       expect(extendedInfosError(field, 'a'.repeat(max + 1))).toEqual(
