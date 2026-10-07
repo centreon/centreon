@@ -532,7 +532,7 @@ function set_release_repo_file() {
 	if uses_internal_repo; then
 		RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard-internal/$version/el${detected_os_major}/centreon-$version-internal.repo"
 	else
-		RELEASE_REPO_FILE="https://packages.centreon.com/artifactory/rpm-standard/$version/el${detected_os_major}/centreon-$version.repo"
+		RELEASE_REPO_FILE="https://packages.centreon.com/rpm-standard/$version/el${detected_os_major}/centreon-$version.repo"
 	fi
 }
 #========= end of function set_release_repo_file()

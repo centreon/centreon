@@ -99,4 +99,12 @@ final class CommandLineTest extends TestCase
         self::assertSame(['SNMP_COMMUNITY'], $commandLine->extractHostMacros());
         self::assertSame(['PORT'], $commandLine->extractServiceMacros());
     }
+
+    public function testExtractMacrosIgnoresNonUppercaseNames(): void
+    {
+        $commandLine = new CommandLine('/check $_HOSTUSER_1$ $_HOSTuser$ $_HOSTUser$ $_HOSTMY-MACRO$ $_SERVICEPort$ $_SERVICEPORT$');
+
+        self::assertSame(['USER_1', 'MY-MACRO'], $commandLine->extractHostMacros());
+        self::assertSame(['PORT'], $commandLine->extractServiceMacros());
+    }
 }

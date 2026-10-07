@@ -26,17 +26,29 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersProvider;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 #[ApiResource(
     shortName: 'Poller',
     operations: [
+        new GetCollection(
+            uriTemplate: '/configuration/hosts/pollers',
+            openapi: false,
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access pollers',
+            itemUriTemplate: '/configuration/pollers/{id}',
+            output: PollerChoicesOutput::class,
+            provider: ListPollersChoicesProvider::class,
+        ),
         new Post(
             uriTemplate: '/configuration/pollers',
             processor: CreatePollerProcessor::class,
@@ -54,6 +66,7 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
         new GetCollection(
             uriTemplate: '/configuration/pollers',
             provider: ListPollersProvider::class,
+            itemUriTemplate: '/configuration/pollers/{id}',
             output: PollerCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
@@ -71,6 +84,8 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
                 is_granted("' . PollerPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list pollers',
         ),
+        // temporary, to make itemUriTemplate work
+        new NotExposed(uriTemplate: '/configuration/pollers/{id}'),
     ],
 )]
 final class PollerResource

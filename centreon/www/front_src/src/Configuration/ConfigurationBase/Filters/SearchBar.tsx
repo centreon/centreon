@@ -20,7 +20,7 @@ const Filters = <TFilters,>({
   filtersAtom,
   filtersAtomKey
 }: Props<TFilters>): ReactElement => {
-  const { classes } = useFilterStyles();
+  const { classes } = useFilterStyles({});
   const { t } = useTranslation();
 
   const { filters, onChange, areAdvancedFiltersVisible } = useSearch<TFilters>({

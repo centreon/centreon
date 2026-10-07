@@ -207,7 +207,7 @@ const CollapsibleItems = ({
   };
 
   useEffect(() => {
-    if (isCollapsed && collapsRef && collapsRef.current) {
+    if (isCollapsed && collapsRef?.current) {
       updateCollapseSize(collapsRef.current);
     }
   }, [isCollapsed]);

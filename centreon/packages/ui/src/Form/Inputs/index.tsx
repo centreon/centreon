@@ -35,6 +35,7 @@ import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
 import Custom from './Custom';
+import ExclusiveCheckboxGroup from './ExclusiveCheckboxGroup';
 import FieldsTable from './FieldsTable/FieldsTable';
 import File from './File';
 import Grid from './Grid';
@@ -47,6 +48,7 @@ import {
   InputType
 } from './models';
 import RadioInput from './Radio';
+import SegmentedButtons from './SegmentedButtons';
 import { SubgroupDivider } from './SubGroupDivider';
 import SwitchInput from './Switch';
 import TextInput from './Text';
@@ -83,6 +85,14 @@ export const getInput = cond<
   [
     equals(InputType.CheckboxGroup) as (b: InputType) => boolean,
     always(CheckboxGroup)
+  ],
+  [
+    equals(InputType.ExclusiveCheckboxGroup) as (b: InputType) => boolean,
+    always(ExclusiveCheckboxGroup)
+  ],
+  [
+    equals(InputType.SegmentedButtons) as (b: InputType) => boolean,
+    always(SegmentedButtons)
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
   [equals(InputType.File) as (b: InputType) => boolean, always(File)],

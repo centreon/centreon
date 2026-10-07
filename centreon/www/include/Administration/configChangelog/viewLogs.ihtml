@@ -43,7 +43,7 @@
         <!-- using a class to format the timestamp -->
         <td class='ListColCenter isTimestamp'>{$elem.date}</td>
         <td class='ListColCenter' style='width:120px;'><span class="badge service_{$elem.badge}">{$elem.modification_type}</span></td>
-        <td class='ListColCenter'>{$elem.type}</td>
+        <td class='ListColCenter'>{$elem.type_label}</td>
         <td class='ListColLeft'>
         {if isset($elem.host)}
             <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.host} / {$elem.object_name}</a>

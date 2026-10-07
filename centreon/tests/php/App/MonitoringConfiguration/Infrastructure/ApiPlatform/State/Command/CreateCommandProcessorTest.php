@@ -65,6 +65,13 @@ final class CreateCommandProcessorTest extends ApiTestCase
             'is_from_monitoring_connector' => false,
         ]);
         self::assertArrayHasKey('id', $response->toArray());
+        /** @var list<array{id: int|null, name: string, type: string}> $macros */
+        $macros = $response->toArray()['macros'];
+        self::assertCount(2, $macros);
+        self::assertSame(['MAC1', 'host'], [$macros[0]['name'], $macros[0]['type']]);
+        self::assertSame(['MAC2', 'service'], [$macros[1]['name'], $macros[1]['type']]);
+        self::assertIsInt($macros[0]['id']);
+        self::assertIsInt($macros[1]['id']);
 
         $command = $repository->findOneByName(new CommandName('CommandNotif'));
         self::assertNotNull($command);
@@ -245,6 +252,18 @@ final class CreateCommandProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
 
         self::assertSame($count + 1, $repository->count());
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->fetchOne(
+            'SELECT object_type FROM log_action WHERE object_name = ? ORDER BY action_log_id DESC LIMIT 1',
+            ['CommandNotif']
+        );
+
+        // The command audit entry must use the canonical singular 'command' token,
+        // otherwise the Administration > Logs Type filter (bound on that token)
+        // cannot match it.
+        self::assertSame('command', $objectType);
     }
 
     /**
