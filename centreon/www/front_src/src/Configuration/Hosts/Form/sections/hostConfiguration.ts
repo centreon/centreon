@@ -26,6 +26,7 @@ import {
   labelName,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
+  labelNone,
   labelNormalCheckInterval,
   labelPassiveChecksEnabled,
   labelRequired,
@@ -75,7 +76,9 @@ const snmpVersionOptions = snmpVersions.map((version) => ({
 
 type SnmpVersionOption = (typeof snmpVersionOptions)[number];
 
-// A number field holds `''` until something is typed.
+// Fallback to empty the field: the select cannot be cleared.
+const noSnmpVersionId = 'none';
+
 type OptionalNumber = number | '';
 
 interface SchedulingOptionsValues {
@@ -121,12 +124,10 @@ const defaultCheckOptions: CheckOptionsValues = {
   command: null
 };
 
-// The detail endpoint leaves unset values out rather than sending null.
 const optionalNumberDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
 ).map((value): OptionalNumber => value ?? '');
 
-// Left out on cloud, where the server keeps them unset.
 const optionalTriStateDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(triStateDecoder)
 ).map((value) => value ?? defaultTriState);
@@ -232,7 +233,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     schedulingOptions: JsonDecoder.optional(
       JsonDecoder.nullable(schedulingOptionsDecoder)
     ).map((value) => value ?? defaultSchedulingOptions),
-    // Write-only: the API never returns it, so the field opens empty.
     snmpCommunity: JsonDecoder.constant(''),
     snmpVersion: JsonDecoder.optional(
       JsonDecoder.nullable(
@@ -378,8 +378,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         label: 'host-form-check-options',
         type: InputType.Grid
       },
-      // The host's details beside its scheduling once the panel is wide enough,
-      // one under the other otherwise.
       {
         fieldName: 'monitoring-layout',
         grid: {
@@ -397,9 +395,19 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                     type: InputType.Password
                   },
                   {
-                    autocomplete: { options: snmpVersionOptions },
-                    // Not forwarded by the static autocomplete yet: its input
-                    // is tested by its label meanwhile.
+                    autocomplete: {
+                      options: [
+                        { id: noSnmpVersionId, name: t(labelNone) },
+                        ...snmpVersionOptions
+                      ]
+                    },
+                    change: ({ setFieldValue, value }) =>
+                      setFieldValue(
+                        'snmpVersion',
+                        (value as SelectEntry | null)?.id === noSnmpVersionId
+                          ? null
+                          : value
+                      ),
                     dataTestId: 'host-form-snmp-version',
                     fieldName: 'snmpVersion',
                     label: t(labelSnmpVersion),
@@ -424,8 +432,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             {
               fieldName: 'scheduling-options',
               grid: {
-                // Enabling checks is an onPrem setting; cloud has the check
-                // period and numbers alone, two by two.
                 className: 'grid-cols-1 @[600px]:grid-cols-2',
                 columns: isCloudPlatform
                   ? [checkPeriod, ...checkNumbers]
@@ -553,14 +559,12 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           schedulingOptions.normalCheckInterval
         ),
         retry_check_interval: toApiNumber(schedulingOptions.retryCheckInterval),
-        // Refused on cloud, where the server keeps them unset.
         ...(!isCloudPlatform && {
           active_check_enabled: schedulingOptions.activeCheckEnabled,
           passive_check_enabled: schedulingOptions.passiveCheckEnabled
         })
       },
-      // Never read back, so an empty field means "unchanged", not "none": it
-      // is left out rather than sent empty.
+      // Write-only: empty means unchanged.
       ...(snmpCommunity && { snmp_community: snmpCommunity }),
       snmp_version: snmpVersion?.id ?? null,
       timezone_id: timezone?.id ?? null

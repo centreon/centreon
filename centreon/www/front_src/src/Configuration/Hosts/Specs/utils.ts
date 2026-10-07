@@ -131,12 +131,10 @@ export const getTimePeriodsResponse = () =>
 export const getTimezonesResponse = () =>
   toCollection([
     { id: 1, name: 'Europe/London' },
-    { id: 2, name: 'Europe/Paris' },
+    { id: 7, name: 'Europe/Paris' },
     { id: 3, name: 'America/New_York' }
   ]);
 
-// What a create sends when no scheduling option was touched, onPrem; cloud
-// sends the three numbers alone.
 export const untouchedSchedulingOptionsPayload = {
   active_check_enabled: 'use_default',
   check_timeperiod_id: null,
@@ -159,8 +157,7 @@ export const untouchedCheckOptionsPayload = {
   command_id: null
 };
 
-// What a create sends when nothing of the Data Processing section was touched,
-// onPrem; cloud sends the four fields it allows alone.
+// onPrem only: cloud sends the four fields it allows.
 export const untouchedDataProcessingPayload = {
   acknowledgment_timeout: null,
   check_freshness: 'use_default',
@@ -265,7 +262,6 @@ export const getHostResponse = () => ({
   },
   parent_hosts: [{ id: 1, name: 'host 1' }],
   poller: { id: 2, name: 'Poller EU' },
-  // `retry_check_interval` is unset, so the endpoint leaves it out.
   scheduling_options: {
     active_check_enabled: 'false',
     check_period: { id: 2, name: 'workhours' },
@@ -274,7 +270,6 @@ export const getHostResponse = () => ({
     passive_check_enabled: 'true'
   },
   severity: { id: 2, name: 'Minor' },
-  // No `snmp_community`: the endpoint never returns it.
   snmp_version: '2c',
-  timezone: { id: 2, name: 'Europe/Paris' }
+  timezone: { id: 7, name: 'Europe/Paris' }
 });

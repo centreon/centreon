@@ -21,20 +21,23 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\Shared\Domain;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandName
+/**
+ * "Not provided" in an update, as opposed to null which clears the value.
+ */
+final readonly class NoValue
 {
-    public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
-    public const CENTREON_MONITORING_AGENT_MARKER = 'Centreon-Monitoring-Agent';
-    public const CMA_MARKER = '-CMA-';
-
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 200);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
+    /**
+     * @template T
+     *
+     * @param T|self $provided
+     * @param T $current
+     *
+     * @return T
+     */
+    public static function resolve(mixed $provided, mixed $current): mixed
+    {
+        return $provided instanceof self ? $current : $provided;
     }
 }

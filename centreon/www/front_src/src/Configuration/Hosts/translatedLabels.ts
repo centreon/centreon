@@ -47,8 +47,6 @@ export const labelMustBePositiveIntegerOrZero =
 export const labelMustBeIntegerOfAtLeastOne =
   'An integer with a minimum value of 1 is required';
 
-// Host Configuration, spelled as the legacy host form spells it. The legacy
-// form calls the SNMP version just `Version`, beside the community.
 export const labelSnmpCommunity = 'SNMP Community';
 export const labelSnmpVersion = 'Version';
 export const labelTimezone = 'Timezone';
@@ -84,8 +82,6 @@ export const labelFlapping = 'Flapping';
 export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNone = 'None';
 
-// Data Processing, spelled as the legacy host form spells it, block titles
-// included.
 export const labelFreshnessControlOptions = 'Freshness Control options';
 export const labelCheckFreshness = 'Check Freshness';
 export const labelFreshnessThreshold = 'Freshness Threshold';
@@ -99,7 +95,6 @@ export const labelEventHandlerEnabled = 'Event Handler Enabled';
 // Legacy's label for the arguments of the check command and the event handler.
 export const labelArgs = 'Args';
 export const labelSeconds = 'seconds';
-export const labelMustBeAPercentage = 'Must be an integer between 0 and 100';
 
 // Host Extended Infos
 export const labelNote = 'Note';

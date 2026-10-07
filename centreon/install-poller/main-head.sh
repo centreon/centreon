@@ -91,6 +91,8 @@ GORGONE_LOG_LEVEL="${GORGONE_LOG_LEVEL:-}"
 WITH_VMWARE=0
 WITH_SNMPTRAP=0
 WITH_CMA=0
+# centengine hostname = CN of the CMA CA (--cma-hostname); empty = centengine
+CMA_HOSTNAME=""
 START_STACK=1
 
 # Overwrite existing docker-compose.yaml/.env without prompting (--overwrite)
