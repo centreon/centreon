@@ -11755,6 +11755,14 @@ msgstr "No sufficient access rights to user [%s] to give role [%s]"
 msgid "No time period selected"
 msgstr "No time period selected"
 
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "No timezone is set for this downtime: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+msgstr "No timezone is set for this downtime: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "No timezone is set in your user settings: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+msgstr "No timezone is set in your user settings: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "No top level platform found to link the child platforms"
@@ -16550,6 +16558,11 @@ msgstr "The host of service (id: %d) is not defined"
 #, php-format
 msgid "The host severity icon with id '%d' does not exist"
 msgstr "The host severity icon with id '%d' does not exist"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+#, php-format
+msgid "The hours are applied in the %s timezone"
+msgstr "The hours are applied in the %s timezone"
 
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"

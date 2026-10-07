@@ -12058,6 +12058,14 @@ msgstr ""
 msgid "No time period selected"
 msgstr "Aucune période temporelle sélectionnée"
 
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "No timezone is set for this downtime: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+msgstr "Aucun fuseau horaire n'est défini pour cette plage de maintenance : le premier fuseau horaire trouvé est utilisé, dans cet ordre : hôte, collecteur, Centreon, configuration du serveur"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+msgid "No timezone is set in your user settings: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+msgstr "Aucun fuseau horaire n'est défini dans vos paramètres utilisateur : le premier fuseau horaire trouvé est utilisé, dans cet ordre : hôte, collecteur, Centreon, configuration du serveur"
+
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
 msgid "No top level platform found to link the child platforms"
@@ -16922,6 +16930,11 @@ msgstr "L'hôte du service (id : %d) n'est pas défini"
 #, php-format
 msgid "The host severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité d'hôtes avec l'identifiant '%d' n'existe pas"
+
+#: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
+#, php-format
+msgid "The hours are applied in the %s timezone"
+msgstr "Les heures sont appliquées dans le fuseau horaire %s"
 
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"

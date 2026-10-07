@@ -144,6 +144,38 @@ if (! isset($timezones[$creatorTimezoneId])) {
     $creatorTimezoneId = null;
 }
 
+// An existing downtime keeps the timezone it was created with, whoever edits it
+$downtimeTimezoneId = $o == 'c' || $o == 'w' ? $downtime->getInfos((int) $id)['timezone_id'] : $creatorTimezoneId;
+
+if ($downtimeTimezoneId !== null) {
+    $form->addElement(
+        'text',
+        'timezone_warning',
+        sprintf(
+            _('The hours are applied in the %s timezone'),
+            htmlspecialchars($timezones[$downtimeTimezoneId] ?? '', ENT_QUOTES, 'UTF-8')
+        )
+    );
+} elseif ($o == 'a') {
+    $form->addElement(
+        'text',
+        'timezone_warning',
+        _(
+            'No timezone is set in your user settings: the first timezone found is used, '
+            . 'in this order: host, poller, Centreon, server configuration'
+        )
+    );
+} else {
+    $form->addElement(
+        'text',
+        'timezone_warning',
+        _(
+            'No timezone is set for this downtime: the first timezone found is used, '
+            . 'in this order: host, poller, Centreon, server configuration'
+        )
+    );
+}
+
 // Tab 1
 $form->addElement('header', 'information', _('General Information'));
 $form->addElement('header', 'linkManagement', _('Links Management'));

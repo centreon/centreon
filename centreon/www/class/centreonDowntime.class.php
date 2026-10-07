@@ -276,13 +276,16 @@ class CentreonDowntime
      * @return array{
      *     name: string,
      *     description: string,
-     *     activate: string
+     *     activate: string,
+     *     timezone_id: int|null
      * } Downtime information
      */
     public function getInfos(int $id): array
     {
         try {
-            $res = $this->db->prepare('SELECT dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = :id');
+            $res = $this->db->prepare(
+                'SELECT dt_name, dt_description, dt_activate, dt_timezone_id FROM downtime WHERE dt_id = :id'
+            );
             $res->bindValue(':id', $id, PDO::PARAM_INT);
             $res->execute();
         } catch (PDOException) {
@@ -290,11 +293,17 @@ class CentreonDowntime
                 'name' => '',
                 'description' => '',
                 'activate' => '',
+                'timezone_id' => null,
             ];
         }
         $row = $res->fetch();
 
-        return ['name' => $row['dt_name'], 'description' => $row['dt_description'], 'activate' => $row['dt_activate']];
+        return [
+            'name' => $row['dt_name'],
+            'description' => $row['dt_description'],
+            'activate' => $row['dt_activate'],
+            'timezone_id' => $row['dt_timezone_id'] !== null ? (int) $row['dt_timezone_id'] : null,
+        ];
     }
 
     /**
