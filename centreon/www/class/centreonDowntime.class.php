@@ -396,6 +396,7 @@ class CentreonDowntime
         $request = <<<'SQL'
                 SELECT dt.dt_id,
                     dt.dt_activate,
+                    dt.dt_timezone_id,
                     dtp.dtp_start_time,
                     dtp.dtp_end_time,
                     dtp.dtp_day_of_week,
@@ -438,6 +439,7 @@ class CentreonDowntime
         $request = <<<'SQL'
                 SELECT dt.dt_id,
                     dt.dt_activate,
+                    dt.dt_timezone_id,
                     dtp.dtp_start_time,
                     dtp.dtp_end_time,
                     dtp.dtp_day_of_week,
@@ -465,6 +467,7 @@ class CentreonDowntime
             UNION
                 SELECT dt.dt_id,
                     dt.dt_activate,
+                    dt.dt_timezone_id,
                     dtp.dtp_start_time,
                     dtp.dtp_end_time,
                     dtp.dtp_day_of_week,
@@ -515,6 +518,7 @@ class CentreonDowntime
         $request = <<<'SQL'
                 SELECT dt.dt_id,
                     dt.dt_activate,
+                    dt.dt_timezone_id,
                     dtp.dtp_start_time,
                     dtp.dtp_end_time,
                     dtp.dtp_day_of_week,
@@ -559,6 +563,7 @@ class CentreonDowntime
         $request = <<<'SQL'
                 SELECT dt.dt_id,
                        dt.dt_activate,
+                       dt.dt_timezone_id,
                        dtp.dtp_start_time,
                        dtp.dtp_end_time,
                        dtp.dtp_day_of_week,
@@ -588,6 +593,7 @@ class CentreonDowntime
                 UNION DISTINCT
                 SELECT dt.dt_id,
                        dt.dt_activate,
+                       dt.dt_timezone_id,
                        dtp.dtp_start_time,
                        dtp.dtp_end_time,
                        dtp.dtp_day_of_week,
@@ -628,6 +634,7 @@ class CentreonDowntime
                 $templateDowntimeInformation[(int) $record['service_id']] = [
                     'dt_id' => $record['dt_id'],
                     'dt_activate' => $record['dt_activate'],
+                    'dt_timezone_id' => $record['dt_timezone_id'],
                     'dtp_start_time' => $record['dtp_start_time'],
                     'dtp_end_time' => $record['dtp_end_time'],
                     'dtp_day_of_week' => $record['dtp_day_of_week'],
@@ -699,7 +706,7 @@ class CentreonDowntime
         $ids = is_array($ids) === false ? [$ids] : array_keys($ids);
         foreach ($ids as $id) {
             if (isset($nb[$id])) {
-                $query = 'SELECT dt_id, dt_name, dt_description, dt_activate FROM downtime WHERE dt_id = :id';
+                $query = 'SELECT dt_id, dt_name, dt_description, dt_activate, dt_timezone_id FROM downtime WHERE dt_id = :id';
                 try {
                     $statement = $this->db->prepare($query);
                     $statement->bindParam(':id', $id, PDO::PARAM_INT);
@@ -728,20 +735,29 @@ class CentreonDowntime
      * @param string $name The downtime name
      * @param string $desc The downtime description
      * @param int $activate If the downtime is activated (0 Downtime is deactivated, 1 Downtime is activated)
+     * @param int|null $timezoneId The timezone the period hours are expressed in (null: host timezone)
      * @return bool|int The id of downtime or false if in error
      */
-    public function add(string $name, string $desc, $activate): bool|int
+    public function add(string $name, string $desc, $activate, ?int $timezoneId = null): bool|int
     {
         if ($desc == '') {
             $desc = $name;
         }
-        $query = 'INSERT INTO downtime (dt_name, dt_description, dt_activate) VALUES (:name, :desc, :activate)';
+        $query = <<<'SQL'
+            INSERT INTO downtime (dt_name, dt_description, dt_activate, dt_timezone_id)
+            VALUES (:name, :desc, :activate, :timezone_id)
+            SQL;
         try {
             $statement = $this->db->prepare($query);
 
             $statement->bindParam(':name', $name, PDO::PARAM_STR);
             $statement->bindParam(':desc', $desc, PDO::PARAM_STR);
             $statement->bindParam(':activate', $activate, PDO::PARAM_STR);
+            $statement->bindValue(
+                ':timezone_id',
+                $timezoneId,
+                $timezoneId === null ? PDO::PARAM_NULL : PDO::PARAM_INT
+            );
 
             $statement->execute();
         } catch (PDOException $e) {
@@ -1236,19 +1252,24 @@ class CentreonDowntime
     /**
      * Creating new downtime and returns id.
      *
-     * @param array<string, string> $params
+     * @param array<string, string|null> $params
      *
      * @throws PDOException
      * @return int
      */
     private function createDowntime(array $params): int
     {
-        $rq = 'INSERT INTO downtime (dt_name, dt_description, dt_activate)
-			   VALUES (:dt_name, :dt_description, :dt_activate)';
+        $rq = 'INSERT INTO downtime (dt_name, dt_description, dt_activate, dt_timezone_id)
+			   VALUES (:dt_name, :dt_description, :dt_activate, :dt_timezone_id)';
         $statement = $this->db->prepare($rq);
         $statement->bindValue(':dt_name', $params['dt_name'] . '_' . $params['index'], PDO::PARAM_STR);
         $statement->bindValue(':dt_description', $params['dt_description'], PDO::PARAM_STR);
         $statement->bindValue(':dt_activate', $params['dt_activate'], PDO::PARAM_STR);
+        $statement->bindValue(
+            ':dt_timezone_id',
+            $params['dt_timezone_id'],
+            $params['dt_timezone_id'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT
+        );
         $statement->execute();
 
         return $this->db->lastInsertId();
