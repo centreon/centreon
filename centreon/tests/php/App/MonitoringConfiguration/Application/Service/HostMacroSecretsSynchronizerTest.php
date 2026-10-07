@@ -146,6 +146,33 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
         self::assertSame([], $this->vault->deletedKeys);
     }
 
+    public function testALaterPasswordSharingTheNameOfAPlainMacroIsNotVaulted(): void
+    {
+        // The first macro of a name wins whatever its type: vaulting the later one would leave a
+        // secret no stored macro references.
+        $this->synchronizer->synchronize(
+            [$this->macro('pwd', 'plain', false), $this->macro('PWD', 's3cr3t', true)],
+            [],
+            self::HOST_UUID,
+        );
+
+        self::assertSame([], $this->vault->writeCalls);
+    }
+
+    public function testALaterDuplicateOfARenamedPasswordIsNotMoved(): void
+    {
+        $this->vault->resolved = [self::HOST_OLD => 'renamed-secret'];
+
+        $this->synchronizer->synchronize(
+            // NEW is a plain macro: the later password NEW, renamed from OLD, must not be moved to _HOSTNEW.
+            [$this->macro('new', 'plain', false), $this->macro('old', 'fresh-secret', true), $this->macro('NEW', self::HOST_OLD, true, 5)],
+            [$this->macro('old', self::HOST_OLD, true, 5)],
+            self::HOST_UUID,
+        );
+
+        self::assertSame(['_HOSTOLD' => 'fresh-secret'], array_column($this->vault->writeCalls, 'value', 'key'));
+    }
+
     public function testItNeverTouchesTheVaultWithoutPasswordMacros(): void
     {
         $this->vault->vaultEnabled = true;

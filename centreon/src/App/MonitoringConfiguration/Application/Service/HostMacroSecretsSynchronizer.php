@@ -83,20 +83,18 @@ final readonly class HostMacroSecretsSynchronizer
         $toWrite = [];
         /** @var array<string, true> $keptKeys keys of the host's entry still referenced as is */
         $keptKeys = [];
-        $seenNames = [];
+        /** @var array<string, int> $firstIndexByName */
+        $firstIndexByName = [];
         foreach ($macros as $index => $macro) {
+            // A host holds one macro per name, the first one wins whatever its type (see CheckOptions).
+            if (isset($firstIndexByName[$macro->name->value])) {
+                continue;
+            }
+            $firstIndexByName[$macro->name->value] = $index;
             // An empty password is stored as is, nothing vaulted (R8).
-            if (! $macro->isPassword) {
+            if (! $macro->isPassword || $macro->value === '') {
                 continue;
             }
-            if ($macro->value === '') {
-                continue;
-            }
-            // A host holds one macro per name, the first one wins (see CheckOptions).
-            if (isset($seenNames[$macro->name->value])) {
-                continue;
-            }
-            $seenNames[$macro->name->value] = true;
 
             if ($this->isInHostEntry($macro->value, $hostVaultUuid)) {
                 $keptKeys[$this->keyOf($macro->value)] = true;
@@ -118,7 +116,8 @@ final readonly class HostMacroSecretsSynchronizer
         }
         foreach ($macros as $index => $macro) {
             if (
-                $macro->isPassword
+                $firstIndexByName[$macro->name->value] === $index
+                && $macro->isPassword
                 && $this->isInHostEntry($macro->value, $hostVaultUuid)
                 && isset($claimedKeys[$this->keyOf($macro->value)])
                 && $this->keyOf($macro->value) !== $this->keyFor($macro)
