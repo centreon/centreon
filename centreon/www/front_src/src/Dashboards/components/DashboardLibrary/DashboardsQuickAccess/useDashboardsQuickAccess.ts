@@ -1,7 +1,5 @@
 import { useInfiniteScrollListing } from '@centreon/ui';
 
-import { prop, uniqBy } from 'ramda';
-
 import { dashboardListDecoder } from '../../../api/decoders';
 import { dashboardsEndpoint } from '../../../api/endpoints';
 import { Dashboard, resource } from '../../../api/models';
@@ -32,8 +30,9 @@ const useDashboardsQuickAccess = (): UseDashboardsQuickAccess => {
   });
 
   return {
-    // A refetch of an already loaded page appends its elements again
-    dashboards: uniqBy(prop('id'), elements),
+    // A refetch of an already loaded page appends its elements again: keep
+    // each dashboard at its first position, with its most recent data
+    dashboards: [...new Map(elements.map((d) => [d.id, d])).values()],
     isLoading,
     loadMoreRef: elementRef
   };

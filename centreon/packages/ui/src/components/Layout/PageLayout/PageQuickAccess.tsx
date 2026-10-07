@@ -5,6 +5,7 @@ import { CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { Button, Menu } from '../..';
+import { labelLoading } from './translatedLabels';
 
 interface NamedEntity {
   id: number | string;
@@ -61,7 +62,7 @@ export const PageQuickAccess = ({
           {loadMoreRef && <div className="h-px" ref={loadMoreRef} />}
           {isLoading && (
             <div className="flex justify-center py-2">
-              <CircularProgress size={20} />
+              <CircularProgress aria-label={t(labelLoading)} size={20} />
             </div>
           )}
         </div>
