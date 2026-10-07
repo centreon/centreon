@@ -86,7 +86,7 @@ final class FindCommandProviderTest extends ApiTestCase
         self::assertSame(
             [
                 ['id' => 10, 'name' => 'USER', 'type' => 'host'],
-                ['id' => null, 'name' => 'PORT', 'type' => 'service'],
+                ['name' => 'PORT', 'type' => 'service'],
             ],
             array_map(
                 static fn (array $macro): array => array_intersect_key($macro, array_flip(['id', 'name', 'type'])),

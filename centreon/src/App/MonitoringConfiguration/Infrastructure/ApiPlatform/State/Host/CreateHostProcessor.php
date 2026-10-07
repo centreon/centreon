@@ -37,8 +37,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -64,6 +64,7 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
@@ -78,7 +79,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEve
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
@@ -125,6 +125,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private TransformerInterface $notificationsTransformer,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
+        private HostMacroTransformer $macroTransformer,
+        private HostMacroChangesResolver $macroChangesResolver,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -185,15 +187,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $checkOptions = new CheckOptions(
             $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
             $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
-            $checkOptionsInput instanceof CheckOptionsInput ? array_map(
-                static fn (HostMacroInput $macro): HostMacro => new HostMacro(
-                    new HostMacroName($macro->name),
-                    $macro->value,
-                    $macro->isPassword,
-                    $macro->description,
-                ),
-                $checkOptionsInput->macros,
-            ) : [],
+            $checkOptionsInput instanceof CheckOptionsInput ? $this->resolveNewMacros($checkOptionsInput->macros) : [],
         );
 
         // Cloud handles notifications through a different model and the input
@@ -311,16 +305,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
-        $macroOutputs = array_map(
-            static fn (HostMacro $macro): HostMacroOutput => new HostMacroOutput(
-                $macro->name->value,
-                // A password macro's stored value is a vault reference (or secret) — never echoed.
-                $macro->isPassword ? null : $macro->value,
-                $macro->isPassword,
-                $macro->description,
-            ),
-            $host->checkOptions->macros,
-        );
+        $macroOutputs = array_map($this->macroTransformer->transform(...), $host->checkOptions->macros);
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
         $resource->notifications = $this->notificationsTransformer->transform($host->notifications);
@@ -458,5 +443,23 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         }
 
         return $related;
+    }
+
+    /**
+     * A host being created owns no macro yet, so every submitted macro must be new: one referring to
+     * an existing macro is reported as unknown. Redundancy with inherited macros is resolved by
+     * the handler, which knows the templates and the check command.
+     *
+     * @param list<HostMacroInput> $inputs
+     *
+     * @return list<HostMacro>
+     */
+    private function resolveNewMacros(array $inputs): array
+    {
+        return $this->macroChangesResolver->resolve(
+            array_map($this->macroTransformer->toChange(...), $inputs),
+            [],
+            InheritedHostMacros::none(),
+        );
     }
 }

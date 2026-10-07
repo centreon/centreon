@@ -152,10 +152,33 @@ final class CheckOptionsTest extends TestCase
 
     public function testEqualsComparesTheMacros(): void
     {
-        $options = new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true, 'd')]);
+        $options = new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true)]);
 
-        self::assertTrue($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true, 'd')])));
-        self::assertFalse($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'x', true, 'd')])));
+        self::assertTrue($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true)])));
+        self::assertFalse($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'x', true)])));
         self::assertFalse($options->equals(new CheckOptions(null)));
+    }
+
+    public function testEqualsIgnoresTheOrderOfTheMacros(): void
+    {
+        $token = new HostMacro(new HostMacroName('TOKEN'), 'v', true);
+        $user = new HostMacro(new HostMacroName('USER'), 'admin', false);
+
+        self::assertTrue((new CheckOptions(null, [], [$token, $user]))->equals(new CheckOptions(null, [], [$user, $token])));
+        self::assertFalse((new CheckOptions(null, [], [$token, $user]))->equals(new CheckOptions(null, [], [$user, $user->rename(new HostMacroName('OTHER'))])));
+    }
+
+    public function testNamesDifferingOnlyByCaseOrSurroundingSpacesAreTheSameMacro(): void
+    {
+        // Names are trimmed and upper-cased before any comparison (legacy insertMacro() dedupes
+        // case-insensitively, the first one winning).
+        $first = new HostMacro(new HostMacroName(' dup '), 'first', isPassword: false);
+        $second = new HostMacro(new HostMacroName('DUP'), 'second', isPassword: false);
+        $third = new HostMacro(new HostMacroName('Dup'), 'third', isPassword: false);
+
+        $options = new CheckOptions(null, macros: [$first, $second, $third]);
+
+        self::assertSame([$first], $options->macros);
+        self::assertSame('DUP', $options->macros[0]->name->value);
     }
 }
