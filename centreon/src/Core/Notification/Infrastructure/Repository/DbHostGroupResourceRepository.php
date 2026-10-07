@@ -280,9 +280,11 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
 
         $subQuery = [];
         $bindElem = [];
-        foreach (array_values($resource->getResources()) as $key => $resourceElem) {
+        $key = 0;
+        foreach ($resource->getResources() as $resourceElem) {
             $subQuery[] = "(:notificationId, :resource_{$key})";
             $bindElem[":resource_{$key}"] = $resourceElem->getId();
+            $key++;
         }
         $statement = $this->db->prepare($this->translateDbName(
             'INSERT INTO `:db`.notification_hg_relation (notification_id, hg_id) VALUES ' . implode(', ', $subQuery)

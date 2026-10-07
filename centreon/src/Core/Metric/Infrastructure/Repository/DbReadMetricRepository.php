@@ -332,8 +332,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         $bindValues = [];
-        foreach (array_values($metricNames) as $index => $metricName) {
+        $index = 0;
+        foreach ($metricNames as $metricName) {
             $bindValues[':metric_name_' . $index] = $metricName;
+            $index++;
         }
 
         $metricNamesQuery = implode(', ', \array_keys($bindValues));
@@ -407,8 +409,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         // Must index the same way as buildQueryForFindServices(), which names the
         // placeholders this loop binds: the two derive them from $metricNames
         // independently, so they have to agree on the index.
-        foreach (array_values($metricNames) as $index => $metricName) {
+        $index = 0;
+        foreach ($metricNames as $metricName) {
             $bindValues[':metric_name_' . $index] = $metricName;
+            $index++;
         }
 
         foreach ($bindValues as $bindToken => $bindValue) {
@@ -537,8 +541,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
-        foreach (array_values($serviceNames) as $key => $serviceName) {
+        $key = 0;
+        foreach ($serviceNames as $serviceName) {
             $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
+            $key++;
         }
 
         $bindTokens = implode(', ', array_keys($bindServiceNames));
@@ -563,8 +569,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
-        foreach (array_values($metaserviceIds) as $key => $metaserviceId) {
+        $key = 0;
+        foreach ($metaserviceIds as $metaserviceId) {
             $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_' . $metaserviceId => \PDO::PARAM_STR];
+            $key++;
         }
 
         $bindTokens = implode(', ', array_keys($bindMetaserviceNames));

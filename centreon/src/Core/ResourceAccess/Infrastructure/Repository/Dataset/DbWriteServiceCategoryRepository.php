@@ -65,9 +65,11 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
 
         $bindValues = [];
         $subValues = [];
-        foreach (array_values($resourceIds) as $index => $serviceCategoryId) {
+        $index = 0;
+        foreach ($resourceIds as $serviceCategoryId) {
             $bindValues[":service_category_id_{$index}"] = $serviceCategoryId;
             $subValues[] = "(:service_category_id_{$index}, :datasetId)";
+            $index++;
         }
 
         $subQueries = implode(', ', $subValues);

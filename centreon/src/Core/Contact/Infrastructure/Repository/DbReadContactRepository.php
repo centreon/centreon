@@ -72,11 +72,13 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 return [];
             }
 
-            $ids = array_values(array_unique($ids));
+            $ids = array_unique($ids);
 
             $fields = '';
-            foreach ($ids as $index => $id) {
+            $index = 0;
+            foreach ($ids as $id) {
                 $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+                $index++;
             }
 
             $select = <<<SQL
@@ -90,8 +92,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 SQL;
 
             $statement = $this->db->prepare($this->translateDbName($select));
-            foreach ($ids as $index => $id) {
+            $index = 0;
+            foreach ($ids as $id) {
                 $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+                $index++;
             }
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute();
@@ -124,11 +128,13 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 return [];
             }
 
-            $ids = array_values(array_unique($ids));
+            $ids = array_unique($ids);
 
             $fields = '';
-            foreach ($ids as $index => $id) {
+            $index = 0;
+            foreach ($ids as $id) {
                 $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+                $index++;
             }
 
             $select = <<<SQL
@@ -142,8 +148,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                 SQL;
 
             $statement = $this->db->prepare($this->translateDbName($select));
-            foreach ($ids as $index => $id) {
+            $index = 0;
+            foreach ($ids as $id) {
                 $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+                $index++;
             }
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute();
@@ -190,8 +198,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function exist(array $userIds): array
     {
         $bind = [];
-        foreach (array_values($userIds) as $key => $userId) {
+        $key = 0;
+        foreach ($userIds as $userId) {
             $bind[":user_{$key}"] = $userId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -219,8 +229,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByContactGroups(array $contactGroupIds): array
     {
         $bind = [];
-        foreach (array_values($contactGroupIds) as $key => $contactGroupId) {
+        $key = 0;
+        foreach ($contactGroupIds as $contactGroupId) {
             $bind[":contactGroup_{$key}"] = $contactGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -250,8 +262,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return false;
@@ -416,8 +430,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByAccessGroups(array $accessGroupIds): array
     {
         $bind = [];
-        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -455,8 +471,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findAdminsByIds(array $contactIds): array
     {
         $bind = [];
-        foreach (array_values($contactIds) as $key => $contactId) {
+        $key = 0;
+        foreach ($contactIds as $contactId) {
             $bind[':contact' . $key] = $contactId;
+            $key++;
         }
         if ($bind === []) {
             return [];

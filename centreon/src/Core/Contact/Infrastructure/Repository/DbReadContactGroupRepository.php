@@ -95,8 +95,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     public function existsInAccessGroups(int $contactGroupId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return false;
@@ -133,11 +135,13 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                 return [];
             }
 
-            $ids = array_values(array_unique($ids));
+            $ids = array_unique($ids);
 
             $fields = '';
-            foreach ($ids as $index => $id) {
+            $index = 0;
+            foreach ($ids as $id) {
                 $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+                $index++;
             }
 
             $select = <<<SQL
@@ -151,8 +155,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                 SQL;
 
             $statement = $this->db->prepare($this->translateDbName($select));
-            foreach ($ids as $index => $id) {
+            $index = 0;
+            foreach ($ids as $id) {
                 $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+                $index++;
             }
             $statement->setFetchMode(\PDO::FETCH_ASSOC);
             $statement->execute();
@@ -518,8 +524,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     public function exist(array $contactGroupIds): array
     {
         $bind = [];
-        foreach (array_values($contactGroupIds) as $key => $contactGroupId) {
+        $key = 0;
+        foreach ($contactGroupIds as $contactGroupId) {
             $bind[":cg_{$key}"] = $contactGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
