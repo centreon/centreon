@@ -221,6 +221,53 @@ describe('Host form validation', () => {
     });
   });
 
+  describe('Data processing', () => {
+    const dataProcessingError = (
+      field: string,
+      value: unknown
+    ): string | null => {
+      try {
+        schemaFor(false).validateSyncAt(`dataProcessing.${field}`, {
+          dataProcessing: { [field]: value }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it('accepts a freshness threshold of 0, which leaves it to the engine', () => {
+      expect(dataProcessingError('freshnessThreshold', '')).toBeNull();
+      expect(dataProcessingError('freshnessThreshold', 0)).toBeNull();
+      expect(dataProcessingError('freshnessThreshold', -1)).toEqual(
+        labelMustBePositiveIntegerOrZero
+      );
+    });
+
+    it('refuses an acknowledgement timeout below 1', () => {
+      expect(dataProcessingError('acknowledgmentTimeout', 1)).toBeNull();
+      expect(dataProcessingError('acknowledgmentTimeout', 0)).toEqual(
+        labelMustBeIntegerOfAtLeastOne
+      );
+    });
+
+    it.each(['lowFlapThreshold', 'highFlapThreshold'])(
+      'accepts a %s of 0 or more, leaving the 100 cap to the server',
+      (field) => {
+        expect(dataProcessingError(field, '')).toBeNull();
+        expect(dataProcessingError(field, 0)).toBeNull();
+        expect(dataProcessingError(field, 101)).toBeNull();
+        expect(dataProcessingError(field, -1)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+        expect(dataProcessingError(field, 12.5)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+      }
+    );
+  });
+
   describe('SNMP community', () => {
     it('accepts up to 255 characters', () => {
       expect(errorFor('snmpCommunity', '')).toBeNull();

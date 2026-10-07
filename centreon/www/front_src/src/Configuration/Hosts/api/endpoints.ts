@@ -28,6 +28,10 @@ export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
 
 export const timezonesEndpoint = '/configuration/timezones';
 
+// No host-scoped command selector exists: this one is granted by the command
+// ACLs rather than by host write access.
+export const commandsEndpoint = '/configuration/commands';
+
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;
 

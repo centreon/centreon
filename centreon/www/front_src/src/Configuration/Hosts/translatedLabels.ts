@@ -79,3 +79,16 @@ export const labelRecovery = 'Recovery';
 export const labelFlapping = 'Flapping';
 export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNone = 'None';
+
+export const labelFreshnessControlOptions = 'Freshness Control options';
+export const labelCheckFreshness = 'Check Freshness';
+export const labelFreshnessThreshold = 'Freshness Threshold';
+export const labelAcknowledgementTimeout = 'Acknowledgement timeout';
+export const labelFlappingOptions = 'Flapping options';
+export const labelFlapDetectionEnabled = 'Flap Detection Enabled';
+export const labelLowFlapThreshold = 'Low Flap Threshold';
+export const labelHighFlapThreshold = 'High Flap Threshold';
+export const labelEventHandler = 'Event Handler';
+export const labelEventHandlerEnabled = 'Event Handler Enabled';
+export const labelEventHandlerArguments = 'Args';
+export const labelSeconds = 'seconds';
