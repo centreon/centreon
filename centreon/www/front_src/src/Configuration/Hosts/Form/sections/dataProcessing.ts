@@ -24,7 +24,6 @@ import {
   labelFreshnessThreshold,
   labelHighFlapThreshold,
   labelLowFlapThreshold,
-  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
   labelSeconds
@@ -131,24 +130,13 @@ const dataProcessingDecoder = JsonDecoder.object<DataProcessingValues>(
 const toApiNumber = (value: OptionalNumber | undefined): number | null =>
   value === '' || value === undefined ? null : Number(value);
 
-const getIntegerSchema = ({
-  max,
-  message,
-  min
-}: {
-  max?: number;
-  message: string;
-  min: number;
-}) => {
-  const schema = number()
+const getIntegerSchema = ({ message, min }: { message: string; min: number }) =>
+  number()
     .transform((value, originalValue) => (originalValue === '' ? null : value))
     .nullable()
     .typeError(message)
     .integer(message)
     .min(min, message);
-
-  return max === undefined ? schema : schema.max(max, message);
-};
 
 const getNumberInput = ({
   fieldName,
@@ -324,14 +312,13 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
         message: t(labelMustBePositiveIntegerOrZero),
         min: 0
       }),
+      // The server refuses anything above 100; no translated message says so.
       highFlapThreshold: getIntegerSchema({
-        max: 100,
-        message: t(labelMustBeAPercentage),
+        message: t(labelMustBePositiveIntegerOrZero),
         min: 0
       }),
       lowFlapThreshold: getIntegerSchema({
-        max: 100,
-        message: t(labelMustBeAPercentage),
+        message: t(labelMustBePositiveIntegerOrZero),
         min: 0
       })
     })

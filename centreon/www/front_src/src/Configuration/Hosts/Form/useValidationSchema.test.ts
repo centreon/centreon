@@ -2,7 +2,6 @@ import type { ValidationError } from 'yup';
 
 import {
   labelInvalidAddress,
-  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
   labelNameContainsForbiddenCharacters,
@@ -253,17 +252,20 @@ describe('Host form validation', () => {
       );
     });
 
-    it.each([
-      'lowFlapThreshold',
-      'highFlapThreshold'
-    ])('accepts a %s from 0 to 100 only', (field) => {
-      expect(dataProcessingError(field, '')).toBeNull();
-      expect(dataProcessingError(field, 0)).toBeNull();
-      expect(dataProcessingError(field, 100)).toBeNull();
-      expect(dataProcessingError(field, 101)).toEqual(labelMustBeAPercentage);
-      expect(dataProcessingError(field, -1)).toEqual(labelMustBeAPercentage);
-      expect(dataProcessingError(field, 12.5)).toEqual(labelMustBeAPercentage);
-    });
+    it.each(['lowFlapThreshold', 'highFlapThreshold'])(
+      'accepts a %s of 0 or more, leaving the 100 cap to the server',
+      (field) => {
+        expect(dataProcessingError(field, '')).toBeNull();
+        expect(dataProcessingError(field, 0)).toBeNull();
+        expect(dataProcessingError(field, 101)).toBeNull();
+        expect(dataProcessingError(field, -1)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+        expect(dataProcessingError(field, 12.5)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+      }
+    );
   });
 
   describe('SNMP community', () => {

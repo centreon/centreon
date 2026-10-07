@@ -94,4 +94,3 @@ export const labelEventHandler = 'Event Handler';
 export const labelEventHandlerEnabled = 'Event Handler Enabled';
 export const labelEventHandlerArguments = 'Args';
 export const labelSeconds = 'seconds';
-export const labelMustBeAPercentage = 'Must be an integer between 0 and 100';

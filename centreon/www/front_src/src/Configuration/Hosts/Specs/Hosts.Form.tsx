@@ -14,8 +14,8 @@ import {
   labelInvalidAddress,
   labelLinkedContactGroups,
   labelLinkedContacts,
-  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
+  labelMustBePositiveIntegerOrZero,
   labelNameMustNotStartWithModule,
   labelNo,
   labelNone,
@@ -1434,7 +1434,7 @@ export default () => {
       });
     });
 
-    it('refuses a flap threshold above 100', () => {
+    it('refuses a negative flap threshold', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -1443,10 +1443,10 @@ export default () => {
 
       cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
         .eq(1)
-        .type('101')
+        .type('-1')
         .blur();
 
-      cy.contains(labelMustBeAPercentage).should('be.visible');
+      cy.contains(labelMustBePositiveIntegerOrZero).should('be.visible');
     });
 
     it('offers only the cloud data processing settings on a cloud platform', () => {
