@@ -159,6 +159,15 @@ final class CheckOptionsTest extends TestCase
         self::assertFalse($options->equals(new CheckOptions(null)));
     }
 
+    public function testEqualsIgnoresTheOrderOfTheMacros(): void
+    {
+        $token = new HostMacro(new HostMacroName('TOKEN'), 'v', true);
+        $user = new HostMacro(new HostMacroName('USER'), 'admin', false);
+
+        self::assertTrue((new CheckOptions(null, [], [$token, $user]))->equals(new CheckOptions(null, [], [$user, $token])));
+        self::assertFalse((new CheckOptions(null, [], [$token, $user]))->equals(new CheckOptions(null, [], [$user, $user->rename(new HostMacroName('OTHER'))])));
+    }
+
     public function testNamesDifferingOnlyByCaseOrSurroundingSpacesAreTheSameMacro(): void
     {
         // Names are trimmed and upper-cased before any comparison (legacy insertMacro() dedupes

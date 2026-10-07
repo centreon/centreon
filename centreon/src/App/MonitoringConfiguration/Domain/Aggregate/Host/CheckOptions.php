@@ -106,8 +106,15 @@ final readonly class CheckOptions
             return false;
         }
 
-        foreach ($this->macros as $index => $macro) {
-            if (! $macro->isEquivalentTo($other->macros[$index])) {
+        // Macros are unique by name and carry no order (macro_order is not used): compare them as
+        // a set, so the same macros read back in another order are not seen as a change.
+        $otherMacrosByName = [];
+        foreach ($other->macros as $otherMacro) {
+            $otherMacrosByName[$otherMacro->name->value] = $otherMacro;
+        }
+        foreach ($this->macros as $macro) {
+            $otherMacro = $otherMacrosByName[$macro->name->value] ?? null;
+            if ($otherMacro === null || ! $macro->isEquivalentTo($otherMacro)) {
                 return false;
             }
         }
