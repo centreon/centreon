@@ -58,21 +58,6 @@ final class CommandTest extends TestCase
         yield 'not locked, -CMA- marker' => ['custom-CMA-check', false, false];
     }
 
-    private function command(string $name, bool $locked): Command
-    {
-        return new Command(
-            id: new CommandId(1),
-            name: new CommandName($name),
-            type: CommandTypeEnum::Check,
-            commandLine: new CommandLine('$USER1$/plugin'),
-            isShellEnabled: false,
-            isActivated: true,
-            isFromMonitoringConnector: $locked,
-            connector: null,
-            comment: null,
-        );
-    }
-
     public function testMacrosAreEmptyWhenCommandLineHasNoMacro(): void
     {
         $command = $this->createCommand('$USER1$/check_icmp -H $HOSTADDRESS$ -w $ARG1$');
@@ -195,6 +180,21 @@ final class CommandTest extends TestCase
         $command->macros();
         self::assertEquals([new CommandMacro(new CommandMacroId(7), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
         self::assertSame(1, $loader->calls);
+    }
+
+    private function command(string $name, bool $locked): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName($name),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('$USER1$/plugin'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: $locked,
+            connector: null,
+            comment: null,
+        );
     }
 
     /**
