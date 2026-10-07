@@ -27,6 +27,7 @@ import {
   labelName,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
+  labelNone,
   labelNormalCheckInterval,
   labelPassiveChecksEnabled,
   labelRequired,
@@ -78,7 +79,9 @@ const snmpVersionOptions = snmpVersions.map((version) => ({
 
 type SnmpVersionOption = (typeof snmpVersionOptions)[number];
 
-// A number field holds `''` until something is typed.
+// Fallback to empty the field: the select cannot be cleared.
+const noSnmpVersionId = 'none';
+
 type OptionalNumber = number | '';
 
 interface SchedulingOptionsValues {
@@ -93,7 +96,6 @@ interface SchedulingOptionsValues {
 // The API's `check_options`, built here alone: the host's macros belong to it
 // too.
 interface CheckOptionsValues {
-  // Typed as legacy shows them, `!arg1!arg2`; the API takes the list.
   args: string;
   command: NamedEntity | null;
 }
@@ -126,12 +128,10 @@ const defaultCheckOptions: CheckOptionsValues = {
   command: null
 };
 
-// The detail endpoint leaves unset values out rather than sending null.
 const optionalNumberDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
 ).map((value): OptionalNumber => value ?? '');
 
-// Left out on cloud, where the server keeps them unset.
 const optionalTriStateDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(triStateDecoder)
 ).map((value) => value ?? defaultTriState);
@@ -243,7 +243,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     schedulingOptions: JsonDecoder.optional(
       JsonDecoder.nullable(schedulingOptionsDecoder)
     ).map((value) => value ?? defaultSchedulingOptions),
-    // Write-only: the API never returns it, so the field opens empty.
     snmpCommunity: JsonDecoder.constant(''),
     snmpVersion: JsonDecoder.optional(
       JsonDecoder.nullable(
@@ -364,6 +363,104 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         type: InputType.Grid
       },
       {
+        fieldName: 'monitoring-layout',
+        grid: {
+          className: 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-2',
+          columns: [
+            {
+              fieldName: 'host-details',
+              grid: {
+                className: 'grid-cols-1 @[600px]:grid-cols-3',
+                columns: [
+                  {
+                    dataTestId: 'host-form-snmp-community',
+                    fieldName: 'snmpCommunity',
+                    label: t(labelSnmpCommunity),
+                    type: InputType.Password
+                  },
+                  {
+                    autocomplete: {
+                      options: [
+                        { id: noSnmpVersionId, name: t(labelNone) },
+                        ...snmpVersionOptions
+                      ]
+                    },
+                    change: ({ setFieldValue, value }) =>
+                      setFieldValue(
+                        'snmpVersion',
+                        (value as SelectEntry | null)?.id === noSnmpVersionId
+                          ? null
+                          : value
+                      ),
+                    dataTestId: 'host-form-snmp-version',
+                    fieldName: 'snmpVersion',
+                    label: t(labelSnmpVersion),
+                    type: InputType.SingleAutocomplete
+                  },
+                  {
+                    connectedAutocomplete: buildSelector({
+                      endpoint: timezonesEndpoint,
+                      getOptionLabel: (option) => (option as SelectEntry)?.name,
+                      queryKey: 'host-form-timezone'
+                    }),
+                    dataTestId: 'host-form-timezone',
+                    fieldName: 'timezone',
+                    label: t(labelTimezone),
+                    type: InputType.SingleConnectedAutocomplete
+                  }
+                ]
+              },
+              label: 'host-form-host-details',
+              type: InputType.Grid
+            },
+            {
+              fieldName: 'scheduling-options',
+              grid: {
+                className: 'grid-cols-1 @[600px]:grid-cols-2',
+                columns: isCloudPlatform
+                  ? [checkPeriod, ...checkNumbers]
+                  : [
+                      {
+                        fieldName: 'scheduling-check-numbers',
+                        grid: {
+                          className: 'grid-cols-1',
+                          columns: [checkPeriod, ...checkNumbers]
+                        },
+                        label: 'host-form-scheduling-check-numbers',
+                        type: InputType.Grid
+                      },
+                      {
+                        fieldName: 'scheduling-checks-enabled',
+                        grid: {
+                          className: 'grid-cols-1',
+                          columns: [
+                            getSchedulingTriStateInput({
+                              fieldName: 'activeCheckEnabled',
+                              label: t(labelActiveChecksEnabled)
+                            }),
+                            getSchedulingTriStateInput({
+                              fieldName: 'passiveCheckEnabled',
+                              label: t(labelPassiveChecksEnabled)
+                            })
+                          ]
+                        },
+                        label: 'host-form-scheduling-checks-enabled',
+                        type: InputType.Grid
+                      }
+                    ]
+              },
+              label: 'host-form-scheduling-options',
+              type: InputType.Grid
+            }
+          ]
+        },
+        label: 'host-form-monitoring-layout',
+        type: InputType.Grid
+      },
+      // The check options and templates sit below the SNMP community, not above
+      // as in the Figma: password managers pair the community with the text
+      // field before it and would type into them.
+      {
         fieldName: 'check-options',
         grid: {
           className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
@@ -435,95 +532,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           ]
         },
         label: 'host-form-templates-layout',
-        type: InputType.Grid
-      },
-      // The host's details beside its scheduling once the panel is wide enough,
-      // one under the other otherwise.
-      {
-        fieldName: 'monitoring-layout',
-        grid: {
-          className: 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-2',
-          columns: [
-            {
-              fieldName: 'host-details',
-              grid: {
-                className: 'grid-cols-1 @[600px]:grid-cols-3',
-                columns: [
-                  {
-                    dataTestId: 'host-form-snmp-community',
-                    fieldName: 'snmpCommunity',
-                    label: t(labelSnmpCommunity),
-                    type: InputType.Password
-                  },
-                  {
-                    autocomplete: { options: snmpVersionOptions },
-                    // Not forwarded by the static autocomplete yet: its input
-                    // is tested by its label meanwhile.
-                    dataTestId: 'host-form-snmp-version',
-                    fieldName: 'snmpVersion',
-                    label: t(labelSnmpVersion),
-                    type: InputType.SingleAutocomplete
-                  },
-                  {
-                    connectedAutocomplete: buildSelector({
-                      endpoint: timezonesEndpoint,
-                      getOptionLabel: (option) => (option as SelectEntry)?.name,
-                      queryKey: 'host-form-timezone'
-                    }),
-                    dataTestId: 'host-form-timezone',
-                    fieldName: 'timezone',
-                    label: t(labelTimezone),
-                    type: InputType.SingleConnectedAutocomplete
-                  }
-                ]
-              },
-              label: 'host-form-host-details',
-              type: InputType.Grid
-            },
-            {
-              fieldName: 'scheduling-options',
-              grid: {
-                // Enabling checks is an onPrem setting; cloud has the check
-                // period and numbers alone, two by two.
-                className: 'grid-cols-1 @[600px]:grid-cols-2',
-                columns: isCloudPlatform
-                  ? [checkPeriod, ...checkNumbers]
-                  : [
-                      {
-                        fieldName: 'scheduling-check-numbers',
-                        grid: {
-                          className: 'grid-cols-1',
-                          columns: [checkPeriod, ...checkNumbers]
-                        },
-                        label: 'host-form-scheduling-check-numbers',
-                        type: InputType.Grid
-                      },
-                      {
-                        fieldName: 'scheduling-checks-enabled',
-                        grid: {
-                          className: 'grid-cols-1',
-                          columns: [
-                            getSchedulingTriStateInput({
-                              fieldName: 'activeCheckEnabled',
-                              label: t(labelActiveChecksEnabled)
-                            }),
-                            getSchedulingTriStateInput({
-                              fieldName: 'passiveCheckEnabled',
-                              label: t(labelPassiveChecksEnabled)
-                            })
-                          ]
-                        },
-                        label: 'host-form-scheduling-checks-enabled',
-                        type: InputType.Grid
-                      }
-                    ]
-              },
-              label: 'host-form-scheduling-options',
-              type: InputType.Grid
-            }
-          ]
-        },
-        label: 'host-form-monitoring-layout',
         type: InputType.Grid
       }
     ];
@@ -620,14 +628,12 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           schedulingOptions.normalCheckInterval
         ),
         retry_check_interval: toApiNumber(schedulingOptions.retryCheckInterval),
-        // Refused on cloud, where the server keeps them unset.
         ...(!isCloudPlatform && {
           active_check_enabled: schedulingOptions.activeCheckEnabled,
           passive_check_enabled: schedulingOptions.passiveCheckEnabled
         })
       },
-      // Never read back, so an empty field means "unchanged", not "none": it
-      // is left out rather than sent empty.
+      // Write-only: empty means unchanged.
       ...(snmpCommunity && { snmp_community: snmpCommunity }),
       snmp_version: snmpVersion?.id ?? null,
       // In order, rows left unpicked aside.

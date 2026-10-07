@@ -65,6 +65,13 @@ final class CreateCommandProcessorTest extends ApiTestCase
             'is_from_monitoring_connector' => false,
         ]);
         self::assertArrayHasKey('id', $response->toArray());
+        /** @var list<array{id: int|null, name: string, type: string}> $macros */
+        $macros = $response->toArray()['macros'];
+        self::assertCount(2, $macros);
+        self::assertSame(['MAC1', 'host'], [$macros[0]['name'], $macros[0]['type']]);
+        self::assertSame(['MAC2', 'service'], [$macros[1]['name'], $macros[1]['type']]);
+        self::assertIsInt($macros[0]['id']);
+        self::assertIsInt($macros[1]['id']);
 
         $command = $repository->findOneByName(new CommandName('CommandNotif'));
         self::assertNotNull($command);

@@ -17,8 +17,8 @@ import {
   labelInvalidGeographicCoordinates,
   labelLinkedContactGroups,
   labelLinkedContacts,
-  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
+  labelMustBePositiveIntegerOrZero,
   labelNameMustNotStartWithModule,
   labelNo,
   labelNone,
@@ -164,7 +164,6 @@ export default () => {
           child_host_ids: [2],
           // Never read back, so off as legacy opens an existing host.
           create_services_linked_to_templates: false,
-          // The arguments go back as the list they came as.
           data_processing: {
             acknowledgment_timeout: 15,
             check_freshness: 'true',
@@ -208,10 +207,9 @@ export default () => {
             retry_check_interval: null
           },
           severity_id: 2,
-          // No `snmp_community`: left empty, it is left unchanged.
           snmp_version: '2c',
           template_ids: [6, 5],
-          timezone_id: 2
+          timezone_id: 7
         });
       });
     });
@@ -270,10 +268,16 @@ export default () => {
         'host-form-child-hosts',
         'host-form-notifications-contacts',
         'host-form-notifications-contact-groups',
-        'host-form-notifications-timeperiod'
+        'host-form-notifications-timeperiod',
+        'host-form-check-options-command',
+        'host-form-scheduling-options-checkPeriod'
       ].forEach((testId) => {
         cy.findByTestId(testId).should('be.disabled');
       });
+      // Host 0 has a command, so only read-only mode keeps its args disabled.
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.disabled');
       cy.findAllByTestId('host-form-notifications-interval')
         .eq(1)
         .should('be.disabled');
@@ -745,7 +749,6 @@ export default () => {
           category_ids: [],
           check_options: untouchedCheckOptionsPayload,
           child_host_ids: [],
-          // The onPrem-only fields are refused on cloud.
           data_processing: {
             check_freshness: 'use_default',
             event_handler_command_id: null,
@@ -764,7 +767,6 @@ export default () => {
           name: 'srv-apache-02',
           parent_host_ids: [],
           poller_id: 2,
-          // The check toggles are refused on cloud.
           scheduling_options: {
             check_timeperiod_id: null,
             max_check_attempts: null,
@@ -981,6 +983,9 @@ export default () => {
       cy.findByTestId('host-form-notifications-enabled')
         .findByRole('button', { name: labelDefault })
         .should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-use_default'
+      ).should('have.attr', 'aria-pressed', 'true');
 
       cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
 
@@ -989,6 +994,19 @@ export default () => {
       cy.waitForRequest('@patchHost1').then(({ request }) => {
         expect(request.body.notifications).to.deep.equals(
           untouchedNotificationsPayload
+        );
+        expect(request.body.scheduling_options).to.deep.equals(
+          untouchedSchedulingOptionsPayload
+        );
+        expect(request.body).to.include({
+          snmp_version: null,
+          timezone_id: null
+        });
+        expect(request.body.data_processing).to.deep.equals(
+          untouchedDataProcessingPayload
+        );
+        expect(request.body.check_options).to.deep.equals(
+          untouchedCheckOptionsPayload
         );
       });
     });
@@ -1179,7 +1197,6 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
-      // Write-only: nothing to open on.
       cy.findAllByTestId('host-form-snmp-community')
         .eq(1)
         .should('have.value', '')
@@ -1196,7 +1213,6 @@ export default () => {
       cy.findAllByTestId('host-form-scheduling-options-normalCheckInterval')
         .eq(1)
         .should('have.value', '5');
-      // Left out of the response, so still empty.
       cy.findAllByTestId('host-form-scheduling-options-retryCheckInterval')
         .eq(1)
         .should('have.value', '');
@@ -1207,6 +1223,51 @@ export default () => {
       cy.findByTestId(
         'host-form-scheduling-options-passiveCheckEnabled-true'
       ).should('have.attr', 'aria-pressed', 'true');
+    });
+
+    it('clears the SNMP version, timezone and scheduling settings of a host', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByLabelText(labelSnmpVersion).click();
+      cy.get('.MuiAutocomplete-popper').contains(labelNone).click();
+      cy.findByLabelText(labelSnmpVersion).should('have.value', '');
+      cy.findByTestId('host-form-timezone')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+      cy.findByTestId('host-form-scheduling-options-checkPeriod')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .clear();
+      cy.findByTestId(
+        'host-form-scheduling-options-activeCheckEnabled-use_default'
+      ).click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body).to.include({
+          snmp_version: null,
+          timezone_id: null
+        });
+        expect(request.body.scheduling_options).to.deep.equals({
+          active_check_enabled: 'use_default',
+          check_timeperiod_id: null,
+          max_check_attempts: null,
+          normal_check_interval: 5,
+          passive_check_enabled: 'true',
+          retry_check_interval: null
+        });
+      });
     });
 
     it('creates a host with its SNMP, timezone and scheduling settings', () => {
@@ -1228,7 +1289,6 @@ export default () => {
       cy.get('.MuiAutocomplete-popper').contains('2c').click();
 
       cy.findByTestId('host-form-timezone').click();
-      // No host-scoped timezone selector exists; this one is on API Platform.
       cy.waitForRequest('@getFormTimezones').then(({ request }) => {
         expect(request.url.pathname).to.contain('/api/configuration/timezones');
         expect(request.url.pathname).to.not.contain('/api/latest');
@@ -1242,7 +1302,6 @@ export default () => {
         .eq(1)
         .type('1');
 
-      // Default is preselected, and is not No.
       cy.findByTestId(
         'host-form-scheduling-options-activeCheckEnabled-use_default'
       ).should('have.attr', 'aria-pressed', 'true');
@@ -1259,7 +1318,7 @@ export default () => {
         expect(request.body).to.include({
           snmp_community: 'public',
           snmp_version: '2c',
-          timezone_id: 2
+          timezone_id: 7
         });
         expect(request.body.scheduling_options).to.deep.equals({
           active_check_enabled: 'true',
@@ -1472,7 +1531,6 @@ export default () => {
       cy.findByTestId(
         'host-form-data-processing-flapDetectionEnabled-true'
       ).should('have.attr', 'aria-pressed', 'true');
-      // Left out of the response, so still empty.
       cy.findAllByTestId('host-form-data-processing-lowFlapThreshold')
         .eq(1)
         .should('have.value', '');
@@ -1486,7 +1544,6 @@ export default () => {
         'have.value',
         'restart-httpd'
       );
-      // The list the API returns, written the way legacy writes it.
       cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
         .eq(1)
         .should('have.value', '!80!graceful');
@@ -1505,7 +1562,6 @@ export default () => {
       cy.findByTestId('host-form-poller').click();
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
-      // Default is preselected, and is not No.
       cy.findByTestId(
         'host-form-data-processing-checkFreshness-use_default'
       ).should('have.attr', 'aria-pressed', 'true');
@@ -1530,8 +1586,6 @@ export default () => {
       ).click();
 
       cy.findByTestId('host-form-data-processing-eventHandler').click();
-      // No host-scoped command selector exists; this one is on API Platform
-      // and, as legacy, offers active commands only.
       cy.waitForRequest('@getFormCommands').then(({ request }) => {
         expect(request.url.pathname).to.contain('/api/configuration/commands');
         expect(request.url.pathname).to.not.contain('/api/latest');
@@ -1539,7 +1593,6 @@ export default () => {
       });
       cy.get('.MuiAutocomplete-popper').contains('restart-httpd').click();
 
-      // The leading `!` is optional.
       cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
         .eq(1)
         .type('80!!graceful');
@@ -1561,7 +1614,7 @@ export default () => {
       });
     });
 
-    it('refuses a flap threshold above 100', () => {
+    it('refuses a negative flap threshold', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -1570,10 +1623,10 @@ export default () => {
 
       cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
         .eq(1)
-        .type('101')
+        .type('-1')
         .blur();
 
-      cy.contains(labelMustBeAPercentage).should('be.visible');
+      cy.contains(labelMustBePositiveIntegerOrZero).should('be.visible');
     });
 
     it('offers only the cloud data processing settings on a cloud platform', () => {
@@ -1604,6 +1657,45 @@ export default () => {
         cy.findByTestId(`host-form-data-processing-${field}`).should(
           'not.exist'
         );
+      });
+    });
+
+    it('opens and saves back the data processing settings of a cloud host', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 2').click();
+
+      cy.waitForRequest('@getHost2');
+
+      cy.findByTestId('host-form-data-processing-checkFreshness-false').should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('have.value', '60');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-true'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-eventHandler').should(
+        'have.value',
+        ''
+      );
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost2').then(({ request }) => {
+        expect(request.body.data_processing).to.deep.equals({
+          check_freshness: 'false',
+          event_handler_command_id: null,
+          event_handler_enabled: 'true',
+          freshness_threshold: 60
+        });
       });
     });
 
@@ -1663,6 +1755,63 @@ export default () => {
         .find('img')
         .should('not.exist');
       cy.findByTestId('host-form-severity').should('have.value', '');
+    });
+
+    it('clears the extended infos and severity of a host', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note').eq(1).clear();
+      cy.findAllByTestId('host-form-extended-infos-actionUrl')
+        .eq(1)
+        .clear()
+        .type('   ');
+      cy.findByTestId('host-form-extended-infos-icon')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+      cy.findByTestId('host-form-extended-infos-icon-preview')
+        .find('img')
+        .should('not.exist');
+      cy.findByTestId('host-form-severity')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.extended_informations).to.include({
+          action_url: null,
+          icon_id: null,
+          note: null
+        });
+        expect(request.body.severity_id).to.equal(null);
+      });
+    });
+
+    it('lets a user who may only look at hosts change no extended info', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note')
+        .eq(1)
+        .should('be.disabled');
+      cy.findAllByTestId('host-form-extended-infos-comment')
+        .eq(1)
+        .should('be.disabled');
+      cy.findByTestId('host-form-extended-infos-icon').should('be.disabled');
+      cy.findByTestId('host-form-severity').should('be.disabled');
     });
 
     it('creates a host with its extended infos and severity', () => {

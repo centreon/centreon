@@ -21,20 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\Shared\Domain\Event;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandName
+abstract readonly class AggregateMassChanged extends AggregateUpdated
 {
-    public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
-    public const CENTREON_MONITORING_AGENT_MARKER = 'Centreon-Monitoring-Agent';
-    public const CMA_MARKER = '-CMA-';
-
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 200);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
-    }
 }

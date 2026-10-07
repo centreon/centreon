@@ -24,7 +24,6 @@ import {
   labelFreshnessThreshold,
   labelHighFlapThreshold,
   labelLowFlapThreshold,
-  labelMustBeAPercentage,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
   labelSeconds
@@ -39,7 +38,6 @@ import {
 } from '../triState';
 import type { FormSection } from './models';
 
-// A number field holds `''` until something is typed.
 type OptionalNumber = number | '';
 
 interface DataProcessingValues {
@@ -71,12 +69,10 @@ const defaultDataProcessing: DataProcessingValues = {
   lowFlapThreshold: ''
 };
 
-// The detail endpoint leaves unset values out rather than sending null.
 const optionalNumberDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
 ).map((value): OptionalNumber => value ?? '');
 
-// Left out on cloud for the onPrem-only toggles.
 const optionalTriStateDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(triStateDecoder)
 ).map((value) => value ?? defaultTriState);
@@ -117,24 +113,13 @@ const dataProcessingDecoder = JsonDecoder.object<DataProcessingValues>(
 const toApiNumber = (value: OptionalNumber | undefined): number | null =>
   value === '' || value === undefined ? null : Number(value);
 
-const getIntegerSchema = ({
-  max,
-  message,
-  min
-}: {
-  max?: number;
-  message: string;
-  min: number;
-}) => {
-  const schema = number()
+const getIntegerSchema = ({ message, min }: { message: string; min: number }) =>
+  number()
     .transform((value, originalValue) => (originalValue === '' ? null : value))
     .nullable()
     .typeError(message)
     .integer(message)
     .min(min, message);
-
-  return max === undefined ? schema : schema.max(max, message);
-};
 
 const getNumberInput = ({
   fieldName,
@@ -181,7 +166,6 @@ const getBlock = ({
   name: string;
   title: string;
 }): InputPropsWithoutGroup => ({
-  // Rendered as the block's title by the grid around it.
   additionalLabel: title,
   fieldName: `data-processing-${name}`,
   grid: { className: 'grid-cols-1', columns },
@@ -283,7 +267,6 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
       title: t(labelFlappingOptions)
     });
 
-    // Flapping is an onPrem concern as a whole, so cloud has two blocks.
     return [
       {
         fieldName: 'data-processing-layout',
@@ -310,14 +293,13 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
         message: t(labelMustBePositiveIntegerOrZero),
         min: 0
       }),
+      // No translated message for 0–100: the server enforces the cap.
       highFlapThreshold: getIntegerSchema({
-        max: 100,
-        message: t(labelMustBeAPercentage),
+        message: t(labelMustBePositiveIntegerOrZero),
         min: 0
       }),
       lowFlapThreshold: getIntegerSchema({
-        max: 100,
-        message: t(labelMustBeAPercentage),
+        message: t(labelMustBePositiveIntegerOrZero),
         min: 0
       })
     })
@@ -335,7 +317,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
         freshness_threshold: toApiNumber(
           dataProcessingValues.freshnessThreshold
         ),
-        // Refused on cloud, where the server keeps them unset.
+        // Refused on cloud.
         ...(!isCloudPlatform && {
           acknowledgment_timeout: toApiNumber(
             dataProcessingValues.acknowledgmentTimeout

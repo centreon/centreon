@@ -27,6 +27,9 @@ use Webmozart\Assert\Assert;
 
 final readonly class CommandLine
 {
+    /** Uppercase letters, digits, underscores and hyphens: a lowercase letter excludes the macro. */
+    private const MACRO_NAME_PATTERN = '[A-Z0-9_-]+';
+
     public function __construct(
         public string $value,
     ) {
@@ -44,21 +47,26 @@ final readonly class CommandLine
     }
 
     /**
+     * Only fully uppercase macros are extracted: Centreon always stores custom macros uppercased and
+     * Centreon Engine resolves them case-sensitively, so e.g. $_HOSTuser$ can never be resolved.
+     *
      * @return array<string> unique host macro names (e.g. ['SOME_MACRO'])
      */
     public function extractHostMacros(): array
     {
-        preg_match_all('/\$_HOST([\w_-]+)\$/', $this->value, $matches);
+        preg_match_all('/\$_HOST(' . self::MACRO_NAME_PATTERN . ')\$/', $this->value, $matches);
 
         return array_values(array_unique($matches[1]));
     }
 
     /**
+     * Only fully uppercase macros are extracted, see extractHostMacros().
+     *
      * @return array<string> unique service macro names (e.g. ['SOME_MACRO'])
      */
     public function extractServiceMacros(): array
     {
-        preg_match_all('/\$_SERVICE([\w_-]+)\$/', $this->value, $matches);
+        preg_match_all('/\$_SERVICE(' . self::MACRO_NAME_PATTERN . ')\$/', $this->value, $matches);
 
         return array_values(array_unique($matches[1]));
     }
