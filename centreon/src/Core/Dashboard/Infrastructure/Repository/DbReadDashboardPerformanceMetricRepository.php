@@ -338,6 +338,49 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     }
 
     /**
+     *  test do not merge
+     */
+    public function setUserOptions(): void
+    {
+        $this->_db->beginTransaction();
+        try {
+            $query = 'DELETE FROM `mod_bam_user_overview_relation` WHERE user_id = :userId';
+            $stmt = $this->_db->prepare($query);
+            $stmt->bindValue(':userId', $this->_userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if (isset($_POST['overview']) && $_POST['overview'] !== []) {
+                $values = [];
+                foreach ($_POST['overview'] as $key => $id) {
+                    $values[] = <<<SQL
+                            (:id_{$key}, :user_id)
+                        SQL;
+                }
+                $valuesAsString = implode(',', $values);
+                $query = <<<SQL
+                    INSERT INTO `mod_bam_user_overview_relation`(`ba_id`, `user_id`)
+                    VALUES {$valuesAsString}
+                    SQL;
+
+                $stmt = $this->_db->prepare($query);
+                foreach ($_POST['overview'] as $key => $id) {
+                    $stmt->bindValue(':id_' . $key, $id, PDO::PARAM_INT);
+                }
+                $stmt->bindValue(':user_id', $this->_userId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+            $this->_db->commit();
+        } catch (Throwable $e) {
+            if ($this->_db->inTransaction()) {
+                $this->_db->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
+
+    /**
      * build the sub request for service group filter.
      *
      * @param non-empty-array<int> $serviceGroupIds
