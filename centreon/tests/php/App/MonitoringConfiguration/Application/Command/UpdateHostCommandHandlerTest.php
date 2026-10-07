@@ -30,13 +30,17 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\Security\Domain\Aggregate\UserId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -58,6 +62,7 @@ use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
@@ -65,15 +70,16 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -82,7 +88,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeInheritedHostMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
@@ -97,8 +102,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     private FakeHostRepository $hostRepository;
 
     private FakePollerRepository $pollerRepository;
-
-    private FakeInheritedHostMacroRepository $inheritedHostMacroRepository;
 
     private FakeVault $vault;
 
@@ -118,7 +121,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         $this->hostRepository = new FakeHostRepository();
         $this->pollerRepository = new FakePollerRepository();
-        $this->inheritedHostMacroRepository = new FakeInheritedHostMacroRepository();
         $this->vault = new FakeVault();
         $this->vault->vaultEnabled = false;
 
@@ -133,7 +135,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(CommandRepository::class, new FakeCommandRepository());
-        $container->set(InheritedHostMacroRepository::class, $this->inheritedHostMacroRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(OptionRepository::class, new FakeOptionRepository());
         $container->set(VaultInterface::class, $this->vault);
@@ -322,6 +323,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         /** @var list<HostVaultPurgeRequested> $events */
         $events = $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class);
         self::assertSame('existing-uuid', $events[0]->host->getVaultUuid($this->vault));
+        // The save succeeded: failing to tidy up the emptied entry must not fail the request.
+        self::assertTrue($events[0]->bestEffort);
     }
 
     public function testItDoesNotRequestAVaultPurgeWhenASecretSurvives(): void
@@ -331,6 +334,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $existingReference = 'secret::vault::monitoring/hosts/existing-uuid::_HOSTSNMPCOMMUNITY';
         $this->vault->extractedUuids[$existingReference] = 'existing-uuid';
         $this->seedHost(10, snmpCommunity: new SnmpCommunity($existingReference));
+        // The vault rewrites the community under the host's existing entry.
+        $this->vault->writtenPaths[VaultKeyEnum::HostSnmpCommunity->value] = $existingReference;
 
         // A new SNMP community keeps a secret on the host, so the entry must not be purged.
         ($this->handler)($this->command(10, snmpCommunity: 'still-secret'));
@@ -347,6 +352,172 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(10, snmpCommunity: null));
 
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
+    }
+
+    public function testItUpdatesADirectMacroInPlace(): void
+    {
+        // R5: a direct macro referred to by id keeps that id through a rename and a new value, so it
+        // is updated rather than replaced.
+        $this->addPoller(1);
+        $this->seedHost(10, macros: [new HostMacro(new HostMacroName('old'), 'v1', isPassword: false, id: new HostMacroId(5))]);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('new'), 'v2', isPassword: false, id: new HostMacroId(5)),
+        ]));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame(5, $host->checkOptions->macros[0]->id?->value);
+        self::assertSame('NEW', $host->checkOptions->macros[0]->name->value);
+        self::assertSame('v2', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testItKeepsAStoredPasswordWhenItsValueIsNotResent(): void
+    {
+        // R1: a password is never echoed back, so a null value keeps the stored one.
+        $this->addPoller(1);
+        $this->seedHost(10, macros: [new HostMacro(new HostMacroName('pwd'), 'stored-secret', isPassword: true, id: new HostMacroId(5))]);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), null, isPassword: true, id: new HostMacroId(5)),
+        ]));
+
+        self::assertSame('stored-secret', $host->checkOptions->macros[0]->value);
+        self::assertSame(5, $host->checkOptions->macros[0]->id?->value);
+    }
+
+    public function testItDropsADirectMacroNoLongerSubmitted(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, macros: [
+            new HostMacro(new HostMacroName('kept'), 'a', isPassword: false, id: new HostMacroId(5)),
+            new HostMacro(new HostMacroName('dropped'), 'b', isPassword: false, id: new HostMacroId(6)),
+        ]);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('kept'), 'a', isPassword: false, id: new HostMacroId(5)),
+        ]));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('KEPT', $host->checkOptions->macros[0]->name->value);
+    }
+
+    public function testItRejectsADirectMacroIdTheHostDoesNotOwn(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, macros: [new HostMacro(new HostMacroName('own'), 'a', isPassword: false, id: new HostMacroId(5))]);
+
+        $this->expectException(HostMacroNotFoundException::class);
+
+        ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('own'), 'a', isPassword: false, id: new HostMacroId(99)),
+        ]));
+    }
+
+    public function testAChangedInheritedMacroBecomesANewDirectMacroLeavingTheTemplateUntouched(): void
+    {
+        // R4/R6: an inherited macro is addressed by its template id, but changing it never writes to
+        // the template: the host gets its own macro, with no id until it is inserted.
+        $this->addPoller(1);
+        $templateMacro = new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70));
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([$templateMacro], HostMacro::class),
+        );
+        $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
+        $this->seedHost(10, templateIds: $templateIds);
+
+        $host = ($this->handler)($this->command(10, templateIds: $templateIds, macroChanges: [
+            new HostMacroChange(new HostMacroName('shared'), 'host-value', isPassword: false, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+        ]));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        $macro = $host->checkOptions->macros[0];
+        self::assertTrue($macro->isDirect());
+        self::assertNull($macro->id);
+        self::assertSame('SHARED', $macro->name->value);
+        self::assertSame('host-value', $macro->value);
+        self::assertSame('tpl-value', $templateMacro->value);
+    }
+
+    public function testAnUntouchedInheritedMacroEchoedBackStaysInherited(): void
+    {
+        // R7: resending an inherited macro as read never materialises a copy on the host.
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+        );
+        $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
+        $this->seedHost(10, templateIds: $templateIds);
+
+        $host = ($this->handler)($this->command(10, templateIds: $templateIds, macroChanges: [
+            new HostMacroChange(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+        ]));
+
+        self::assertSame([], $host->checkOptions->macros);
+    }
+
+    public function testADirectOverrideSetBackToTheInheritedValueCollapsesToInherited(): void
+    {
+        // R7: an override equal to the macro it shadows is dropped, the host inherits again.
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+        );
+        $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
+        $this->seedHost(
+            10,
+            macros: [new HostMacro(new HostMacroName('shared'), 'override', isPassword: false, id: new HostMacroId(5))],
+            templateIds: $templateIds,
+        );
+
+        $host = ($this->handler)($this->command(10, templateIds: $templateIds, macroChanges: [
+            new HostMacroChange(new HostMacroName('shared'), 'tpl-value', isPassword: false, id: new HostMacroId(5)),
+        ]));
+
+        self::assertSame([], $host->checkOptions->macros);
+    }
+
+    public function testAPromotedTemplatePasswordIsCopiedUnderTheHostOwnVaultEntry(): void
+    {
+        // R4 with a vault: the template's secret is copied under the host's existing entry, never
+        // shared through the template's path.
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $hostReference = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
+        $this->vault->extractedUuids[$hostReference] = 'host-uuid';
+        $templateSecret = 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTTPLPWD';
+        $this->vault->extractedUuids[$templateSecret] = 'tpl-uuid';
+        $this->vault->resolved[$templateSecret] = 'tpl-secret';
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+        $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
+        $this->seedHost(10, snmpCommunity: new SnmpCommunity($hostReference), templateIds: $templateIds);
+        // The vault rewrites the community under the host's existing entry.
+        $this->vault->writtenPaths[VaultKeyEnum::HostSnmpCommunity->value] = $hostReference;
+
+        $host = ($this->handler)($this->command(10, snmpCommunity: 'public', templateIds: $templateIds, macroChanges: [
+            new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+        ]));
+
+        $macroWrite = null;
+        foreach ($this->vault->writeManyCalls as $call) {
+            if (array_key_exists('_HOSTMYPWD', $call['secrets'])) {
+                $macroWrite = $call;
+            }
+        }
+        self::assertNotNull($macroWrite, 'The promoted password should have been written to the vault.');
+        self::assertSame('tpl-secret', $macroWrite['secrets']['_HOSTMYPWD']);
+        self::assertSame('host-uuid', $macroWrite['uuid']);
+        self::assertNull($host->checkOptions->macros[0]->id);
+        self::assertStringNotContainsString('tpl-uuid', $host->checkOptions->macros[0]->value);
     }
 
     public function testItDeploysServicesWhenTemplatesArePresent(): void
@@ -462,6 +633,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     /**
      * @param ?Collection<HostTemplateId> $templateIds
      * @param ?Collection<HostGroupId> $hostGroupIds
+     * @param list<HostMacroChange> $macroChanges
      */
     private function command(
         int $id,
@@ -474,6 +646,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ?Collection $hostGroupIds = null,
         ?HostSeverityId $severityId = null,
         ?UserId $viewerId = null,
+        array $macroChanges = [],
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -488,11 +661,14 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             snmpCommunity: $snmpCommunity,
             severityId: $severityId,
             checkOptions: $checkOptions,
+            macroChanges: $macroChanges,
         );
     }
 
     /**
      * @param ?Collection<HostGroupId> $hostGroupIds
+     * @param list<HostMacro> $macros the host's stored direct macros
+     * @param ?Collection<HostTemplateId> $templateIds
      */
     private function seedHost(
         int $id,
@@ -502,6 +678,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ?SnmpCommunity $snmpCommunity = null,
         ?Collection $hostGroupIds = null,
         ?HostSeverityId $severityId = null,
+        array $macros = [],
+        ?Collection $templateIds = null,
     ): Host {
         $host = new Host(
             id: null,
@@ -510,10 +688,11 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             activated: $activated,
             pollerId: new PollerId($pollerId),
-            templateIds: new Collection([], HostTemplateId::class),
+            templateIds: $templateIds ?? new Collection([], HostTemplateId::class),
             hostGroupIds: $hostGroupIds ?? new Collection([], HostGroupId::class),
             severityId: $severityId,
             snmpCommunity: $snmpCommunity,
+            checkOptions: new CheckOptions(null, [], $macros),
         );
 
         return $this->hostRepository->seed($host, $id);

@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
@@ -1658,32 +1659,75 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
-    public function testUpdateReplacesMacros(): void
+    public function testUpdateWritesMacrosInPlace(): void
     {
         $pollerId = $this->createPoller('Central');
-        $host = $this->host(
-            name: 'server-01',
-            pollerId: $pollerId,
-            macros: [new HostMacro(new HostMacroName('old'), 'old-value', isPassword: false)],
-        );
-        $this->repository->add($host);
-        $hostId = $host->id()->value;
+        $hostId = $this->createHost('server-01', $pollerId);
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTRENAMED$',
+            'host_macro_value' => 'old-value',
+            // Written by the legacy form, which this layer neither reads nor writes.
+            'description' => 'set by legacy',
+            'host_host_id' => $hostId,
+        ]);
+        $keptId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTDROPPED$',
+            'host_macro_value' => 'x',
+            'host_host_id' => $hostId,
+        ]);
 
         $this->repository->update($this->host(
             id: $hostId,
             name: 'server-01',
             pollerId: $pollerId,
-            macros: [new HostMacro(new HostMacroName('new'), 'new-value', isPassword: false)],
+            macros: [
+                new HostMacro(new HostMacroName('new_name'), 'new-value', isPassword: true, id: new HostMacroId($keptId)),
+                new HostMacro(new HostMacroName('added'), 'added-value', isPassword: false),
+            ],
         ));
 
-        /** @var list<array{host_macro_name: string, host_macro_value: string}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = ?',
-            [$hostId],
+        $rows = $this->macroRows($hostId);
+        self::assertCount(2, $rows);
+        // Updated under its id, its legacy description untouched.
+        self::assertSame(
+            ['host_macro_id' => $keptId, 'host_macro_name' => '$_HOSTNEW_NAME$', 'host_macro_value' => 'new-value', 'is_password' => 1, 'description' => 'set by legacy'],
+            $rows[0],
         );
-        self::assertCount(1, $rows);
-        self::assertSame('$_HOSTNEW$', $rows[0]['host_macro_name']);
-        self::assertSame('new-value', $rows[0]['host_macro_value']);
+        // A macro without id is inserted; the one no longer listed is deleted.
+        self::assertSame('$_HOSTADDED$', $rows[1]['host_macro_name']);
+        self::assertNull($rows[1]['is_password']);
+    }
+
+    public function testUpdateNeverWritesToAMacroRowTheHostDoesNotOwn(): void
+    {
+        // Templates keep their macros in the same table: an id that is not one of the host's own rows
+        // must never update that row, the host gets a row of its own instead.
+        $pollerId = $this->createPoller('Central');
+        $templateId = $this->createHostTemplate('generic-host');
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTSHARED$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+        $hostId = $this->createHost('server-01', $pollerId);
+
+        $this->repository->update($this->host(
+            id: $hostId,
+            name: 'server-01',
+            pollerId: $pollerId,
+            macros: [new HostMacro(new HostMacroName('shared'), 'host-value', isPassword: false, id: new HostMacroId($templateMacroId))],
+        ));
+
+        self::assertSame(
+            [['host_macro_id' => $templateMacroId, 'host_macro_name' => '$_HOSTSHARED$', 'host_macro_value' => 'tpl-value', 'is_password' => 0, 'description' => null]],
+            $this->macroRows($templateId),
+        );
+        $hostRows = $this->macroRows($hostId);
+        self::assertCount(1, $hostRows);
+        self::assertNotSame($templateMacroId, $hostRows[0]['host_macro_id']);
+        self::assertSame('host-value', $hostRows[0]['host_macro_value']);
     }
 
     public function testUpdateReplacesContactsAndContactGroups(): void
@@ -2071,6 +2115,30 @@ final class DbalHostRepositoryTest extends KernelTestCase
             'group_id' => $groupId,
             'host_id' => $hostId,
         ]);
+    }
+
+    /**
+     * @return list<array{host_macro_id: int, host_macro_name: string, host_macro_value: string, is_password: ?int, description: ?string}>
+     */
+    private function macroRows(int $hostId): array
+    {
+        /** @var list<array{host_macro_id: int|string, host_macro_name: string, host_macro_value: string, is_password: int|string|null, description: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description
+             FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$hostId],
+        );
+
+        return array_map(
+            static fn (array $row): array => [
+                'host_macro_id' => (int) $row['host_macro_id'],
+                'host_macro_name' => $row['host_macro_name'],
+                'host_macro_value' => $row['host_macro_value'],
+                'is_password' => $row['is_password'] !== null ? (int) $row['is_password'] : null,
+                'description' => $row['description'],
+            ],
+            $rows,
+        );
     }
 
     private function insertHostMacro(int $hostId, string $name, string $value, bool $isPassword, int $order): void

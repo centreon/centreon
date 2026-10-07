@@ -38,7 +38,9 @@ interface HostRepository
     /**
      * Full replace of an existing host and all its relations (PUT semantics): every column is
      * rewritten and every relation table (poller, host groups, categories/severity, templates,
-     * parents/children, macros, contacts/contact groups) is cleared and re-inserted from $host.
+     * parents/children, contacts/contact groups) is cleared and re-inserted from $host. Macros are
+     * written in place instead: a macro the host already stores keeps its id and is updated, any
+     * other is inserted as a new macro of the host, and a stored macro no longer listed is deleted.
      *
      * Precondition: $host carries the id of an existing *real* host — in practice one just loaded
      * via {@see findOne()} (which never returns a template) in the same transaction. The host-row

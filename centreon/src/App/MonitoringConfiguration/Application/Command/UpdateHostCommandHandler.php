@@ -23,20 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
@@ -61,29 +62,28 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroInheritanceResolver;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
-use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
-use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 
 /**
  * Full replace (PUT) of a single host. Deliberately duplicates {@see CreateHostCommandHandler}'s
- * reference-validation and vault/macro/inheritance logic rather than sharing it, so the create path
- * is never coupled to a change made for the update path. The update-specific parts are: loading the
- * target (404 when absent or out of the viewer's ACL scope), excluding the host itself from the name
- * and circular-inheritance checks, reusing (or deleting) the host's existing vault entry, and firing
+ * reference validation rather than sharing it, so the create path is never coupled to a change made
+ * for the update path; macros go through the same domain services. The update-specific parts are:
+ * loading the target (404 when absent or out of the viewer's ACL scope), excluding the host itself
+ * from the name and circular-inheritance checks, resolving the submitted macros against the ones the
+ * host already owns, reusing (or releasing) the host's existing vault entry, and firing
  * {@see HostUpdated} carrying the previous poller so both it and the new one are flagged.
  */
 #[AsCommandHandler]
@@ -101,12 +101,12 @@ final readonly class UpdateHostCommandHandler
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
-        private InheritedHostMacroRepository $inheritedHostMacroRepository,
-        private HostMacroInheritanceResolver $hostMacroInheritanceResolver,
+        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
+        private HostMacroChangesResolver $hostMacroChangesResolver,
+        private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private OptionRepository $optionRepository,
         private ResourceAccessRepository $resourceAccessRepository,
         private VaultInterface $vault,
-        private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
     ) {
     }
@@ -165,12 +165,7 @@ final readonly class UpdateHostCommandHandler
             ? $this->extractVaultUuid($snmpCommunity->value)
             : $existingVaultUuid;
 
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
-
-        // Whether this update leaves the host's existing vault entry orphaned (no secret survives):
-        // the purge itself is deferred to after the commit (see below), never done here, so a
-        // rollback can never destroy a still-referenced secret.
-        $orphansVaultEntry = $this->updateOrphansVaultEntry($existingVaultUuid, $snmpCommunity, $checkOptions);
+        $checkOptions = $this->prepareCheckOptions($command, $existingHost, $vaultUuid);
 
         // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
         // categories and severity are ACL-scoped (asserted above), so a restricted viewer never sees
@@ -254,11 +249,12 @@ final readonly class UpdateHostCommandHandler
             $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId, loggable: false));
         }
 
-        // Deferred (post-commit) purge of the now-orphaned vault entry: the pre-update host still
-        // references it, so the handler resolves the right uuid from it, and a failed/rolled-back
-        // update never deletes a live secret.
-        if ($orphansVaultEntry) {
-            $this->eventBus->fire(new HostVaultPurgeRequested($existingHost));
+        // Deferred (post-commit) purge of the vault entry this update left without any secret: the
+        // pre-update host still references it, so the handler resolves the right uuid from it, and a
+        // failed/rolled-back update never deletes a live secret. Best effort: the save succeeded, and
+        // an orphan entry is harmless.
+        if ($this->vault->isEnabled() && $host->releasesVaultEntryOf($existingHost, $this->vault)) {
+            $this->eventBus->fire(new HostVaultPurgeRequested($existingHost, bestEffort: true));
         }
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
@@ -374,6 +370,7 @@ final readonly class UpdateHostCommandHandler
         if ($this->macroSignature($before) !== $this->macroSignature($after)) {
             return true;
         }
+
         return $this->contactSignature($before) !== $this->contactSignature($after);
     }
 
@@ -403,7 +400,6 @@ final readonly class UpdateHostCommandHandler
                 $macro->name->value,
                 $macro->value,
                 $macro->isPassword ? '1' : '0',
-                $macro->description ?? '',
             ]),
             $host->checkOptions->macros,
         );
@@ -428,81 +424,24 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * Whether the update leaves the host's existing vault entry with no secret at all — neither an
-     * SNMP community nor a password macro reference — so it should be purged. Only meaningful when a
-     * vault is enabled and the host already had an entry. The purge itself is deferred to after the
-     * commit (via {@see HostVaultPurgeRequested}), so this is a pure predicate with no side effect.
-     */
-    private function updateOrphansVaultEntry(?string $existingVaultUuid, ?SnmpCommunity $snmpCommunity, CheckOptions $checkOptions): bool
-    {
-        if ($existingVaultUuid === null || ! $this->vault->isEnabled()) {
-            return false;
-        }
-
-        $hasSnmpSecret = $snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($snmpCommunity->value);
-        $hasPasswordMacro = array_any(
-            $checkOptions->macros,
-            fn (HostMacro $macro): bool => $macro->isPassword && $this->vault->isVaultPath($macro->value),
-        );
-
-        return ! $hasSnmpSecret && ! $hasPasswordMacro;
-    }
-
-    /**
-     * @param Collection<HostTemplateId> $templateIds
-     * @param ?string $vaultUuid the vault entry to reuse for the password macros (the SNMP community's,
-     *                           or the host's existing one), or null when there is none
-     */
-    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds, ?string $vaultUuid): CheckOptions
-    {
-        $inherited = $this->inheritedHostMacroRepository->findInheritedMacros(
-            $templateIds,
-            $checkOptions->checkCommandId,
-        )->toArray();
-        $macros = $this->hostMacroInheritanceResolver->keepOverridesOnly($checkOptions->macros, $inherited);
-        $macros = $this->vaultizePasswordMacros($macros, $vaultUuid);
-
-        return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
-    }
-
-    /**
-     * @param list<HostMacro> $macros
-     * @param ?string $vaultUuid the entry to reuse, or null to mint a fresh one
+     * Resolves the submitted macros by id + parent against the macros the host owns and those it
+     * inherits (from its templates or its check command): a direct macro is changed in place, a
+     * changed inherited macro becomes a new direct macro of the host (the inherited one is left
+     * untouched), and one that merely repeats an inherited macro is dropped. Then moves every
+     * password macro under the host's own vault entry, leaving a `secret::` reference in its place,
+     * and removes the keys no macro references any more, before the host is persisted.
      *
-     * @return list<HostMacro>
+     * @param ?string $vaultUuid the host's vault entry (its SNMP community's, or the existing one), or
+     *                           null when there is none, or the vault is off
      */
-    private function vaultizePasswordMacros(array $macros, ?string $vaultUuid): array
+    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, ?string $vaultUuid): CheckOptions
     {
-        $hasPasswordMacro = array_any($macros, static fn (HostMacro $macro): bool => $macro->isPassword);
-        if (! $hasPasswordMacro) {
-            return $macros;
-        }
+        $current = $existingHost->checkOptions->macros;
+        $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId);
+        $macros = $this->hostMacroChangesResolver->resolve($command->macroChanges, $current, $inherited);
+        $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, $current, $vaultUuid);
 
-        if (! $this->vault->isEnabled()) {
-            return $macros;
-        }
-
-        $credentials = VaultCredentials::fromArray([]);
-        foreach ($macros as $macro) {
-            if ($macro->isPassword) {
-                // Vault key convention matches legacy: `_HOST<NAME>`, without the `$...$` wrapper.
-                $credentials = $credentials->with('_HOST' . $macro->name->value, $macro->value);
-            }
-        }
-
-        $vaultedValues = $this->vaultCredentialWriter->write(VaultPathEnum::MonitoringHosts, $credentials, $vaultUuid);
-
-        return array_map(
-            static function (HostMacro $macro) use ($vaultedValues): HostMacro {
-                $key = '_HOST' . $macro->name->value;
-                if ($macro->isPassword && isset($vaultedValues[$key])) {
-                    return new HostMacro($macro->name, $vaultedValues[$key], true, $macro->description);
-                }
-
-                return $macro;
-            },
-            $macros,
-        );
+        return new CheckOptions($command->checkOptions->checkCommandId, $command->checkOptions->args, $macros);
     }
 
     /**

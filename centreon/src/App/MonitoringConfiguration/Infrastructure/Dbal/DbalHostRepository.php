@@ -26,6 +26,8 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -288,20 +290,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
 
         foreach ($host->checkOptions->macros as $macro) {
-            $this->connection->createQueryBuilder()
-                ->insert('on_demand_macro_host')
-                ->values([
-                    'host_macro_name' => ':macroName',
-                    'host_macro_value' => ':macroValue',
-                    'is_password' => ':isPassword',
-                    'host_host_id' => ':hostId',
-                ])
-                ->setParameter('macroName', $macro->name->toStorageName())
-                ->setParameter('macroValue', $macro->value)
-                // Legacy stores 1 for a password macro and NULL otherwise, never 0.
-                ->setParameter('isPassword', $macro->isPassword ? 1 : null)
-                ->setParameter('hostId', $hostId)
-                ->executeStatement();
+            $this->insertMacro($hostId, $macro);
         }
 
         if ($notifications instanceof Notifications) {
@@ -447,8 +436,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         );
 
         // Every relation is replaced wholesale: clear this host's rows, then re-insert from $host,
-        // exactly as add() would write them for a new host.
+        // exactly as add() would write them for a new host. Macros are the exception, written in
+        // place (see saveMacros()).
         $this->clearRelations($hostId);
+        $this->saveMacros($hostId, $host->checkOptions->macros);
 
         $this->connection->createQueryBuilder()
             ->insert('ns_host_relation')
@@ -492,28 +483,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         foreach ($host->childHostIds as $childHostId) {
             $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
-        }
-
-        foreach ($host->checkOptions->macros as $macroOrder => $macro) {
-            $this->connection->createQueryBuilder()
-                ->insert('on_demand_macro_host')
-                ->values([
-                    'host_macro_name' => ':macroName',
-                    'host_macro_value' => ':macroValue',
-                    'is_password' => ':isPassword',
-                    'description' => ':description',
-                    'host_host_id' => ':hostId',
-                    'macro_order' => ':macroOrder',
-                ])
-                ->setParameter('macroName', $macro->name->toStorageName())
-                ->setParameter('macroValue', $macro->value)
-                // Legacy stores 1 for a password macro and NULL otherwise, never 0.
-                ->setParameter('isPassword', $macro->isPassword ? 1 : null)
-                // Legacy coerces a missing description to '' (never NULL) in this column.
-                ->setParameter('description', $macro->description ?? '')
-                ->setParameter('hostId', $hostId)
-                ->setParameter('macroOrder', $macroOrder)
-                ->executeStatement();
         }
 
         if ($notifications instanceof Notifications) {
@@ -830,7 +799,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     /**
      * Removes every relation row this host owns, so update() can re-insert them from scratch
      * (full-replace semantics). Parents and children both live in host_hostparent_relation, on
-     * either side of the id.
+     * either side of the id. Macros are not cleared: saveMacros() writes them in place.
      */
     private function clearRelations(int $hostId): void
     {
@@ -839,7 +808,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'hostgroup_relation' => 'host_host_id',
             'hostcategories_relation' => 'host_host_id',
             'host_template_relation' => 'host_host_id',
-            'on_demand_macro_host' => 'host_host_id',
             'contact_host_relation' => 'host_host_id',
             'contactgroup_host_relation' => 'host_host_id',
         ];
@@ -855,6 +823,86 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $qb = $this->connection->createQueryBuilder();
         $qb->delete('host_hostparent_relation')
             ->where($qb->expr()->or('host_host_id = :hostId', 'host_parent_hp_id = :hostId'))
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    /**
+     * Writes the host's direct macros in place, so a macro keeps its id (a client addresses it by id
+     * on the next write) and the columns this layer does not handle (description, order) survive:
+     * a macro the host already stores is updated, any other one is inserted, and a stored macro no
+     * longer listed is deleted.
+     *
+     * Only the host's own rows are ever updated or deleted: an id is matched against the rows stored
+     * for this host, and every statement is scoped to it. Templates keep their macros in the same
+     * table, so an id taken from an inherited macro must never reach another row: a macro carrying
+     * an id this host does not store is inserted as a new row of the host instead.
+     *
+     * @param array<int, HostMacro> $macros
+     */
+    private function saveMacros(int $hostId, array $macros): void
+    {
+        $storedIds = array_map(
+            static fn (array $row): int => (int) $row['id'],
+            $this->findMacroRows($hostId),
+        );
+
+        $keptIds = [];
+        foreach ($macros as $macro) {
+            if ($macro->id instanceof HostMacroId && in_array($macro->id->value, $storedIds, true)) {
+                $this->updateMacro($hostId, $macro->id->value, $macro);
+                $keptIds[] = $macro->id->value;
+
+                continue;
+            }
+
+            $this->insertMacro($hostId, $macro);
+        }
+
+        $removedIds = array_values(array_diff($storedIds, $keptIds));
+        if ($removedIds === []) {
+            return;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete('on_demand_macro_host')
+            ->where($qb->expr()->eq('host_host_id', $qb->createNamedParameter($hostId, ParameterType::INTEGER)))
+            ->andWhere($qb->expr()->in('host_macro_id', $qb->createNamedParameter($removedIds, ArrayParameterType::INTEGER)))
+            ->executeStatement();
+    }
+
+    private function insertMacro(int $hostId, HostMacro $macro): void
+    {
+        $this->connection->createQueryBuilder()
+            ->insert('on_demand_macro_host')
+            ->values([
+                'host_macro_name' => ':macroName',
+                'host_macro_value' => ':macroValue',
+                'is_password' => ':isPassword',
+                'host_host_id' => ':hostId',
+            ])
+            ->setParameter('macroName', $macro->name->toStorageName())
+            ->setParameter('macroValue', $macro->value)
+            // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+            ->setParameter('isPassword', $macro->isPassword ? 1 : null)
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    private function updateMacro(int $hostId, int $macroId, HostMacro $macro): void
+    {
+        $this->connection->createQueryBuilder()
+            ->update('on_demand_macro_host')
+            ->set('host_macro_name', ':macroName')
+            ->set('host_macro_value', ':macroValue')
+            ->set('is_password', ':isPassword')
+            ->where('host_macro_id = :macroId')
+            ->andWhere('host_host_id = :hostId')
+            ->setParameter('macroName', $macro->name->toStorageName())
+            ->setParameter('macroValue', $macro->value)
+            // Legacy stores 1 for a password macro and NULL otherwise, never 0.
+            ->setParameter('isPassword', $macro->isPassword ? 1 : null)
+            ->setParameter('macroId', $macroId, ParameterType::INTEGER)
             ->setParameter('hostId', $hostId, ParameterType::INTEGER)
             ->executeStatement();
     }

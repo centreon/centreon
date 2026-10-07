@@ -33,7 +33,9 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
@@ -398,6 +400,176 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame([], $dataProcessing['event_handler_args']);
     }
 
+    public function testItUpdatesADirectMacroInPlaceKeepingItsIdAndDescription(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        // A description written by the legacy form, which this API neither reads nor writes.
+        $macroId = $this->insertMacro($hostId, '$_HOSTOLD$', 'v1', description: 'set by legacy');
+
+        $response = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [
+                    ['id' => $macroId, 'parent' => null, 'name' => 'new', 'value' => 'v2', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(
+            [['host_macro_id' => $macroId, 'host_macro_name' => '$_HOSTNEW$', 'host_macro_value' => 'v2', 'description' => 'set by legacy']],
+            $this->macroRows($hostId),
+        );
+        /** @var array{check_options: array{macros: list<array{id: ?int, parent: ?string}>}} $payload */
+        $payload = $response->toArray();
+        self::assertSame([['id' => $macroId, 'parent' => null]], array_map(
+            static fn (array $macro): array => ['id' => $macro['id'], 'parent' => $macro['parent']],
+            $payload['check_options']['macros'],
+        ));
+    }
+
+    public function testItDeletesADirectMacroNoLongerSubmitted(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $keptId = $this->insertMacro($hostId, '$_HOSTKEPT$', 'a');
+        $this->insertMacro($hostId, '$_HOSTDROPPED$', 'b');
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [
+                    ['id' => $keptId, 'parent' => null, 'name' => 'kept', 'value' => 'a', 'is_password' => false],
+                    ['name' => 'added', 'value' => 'c', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        $rows = $this->macroRows($hostId);
+        self::assertSame(['$_HOSTKEPT$', '$_HOSTADDED$'], array_column($rows, 'host_macro_name'));
+        self::assertSame($keptId, $rows[0]['host_macro_id']);
+    }
+
+    public function testItKeepsAStoredPasswordWhenItsValueIsNotResent(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $macroId = $this->insertMacro($hostId, '$_HOSTPWD$', 'stored-secret', isPassword: true);
+
+        $response = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [
+                    ['id' => $macroId, 'parent' => null, 'name' => 'pwd', 'value' => null, 'is_password' => true],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame('stored-secret', $this->macroRows($hostId)[0]['host_macro_value']);
+        /** @var array{check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        self::assertArrayNotHasKey('value', $payload['check_options']['macros'][0]);
+    }
+
+    public function testAChangedInheritedMacroBecomesADirectMacroWithoutTouchingTheTemplate(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $templateMacroId = $this->insertMacro($templateId, '$_HOSTSHARED$', 'tpl-value');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $response = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    // Every part changed: name, value and password flag.
+                    ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'renamed', 'value' => 'host-value', 'is_password' => true],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        // The template's row is left exactly as it was...
+        self::assertSame(
+            [['host_macro_id' => $templateMacroId, 'host_macro_name' => '$_HOSTSHARED$', 'host_macro_value' => 'tpl-value', 'description' => null]],
+            $this->macroRows($templateId),
+        );
+        // ...and the host got a row of its own.
+        $hostRows = $this->macroRows($hostId);
+        self::assertCount(1, $hostRows);
+        self::assertNotSame($templateMacroId, $hostRows[0]['host_macro_id']);
+        self::assertSame('$_HOSTRENAMED$', $hostRows[0]['host_macro_name']);
+
+        // The response lists the host's own macro, then the template macro it still inherits.
+        /** @var array{check_options: array{macros: list<array{id: ?int, name: string, parent: ?string}>}} $payload */
+        $payload = $response->toArray();
+        self::assertSame(
+            [
+                ['id' => $hostRows[0]['host_macro_id'], 'name' => 'RENAMED', 'parent' => null],
+                ['id' => $templateMacroId, 'name' => 'SHARED', 'parent' => 'template'],
+            ],
+            array_map(
+                static fn (array $macro): array => ['id' => $macro['id'], 'name' => $macro['name'], 'parent' => $macro['parent']],
+                $payload['check_options']['macros'],
+            ),
+        );
+    }
+
+    public function testAnInheritedMacroIdSentAsADirectOneIsRejected(): void
+    {
+        // A template's macro lives in the same table as the host's: its id must never be taken for
+        // one of the host's own macros.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $templateMacroId = $this->insertMacro($templateId, '$_HOSTSHARED$', 'tpl-value');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => $templateMacroId, 'parent' => null, 'name' => 'shared', 'value' => 'host-value', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame('tpl-value', $this->macroRows($templateId)[0]['host_macro_value']);
+        self::assertSame([], $this->macroRows($hostId));
+    }
+
+    public function testItRejectsAVaultReferenceAsAMacroValue(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [[
+                    'name' => 'pwd',
+                    'value' => 'secret::hashicorp_vault::monitoring/hosts/other-uuid::_HOSTPWD',
+                    'is_password' => true,
+                ]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     private function forceCloudPlatform(): void
     {
         $this->forcePlatform(isCloudPlatform: true);
@@ -444,6 +616,10 @@ final class PutHostProcessorTest extends ApiTestCase
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var HostMacroTransformer $macroTransformer */
+        $macroTransformer = $container->get(HostMacroTransformer::class);
+        /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
+        $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
 
         $container->set(
             PutHostProcessor::class,
@@ -463,6 +639,8 @@ final class PutHostProcessorTest extends ApiTestCase
                 $notificationsTransformer,
                 $mediaUrlGenerator,
                 $timePeriodRepository,
+                $macroTransformer,
+                $inheritedHostMacrosResolver,
                 $isCloudPlatform,
             ),
         );
@@ -518,6 +696,44 @@ final class PutHostProcessorTest extends ApiTestCase
             'host_host_id' => $childId,
             'host_parent_hp_id' => $parentId,
         ]);
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', ['host_name' => $name, 'host_register' => '0']);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertMacro(int $hostId, string $name, string $value, bool $isPassword = false, ?string $description = null): int
+    {
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => $name,
+            'host_macro_value' => $value,
+            'is_password' => $isPassword ? 1 : null,
+            'description' => $description,
+            'host_host_id' => $hostId,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return list<array{host_macro_id: int, host_macro_name: string, host_macro_value: string, description: ?string}>
+     */
+    private function macroRows(int $hostId): array
+    {
+        /** @var list<array{host_macro_id: int|string, host_macro_name: string, host_macro_value: string, description: ?string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_id, host_macro_name, host_macro_value, description
+                FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$hostId],
+        );
+
+        return array_map(
+            static fn (array $row): array => ['host_macro_id' => (int) $row['host_macro_id']] + $row,
+            $rows,
+        );
     }
 
     private function endpoint(int $id): string
