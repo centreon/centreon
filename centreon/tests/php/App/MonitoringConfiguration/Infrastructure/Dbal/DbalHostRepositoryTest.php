@@ -551,6 +551,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
             'host_notification_interval' => 15,
         ], ['host_id' => $hostId]);
         $this->connection->update('extended_host_information', ['ehi_notes' => 'my note'], ['host_host_id' => $hostId]);
+
         $columns = 'host_snmp_community, host_snmp_version, host_max_check_attempts, host_check_interval,
             command_command_id, command_command_id_arg1, host_comment, host_freshness_threshold,
             host_notifications_enabled, host_notification_interval';
