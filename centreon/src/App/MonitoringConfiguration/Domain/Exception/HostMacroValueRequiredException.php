@@ -37,6 +37,6 @@ final class HostMacroValueRequiredException extends AggregateConflictException
      */
     public function __construct(array $names)
     {
-        parent::__construct(['checkOptions' => $names], 'Only an existing password macro can keep its stored value.');
+        parent::__construct(['checkOptions' => $names], 'A value is required: these macros are not stored as passwords, so their value cannot be kept.');
     }
 }

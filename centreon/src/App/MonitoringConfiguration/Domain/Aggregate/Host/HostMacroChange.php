@@ -45,8 +45,8 @@ final readonly class HostMacroChange
         public ?HostMacroParentEnum $parent = null,
     ) {
         if ($value === null) {
-            Assert::notNull($id, 'A new macro needs a value.');
-            Assert::true($isPassword, 'Only a password macro can keep its stored value.');
+            Assert::notNull($id, 'A null value keeps the stored value: a new macro (without id) must have a value.');
+            Assert::true($isPassword, 'A null value keeps the stored value: only a password macro can do so, any other macro must have a value.');
         } else {
             Assert::maxLength($value, HostMacro::MAX_VALUE_LENGTH);
         }
