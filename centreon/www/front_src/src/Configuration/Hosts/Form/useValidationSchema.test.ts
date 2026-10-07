@@ -2,6 +2,8 @@ import type { ValidationError } from 'yup';
 
 import {
   labelInvalidAddress,
+  labelInvalidGeographicCoordinates,
+  labelMustBeAtMostCharacters,
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
   labelNameContainsForbiddenCharacters,
@@ -273,6 +275,52 @@ describe('Host form validation', () => {
       expect(errorFor('snmpCommunity', '')).toBeNull();
       expect(errorFor('snmpCommunity', 'a'.repeat(255))).toBeNull();
       expect(errorFor('snmpCommunity', 'a'.repeat(256))).not.toBeNull();
+    });
+  });
+
+  describe('Host extended infos', () => {
+    const extendedInfosError = (
+      field: string,
+      value: unknown
+    ): string | null => {
+      try {
+        schemaFor(false).validateSyncAt(`extendedInfos.${field}`, {
+          extendedInfos: { [field]: value }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it.each([
+      ['nothing', '', null],
+      ['a point', '48.8566,2.3522', null],
+      ['spaces around the parts', ' -33.8688 , 151.2093 ', null],
+      ['the bounds', '-90,180', null],
+      // The server truncates them to six before checking.
+      ['more than six decimals', '48.85661234,2.35221234', null],
+      ['a latitude beyond 90', '90.5,2', labelInvalidGeographicCoordinates],
+      ['a longitude beyond 180', '45,180.1', labelInvalidGeographicCoordinates],
+      ['a single number', '48.8566', labelInvalidGeographicCoordinates],
+      ['three parts', '1,2,3', labelInvalidGeographicCoordinates],
+      ['words', 'Paris', labelInvalidGeographicCoordinates]
+    ])('reports geographic coordinates of %s', (_, value, expected) => {
+      expect(extendedInfosError('geoCoordinates', value)).toEqual(expected);
+    });
+
+    it.each([
+      ['note', 512],
+      ['noteUrl', 2048],
+      ['actionUrl', 2048],
+      ['altIcon', 200],
+      ['comment', 65535]
+    ])('refuses a value of %s longer than the API stores', (field, max) => {
+      expect(extendedInfosError(field, 'a'.repeat(max))).toBeNull();
+      expect(extendedInfosError(field, 'a'.repeat(max + 1))).toEqual(
+        labelMustBeAtMostCharacters
+      );
     });
   });
 });

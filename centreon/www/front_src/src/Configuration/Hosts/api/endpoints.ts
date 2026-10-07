@@ -25,6 +25,9 @@ export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
 export const hostFormContactGroupsEndpoint =
   '/configuration/hosts/contact_groups';
 export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
+export const hostFormHostSeveritiesEndpoint =
+  '/configuration/hosts/host_severities';
+export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 
 export const timezonesEndpoint = '/configuration/timezones';
 
