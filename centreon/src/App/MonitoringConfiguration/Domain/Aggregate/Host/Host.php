@@ -184,18 +184,6 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         return null;
     }
 
-    private function hasSameExtendedInformationsAs(?ExtendedInformations $other): bool
-    {
-        return $this->extendedInformations instanceof ExtendedInformations && $other instanceof ExtendedInformations
-            ? $this->extendedInformations->equals($other)
-            : $this->extendedInformations === $other;
-    }
-
-    private function hasSameNotificationsAs(?Notifications $other): bool
-    {
-        return ($this->notifications ?? Notifications::default())->equals($other ?? Notifications::default());
-    }
-
     /**
      * Whether saving this host left the vault entry $before kept its secrets in without any secret:
      * $before referenced an entry and none of this host's vault-eligible fields (SNMP community,
@@ -207,6 +195,18 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         $uuid = $before->getVaultUuid($vault);
 
         return $uuid !== null && ! $this->referencesVaultEntry($uuid, $vault);
+    }
+
+    private function hasSameExtendedInformationsAs(?ExtendedInformations $other): bool
+    {
+        return $this->extendedInformations instanceof ExtendedInformations && $other instanceof ExtendedInformations
+            ? $this->extendedInformations->equals($other)
+            : $this->extendedInformations === $other;
+    }
+
+    private function hasSameNotificationsAs(?Notifications $other): bool
+    {
+        return ($this->notifications ?? Notifications::default())->equals($other ?? Notifications::default());
     }
 
     private function referencesVaultEntry(string $uuid, VaultInterface $vault): bool
