@@ -533,6 +533,28 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testUpdateOnAnUnknownIdWritesNothing(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $unknownId = $hostId + 1000;
+        $host = $this->findHost($hostId);
+        $this->setHostId($host, $unknownId);
+
+        $this->repository->update($host->with(
+            name: new HostName('ghost'),
+            extendedInformations: new ExtendedInformations(note: 'orphan'),
+        ));
+
+        /** @var int|string $hostCount */
+        $hostCount = $this->connection->fetchOne('SELECT COUNT(*) FROM host WHERE host_id = ?', [$unknownId]);
+        /** @var int|string $extendedInfoCount */
+        $extendedInfoCount = $this->connection->fetchOne('SELECT COUNT(*) FROM extended_host_information WHERE host_host_id = ?', [$unknownId]);
+        self::assertSame(0, (int) $hostCount);
+        self::assertSame(0, (int) $extendedInfoCount);
+        self::assertSame('server-01', $this->findHost($hostId)->name->value);
+    }
+
     public function testUpdateOfOneFieldKeepsEveryOtherFieldOfTheLoadedHost(): void
     {
         $pollerId = $this->createPoller('Central');

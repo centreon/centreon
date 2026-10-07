@@ -133,6 +133,10 @@ final class FakeHostRepository implements HostRepository
 
     public function update(Host $host): void
     {
+        if (! isset($this->hosts[$host->id()->value])) {
+            return;
+        }
+
         $this->updatedHosts[] = $host;
         $this->hosts[$host->id()->value] = $host;
     }

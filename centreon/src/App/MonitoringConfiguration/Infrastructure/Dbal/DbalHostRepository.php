@@ -678,7 +678,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
             ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
-            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
+            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value, ParameterType::INTEGER)
             ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
             ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
             ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
