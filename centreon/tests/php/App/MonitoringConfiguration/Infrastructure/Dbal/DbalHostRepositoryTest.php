@@ -436,6 +436,28 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testUpdateCreatesTheExtendedInformationRowWhenTheHostHasNone(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->connection->insert('host', [
+            'host_name' => 'no-extended-info-host',
+            'host_address' => '127.0.0.1',
+            'host_activate' => '1',
+            'host_register' => '1',
+        ]);
+        $hostId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('ns_host_relation', ['host_host_id' => $hostId, 'nagios_server_id' => $pollerId]);
+
+        $this->repository->update($this->findHost($hostId)->with(
+            extendedInformations: new ExtendedInformations(note: 'created on update'),
+        ));
+
+        self::assertSame(
+            ['created on update'],
+            $this->connection->fetchFirstColumn('SELECT ehi_notes FROM extended_host_information WHERE host_host_id = ?', [$hostId]),
+        );
+    }
+
     public function testUpdateClearsTheExtendedInformationsWithoutAddingARow(): void
     {
         $pollerId = $this->createPoller('Central');

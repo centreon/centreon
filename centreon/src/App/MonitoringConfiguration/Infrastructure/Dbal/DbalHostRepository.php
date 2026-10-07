@@ -634,22 +634,30 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         $extendedInformations = $host->extendedInformations;
 
-        // Keyed on the host id: the companion row is always inserted with the host (see add()).
-        $this->connection->createQueryBuilder()
-            ->update('extended_host_information')
-            ->set('ehi_notes_url', ':noteUrl')
-            ->set('ehi_notes', ':note')
-            ->set('ehi_action_url', ':actionUrl')
-            ->set('ehi_icon_image', ':iconId')
-            ->set('ehi_icon_image_alt', ':iconAlternative')
-            ->where('host_host_id = :hostId')
-            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
-            ->setParameter('note', $extendedInformations?->note)
-            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
-            ->setParameter('iconId', $extendedInformations?->iconId?->value, ParameterType::INTEGER)
-            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
-            ->setParameter('hostId', $host->id()->value, ParameterType::INTEGER)
-            ->executeStatement();
+        // `host_host_id` is unique: the row is created for a host that lacks it, updated otherwise.
+        // Raw SQL because the query builder has no ON DUPLICATE KEY.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO extended_host_information
+                    (host_host_id, ehi_notes_url, ehi_notes, ehi_action_url, ehi_icon_image, ehi_icon_image_alt)
+                VALUES (:hostId, :noteUrl, :note, :actionUrl, :iconId, :iconAlternative)
+                ON DUPLICATE KEY UPDATE
+                    ehi_notes_url = VALUES(ehi_notes_url),
+                    ehi_notes = VALUES(ehi_notes),
+                    ehi_action_url = VALUES(ehi_action_url),
+                    ehi_icon_image = VALUES(ehi_icon_image),
+                    ehi_icon_image_alt = VALUES(ehi_icon_image_alt)
+                SQL,
+            [
+                'hostId' => $host->id()->value,
+                'noteUrl' => $extendedInformations?->noteUrl,
+                'note' => $extendedInformations?->note,
+                'actionUrl' => $extendedInformations?->actionUrl,
+                'iconId' => $extendedInformations?->iconId?->value,
+                'iconAlternative' => $extendedInformations?->altIcon,
+            ],
+            ['hostId' => ParameterType::INTEGER, 'iconId' => ParameterType::INTEGER],
+        );
     }
 
     private function bindHostParameters(QueryBuilder $qb, Host $host): void
