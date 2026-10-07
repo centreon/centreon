@@ -26,7 +26,7 @@ type DashboardsQuickAccessMenuProps = {
 const DashboardsQuickAccessMenu = ({
   dashboard
 }: DashboardsQuickAccessMenuProps): ReactElement => {
-  const { dashboards } = useDashboardsQuickAccess();
+  const { dashboards, isLoading, loadMoreRef } = useDashboardsQuickAccess();
 
   const { createDashboard } = useDashboardConfig();
 
@@ -58,10 +58,12 @@ const DashboardsQuickAccessMenu = ({
       elements={dashboards}
       goBack={navigateToDashboardLibrary}
       isActive={(id) => equals(id, Number(dashboard?.id))}
+      isLoading={isLoading}
       labels={{
         create: labelCreateADashboard,
         goBack: labelDashboards
       }}
+      loadMoreRef={loadMoreRef}
       navigateToElement={navigateToDashboard}
     />
   );

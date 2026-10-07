@@ -1,38 +1,41 @@
-import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
+import { useInfiniteScrollListing } from '@centreon/ui';
+
+import { prop, uniqBy } from 'ramda';
 
 import { dashboardListDecoder } from '../../../api/decoders';
 import { dashboardsEndpoint } from '../../../api/endpoints';
-import { List } from '../../../api/meta.models';
-import { Dashboard, isDashboardList, resource } from '../../../api/models';
+import { Dashboard, resource } from '../../../api/models';
+import { quickAccessPageAtom } from './atoms';
 
 // The quick access menu must list every dashboard, independently of the
 // search, favorite filter and pagination applied on the dashboards listing.
-const quickAccessLimit = 1000;
+// The next page is loaded when the user scrolls to the bottom of the menu.
+const quickAccessLimit = 20;
 
 type UseDashboardsQuickAccess = {
-  dashboards: Array<Dashboard>;
+  dashboards: Array<Omit<Dashboard, 'refresh'>>;
+  isLoading: boolean;
+  loadMoreRef: (node: Element | null) => void;
 };
 
 const useDashboardsQuickAccess = (): UseDashboardsQuickAccess => {
-  const { data } = useFetchQuery<List<Omit<Dashboard, 'refresh'>>>({
+  const { elements, elementRef, isLoading } = useInfiniteScrollListing<
+    Omit<Dashboard, 'refresh'>
+  >({
     decoder: dashboardListDecoder,
-    getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: dashboardsEndpoint,
-        parameters: {
-          limit: quickAccessLimit,
-          page: 1,
-          sort: { name: 'asc' }
-        }
-      }),
-    getQueryKey: () => [resource.dashboards, 'quickAccess'],
-    queryOptions: {
-      suspense: false
-    }
+    endpoint: dashboardsEndpoint,
+    limit: quickAccessLimit,
+    pageAtom: quickAccessPageAtom,
+    parameters: { apiFormat: 'Standard', sort: { name: 'asc' } },
+    queryKeyName: resource.dashboards,
+    suspense: false
   });
 
   return {
-    dashboards: isDashboardList(data) ? data.result : []
+    // A refetch of an already loaded page appends its elements again
+    dashboards: uniqBy(prop('id'), elements),
+    isLoading,
+    loadMoreRef: elementRef
   };
 };
 
