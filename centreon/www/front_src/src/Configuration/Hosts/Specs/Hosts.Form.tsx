@@ -263,10 +263,16 @@ export default () => {
         'host-form-child-hosts',
         'host-form-notifications-contacts',
         'host-form-notifications-contact-groups',
-        'host-form-notifications-timeperiod'
+        'host-form-notifications-timeperiod',
+        'host-form-check-options-command',
+        'host-form-scheduling-options-checkPeriod'
       ].forEach((testId) => {
         cy.findByTestId(testId).should('be.disabled');
       });
+      // Host 0 has a command, so only read-only mode keeps its args disabled.
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.disabled');
       cy.findAllByTestId('host-form-notifications-interval')
         .eq(1)
         .should('be.disabled');
@@ -986,6 +992,9 @@ export default () => {
         });
         expect(request.body.data_processing).to.deep.equals(
           untouchedDataProcessingPayload
+        );
+        expect(request.body.check_options).to.deep.equals(
+          untouchedCheckOptionsPayload
         );
       });
     });

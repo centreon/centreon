@@ -93,7 +93,6 @@ interface SchedulingOptionsValues {
 // The API's `check_options`, built here alone: the host's macros belong to it
 // too.
 interface CheckOptionsValues {
-  // Typed as legacy shows them, `!arg1!arg2`; the API takes the list.
   args: string;
   command: NamedEntity | null;
 }

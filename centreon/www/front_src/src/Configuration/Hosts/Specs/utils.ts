@@ -151,7 +151,7 @@ export const getCommandsResponse = () =>
     { id: 9, name: 'check-host-alive' }
   ]);
 
-// What a create sends when no check command was picked, on both platforms.
+// What a save sends when no check command is set, on both platforms.
 export const untouchedCheckOptionsPayload = {
   args: [],
   command_id: null
