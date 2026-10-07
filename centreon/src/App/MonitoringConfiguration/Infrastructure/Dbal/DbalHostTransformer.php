@@ -106,6 +106,25 @@ final readonly class DbalHostTransformer implements TransformerInterface
     }
 
     /**
+     * Also used by {@see DbalHostRepository::findMacros()}, which reads the same rows without the host.
+     *
+     * @param array{id: int|string, name: string, value: string, is_password: string|int|null} $row
+     */
+    public static function createMacro(array $row): HostMacro
+    {
+        // Stored as the full engine form ($_HOST<NAME>$, see HostMacroName::toStorageName()); strip
+        // the '$_HOST' prefix and trailing '$' to get back the short name the VO's constructor expects.
+        $shortName = mb_substr($row['name'], 6, -1);
+
+        return new HostMacro(
+            name: new HostMacroName($shortName),
+            value: $row['value'],
+            isPassword: (bool) $row['is_password'],
+            id: new HostMacroId((int) $row['id']),
+        );
+    }
+
+    /**
      * @template T of AggregateRootId
      *
      * @param class-string<T> $class
@@ -210,24 +229,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
         return new CheckOptions(
             checkCommandId: isset($from['check_command_id']) ? new CommandId((int) $from['check_command_id']) : null,
             args: CommandArgumentsFormatter::parse($from['check_command_args'] ?? null),
-            macros: array_map($this->createMacro(...), $from['macros'] ?? []),
-        );
-    }
-
-    /**
-     * @param array{id: int|string, name: string, value: string, is_password: string|int|null} $row
-     */
-    private function createMacro(array $row): HostMacro
-    {
-        // Stored as the full engine form ($_HOST<NAME>$, see HostMacroName::toStorageName()); strip
-        // the '$_HOST' prefix and trailing '$' to get back the short name the VO's constructor expects.
-        $shortName = mb_substr($row['name'], 6, -1);
-
-        return new HostMacro(
-            name: new HostMacroName($shortName),
-            value: $row['value'],
-            isPassword: (bool) $row['is_password'],
-            id: new HostMacroId((int) $row['id']),
+            macros: array_map(self::createMacro(...), $from['macros'] ?? []),
         );
     }
 }

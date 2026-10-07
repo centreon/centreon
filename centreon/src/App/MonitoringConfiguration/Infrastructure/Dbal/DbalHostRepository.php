@@ -405,6 +405,11 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return $this->transformer->transform($row);
     }
 
+    public function findMacros(HostId $id): array
+    {
+        return array_map(DbalHostTransformer::createMacro(...), $this->findMacroRows($id->value));
+    }
+
     public function remove(Host $host): void
     {
         $hostId = $host->id()->value;
