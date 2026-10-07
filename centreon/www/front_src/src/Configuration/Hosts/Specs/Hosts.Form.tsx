@@ -155,7 +155,6 @@ export default () => {
           alias: 'alias of host 0 as the detail endpoint spells it',
           category_ids: [4],
           child_host_ids: [2],
-          // The arguments go back as the list they came as.
           data_processing: {
             acknowledgment_timeout: 15,
             check_freshness: 'true',
@@ -717,7 +716,6 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
-          // The onPrem-only fields are refused on cloud.
           data_processing: {
             check_freshness: 'use_default',
             event_handler_command_id: null,
@@ -950,6 +948,9 @@ export default () => {
           snmp_version: null,
           timezone_id: null
         });
+        expect(request.body.data_processing).to.deep.equals(
+          untouchedDataProcessingPayload
+        );
       });
     });
 
@@ -1345,7 +1346,6 @@ export default () => {
       cy.findByTestId(
         'host-form-data-processing-flapDetectionEnabled-true'
       ).should('have.attr', 'aria-pressed', 'true');
-      // Left out of the response, so still empty.
       cy.findAllByTestId('host-form-data-processing-lowFlapThreshold')
         .eq(1)
         .should('have.value', '');
@@ -1359,7 +1359,6 @@ export default () => {
         'have.value',
         'restart-httpd'
       );
-      // The list the API returns, written the way legacy writes it.
       cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
         .eq(1)
         .should('have.value', '!80!graceful');
@@ -1378,7 +1377,6 @@ export default () => {
       cy.findByTestId('host-form-poller').click();
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
-      // Default is preselected, and is not No.
       cy.findByTestId(
         'host-form-data-processing-checkFreshness-use_default'
       ).should('have.attr', 'aria-pressed', 'true');
@@ -1403,8 +1401,6 @@ export default () => {
       ).click();
 
       cy.findByTestId('host-form-data-processing-eventHandler').click();
-      // No host-scoped command selector exists; this one is on API Platform
-      // and, as legacy, offers active commands only.
       cy.waitForRequest('@getFormCommands').then(({ request }) => {
         expect(request.url.pathname).to.contain('/api/configuration/commands');
         expect(request.url.pathname).to.not.contain('/api/latest');
@@ -1412,7 +1408,6 @@ export default () => {
       });
       cy.get('.MuiAutocomplete-popper').contains('restart-httpd').click();
 
-      // The leading `!` is optional.
       cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
         .eq(1)
         .type('80!!graceful');
@@ -1477,6 +1472,45 @@ export default () => {
         cy.findByTestId(`host-form-data-processing-${field}`).should(
           'not.exist'
         );
+      });
+    });
+
+    it('opens and saves back the data processing settings of a cloud host', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 2').click();
+
+      cy.waitForRequest('@getHost2');
+
+      cy.findByTestId('host-form-data-processing-checkFreshness-false').should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('have.value', '60');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-true'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-eventHandler').should(
+        'have.value',
+        ''
+      );
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost2').then(({ request }) => {
+        expect(request.body.data_processing).to.deep.equals({
+          check_freshness: 'false',
+          event_handler_command_id: null,
+          event_handler_enabled: 'true',
+          freshness_threshold: 60
+        });
       });
     });
   });

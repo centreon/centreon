@@ -80,8 +80,6 @@ export const labelFlapping = 'Flapping';
 export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNone = 'None';
 
-// Data Processing, spelled as the legacy host form spells it, block titles
-// included.
 export const labelFreshnessControlOptions = 'Freshness Control options';
 export const labelCheckFreshness = 'Check Freshness';
 export const labelFreshnessThreshold = 'Freshness Threshold';

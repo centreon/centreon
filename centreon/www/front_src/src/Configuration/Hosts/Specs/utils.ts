@@ -149,8 +149,7 @@ export const getCommandsResponse = () =>
     { id: 8, name: 'notify-by-email' }
   ]);
 
-// What a create sends when nothing of the Data Processing section was touched,
-// onPrem; cloud sends the four fields it allows alone.
+// onPrem only: cloud sends the four fields it allows.
 export const untouchedDataProcessingPayload = {
   acknowledgment_timeout: null,
   check_freshness: 'use_default',

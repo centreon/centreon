@@ -121,6 +121,27 @@ const initialize = ({
     }
   });
 
+  // As a cloud platform answers: unset values and onPrem-only keys left out.
+  cy.interceptAPIRequest({
+    alias: 'getHost2',
+    method: Method.GET,
+    path: `**${getHostEndpoint({ id: 2 })}`,
+    response: {
+      address: '10.0.0.2',
+      categories: [],
+      child_hosts: [],
+      data_processing: {
+        check_freshness: 'false',
+        event_handler_enabled: 'true',
+        freshness_threshold: 60
+      },
+      groups: [{ id: 1, name: 'Linux servers' }],
+      name: 'host 2',
+      parent_hosts: [],
+      poller: { id: 1, name: 'Central' }
+    }
+  });
+
   cy.interceptAPIRequest({
     alias: 'createHost',
     method: Method.POST,
