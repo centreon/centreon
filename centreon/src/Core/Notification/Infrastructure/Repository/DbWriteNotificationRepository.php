@@ -144,9 +144,11 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
 
         $queryBinding = [];
         $bindedValues = [];
-        foreach (array_values($contactGroupIds) as $key => $contactgroupId) {
+        $key = 0;
+        foreach ($contactGroupIds as $contactgroupId) {
             $queryBinding[] = "(:notificationId, :contactgroupId_{$key})";
             $bindedValues[":contactgroupId_{$key}"] = $contactgroupId;
+            $key++;
         }
 
         $request = $this->translateDbName(

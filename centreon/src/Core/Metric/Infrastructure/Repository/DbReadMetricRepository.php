@@ -332,8 +332,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         $bindValues = [];
-        foreach (array_values($metricNames) as $index => $metricName) {
+        $index = 0;
+        foreach ($metricNames as $metricName) {
             $bindValues[':metric_name_' . $index] = $metricName;
+            $index++;
         }
 
         $metricNamesQuery = implode(', ', \array_keys($bindValues));
