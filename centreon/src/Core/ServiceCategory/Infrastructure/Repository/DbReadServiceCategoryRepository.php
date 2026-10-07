@@ -863,8 +863,10 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     private function hasAccessToAllHostGroups(array $accessGroupIds): bool
     {
         $bindValuesArray = [];
-        foreach (array_values($accessGroupIds) as $index => $accessGroupId) {
+        $index = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+            $index++;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
         $statement = $this->db->prepare($this->translateDbName(
@@ -906,8 +908,10 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     private function hasAccessToAllHosts(array $accessGroupIds): bool
     {
         $bindValuesArray = [];
-        foreach (array_values($accessGroupIds) as $index => $accessGroupId) {
+        $index = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+            $index++;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
         $statement = $this->db->prepare($this->translateDbName(
@@ -949,8 +953,10 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
     {
         $bindValuesArray = [];
-        foreach (array_values($accessGroupIds) as $index => $accessGroupId) {
+        $index = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
+            $index++;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
         $statement = $this->db->prepare($this->translateDbName(

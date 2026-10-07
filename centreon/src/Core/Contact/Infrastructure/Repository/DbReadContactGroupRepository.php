@@ -95,8 +95,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     public function existsInAccessGroups(int $contactGroupId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return false;

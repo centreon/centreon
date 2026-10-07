@@ -221,8 +221,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByContactGroups(array $contactGroupIds): array
     {
         $bind = [];
-        foreach (array_values($contactGroupIds) as $key => $contactGroupId) {
+        $key = 0;
+        foreach ($contactGroupIds as $contactGroupId) {
             $bind[":contactGroup_{$key}"] = $contactGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -252,8 +254,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return false;
@@ -418,8 +422,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByAccessGroups(array $accessGroupIds): array
     {
         $bind = [];
-        foreach (array_values($accessGroupIds) as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
