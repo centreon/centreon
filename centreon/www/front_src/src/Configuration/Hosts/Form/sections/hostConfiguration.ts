@@ -344,40 +344,6 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         type: InputType.Grid
       },
       {
-        fieldName: 'check-options',
-        grid: {
-          className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
-          columns: [
-            {
-              connectedAutocomplete: buildSelector({
-                customQueryParameters: [
-                  { name: 'type[]', value: 'Check' },
-                  { name: 'is_activated', value: true }
-                ],
-                endpoint: commandsEndpoint,
-                getOptionLabel: (option) => (option as SelectEntry)?.name,
-                queryKey: 'host-form-check-command'
-              }),
-              dataTestId: 'host-form-check-options-command',
-              fieldName: 'checkOptions.command',
-              label: t(labelCheckCommand),
-              type: InputType.SingleConnectedAutocomplete
-            },
-            {
-              dataTestId: 'host-form-check-options-args',
-              fieldName: 'checkOptions.args',
-              // Arguments without a command are refused.
-              getDisabled: (values) => !values.checkOptions?.command,
-              label: t(labelArgs),
-              text: { placeholder: '!arg1!arg2' },
-              type: InputType.Text
-            }
-          ]
-        },
-        label: 'host-form-check-options',
-        type: InputType.Grid
-      },
-      {
         fieldName: 'monitoring-layout',
         grid: {
           className: 'grid-cols-1 gap-x-8 @[1100px]:grid-cols-2',
@@ -470,6 +436,43 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           ]
         },
         label: 'host-form-monitoring-layout',
+        type: InputType.Grid
+      },
+      // Below the SNMP community, not above as in the Figma: password managers
+      // pair the community with the text field before it and would type into
+      // the check command.
+      {
+        fieldName: 'check-options',
+        grid: {
+          className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
+          columns: [
+            {
+              connectedAutocomplete: buildSelector({
+                customQueryParameters: [
+                  { name: 'type[]', value: 'Check' },
+                  { name: 'is_activated', value: true }
+                ],
+                endpoint: commandsEndpoint,
+                getOptionLabel: (option) => (option as SelectEntry)?.name,
+                queryKey: 'host-form-check-command'
+              }),
+              dataTestId: 'host-form-check-options-command',
+              fieldName: 'checkOptions.command',
+              label: t(labelCheckCommand),
+              type: InputType.SingleConnectedAutocomplete
+            },
+            {
+              dataTestId: 'host-form-check-options-args',
+              fieldName: 'checkOptions.args',
+              // Arguments without a command are refused.
+              getDisabled: (values) => !values.checkOptions?.command,
+              label: t(labelArgs),
+              text: { placeholder: '!arg1!arg2' },
+              type: InputType.Text
+            }
+          ]
+        },
+        label: 'host-form-check-options',
         type: InputType.Grid
       }
     ];
