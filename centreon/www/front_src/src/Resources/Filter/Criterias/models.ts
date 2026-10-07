@@ -323,18 +323,18 @@ const authorizedFilterByModules = {
 
 export {
   authorizedFilterByModules,
-  unhandledState,
-  warningStatus,
-  downStatus,
-  criticalStatus,
-  unknownStatus,
   criteriaValueNameById,
+  criticalStatus,
+  downStatus,
+  hardStateType,
+  selectableCriterias,
   selectableResourceTypes,
   selectableStates,
-  selectableStatuses,
-  selectableCriterias,
   selectableStateTypes,
-  hardStateType
+  selectableStatuses,
+  unhandledState,
+  unknownStatus,
+  warningStatus
 };
 
 export enum Action {

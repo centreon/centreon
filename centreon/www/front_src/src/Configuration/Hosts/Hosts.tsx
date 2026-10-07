@@ -4,6 +4,7 @@ import {
 } from '@mui/icons-material';
 
 import {
+  isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -14,14 +15,14 @@ import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
 import { type Actions, ResourceType } from '../models';
-import { useDeployServices } from './api';
+import { useDefaultPoller, useDeployServices } from './api';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
+import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
 import type { Filters } from './models';
 import {
   labelCreateHost,
@@ -46,13 +47,33 @@ const Hosts = () => {
   // Read once and handed to both hooks: the fields and the rules that guard
   // them have to agree on the platform.
   const isCloudPlatform = !!useAtomValue(platformFeaturesAtom)?.isCloudPlatform;
+  const isAdditiveInheritanceEnabled = useAtomValue(
+    isAdditiveInheritanceEnabledAtom
+  );
   const canEdit = !!userPermissions?.configuration_host_write;
 
   const { columns } = useColumns();
-  const { groups, inputs } = useFormInputs({ canEdit, isCloudPlatform });
+  const { groups, inputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
   const { validationSchema } = useValidationSchema({ isCloudPlatform });
 
-  const { api, filtersConfiguration } = useHosts();
+  const { api, filtersConfiguration } = useHosts({
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
+  // Only a user who may create reads the default; the edit form opens on the
+  // host's own poller whatever this holds.
+  const defaultPoller = useDefaultPoller({ enabled: canEdit });
+  const defaultValues = useMemo(
+    () => ({
+      ...getDefaultValues({ isCloudPlatform }),
+      ...(defaultPoller && { poller: defaultPoller })
+    }),
+    [isCloudPlatform, defaultPoller]
+  );
   const { deployServices } = useDeployServices();
 
   const actions: Actions = useMemo(

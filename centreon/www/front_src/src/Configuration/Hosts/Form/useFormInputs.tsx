@@ -1,29 +1,9 @@
-import {
-  type Group,
-  type InputProps,
-  InputType,
-  type SelectEntry
-} from '@centreon/ui';
+import type { Group, InputProps } from '@centreon/ui';
 
+import { chain } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { namedEntitiesListDecoder } from '../api/decoders';
-import {
-  hostFormHostGroupsEndpoint,
-  hostFormPollersEndpoint,
-  hostsBaseEndpoint
-} from '../api/endpoints';
-import {
-  labelDataProcessing,
-  labelHostConfiguration,
-  labelHostExtendedInfos,
-  labelHostGroups,
-  labelIpAddress,
-  labelMonitoringServer,
-  labelName,
-  labelNotification,
-  labelRelations
-} from '../translatedLabels';
+import { getAvailableSections } from './sections';
 
 interface FormInputsState {
   inputs: Array<InputProps>;
@@ -32,91 +12,52 @@ interface FormInputsState {
 
 interface Props {
   canEdit: boolean;
+  isAdditiveInheritanceEnabled: boolean;
   isCloudPlatform: boolean;
 }
 
-// The five sections of the US. They also drive the pinned navigation, which
-// the shared form renders on its own from four groups up.
 const useFormInputs = ({
   canEdit,
+  isAdditiveInheritanceEnabled,
   isCloudPlatform
 }: Props): FormInputsState => {
   const { t } = useTranslation();
 
-  const groups: Array<Group> = [
-    { name: t(labelHostConfiguration), order: 1 },
-    // Notifications are an onPrem concern; the US has no such tab on cloud.
-    ...(isCloudPlatform ? [] : [{ name: t(labelNotification), order: 2 }]),
-    { name: t(labelRelations), order: 3 },
-    { name: t(labelDataProcessing), order: 4 },
-    { name: t(labelHostExtendedInfos), order: 5 }
-  ];
+  const context = { isAdditiveInheritanceEnabled, isCloudPlatform, t };
+  const availableSections = getAvailableSections(context);
 
-  const inputs: Array<InputProps> = [
-    {
-      dataTestId: 'host-form-name',
-      fieldName: 'name',
-      group: t(labelHostConfiguration),
-      label: t(labelName),
-      required: true,
-      type: InputType.Text
-    },
-    {
-      dataTestId: 'host-form-address',
-      fieldName: 'address',
-      group: t(labelHostConfiguration),
-      label: t(labelIpAddress),
-      required: true,
-      type: InputType.Text
-    },
-    {
-      connectedAutocomplete: {
-        additionalConditionParameters: [],
-        baseEndpoint: hostsBaseEndpoint,
-        customQueryParameters: [],
-        decoder: namedEntitiesListDecoder,
-        endpoint: hostFormPollersEndpoint,
-        getOptionLabel: (option) => (option as SelectEntry)?.name,
-        // The listing filter beside this field carries the same label and
-        // reads every poller, where this one reads only the active ones.
-        queryKey: 'host-form-poller',
-        useNewAPIFormat: true
-      },
-      dataTestId: 'host-form-poller',
-      fieldName: 'poller',
-      group: t(labelHostConfiguration),
-      label: t(labelMonitoringServer),
-      required: true,
-      type: InputType.SingleConnectedAutocomplete
-    },
-    {
-      connectedAutocomplete: {
-        additionalConditionParameters: [],
-        baseEndpoint: hostsBaseEndpoint,
-        chipColor: 'primary',
-        customQueryParameters: [],
-        decoder: namedEntitiesListDecoder,
-        endpoint: hostFormHostGroupsEndpoint,
-        queryKey: 'host-form-groups',
-        useNewAPIFormat: true
-      },
-      dataTestId: 'host-form-groups',
-      fieldName: 'groups',
-      // `CreateHostInput` counts at least one group on a cloud platform and
-      // leaves it optional elsewhere, so the field follows the platform.
-      getRequired: () => isCloudPlatform,
-      group: t(labelRelations),
-      label: t(labelHostGroups),
-      type: InputType.MultiConnectedAutocomplete
-    }
-  ];
+  // Sections are told apart by their headers, as designed: no divider.
+  const groups: Array<Group> = availableSections.map(({ order, section }) => ({
+    isDividerHidden: true,
+    name: t(section.label),
+    order
+  }));
+
+  const inputs: Array<InputProps> = chain(
+    ({ section }) =>
+      section
+        .getInputs(context)
+        .map((input) => ({ ...input, group: t(section.label) })),
+    availableSections
+  );
+
+  // Once for every input, grid columns included, so none is left editable.
+  const disableWithoutWriteAccess = <Input extends Omit<InputProps, 'group'>>(
+    input: Input
+  ): Input => ({
+    ...input,
+    getDisabled: () => !canEdit,
+    ...(input.grid && {
+      grid: {
+        ...input.grid,
+        columns: input.grid.columns.map(disableWithoutWriteAccess)
+      }
+    })
+  });
 
   return {
     groups,
-    // Frozen here rather than per input: the sections to come add dozens of
-    // fields, and one forgotten `getDisabled` is an editable field on a form
-    // its user may only read.
-    inputs: inputs.map((input) => ({ ...input, getDisabled: () => !canEdit }))
+    inputs: inputs.map(disableWithoutWriteAccess)
   };
 };
 

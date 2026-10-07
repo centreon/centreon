@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 /**
@@ -71,5 +72,45 @@ final readonly class DataProcessing
         foreach (['!', '#BR#', '#T#', '#R#'] as $reserved) {
             Assert::allNotContains($eventHandlerArgs, $reserved, 'DataProcessing::eventHandlerArgs must not contain the "!" delimiter or a #BR#/#T#/#R# escape token.');
         }
+    }
+
+    /**
+     * @param NoValue|list<string> $eventHandlerArgs
+     */
+    public function with(
+        NoValue|TriStateEnum $checkFreshness = new NoValue(),
+        NoValue|TriStateEnum $flapDetectionEnabled = new NoValue(),
+        NoValue|TriStateEnum $eventHandlerEnabled = new NoValue(),
+        NoValue|int|null $acknowledgmentTimeout = new NoValue(),
+        NoValue|int|null $freshnessThreshold = new NoValue(),
+        NoValue|int|null $lowFlapThreshold = new NoValue(),
+        NoValue|int|null $highFlapThreshold = new NoValue(),
+        NoValue|CommandId|null $eventHandlerCommandId = new NoValue(),
+        NoValue|array $eventHandlerArgs = new NoValue(),
+    ): self {
+        return new self(
+            checkFreshness: NoValue::resolve($checkFreshness, $this->checkFreshness),
+            flapDetectionEnabled: NoValue::resolve($flapDetectionEnabled, $this->flapDetectionEnabled),
+            eventHandlerEnabled: NoValue::resolve($eventHandlerEnabled, $this->eventHandlerEnabled),
+            acknowledgmentTimeout: NoValue::resolve($acknowledgmentTimeout, $this->acknowledgmentTimeout),
+            freshnessThreshold: NoValue::resolve($freshnessThreshold, $this->freshnessThreshold),
+            lowFlapThreshold: NoValue::resolve($lowFlapThreshold, $this->lowFlapThreshold),
+            highFlapThreshold: NoValue::resolve($highFlapThreshold, $this->highFlapThreshold),
+            eventHandlerCommandId: NoValue::resolve($eventHandlerCommandId, $this->eventHandlerCommandId),
+            eventHandlerArgs: NoValue::resolve($eventHandlerArgs, $this->eventHandlerArgs),
+        );
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkFreshness === $other->checkFreshness
+            && $this->flapDetectionEnabled === $other->flapDetectionEnabled
+            && $this->eventHandlerEnabled === $other->eventHandlerEnabled
+            && $this->acknowledgmentTimeout === $other->acknowledgmentTimeout
+            && $this->freshnessThreshold === $other->freshnessThreshold
+            && $this->lowFlapThreshold === $other->lowFlapThreshold
+            && $this->highFlapThreshold === $other->highFlapThreshold
+            && $this->eventHandlerCommandId?->value === $other->eventHandlerCommandId?->value
+            && $this->eventHandlerArgs === $other->eventHandlerArgs;
     }
 }

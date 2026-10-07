@@ -2,8 +2,11 @@ import type { ValidationError } from 'yup';
 
 import {
   labelInvalidAddress,
+  labelMustBeIntegerOfAtLeastOne,
+  labelMustBePositiveIntegerOrZero,
   labelNameContainsForbiddenCharacters,
   labelNameMustNotStartWithModule,
+  labelParentAndChildHost,
   labelRequired
 } from '../translatedLabels';
 import useValidationSchema from './useValidationSchema';
@@ -62,6 +65,17 @@ describe('Host form validation', () => {
     });
   });
 
+  describe('Alias', () => {
+    it('refuses an alias longer than the 200 characters the API stores', () => {
+      expect(errorFor('alias', 'a'.repeat(200))).toBeNull();
+      expect(errorFor('alias', 'a'.repeat(201))).not.toBeNull();
+    });
+
+    it('measures the alias without its surrounding blanks', () => {
+      expect(errorFor('alias', ` ${'a'.repeat(200)} `)).toBeNull();
+    });
+  });
+
   describe('Address', () => {
     it.each([
       ['an IPv4 address', '10.0.0.42', null],
@@ -106,6 +120,112 @@ describe('Host form validation', () => {
 
     it('asks for none anywhere else', () => {
       expect(errorFor('groups', [])).toBeNull();
+    });
+  });
+
+  describe('Parent and child hosts', () => {
+    const relationsError = (
+      parentHosts: Array<{ id: number }>,
+      childHosts: Array<{ id: number }>
+    ): string | null => {
+      try {
+        schemaFor(false).validateSyncAt('parentHosts', {
+          childHosts,
+          parentHosts
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it('refuses a host picked as both parent and child', () => {
+      expect(relationsError([{ id: 1 }, { id: 2 }], [{ id: 2 }])).toEqual(
+        labelParentAndChildHost
+      );
+    });
+
+    it('accepts distinct parents and children', () => {
+      expect(relationsError([{ id: 1 }], [{ id: 2 }])).toBeNull();
+      expect(relationsError([], [])).toBeNull();
+    });
+  });
+
+  describe('Notification delays', () => {
+    const delayError = (field: string, value: unknown): string | null => {
+      try {
+        schemaFor(false).validateSyncAt(`notifications.${field}`, {
+          notifications: { [field]: value }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it.each(['interval', 'firstDelay', 'recoveryDelay'])(
+      'accepts an empty %s, 0 and a positive integer',
+      (field) => {
+        expect(delayError(field, '')).toBeNull();
+        expect(delayError(field, 0)).toBeNull();
+        expect(delayError(field, 12)).toBeNull();
+      }
+    );
+
+    it.each(['interval', 'firstDelay', 'recoveryDelay'])(
+      'refuses a negative or fractional %s',
+      (field) => {
+        expect(delayError(field, -1)).toEqual(labelMustBePositiveIntegerOrZero);
+        expect(delayError(field, 1.5)).toEqual(
+          labelMustBePositiveIntegerOrZero
+        );
+      }
+    );
+  });
+
+  describe('Scheduling options', () => {
+    const schedulingError = (field: string, value: unknown): string | null => {
+      try {
+        schemaFor(false).validateSyncAt(`schedulingOptions.${field}`, {
+          schedulingOptions: { [field]: value }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    const fields = [
+      'maxCheckAttempts',
+      'normalCheckInterval',
+      'retryCheckInterval'
+    ];
+
+    it.each(fields)('accepts an empty %s and a positive integer', (field) => {
+      expect(schedulingError(field, '')).toBeNull();
+      expect(schedulingError(field, 1)).toBeNull();
+      expect(schedulingError(field, 12)).toBeNull();
+    });
+
+    it.each(fields)('refuses a %s of 0, negative or fractional', (field) => {
+      expect(schedulingError(field, 0)).toEqual(labelMustBeIntegerOfAtLeastOne);
+      expect(schedulingError(field, -1)).toEqual(
+        labelMustBeIntegerOfAtLeastOne
+      );
+      expect(schedulingError(field, 1.5)).toEqual(
+        labelMustBeIntegerOfAtLeastOne
+      );
+    });
+  });
+
+  describe('SNMP community', () => {
+    it('accepts up to 255 characters', () => {
+      expect(errorFor('snmpCommunity', '')).toBeNull();
+      expect(errorFor('snmpCommunity', 'a'.repeat(255))).toBeNull();
+      expect(errorFor('snmpCommunity', 'a'.repeat(256))).not.toBeNull();
     });
   });
 });

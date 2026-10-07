@@ -648,56 +648,59 @@ describe(Details, () => {
     [label1Day, '2020-01-20T06:00:00.000Z', 20],
     [label7Days, '2020-01-14T06:00:00.000Z', 100],
     [label31Days, '2019-12-21T06:00:00.000Z', 500]
-  ])(`queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`, async (period, startIsoString, timelineEventsLimit) => {
-    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
-    mockGraphTabFetch();
+  ])(
+    `queries performance graphs and timelines with %p period when the Graph tab is selected and "Display events" option is activated`,
+    async (period, startIsoString, timelineEventsLimit) => {
+      mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+      mockGraphTabFetch();
 
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters
-      }
-    ]);
+      setUrlQueryParameters([
+        {
+          name: 'details',
+          value: serviceDetailsGraphUrlParameters
+        }
+      ]);
 
-    const { getByText, findByText } = renderDetails();
+      const { getByText, findByText } = renderDetails();
 
-    await waitFor(() => {
-      expect(getByText(period) as HTMLElement).toBeEnabled();
-    });
+      await waitFor(() => {
+        expect(getByText(period) as HTMLElement).toBeEnabled();
+      });
 
-    await userEvent.click(getByText(period) as HTMLElement);
+      await userEvent.click(getByText(period) as HTMLElement);
 
-    await waitFor(() => {
-      expect(getFetchedUrls()).toContain(
-        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`
-      );
-    });
+      await waitFor(() => {
+        expect(getFetchedUrls()).toContain(
+          `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startIsoString}&end=${currentDateIsoString}`
+        );
+      });
 
-    await findByText(labelDisplayEvents);
-    userEvent.click(getByText(labelDisplayEvents));
+      await findByText(labelDisplayEvents);
+      userEvent.click(getByText(labelDisplayEvents));
 
-    await waitFor(() => {
-      expect(getFetchedUrls()).toContain(
-        `./api/latest${buildListTimelineEventsEndpoint({
-          endpoint: retrievedDetails.links.endpoints.timeline,
-          parameters: {
-            limit: timelineEventsLimit,
-            search: {
-              conditions: [
-                {
-                  field: 'date',
-                  values: {
-                    $gt: startIsoString,
-                    $lt: currentDateIsoString
+      await waitFor(() => {
+        expect(getFetchedUrls()).toContain(
+          `./api/latest${buildListTimelineEventsEndpoint({
+            endpoint: retrievedDetails.links.endpoints.timeline,
+            parameters: {
+              limit: timelineEventsLimit,
+              search: {
+                conditions: [
+                  {
+                    field: 'date',
+                    values: {
+                      $gt: startIsoString,
+                      $lt: currentDateIsoString
+                    }
                   }
-                }
-              ]
+                ]
+              }
             }
-          }
-        })}`
-      );
-    });
-  });
+          })}`
+        );
+      });
+    }
+  );
 
   it('displays event annotations when the corresponding switch is triggered and the Graph tab is clicked', async () => {
     mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
@@ -1299,48 +1302,51 @@ describe(Details, () => {
   it.each([
     [labelBackward, 0, '2020-01-19T18:00:00.000Z', '2020-01-20T18:00:00.000Z'],
     [labelForward, 1, '2020-01-20T18:00:00.000Z', '2020-01-21T18:00:00.000Z']
-  ])(`queries performance graphs with a shifted time period when the Graph tab is selected and the "%s" zone is clicked`, async (_, zoneIndex, startISOString, endISOString) => {
-    mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
-    mockGraphTabFetch();
+  ])(
+    `queries performance graphs with a shifted time period when the Graph tab is selected and the "%s" zone is clicked`,
+    async (_, zoneIndex, startISOString, endISOString) => {
+      mockedAxios.get.mockResolvedValueOnce({ data: retrievedDetails });
+      mockGraphTabFetch();
 
-    setUrlQueryParameters([
-      {
-        name: 'details',
-        value: serviceDetailsGraphUrlParameters
-      }
-    ]);
+      setUrlQueryParameters([
+        {
+          name: 'details',
+          value: serviceDetailsGraphUrlParameters
+        }
+      ]);
 
-    const { container, findByText } = renderDetails();
+      const { container, findByText } = renderDetails();
 
-    act(() => {
-      store.set(changeCustomTimePeriodDerivedAtom, {
-        date: new Date('2020-01-20T06:00:00.000Z'),
-        property: CustomTimePeriodProperty.start
+      act(() => {
+        store.set(changeCustomTimePeriodDerivedAtom, {
+          date: new Date('2020-01-20T06:00:00.000Z'),
+          property: CustomTimePeriodProperty.start
+        });
       });
-    });
-    act(() => {
-      store.set(changeCustomTimePeriodDerivedAtom, {
-        date: new Date('2020-01-21T06:00:00.000Z'),
-        property: CustomTimePeriodProperty.end
+      act(() => {
+        store.set(changeCustomTimePeriodDerivedAtom, {
+          date: new Date('2020-01-21T06:00:00.000Z'),
+          property: CustomTimePeriodProperty.end
+        });
       });
-    });
 
-    await findByText(retrievedPerformanceGraphData.global.title);
+      await findByText(retrievedPerformanceGraphData.global.title);
 
-    const timeShiftZone = container.querySelectorAll(
-      'rect[class*="translationZone"]'
-    )[zoneIndex];
+      const timeShiftZone = container.querySelectorAll(
+        'rect[class*="translationZone"]'
+      )[zoneIndex];
 
-    fireEvent.mouseOver(timeShiftZone);
-    await findByText('time shift icon');
-    fireEvent.click(timeShiftZone);
+      fireEvent.mouseOver(timeShiftZone);
+      await findByText('time shift icon');
+      fireEvent.click(timeShiftZone);
 
-    await waitFor(() => {
-      expect(getFetchedUrls()).toContain(
-        `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
-      );
-    });
-  });
+      await waitFor(() => {
+        expect(getFetchedUrls()).toContain(
+          `./api/latest${retrievedDetails.links.endpoints.performance_graph}?start=${startISOString}&end=${endISOString}`
+        );
+      });
+    }
+  );
 
   it('displays retrieved metrics when the selected Resource is a meta service and the metrics tab is selected', async () => {
     const service = retrievedServices.result[0];

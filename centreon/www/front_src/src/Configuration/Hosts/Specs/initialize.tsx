@@ -1,5 +1,6 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
+  isAdditiveInheritanceEnabledAtom,
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
@@ -14,20 +15,34 @@ import {
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
+  hostFormContactGroupsEndpoint,
+  hostFormContactsEndpoint,
+  hostFormHostCategoriesEndpoint,
   hostFormHostGroupsEndpoint,
   hostFormPollersEndpoint,
+  hostFormTimePeriodsEndpoint,
   hostGroupsEndpoint,
   hostsListEndpoint,
   hostTemplatesEndpoint,
-  pollersEndpoint
+  pollersEndpoint,
+  resolveAddressEndpoint,
+  timezonesEndpoint
 } from '../api/endpoints';
 import {
   emptyListingResponse,
+  getContactGroupsResponse,
+  getContactsResponse,
+  getHostCategoriesResponse,
   getHostGroupsResponse,
   getHostResponse,
   getHostTemplatesResponse,
   getListingResponse,
-  getPollersResponse
+  getPollersResponse,
+  getTimePeriodsResponse,
+  getTimezonesResponse,
+  refusedAddressResponse,
+  resolvedAddressResponse,
+  unresolvedAddressResponse
 } from './utils';
 
 interface Props {
@@ -35,13 +50,32 @@ interface Props {
   hasWriteAccess?: boolean;
   isCloudPlatform?: boolean;
   deployFails?: boolean;
+  isAdditiveInheritanceEnabled?: boolean;
+  addressResolution?: keyof typeof addressResolutions;
+  hasDefaultPoller?: boolean;
+  pollersDelay?: number;
+  resolveDelay?: number;
 }
+
+// What the selector answers a user it does not grant.
+export const pollersForbiddenMessage = 'You are not allowed to access pollers';
+
+const addressResolutions = {
+  refused: { response: refusedAddressResponse, statusCode: 422 },
+  resolved: { response: resolvedAddressResponse, statusCode: 200 },
+  unresolved: { response: unresolvedAddressResponse, statusCode: 200 }
+};
 
 const initialize = ({
   isEmpty = false,
   hasWriteAccess = true,
   isCloudPlatform = false,
-  deployFails = false
+  deployFails = false,
+  isAdditiveInheritanceEnabled = false,
+  addressResolution = 'resolved',
+  hasDefaultPoller = true,
+  pollersDelay,
+  resolveDelay
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -58,6 +92,7 @@ const initialize = ({
   });
 
   store.set(platformFeaturesAtom, { isCloudPlatform });
+  store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
   cy.interceptAPIRequest({
     alias: 'getHost',
@@ -73,9 +108,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${getHostEndpoint({ id: 1 })}`,
     response: {
-      address: '10.0.0.1',
+      // A name, so resolving it is not already moot.
+      address: 'host-1.example.com',
+      categories: [],
+      child_hosts: [],
       groups: [],
       name: 'host 1',
+      parent_hosts: [],
       poller: { id: 1, name: 'Central' }
     }
   });
@@ -98,9 +137,22 @@ const initialize = ({
   // listing filters below read the generic ones.
   cy.interceptAPIRequest({
     alias: 'getFormPollers',
+    delay: pollersDelay,
     method: Method.GET,
     path: `**${hostFormPollersEndpoint}?**`,
-    response: getPollersResponse()
+    // Granted by write access only, as the API does.
+    response: hasWriteAccess
+      ? getPollersResponse({ hasDefault: hasDefaultPoller })
+      : { code: 403, message: pollersForbiddenMessage },
+    statusCode: hasWriteAccess ? 200 : 403
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'resolveAddress',
+    delay: resolveDelay,
+    method: Method.GET,
+    path: `**${resolveAddressEndpoint}?**`,
+    ...addressResolutions[addressResolution]
   });
 
   cy.interceptAPIRequest({
@@ -108,6 +160,41 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormHostGroupsEndpoint}?**`,
     response: getHostGroupsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormHostCategories',
+    method: Method.GET,
+    path: `**${hostFormHostCategoriesEndpoint}?**`,
+    response: getHostCategoriesResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormContacts',
+    method: Method.GET,
+    path: `**${hostFormContactsEndpoint}?**`,
+    response: getContactsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormContactGroups',
+    method: Method.GET,
+    path: `**${hostFormContactGroupsEndpoint}?**`,
+    response: getContactGroupsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormTimePeriods',
+    method: Method.GET,
+    path: `**${hostFormTimePeriodsEndpoint}?**`,
+    response: getTimePeriodsResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormTimezones',
+    method: Method.GET,
+    path: `**${timezonesEndpoint}?**`,
+    response: getTimezonesResponse()
   });
 
   cy.interceptAPIRequest({

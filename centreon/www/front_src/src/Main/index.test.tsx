@@ -4,6 +4,7 @@ import {
   screen,
   waitFor
 } from '@centreon/ui/test/testRenderer';
+import { isAdditiveInheritanceEnabledAtom } from '@centreon/ui-context';
 
 import axios from 'axios';
 
@@ -107,6 +108,30 @@ const mockDefaultGetRequests = (): void => {
     .mockResolvedValueOnce({
       data: null
     });
+};
+
+// Answered by URL rather than in call order, so a request added or moved in
+// the start-up sequence cannot hand one endpoint another one's response.
+const mockGetRequestsByUrl = (parameters: object): void => {
+  const responses: Array<[string, unknown]> = [
+    [
+      platformInstallationStatusEndpoint,
+      { has_upgrade_available: false, is_installed: true }
+    ],
+    [userEndpoint, retrievedUser],
+    ['platform/features', { feature_flags: {}, is_cloud_platform: false }],
+    ['platform/versions', retrievedWeb],
+    ['allTranslations', retrievedTranslations],
+    [navigationEndpoint, retrievedNavigation],
+    [parametersEndpoint, parameters],
+    [aclEndpoint, retrievedActionsAcl]
+  ];
+
+  mockedAxios.get.mockImplementation((url: string) =>
+    Promise.resolve({
+      data: responses.find(([endpoint]) => url.includes(endpoint))?.[1] ?? null
+    })
+  );
 };
 
 const mockRedirectFromLoginPageGetRequests = (): void => {
@@ -254,6 +279,7 @@ describe('Main', () => {
     // loaded, the install status is known...) otherwise leaks into the next.
     store.set(areUserParametersLoadedAtom, null);
     store.set(platformInstallationStatusAtom, null);
+    store.set(isAdditiveInheritanceEnabledAtom, false);
   });
 
   it('displays the login page when the path is "/login" and the user is not connected', async () => {
@@ -436,6 +462,19 @@ describe('Main', () => {
         internalTranslationEndpoint,
         cancelTokenRequestParam
       );
+    });
+  });
+
+  it('turns additive inheritance on when the platform parameters say so', async () => {
+    mockGetRequestsByUrl({
+      ...retrievedParameters,
+      is_additive_inheritance_enabled: true
+    });
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(store.get(isAdditiveInheritanceEnabledAtom)).toBe(true);
     });
   });
 

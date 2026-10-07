@@ -3,6 +3,10 @@ export type NamedEntity = {
   name: string;
 };
 
+export type FormPoller = NamedEntity & {
+  isDefault: boolean;
+};
+
 export type Icon = NamedEntity & {
   url: string;
 };
@@ -25,11 +29,3 @@ export type Filters = {
   enabled: boolean;
   disabled: boolean;
 };
-
-// What the form opens on; each section to come adds its own.
-export interface HostDetail {
-  address: string;
-  groups: Array<NamedEntity>;
-  name: string;
-  poller: NamedEntity;
-}

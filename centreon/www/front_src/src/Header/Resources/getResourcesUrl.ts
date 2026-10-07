@@ -94,19 +94,19 @@ const getServiceResourcesUrl = ({
 };
 
 export {
-  hostCriterias,
-  serviceCriteria,
-  downCriterias,
-  unreachableCriterias,
-  upCriterias,
-  pendingCriterias,
-  getHostResourcesUrl,
   criticalCriterias,
-  unknownCriterias,
-  warningCriterias,
-  okCriterias,
-  unhandledStateCriterias,
+  downCriterias,
+  getHostResourcesUrl,
+  getResourcesUrl,
   getServiceResourcesUrl,
   getStatusCriterias,
-  getResourcesUrl
+  hostCriterias,
+  okCriterias,
+  pendingCriterias,
+  serviceCriteria,
+  unhandledStateCriterias,
+  unknownCriterias,
+  unreachableCriterias,
+  upCriterias,
+  warningCriterias
 };

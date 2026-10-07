@@ -68,14 +68,92 @@ export const getHostGroupsResponse = () =>
     { id: 2, name: 'Windows servers' }
   ]);
 
+// The default is neither the first poller nor the one the tests pick, nor the
+// one host 0 runs on.
 const pollers = [
-  { id: 1, name: 'Central' },
-  { id: 2, name: 'Poller EU' }
+  { id: 1, is_default: false, name: 'Central' },
+  { id: 2, is_default: false, name: 'Poller EU' },
+  { id: 3, is_default: true, name: 'Poller US' }
 ];
 
 // One list for the listing filter and the form alike, both reading the API
-// Platform selector.
-export const getPollersResponse = () => toCollection(pollers);
+// Platform selector; only the form's carries `is_default`, which the filter
+// ignores.
+export const getPollersResponse = ({ hasDefault = true } = {}) =>
+  toCollection(
+    hasDefault
+      ? pollers
+      : pollers.map((poller) => ({ ...poller, is_default: false }))
+  );
+
+export const resolvedAddressResponse = {
+  hostname: 'srv-apache-02.example.com',
+  ip: '192.168.1.42',
+  resolved: true
+};
+
+// `ip` is left out, not null, when the name does not resolve.
+export const unresolvedAddressResponse = {
+  hostname: 'srv-apache-02.example.com',
+  resolved: false
+};
+
+// The legacy shape the platform gives a validation failure.
+export const refusedAddressResponse = {
+  code: 422,
+  message: '[hostname] This value must be an IPv4 address or a hostname.\n'
+};
+
+export const getHostCategoriesResponse = () =>
+  toCollection([
+    { id: 3, name: 'Physical' },
+    { id: 4, name: 'Virtual' }
+  ]);
+
+export const getContactsResponse = () =>
+  toCollection([
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'guest' }
+  ]);
+
+export const getContactGroupsResponse = () =>
+  toCollection([
+    { id: 3, name: 'Supervisors' },
+    { id: 4, name: 'Guests' }
+  ]);
+
+export const getTimePeriodsResponse = () =>
+  toCollection([
+    { id: 1, name: '24x7' },
+    { id: 2, name: 'workhours' }
+  ]);
+
+export const getTimezonesResponse = () =>
+  toCollection([
+    { id: 1, name: 'Europe/London' },
+    { id: 7, name: 'Europe/Paris' },
+    { id: 3, name: 'America/New_York' }
+  ]);
+
+export const untouchedSchedulingOptionsPayload = {
+  active_check_enabled: 'use_default',
+  max_check_attempts: null,
+  normal_check_interval: null,
+  passive_check_enabled: 'use_default',
+  retry_check_interval: null
+};
+
+// What a create sends when nothing of the Notification section was touched.
+export const untouchedNotificationsPayload = {
+  contact_groups: [],
+  contacts: [],
+  enabled: 'use_default',
+  first_delay: null,
+  interval: null,
+  options: [],
+  recovery_delay: null,
+  timeperiod_id: null
+};
 
 export const getHostTemplatesResponse = () =>
   toCollection([
@@ -90,7 +168,32 @@ export const getHostTemplatesResponse = () =>
 // from the carried row instead of from this response fails rather than passes.
 export const getHostResponse = () => ({
   address: '10.10.10.10',
+  alias: 'alias of host 0 as the detail endpoint spells it',
+  categories: [{ id: 4, name: 'Virtual' }],
+  child_hosts: [{ id: 2, name: 'host 2' }],
   groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
-  poller: { id: 2, name: 'Poller EU' }
+  // `recovery_delay` is unset, so the endpoint leaves it out.
+  notifications: {
+    contact_additive_inheritance: true,
+    contact_group_additive_inheritance: false,
+    contact_groups: [{ id: 3, name: 'Supervisors' }],
+    contacts: [{ id: 1, name: 'admin' }],
+    enabled: 'false',
+    first_delay: 1,
+    interval: 3,
+    options: ['down', 'recovery'],
+    timeperiod: { id: 1, name: '24x7' }
+  },
+  parent_hosts: [{ id: 1, name: 'host 1' }],
+  poller: { id: 2, name: 'Poller EU' },
+  scheduling_options: {
+    active_check_enabled: 'false',
+    check_period: { id: 1, name: '24x7' },
+    max_check_attempts: 3,
+    normal_check_interval: 5,
+    passive_check_enabled: 'true'
+  },
+  snmp_version: '2c',
+  timezone: { id: 7, name: 'Europe/Paris' }
 });
