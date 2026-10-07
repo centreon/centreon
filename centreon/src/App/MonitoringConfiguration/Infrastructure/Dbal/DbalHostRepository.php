@@ -97,6 +97,16 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   event_handler_args: string|null,
  *   check_command_id: int|string|null,
  *   check_command_args: string|null,
+ *   notifications_enabled: string|null,
+ *   notification_options: string|null,
+ *   notification_interval: int|string|null,
+ *   notification_period_id: int|string|null,
+ *   first_notification_delay: int|string|null,
+ *   recovery_notification_delay: int|string|null,
+ *   contact_additive_inheritance: int|string|null,
+ *   cg_additive_inheritance: int|string|null,
+ *   notification_contact_ids: string|null,
+ *   notification_contact_group_ids: string|null,
  *   category_ids: string|null,
  *   severity_id: int|string|null,
  *   parent_host_ids: string|null,
@@ -545,6 +555,20 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             'h.command_command_id_arg2 AS event_handler_args',
             'h.command_command_id AS check_command_id',
             'h.command_command_id_arg1 AS check_command_args',
+            'h.host_notifications_enabled AS notifications_enabled',
+            'h.host_notification_options AS notification_options',
+            'h.host_notification_interval AS notification_interval',
+            'h.timeperiod_tp_id2 AS notification_period_id',
+            'h.host_first_notification_delay AS first_notification_delay',
+            'h.host_recovery_notification_delay AS recovery_notification_delay',
+            'h.contact_additive_inheritance AS contact_additive_inheritance',
+            'h.cg_additive_inheritance AS cg_additive_inheritance',
+            '(SELECT GROUP_CONCAT(chr.contact_id)
+                FROM contact_host_relation chr
+                WHERE chr.host_host_id = h.host_id) AS notification_contact_ids',
+            '(SELECT GROUP_CONCAT(cghr.contactgroup_cg_id)
+                FROM contactgroup_host_relation cghr
+                WHERE cghr.host_host_id = h.host_id) AS notification_contact_group_ids',
             // Categories and severity share `hostcategories_relation`, told apart only by whether
             // the referenced `hostcategories.level` is set (see Host::$categoryIds docblock).
             '(SELECT GROUP_CONCAT(hcr.hostcategories_hc_id)

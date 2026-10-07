@@ -92,4 +92,38 @@ final readonly class DbalNotificationsTransformer implements TransformerInterfac
             $options,
         ));
     }
+
+    /**
+     * Read-side inverse of {@see self::options()}: parses the engine's comma-separated single-letter
+     * format back into the domain enums. NULL or '' (an empty list, as legacy writes) yields no
+     * option, kept distinct from the real 'n' ("notify on nothing").
+     *
+     * @return list<NotificationOptionEnum>
+     */
+    public static function optionsFromColumn(?string $column): array
+    {
+        if ($column === null) {
+            return [];
+        }
+
+        $column = trim($column);
+        if ($column === '') {
+            return [];
+        }
+
+        return array_map(
+            static fn (string $letter): NotificationOptionEnum => match ($letter) {
+                'd' => NotificationOptionEnum::Down,
+                'u' => NotificationOptionEnum::Unreachable,
+                'r' => NotificationOptionEnum::Recovery,
+                'f' => NotificationOptionEnum::Flapping,
+                's' => NotificationOptionEnum::DowntimeScheduled,
+                'n' => NotificationOptionEnum::None,
+                default => throw new \UnexpectedValueException(
+                    sprintf('Unexpected notification option column value "%s".', $letter)
+                ),
+            },
+            explode(',', $column),
+        );
+    }
 }

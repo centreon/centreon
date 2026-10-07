@@ -25,6 +25,12 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\UpdateHostCommand;
 use App\MonitoringConfiguration\Application\Command\UpdateHostCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -36,6 +42,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -44,6 +52,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -63,6 +72,7 @@ use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
@@ -77,9 +87,9 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
-use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
@@ -105,6 +115,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
     private FakeVault $vault;
 
+    private FakeCommandRepository $commandRepository;
+
     private EventBusSpy $eventBus;
 
     private FakeHostTemplateRepository $hostTemplateRepository;
@@ -121,6 +133,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         $this->hostRepository = new FakeHostRepository();
         $this->pollerRepository = new FakePollerRepository();
+        $this->commandRepository = new FakeCommandRepository();
         $this->vault = new FakeVault();
         $this->vault->vaultEnabled = false;
 
@@ -134,7 +147,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
-        $container->set(CommandRepository::class, new FakeCommandRepository());
+        $container->set(CommandRepository::class, $this->commandRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(OptionRepository::class, new FakeOptionRepository());
         $container->set(VaultInterface::class, $this->vault);
@@ -325,6 +338,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('existing-uuid', $events[0]->host->getVaultUuid($this->vault));
         // The save succeeded: failing to tidy up the emptied entry must not fail the request.
         self::assertTrue($events[0]->bestEffort);
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
     }
 
     public function testItDoesNotRequestAVaultPurgeWhenASecretSurvives(): void
@@ -334,8 +348,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $existingReference = 'secret::vault::monitoring/hosts/existing-uuid::_HOSTSNMPCOMMUNITY';
         $this->vault->extractedUuids[$existingReference] = 'existing-uuid';
         $this->seedHost(10, snmpCommunity: new SnmpCommunity($existingReference));
-        // The vault rewrites the community under the host's existing entry.
-        $this->vault->writtenPaths[VaultKeyEnum::HostSnmpCommunity->value] = $existingReference;
 
         // A new SNMP community keeps a secret on the host, so the entry must not be purged.
         ($this->handler)($this->command(10, snmpCommunity: 'still-secret'));
@@ -500,8 +512,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         );
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, snmpCommunity: new SnmpCommunity($hostReference), templateIds: $templateIds);
-        // The vault rewrites the community under the host's existing entry.
-        $this->vault->writtenPaths[VaultKeyEnum::HostSnmpCommunity->value] = $hostReference;
 
         $host = ($this->handler)($this->command(10, snmpCommunity: 'public', templateIds: $templateIds, macroChanges: [
             new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
@@ -518,6 +528,262 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('host-uuid', $macroWrite['uuid']);
         self::assertNull($host->checkOptions->macros[0]->id);
         self::assertStringNotContainsString('tpl-uuid', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testEmptyingTheSnmpCommunityRemovesItsKeyFromTheVault(): void
+    {
+        // A password macro keeps the entry alive, but the community's key must not linger in it.
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
+            macros: [new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5))],
+        );
+
+        ($this->handler)($this->command(10, snmpCommunity: null, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), null, isPassword: true, id: new HostMacroId(5)),
+        ]));
+
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame('host-uuid', $this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame([], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
+    }
+
+    public function testANewPasswordMacroJoinsTheHostExistingVaultEntry(): void
+    {
+        // Legacy keeps every secret of a host (SNMP community + password macros) under one entry.
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $community = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
+        $this->seedHost(10, snmpCommunity: new SnmpCommunity($community));
+
+        $host = ($this->handler)($this->command(10, snmpCommunity: 'public', macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), 'plain-secret', isPassword: true),
+        ]));
+
+        self::assertSame($community, $host->snmpCommunity?->value);
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', $host->checkOptions->macros[0]->value);
+        foreach ($this->vault->writeManyCalls as $call) {
+            self::assertSame('host-uuid', $call['uuid']);
+        }
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
+    }
+
+    public function testAPasswordMacroOnAHostWithoutSecretMintsAnEntry(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(10);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), 'plain-secret', isPassword: true),
+        ]));
+
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertNull($this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['_HOSTPWD' => 'plain-secret'], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTPWD', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testRemovingAPasswordMacroClearsItsKeyAndKeepsTheEntry(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $community = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity($community),
+            macros: [new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5))],
+        );
+        $this->vault->writtenPaths['_HOSTSNMPCOMMUNITY'] = $community;
+
+        $host = ($this->handler)($this->command(10, snmpCommunity: 'public'));
+
+        self::assertSame([], $host->checkOptions->macros);
+        $deletes = array_merge(...array_column($this->vault->writeManyCalls, 'deletes'));
+        self::assertSame(['_HOSTPWD'], $deletes);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
+    }
+
+    public function testRemovingTheLastPasswordMacroRequestsAPurge(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(10, macros: [
+            new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5)),
+        ]);
+
+        ($this->handler)($this->command(10));
+
+        /** @var list<HostVaultPurgeRequested> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class);
+        self::assertCount(1, $events);
+        self::assertSame('host-uuid', $events[0]->host->getVaultUuid($this->vault));
+    }
+
+    public function testRenamingAPasswordMacroKeepsItsSecret(): void
+    {
+        // R5: the macro keeps its id and its vault reference, no plaintext is ever needed.
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $reference = 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD';
+        $this->seedHost(10, macros: [new HostMacro(new HostMacroName('pwd'), $reference, isPassword: true, id: new HostMacroId(5))]);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('renamed'), null, isPassword: true, id: new HostMacroId(5)),
+        ]));
+
+        $macro = $host->checkOptions->macros[0];
+        self::assertSame(['RENAMED', 5, $reference], [$macro->name->value, $macro->id?->value, $macro->value]);
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostVaultPurgeRequested::class));
+    }
+
+    public function testANewPasswordValueIsRewrittenInTheHostEntry(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(10, macros: [
+            new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5)),
+        ]);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), 'new-secret', isPassword: true, id: new HostMacroId(5)),
+        ]));
+
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame('host-uuid', $this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['_HOSTPWD' => 'new-secret'], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', $host->checkOptions->macros[0]->value);
+        self::assertSame(5, $host->checkOptions->macros[0]->id?->value);
+    }
+
+    public function testTurningAPasswordIntoAPlainMacroClearsItsKey(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $community = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity($community),
+            macros: [new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5))],
+        );
+
+        $host = ($this->handler)($this->command(10, snmpCommunity: 'public', macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), 'now-visible', isPassword: false, id: new HostMacroId(5)),
+        ]));
+
+        self::assertSame(['now-visible', false], [$host->checkOptions->macros[0]->value, $host->checkOptions->macros[0]->isPassword]);
+        $deletes = array_merge(...array_column($this->vault->writeManyCalls, 'deletes'));
+        self::assertSame(['_HOSTPWD'], $deletes);
+    }
+
+    public function testAnEmptyPasswordIsStoredWithoutReachingTheVault(): void
+    {
+        // R8: an empty password is an explicit value, nothing to vault.
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(10);
+
+        $host = ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), '', isPassword: true),
+        ]));
+
+        self::assertSame('', $host->checkOptions->macros[0]->value);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItRejectsKeepingTheStoredValueOfAMacroThatIsNotAPassword(): void
+    {
+        // A null value only keeps the value of a stored password: a plain macro's value is echoed back.
+        $this->addPoller(1);
+        $this->seedHost(10, macros: [new HostMacro(new HostMacroName('plain'), 'v', isPassword: false, id: new HostMacroId(5))]);
+
+        $this->expectException(HostMacroValueRequiredException::class);
+
+        ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('plain'), null, isPassword: true, id: new HostMacroId(5)),
+        ]));
+    }
+
+    public function testACheckCommandMacroIsResolvedByNameWhateverIdIsSent(): void
+    {
+        // Command macro ids are unstable (rewritten on every command save): a stale one is no error.
+        $this->addPoller(1);
+        $this->commandRepository->commands[9] = new Command(
+            new CommandId(9),
+            new CommandName('check_it'),
+            CommandTypeEnum::Check,
+            new CommandLine('$USER1$/check -a $_HOSTFROMCOMMAND$'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+        $this->seedHost(10);
+
+        $host = ($this->handler)($this->command(10, checkOptions: new CheckOptions(new CommandId(9)), macroChanges: [
+            new HostMacroChange(new HostMacroName('fromcommand'), 'set', isPassword: false, id: new HostMacroId(999), parent: HostMacroParentEnum::Command),
+        ]));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertTrue($host->checkOptions->macros[0]->isDirect());
+        self::assertSame('set', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testResendingTheStoredNotificationsIsANoOp(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, notifications: $this->notifications([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], contactIds: [3, 4]));
+
+        // Same block, options and contacts in another order.
+        ($this->handler)($this->command(10, notifications: $this->notifications([NotificationOptionEnum::Recovery, NotificationOptionEnum::Down], contactIds: [4, 3])));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostUpdated::class));
+    }
+
+    public function testANotificationChangeIsLogged(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10, notifications: $this->notifications([NotificationOptionEnum::Down]));
+
+        ($this->handler)($this->command(10, notifications: $this->notifications([NotificationOptionEnum::Recovery])));
+
+        /** @var list<HostUpdated> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);
+        self::assertCount(1, $events);
+        self::assertTrue($events[0]->loggable);
+    }
+
+    public function testAnUpdateWithoutNotificationsLeavesTheStoredOnesOutOfTheComparison(): void
+    {
+        // Cloud: a PUT never carries the block, the stored one is not a change to report.
+        $this->addPoller(1);
+        $this->seedHost(10, notifications: $this->notifications([NotificationOptionEnum::Down], contactIds: [3]));
+
+        ($this->handler)($this->command(10, notifications: null));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostUpdated::class));
+    }
+
+    public function testAMacroChangeOnlyFiresANonLoggableUpdate(): void
+    {
+        // Macros are not part of the legacy activity log, but the engine must still regenerate.
+        $this->addPoller(1);
+        $this->seedHost(10, macros: [new HostMacro(new HostMacroName('m'), 'v1', isPassword: false, id: new HostMacroId(5))]);
+
+        ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('m'), 'v2', isPassword: false, id: new HostMacroId(5)),
+        ]));
+
+        /** @var list<HostUpdated> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);
+        self::assertCount(1, $events);
+        self::assertFalse($events[0]->loggable);
     }
 
     public function testItDeploysServicesWhenTemplatesArePresent(): void
@@ -647,6 +913,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ?HostSeverityId $severityId = null,
         ?UserId $viewerId = null,
         array $macroChanges = [],
+        ?Notifications $notifications = null,
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -661,6 +928,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             snmpCommunity: $snmpCommunity,
             severityId: $severityId,
             checkOptions: $checkOptions,
+            notifications: $notifications,
             macroChanges: $macroChanges,
         );
     }
@@ -680,6 +948,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ?HostSeverityId $severityId = null,
         array $macros = [],
         ?Collection $templateIds = null,
+        ?Notifications $notifications = null,
     ): Host {
         $host = new Host(
             id: null,
@@ -693,9 +962,28 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             severityId: $severityId,
             snmpCommunity: $snmpCommunity,
             checkOptions: new CheckOptions(null, [], $macros),
+            notifications: $notifications,
         );
 
         return $this->hostRepository->seed($host, $id);
+    }
+
+    /**
+     * @param list<NotificationOptionEnum> $options
+     * @param list<int> $contactIds
+     */
+    private function notifications(array $options, array $contactIds = []): Notifications
+    {
+        return new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection(
+                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $contactIds),
+                NotificationContactId::class,
+            ),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+            options: $options,
+            interval: 30,
+        );
     }
 
     private function addPoller(int $id): void

@@ -249,6 +249,39 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame(['c'], $this->logActionTypes($hostId));
     }
 
+    public function testAnUnchangedPutWritesNoActivityLogLine(): void
+    {
+        // ISO with legacy: resending the host as stored is a no-op, so nothing is logged.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $contactId = $this->insertNotificationContact('contact');
+        $name = $this->uniqueName('server');
+        $payload = fn (array $macro): array => [
+            ...$this->payload($name, $pollerId),
+            'alias' => 'alias',
+            'notifications' => [
+                'enabled' => 'true',
+                'contacts' => [$contactId],
+                'options' => ['recovery', 'down'],
+                'interval' => 30,
+                'first_delay' => 10,
+            ],
+            'check_options' => ['macros' => [['name' => 'own', 'value' => 'kept', 'is_password' => false, ...$macro]]],
+        ];
+        $this->request('PUT', $this->endpoint($hostId), ['json' => $payload([])]);
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(['c'], $this->logActionTypes($hostId));
+        /** @var int|string $macroId */
+        $macroId = $this->connection->fetchOne('SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ?', [$hostId]);
+
+        // The same host again, its macro now addressed by the id it was stored under.
+        $this->request('PUT', $this->endpoint($hostId), ['json' => $payload(['id' => (int) $macroId, 'parent' => null])]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(['c'], $this->logActionTypes($hostId));
+    }
+
     public function testItWritesADisableAndAChangeLineWhenActivationAndOtherFieldsChange(): void
     {
         $this->login();
@@ -570,6 +603,122 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItHidesAHostOutsideTheRestrictedViewerScope(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('server');
+        $hostId = $this->insertHost($name, $pollerId);
+        // The host is deliberately not linked to the viewer's access group in centreon_acl.
+        $this->loginRestrictedViewer(pollerIds: [$pollerId]);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($this->uniqueName('server'), $pollerId),
+        ]);
+
+        // Out of ACL scope reads as not found (no existence leak), and nothing is written.
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame($name, $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testARestrictedViewerCannotMoveAHostToAnInaccessiblePoller(): void
+    {
+        $pollerId = $this->insertPoller('Accessible');
+        $inaccessiblePollerId = $this->insertPoller('Inaccessible');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(pollerIds: [$pollerId]));
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($this->uniqueName('server'), $inaccessiblePollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame(
+            [$pollerId],
+            $this->intColumn('SELECT nagios_server_id FROM ns_host_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function inaccessibleReferences(): iterable
+    {
+        yield 'host group' => ['host_group_ids', 'group'];
+
+        yield 'category' => ['category_ids', 'category'];
+
+        yield 'severity' => ['severity_id', 'severity'];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('inaccessibleReferences')]
+    public function testARestrictedViewerCannotReferenceAnInaccessibleResource(string $field, string $kind): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
+        $accessibleCategoryId = $this->insertHostCategory($this->uniqueName('category'));
+        $accessibleSeverityId = $this->insertHostSeverity($this->uniqueName('severity'));
+        $inaccessibleIds = [
+            'group' => $this->insertHostGroup($this->uniqueName('group')),
+            'category' => $this->insertHostCategory($this->uniqueName('category')),
+            'severity' => $this->insertHostSeverity($this->uniqueName('severity')),
+        ];
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(
+            pollerIds: [$pollerId],
+            hostGroupIds: [$accessibleGroupId],
+            hostCategoryIds: [$accessibleCategoryId, $accessibleSeverityId],
+        ));
+
+        $value = $kind === 'severity' ? $inaccessibleIds[$kind] : [$inaccessibleIds[$kind]];
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [...$this->payload($this->uniqueName('server'), $pollerId), $field => $value],
+        ]);
+
+        // Unknown and inaccessible are not told apart.
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testARestrictedViewerRoundTripKeepsOutOfScopeGroupsCategoriesAndSeverity(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
+        $hiddenGroupId = $this->insertHostGroup($this->uniqueName('group'));
+        $accessibleCategoryId = $this->insertHostCategory($this->uniqueName('category'));
+        $hiddenCategoryId = $this->insertHostCategory($this->uniqueName('category'));
+        $hiddenSeverityId = $this->insertHostSeverity($this->uniqueName('severity'));
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        foreach ([$accessibleGroupId, $hiddenGroupId] as $groupId) {
+            $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $groupId, 'host_host_id' => $hostId]);
+        }
+        foreach ([$accessibleCategoryId, $hiddenCategoryId, $hiddenSeverityId] as $categoryId) {
+            $this->connection->insert('hostcategories_relation', ['hostcategories_hc_id' => $categoryId, 'host_host_id' => $hostId]);
+        }
+        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(
+            pollerIds: [$pollerId],
+            hostGroupIds: [$accessibleGroupId],
+            hostCategoryIds: [$accessibleCategoryId],
+        ));
+
+        // What the viewer can see of the host, sent back unchanged.
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'host_group_ids' => [$accessibleGroupId],
+                'category_ids' => [$accessibleCategoryId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertEqualsCanonicalizing(
+            [$accessibleGroupId, $hiddenGroupId],
+            $this->intColumn('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertEqualsCanonicalizing(
+            [$accessibleCategoryId, $hiddenCategoryId, $hiddenSeverityId],
+            $this->intColumn('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
     private function forceCloudPlatform(): void
     {
         $this->forcePlatform(isCloudPlatform: true);
@@ -696,6 +845,101 @@ final class PutHostProcessorTest extends ApiTestCase
             'host_host_id' => $childId,
             'host_parent_hp_id' => $parentId,
         ]);
+    }
+
+    /**
+     * Logs in a non-admin user with read-write access to the host pages, restricted by one ACL
+     * resource to the given pollers, host groups and host categories (severities included).
+     *
+     * @param list<int> $pollerIds
+     * @param list<int> $hostGroupIds
+     * @param list<int> $hostCategoryIds
+     *
+     * @return int the viewer's access group, to link hosts to in centreon_acl
+     */
+    private function loginRestrictedViewer(array $pollerIds, array $hostGroupIds = [], array $hostCategoryIds = []): int
+    {
+        $username = bin2hex(random_bytes(8));
+        $this->createApiUser($this->connection, $username, admin: false);
+        /** @var int|string $contactId */
+        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = ?', [$username]);
+
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'put-host-' . $username,
+            'acl_group_alias' => 'put-host-' . $username,
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId, 'contact_contact_id' => (int) $contactId]);
+
+        $this->connection->insert('acl_topology', [
+            'acl_topo_name' => 'put-host-' . $username,
+            'acl_topo_alias' => 'put-host-' . $username,
+            'acl_topo_activate' => '1',
+        ]);
+        $aclTopologyId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_group_topology_relations', ['acl_group_id' => $aclGroupId, 'acl_topology_id' => $aclTopologyId]);
+        foreach ([6, 601, 60101] as $topologyPage) {
+            $topologyId = $this->connection->fetchOne('SELECT topology_id FROM topology WHERE topology_page = ?', [$topologyPage]);
+            self::assertIsScalar($topologyId, "topology_page {$topologyPage} not found in fixtures");
+            $this->connection->insert('acl_topology_relations', [
+                'topology_topology_id' => (int) $topologyId,
+                'acl_topo_id' => $aclTopologyId,
+                'access_right' => 1, // read-write
+            ]);
+        }
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'put-host-' . $username,
+            'acl_res_alias' => 'put-host-' . $username,
+            'acl_res_activate' => '1',
+            'all_hostgroups' => '0',
+        ]);
+        $aclResourceId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_res_group_relations', ['acl_res_id' => $aclResourceId, 'acl_group_id' => $aclGroupId]);
+        foreach ($pollerIds as $pollerId) {
+            $this->connection->insert('acl_resources_poller_relations', ['acl_res_id' => $aclResourceId, 'poller_id' => $pollerId]);
+        }
+        foreach ($hostGroupIds as $hostGroupId) {
+            $this->connection->insert('acl_resources_hg_relations', ['acl_res_id' => $aclResourceId, 'hg_hg_id' => $hostGroupId]);
+        }
+        foreach ($hostCategoryIds as $hostCategoryId) {
+            $this->connection->insert('acl_resources_hc_relations', ['acl_res_id' => $aclResourceId, 'hc_id' => $hostCategoryId]);
+        }
+
+        $this->login($username);
+
+        return $aclGroupId;
+    }
+
+    private function linkHostToAcl(int $hostId, int $aclGroupId): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $hostId]);
+    }
+
+    private function insertHostCategory(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHostSeverity(string $name): int
+    {
+        $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name, 'level' => 1]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function intColumn(string $sql, int $parameter): array
+    {
+        /** @var list<int|string> $values */
+        $values = $this->connection->fetchFirstColumn($sql, [$parameter]);
+
+        return array_map(static fn (int|string $value): int => (int) $value, $values);
     }
 
     private function insertHostTemplate(string $name): int

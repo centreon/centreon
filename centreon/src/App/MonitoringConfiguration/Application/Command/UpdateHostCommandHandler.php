@@ -161,6 +161,9 @@ final readonly class UpdateHostCommandHandler
         $existingVaultUuid = $this->vault->isEnabled() ? $existingHost->getVaultUuid($this->vault) : null;
 
         $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity, $existingVaultUuid);
+        if (! $snmpCommunity instanceof SnmpCommunity) {
+            $this->clearVaultedSnmpCommunity($existingHost, $existingVaultUuid);
+        }
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity
             ? $this->extractVaultUuid($snmpCommunity->value)
             : $existingVaultUuid;
@@ -277,7 +280,19 @@ final readonly class UpdateHostCommandHandler
      */
     private function loggedConfigChanged(Host $before, Host $after): bool
     {
-        return $this->loggedScalars($before) !== $this->loggedScalars($after);
+        $withNotifications = $this->carriesNotifications($after);
+
+        return $this->loggedScalars($before, $withNotifications) !== $this->loggedScalars($after, $withNotifications);
+    }
+
+    /**
+     * Whether the update carries a notifications block to compare with the stored one. On Cloud,
+     * notifications follow a different model and a PUT never carries the block: the stored one is
+     * then not a change to report.
+     */
+    private function carriesNotifications(Host $after): bool
+    {
+        return $after->notifications instanceof Notifications;
     }
 
     /**
@@ -285,16 +300,17 @@ final readonly class UpdateHostCommandHandler
      * scalars (strings, ints, bools, enums and scalar lists). A strict comparison of two such maps is
      * enough to decide whether anything other than the activation flag differs. Nullable composites
      * (extended informations, notifications) contribute null for every one of their keys when absent,
-     * so "present vs absent" reads as a change.
+     * so "present vs absent" reads as a change — except notifications when the update carries none
+     * ($withNotifications false, see {@see self::carriesNotifications()}).
      *
      * @return array<string, mixed>
      */
-    private function loggedScalars(Host $host): array
+    private function loggedScalars(Host $host, bool $withNotifications): array
     {
         $extended = $host->extendedInformations;
         $scheduling = $host->schedulingOptions;
         $dataProcessing = $host->dataProcessing;
-        $notifications = $host->notifications;
+        $notifications = $withNotifications ? $host->notifications : null;
 
         return [
             'name' => $host->name->value,
@@ -371,7 +387,8 @@ final readonly class UpdateHostCommandHandler
             return true;
         }
 
-        return $this->contactSignature($before) !== $this->contactSignature($after);
+        return $this->carriesNotifications($after)
+            && $this->contactSignature($before) !== $this->contactSignature($after);
     }
 
     /**
@@ -496,6 +513,26 @@ final readonly class UpdateHostCommandHandler
             $snmpCommunity,
             $vaultUuid,
         ));
+    }
+
+    /**
+     * An SNMP community emptied by the update must not linger in the host's vault entry: its key is
+     * removed, whether or not other secrets keep the entry alive (an entry left without secret is
+     * purged after commit anyway).
+     */
+    private function clearVaultedSnmpCommunity(Host $existingHost, ?string $existingVaultUuid): void
+    {
+        $stored = $existingHost->snmpCommunity?->value;
+        if ($existingVaultUuid === null || $stored === null || ! $this->vault->isVaultPath($stored)) {
+            return;
+        }
+
+        $this->vault->writeMany(
+            VaultPathEnum::MonitoringHosts->value,
+            [],
+            $existingVaultUuid,
+            [VaultKeyEnum::HostSnmpCommunity->value],
+        );
     }
 
     /**
