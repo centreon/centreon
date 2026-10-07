@@ -66,4 +66,4 @@ const deleteData =
       })
       .then(({ data }) => data);
 
-export { getData, patchData, postData, putData, deleteData };
+export { deleteData, getData, patchData, postData, putData };

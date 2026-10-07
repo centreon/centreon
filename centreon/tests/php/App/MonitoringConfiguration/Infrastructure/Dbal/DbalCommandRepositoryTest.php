@@ -26,6 +26,9 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
@@ -104,6 +107,77 @@ final class DbalCommandRepositoryTest extends KernelTestCase
 
         $this->repository->update($command);
         self::assertEquals('UPDATED_NAME', ($this->repository->getById(new CommandId(2))->name->value));
+    }
+
+    public function testGetByIdLoadsStoredMacros(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->update('command', ['command_line' => 'check $_HOSTUSER$ $_SERVICEPORT$'], ['command_id' => 2]);
+        $connection->insert('on_demand_macro_command', [
+            'command_macro_id' => 50,
+            'command_macro_name' => 'USER',
+            'command_command_id' => 2,
+            'command_macro_type' => '1',
+        ]);
+
+        $command = $this->repository->getById(new CommandId(2));
+
+        self::assertEquals(
+            [
+                new CommandMacro(new CommandMacroId(50), 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Service),
+            ],
+            $command->macros(),
+        );
+    }
+
+    public function testAddExposesStoredMacroIds(): void
+    {
+        $command = new Command(
+            id: null,
+            name: new CommandName('WITH_MACROS'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('check $_HOSTUSER$ $_SERVICEPORT$'),
+            isShellEnabled: false,
+            isFromMonitoringConnector: false,
+            isActivated: true,
+            connector: null,
+            comment: null
+        );
+
+        $this->repository->add($command);
+
+        $macros = $command->macros();
+        self::assertCount(2, $macros);
+        foreach ($macros as $macro) {
+            self::assertNotNull($macro->id);
+        }
+        self::assertEquals($macros, $this->repository->getById($command->id())->macros());
+
+        // The macro description is a dropped property: left to its column default.
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        self::assertSame(
+            [null, null],
+            $connection->fetchFirstColumn(
+                'SELECT command_macro_desciption FROM on_demand_macro_command WHERE command_command_id = ?',
+                [$command->id()->value],
+            ),
+        );
+    }
+
+    public function testUpdateRefreshesStoredMacroIds(): void
+    {
+        $command = $this->repository->getById(new CommandId(2));
+        $command->updateCommandLine(new CommandLine('check $_HOSTUSER$'));
+
+        $this->repository->update($command);
+
+        $macros = $command->macros();
+        self::assertCount(1, $macros);
+        self::assertNotNull($macros[0]->id);
+        self::assertEquals($macros, $this->repository->getById(new CommandId(2))->macros());
     }
 
     public function testDelete(): void

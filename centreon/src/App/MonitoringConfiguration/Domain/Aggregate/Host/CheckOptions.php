@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 final readonly class CheckOptions
@@ -67,6 +68,51 @@ final readonly class CheckOptions
         // A host cannot hold two macros with the same name: keep the first, matching legacy
         // insertMacro() which skips any later duplicate (the table has no unique constraint).
         $this->macros = $this->deduplicateByName(array_values($macros));
+    }
+
+    /**
+     * Removing the check command also drops the arguments that were only meaningful for it.
+     *
+     * @param NoValue|array<int, string> $args
+     * @param NoValue|array<int, HostMacro> $macros
+     */
+    public function with(
+        NoValue|CommandId|null $checkCommandId = new NoValue(),
+        NoValue|array $args = new NoValue(),
+        NoValue|array $macros = new NoValue(),
+    ): self {
+        $commandId = NoValue::resolve($checkCommandId, $this->checkCommandId);
+
+        return new self(
+            checkCommandId: $commandId,
+            args: NoValue::resolve($args, $commandId instanceof CommandId ? $this->args : []),
+            macros: NoValue::resolve($macros, $this->macros),
+        );
+    }
+
+    public function equals(self $other): bool
+    {
+        if (
+            $this->checkCommandId?->value !== $other->checkCommandId?->value
+            || $this->args !== $other->args
+            || count($this->macros) !== count($other->macros)
+        ) {
+            return false;
+        }
+
+        foreach ($this->macros as $index => $macro) {
+            $otherMacro = $other->macros[$index];
+            if (
+                $macro->name->value !== $otherMacro->name->value
+                || $macro->value !== $otherMacro->value
+                || $macro->isPassword !== $otherMacro->isPassword
+                || $macro->description !== $otherMacro->description
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

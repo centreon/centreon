@@ -9,6 +9,7 @@ export {
   federatedModulesAtom,
   federatedWidgetsAtom
 } from './federatedModulesAndWidgetsAtoms';
+export { isAdditiveInheritanceEnabledAtom } from './isAdditiveInheritanceEnabledAtom';
 export { isOnPublicPageAtom } from './isOnPublicPageAtom';
 export { isResourceStatusFullSearchEnabledAtom } from './isResourceStatusFullSearchEnabledAtom';
 export {

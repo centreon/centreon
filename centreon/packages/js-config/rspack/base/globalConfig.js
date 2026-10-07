@@ -28,6 +28,11 @@ module.exports = {
                 react: {
                   development: isDev,
                   refresh: isDev
+                },
+                reactCompiler: !enableCoverage && {
+                  compilationMode: 'infer',
+                  panicThreshold: 'none',
+                  target: '19'
                 }
               }
             }

@@ -325,6 +325,17 @@ final class HostActivityLogFactoryTest extends TestCase
         yield 'disable' => [ActionEnum::Disable];
     }
 
+    public function testItLogsTheFullDumpForAMassChange(): void
+    {
+        $host = $this->host(null, alias: new HostAlias('front'));
+
+        $activityLog = $this->create(ActionEnum::MassChange, $host);
+
+        self::assertSame(ActionEnum::MassChange, $activityLog->action);
+        self::assertSame($this->create(ActionEnum::Add, $host)->details, $activityLog->details);
+        self::assertSame('front', $activityLog->details['host_alias']);
+    }
+
     private function create(ActionEnum $action, Host $host): ActivityLog
     {
         return (new HostActivityLogFactory())->create(

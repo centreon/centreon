@@ -288,31 +288,34 @@ describe(Actions, () => {
   it.each([
     [labelAcknowledge, labelAcknowledgedByAdmin, labelAcknowledge],
     [labelSetDowntime, labelDowntimeByAdmin, labelSetDowntime]
-  ])('cannot send a %p request when the corresponding action is fired and the comment field is left empty', async (labelAction, labelComment, labelConfirmAction) => {
-    const { getByText, getAllByText, findByText } = renderActions();
+  ])(
+    'cannot send a %p request when the corresponding action is fired and the comment field is left empty',
+    async (labelAction, labelComment, labelConfirmAction) => {
+      const { getByText, getAllByText, findByText } = renderActions();
 
-    const selectedResources = [host];
+      const selectedResources = [host];
 
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
+      act(() => {
+        context.setSelectedResources?.(selectedResources);
+      });
 
-    await waitFor(() =>
-      expect(context.selectedResources).toEqual(selectedResources)
-    );
+      await waitFor(() =>
+        expect(context.selectedResources).toEqual(selectedResources)
+      );
 
-    fireEvent.click(getByText(labelAction));
+      fireEvent.click(getByText(labelAction));
 
-    const commentField = await findByText(labelComment);
+      const commentField = await findByText(labelComment);
 
-    userEvent.clear(commentField);
+      userEvent.clear(commentField);
 
-    await waitFor(() =>
-      expect(
-        last<HTMLElement>(getAllByText(labelConfirmAction)) as HTMLElement
-      ).toBeDisabled()
-    );
-  });
+      await waitFor(() =>
+        expect(
+          last<HTMLElement>(getAllByText(labelConfirmAction)) as HTMLElement
+        ).toBeDisabled()
+      );
+    }
+  );
 
   it('sends an acknowledgement request when Resources are selected and the Ackowledgement action is clicked and confirmed', async () => {
     const { getByText, findByLabelText, getAllByText } = renderActions();
@@ -501,53 +504,54 @@ describe(Actions, () => {
   it.each([
     [labelForcedCheck, { is_forced: true }],
     [labelCheck, { is_forced: false }]
-  ])('sends a %p request when Resources are selected and the action is selected', async (label, {
-    is_forced
-  }) => {
-    const { getByText, findByText, getByLabelText, getAllByText } =
-      renderActions();
+  ])(
+    'sends a %p request when Resources are selected and the action is selected',
+    async (label, { is_forced }) => {
+      const { getByText, findByText, getByLabelText, getAllByText } =
+        renderActions();
 
-    await waitFor(() => {
-      expect(getByText(labelForcedCheck)).toBeInTheDocument();
-    });
-    const selectedResources = [host, service];
+      await waitFor(() => {
+        expect(getByText(labelForcedCheck)).toBeInTheDocument();
+      });
+      const selectedResources = [host, service];
 
-    mockedAxios.get.mockResolvedValueOnce({ data: {} });
-    mockedAxios.all.mockResolvedValueOnce([]);
+      mockedAxios.get.mockResolvedValueOnce({ data: {} });
+      mockedAxios.all.mockResolvedValueOnce([]);
 
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
+      act(() => {
+        context.setSelectedResources?.(selectedResources);
+      });
 
-    await findByText(labelForcedCheck);
-    fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
-    await waitFor(() => {
-      expect(getByText(labelCheck)).toBeInTheDocument();
-      expect(getAllByText(labelForcedCheck)[1]).toBeInTheDocument();
-    });
-    const selectedLabel = equals(label, labelForcedCheck)
-      ? getAllByText(label)[1]
-      : getByText(label);
+      await findByText(labelForcedCheck);
+      fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
+      await waitFor(() => {
+        expect(getByText(labelCheck)).toBeInTheDocument();
+        expect(getAllByText(labelForcedCheck)[1]).toBeInTheDocument();
+      });
+      const selectedLabel = equals(label, labelForcedCheck)
+        ? getAllByText(label)[1]
+        : getByText(label);
 
-    fireEvent.click(selectedLabel);
-    fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
-    fireEvent.click(getByLabelText(label).firstElementChild as HTMLElement);
+      fireEvent.click(selectedLabel);
+      fireEvent.click(getByLabelText('arrow').firstElementChild as HTMLElement);
+      fireEvent.click(getByLabelText(label).firstElementChild as HTMLElement);
 
-    const payload = {
-      check: { is_forced },
-      resources: map(pick(['id', 'parent', 'type']), selectedResources)
-    };
+      const payload = {
+        check: { is_forced },
+        resources: map(pick(['id', 'parent', 'type']), selectedResources)
+      };
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining(checkEndpoint),
-        expect.objectContaining({
-          body: expect.stringContaining(JSON.stringify(payload)),
-          method: 'POST'
-        })
-      );
-    });
-  });
+      await waitFor(() => {
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining(checkEndpoint),
+          expect.objectContaining({
+            body: expect.stringContaining(JSON.stringify(payload)),
+            method: 'POST'
+          })
+        );
+      });
+    }
+  );
 
   it('cannot execute an action when associated ACL are not sufficient', async () => {
     const { getByText, getByLabelText } = renderActions({
@@ -673,29 +677,34 @@ describe(Actions, () => {
       labelHostsDenied,
       cannotDisacknowledgeHostsAcl
     ]
-  ])('displays a warning message when trying to %p with limited ACL', async (_, labelAction, labelAclWarning, acl) => {
-    const { getByText, getByLabelText } = renderActions(acl);
+  ])(
+    'displays a warning message when trying to %p with limited ACL',
+    async (_, labelAction, labelAclWarning, acl) => {
+      const { getByText, getByLabelText } = renderActions(acl);
 
-    const selectedResources = [host, service];
+      const selectedResources = [host, service];
 
-    act(() => {
-      context.setSelectedResources?.(selectedResources);
-    });
+      act(() => {
+        context.setSelectedResources?.(selectedResources);
+      });
 
-    await waitFor(() => {
-      expect(
+      await waitFor(() => {
+        expect(
+          getByLabelText(labelMoreActions).firstChild as HTMLElement
+        ).toBeInTheDocument();
+      });
+
+      fireEvent.click(
         getByLabelText(labelMoreActions).firstChild as HTMLElement
-      ).toBeInTheDocument();
-    });
+      );
 
-    fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+      fireEvent.click(getByText(labelAction));
 
-    fireEvent.click(getByText(labelAction));
-
-    await waitFor(() => {
-      expect(getByText(labelAclWarning)).toBeInTheDocument();
-    });
-  });
+      await waitFor(() => {
+        expect(getByText(labelAclWarning)).toBeInTheDocument();
+      });
+    }
+  );
 
   it.each([
     [
@@ -716,25 +725,30 @@ describe(Actions, () => {
       labelDisacknowledgeServices,
       cannotDisacknowledgeServicesAcl
     ]
-  ])('disables services propagation option when trying to %p on hosts when ACL on services are not sufficient', async (_, labelAction, labelAppliesOnServices, acl) => {
-    const { getByText, getByLabelText } = renderActions(acl);
+  ])(
+    'disables services propagation option when trying to %p on hosts when ACL on services are not sufficient',
+    async (_, labelAction, labelAppliesOnServices, acl) => {
+      const { getByText, getByLabelText } = renderActions(acl);
 
-    act(() => {
-      context.setSelectedResources?.([host]);
-    });
+      act(() => {
+        context.setSelectedResources?.([host]);
+      });
 
-    fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+      fireEvent.click(
+        getByLabelText(labelMoreActions).firstChild as HTMLElement
+      );
 
-    fireEvent.click(getByText(labelAction));
+      fireEvent.click(getByText(labelAction));
 
-    await waitFor(() => {
-      expect(
-        getByText(labelAppliesOnServices).parentElement?.querySelector(
-          'input[type="checkbox"]'
-        )
-      ).toBeDisabled();
-    });
-  });
+      await waitFor(() => {
+        expect(
+          getByText(labelAppliesOnServices).parentElement?.querySelector(
+            'input[type="checkbox"]'
+          )
+        ).toBeDisabled();
+      });
+    }
+  );
 
   it('disables the submit status action when one of the following condition is met: ACL are not sufficient, more than one resource is selected, selected resource is not passive', async () => {
     const { getByText, getByLabelText } = renderActions({

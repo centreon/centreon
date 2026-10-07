@@ -139,6 +139,39 @@ final class DbalActivityLogRepositoryTest extends KernelTestCase
         self::assertSame('service', $objectType);
     }
 
+    public function testMassChangeIsStoredAndReadBackAsTheLegacyMassChangeAction(): void
+    {
+        $activityLog = new ActivityLog(
+            id: null,
+            action: ActionEnum::MassChange,
+            actor: new Actor(
+                id: new ActorId(1),
+            ),
+            target: new Target(
+                id: new TargetId(1),
+                name: new TargetName('a_host'),
+                type: TargetTypeEnum::Host,
+            ),
+            performedAt: (new \DateTimeImmutable())->setTime(0, 0),
+            details: [],
+        );
+
+        $this->repository->add($activityLog);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $actionType = $connection->createQueryBuilder()
+            ->select('action_type')
+            ->from('log_action')
+            ->where('action_log_id = :id')
+            ->setParameter('id', $activityLog->id()->value)
+            ->executeQuery()
+            ->fetchOne();
+
+        self::assertSame('mc', $actionType);
+        self::assertSame(ActionEnum::MassChange, $this->repository->find($activityLog->id())?->action);
+    }
+
     public function testFind(): void
     {
         $activityLog = new ActivityLog(

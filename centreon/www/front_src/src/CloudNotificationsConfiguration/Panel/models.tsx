@@ -28,6 +28,7 @@ export enum EventsType {
   Ok = 'Recovery',
   Unknown = 'Unknown',
   Unreachable = 'Unreachable',
+  // biome-ignore lint/suspicious/noDuplicateEnumValues: Up and Ok are both recoveries
   Up = 'Recovery',
   Warning = 'Warning'
 }

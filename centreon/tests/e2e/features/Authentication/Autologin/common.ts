@@ -21,4 +21,4 @@ const removeContact = (): Cypress.Chainable => {
   });
 };
 
-export { removeContact, initializeConfigAclAndGetLoginPage };
+export { initializeConfigAclAndGetLoginPage, removeContact };

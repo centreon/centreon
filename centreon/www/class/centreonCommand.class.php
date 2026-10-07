@@ -325,44 +325,6 @@ class CentreonCommand
     }
 
     /**
-     * @param $id
-     * @param array $parameters
-     * @throws Exception
-     * @return array|mixed
-     */
-    public function getParameters($id, $parameters = [])
-    {
-        $queryValues = [];
-        $explodedValues = '';
-        $arr = [];
-        if (empty($id)) {
-            return [];
-        }
-        if (count($parameters) > 0) {
-            foreach ($parameters as $k => $v) {
-                $explodedValues .= "`{$v}`,";
-            }
-            $explodedValues = rtrim($explodedValues, ',');
-        } else {
-            $explodedValues = '*';
-        }
-
-        $query = 'SELECT ' . $explodedValues . ' FROM command WHERE command_id = ?';
-        $queryValues[] = (int) $id;
-        $stmt = $this->db->prepare($query);
-        $dbResult = $stmt->execute($queryValues);
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-
-        if ($stmt->rowCount()) {
-            $arr = $stmt->fetch();
-        }
-
-        return $arr;
-    }
-
-    /**
      * @param $name
      * @throws Exception
      * @return array|mixed

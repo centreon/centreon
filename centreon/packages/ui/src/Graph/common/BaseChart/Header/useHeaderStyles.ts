@@ -1,6 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const ussHeaderChartStyles = makeStyles()({
+export const useHeaderChartStyles = makeStyles()({
   header: {
     display: 'grid',
     gridTemplateColumns: 'auto 1fr auto',

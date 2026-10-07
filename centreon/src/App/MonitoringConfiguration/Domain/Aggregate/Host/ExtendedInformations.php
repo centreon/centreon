@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 /**
@@ -85,5 +86,37 @@ final readonly class ExtendedInformations
         $comment = $comment !== null ? trim($comment) : null;
         Assert::nullOrLengthBetween($comment, self::MIN_COMMENT_LENGTH, self::MAX_COMMENT_LENGTH);
         $this->comment = $comment;
+    }
+
+    public function with(
+        NoValue|string|null $noteUrl = new NoValue(),
+        NoValue|string|null $note = new NoValue(),
+        NoValue|string|null $actionUrl = new NoValue(),
+        NoValue|MediaId|null $iconId = new NoValue(),
+        NoValue|string|null $altIcon = new NoValue(),
+        NoValue|string|null $comment = new NoValue(),
+        NoValue|GeoCoordinates|null $geoCoordinates = new NoValue(),
+    ): self {
+        return new self(
+            noteUrl: NoValue::resolve($noteUrl, $this->noteUrl),
+            note: NoValue::resolve($note, $this->note),
+            actionUrl: NoValue::resolve($actionUrl, $this->actionUrl),
+            iconId: NoValue::resolve($iconId, $this->iconId),
+            altIcon: NoValue::resolve($altIcon, $this->altIcon),
+            comment: NoValue::resolve($comment, $this->comment),
+            geoCoordinates: NoValue::resolve($geoCoordinates, $this->geoCoordinates),
+        );
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->noteUrl === $other->noteUrl
+            && $this->note === $other->note
+            && $this->actionUrl === $other->actionUrl
+            && $this->iconId?->value === $other->iconId?->value
+            && $this->altIcon === $other->altIcon
+            && $this->comment === $other->comment
+            && $this->geoCoordinates?->latitude === $other->geoCoordinates?->latitude
+            && $this->geoCoordinates?->longitude === $other->geoCoordinates?->longitude;
     }
 }

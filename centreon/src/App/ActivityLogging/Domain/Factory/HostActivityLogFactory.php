@@ -57,7 +57,7 @@ final readonly class HostActivityLogFactory implements ActivityLogFactoryInterfa
         );
 
         $details = match ($action) {
-            ActionEnum::Add, ActionEnum::Update => $this->details($aggregate),
+            ActionEnum::Add, ActionEnum::Update, ActionEnum::MassChange => $this->details($aggregate),
             ActionEnum::Delete, ActionEnum::Enable, ActionEnum::Disable => [],
         };
 

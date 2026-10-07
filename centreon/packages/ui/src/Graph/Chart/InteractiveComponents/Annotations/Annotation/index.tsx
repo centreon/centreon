@@ -79,4 +79,4 @@ const Annotation = ({
 };
 
 export default Annotation;
-export { yMargin, iconSize };
+export { iconSize, yMargin };

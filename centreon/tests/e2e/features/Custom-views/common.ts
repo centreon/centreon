@@ -66,9 +66,9 @@ const deleteCustomView = () => {
 };
 
 export {
-  visitCustomViewPage,
   addCustomView,
   addSharedView,
+  deleteCustomView,
   shareCustomView,
-  deleteCustomView
+  visitCustomViewPage
 };

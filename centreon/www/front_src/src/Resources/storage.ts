@@ -32,4 +32,4 @@ const getStoredOrDefault = <TItem>({
   return updatedCachedItem;
 };
 
-export { getStoredOrDefault, baseKey };
+export { baseKey, getStoredOrDefault };
