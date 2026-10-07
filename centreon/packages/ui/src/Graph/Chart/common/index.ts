@@ -42,11 +42,11 @@ const getCurveFactory = (
 
 export {
   commonTickLabelProps,
-  margin,
-  getFillColor,
   dateFormat,
-  timeFormat,
   dateTimeFormat,
+  getCurveFactory,
+  getFillColor,
+  margin,
   maxLinesDisplayedLegend,
-  getCurveFactory
+  timeFormat
 };

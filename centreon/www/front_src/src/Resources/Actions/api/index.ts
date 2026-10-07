@@ -111,4 +111,4 @@ const commentResources =
     );
   };
 
-export { acknowledgeResources, setDowntimeOnResources, commentResources };
+export { acknowledgeResources, commentResources, setDowntimeOnResources };

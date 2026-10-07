@@ -36,4 +36,4 @@ const columnsFromLabels = [
   'Expiration date'
 ];
 
-export { type Contact, durationMap, type Token, columns, columnsFromLabels };
+export { type Contact, columns, columnsFromLabels, durationMap, type Token };

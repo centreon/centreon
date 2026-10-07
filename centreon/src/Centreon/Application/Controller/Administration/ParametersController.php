@@ -47,6 +47,8 @@ class ParametersController extends AbstractController
     private const DEFAULT_DOWNTIME_FIXED = 'monitoring_dwt_fixed';
     private const DEFAULT_DOWNTIME_WITH_SERVICES = 'monitoring_dwt_svc';
     private const RESOURCE_STATUS_SEARCH_MODE = 'resource_status_search_mode';
+    private const INHERITANCE_MODE = 'inheritance_mode';
+    private const ADDITIVE_INHERITANCE_MODE = 1;
 
     /**
      * Needed to make response "more readable"
@@ -63,6 +65,7 @@ class ParametersController extends AbstractController
         self::DEFAULT_DOWNTIME_FIXED => 'monitoring_default_downtime_fixed',
         self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services',
         self::RESOURCE_STATUS_SEARCH_MODE => 'is_resource_status_full_search_enabled',
+        self::INHERITANCE_MODE => 'is_additive_inheritance_enabled',
     ];
 
     public function __construct(
@@ -91,6 +94,7 @@ class ParametersController extends AbstractController
         $isDowntimeFixed = true;
         $isDowntimeWithServices = true;
         $isResourceStatusFullSearchEnabled = true;
+        $isAdditiveInheritanceEnabled = false;
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
@@ -105,6 +109,7 @@ class ParametersController extends AbstractController
             self::DEFAULT_DOWNTIME_FIXED,
             self::DEFAULT_DOWNTIME_WITH_SERVICES,
             self::RESOURCE_STATUS_SEARCH_MODE,
+            self::INHERITANCE_MODE,
         ]);
 
         foreach ($options as $option) {
@@ -145,6 +150,9 @@ class ParametersController extends AbstractController
                 case self::RESOURCE_STATUS_SEARCH_MODE:
                     $isResourceStatusFullSearchEnabled = (int) $option->getValue() === 1;
                     break;
+                case self::INHERITANCE_MODE:
+                    $isAdditiveInheritanceEnabled = (int) $option->getValue() === self::ADDITIVE_INHERITANCE_MODE;
+                    break;
                 default:
                     break;
             }
@@ -168,6 +176,7 @@ class ParametersController extends AbstractController
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_FIXED]] = $isDowntimeFixed;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_WITH_SERVICES]] = $isDowntimeWithServices;
         $parameters[self::KEY_NAME_CONCORDANCE[self::RESOURCE_STATUS_SEARCH_MODE]] = $isResourceStatusFullSearchEnabled;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::INHERITANCE_MODE]] = $isAdditiveInheritanceEnabled;
 
         return $this->view($parameters);
     }

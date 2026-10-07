@@ -1,13 +1,15 @@
 import { buildListingDecoder } from '@centreon/ui';
 
+import { mergeAll } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
-import type { HostListItem, Icon, NamedEntity } from '../models';
-
-const namedEntityDecoder = {
-  id: JsonDecoder.number,
-  name: JsonDecoder.string
-};
+import {
+  getAvailableSections,
+  type HostDetail,
+  type PlatformContext
+} from '../Form/sections';
+import type { FormPoller, HostListItem, Icon } from '../models';
+import { namedEntityDecoder } from './namedEntityDecoders';
 
 const iconDecoder = JsonDecoder.object<Icon>(
   {
@@ -16,6 +18,22 @@ const iconDecoder = JsonDecoder.object<Icon>(
   },
   'Icon'
 );
+
+// The detail endpoint answers with objects where the create takes ids, so the
+// poller arrives named and the autocomplete can render it without a lookup.
+export const getHostDecoder = (context: PlatformContext) => {
+  const availableSections = getAvailableSections(context).map(
+    ({ section }) => section
+  );
+
+  return JsonDecoder.object<HostDetail>(
+    mergeAll(
+      availableSections.map((section) => section.detailDecoders)
+    ) as JsonDecoder.DecoderObject<HostDetail>,
+    'Host',
+    mergeAll(availableSections.map((section) => section.detailKeyMap ?? {}))
+  );
+};
 
 const hostsDecoder = JsonDecoder.object<HostListItem>(
   {
@@ -43,10 +61,13 @@ export const hostsListDecoder = buildListingDecoder({
   listingDecoderName: 'Hosts List'
 });
 
-// The selectors answer in Hydra, which the autocomplete cannot read unmapped.
-export const namedEntitiesListDecoder = buildListingDecoder({
+export const formPollersListDecoder = buildListingDecoder({
   apiFormat: 'JSON-LD',
-  entityDecoder: JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Entity'),
-  entityDecoderName: 'Entity',
-  listingDecoderName: 'Entity List'
+  entityDecoder: JsonDecoder.object<FormPoller>(
+    { ...namedEntityDecoder, isDefault: JsonDecoder.boolean },
+    'Poller',
+    { isDefault: 'is_default' }
+  ),
+  entityDecoderName: 'Poller',
+  listingDecoderName: 'Pollers List'
 });

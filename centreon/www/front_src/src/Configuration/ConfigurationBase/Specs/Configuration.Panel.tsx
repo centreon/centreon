@@ -86,6 +86,30 @@ export default (resourceType, { hasSnapshots }: Options): void => {
         );
       });
 
+      it('runs from the top of the page to its bottom', () => {
+        mount();
+
+        cy.waitForRequest('@getAll');
+
+        cy.get('[data-testid="add-resource"]').click();
+
+        cy.get('#page').then(([page]) => {
+          const pageRect = page.getBoundingClientRect();
+
+          // The rectangles below match the viewport too, so assert the
+          // mechanism: a panel hanging off the wrong ancestor passes them.
+          expect(getComputedStyle(page).position).to.equal('relative');
+
+          panelSurface().should(([panel]) => {
+            const panelRect = panel.getBoundingClientRect();
+
+            expect(panelRect.top).to.equal(pageRect.top);
+            expect(panelRect.bottom).to.equal(pageRect.bottom);
+            expect(panelRect.right).to.equal(pageRect.right);
+          });
+        });
+      });
+
       it('opens over the listing, leaving it at its width', () => {
         mount();
 
@@ -281,7 +305,11 @@ export default (resourceType, { hasSnapshots }: Options): void => {
 
         cy.contains(resourceName).click();
 
-        cy.waitForRequest('@getDetails').then(({ response }) => {
+        cy.waitForRequest('@getDetails').then(({ request, response }) => {
+          // A module declaring no `baseEndpoint` must still read the default
+          // one. Only Hosts overrides it, and nothing else may follow it there.
+          expect(request.url.pathname).to.contain('/api/latest/configuration/');
+
           groups.forEach(({ name }) => {
             cy.contains(name);
           });

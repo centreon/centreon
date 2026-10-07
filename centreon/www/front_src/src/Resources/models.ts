@@ -9,6 +9,7 @@ export enum ResourceType {
 
 export enum ResourceCategory {
   'anomaly-detection' = 'service',
+  // biome-ignore lint/suspicious/noDuplicateEnumValues: anomaly detection is a service category
   service = 'service',
   host = 'host',
   metaservice = 'metaservice'

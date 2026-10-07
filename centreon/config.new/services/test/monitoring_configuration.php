@@ -21,8 +21,10 @@
 
 declare(strict_types=1);
 
+use App\MonitoringConfiguration\Domain\Service\DnsResolver;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeDnsResolver;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
 /*
@@ -37,4 +39,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // design, so the suite stays green while depending on an out-of-process host.
     $services->set(GorgoneNodesSynchronizer::class, FakeGorgoneNodesSynchronizer::class)
         ->public();
+
+    // Keeps the API test suite off the runner's DNS: every other hostname is unresolved.
+    $services->set(DnsResolver::class, FakeDnsResolver::class)
+        ->arg('$records', ['localhost' => '127.0.0.1']);
 };

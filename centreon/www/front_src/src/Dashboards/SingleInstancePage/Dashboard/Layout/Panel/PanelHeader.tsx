@@ -190,7 +190,7 @@ const PanelHeader = ({
               </IconButton>
             )}
 
-            {!expandableData || !expandableData?.isExpanded ? (
+            {!expandableData?.isExpanded ? (
               <IconButton
                 ariaLabel={t(labelMoreActions) as string}
                 onClick={openMoreActions}

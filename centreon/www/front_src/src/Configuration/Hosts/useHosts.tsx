@@ -1,11 +1,13 @@
 import { Method } from '@centreon/ui';
 
+import { mergeAll } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
 import {
   getDuplicateHostEndpoint,
+  getHostDecoder,
   getHostEndpoint,
   getHostGroupsEndpoint,
   getHostTemplatesEndpoint,
@@ -15,6 +17,11 @@ import {
   hostsListEndpoint,
   namedEntitiesListDecoder
 } from './api';
+import {
+  type FormValues,
+  getAvailableSections,
+  type PlatformContext
+} from './Form/sections';
 import {
   labelHostGroup,
   labelHostTemplate,
@@ -28,32 +35,56 @@ interface UseHostsState {
   filtersConfiguration: Array<FilterConfiguration>;
 }
 
-const api: APIType = {
+const getAdapter = (context: PlatformContext) => (data: unknown) =>
+  mergeAll(
+    getAvailableSections(context).map(({ section }) =>
+      section.toPayload(data as FormValues, context)
+    )
+  );
+
+const getApi = (context: PlatformContext): APIType => ({
   // This endpoint takes `activate`, not the `is_activated` of the older
   // migrated listings.
   activationField: 'activate',
+  adapter: getAdapter(context),
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,
-  decoders: { getAll: hostsListDecoder },
+  decoders: { getAll: hostsListDecoder, getOne: getHostDecoder(context) },
   // Every write names one host, so a selection becomes one request per row.
   endpoints: {
+    create: hostsListEndpoint,
     deleteOne: getHostEndpoint,
     disable: getHostEndpoint,
     duplicate: getDuplicateHostEndpoint,
     enable: getHostEndpoint,
-    getAll: hostsListEndpoint
+    getAll: hostsListEndpoint,
+    getOne: getHostEndpoint,
+    update: getHostEndpoint
   },
   // The duplicate route takes no body, so there is no copy count to ask for.
   isSingleDuplicate: true,
   methods: {
     disable: Method.PATCH,
-    enable: Method.PATCH
+    enable: Method.PATCH,
+    // The same operation enable and disable use. `PatchHostInput` accepts only
+    // `activated` today, so editing a host answers 422 until it carries the
+    // rest of the form; declaring it is what makes that visible rather than
+    // leaving the save silently doing nothing.
+    update: Method.PATCH
   },
   writeBaseEndpoint: hostsBaseEndpoint
-};
+});
 
-const useHosts = (): UseHostsState => {
+const useHosts = ({
+  isAdditiveInheritanceEnabled,
+  isCloudPlatform
+}: PlatformContext): UseHostsState => {
   const { t } = useTranslation();
+
+  const api = useMemo(
+    () => getApi({ isAdditiveInheritanceEnabled, isCloudPlatform }),
+    [isAdditiveInheritanceEnabled, isCloudPlatform]
+  );
 
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
