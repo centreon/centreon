@@ -25,6 +25,9 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
@@ -215,6 +218,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                     $command->commandLine->extractHostMacros(),
                     $command->commandLine->extractServiceMacros()
                 );
+                // macros are re-inserted on save: reload them to expose the new ids
+                $command->setStoredMacros(fn (): array => $this->findStoredMacros($command->id()));
             }
         });
     }
@@ -305,6 +310,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                 $command->commandLine->extractHostMacros(),
                 $command->commandLine->extractServiceMacros()
             );
+            // macros are re-inserted on save: reload them to expose the new ids
+            $command->setStoredMacros(fn (): array => $this->findStoredMacros($command->id()));
         });
     }
 
@@ -409,11 +416,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($hostMacros as $macroName) {
             $this->connection->executeStatement(
-                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_type)',
                 [
                     'cmd_id' => $commandId->value,
                     'macro_name' => $macroName,
-                    'macro_description' => '',
                     'macro_type' => '1',
                 ]
             );
@@ -421,11 +427,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
 
         foreach ($serviceMacros as $macroName) {
             $this->connection->executeStatement(
-                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_type)',
                 [
                     'cmd_id' => $commandId->value,
                     'macro_name' => $macroName,
-                    'macro_description' => '',
                     'macro_type' => '2',
                 ]
             );
@@ -461,8 +466,38 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
     {
         $command = $this->transformer->transform($row);
         $command->addConnector(fn (): ?Connector => $this->connectorRepository->findByCommand($command));
+        $command->setStoredMacros(fn (): array => $this->findStoredMacros($command->id()));
 
         return $command;
+    }
+
+    /**
+     * @return list<CommandMacro>
+     */
+    private function findStoredMacros(CommandId $commandId): array
+    {
+        /** @var list<array{command_macro_id: int, command_macro_name: string, command_macro_type: string|null}> $rows */
+        $rows = $this->connection->createQueryBuilder()
+            ->select('command_macro_id', 'command_macro_name', 'command_macro_type')
+            ->from('on_demand_macro_command')
+            ->where('command_command_id = :cmd_id')
+            ->orderBy('command_macro_id')
+            ->setParameter('cmd_id', $commandId->value)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $macros = [];
+        foreach ($rows as $row) {
+            // the type column is nullable: a macro without type can not be matched to the command line
+            $type = $row['command_macro_type'] !== null
+                ? CommandMacroTypeEnum::tryFrom((int) $row['command_macro_type'])
+                : null;
+            if ($type !== null) {
+                $macros[] = new CommandMacro(new CommandMacroId((int) $row['command_macro_id']), $row['command_macro_name'], $type);
+            }
+        }
+
+        return $macros;
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int

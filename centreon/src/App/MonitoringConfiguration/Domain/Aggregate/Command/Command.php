@@ -33,7 +33,13 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 final class Command extends AggregateRoot
 {
     /**
+     * Host macros that are native host fields, not custom macros.
+     */
+    private const EXCLUDED_HOST_MACROS = ['SNMPCOMMUNITY', 'SNMPVERSION'];
+
+    /**
      * @param Connector|(\Closure(): ?Connector)|null $connector
+     * @param list<CommandMacro>|(\Closure(): list<CommandMacro>) $storedMacros
      */
     public function __construct(
         ?CommandId $id,
@@ -45,8 +51,63 @@ final class Command extends AggregateRoot
         public bool $isFromMonitoringConnector,
         private Connector|\Closure|null $connector,
         public ?CommandComment $comment,
+        private array|\Closure $storedMacros = [],
     ) {
         parent::__construct($id);
+    }
+
+    /**
+     * Macros used in the command line: host macros then service macros, each in order of appearance.
+     * The id comes from the stored macros (first one wins on duplicates), null when the macro is not stored.
+     *
+     * @param ?CommandMacroTypeEnum $type only the macros of this type, all of them when null
+     *
+     * @return list<CommandMacro>
+     */
+    public function macros(?CommandMacroTypeEnum $type = null): array
+    {
+        if ($this->storedMacros instanceof \Closure) {
+            $this->storedMacros = ($this->storedMacros)();
+        }
+
+        $storedIds = [];
+        foreach ($this->storedMacros as $storedMacro) {
+            $storedIds[$storedMacro->type->value][$storedMacro->name] ??= $storedMacro->id;
+        }
+
+        $macros = [];
+        if ($type !== CommandMacroTypeEnum::Service) {
+            foreach ($this->commandLine->extractHostMacros() as $name) {
+                if (in_array($name, self::EXCLUDED_HOST_MACROS, true)) {
+                    continue;
+                }
+                $macros[] = new CommandMacro(
+                    $storedIds[CommandMacroTypeEnum::Host->value][$name] ?? null,
+                    $name,
+                    CommandMacroTypeEnum::Host,
+                );
+            }
+        }
+
+        if ($type !== CommandMacroTypeEnum::Host) {
+            foreach ($this->commandLine->extractServiceMacros() as $name) {
+                $macros[] = new CommandMacro(
+                    $storedIds[CommandMacroTypeEnum::Service->value][$name] ?? null,
+                    $name,
+                    CommandMacroTypeEnum::Service,
+                );
+            }
+        }
+
+        return $macros;
+    }
+
+    /**
+     * @param list<CommandMacro>|(\Closure(): list<CommandMacro>) $storedMacros
+     */
+    public function setStoredMacros(array|\Closure $storedMacros): void
+    {
+        $this->storedMacros = $storedMacros;
     }
 
     public function updateName(CommandName $name): void
