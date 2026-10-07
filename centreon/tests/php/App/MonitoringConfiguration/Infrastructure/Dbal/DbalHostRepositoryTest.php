@@ -492,14 +492,48 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $pollerId = $this->createPoller('Central');
         $hostId = $this->createHost('server-01', $pollerId);
         $templateId = $this->createHostTemplate('generic-template');
+        $this->connection->insert('extended_host_information', ['host_host_id' => $templateId, 'ehi_notes' => 'template note']);
         $host = $this->findHost($hostId);
         $this->setHostId($host, $templateId);
 
-        $this->repository->update($host->with(name: new HostName('hijacked')));
+        $this->repository->update($host->with(
+            name: new HostName('hijacked'),
+            extendedInformations: new ExtendedInformations(note: 'hijacked'),
+        ));
 
         self::assertSame(
-            'generic-template',
-            $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$templateId]),
+            ['host_name' => 'generic-template'],
+            $this->connection->fetchAssociative('SELECT host_name FROM host WHERE host_id = ?', [$templateId]),
+        );
+        self::assertSame(
+            'template note',
+            $this->connection->fetchOne('SELECT ehi_notes FROM extended_host_information WHERE host_host_id = ?', [$templateId]),
+        );
+    }
+
+    public function testUpdateLeavesTheNotificationsOfAHostReadWithoutThemUntouched(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+            options: [NotificationOptionEnum::Down],
+            interval: 15,
+            firstDelay: 2,
+        ));
+        $this->repository->add($host);
+        $listed = iterator_to_array($this->repository->findAll())[0];
+        self::assertNull($listed->notifications);
+
+        $this->repository->update($listed->with(name: new HostName('server-renamed')));
+
+        self::assertSame(
+            ['host_name' => 'server-renamed', 'host_notifications_enabled' => '1', 'host_notification_interval' => 15],
+            $this->connection->fetchAssociative(
+                'SELECT host_name, host_notifications_enabled, host_notification_interval FROM host WHERE host_id = ?',
+                [$host->id()->value],
+            ),
         );
     }
 

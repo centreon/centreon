@@ -61,10 +61,11 @@ interface HostRepository
     public function updateActivationStatus(HostId $id, bool $activated): void;
 
     /**
-     * Writes the host's own columns, its extended information and its poller; the relations (templates,
-     * groups, categories, parents, children, contacts) and the macros are not written here. Never
-     * touches a host template. Precondition: the caller loaded the host with {@see findOne()} in the
-     * same transaction, so the host exists and carries an id.
+     * Writes the host's own columns (including its activation flag), its extended information and its
+     * poller; the relations (templates, groups, categories, parents, children, contacts) and the macros
+     * are not written here. The notification columns are written only when the host carries its
+     * notifications, as {@see findOne()} loads them: a host read without them keeps its stored values.
+     * A silent no-op on an unknown id or a host template.
      */
     public function update(Host $host): void;
 
