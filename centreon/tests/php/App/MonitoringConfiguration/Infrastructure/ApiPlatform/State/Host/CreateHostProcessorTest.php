@@ -1730,8 +1730,8 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'check_options' => [
                 'macros' => [
-                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false, 'parent' => null],
-                    ['name' => 'TOKEN', 'is_password' => true, 'parent' => null],
+                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false],
+                    ['name' => 'TOKEN', 'is_password' => true],
                 ],
             ],
         ]);
@@ -1742,6 +1742,8 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertArrayNotHasKey('value', $payload['check_options']['macros'][1]);
         // The description is no longer part of the macro wire object.
         self::assertArrayNotHasKey('description', $payload['check_options']['macros'][0]);
+        // A direct macro has no parent: the null is dropped from the payload.
+        self::assertArrayNotHasKey('parent', $payload['check_options']['macros'][0]);
 
         $hostId = $payload['id'];
         /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
