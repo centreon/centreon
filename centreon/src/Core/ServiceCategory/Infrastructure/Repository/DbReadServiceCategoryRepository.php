@@ -68,10 +68,8 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $bindValues = [];
-        $key = 0;
-        foreach ($serviceCategoryIds as $serviceCategoryId) {
+        foreach (array_values($serviceCategoryIds) as $key => $serviceCategoryId) {
             $bindValues[":service_category_{$key}"] = $serviceCategoryId;
-            $key++;
         }
 
         $serviceCategoryIdList = implode(', ', array_keys($bindValues));
@@ -863,10 +861,8 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     private function hasAccessToAllHostGroups(array $accessGroupIds): bool
     {
         $bindValuesArray = [];
-        $index = 0;
-        foreach ($accessGroupIds as $accessGroupId) {
+        foreach (array_values($accessGroupIds) as $index => $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
-            $index++;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
         $statement = $this->db->prepare($this->translateDbName(
@@ -908,10 +904,8 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     private function hasAccessToAllHosts(array $accessGroupIds): bool
     {
         $bindValuesArray = [];
-        $index = 0;
-        foreach ($accessGroupIds as $accessGroupId) {
+        foreach (array_values($accessGroupIds) as $index => $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
-            $index++;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
         $statement = $this->db->prepare($this->translateDbName(
@@ -953,10 +947,8 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
     private function hasRestrictedAccessToHostCategories(array $accessGroupIds): bool
     {
         $bindValuesArray = [];
-        $index = 0;
-        foreach ($accessGroupIds as $accessGroupId) {
+        foreach (array_values($accessGroupIds) as $index => $accessGroupId) {
             $bindValuesArray[':acl_group_id_' . $index] = $accessGroupId;
-            $index++;
         }
         $bindParamsAsString = \implode(',', \array_keys($bindValuesArray));
         $statement = $this->db->prepare($this->translateDbName(

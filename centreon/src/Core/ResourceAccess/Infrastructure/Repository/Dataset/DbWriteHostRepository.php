@@ -65,11 +65,9 @@ class DbWriteHostRepository extends AbstractRepositoryRDB implements WriteDatase
 
         $bindValues = [];
         $subValues = [];
-        $index = 0;
-        foreach ($resourceIds as $hostId) {
+        foreach (array_values($resourceIds) as $index => $hostId) {
             $bindValues[":host_id_{$index}"] = $hostId;
             $subValues[] = "(:host_id_{$index}, :datasetId)";
-            $index++;
         }
 
         $subQueries = implode(', ', $subValues);

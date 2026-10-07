@@ -275,11 +275,9 @@ class DbServiceGroupResourceRepository extends AbstractRepositoryRDB implements 
 
         $subQuery = [];
         $bindElem = [];
-        $key = 0;
-        foreach ($resource->getResources() as $resourceElem) {
+        foreach (array_values($resource->getResources()) as $key => $resourceElem) {
             $subQuery[] = "(:notificationId, :resource_{$key})";
             $bindElem[":resource_{$key}"] = $resourceElem->getId();
-            $key++;
         }
         $statement = $this->db->prepare($this->translateDbName(
             'INSERT INTO `:db`.notification_sg_relation (notification_id, sg_id) VALUES ' . implode(', ', $subQuery)

@@ -141,11 +141,9 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
 
         $bindValues = [];
         $subQuery = [];
-        $key = 0;
-        foreach ($categoryIds as $categoryId) {
+        foreach (array_values($categoryIds) as $key => $categoryId) {
             $bindValues[":category_id_{$key}"] = $categoryId;
             $subQuery[] = "(:category_id_{$key}, :host_id)";
-            $key++;
         }
 
         $statement = $this->db->prepare($this->translateDbName(
