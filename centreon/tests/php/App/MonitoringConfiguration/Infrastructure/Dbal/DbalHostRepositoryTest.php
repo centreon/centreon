@@ -533,29 +533,36 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
-    public function testUpdateLeavesTheNotificationsOfAHostReadWithoutThemUntouched(): void
+    public function testUpdateOfOneFieldKeepsEveryOtherFieldOfTheLoadedHost(): void
     {
         $pollerId = $this->createPoller('Central');
-        $host = $this->hostWithNotifications($pollerId, new Notifications(
-            enabled: TriStateEnum::True,
-            contactIds: new Collection([], NotificationContactId::class),
-            contactGroupIds: new Collection([], ContactGroupId::class),
-            options: [NotificationOptionEnum::Down],
-            interval: 15,
-            firstDelay: 2,
-        ));
-        $this->repository->add($host);
-        $listed = iterator_to_array($this->repository->findAll())[0];
-        self::assertNull($listed->notifications);
+        $commandId = $this->createCheckCommand('check_ping');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $this->connection->update('host', [
+            'host_snmp_community' => 'public',
+            'host_snmp_version' => '2c',
+            'host_max_check_attempts' => 7,
+            'host_check_interval' => 9,
+            'command_command_id' => $commandId,
+            'command_command_id_arg1' => '!a!b',
+            'host_comment' => 'my comment',
+            'host_freshness_threshold' => 120,
+            'host_notifications_enabled' => '1',
+            'host_notification_interval' => 15,
+        ], ['host_id' => $hostId]);
+        $this->connection->update('extended_host_information', ['ehi_notes' => 'my note'], ['host_host_id' => $hostId]);
+        $columns = 'host_snmp_community, host_snmp_version, host_max_check_attempts, host_check_interval,
+            command_command_id, command_command_id_arg1, host_comment, host_freshness_threshold,
+            host_notifications_enabled, host_notification_interval';
+        $before = $this->connection->fetchAssociative(sprintf('SELECT %s FROM host WHERE host_id = ?', $columns), [$hostId]);
 
-        $this->repository->update($listed->with(name: new HostName('server-renamed')));
+        $this->repository->update($this->findHost($hostId)->with(name: new HostName('server-renamed')));
 
+        self::assertSame('server-renamed', $this->findHost($hostId)->name->value);
+        self::assertSame($before, $this->connection->fetchAssociative(sprintf('SELECT %s FROM host WHERE host_id = ?', $columns), [$hostId]));
         self::assertSame(
-            ['host_name' => 'server-renamed', 'host_notifications_enabled' => '1', 'host_notification_interval' => 15],
-            $this->connection->fetchAssociative(
-                'SELECT host_name, host_notifications_enabled, host_notification_interval FROM host WHERE host_id = ?',
-                [$host->id()->value],
-            ),
+            'my note',
+            $this->connection->fetchOne('SELECT ehi_notes FROM extended_host_information WHERE host_host_id = ?', [$hostId]),
         );
     }
 

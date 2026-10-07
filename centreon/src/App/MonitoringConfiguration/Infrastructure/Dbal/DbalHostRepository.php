@@ -151,13 +151,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         'host_passive_checks_enabled' => ':passiveCheckEnabled',
         'command_command_id' => ':check_command_id',
         'command_command_id_arg1' => ':check_command_args',
-    ];
-
-    /**
-     * @var array<string, string> notification column => named parameter; update() writes them only
-     *                            for a host that was read with its notifications
-     */
-    private const NOTIFICATION_COLUMN_PARAMETERS = [
         'host_notifications_enabled' => ':notificationsEnabled',
         'host_notification_options' => ':notificationOptions',
         'host_notification_interval' => ':notificationInterval',
@@ -192,9 +185,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
-            ->values([...self::HOST_COLUMN_PARAMETERS, ...self::NOTIFICATION_COLUMN_PARAMETERS, 'host_register' => "'1'"]);
+            ->values([...self::HOST_COLUMN_PARAMETERS, 'host_register' => "'1'"]);
         $this->bindHostParameters($qb, $host);
-        $this->bindNotificationParameters($qb, $host);
         $qb->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
@@ -451,14 +443,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('id', $hostId, ParameterType::INTEGER);
         $this->bindHostParameters($qb, $host);
 
-        // A host that was not read with its notifications (null) must not have them reset to the defaults.
-        if ($host->notifications instanceof Notifications) {
-            foreach (self::NOTIFICATION_COLUMN_PARAMETERS as $column => $parameter) {
-                $qb->set($column, $parameter);
-            }
-            $this->bindNotificationParameters($qb, $host);
-        }
-
         $qb->executeStatement();
 
         $this->updateExtendedInformations($host);
@@ -665,6 +649,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $dataProcessing = $host->dataProcessing;
         $extendedInformations = $host->extendedInformations;
         $schedulingOptions = $host->schedulingOptions;
+        // The transformer owns every legacy storage format of the block, including what an absent
+        // one writes: the Default tri-state, false flags, and NULL everywhere else.
+        $notificationColumns = $this->notificationsTransformer->transform($host->notifications);
         $qb
             ->setParameter('name', $host->name->value)
             ->setParameter('address', $host->address->value)
@@ -692,16 +679,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
             ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
             ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
-            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args));
-    }
-
-    private function bindNotificationParameters(QueryBuilder $qb, Host $host): void
-    {
-        // The transformer owns every legacy storage format of the block, including what an absent
-        // one writes: the Default tri-state, false flags, and NULL everywhere else.
-        $notificationColumns = $this->notificationsTransformer->transform($host->notifications);
-
-        $qb
+            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
             ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
             ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
             ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
