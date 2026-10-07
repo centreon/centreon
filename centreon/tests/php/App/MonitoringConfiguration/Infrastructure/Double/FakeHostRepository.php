@@ -48,6 +48,9 @@ final class FakeHostRepository implements HostRepository
     /** @var list<array{id: int, activated: bool}> */
     public array $activationUpdates = [];
 
+    /** @var list<Host> */
+    public array $updatedHosts = [];
+
     /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
      * writes from both sides: a host created with children becomes their parent in the graph.
@@ -126,6 +129,12 @@ final class FakeHostRepository implements HostRepository
         if (isset($this->hosts[$id->value])) {
             $activated ? $this->hosts[$id->value]->enable() : $this->hosts[$id->value]->disable();
         }
+    }
+
+    public function update(Host $host): void
+    {
+        $this->updatedHosts[] = $host;
+        $this->hosts[$host->id()->value] = $host;
     }
 
     public function isNameUsedByHostOrTemplate(HostName $name): bool

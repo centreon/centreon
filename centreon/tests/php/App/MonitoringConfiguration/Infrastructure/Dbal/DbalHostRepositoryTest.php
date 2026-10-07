@@ -55,6 +55,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -292,6 +293,214 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->repository->updateActivationStatus(new HostId($templateId), false);
 
         self::assertSame($before, $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$templateId]));
+    }
+
+    public function testUpdatePersistsTheHostColumns(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId, alias: 'srv01', address: '10.0.0.1');
+        $before = $this->findHost($hostId);
+
+        $this->repository->update($before->with(
+            name: new HostName('server-renamed'),
+            alias: null,
+            address: new HostAddress('10.0.0.9'),
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: new SnmpCommunity('public'),
+            activated: false,
+            schedulingOptions: $before->schedulingOptions->with(
+                maxCheckAttempts: 5,
+                normalCheckInterval: 10,
+                activeCheckEnabled: TriStateEnum::False,
+            ),
+            dataProcessing: $before->dataProcessing->with(
+                checkFreshness: TriStateEnum::True,
+                freshnessThreshold: 120,
+                flapDetectionEnabled: TriStateEnum::UseDefault,
+                eventHandlerArgs: ['one', 'two'],
+            ),
+        ));
+
+        $after = $this->findHost($hostId);
+        self::assertSame('server-renamed', $after->name->value);
+        self::assertNull($after->alias);
+        self::assertSame('10.0.0.9', $after->address->value);
+        self::assertSame(SnmpVersionEnum::TwoC, $after->snmpVersion);
+        self::assertSame('public', $after->snmpCommunity?->value);
+        self::assertFalse($after->activated);
+        self::assertSame(5, $after->schedulingOptions->maxCheckAttempts);
+        self::assertSame(10, $after->schedulingOptions->normalCheckInterval);
+        self::assertSame(TriStateEnum::False, $after->schedulingOptions->activeCheckEnabled);
+        self::assertSame(TriStateEnum::True, $after->dataProcessing->checkFreshness);
+        self::assertSame(120, $after->dataProcessing->freshnessThreshold);
+        self::assertSame(TriStateEnum::UseDefault, $after->dataProcessing->flapDetectionEnabled);
+        self::assertSame(['one', 'two'], $after->dataProcessing->eventHandlerArgs);
+    }
+
+    public function testUpdateClearsAnOptionalValueWithNull(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $host = $this->findHost($hostId);
+        $this->repository->update($host->with(
+            snmpCommunity: new SnmpCommunity('public'),
+            timezoneId: new TimezoneId($this->createTimezone('Europe/Paris')),
+        ));
+
+        $this->repository->update($this->findHost($hostId)->with(snmpCommunity: null, timezoneId: null));
+
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_snmp_community, host_location FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertSame(['host_snmp_community' => null, 'host_location' => null], $row);
+    }
+
+    public function testUpdatePersistsExtendedInformationsAndTheNotificationColumns(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $before = $this->findHost($hostId);
+
+        $this->repository->update($before->with(
+            extendedInformations: new ExtendedInformations(
+                noteUrl: 'https://example.com/notes',
+                note: 'a note',
+                actionUrl: null,
+                iconId: new MediaId($this->createImage('server.png')),
+                altIcon: 'server icon',
+                comment: 'a comment',
+                geoCoordinates: GeoCoordinates::fromString('48.8566,2.3522'),
+            ),
+            notifications: new Notifications(
+                enabled: TriStateEnum::True,
+                contactIds: new Collection([], NotificationContactId::class),
+                contactGroupIds: new Collection([], ContactGroupId::class),
+                options: [NotificationOptionEnum::Down],
+                interval: 15,
+                periodId: null,
+                firstDelay: 2,
+                recoveryDelay: null,
+                contactAdditiveInheritance: false,
+                contactGroupAdditiveInheritance: false,
+            ),
+        ));
+
+        $after = $this->findHost($hostId);
+        $extendedInformations = $after->extendedInformations;
+        self::assertNotNull($extendedInformations);
+        self::assertSame('https://example.com/notes', $extendedInformations->noteUrl);
+        self::assertSame('a note', $extendedInformations->note);
+        self::assertNull($extendedInformations->actionUrl);
+        self::assertSame('server icon', $extendedInformations->altIcon);
+        self::assertSame('a comment', $extendedInformations->comment);
+        self::assertSame('48.8566,2.3522', (string) $extendedInformations->geoCoordinates);
+        $row = $this->connection->fetchAssociative(
+            'SELECT host_notifications_enabled, host_notification_interval, host_first_notification_delay
+             FROM host WHERE host_id = ?',
+            [$hostId],
+        );
+        self::assertSame(
+            ['host_notifications_enabled' => '1', 'host_notification_interval' => 15, 'host_first_notification_delay' => 2],
+            $row,
+        );
+    }
+
+    public function testUpdateKeepsTheNotificationsOfALoadedHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $contactId = $this->createContact('alice');
+        $host = $this->hostWithNotifications($pollerId, new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId($contactId)], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+            options: [NotificationOptionEnum::Down, NotificationOptionEnum::Recovery],
+            interval: 15,
+            firstDelay: 2,
+        ));
+        $this->repository->add($host);
+        $before = $this->findHost($host->id()->value);
+        self::assertNotNull($before->notifications);
+
+        $this->repository->update($before->with(name: new HostName('server-renamed')));
+
+        $after = $this->findHost($host->id()->value);
+        self::assertNotNull($after->notifications);
+        self::assertTrue($after->notifications->equals($before->notifications));
+        self::assertSame(
+            [$contactId],
+            array_map(
+                static fn (NotificationContactId $id): int => $id->value,
+                $after->notifications->contactIds->toArray(),
+            ),
+        );
+    }
+
+    public function testUpdateClearsTheExtendedInformationsWithoutAddingARow(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $this->repository->update($this->findHost($hostId)->with(
+            extendedInformations: new ExtendedInformations(note: 'a note', altIcon: 'an icon'),
+        ));
+
+        $this->repository->update($this->findHost($hostId)->with(extendedInformations: new ExtendedInformations()));
+
+        self::assertSame(
+            [['ehi_notes' => null, 'ehi_icon_image_alt' => null]],
+            $this->connection->fetchAllAssociative(
+                'SELECT ehi_notes, ehi_icon_image_alt FROM extended_host_information WHERE host_host_id = ?',
+                [$hostId],
+            ),
+        );
+    }
+
+    public function testUpdateMovesTheHostToAnotherPoller(): void
+    {
+        $firstPollerId = $this->createPoller('Central');
+        $secondPollerId = $this->createPoller('Remote');
+        $hostId = $this->createHost('server-01', $firstPollerId);
+
+        $this->repository->update($this->findHost($hostId)->with(pollerId: new PollerId($secondPollerId)));
+
+        self::assertSame(
+            [$secondPollerId],
+            $this->intColumn('SELECT nagios_server_id FROM ns_host_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
+    public function testUpdateLeavesTheRelationsAndTheMacrosUntouched(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $groupId = $this->createHostGroup('Linux servers');
+        $templateId = $this->createHostTemplate('generic-host');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $this->linkHostToGroup($hostId, $groupId);
+        $this->linkHostToTemplate($hostId, $templateId);
+        $this->insertHostMacro($hostId, '$_HOSTPORT$', '161', false, 0);
+
+        $this->repository->update($this->findHost($hostId)->with(name: new HostName('server-renamed')));
+
+        $after = $this->findHost($hostId);
+        self::assertSame([$groupId], array_map(static fn (HostGroupId $id): int => $id->value, $after->hostGroupIds->toArray()));
+        self::assertSame([$templateId], array_map(static fn (HostTemplateId $id): int => $id->value, $after->templateIds->toArray()));
+        self::assertCount(1, $after->checkOptions->macros);
+    }
+
+    public function testUpdateNeverTouchesAHostTemplate(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $templateId = $this->createHostTemplate('generic-template');
+        $host = $this->findHost($hostId);
+        $this->setHostId($host, $templateId);
+
+        $this->repository->update($host->with(name: new HostName('hijacked')));
+
+        self::assertSame(
+            'generic-template',
+            $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$templateId]),
+        );
     }
 
     public function testAddPersistsTheHostAndItsRelations(): void
@@ -1598,6 +1807,12 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function setHostId(Host $host, int $id): void
+    {
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setValue($host, new HostId($id));
     }
 
     private function findHost(int $hostId): Host

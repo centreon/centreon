@@ -61,6 +61,14 @@ interface HostRepository
     public function updateActivationStatus(HostId $id, bool $activated): void;
 
     /**
+     * Writes the host's own columns, its extended information and its poller; the relations (templates,
+     * groups, categories, parents, children, contacts) and the macros are not written here. Never
+     * touches a host template. Precondition: the caller loaded the host with {@see findOne()} in the
+     * same transaction, so the host exists and carries an id.
+     */
+    public function update(Host $host): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *

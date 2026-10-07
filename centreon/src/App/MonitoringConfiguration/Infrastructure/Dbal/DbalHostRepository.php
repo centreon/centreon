@@ -122,6 +122,46 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public const TABLE_NAME = 'host';
 
     /**
+     * @var array<string, string> host column => named parameter, shared by add() and update()
+     */
+    private const HOST_COLUMN_PARAMETERS = [
+        'host_name' => ':name',
+        'host_address' => ':address',
+        'host_alias' => ':alias',
+        'host_activate' => ':is_activated',
+        'host_acknowledgement_timeout' => ':ackTimeout',
+        'host_check_freshness' => ':checkFreshness',
+        'host_freshness_threshold' => ':freshnessThreshold',
+        'host_flap_detection_enabled' => ':flapDetectionEnabled',
+        'host_low_flap_threshold' => ':lowFlapThreshold',
+        'host_high_flap_threshold' => ':highFlapThreshold',
+        'host_event_handler_enabled' => ':eventHandlerEnabled',
+        'command_command_id2' => ':eventHandlerCommandId',
+        'command_command_id_arg2' => ':eventHandlerArgs',
+        'host_snmp_version' => ':snmpVersion',
+        'host_snmp_community' => ':snmpCommunity',
+        'host_location' => ':timezoneId', // the timezone, despite the legacy column name
+        'geo_coords' => ':geoCoords',
+        'host_comment' => ':comment',
+        'timeperiod_tp_id' => ':checkTimeperiodId',
+        'host_max_check_attempts' => ':maxCheckAttempts',
+        'host_check_interval' => ':normalCheckInterval',
+        'host_retry_check_interval' => ':retryCheckInterval',
+        'host_active_checks_enabled' => ':activeCheckEnabled',
+        'host_passive_checks_enabled' => ':passiveCheckEnabled',
+        'command_command_id' => ':check_command_id',
+        'command_command_id_arg1' => ':check_command_args',
+        'host_notifications_enabled' => ':notificationsEnabled',
+        'host_notification_options' => ':notificationOptions',
+        'host_notification_interval' => ':notificationInterval',
+        'timeperiod_tp_id2' => ':notificationPeriodId',
+        'host_first_notification_delay' => ':firstNotificationDelay',
+        'host_recovery_notification_delay' => ':recoveryNotificationDelay',
+        'contact_additive_inheritance' => ':contactAdditiveInheritance',
+        'cg_additive_inheritance' => ':contactGroupAdditiveInheritance',
+    ];
+
+    /**
      * @param TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, Host> $transformer
      * @param TransformerInterface<?Notifications, NotificationColumnsTypeAlias> $notificationsTransformer
      */
@@ -140,89 +180,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
-        $dataProcessing = $host->dataProcessing;
         $extendedInformations = $host->extendedInformations;
-        $schedulingOptions = $host->schedulingOptions;
         $notifications = $host->notifications;
-        // The transformer owns every legacy storage format of the block, including what an absent
-        // one writes: the Default tri-state, false flags, and NULL everywhere else.
-        $notificationColumns = $this->notificationsTransformer->transform($notifications);
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
-            ->values([
-                'host_name' => ':name',
-                'host_address' => ':address',
-                'host_alias' => ':alias',
-                'host_activate' => ':is_activated',
-                'host_register' => "'1'",
-                'host_acknowledgement_timeout' => ':ackTimeout',
-                'host_check_freshness' => ':checkFreshness',
-                'host_freshness_threshold' => ':freshnessThreshold',
-                'host_flap_detection_enabled' => ':flapDetectionEnabled',
-                'host_low_flap_threshold' => ':lowFlapThreshold',
-                'host_high_flap_threshold' => ':highFlapThreshold',
-                'host_event_handler_enabled' => ':eventHandlerEnabled',
-                'command_command_id2' => ':eventHandlerCommandId',
-                'command_command_id_arg2' => ':eventHandlerArgs',
-                'host_snmp_version' => ':snmpVersion',
-                'host_snmp_community' => ':snmpCommunity',
-                'host_location' => ':timezoneId', // the timezone, despite the legacy column name
-                'geo_coords' => ':geoCoords',
-                'host_comment' => ':comment',
-                'timeperiod_tp_id' => ':checkTimeperiodId',
-                'host_max_check_attempts' => ':maxCheckAttempts',
-                'host_check_interval' => ':normalCheckInterval',
-                'host_retry_check_interval' => ':retryCheckInterval',
-                'host_active_checks_enabled' => ':activeCheckEnabled',
-                'host_passive_checks_enabled' => ':passiveCheckEnabled',
-                'command_command_id' => ':check_command_id',
-                'command_command_id_arg1' => ':check_command_args',
-                'host_notifications_enabled' => ':notificationsEnabled',
-                'host_notification_options' => ':notificationOptions',
-                'host_notification_interval' => ':notificationInterval',
-                'timeperiod_tp_id2' => ':notificationPeriodId',
-                'host_first_notification_delay' => ':firstNotificationDelay',
-                'host_recovery_notification_delay' => ':recoveryNotificationDelay',
-                'contact_additive_inheritance' => ':contactAdditiveInheritance',
-                'cg_additive_inheritance' => ':contactGroupAdditiveInheritance',
-            ])
-            ->setParameter('name', $host->name->value)
-            ->setParameter('address', $host->address->value)
-            // NULL where legacy stores '': config generation skips both identically.
-            ->setParameter('alias', $host->alias?->value)
-            ->setParameter('is_activated', $host->activated ? '1' : '0')
-            ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
-            ->setParameter('checkFreshness', $this->triStateToColumn($dataProcessing->checkFreshness))
-            ->setParameter('freshnessThreshold', $dataProcessing->freshnessThreshold, ParameterType::INTEGER)
-            ->setParameter('flapDetectionEnabled', $this->triStateToColumn($dataProcessing->flapDetectionEnabled))
-            ->setParameter('lowFlapThreshold', $dataProcessing->lowFlapThreshold, ParameterType::INTEGER)
-            ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
-            ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
-            ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
-            ->setParameter('eventHandlerArgs', CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs))
-            ->setParameter('snmpVersion', $host->snmpVersion?->value)
-            ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
-            ->setParameter('timezoneId', $host->timezoneId?->value)
-            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
-            ->setParameter('comment', $extendedInformations?->comment)
-            ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
-            ->setParameter('maxCheckAttempts', $schedulingOptions->maxCheckAttempts, ParameterType::INTEGER)
-            ->setParameter('normalCheckInterval', $schedulingOptions->normalCheckInterval, ParameterType::INTEGER)
-            ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
-            ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
-            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
-            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
-            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
-            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
-            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
-            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
-            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
-            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
-            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
-            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
-            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN)
-            ->executeStatement();
+            ->values([...self::HOST_COLUMN_PARAMETERS, 'host_register' => "'1'"]);
+        $this->bindHostParameters($qb, $host);
+        $qb->executeStatement();
 
         $hostId = (int) $this->connection->lastInsertId();
         if ($hostId === 0) {
@@ -462,6 +427,32 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->executeStatement();
     }
 
+    public function update(Host $host): void
+    {
+        $hostId = $host->id()->value;
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME);
+        foreach (self::HOST_COLUMN_PARAMETERS as $column => $parameter) {
+            $qb->set($column, $parameter);
+        }
+        $qb->where('host_id = :id')
+            ->andWhere("host_register = '1'")
+            ->setParameter('id', $hostId, ParameterType::INTEGER);
+        $this->bindHostParameters($qb, $host);
+        $qb->executeStatement();
+
+        $this->updateExtendedInformations($host);
+
+        $this->connection->createQueryBuilder()
+            ->update('ns_host_relation')
+            ->set('nagios_server_id', ':pollerId')
+            ->where('host_host_id = :hostId')
+            ->setParameter('pollerId', $host->pollerId->value, ParameterType::INTEGER)
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
     /**
      * No unique index backs `host_name` at the DB level (verified against the live schema) —
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
@@ -618,6 +609,75 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
+    }
+
+    private function updateExtendedInformations(Host $host): void
+    {
+        $extendedInformations = $host->extendedInformations;
+
+        // Keyed on the host id: the companion row is always inserted with the host (see add()).
+        $this->connection->createQueryBuilder()
+            ->update('extended_host_information')
+            ->set('ehi_notes_url', ':noteUrl')
+            ->set('ehi_notes', ':note')
+            ->set('ehi_action_url', ':actionUrl')
+            ->set('ehi_icon_image', ':iconId')
+            ->set('ehi_icon_image_alt', ':iconAlternative')
+            ->where('host_host_id = :hostId')
+            ->setParameter('noteUrl', $extendedInformations?->noteUrl)
+            ->setParameter('note', $extendedInformations?->note)
+            ->setParameter('actionUrl', $extendedInformations?->actionUrl)
+            ->setParameter('iconId', $extendedInformations?->iconId?->value, ParameterType::INTEGER)
+            ->setParameter('iconAlternative', $extendedInformations?->altIcon)
+            ->setParameter('hostId', $host->id()->value, ParameterType::INTEGER)
+            ->executeStatement();
+    }
+
+    private function bindHostParameters(QueryBuilder $qb, Host $host): void
+    {
+        $dataProcessing = $host->dataProcessing;
+        $extendedInformations = $host->extendedInformations;
+        $schedulingOptions = $host->schedulingOptions;
+        // The transformer owns every legacy storage format of the block, including what an absent
+        // one writes: the Default tri-state, false flags, and NULL everywhere else.
+        $notificationColumns = $this->notificationsTransformer->transform($host->notifications);
+
+        $qb
+            ->setParameter('name', $host->name->value)
+            ->setParameter('address', $host->address->value)
+            // NULL where legacy stores '': config generation skips both identically.
+            ->setParameter('alias', $host->alias?->value)
+            ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->setParameter('ackTimeout', $dataProcessing->acknowledgmentTimeout, ParameterType::INTEGER)
+            ->setParameter('checkFreshness', $this->triStateToColumn($dataProcessing->checkFreshness))
+            ->setParameter('freshnessThreshold', $dataProcessing->freshnessThreshold, ParameterType::INTEGER)
+            ->setParameter('flapDetectionEnabled', $this->triStateToColumn($dataProcessing->flapDetectionEnabled))
+            ->setParameter('lowFlapThreshold', $dataProcessing->lowFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('highFlapThreshold', $dataProcessing->highFlapThreshold, ParameterType::INTEGER)
+            ->setParameter('eventHandlerEnabled', $this->triStateToColumn($dataProcessing->eventHandlerEnabled))
+            ->setParameter('eventHandlerCommandId', $dataProcessing->eventHandlerCommandId?->value, ParameterType::INTEGER)
+            ->setParameter('eventHandlerArgs', CommandArgumentsFormatter::format($dataProcessing->eventHandlerArgs))
+            ->setParameter('snmpVersion', $host->snmpVersion?->value)
+            ->setParameter('snmpCommunity', $host->snmpCommunity?->value)
+            ->setParameter('timezoneId', $host->timezoneId?->value)
+            ->setParameter('geoCoords', $extendedInformations?->geoCoordinates instanceof GeoCoordinates ? (string) $extendedInformations->geoCoordinates : null)
+            ->setParameter('comment', $extendedInformations?->comment)
+            ->setParameter('checkTimeperiodId', $schedulingOptions->checkTimeperiodId?->value, ParameterType::INTEGER)
+            ->setParameter('maxCheckAttempts', $schedulingOptions->maxCheckAttempts, ParameterType::INTEGER)
+            ->setParameter('normalCheckInterval', $schedulingOptions->normalCheckInterval, ParameterType::INTEGER)
+            ->setParameter('retryCheckInterval', $schedulingOptions->retryCheckInterval, ParameterType::INTEGER)
+            ->setParameter('activeCheckEnabled', $this->triStateToColumn($schedulingOptions->activeCheckEnabled))
+            ->setParameter('passiveCheckEnabled', $this->triStateToColumn($schedulingOptions->passiveCheckEnabled))
+            ->setParameter('check_command_id', $host->checkOptions->checkCommandId?->value)
+            ->setParameter('check_command_args', CommandArgumentsFormatter::format($host->checkOptions->args))
+            ->setParameter('notificationsEnabled', $notificationColumns['notificationsEnabled'])
+            ->setParameter('notificationOptions', $notificationColumns['notificationOptions'])
+            ->setParameter('notificationInterval', $notificationColumns['notificationInterval'], ParameterType::INTEGER)
+            ->setParameter('notificationPeriodId', $notificationColumns['notificationPeriodId'], ParameterType::INTEGER)
+            ->setParameter('firstNotificationDelay', $notificationColumns['firstNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('recoveryNotificationDelay', $notificationColumns['recoveryNotificationDelay'], ParameterType::INTEGER)
+            ->setParameter('contactAdditiveInheritance', $notificationColumns['contactAdditiveInheritance'], ParameterType::BOOLEAN)
+            ->setParameter('contactGroupAdditiveInheritance', $notificationColumns['contactGroupAdditiveInheritance'], ParameterType::BOOLEAN);
     }
 
     /**
