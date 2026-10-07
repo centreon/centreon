@@ -67,7 +67,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
      * template_ids, group_ids, icon_id. Every other key exists only on `findOne()`'s row, so each
      * is read defensively (isset / array_key_exists / ??) below.
      */
-    public function transform(mixed $from): Host
+    public function transform(mixed $from, array $extraData = []): Host
     {
         $alias = $from['alias'] !== null ? trim($from['alias']) : '';
         $snmpVersion = $this->nullIfEmpty($from['snmp_version'] ?? null);

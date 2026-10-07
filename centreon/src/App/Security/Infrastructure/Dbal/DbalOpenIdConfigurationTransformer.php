@@ -65,7 +65,7 @@ final readonly class DbalOpenIdConfigurationTransformer implements TransformerIn
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): OpenIdConfiguration
+    public function transform(mixed $from, array $extraData = []): OpenIdConfiguration
     {
         /** @var OpenIdConfigurationTypeAlias $jsonConfiguration */
         $jsonConfiguration = json_decode($from['custom_configuration'], true, flags: JSON_THROW_ON_ERROR);

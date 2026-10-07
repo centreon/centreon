@@ -23,48 +23,68 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
-use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
-use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
-use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * Owns the wire representation of the notification block, in both directions: the domain enums
  * carry no string of their own, so this is the only place that knows an API client says "down"
  * and "use_default".
  *
- * @implements TransformerInterface<?Notifications, ?HostNotificationsOutput>
+ * A reference missing from the name lookups (deleted between validation and the response) is
+ * dropped from the output rather than failing the whole response.
+ *
+ * @phpstan-type ExtraDataTypeAlias array{
+ *     contactNames?: array<int, NotificationContactName>,
+ *     contactGroupNames?: array<int, ContactGroupName>,
+ *     timePeriodNames?: array<int, TimePeriodName>,
+ * }
+ *
+ * @implements TransformerInterface<?Notifications, ?HostNotificationsOutput, ExtraDataTypeAlias>
  */
 final readonly class HostNotificationsTransformer implements TransformerInterface
 {
-    public function __construct(
-        private NotificationContactRepository $contactRepository,
-        private ContactGroupRepository $contactGroupRepository,
-        private TimePeriodRepository $timePeriodRepository,
-    ) {
-    }
-
-    public function transform(mixed $from): ?HostNotificationsOutput
+    public function transform(mixed $from, array $extraData = []): ?HostNotificationsOutput
     {
         if (! $from instanceof Notifications) {
             return null;
         }
 
+        Assert::keyExists($extraData, 'contactNames');
+        Assert::keyExists($extraData, 'contactGroupNames');
+        Assert::keyExists($extraData, 'timePeriodNames');
+
+        $contacts = [];
+        foreach ($from->contactIds as $contactId) {
+            if (isset($extraData['contactNames'][$contactId->value])) {
+                $contacts[] = new NotificationContactResource($contactId->value, $extraData['contactNames'][$contactId->value]->value);
+            }
+        }
+
+        $contactGroups = [];
+        foreach ($from->contactGroupIds as $contactGroupId) {
+            if (isset($extraData['contactGroupNames'][$contactGroupId->value])) {
+                $contactGroups[] = new ContactGroupResource($contactGroupId->value, $extraData['contactGroupNames'][$contactGroupId->value]->value);
+            }
+        }
+
         return new HostNotificationsOutput(
             enabled: $from->enabled->value,
-            contacts: $this->resolveContacts($from),
-            contactGroups: $this->resolveNotificationContactGroups($from),
+            contacts: $contacts,
+            contactGroups: $contactGroups,
             options: array_map(NotificationOptionEnumResolver::toString(...), $from->options),
             interval: $from->interval,
-            timeperiod: $this->resolveTimePeriod($from->periodId),
+            timeperiod: $this->resolveTimePeriod($from->periodId, $extraData['timePeriodNames']),
             firstDelay: $from->firstDelay,
             recoveryDelay: $from->recoveryDelay,
             contactAdditiveInheritance: $from->contactAdditiveInheritance,
@@ -73,47 +93,14 @@ final readonly class HostNotificationsTransformer implements TransformerInterfac
     }
 
     /**
-     * @return list<NotificationContactResource>
+     * @param array<int, TimePeriodName> $timePeriodNames
      */
-    private function resolveContacts(Notifications $notifications): array
+    private function resolveTimePeriod(?TimePeriodId $periodId, array $timePeriodNames): ?TimePeriodResource
     {
-        $names = $this->contactRepository->findNamesByIds($notifications->contactIds)->toArray();
-
-        $contacts = [];
-        foreach ($notifications->contactIds as $contactId) {
-            if (isset($names[$contactId->value])) {
-                $contacts[] = new NotificationContactResource($contactId->value, $names[$contactId->value]->value);
-            }
-        }
-
-        return $contacts;
-    }
-
-    /**
-     * @return list<ContactGroupResource>
-     */
-    private function resolveNotificationContactGroups(Notifications $notifications): array
-    {
-        $names = $this->contactGroupRepository->findNamesByIds($notifications->contactGroupIds)->toArray();
-
-        $contactGroups = [];
-        foreach ($notifications->contactGroupIds as $contactGroupId) {
-            if (isset($names[$contactGroupId->value])) {
-                $contactGroups[] = new ContactGroupResource($contactGroupId->value, $names[$contactGroupId->value]->value);
-            }
-        }
-
-        return $contactGroups;
-    }
-
-    private function resolveTimePeriod(?TimePeriodId $periodId): ?TimePeriodResource
-    {
-        if (! $periodId instanceof TimePeriodId) {
+        if (! $periodId instanceof TimePeriodId || ! isset($timePeriodNames[$periodId->value])) {
             return null;
         }
 
-        $name = $this->timePeriodRepository->findNamesByIds(new Collection([$periodId], TimePeriodId::class))->toArray()[$periodId->value] ?? null;
-
-        return $name === null ? null : new TimePeriodResource($periodId->value, $name->value);
+        return new TimePeriodResource($periodId->value, $timePeriodNames[$periodId->value]->value);
     }
 }

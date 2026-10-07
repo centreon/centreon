@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class ResourceConnectorTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ConnectorResource
+    public function transform(mixed $from, array $extraData = []): ConnectorResource
     {
         return new ConnectorResource(
             id: $from->id()->value,

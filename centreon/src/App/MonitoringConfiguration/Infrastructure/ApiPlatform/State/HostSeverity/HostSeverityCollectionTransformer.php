@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class HostSeverityCollectionTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): HostSeverityCollectionOutput
+    public function transform(mixed $from, array $extraData = []): HostSeverityCollectionOutput
     {
         return new HostSeverityCollectionOutput(
             id: $from->id()->value,
