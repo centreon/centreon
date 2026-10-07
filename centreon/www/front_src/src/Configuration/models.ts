@@ -26,6 +26,17 @@ export interface Form {
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
   defaultValues: object;
+  // Opt-in: what the panel shows when it edits a selection at once. The
+  // adapter receives the form values and returns the body sent to each row.
+  massChange?: MassChangeForm;
+}
+
+export interface MassChangeForm {
+  adapter: (values: Record<string, unknown>) => object;
+  defaultValues: object;
+  groups: Array<Group>;
+  inputs: Array<InputProps>;
+  validationSchema: ObjectSchema<object>;
 }
 
 export type Filters = {

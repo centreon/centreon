@@ -55,6 +55,7 @@ import {
   triStateDecoder,
   triStateOptions
 } from '../triState';
+import { withUpdateMode } from '../updateMode';
 import type { FormSection } from './models';
 
 // Uniqueness is not checked here: the server owns it, and a client check goes
@@ -328,6 +329,39 @@ const getSchedulingTriStateInput = ({
   type: InputType.SegmentedButtons
 });
 
+// The rules on what identifies one host, which a mass change does not show.
+const getHostOwnSchema = (t: TFunction) => ({
+  address: string()
+    .trim()
+    .max(addressMaxLength)
+    // Without this an empty address reports itself as invalid rather than as
+    // missing, which the name field next to it does not do.
+    .matches(address, {
+      excludeEmptyString: true,
+      message: t(labelInvalidAddress)
+    })
+    .required(t(labelRequired)),
+  alias: string().trim().max(aliasMaxLength),
+  // Both fields are trimmed the way the server normalises them, so blanks
+  // report as missing instead of passing to a 422.
+  name: string()
+    .trim()
+    .max(nameMaxLength)
+    .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
+    .test(
+      'is-not-a-module',
+      t(labelNameMustNotStartWithModule),
+      (value) => !moduleNamePrefix.test(value ?? '')
+    )
+    .required(t(labelRequired)),
+  poller: object({
+    id: number().required(t(labelRequired)),
+    name: string()
+  })
+    .nullable()
+    .required(t(labelRequired))
+});
+
 export const hostConfiguration: FormSection<HostConfigurationDetail> = {
   defaultValues: {
     address: '',
@@ -387,7 +421,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     snmpCommunity: 'snmp_community',
     snmpVersion: 'snmp_version'
   },
-  getInputs: ({ isCloudPlatform, t }) => {
+  getInputs: ({ isCloudPlatform, isMassChange, t }) => {
     const checkPeriod = {
       connectedAutocomplete: buildSelector({
         endpoint: hostFormTimePeriodsEndpoint,
@@ -415,68 +449,75 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       })
     ];
 
+    const poller = {
+      connectedAutocomplete: buildSelector({
+        endpoint: hostFormPollersEndpoint,
+        getOptionLabel: (option) => (option as SelectEntry)?.name,
+        // The listing filter beside this field carries the same label and
+        // reads every poller, where this one reads only the active ones.
+        queryKey: 'host-form-poller'
+      }),
+      dataTestId: 'host-form-poller',
+      fieldName: 'poller',
+      label: t(labelMonitoringServer),
+      required: !isMassChange,
+      type: InputType.SingleConnectedAutocomplete
+    };
+
     return [
       // One row at every panel width, as designed: the fields share it equally
       // and the resolve button keeps its own width.
-      {
-        fieldName: 'basic-information',
-        grid: {
-          // The resolve route does not exist on cloud.
-          className: isCloudPlatform
-            ? 'grid-cols-4'
-            : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
-          columns: [
+      // Name, alias and address belong to one host: legacy mass change has
+      // none.
+      ...(isMassChange
+        ? []
+        : [
             {
-              dataTestId: 'host-form-name',
-              fieldName: 'name',
-              label: t(labelName),
-              required: true,
-              type: InputType.Text
-            },
-            {
-              dataTestId: 'host-form-alias',
-              fieldName: 'alias',
-              label: t(labelAlias),
-              type: InputType.Text
-            },
-            {
-              connectedAutocomplete: buildSelector({
-                endpoint: hostFormPollersEndpoint,
-                getOptionLabel: (option) => (option as SelectEntry)?.name,
-                // The listing filter beside this field carries the same label
-                // and reads every poller, where this one reads only the active
-                // ones.
-                queryKey: 'host-form-poller'
-              }),
-              dataTestId: 'host-form-poller',
-              fieldName: 'poller',
-              label: t(labelMonitoringServer),
-              required: true,
-              type: InputType.SingleConnectedAutocomplete
-            },
-            {
-              dataTestId: 'host-form-address',
-              fieldName: 'address',
-              label: t(labelIpAddress),
-              required: true,
-              type: InputType.Text
-            },
-            ...(isCloudPlatform
-              ? []
-              : [
+              fieldName: 'basic-information',
+              grid: {
+                // The resolve route does not exist on cloud.
+                className: isCloudPlatform
+                  ? 'grid-cols-4'
+                  : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
+                columns: [
                   {
-                    custom: { Component: ResolveAddress },
-                    dataTestId: 'host-form-address-resolve',
-                    fieldName: 'address-resolve',
-                    label: t(labelResolve),
-                    type: InputType.Custom
-                  }
-                ])
-          ]
-        },
-        label: 'host-form-basic-information',
-        type: InputType.Grid
-      },
+                    dataTestId: 'host-form-name',
+                    fieldName: 'name',
+                    label: t(labelName),
+                    required: true,
+                    type: InputType.Text
+                  },
+                  {
+                    dataTestId: 'host-form-alias',
+                    fieldName: 'alias',
+                    label: t(labelAlias),
+                    type: InputType.Text
+                  },
+                  poller,
+                  {
+                    dataTestId: 'host-form-address',
+                    fieldName: 'address',
+                    label: t(labelIpAddress),
+                    required: true,
+                    type: InputType.Text
+                  },
+                  ...(isCloudPlatform
+                    ? []
+                    : [
+                        {
+                          custom: { Component: ResolveAddress },
+                          dataTestId: 'host-form-address-resolve',
+                          fieldName: 'address-resolve',
+                          label: t(labelResolve),
+                          type: InputType.Custom
+                        }
+                      ])
+                ]
+              },
+              label: 'host-form-basic-information',
+              type: InputType.Grid
+            }
+          ]),
       {
         fieldName: 'monitoring-layout',
         grid: {
@@ -485,7 +526,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             {
               fieldName: 'host-details',
               grid: {
-                className: 'grid-cols-1 @[600px]:grid-cols-3',
+                className: isMassChange
+                  ? 'grid-cols-1 @[600px]:grid-cols-2'
+                  : 'grid-cols-1 @[600px]:grid-cols-3',
                 columns: [
                   {
                     dataTestId: 'host-form-snmp-community',
@@ -522,7 +565,10 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                     fieldName: 'timezone',
                     label: t(labelTimezone),
                     type: InputType.SingleConnectedAutocomplete
-                  }
+                  },
+                  // After the SNMP community: a password manager types into
+                  // the field before it, and would open this selector.
+                  ...(isMassChange ? [poller] : [])
                 ]
               },
               label: 'host-form-host-details',
@@ -620,13 +666,18 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
               grid: {
                 className: 'grid-cols-1',
                 columns: [
-                  {
-                    custom: { Component: Templates },
-                    dataTestId: 'host-form-templates',
-                    fieldName: 'templates',
-                    label: t(labelTemplates),
-                    type: InputType.Custom
-                  },
+                  withUpdateMode({
+                    field: 'templates',
+                    input: {
+                      custom: { Component: Templates },
+                      dataTestId: 'host-form-templates',
+                      fieldName: 'templates',
+                      label: t(labelTemplates),
+                      type: InputType.Custom
+                    },
+                    isMassChange,
+                    t
+                  }),
                   // Cloud always creates them.
                   ...(isCloudPlatform
                     ? []
@@ -658,37 +709,13 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       }
     ];
   },
-  getSchema: ({ t }) => ({
-    address: string()
-      .trim()
-      .max(addressMaxLength)
-      // Without this an empty address reports itself as invalid rather than
-      // as missing, which the name field next to it does not do.
-      .matches(address, {
-        excludeEmptyString: true,
-        message: t(labelInvalidAddress)
-      })
-      .required(t(labelRequired)),
-    alias: string().trim().max(aliasMaxLength),
+  getSchema: ({ isMassChange, t }) => ({
+    ...(isMassChange
+      ? {
+          poller: object({ id: number(), name: string() }).nullable()
+        }
+      : getHostOwnSchema(t)),
     checkOptions: object({ macros: getMacrosSchema(t) }),
-    // Both fields are trimmed the way the server normalises them, so blanks
-    // report as missing instead of passing to a 422.
-    name: string()
-      .trim()
-      .max(nameMaxLength)
-      .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
-      .test(
-        'is-not-a-module',
-        t(labelNameMustNotStartWithModule),
-        (value) => !moduleNamePrefix.test(value ?? '')
-      )
-      .required(t(labelRequired)),
-    poller: object({
-      id: number().required(t(labelRequired)),
-      name: string()
-    })
-      .nullable()
-      .required(t(labelRequired)),
     schedulingOptions: object({
       maxCheckAttempts: getAtLeastOneSchema(t(labelMustBeIntegerOfAtLeastOne)),
       normalCheckInterval: getAtLeastOneSchema(
@@ -699,6 +726,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     snmpCommunity: string().max(snmpCommunityMaxLength)
   }),
   label: labelHostConfiguration,
+
   toPayload: (values, { isCloudPlatform }) => {
     const {
       name,

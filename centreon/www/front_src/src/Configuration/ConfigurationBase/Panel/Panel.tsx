@@ -7,7 +7,7 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Form as FormType } from '../../models';
-import { ResetDialog } from '../Dialogs';
+import { MassChangeDialog, ResetDialog } from '../Dialogs';
 import { Form, useForm } from '../Form';
 import { labelClose } from '../translatedLabels';
 import { panelDataTestIds } from './dataTestIds';
@@ -53,7 +53,14 @@ const FormPanel = ({
   const { classes } = usePanelStyles();
 
   const { labelHeader, submit, close, mode, id, initialValues, isLoading } =
-    useForm({ defaultValues: form.defaultValues, hasWriteAccess });
+    useForm({
+      defaultValues: form.defaultValues,
+      hasWriteAccess,
+      massChangeForm: form.massChange
+    });
+
+  const displayedForm =
+    equals(mode, 'massChange') && form.massChange ? form.massChange : form;
 
   const loadedResource = equals(mode, 'edit')
     ? (initialValues as Record<string, unknown>)
@@ -78,18 +85,19 @@ const FormPanel = ({
           data-testid={panelDataTestIds.content}
         >
           <ResetDialog />
+          <MassChangeDialog />
           <Form
             areActionsInHeader
-            groups={form?.groups}
+            groups={displayedForm?.groups}
             hasWriteAccess={hasWriteAccess}
             id={id}
             initialValues={initialValues}
-            inputs={form?.inputs}
+            inputs={displayedForm?.inputs}
             isLoading={isLoading}
             mode={mode}
             onCancel={close}
             onSubmit={submit}
-            validationSchema={form?.validationSchema}
+            validationSchema={displayedForm?.validationSchema}
           />
         </div>
       }

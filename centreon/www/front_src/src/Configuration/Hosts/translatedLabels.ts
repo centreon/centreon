@@ -119,3 +119,7 @@ export const labelComments = 'Comments';
 export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
 export const labelMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
+export const labelMassChange = 'Mass Change';
+export const labelUpdateMode = 'Update mode';
+export const labelIncremental = 'Incremental';
+export const labelReplacement = 'Replacement';

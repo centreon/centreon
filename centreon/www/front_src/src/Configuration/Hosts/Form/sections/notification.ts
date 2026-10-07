@@ -37,6 +37,7 @@ import {
   triStateDecoder,
   triStateOptions
 } from '../triState';
+import { getUpdateModeInput, withUpdateMode } from '../updateMode';
 import type { FormSection } from './models';
 
 // A number field holds `''` until something is typed.
@@ -164,7 +165,7 @@ export const notification: FormSection<NotificationDetail> = {
       JsonDecoder.nullable(notificationsDecoder)
     ).map((value) => value ?? defaultNotifications)
   },
-  getInputs: ({ t, isAdditiveInheritanceEnabled }) => {
+  getInputs: ({ t, isAdditiveInheritanceEnabled, isMassChange }) => {
     const enabled = {
       dataTestId: 'host-form-notifications-enabled',
       fieldName: 'notifications.enabled',
@@ -293,7 +294,10 @@ export const notification: FormSection<NotificationDetail> = {
                       'host-form-notifications-contact-group-additive-inheritance',
                     fieldName: 'notifications.contactGroupAdditiveInheritance',
                     label: t(labelContactGroupAdditiveInheritance)
-                  })
+                  }),
+                  // One choice for contacts and contact groups, as legacy's
+                  // `mc_mod_hcg`.
+                  ...(isMassChange ? [getUpdateModeInput('contacts', t)] : [])
                 ]
               },
               label: 'host-form-notifications-recipients',
@@ -303,7 +307,15 @@ export const notification: FormSection<NotificationDetail> = {
               fieldName: 'notifications-when',
               grid: {
                 className: 'grid-cols-1',
-                columns: [options, delays]
+                columns: [
+                  withUpdateMode({
+                    field: 'notificationOptions',
+                    input: options,
+                    isMassChange,
+                    t
+                  }),
+                  delays
+                ]
               },
               label: 'host-form-notifications-when',
               type: InputType.Grid

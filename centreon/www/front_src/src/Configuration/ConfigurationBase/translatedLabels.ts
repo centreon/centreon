@@ -82,3 +82,15 @@ export const labelSave = 'Save';
 export const labelClose = 'Close';
 export const labelReset = 'Reset';
 export const labelDoYouWantToResetTheForm = 'Do you want to reset the form?';
+export const labelMassChange = 'Mass Change';
+export const labelApply = 'Apply';
+export const labelApplyChangesTo = ({
+  count,
+  type
+}: {
+  count: number;
+  type: string;
+}): string => `The changes will be applied to ${count} ${type}.`;
+export const labelFailedToUpdateResources = (type: string) =>
+  `Failed to update the ${type}`;
+export const labelFailedToUpdateSomeResources = 'Failed to update';

@@ -7,6 +7,8 @@ import type { ObjectShape } from 'yup';
 export interface PlatformContext {
   isAdditiveInheritanceEnabled?: boolean;
   isCloudPlatform: boolean;
+  // The form edits a selection: no per-host field, nothing required.
+  isMassChange?: boolean;
 }
 
 export interface SectionContext extends PlatformContext {

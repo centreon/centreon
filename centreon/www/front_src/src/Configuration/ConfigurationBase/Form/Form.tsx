@@ -21,7 +21,7 @@ export type ResourceFormProps = {
     values: Record<string, unknown>,
     helpers: FormikHelpers<Record<string, unknown>>
   ) => void;
-  mode?: 'add' | 'edit';
+  mode?: 'add' | 'edit' | 'massChange';
   inputs: Array<InputProps>;
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
@@ -43,7 +43,7 @@ const Actions = ({
   mode
 }: {
   onCancel: FormActionsProps['onCancel'];
-  mode?: 'add' | 'edit';
+  mode?: 'add' | 'edit' | 'massChange';
 }): JSX.Element => {
   const { t } = useTranslation();
 

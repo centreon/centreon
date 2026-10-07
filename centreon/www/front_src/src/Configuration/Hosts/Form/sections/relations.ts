@@ -20,7 +20,8 @@ import {
   labelRequired
 } from '../../translatedLabels';
 import { buildSelector, toIds } from '../selector';
-import type { FormSection } from './models';
+import { type UpdateModeField, withUpdateMode } from '../updateMode';
+import type { FormSection, SectionContext } from './models';
 
 interface RelationsDetail {
   categories: Array<NamedEntity>;
@@ -28,6 +29,60 @@ interface RelationsDetail {
   groups: Array<NamedEntity>;
   parentHosts: Array<NamedEntity>;
 }
+
+const getRelationInputs = ({
+  t,
+  isCloudPlatform,
+  isMassChange
+}: SectionContext) => [
+  {
+    connectedAutocomplete: buildSelector({
+      chipColor: 'primary',
+      endpoint: hostFormHostGroupsEndpoint,
+      queryKey: 'host-form-groups'
+    }),
+    dataTestId: 'host-form-groups',
+    fieldName: 'groups',
+    // `CreateHostInput` counts at least one group on a cloud platform and
+    // leaves it optional elsewhere, so the field follows the platform.
+    getRequired: () => isCloudPlatform && !isMassChange,
+    label: t(labelHostGroups),
+    type: InputType.MultiConnectedAutocomplete
+  },
+  {
+    connectedAutocomplete: buildSelector({
+      chipColor: 'primary',
+      endpoint: hostFormHostCategoriesEndpoint,
+      queryKey: 'host-form-categories'
+    }),
+    dataTestId: 'host-form-categories',
+    fieldName: 'categories',
+    label: t(labelHostCategories),
+    type: InputType.MultiConnectedAutocomplete
+  },
+  {
+    connectedAutocomplete: buildSelector({
+      chipColor: 'primary',
+      endpoint: hostFormHostsEndpoint,
+      queryKey: 'host-form-parent-hosts'
+    }),
+    dataTestId: 'host-form-parent-hosts',
+    fieldName: 'parentHosts',
+    label: t(labelParentHosts),
+    type: InputType.MultiConnectedAutocomplete
+  },
+  {
+    connectedAutocomplete: buildSelector({
+      chipColor: 'primary',
+      endpoint: hostFormHostsEndpoint,
+      queryKey: 'host-form-child-hosts'
+    }),
+    dataTestId: 'host-form-child-hosts',
+    fieldName: 'childHosts',
+    label: t(labelChildHosts),
+    type: InputType.MultiConnectedAutocomplete
+  }
+];
 
 export const relations: FormSection<RelationsDetail> = {
   defaultValues: {
@@ -58,61 +113,23 @@ export const relations: FormSection<RelationsDetail> = {
     childHosts: 'child_hosts',
     parentHosts: 'parent_hosts'
   },
-  getInputs: ({ t, isCloudPlatform }) => [
-    {
-      connectedAutocomplete: buildSelector({
-        chipColor: 'primary',
-        endpoint: hostFormHostGroupsEndpoint,
-        queryKey: 'host-form-groups'
-      }),
-      dataTestId: 'host-form-groups',
-      fieldName: 'groups',
-      // `CreateHostInput` counts at least one group on a cloud platform and
-      // leaves it optional elsewhere, so the field follows the platform.
-      getRequired: () => isCloudPlatform,
-      label: t(labelHostGroups),
-      type: InputType.MultiConnectedAutocomplete
-    },
-    {
-      connectedAutocomplete: buildSelector({
-        chipColor: 'primary',
-        endpoint: hostFormHostCategoriesEndpoint,
-        queryKey: 'host-form-categories'
-      }),
-      dataTestId: 'host-form-categories',
-      fieldName: 'categories',
-      label: t(labelHostCategories),
-      type: InputType.MultiConnectedAutocomplete
-    },
-    {
-      connectedAutocomplete: buildSelector({
-        chipColor: 'primary',
-        endpoint: hostFormHostsEndpoint,
-        queryKey: 'host-form-parent-hosts'
-      }),
-      dataTestId: 'host-form-parent-hosts',
-      fieldName: 'parentHosts',
-      label: t(labelParentHosts),
-      type: InputType.MultiConnectedAutocomplete
-    },
-    {
-      connectedAutocomplete: buildSelector({
-        chipColor: 'primary',
-        endpoint: hostFormHostsEndpoint,
-        queryKey: 'host-form-child-hosts'
-      }),
-      dataTestId: 'host-form-child-hosts',
-      fieldName: 'childHosts',
-      label: t(labelChildHosts),
-      type: InputType.MultiConnectedAutocomplete
-    }
-  ],
-  getSchema: ({ t, isCloudPlatform }) => ({
+  // Each list carries its update mode in a mass change, as in legacy.
+  getInputs: (context) =>
+    getRelationInputs(context).map((input) =>
+      withUpdateMode({
+        field: input.fieldName as UpdateModeField,
+        input,
+        isMassChange: context.isMassChange,
+        t: context.t
+      })
+    ),
+  getSchema: ({ t, isCloudPlatform, isMassChange }) => ({
     // A host must belong to a group on cloud and need not anywhere else:
     // `CreateHostInput` counts them only under `WhenPlatform(forCloud: true)`.
-    groups: isCloudPlatform
-      ? array().min(1, t(labelRequired))
-      : array().notRequired(),
+    groups:
+      isCloudPlatform && !isMassChange
+        ? array().min(1, t(labelRequired))
+        : array().notRequired(),
     // As the legacy form, a host cannot be both parent and child.
     parentHosts: array().test(
       'is-not-also-a-child',

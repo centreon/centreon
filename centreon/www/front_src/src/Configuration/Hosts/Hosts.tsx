@@ -1,5 +1,6 @@
 import {
   RocketLaunchOutlined as DeployIcon,
+  EditNoteOutlined as MassChangeIcon,
   Grain as ServiceIcon
 } from '@mui/icons-material';
 
@@ -9,11 +10,12 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
+import { formStateAtom } from '../ConfigurationBase/atoms';
 import { type Actions, ResourceType } from '../models';
 import { useDefaultPoller, useDeployServices } from './api';
 import {
@@ -22,13 +24,20 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import useColumns from './Columns/useColumns';
-import { getDefaultValues, useFormInputs, useValidationSchema } from './Form';
+import {
+  getDefaultValues,
+  getMassChangeAdapter,
+  getMassChangeDefaultValues,
+  useFormInputs,
+  useValidationSchema
+} from './Form';
 import type { Filters } from './models';
 import {
   labelCreateHost,
   labelDeployServices,
   labelGoToServices,
   labelHosts,
+  labelMassChange,
   labelWelcomeToHosts
 } from './translatedLabels';
 import useHosts from './useHosts';
@@ -59,6 +68,38 @@ const Hosts = () => {
     isCloudPlatform
   });
   const { validationSchema } = useValidationSchema({ isCloudPlatform });
+  const { groups: massChangeGroups, inputs: massChangeInputs } = useFormInputs({
+    canEdit,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const { validationSchema: massChangeValidationSchema } = useValidationSchema({
+    isCloudPlatform,
+    isMassChange: true
+  });
+  const massChange = useMemo(() => {
+    const context = {
+      isAdditiveInheritanceEnabled,
+      isCloudPlatform,
+      isMassChange: true
+    };
+
+    return {
+      adapter: getMassChangeAdapter(context),
+      defaultValues: getMassChangeDefaultValues(context),
+      groups: massChangeGroups,
+      inputs: massChangeInputs,
+      validationSchema: massChangeValidationSchema
+    };
+  }, [
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    massChangeGroups,
+    massChangeInputs,
+    massChangeValidationSchema
+  ]);
+  const setFormState = useSetAtom(formStateAtom);
 
   const { api, filtersConfiguration } = useHosts({
     isAdditiveInheritanceEnabled,
@@ -85,6 +126,22 @@ const Hosts = () => {
       massive: canEdit,
       massiveActions: [
         {
+          dataTestId: 'mass-change',
+          Icon: MassChangeIcon,
+          label: labelMassChange,
+          onClick: (rows) =>
+            setFormState({
+              id: null,
+              isOpen: true,
+              mode: 'massChange',
+              resource: null,
+              selection: rows.map(({ id, name }) => ({
+                id: id as number,
+                name: name as string
+              }))
+            })
+        },
+        {
           dataTestId: 'deploy-services',
           Icon: DeployIcon,
           label: labelDeployServices,
@@ -105,7 +162,7 @@ const Hosts = () => {
       rowActionsWithoutWriteAccess: true,
       viewDetails: true
     }),
-    [canEdit, deployServices]
+    [canEdit, deployServices, setFormState]
   );
 
   return (
@@ -122,7 +179,7 @@ const Hosts = () => {
       // The default width fits neither five filters nor the names the
       // autocompletes hold.
       filtersPanelWidth={60}
-      form={{ defaultValues, groups, inputs, validationSchema }}
+      form={{ defaultValues, groups, inputs, massChange, validationSchema }}
       formVariant="panel"
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{

@@ -1,3 +1,4 @@
+import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
   labelDelete,
   labelDisable,
@@ -8,6 +9,7 @@ import {
 } from '../../ConfigurationBase/translatedLabels';
 import {
   labelDeployServices,
+  labelMassChange,
   labelServiceDeploymentFailed,
   labelServicesDeployed
 } from '../translatedLabels';
@@ -144,7 +146,7 @@ export default () => {
       cy.contains(labelServicesDeployed).should('not.exist');
     });
 
-    it('offers every massive action the ticket lists, and no massive change', () => {
+    it('offers every massive action the ticket lists', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -154,16 +156,17 @@ export default () => {
       cy.findByTestId(labelMoreActions).click();
 
       // A positive assertion on the whole menu: it fails if an entry goes
-      // missing and if massive change appears before its own ticket lands.
+      // missing or one appears.
       cy.get('[role="menu"]')
         .findAllByRole('menuitem')
-        .should('have.length', 5)
+        .should('have.length', 6)
         .then((entries) => {
           expect([...entries].map((entry) => entry.textContent)).to.deep.equal([
             labelDuplicate,
             labelEnable,
             labelDisable,
             labelDelete,
+            labelMassChange,
             labelDeployServices
           ]);
         });
@@ -188,6 +191,59 @@ export default () => {
       // it is invisible if you assert on the first host.
       cy.waitForRequest('@patchHost2').then(({ request }) => {
         expect(request.body).to.deep.equal({ activate: false });
+      });
+    });
+
+    it('applies a mass change to every selected host, sending only what changed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      // Row by row, never the check-all: it selects the whole page.
+      selectSelectableRow(0);
+      selectSelectableRow(1);
+
+      cy.findByTestId(labelMoreActions).click();
+      cy.get('[role="menu"]').contains(labelMassChange).click();
+
+      cy.get(`[data-testid="${panelDataTestIds.header}"]`).should(
+        'have.text',
+        `${labelMassChange} (2)`
+      );
+      // Nothing that identifies one host.
+      cy.findByTestId('host-form-name').should('not.exist');
+      cy.findByTestId('host-form-address').should('not.exist');
+
+      // Incremental, the default: added to each host's groups.
+      cy.findByTestId('host-form-groups').click();
+      cy.get('.MuiAutocomplete-popper').contains('Linux servers').click();
+
+      // Replacement with nothing picked clears the categories.
+      cy.findByTestId('host-form-update-mode-categories-replacement').click();
+
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .type('3');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.findByTestId('mass-change-confirmation').should(
+        'contain.text',
+        '2 hosts'
+      );
+      cy.findByTestId('confirm').click();
+
+      const expectedBody = {
+        category_ids: [],
+        host_group_ids_to_add: [1],
+        scheduling_options: { max_check_attempts: 3 }
+      };
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body).to.deep.equal(expectedBody);
+      });
+      cy.waitForRequest('@patchHost2').then(({ request }) => {
+        expect(request.body).to.deep.equal(expectedBody);
       });
     });
 

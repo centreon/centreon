@@ -19,6 +19,7 @@ import {
   configurationAtom,
   formActionsAtom,
   formStateAtom,
+  isMassChangeConfirmationDialogOpenAtom,
   isResetConfirmationDialogOpenAtom
 } from '../atoms';
 import useActions from '../Listing/Columns/Actions/useActions';
@@ -69,7 +70,12 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
     isResetConfirmationDialogOpenAtom
   );
 
+  const setIsMassChangeConfirmationDialogOpen = useSetAtom(
+    isMassChangeConfirmationDialogOpenAtom
+  );
+
   const isEditMode = equals(mode, 'edit');
+  const isMassChangeMode = equals(mode, 'massChange');
 
   // Never merged: `useFetchQuery` keeps the last payload it loaded, so a detail
   // response can still describe the previously opened resource, and an action
@@ -80,7 +86,9 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
 
   const row = { ...resource, id } as ResourceRow;
 
-  const title = (resource?.name as string) || fallbackTitle;
+  const title = isMassChangeMode
+    ? fallbackTitle
+    : (resource?.name as string) || fallbackTitle;
 
   // A resource with no icon, or a module whose resources have none, simply
   // shows its name.
@@ -144,7 +152,12 @@ const Header = ({ fallbackTitle, loadedResource }: Props): ReactElement => {
             ariaLabel={t(labelSave)}
             dataTestid={panelDataTestIds.save}
             disabled={!formActions.canSubmit}
-            onClick={formActions.submit}
+            // A mass change confirms the count first.
+            onClick={
+              isMassChangeMode
+                ? () => setIsMassChangeConfirmationDialogOpen(true)
+                : formActions.submit
+            }
             title={t(labelSave)}
           >
             <SaveIcon color={formActions.canSubmit ? 'primary' : 'disabled'} />

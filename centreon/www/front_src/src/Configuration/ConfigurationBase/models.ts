@@ -19,10 +19,14 @@ export interface FormActions {
   submit: () => void;
 }
 
+export type FormMode = 'add' | 'edit' | 'massChange';
+
 export interface FormState {
   id: number | null;
+  // The rows a mass change applies to.
+  selection?: Array<{ id: number; name: string }>;
   isOpen: boolean;
-  mode: 'add' | 'edit';
+  mode: FormMode;
   // The row the form was opened from, for a surface that shows more than the
   // fields before the detail endpoint answers.
   resource?: ResourceRow | null;
