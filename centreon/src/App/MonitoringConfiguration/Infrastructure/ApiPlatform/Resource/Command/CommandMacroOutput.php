@@ -21,20 +21,23 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
-use Webmozart\Assert\Assert;
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 
-final readonly class CommandName
+final readonly class CommandMacroOutput
 {
-    public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
-    public const CENTREON_MONITORING_AGENT_MARKER = 'Centreon-Monitoring-Agent';
-    public const CMA_MARKER = '-CMA-';
-
+    /**
+     * @param ?int $id null when the macro is used in the command line but not stored;
+     *                 always serialized, even when null, so clients can tell stored macros apart
+     * @param string $type host|service
+     */
     public function __construct(
-        public string $value,
+        #[Context([AbstractObjectNormalizer::SKIP_NULL_VALUES => false])]
+        public ?int $id,
+        public string $name,
+        public string $type,
     ) {
-        Assert::lengthBetween($value, 1, 200);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
     }
 }

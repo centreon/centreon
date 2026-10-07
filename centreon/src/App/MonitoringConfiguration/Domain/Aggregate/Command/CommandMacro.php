@@ -23,18 +23,19 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
-use Webmozart\Assert\Assert;
-
-final readonly class CommandName
+/**
+ * An on-demand macro used in a command line ($_HOSTxxx$ or $_SERVICExxx$).
+ * A command macro has no value: it only declares the macro the command expects.
+ */
+final readonly class CommandMacro
 {
-    public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
-    public const CENTREON_MONITORING_AGENT_MARKER = 'Centreon-Monitoring-Agent';
-    public const CMA_MARKER = '-CMA-';
-
+    /**
+     * @param ?CommandMacroId $id null when the macro is not stored (e.g. commands created by monitoring connectors)
+     */
     public function __construct(
-        public string $value,
+        public ?CommandMacroId $id,
+        public string $name,
+        public CommandMacroTypeEnum $type,
     ) {
-        Assert::lengthBetween($value, 1, 200);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
     }
 }

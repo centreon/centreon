@@ -25,16 +25,10 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Command;
 
 use Webmozart\Assert\Assert;
 
-final readonly class CommandName
+final readonly class CommandMacroId
 {
-    public const NAME_VALIDATION_REGEX  = '/^[^~!$%^&*"|\'<>?,()=]+$/';
-    public const CENTREON_MONITORING_AGENT_MARKER = 'Centreon-Monitoring-Agent';
-    public const CMA_MARKER = '-CMA-';
-
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 200);
-        Assert::regex($value, self::NAME_VALIDATION_REGEX);
+    public function __construct(public int $value)
+    {
+        Assert::positiveInteger($value);
     }
 }

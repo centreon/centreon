@@ -122,4 +122,47 @@ final class DataProcessingTest extends TestCase
 
         new DataProcessing(eventHandlerArgs: ['a#BR#b']);
     }
+
+    public function testWithKeepsEveryValueWhenNothingIsProvided(): void
+    {
+        $original = new DataProcessing(TriStateEnum::True, TriStateEnum::False, TriStateEnum::True, 15, 120, 20, 40, new CommandId(3), ['restart']);
+
+        self::assertTrue($original->equals($original->with()));
+    }
+
+    public function testWithReplacesOnlyTheProvidedValues(): void
+    {
+        $original = new DataProcessing(TriStateEnum::True, freshnessThreshold: 120, lowFlapThreshold: 20, eventHandlerArgs: ['restart']);
+
+        $changed = $original->with(freshnessThreshold: 300, eventHandlerArgs: []);
+
+        self::assertSame(300, $changed->freshnessThreshold);
+        self::assertSame([], $changed->eventHandlerArgs);
+        self::assertSame(TriStateEnum::True, $changed->checkFreshness);
+        self::assertSame(20, $changed->lowFlapThreshold);
+    }
+
+    public function testWithClearsAValueSetToNull(): void
+    {
+        $original = new DataProcessing(freshnessThreshold: 120, eventHandlerCommandId: new CommandId(3));
+
+        $changed = $original->with(freshnessThreshold: null, eventHandlerCommandId: null);
+
+        self::assertNull($changed->freshnessThreshold);
+        self::assertNull($changed->eventHandlerCommandId);
+    }
+
+    public function testWithStillEnforcesTheInvariants(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new DataProcessing())->with(lowFlapThreshold: 101);
+    }
+
+    public function testEqualsDistinguishesNullFromZero(): void
+    {
+        self::assertFalse((new DataProcessing(freshnessThreshold: 0))->equals(new DataProcessing()));
+        self::assertTrue((new DataProcessing(eventHandlerArgs: ['a']))->equals(new DataProcessing(eventHandlerArgs: ['a'])));
+        self::assertFalse((new DataProcessing(eventHandlerArgs: ['a']))->equals(new DataProcessing(eventHandlerArgs: ['b'])));
+    }
 }

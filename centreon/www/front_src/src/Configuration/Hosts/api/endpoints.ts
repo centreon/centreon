@@ -29,8 +29,6 @@ export const hostFormHostSeveritiesEndpoint =
   '/configuration/hosts/host_severities';
 export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 
-// No host-scoped timezone selector exists: this one is open to any
-// authenticated user, so it has no ACL to get wrong.
 export const timezonesEndpoint = '/configuration/timezones';
 
 // No host-scoped command selector exists: this one is granted by the command
