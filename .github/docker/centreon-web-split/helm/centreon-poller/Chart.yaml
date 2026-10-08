@@ -1,0 +1,14 @@
+apiVersion: v2
+name: centreon-poller
+description: >-
+  Centreon remote poller on Kubernetes (gorgone + centengine/cbmod), attached
+  to a central running anywhere. One release per poller.
+type: application
+version: 0.1.0
+# Default image tag (stable images are tagged with the major version).
+appVersion: "26.11"
+kubeVersion: ">=1.29.0-0"
+keywords:
+  - centreon
+  - monitoring
+  - poller

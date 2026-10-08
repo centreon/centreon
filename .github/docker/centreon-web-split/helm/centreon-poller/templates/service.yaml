@@ -1,0 +1,49 @@
+{{- $fullname := include "centreon-poller.fullname" . -}}
+# Governing Service of the StatefulSet.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "centreon-poller.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "centreon-poller.selectorLabels" . | nindent 4 }}
+  ports:
+    - { name: otel, port: 4317, targetPort: otel }
+{{- with .Values.engine.otel.service }}
+{{- if .enabled }}
+---
+# CMA agents dial this endpoint (encryption=full: the CA CN is the pod
+# host name, see poller.hostname).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}-otel
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .type | default "ClusterIP" }}
+  {{- if and (eq (.type | default "ClusterIP") "LoadBalancer") .loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if and (ne (.type | default "ClusterIP") "ClusterIP") .externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .externalTrafficPolicy }}
+  {{- end }}
+  selector:
+    {{- include "centreon-poller.selectorLabels" $ | nindent 4 }}
+  ports:
+    - name: otel
+      port: {{ .port }}
+      targetPort: otel
+      {{- if and (eq (.type | default "ClusterIP") "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+{{- end }}
+{{- end }}
