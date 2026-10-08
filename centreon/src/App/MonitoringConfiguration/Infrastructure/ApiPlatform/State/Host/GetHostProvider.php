@@ -31,7 +31,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -56,6 +55,7 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
@@ -64,7 +64,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEve
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
@@ -120,6 +119,8 @@ final readonly class GetHostProvider implements ProviderInterface
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
         private ResourceAccessRepository $resourceAccessRepository,
+        private HostMacroTransformer $macroTransformer,
+        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -268,15 +269,14 @@ final readonly class GetHostProvider implements ProviderInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
+        // Every macro the host effectively has, as CreateHost returns them: its own (hydrated with
+        // their ids by findOne), then those it still inherits, each with the id + parent a client
+        // resends to change it.
+        $directMacros = $host->checkOptions->macros;
+        $inherited = $this->inheritedHostMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
         $macroOutputs = array_map(
-            static fn (HostMacro $macro): HostMacroOutput => new HostMacroOutput(
-                $macro->name->value,
-                // A password macro's stored value is a vault reference (or secret) — never echoed.
-                $macro->isPassword ? null : $macro->value,
-                $macro->isPassword,
-                $macro->description,
-            ),
-            $host->checkOptions->macros,
+            $this->macroTransformer->transform(...),
+            [...$directMacros, ...$inherited->notOverriddenBy($directMacros)],
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 

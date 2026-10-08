@@ -33,8 +33,10 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
@@ -459,6 +461,10 @@ final class GetHostProviderTest extends ApiTestCase
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
         /** @var ResourceAccessRepository $resourceAccessRepository */
         $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
+        /** @var HostMacroTransformer $macroTransformer */
+        $macroTransformer = $container->get(HostMacroTransformer::class);
+        /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
+        $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
 
         $container->set(
             GetHostProvider::class,
@@ -478,6 +484,8 @@ final class GetHostProviderTest extends ApiTestCase
                 $mediaUrlGenerator,
                 $timePeriodRepository,
                 $resourceAccessRepository,
+                $macroTransformer,
+                $inheritedHostMacrosResolver,
                 $isCloudPlatform,
             ),
         );
