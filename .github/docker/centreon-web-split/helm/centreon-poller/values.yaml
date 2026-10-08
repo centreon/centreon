@@ -31,7 +31,8 @@ images:
 poller:
   # Poller name as declared in Centreon. Required.
   name: ""
-  # GORGONE_UID: the --uid of the Add Poller install command. Required.
+  # GORGONE_UID: the --uid of the Add Poller install command. Required, as a
+  # quoted string (--set-string): 18-digit ids lose precision as numbers.
   id: ""
   timezone: UTC
 

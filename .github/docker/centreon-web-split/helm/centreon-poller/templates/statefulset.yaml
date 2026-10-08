@@ -120,7 +120,7 @@ spec:
           env:
             - { name: TYPE, value: poller }
             - { name: NAME, value: {{ required "poller.name is required" .Values.poller.name | quote }} }
-            - { name: GORGONE_UID, value: {{ required "poller.id is required (Add Poller --uid)" .Values.poller.id | quote }} }
+            - { name: GORGONE_UID, value: {{ include "centreon-poller.id" . | quote }} }
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "GORGONE_TOKEN" "key" .Values.secrets.keys.gorgoneToken) | nindent 12 }}
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" .Values.secrets.keys.appSecret) | nindent 12 }}
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "SALT" "key" .Values.secrets.keys.salt) | nindent 12 }}

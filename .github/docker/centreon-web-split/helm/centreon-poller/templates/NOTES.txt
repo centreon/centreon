@@ -1,4 +1,4 @@
-Poller "{{ .Values.poller.name }}" (id {{ .Values.poller.id }}) deployed as StatefulSet {{ include "centreon-poller.fullname" . }}.
+Poller "{{ .Values.poller.name }}" (id {{ include "centreon-poller.id" . }}) deployed as StatefulSet {{ include "centreon-poller.fullname" . }}.
 
 gorgone connects to {{ ternary "wss" "ws" .Values.central.ssl }}://{{ .Values.central.host }}:{{ .Values.central.port }}{{ trimSuffix "/" .Values.central.baseUri }}/gorgone/pullwss/websocket
   kubectl -n {{ .Release.Namespace }} logs {{ include "centreon-poller.fullname" . }}-0 -c gorgone

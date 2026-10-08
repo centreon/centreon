@@ -32,7 +32,7 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
    ```powershell
    helm install poller-1 . -n pollers `
      --set poller.name=Poller-1 `
-     --set poller.id=<uid> `
+     --set-string poller.id=<uid> `
      --set central.host=centreon.example.com `
      --set secrets.existingSecret=poller-1
    ```
@@ -82,7 +82,7 @@ Poller-initiated (reverse) connections do not use this identity.
 | Key | Default | Notes |
 |---|---|---|
 | `poller.name` | — | Required. Poller name in Centreon |
-| `poller.id` | — | Required. Add Poller `--uid` |
+| `poller.id` | — | Required. Add Poller `--uid`, as a string (`--set-string`) |
 | `central.host` / `port` / `ssl` / `baseUri` | — / 443 / true / `/centreon` | pullwss endpoint |
 | `secrets.existingSecret` | — | Required. Keys in `secrets.keys` |
 | `images.engine` / `images.gorgone` | `ghcr.io/centreon/centreon-{engine,gorgone}:<appVersion>` | Testing: `docker.centreon.com/centreon/centreon-<c>-trixie` |

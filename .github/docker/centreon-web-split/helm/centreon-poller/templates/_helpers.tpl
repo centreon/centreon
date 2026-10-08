@@ -24,6 +24,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s:%s" .image.repository (toString (.image.tag | default .ctx.Chart.AppVersion)) -}}
 {{- end -}}
 
+{{/* GORGONE_UID: 18-digit ids lose precision once parsed as a number
+     (`--set poller.id=...` gives a float64), and the central then rejects the
+     node ("please registernodes"). */}}
+{{- define "centreon-poller.id" -}}
+{{- $id := required "poller.id is required (Add Poller --uid)" .Values.poller.id -}}
+{{- if not (or (kindIs "string" $id) (kindIs "int64" $id)) -}}
+{{- fail "poller.id must be a string: quote it in the values file or use --set-string poller.id=<uid>" -}}
+{{- end -}}
+{{- toString $id -}}
+{{- end -}}
+
 {{- define "centreon-poller.secretName" -}}
 {{- required "secrets.existingSecret is required (GORGONE_TOKEN, APP_SECRET, SALT)" .Values.secrets.existingSecret -}}
 {{- end -}}
