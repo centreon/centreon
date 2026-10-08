@@ -435,6 +435,44 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertNull($this->connection->fetchOne('SELECT host_snmp_community FROM host WHERE host_id = ?', [$hostId]));
     }
 
+    public function testAFieldUpdateFlagsAllAclResourcesForAnAdmin(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->connection->insert('acl_resources', ['acl_res_name' => 'r-' . bin2hex(random_bytes(4)), 'acl_res_alias' => 'r', 'acl_res_activate' => '1', 'changed' => '0']);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(204);
+        /** @var int|string $changedFlag */
+        $changedFlag = $this->connection->fetchOne('SELECT changed FROM acl_resources WHERE acl_res_id = ?', [$aclResId]);
+        self::assertSame(1, (int) $changedFlag);
+    }
+
+    public function testARestrictedViewerCanUpdateAHostInItsScopeAndItsAccessGroupIsFlagged(): void
+    {
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadAndWriteTopologyRole($contactId);
+        $this->login($username);
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->linkHostToAcl($hostId, $aclGroupId);
+        $this->connection->update('acl_groups', ['acl_group_changed' => 0], ['acl_group_id' => $aclGroupId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('front', $this->connection->fetchOne('SELECT host_alias FROM host WHERE host_id = ?', [$hostId]));
+        /** @var int|string $changedFlag */
+        $changedFlag = $this->connection->fetchOne('SELECT acl_group_changed FROM acl_groups WHERE acl_group_id = ?', [$aclGroupId]);
+        self::assertSame(1, (int) $changedFlag);
+        self::assertEquals($contactId, $this->latestActor($hostId));
+        self::assertSame('mc', $this->latestActionType($hostId));
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
