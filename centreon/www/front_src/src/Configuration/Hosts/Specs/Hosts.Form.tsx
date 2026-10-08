@@ -1970,6 +1970,95 @@ export default () => {
       });
     });
 
+    it('searches the templates by the name typed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates-0').click();
+      cy.get('.MuiAutocomplete-popper')
+        .contains('linux-server-standard')
+        .click();
+
+      // A row with a value excludes it first: the typed text is not the first
+      // search condition.
+      cy.findByTestId('host-form-templates-0').clear().type('g');
+
+      // The requests before the search come first: wait through them.
+      const waitForSearch = (remainingRequests: number): void => {
+        cy.waitForRequest('@getFormHostTemplates').then(({ request }) => {
+          const searchedName = new URL(request.url).searchParams.get(
+            'name[lk]'
+          );
+
+          if (searchedName !== 'g' && remainingRequests > 1) {
+            waitForSearch(remainingRequests - 1);
+
+            return;
+          }
+
+          expect(searchedName).to.equal('g');
+        });
+      };
+
+      waitForSearch(10);
+    });
+
+    it('leaves out a template row left empty', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates-0').click();
+      cy.get('.MuiAutocomplete-popper')
+        .contains('linux-server-standard')
+        .click();
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+
+      // Nothing picked yet: no template page to open.
+      cy.findAllByTestId('host-form-templates-edit')
+        .eq(1)
+        .should('be.disabled');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.template_ids).to.deep.equals([7]);
+      });
+    });
+
+    it('lets a user who may only look at hosts change no template', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-templates-0').should('be.disabled');
+      cy.findByRole('button', { name: labelAddNewEntry }).should('be.disabled');
+      cy.findByTestId('host-form-templates')
+        .findAllByTestId('delete-row')
+        .first()
+        .should('be.disabled');
+      cy.findByLabelText(labelCreateServicesLinkedToTemplates).should(
+        'be.disabled'
+      );
+    });
+
     it('opens an existing host on its templates, in order', () => {
       initialize({});
 
