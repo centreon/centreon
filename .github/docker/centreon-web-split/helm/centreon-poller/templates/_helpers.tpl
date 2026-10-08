@@ -29,7 +29,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
      node ("please registernodes"). */}}
 {{- define "centreon-poller.id" -}}
 {{- $id := required "poller.id is required (Add Poller --uid)" .Values.poller.id -}}
-{{- if not (or (kindIs "string" $id) (kindIs "int64" $id)) -}}
+{{- if not (or (kindIs "string" $id) (kindIs "int64" $id) (kindIs "int" $id)) -}}
 {{- fail "poller.id must be a string: quote it in the values file or use --set-string poller.id=<uid>" -}}
 {{- end -}}
 {{- toString $id -}}

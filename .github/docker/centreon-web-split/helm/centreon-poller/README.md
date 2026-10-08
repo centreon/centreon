@@ -82,7 +82,7 @@ Poller-initiated (reverse) connections do not use this identity.
 | Key | Default | Notes |
 |---|---|---|
 | `poller.name` | — | Required. Poller name in Centreon |
-| `poller.id` | — | Required. Add Poller `--uid`, as a string (`--set-string`) |
+| `poller.id` | — | Required. Add Poller `--uid` as a string: `--set-string`, or quoted in a values file (unquoted, it is parsed as a float and loses precision) |
 | `central.host` / `port` / `ssl` / `baseUri` | — / 443 / true / `/centreon` | pullwss endpoint |
 | `secrets.existingSecret` | — | Required. Keys in `secrets.keys` |
 | `images.engine` / `images.gorgone` | `ghcr.io/centreon/centreon-{engine,gorgone}:<appVersion>` | Testing: `docker.centreon.com/centreon/centreon-<c>-trixie` |
