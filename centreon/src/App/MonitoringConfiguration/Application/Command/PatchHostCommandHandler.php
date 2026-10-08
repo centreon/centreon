@@ -68,9 +68,12 @@ final readonly class PatchHostCommandHandler
         $this->assertArgumentsHaveACheckCommand($command, $host);
 
         // The vault write comes last, once every validation and every invariant of the new host has
-        // passed: a rejected update must never leave an orphan secret behind.
-        $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($host, $command), $command);
-        $this->saveAndNotify($host, $updatedHost, $command->updatedBy);
+        // passed: a rejected update must never leave an orphan secret behind. It replaces the current
+        // community in place, so if saving the host then fails the previous value is lost: the same
+        // trade-off as the Core partial update, the vault being outside the database transaction.
+        $secretToVault = $this->communityToVault($command);
+        $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($host, $command), $command, $secretToVault);
+        $this->saveAndNotify($host, $updatedHost, $command->updatedBy, secretRewritten: $secretToVault !== null);
 
         return $updatedHost;
     }
@@ -137,6 +140,8 @@ final readonly class PatchHostCommandHandler
             checkOptions: $command->checkOptions instanceof NoValue
                 ? new NoValue()
                 : $command->checkOptions->applyTo($host->checkOptions),
+            // With the platform option disabled, the additive inheritance flags the host already has are
+            // reset along with any notification change, like the creation does.
             notifications: $command->notifications instanceof NoValue
                 ? new NoValue()
                 : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($host->notifications)),
@@ -145,10 +150,25 @@ final readonly class PatchHostCommandHandler
     }
 
     /**
-     * A reference to the vault is never trusted from the caller: it is ignored, the host keeps the
-     * community it has. Without a vault the community is stored as is, like on creation.
+     * The plaintext community to write to the vault, null when there is nothing to write: no
+     * community given, no vault, or a reference to the vault from the caller, which is never trusted.
      */
-    private function withSnmpCommunity(Host $hostBefore, Host $updatedHost, PatchHostCommand $command): Host
+    private function communityToVault(PatchHostCommand $command): ?string
+    {
+        $community = $command->snmpCommunity;
+
+        if (! is_string($community) || ! $this->vault->isEnabled() || $this->vault->isVaultPath($community)) {
+            return null;
+        }
+
+        return $community;
+    }
+
+    /**
+     * Without a vault the community is stored as is, like on creation. A reference to the vault given
+     * by the caller is ignored: the host keeps the community it has.
+     */
+    private function withSnmpCommunity(Host $hostBefore, Host $updatedHost, PatchHostCommand $command, ?string $secretToVault): Host
     {
         $community = $command->snmpCommunity;
 
@@ -160,15 +180,15 @@ final readonly class PatchHostCommandHandler
             return $updatedHost->with(snmpCommunity: null);
         }
 
+        if ($secretToVault !== null) {
+            return $updatedHost->with(snmpCommunity: new SnmpCommunity($this->storeInVault($hostBefore, $secretToVault)));
+        }
+
         if (! $this->vault->isEnabled()) {
             return $updatedHost->with(snmpCommunity: new SnmpCommunity($community));
         }
 
-        if ($this->vault->isVaultPath($community)) {
-            return $updatedHost;
-        }
-
-        return $updatedHost->with(snmpCommunity: new SnmpCommunity($this->storeInVault($hostBefore, $community)));
+        return $updatedHost;
     }
 
     /**
@@ -221,11 +241,12 @@ final readonly class PatchHostCommandHandler
     /**
      * Nothing is written when nothing changed. A plain enable/disable keeps the narrow write and its
      * own event; anything else is a mass change, which carries the previous poller so that it is
-     * flagged too.
+     * flagged too. A secret rewritten in the vault counts as a change even when the host keeps the very
+     * same reference, since the path of a vaulted value only depends on its entry and its key.
      */
-    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy): void
+    private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten): void
     {
-        if (! $hostAfter->hasSameConfigurationAs($hostBefore)) {
+        if ($secretRewritten || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
             $this->repository->update($hostAfter);
             $this->eventBus->fire(new HostMassChanged(
                 $hostAfter,

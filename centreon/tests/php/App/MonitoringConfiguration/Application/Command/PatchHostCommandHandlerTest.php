@@ -436,12 +436,27 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertCount(1, $this->vault->writeManyCalls);
         self::assertSame('uuid-1', $this->vault->writeManyCalls[0]['uuid']);
         self::assertSame(['_HOSTSNMPCOMMUNITY' => 'new-secret'], $this->vault->writeManyCalls[0]['secrets']);
-        self::assertSame(
-            'secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY',
-            $result->snmpCommunity?->value,
-        );
-        self::assertSame([$result], $this->repository->updatedHosts);
+        self::assertSame(self::COMMUNITY_REFERENCE, $result->snmpCommunity?->value);
         self::assertSame([], $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class));
+    }
+
+    /**
+     * The path of a vaulted value only depends on the entry and the key, so a new value written under
+     * the host's own entry gives back the reference the host already holds: the update still has to be
+     * saved and announced, or the poller keeps running with the old community.
+     */
+    public function testRewritingAVaultedCommunityIsStillAnUpdate(): void
+    {
+        $this->seedHostWithVaultedCommunity();
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            snmpCommunity: 'new-secret',
+        ));
+
+        self::assertSame([$result], $this->repository->updatedHosts);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostMassChanged::class, 1));
     }
 
     public function testACommunityIsStoredAsIsWhenTheVaultIsOff(): void
