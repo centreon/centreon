@@ -37,12 +37,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
       key: {{ .key }}
 {{- end -}}
 
-{{/* Pod host name = CN of the CMA CA centengine generates at first boot:
-     agents pin it, so it must not follow a release rename. */}}
-{{- define "centreon-poller.hostname" -}}
-{{- .Values.poller.hostname | default (include "centreon-poller.fullname" .) | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{/* Seed a volume from the image's own path, like Docker's named-volume copy-up.
      chown/chmod are non-fatal: some RWX backends (EFS access points) refuse them. */}}
 {{- define "centreon-poller.seedFn" -}}

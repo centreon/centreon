@@ -8,6 +8,7 @@ metadata:
     {{- include "centreon-poller.labels" . | nindent 4 }}
 spec:
   clusterIP: None
+  publishNotReadyAddresses: true
   selector:
     {{- include "centreon-poller.selectorLabels" . | nindent 4 }}
   ports:
@@ -16,7 +17,8 @@ spec:
 {{- if .enabled }}
 ---
 # CMA agents dial this endpoint (encryption=full: the CA CN is the pod
-# host name, see poller.hostname).
+# host name <fullname>-0). Not tied to readiness: the engine keeps
+# collecting while it restarts or while the central is unreachable.
 apiVersion: v1
 kind: Service
 metadata:
@@ -29,6 +31,7 @@ metadata:
   {{- end }}
 spec:
   type: {{ .type | default "ClusterIP" }}
+  publishNotReadyAddresses: true
   {{- if and (eq (.type | default "ClusterIP") "LoadBalancer") .loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
     {{- toYaml .loadBalancerSourceRanges | nindent 4 }}

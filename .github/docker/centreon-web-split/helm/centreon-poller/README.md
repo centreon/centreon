@@ -33,7 +33,6 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
    helm install poller-1 . -n pollers `
      --set poller.name=Poller-1 `
      --set poller.id=<uid> `
-     --set poller.hostname=poller-1 `
      --set central.host=centreon.example.com `
      --set secrets.existingSecret=poller-1
    ```
@@ -42,6 +41,10 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
    once (a reload does not switch cbmod to its cache directory).
 
 `centengine` crash-loops until the first configuration lands: expected.
+
+The pod host name is `<release>-0` (forced by the StatefulSet controller). It
+is the CN of the CMA CA, pinned by the agents: never rename the release (or
+change `fullnameOverride`) of an installed poller.
 
 ## Central-side prerequisites
 
@@ -57,11 +60,11 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
 |---|---|---|
 | `poller.name` | — | Required. Poller name in Centreon |
 | `poller.id` | — | Required. Add Poller `--uid` |
-| `poller.hostname` | release name | CN of the CMA CA: set it explicitly, agents pin it |
 | `central.host` / `port` / `ssl` / `baseUri` | — / 443 / true / `/centreon` | pullwss endpoint |
 | `secrets.existingSecret` | — | Required. Keys in `secrets.keys` |
 | `images.engine` / `images.gorgone` | `ghcr.io/centreon/centreon-{engine,gorgone}:<appVersion>` | Testing: `docker.centreon.com/centreon/centreon-<c>-trixie` |
-| `engine.capabilities.add` | `[NET_RAW]` | `check_icmp` |
+| `engine.addNetRaw` | `true` | `check_icmp`, see Security |
+| `gorgone.extraEnv` / `engine.extraEnv` | `[]` | E.g. `SMTP_*` on the engine |
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
 | `gracefulStop` | enabled, 60s | See below |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
@@ -93,14 +96,21 @@ Not validated on a cluster yet.
 
 ## Security
 
-Not compatible with the `restricted` Pod Security Standard:
+Pod Security Standards:
 
-- seed init containers run as root (chown of fresh PVCs);
-- the images run `sudo apt-get` at startup (plugin installs), so
-  `allowPrivilegeEscalation: false` breaks them;
-- `NET_RAW` on `centengine`.
+- `restricted`: not supported. Seed init containers run as root (chown of
+  fresh PVCs) and the images run `sudo apt-get` at startup (plugin installs),
+  so `allowPrivilegeEscalation: false` breaks them.
+- `baseline`: only without the explicit `NET_RAW` add (`engine.addNetRaw: false`),
+  on a runtime that keeps NET_RAW by default (containerd: k3s, EKS, GKE, AKS).
+- With the defaults (`NET_RAW` added, needed on CRI-O), the namespace must be
+  `privileged`.
+
+The engine's gRPC port (50155) is unauthenticated and can shut the engine
+down: restrict it with a NetworkPolicy.
 
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
 - snmptrapd / centreontrapd and centreon-vmware are not covered yet.
+- No NetworkPolicy shipped yet.

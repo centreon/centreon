@@ -9,6 +9,9 @@
 #      central broker endpoint (5669) reachable from this cluster, and
 #      "Cache directory" = engine.cbmodCacheDirectory.
 
+# Resource names default to the release name. The pod host name is
+# "<fullname>-0" and is the CN of the CMA CA centengine generates at first
+# boot (agents pin it): never change it on an installed poller.
 fullnameOverride: ""
 
 imagePullSecrets: []
@@ -32,10 +35,6 @@ poller:
   name: ""
   # GORGONE_UID: the --uid of the Add Poller install command. Required.
   id: ""
-  # Pod host name = CN of the CMA CA centengine generates at first boot
-  # (agents pin it). Single DNS label. Empty = the release full name; set it
-  # explicitly to survive a release rename.
-  hostname: ""
   timezone: UTC
 
 # How gorgone reaches the central (pullwss, through the central's web server
@@ -60,13 +59,18 @@ secrets:
 
 gorgone:
   logLevel: info
+  extraEnv: []
   resources: {}
 
 engine:
   # check_icmp carries cap_net_raw: the container needs NET_RAW in its
-  # bounding set (dropped by default on CRI-O / Podman).
-  capabilities:
-    add: [NET_RAW]
+  # bounding set. containerd keeps it by default, CRI-O / Podman drop it.
+  # Adding it explicitly is not allowed by the "baseline" Pod Security
+  # Standard (the namespace must then be "privileged"): set
+  # `addNetRaw: false` on a baseline namespace backed by containerd.
+  addNetRaw: true
+  # E.g. SMTP_HOST / SMTP_PORT / SMTP_FROM / SMTP_TLS for notifications.
+  extraEnv: []
   # cbmod's cache directory: its in-memory queue is saved there on a clean
   # stop and reloaded at start. Must match "Cache directory" in the poller's
   # broker configuration in Centreon; the first config delivery needs one

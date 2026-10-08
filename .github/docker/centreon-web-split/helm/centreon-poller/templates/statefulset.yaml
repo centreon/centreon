@@ -13,6 +13,9 @@ spec:
   serviceName: {{ $fullname }}
   # Scaling out = more pollers (more releases), never replicas.
   replicas: 1
+  # The pod is not Ready until the central delivers the config: with
+  # OrderedReady an upgrade fixing a bad value would never replace it.
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       {{- include "centreon-poller.selectorLabels" . | nindent 6 }}
@@ -41,7 +44,9 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      hostname: {{ include "centreon-poller.hostname" . }}
+      # Host name = pod name <fullname>-0 (forced by the StatefulSet
+      # controller): it is the CN of the CMA CA, keep the release name or
+      # fullnameOverride stable.
       # gorgone's systemctl shim dials "centengine:50155": it must reach this
       # pod's own engine.
       hostAliases:
@@ -113,16 +118,11 @@ spec:
             - { name: GORGONE_LOG_LEVEL, value: {{ .Values.gorgone.logLevel | quote }} }
             - { name: DEBUG, value: {{ .Values.debug | quote }} }
             - { name: TZ, value: {{ .Values.poller.timezone | quote }} }
-          # Ready once the pullwss connection to the central is established.
-          # No liveness: a central outage must not restart the poller.
-          readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - grep -q ":$(printf '%04X' "$CENTRAL_PORT") 01" /proc/net/tcp /proc/net/tcp6
-            periodSeconds: 15
-            failureThreshold: 4
+            {{- with .Values.gorgone.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          # No probes: a central outage must neither restart the poller nor
+          # cut the CMA agents off.
           {{- if .Values.gracefulStop.enabled }}
           lifecycle:
             preStop:
@@ -158,13 +158,16 @@ spec:
             - { name: DEBUG, value: {{ ternary "1" "0" .Values.debug | quote }} }
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" .Values.secrets.keys.appSecret) | nindent 12 }}
             {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "SALT" "key" .Values.secrets.keys.salt) | nindent 12 }}
+            {{- with .Values.engine.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - { name: engine-grpc, containerPort: 50155 }
             - { name: otel, containerPort: 4317 }
-          {{- with .Values.engine.capabilities }}
+          {{- if .Values.engine.addNetRaw }}
           securityContext:
             capabilities:
-              {{- toYaml . | nindent 14 }}
+              add: [NET_RAW]
           {{- end }}
           # No liveness: centengine crash-loops until its delivered config
           # lands (self-resolving).
