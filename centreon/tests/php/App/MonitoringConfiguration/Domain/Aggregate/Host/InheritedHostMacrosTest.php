@@ -200,6 +200,24 @@ final class InheritedHostMacrosTest extends TestCase
         self::assertSame(['KEPT'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $remaining));
     }
 
+    public function testEffectiveWithListsTheDirectMacrosThenTheInheritedOnesTheyDoNotShadow(): void
+    {
+        $inherited = InheritedHostMacros::resolve([$this->template(1, [
+            $this->macro(11, 'shadowed', 'v'),
+            $this->macro(12, 'kept', 'v'),
+        ])], []);
+
+        $effective = $inherited->effectiveWith([
+            new HostMacro(new HostMacroName('shadowed'), 'other', isPassword: false),
+            new HostMacro(new HostMacroName('own'), 'v', isPassword: false),
+        ]);
+
+        self::assertSame(
+            [['SHADOWED', 'other'], ['OWN', 'v'], ['KEPT', 'v']],
+            array_map(static fn (HostMacro $macro): array => [$macro->name->value, $macro->value], $effective),
+        );
+    }
+
     public function testNoneInheritsNothing(): void
     {
         self::assertSame([], InheritedHostMacros::none()->toList());

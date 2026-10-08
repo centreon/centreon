@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\Security\Domain\Aggregate\UserId;
@@ -47,6 +48,15 @@ interface HostRepository
      *                          existence (mirrors `CreateHostCommandHandler`'s poller/host-group checks)
      */
     public function findOne(HostId $id, ?UserId $viewerId = null): ?Host;
+
+    /**
+     * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read
+     * for a caller that only needs the ids assigned on insertion, without hydrating the whole host.
+     * Not ACL-scoped: the caller has already resolved the host.
+     *
+     * @return Collection<HostMacro>
+     */
+    public function findMacros(HostId $id): Collection;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.

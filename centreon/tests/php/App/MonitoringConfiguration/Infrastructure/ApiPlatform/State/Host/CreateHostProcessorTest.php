@@ -36,7 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
@@ -1756,6 +1756,225 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertSame(1, (int) $rows[1]['is_password']);
     }
 
+    public function testItReturnsTheMacroIdsAndTheInheritedMacros(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTFROMTEMPLATE$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.35',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [['name' => 'own', 'value' => 'kept', 'is_password' => false]],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        // skip_null_values drops `parent` from a direct macro, hence the optional key.
+        /** @var array{id: int, check_options: array{macros: list<array{id: ?int, name: string, value?: string, parent?: string}>}} $payload */
+        $payload = $response->toArray();
+        $macros = $payload['check_options']['macros'];
+
+        /** @var int|string $ownId */
+        $ownId = $this->connection->fetchOne(
+            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ?',
+            [$payload['id']],
+        );
+        $ownId = (int) $ownId;
+        self::assertSame(['OWN', 'FROMTEMPLATE', 'FROMCOMMAND'], array_column($macros, 'name'));
+        // The direct macro carries the id it was stored under.
+        self::assertSame(['id' => $ownId, 'parent' => null], ['id' => $macros[0]['id'], 'parent' => $macros[0]['parent'] ?? null]);
+        self::assertSame(['id' => $templateMacroId, 'parent' => 'template'], ['id' => $macros[1]['id'], 'parent' => $macros[1]['parent'] ?? null]);
+        self::assertSame('tpl-value', $macros[1]['value'] ?? null);
+        self::assertSame('command', $macros[2]['parent'] ?? null);
+    }
+
+    public function testItOverridesAnInheritedMacroReferredToByIdOnCreate(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTFROMTEMPLATE$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.36',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [
+                        ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'fromtemplate', 'value' => 'overridden', 'is_password' => false],
+                        ['id' => null, 'parent' => 'command', 'name' => 'fromcommand', 'value' => 'set', 'is_password' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int, check_options: array{macros: list<array{name: string, value?: string, parent?: string}>}} $payload */
+        $payload = $response->toArray();
+
+        /** @var list<array{host_macro_name: string, host_macro_value: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT host_macro_name, host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$payload['id']],
+        );
+        self::assertSame(
+            [['host_macro_name' => '$_HOSTFROMTEMPLATE$', 'host_macro_value' => 'overridden'], ['host_macro_name' => '$_HOSTFROMCOMMAND$', 'host_macro_value' => 'set']],
+            $rows,
+        );
+        // Both are now direct overrides: nothing is reported as inherited any more.
+        self::assertSame(
+            [null, null],
+            array_map(static fn (array $macro): ?string => $macro['parent'] ?? null, $payload['check_options']['macros']),
+        );
+    }
+
+    public function testItNeverReturnsTheValueOfAnInheritedPassword(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTTPLPWD$',
+            'host_macro_value' => 'tpl-secret',
+            'is_password' => 1,
+            'host_host_id' => $templateId,
+        ]);
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.37',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{check_options: array{macros: list<array<string, mixed>>}} $payload */
+        $payload = $response->toArray();
+        $macro = $payload['check_options']['macros'][0];
+        self::assertSame(['TPLPWD', true, 'template'], [$macro['name'], $macro['is_password'], $macro['parent']]);
+        self::assertArrayNotHasKey('value', $macro);
+    }
+
+    public function testItRejectsAnUnknownInheritedMacroId(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.38',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => 123456, 'parent' => 'template', 'name' => 'unknown', 'value' => 'x', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] One or more macros do not exist on this host.\n",
+        ]);
+    }
+
+    public function testItRejectsKeepingTheValueOfAnInheritedMacroThatIsNotAPassword(): void
+    {
+        // A null value keeps the stored value, which only a password has a use for: the template's
+        // plain macro is echoed back, so the client must send its value.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate($this->uniqueName('tpl'));
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTPLAIN$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+        $templateMacroId = (int) $this->connection->lastInsertId();
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.40',
+                'poller_id' => $pollerId,
+                'template_ids' => [$templateId],
+                'create_services_linked_to_templates' => false,
+                'check_options' => ['macros' => [
+                    ['id' => $templateMacroId, 'parent' => 'template', 'name' => 'renamed', 'value' => null, 'is_password' => true],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] A value is required: these macros are not stored as passwords, so their value cannot be kept.\n",
+        ]);
+    }
+
+    public function testItAcceptsACommandMacroSentWithAStaleId(): void
+    {
+        // Command macros are resolved by name: their on_demand_macro_command ids are rewritten on
+        // every command save, so a stale one is never an error.
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $commandId = $this->insertCommand($this->uniqueName('check'), 2, '$USER1$/check -x $_HOSTFROMCOMMAND$');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.39',
+                'poller_id' => $pollerId,
+                'check_options' => [
+                    'command_id' => $commandId,
+                    'macros' => [['id' => 999999, 'parent' => 'command', 'name' => 'fromcommand', 'value' => 'set', 'is_password' => false]],
+                ],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertSame(
+            'set',
+            $this->connection->fetchOne(
+                "SELECT host_macro_value FROM on_demand_macro_host WHERE host_host_id = ? AND host_macro_name = '\$_HOSTFROMCOMMAND\$'",
+                [$payload['id']],
+            ),
+        );
+    }
+
     public function testItStripsAMacroInheritedFromTheCheckCommand(): void
     {
         $this->login();
@@ -1780,10 +1999,13 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        /** @var array{check_options: array{macros: list<array{name: string}>}} $payload */
+        /** @var array{check_options: array{macros: list<array{name: string, parent?: string}>}} $payload */
         $payload = $response->toArray();
-        $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
-        self::assertSame(['OWN'], $names);
+        // FOO is not stored on the host: it is still returned, as inherited from the command.
+        self::assertSame(
+            [['name' => 'OWN', 'parent' => null], ['name' => 'FOO', 'parent' => 'command']],
+            array_map(static fn (array $macro): array => ['name' => $macro['name'], 'parent' => $macro['parent'] ?? null], $payload['check_options']['macros']),
+        );
     }
 
     public function testItRejectsANewMacroWithoutValue(): void
@@ -1870,6 +2092,7 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
+        // Raised by the handler, reported against the field the macros were submitted in.
         self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
             'code' => 422,
@@ -2711,7 +2934,7 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $mediaUrlGenerator,
                 $timePeriodRepository,
                 new HostMacroTransformer(),
-                new HostMacroChangesResolver(),
+                new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
                 $isCloudPlatform,
             ),
         );
