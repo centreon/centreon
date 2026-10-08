@@ -43,6 +43,7 @@ use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 #[AsCommandHandler]
 final readonly class DuplicateHostCommandHandler
@@ -60,6 +61,7 @@ final readonly class DuplicateHostCommandHandler
         private VaultCredentialReader $vaultReader,
         private VaultCredentialWriter $vaultWriter,
         private EventBus $eventBus,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -110,7 +112,13 @@ final readonly class DuplicateHostCommandHandler
             // stays as the accepted orphan, the same as a rolled-back creation.
             try {
                 $this->purgeMintedVaultEntry($source, $copy);
-            } catch (\Throwable) {
+            } catch (\Throwable $purgeException) {
+                // The purge failure must never replace the original cause. Record it so the orphan
+                // vault entry it leaves behind is at least traceable.
+                $this->logger->warning('The vault entry minted for a failed host duplication could not be purged.', [
+                    'source_host_id' => $command->hostId->value,
+                    'exception' => $purgeException,
+                ]);
             }
 
             throw $exception;
@@ -150,9 +158,9 @@ final readonly class DuplicateHostCommandHandler
     private function duplicateSecrets(Host $source): array
     {
         // Vault off, or nothing vaulted: the stored values are plaintext (or empty) and copy correctly
-        // as-is, with no entry to mint.
+        // as-is, with no entry to mint. The macros are still rebuilt as the copy's own fresh rows.
         if (! $this->vault->isEnabled() || $source->getVaultUuid($this->vault) === null) {
-            return [$source->snmpCommunity, $source->checkOptions];
+            return [$source->snmpCommunity, $this->copyCheckOptions($source->checkOptions)];
         }
 
         // Gather only the fields actually vaulted; a plaintext field (e.g. a vault enabled after the
@@ -186,11 +194,10 @@ final readonly class DuplicateHostCommandHandler
         $macros = array_map(
             function (HostMacro $macro) use ($newReferences): HostMacro {
                 $key = $this->macroVaultKey($macro);
-                if ($macro->isPassword && isset($newReferences[$key])) {
-                    return new HostMacro($macro->name, $newReferences[$key], true, $macro->description);
-                }
+                $value = $macro->isPassword && isset($newReferences[$key]) ? $newReferences[$key] : $macro->value;
 
-                return $macro;
+                // The copy owns a fresh macro row: never carry over the source's macro id.
+                return new HostMacro($macro->name, $value, $macro->isPassword);
             },
             $source->checkOptions->macros,
         );
@@ -199,6 +206,23 @@ final readonly class DuplicateHostCommandHandler
             $snmpCommunity,
             new CheckOptions($source->checkOptions->checkCommandId, $source->checkOptions->args, $macros),
         ];
+    }
+
+    /**
+     * The source's check options with its macros rebuilt as the copy's own fresh rows — same name,
+     * value and password flag, but no source macro id carried over (add() keys on name/value, but the
+     * copy must not borrow the source's identity). Used when no secret is re-minted.
+     */
+    private function copyCheckOptions(CheckOptions $checkOptions): CheckOptions
+    {
+        return new CheckOptions(
+            $checkOptions->checkCommandId,
+            $checkOptions->args,
+            array_map(
+                static fn (HostMacro $macro): HostMacro => new HostMacro($macro->name, $macro->value, $macro->isPassword),
+                $checkOptions->macros,
+            ),
+        );
     }
 
     /**

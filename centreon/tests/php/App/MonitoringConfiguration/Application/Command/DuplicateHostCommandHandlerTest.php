@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
@@ -57,6 +58,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class DuplicateHostCommandHandlerTest extends TestCase
 {
@@ -67,6 +69,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     private EventBusSpy $eventBus;
 
     private FakeVault $vault;
+
+    private RecordingLogger $logger;
 
     private DuplicateHostCommandHandler $handler;
 
@@ -80,6 +84,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         // vault-specific tests turn it on and drive the reader/writer through the fake.
         $this->vault->vaultEnabled = false;
 
+        $this->logger = new RecordingLogger();
+
         $this->handler = new DuplicateHostCommandHandler(
             $this->repository,
             $this->resourceAccessRepository,
@@ -87,6 +93,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             new VaultCredentialReader($this->vault),
             new VaultCredentialWriter($this->vault),
             $this->eventBus,
+            $this->logger,
         );
     }
 
@@ -118,7 +125,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame($source->extendedInformations, $copy->extendedInformations);
         self::assertSame($source->schedulingOptions, $copy->schedulingOptions);
         self::assertSame($source->dataProcessing, $copy->dataProcessing);
-        self::assertSame($source->checkOptions, $copy->checkOptions);
+        // Equal content, but a fresh instance: the copy's macros are rebuilt as its own rows.
+        self::assertEquals($source->checkOptions, $copy->checkOptions);
     }
 
     public function testThrowsConflictWhenTheSuffixWouldExceedTheNameLengthLimit(): void
@@ -260,7 +268,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy);
         self::assertSame($source->snmpCommunity, $copy->snmpCommunity);
-        self::assertSame($source->checkOptions, $copy->checkOptions);
+        // Equal content, but a fresh instance: the copy's macros are rebuilt as its own rows.
+        self::assertEquals($source->checkOptions, $copy->checkOptions);
     }
 
     public function testRemintsOnlyTheVaultedSecretsAndKeepsPlaintextVerbatim(): void
@@ -383,6 +392,12 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             // The original cause surfaces, not the swallowed purge failure.
             self::assertSame('duplicateHostAccess failed', $exception->getMessage());
         }
+
+        // The swallowed purge failure is still recorded, so the orphan entry it leaves is traceable.
+        $warning = $this->logger->lastRecord();
+        self::assertNotNull($warning);
+        self::assertSame('warning', $warning['level']);
+        self::assertSame(1, $warning['context']['source_host_id'] ?? null);
     }
 
     public function testDoesNotPurgeTheSourceVaultEntryWhenTheCopySharesItAndPersistenceFails(): void
@@ -403,6 +418,32 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         }
 
         self::assertSame([], $this->vault->deleteCalls, 'the source entry shared by the copy is never purged');
+    }
+
+    public function testTheCopyMacrosDoNotCarryOverTheSourceMacroIds(): void
+    {
+        $this->repository->hosts[1] = new Host(
+            id: new HostId(1),
+            name: new HostName('web'),
+            alias: new HostAlias('alias-1'),
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(null, [], [
+                new HostMacro(new HostMacroName('plain'), 'visible-value', false, new HostMacroId(42)),
+            ]),
+        );
+
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+
+        $macro = $this->findCopyByName('web_1')?->checkOptions->macros[0];
+        self::assertNotNull($macro);
+        // The copy owns a fresh row: same name and value, but no source macro id.
+        self::assertSame('PLAIN', $macro->name->value);
+        self::assertSame('visible-value', $macro->value);
+        self::assertNull($macro->id);
     }
 
     private function storeSourceHost(int $id, string $name): Host
