@@ -101,7 +101,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
      * Every field is carried over verbatim except the name and the secrets: the SNMP community and the
      * check options are supplied by the caller, because re-minting a vaulted secret into the copy's own
      * vault entry needs the vault (infrastructure), which the aggregate must not reach. Notifications
-     * are not carried over, matching what the create path models for a host.
+     * (including the contacts and contact groups) are carried over too, as legacy multipleHostInDB does.
      */
     public function duplicate(HostName $newName, ?SnmpCommunity $snmpCommunity, CheckOptions $checkOptions): self
     {
@@ -125,6 +125,7 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
             schedulingOptions: $this->schedulingOptions,
             dataProcessing: $this->dataProcessing,
             checkOptions: $checkOptions,
+            notifications: $this->notifications,
         );
     }
 

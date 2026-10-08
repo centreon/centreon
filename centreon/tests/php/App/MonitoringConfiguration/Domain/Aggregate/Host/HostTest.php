@@ -176,8 +176,8 @@ final class HostTest extends TestCase
         self::assertSame($source->parentHostIds, $copy->parentHostIds);
         self::assertSame($source->childHostIds, $copy->childHostIds);
 
-        // Notifications are not carried over, matching what the create path models for a host.
-        self::assertNull($copy->notifications);
+        // Notifications are carried over verbatim, as legacy multipleHostInDB does.
+        self::assertSame($source->notifications, $copy->notifications);
     }
 
     public function testADuplicateHasNoIdUntilItIsPersisted(): void
