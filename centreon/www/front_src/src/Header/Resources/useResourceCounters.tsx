@@ -2,13 +2,14 @@
 // TODO: re-enable type-check after fixing this file
 import { useFetchQuery } from '@centreon/ui';
 import {
+  platformVersionsAtom,
   statisticsRefreshIntervalAtom,
   userAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil } from 'ramda';
+import { isNil, keys } from 'ramda';
 import { useMemo } from 'react';
 import type { TFunction } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +23,7 @@ import type { Filter } from '../../Resources/Filter/models';
 interface AdapterProps<Input> {
   applyFilter: (update: Filter) => void;
   data: Input;
+  installedModules: Array<string>;
   navigate: NavigateFunction;
   t: TFunction<'translation', undefined>;
   useDeprecatedPages: boolean;
@@ -60,6 +62,12 @@ const useResourceCounters: UseRessourceCounters = ({
   const refetchInterval = useAtomValue(statisticsRefreshIntervalAtom);
   const { use_deprecated_pages } = useAtomValue(userAtom);
   const applyFilter = useSetAtom(applyFilterDerivedAtom);
+  const platformVersions = useAtomValue(platformVersionsAtom);
+
+  const installedModules = useMemo(
+    () => keys(platformVersions?.modules ?? {}) as Array<string>,
+    [platformVersions?.modules]
+  );
 
   const isAllowed = useMemo(
     () => userPermissions?.top_counter || false,
@@ -85,6 +93,7 @@ const useResourceCounters: UseRessourceCounters = ({
         ? adapter({
             applyFilter,
             data,
+            installedModules,
             navigate,
             t,
             useDeprecatedPages: use_deprecated_pages
@@ -93,7 +102,7 @@ const useResourceCounters: UseRessourceCounters = ({
       isAllowed,
       isLoading
     }),
-    [isLoading, data, i18n.language]
+    [isLoading, data, i18n.language, installedModules]
   );
 };
 
