@@ -995,6 +995,7 @@ export default () => {
         expect(request.body.notifications).to.deep.equals(
           untouchedNotificationsPayload
         );
+        expect(request.body.template_ids).to.deep.equals([]);
         expect(request.body.scheduling_options).to.deep.equals(
           untouchedSchedulingOptionsPayload
         );
