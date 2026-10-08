@@ -21,6 +21,7 @@ import {
   hostFormHostCategoriesEndpoint,
   hostFormHostGroupsEndpoint,
   hostFormHostSeveritiesEndpoint,
+  hostFormHostTemplatesEndpoint,
   hostFormMediasEndpoint,
   hostFormPollersEndpoint,
   hostFormTimePeriodsEndpoint,
@@ -36,6 +37,7 @@ import {
   getCommandsResponse,
   getContactGroupsResponse,
   getContactsResponse,
+  getFormHostTemplatesResponse,
   getHostCategoriesResponse,
   getHostGroupsResponse,
   getHostResponse,
@@ -236,6 +238,13 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormHostSeveritiesEndpoint}?**`,
     response: getHostSeveritiesResponse()
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getFormHostTemplates',
+    method: Method.GET,
+    path: `**${hostFormHostTemplatesEndpoint}?**`,
+    response: getFormHostTemplatesResponse()
   });
 
   cy.interceptAPIRequest({
