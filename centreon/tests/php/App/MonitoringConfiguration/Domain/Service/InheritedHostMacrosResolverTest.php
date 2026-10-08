@@ -154,6 +154,18 @@ final class InheritedHostMacrosResolverTest extends TestCase
         self::assertSame([], $this->names($this->resolver->resolve($this->templateIds(1), null)));
     }
 
+    public function testItResolvesAnAlreadyLoadedLineWithoutFetchingItAgain(): void
+    {
+        $this->addCommand(7, '$USER1$/check -a $_HOSTFROMTEMPLATE$');
+        $this->addTemplate(1, macros: [new HostMacro(new HostMacroName('tpl'), 'x', isPassword: false, id: new HostMacroId(10))], checkCommandId: 7);
+        $line = [$this->templates->hostTemplates[1]];
+
+        $inherited = $this->resolver->resolveLine($line, null);
+
+        self::assertSame(['TPL', 'FROMTEMPLATE'], $this->names($inherited));
+        self::assertSame([], $this->templates->receivedLineTemplateIds);
+    }
+
     /**
      * @param list<HostMacro> $macros
      * @param list<int> $serviceTemplateCheckCommandIds

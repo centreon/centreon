@@ -59,6 +59,18 @@ final readonly class InheritedHostMacrosResolver
         /** @var list<HostTemplate> $inheritanceLine */
         $inheritanceLine = array_values($this->hostTemplateRepository->findInheritanceLine($templateIds)->toArray());
 
+        return $this->resolveLine($inheritanceLine, $checkCommandId);
+    }
+
+    /**
+     * Same resolution, from an inheritance line the caller already loaded
+     * ({@see HostTemplateRepository::findInheritanceLine()}), so it is not fetched twice.
+     *
+     * @param list<HostTemplate> $inheritanceLine the full template line, nearest to the host first
+     * @param ?CommandId $checkCommandId the host's own check command
+     */
+    public function resolveLine(array $inheritanceLine, ?CommandId $checkCommandId): InheritedHostMacros
+    {
         $commandIds = [];
         $checkCommandId ??= array_find(
             $inheritanceLine,

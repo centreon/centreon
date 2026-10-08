@@ -25,11 +25,13 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateSkeletonProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
 
@@ -44,6 +46,24 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateChoicesOutput::class,
             provider: ListHostTemplatesChoicesProvider::class,
+        ),
+        // The host form's "skeleton" of a template: its own and inherited macros, read before the
+        // host exists. Part of the host-form choices family, so it takes the same right as the list
+        // above, not a host template one.
+        new Get(
+            uriTemplate: '/configuration/hosts/host_templates/{id}',
+            requirements: ['id' => '\d+'],
+            output: HostTemplateSkeletonOutput::class,
+            provider: GetHostTemplateSkeletonProvider::class,
+            openapi: new Model\Operation(
+                summary: "Get a host template's own and inherited macros, to fill the host form",
+                responses: [
+                    403 => new Model\Response('You are not allowed to access host templates'),
+                    404 => new Model\Response('Host template not found'),
+                ],
+            ),
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
         ),
         new GetCollection(
             uriTemplate: '/configuration/host_templates',

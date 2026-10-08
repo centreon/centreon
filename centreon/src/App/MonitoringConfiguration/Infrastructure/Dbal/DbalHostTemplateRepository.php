@@ -476,6 +476,10 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     private function filterByCriteria(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
+        if (($id = $criteria->getId()) instanceof HostTemplateId) {
+            $qb->andWhere($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)));
+        }
+
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
         }

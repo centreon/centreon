@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
@@ -32,9 +33,24 @@ final class HostTemplateCriteria implements PaginableCriteria
     use PaginableCriteriaTrait;
     use ViewerScopedCriteriaTrait;
 
+    private ?HostTemplateId $id = null;
+
     private ?string $name = null;
 
     private bool $excludeLocked = false;
+
+    public function withId(HostTemplateId $id): self
+    {
+        $new = clone $this;
+        $new->id = $id;
+
+        return $new;
+    }
+
+    public function getId(): ?HostTemplateId
+    {
+        return $this->id;
+    }
 
     public function withName(string $name): self
     {
