@@ -25,14 +25,18 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostPayload;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 final class NotNullWhenProvidedValidator extends ConstraintValidator
 {
+    private CamelCaseToSnakeCaseNameConverter $nameConverter;
+
     public function __construct(private readonly RequestStack $requestStack)
     {
+        $this->nameConverter = new CamelCaseToSnakeCaseNameConverter();
     }
 
     public function validate(mixed $value, Constraint $constraint): void
@@ -41,12 +45,18 @@ final class NotNullWhenProvidedValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, NotNullWhenProvided::class);
         }
 
-        $payload = PatchHostPayload::fromRequest($this->requestStack->getCurrentRequest());
+        if ($value !== null) {
+            return;
+        }
 
-        foreach ($constraint->keys as $key) {
-            if ($payload->isNull($key)) {
-                $this->context->buildViolation($constraint->message)->atPath($key)->addViolation();
-            }
+        $property = $this->context->getPropertyName();
+        if ($property === null) {
+            return;
+        }
+
+        $payload = PatchHostPayload::fromRequest($this->requestStack->getCurrentRequest());
+        if ($payload->isNull($this->nameConverter->normalize($property))) {
+            $this->context->buildViolation($constraint->message)->addViolation();
         }
     }
 }

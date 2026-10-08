@@ -26,25 +26,11 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Fields a partial update may leave out but never send as null: the value is required once the key is
- * there. The Input DTO cannot see the difference, so the keys are read from the request body.
+ * A property of a partial update that may be left out but never sent as null: the value is required once
+ * the key is there. The Input DTO cannot see the difference, so the key is read from the request body.
  */
-#[\Attribute(\Attribute::TARGET_CLASS)]
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class NotNullWhenProvided extends Constraint
 {
     public string $message = 'This value cannot be null.';
-
-    /**
-     * @param list<string> $keys the snake_case keys of the request body
-     * @param ?list<string> $groups
-     */
-    public function __construct(public array $keys = [], ?array $groups = null, mixed $payload = null)
-    {
-        parent::__construct(null, $groups, $payload);
-    }
-
-    public function getTargets(): string
-    {
-        return self::CLASS_CONSTRAINT;
-    }
 }

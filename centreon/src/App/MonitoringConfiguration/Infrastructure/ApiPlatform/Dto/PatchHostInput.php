@@ -41,33 +41,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Every key is optional: a key left out leaves the value untouched, a key sent as null clears it where
- * a value can be cleared. The keys that cannot be null are listed on the class, since this DTO reads
- * both cases as null (see {@see PatchHostPayload}).
+ * a value can be cleared. The properties that cannot be null carry {@see NotNullWhenProvided}, since
+ * this DTO reads both cases as null (see {@see PatchHostPayload}).
  *
  * Do not add an `id` property here: it would flip a missing-host 404 into a 422 via
  * InvalidReferenceExceptionListener.
  */
-#[NotNullWhenProvided(keys: [
-    'activated',
-    'name',
-    'address',
-    'poller_id',
-    'data_processing',
-    'extended_informations',
-    'scheduling_options',
-    'check_options',
-    'notifications',
-])]
 final readonly class PatchHostInput
 {
     private const CONTROL_CHARACTERS = '/[\x00-\x1F\x7F]/';
 
     public function __construct(
         #[ApiProperty(description: 'Whether the host is enabled.')]
+        #[NotNullWhenProvided]
         public ?bool $activated = null,
 
         // The name is unique among hosts and templates: the check needs the host being changed, so it
         // lives in the command handler rather than in a constraint here.
+        #[NotNullWhenProvided]
         #[Assert\Sequentially([
             new Assert\NotBlank(allowNull: true, normalizer: 'trim'),
             new Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH),
@@ -80,11 +71,13 @@ final readonly class PatchHostInput
         ])]
         public ?string $name = null,
 
+        #[NotNullWhenProvided]
         #[Assert\NotBlank(allowNull: true, normalizer: 'trim')]
         #[Assert\Length(min: HostAddress::MIN_LENGTH, max: HostAddress::MAX_LENGTH)]
         #[ValidHostAddress]
         public ?string $address = null,
 
+        #[NotNullWhenProvided]
         #[Assert\Sequentially([
             new Assert\Positive(),
             new AccessiblePoller(),
@@ -117,19 +110,24 @@ final readonly class PatchHostInput
         ])]
         public ?int $severityId = null,
 
+        #[NotNullWhenProvided]
         #[Assert\Valid]
         public ?DataProcessingInput $dataProcessing = null,
 
+        #[NotNullWhenProvided]
         #[Assert\Valid]
         public ?CreateHostExtendedInformationsInput $extendedInformations = null,
 
+        #[NotNullWhenProvided]
         #[Assert\Valid]
         public ?CreateHostSchedulingOptionsInput $schedulingOptions = null,
 
+        #[NotNullWhenProvided]
         #[Assert\Valid]
         public ?PatchHostCheckOptionsInput $checkOptions = null,
 
         #[ApiProperty(description: 'Not available on a Cloud platform, where notifications follow a different model.')]
+        #[NotNullWhenProvided]
         #[Assert\Valid]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Blank(message: 'Notifications are not available on a Cloud platform.'),
