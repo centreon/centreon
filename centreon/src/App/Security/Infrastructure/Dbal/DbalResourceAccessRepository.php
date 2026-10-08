@@ -99,20 +99,16 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         }
 
         // Real-time cache (centreon_storage connection): copy the source's host-level rows per group so
-        // a non-admin sees the copy immediately. Legacy updateACL('DUP'); the service-level rows are
-        // written by duplicateHostServiceAccess() after the copy's services exist.
-        /** @var list<int|string> $groupIds */
-        $groupIds = $this->realTimeConnection->fetchFirstColumn(
-            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :sourceHostId AND service_id IS NULL',
-            ['sourceHostId' => $sourceHostId->value],
+        // a non-admin sees the copy immediately. Read and inserts share the real-time connection, so a
+        // single INSERT ... SELECT does it in one round trip and writes nothing when the source has no
+        // row. Legacy updateACL('DUP'); the service-level rows are written by duplicateHostServiceAccess()
+        // after the copy's services exist.
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                SELECT DISTINCT group_id, :newHostId, NULL FROM centreon_acl
+                WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
         );
-
-        foreach ($groupIds as $groupId) {
-            $this->realTimeConnection->executeStatement(
-                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
-                ['groupId' => (int) $groupId, 'hostId' => $newHostId->value],
-            );
-        }
     }
 
     public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
