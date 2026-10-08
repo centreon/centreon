@@ -134,13 +134,21 @@ final readonly class CreateHostCommandHandler
         // above: existence and the "must be a check command" rule are validated at the API boundary
         // (CheckCommandTypeValidator, →422), but this getById() stays as the last word so a command
         // deleted between validation and execution surfaces as a 404 rather than a broken write.
-        if ($command->checkOptions->checkCommandId instanceof CommandId) {
-            $this->commandRepository->getById($command->checkOptions->checkCommandId);
+        if ($command->checkCommandId instanceof CommandId) {
+            $this->commandRepository->getById($command->checkCommandId);
         }
 
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
+
+        // Every validation runs before the first vault write, so a rejected request never leaves an
+        // orphan secret behind. Inherited macros are resolved from the requested templates and the
+        // check command together, so a submitted macro that merely duplicates an inherited one is
+        // dropped.
+        $checkOptions = new CheckOptions($command->checkCommandId, $command->checkCommandArgs);
+        $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkCommandId);
+        $macros = $this->hostMacroChangesResolver->resolve(array_values($command->macroChanges->toArray()), [], $inherited);
 
         // Vault the SNMP community first so its entry's UUID can be reused for the password macros:
         // legacy keeps all of a host's secrets (SNMP community + password macros) under a single vault
@@ -149,9 +157,11 @@ final readonly class CreateHostCommandHandler
         $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity ? $this->extractVaultUuid($snmpCommunity->value) : null;
 
-        // Resolve inherited macros from the requested templates and the check command together, so a
-        // submitted macro that merely duplicates an inherited one is dropped.
-        $checkOptions = $this->prepareCheckOptions($command, $vaultUuid);
+        // Moves any password macro's plaintext into the vault, leaving a `secret::` reference in its
+        // place. A host being created owns no macro yet, so there is nothing previous to purge.
+        $checkOptions = $checkOptions->with(
+            macros: $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid),
+        );
 
         $host = new Host(
             id: null,
@@ -191,25 +201,6 @@ final readonly class CreateHostCommandHandler
         }
 
         return $host;
-    }
-
-    /**
-     * Resolves the submitted macros against what the host inherits (from its templates or its check
-     * command), dropping those that merely repeat an inherited one, and moves any password macro's
-     * plaintext into the vault, leaving a `secret::` reference in its place, before the host is
-     * persisted. A host being created owns no macro yet, so a change referring to a direct macro
-     * is unknown.
-     *
-     * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
-     *                           join the same entry (null when there is none, or the vault is off)
-     */
-    private function prepareCheckOptions(CreateHostCommand $command, ?string $vaultUuid): CheckOptions
-    {
-        $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId);
-        $macros = $this->hostMacroChangesResolver->resolve($command->macroChanges, [], $inherited);
-        $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid);
-
-        return new CheckOptions($command->checkOptions->checkCommandId, $command->checkOptions->args, $macros);
     }
 
     /**

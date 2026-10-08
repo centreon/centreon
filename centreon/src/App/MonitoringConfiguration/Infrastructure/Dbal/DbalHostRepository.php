@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -394,9 +395,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return $this->transformer->transform($row);
     }
 
-    public function findMacros(HostId $id): array
+    public function findMacros(HostId $id): Collection
     {
-        return array_map(DbalHostTransformer::createMacro(...), $this->findMacroRows($id->value));
+        return new Collection(
+            array_map(DbalHostTransformer::createMacro(...), $this->findMacroRows($id->value)),
+            HostMacro::class,
+        );
     }
 
     public function remove(Host $host): void

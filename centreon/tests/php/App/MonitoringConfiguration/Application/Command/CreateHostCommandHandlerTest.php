@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
@@ -217,7 +216,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(new CommandId(9), ['-w', '5']),
+            checkCommandId: new CommandId(9),
+            checkCommandArgs: ['-w', '5'],
         ));
 
         self::assertSame(9, $host->checkOptions->checkCommandId?->value);
@@ -236,7 +236,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(new CommandId(404)),
+            checkCommandId: new CommandId(404),
         ));
     }
 
@@ -250,10 +250,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(null),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('community'), 'public', isPassword: false),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertCount(1, $host->checkOptions->macros);
@@ -274,10 +273,36 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
-            ],
+            ], HostMacroChange::class),
         ));
+    }
+
+    public function testARejectedMacroLeavesNoSecretInTheVault(): void
+    {
+        // The macros are validated before the SNMP community is vaulted: otherwise the request
+        // fails after the write and leaves an orphan secret behind.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+
+        try {
+            ($this->handler)(new CreateHostCommand(
+                name: new HostName('server-01'),
+                address: new HostAddress('127.0.0.1'),
+                pollerId: $poller->id(),
+                hostGroupIds: new Collection([], HostGroupId::class),
+                creatorId: 1,
+                snmpCommunity: 'public',
+                macroChanges: new Collection([
+                    new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
+                ], HostMacroChange::class),
+            ));
+            self::fail('An unknown macro id should be rejected.');
+        } catch (HostMacroNotFoundException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
     }
 
     public function testItPromotesAnInheritedPasswordReferredToByIdOnCreate(): void
@@ -297,9 +322,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertCount(1, $host->checkOptions->macros);
@@ -328,9 +353,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('renamed'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
-            ],
+            ], HostMacroChange::class),
         ));
     }
 
@@ -358,9 +383,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             snmpCommunity: 'public',
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
-            ],
+            ], HostMacroChange::class),
         ));
 
         $macroWrite = null;
@@ -396,9 +421,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('tplpwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertSame([], $host->checkOptions->macros);
@@ -416,10 +441,10 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(new CommandId(9)),
-            macroChanges: [
+            checkCommandId: new CommandId(9),
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('fromcommand'), 'set', isPassword: false, id: new HostMacroId(999), parent: HostMacroParentEnum::Command),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertCount(1, $host->checkOptions->macros);
@@ -442,11 +467,10 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
-            checkOptions: new CheckOptions(null),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('inherited'), 'shared', isPassword: false),
                 new HostMacroChange(new HostMacroName('own'), 'value', isPassword: false),
-            ],
+            ], HostMacroChange::class),
         ));
 
         // The macro identical to the inherited one is dropped; only the host's own macro remains.
@@ -472,11 +496,11 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(8), new HostTemplateId(7)], HostTemplateId::class),
-            checkOptions: new CheckOptions(new CommandId(9)),
-            macroChanges: [
+            checkCommandId: new CommandId(9),
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('fromtemplate'), 'tpl', isPassword: false),
                 new HostMacroChange(new HostMacroName('fromcommand'), '', isPassword: false),
-            ],
+            ], HostMacroChange::class),
         ));
 
         // The inheritance line is read for the requested templates, in order, and both the template
@@ -504,11 +528,10 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
-            checkOptions: new CheckOptions(null),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('fromtemplatecommand'), '', isPassword: false),
                 new HostMacroChange(new HostMacroName('own'), 'value', isPassword: false),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertSame(['OWN'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $host->checkOptions->macros));
@@ -525,10 +548,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(null),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertStringStartsWith('secret::', $host->checkOptions->macros[0]->value);
@@ -552,10 +574,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             snmpCommunity: 'public',
-            checkOptions: new CheckOptions(null),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
-            ],
+            ], HostMacroChange::class),
         ));
 
         // Legacy keeps every host secret under one vault entry: the password macros must be written
@@ -583,10 +604,9 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(null),
-            macroChanges: [
+            macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
-            ],
+            ], HostMacroChange::class),
         ));
 
         self::assertSame('s3cr3t', $host->checkOptions->macros[0]->value);

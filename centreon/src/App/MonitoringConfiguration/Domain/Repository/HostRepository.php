@@ -54,9 +54,9 @@ interface HostRepository
      * for a caller that only needs the ids assigned on insertion, without hydrating the whole host.
      * Not ACL-scoped: the caller has already resolved the host.
      *
-     * @return list<HostMacro>
+     * @return Collection<HostMacro>
      */
-    public function findMacros(HostId $id): array;
+    public function findMacros(HostId $id): Collection;
 
     /**
      * Also removes the dependencies left without a parent or child host by this deletion.

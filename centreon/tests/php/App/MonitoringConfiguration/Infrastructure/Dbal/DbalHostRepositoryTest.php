@@ -1853,7 +1853,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->insertHostMacro($hostId, '$_HOSTTOKEN$', 's3cr3t', isPassword: true, order: 1);
         $this->insertHostMacro($otherHostId, '$_HOSTELSEWHERE$', 'x', isPassword: false, order: 0);
 
-        $macros = $this->repository->findMacros(new HostId($hostId));
+        $macros = array_values($this->repository->findMacros(new HostId($hostId))->toArray());
 
         /** @var list<int|string> $ids */
         $ids = $this->connection->fetchFirstColumn(
@@ -1871,7 +1871,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $pollerId = $this->createPoller('Central');
         $hostId = $this->createHost('server-no-macros', $pollerId);
 
-        self::assertSame([], $this->repository->findMacros(new HostId($hostId)));
+        self::assertCount(0, $this->repository->findMacros(new HostId($hostId)));
     }
 
     private function hostWithNotifications(int $pollerId, ?Notifications $notifications): Host

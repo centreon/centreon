@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -117,9 +118,9 @@ final class FakeHostRepository implements HostRepository
         return $host;
     }
 
-    public function findMacros(HostId $id): array
+    public function findMacros(HostId $id): Collection
     {
-        return $this->hosts[$id->value]->checkOptions->macros ?? [];
+        return new Collection($this->hosts[$id->value]->checkOptions->macros ?? [], HostMacro::class);
     }
 
     public function remove(Host $host): void

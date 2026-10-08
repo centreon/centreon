@@ -28,7 +28,6 @@ use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
@@ -36,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
@@ -181,13 +181,12 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
 
         $checkOptionsInput = $data->checkOptions;
-        $checkOptions = new CheckOptions(
-            $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
-            $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
+        $macroChanges = new Collection(
+            $checkOptionsInput instanceof CheckOptionsInput
+                ? array_values(array_map($this->macroTransformer->toChange(...), $checkOptionsInput->macros))
+                : [],
+            HostMacroChange::class,
         );
-        $macroChanges = $checkOptionsInput instanceof CheckOptionsInput
-            ? array_values(array_map($this->macroTransformer->toChange(...), $checkOptionsInput->macros))
-            : [];
 
         // Cloud handles notifications through a different model and the input
         // validator rejects the block there, so the host simply carries none — and the
@@ -216,7 +215,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             deployServicesFromTemplates: $data->createServicesLinkedToTemplates ?? true,
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
-            checkOptions: $checkOptions,
+            checkCommandId: $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
+            checkCommandArgs: $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
             notifications: $notifications,
             macroChanges: $macroChanges,
         );
@@ -308,11 +308,12 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         // Every macro the host effectively has: its own, then those it still inherits, each with the
         // id + parent a client resends to change it. The own macros are read back as stored, since
         // their ids are only assigned on insertion.
-        $directMacros = $this->hostRepository->findMacros($host->id());
-        $inherited = $this->inheritedHostMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
+        $directMacros = array_values($this->hostRepository->findMacros($host->id())->toArray());
         $macroOutputs = array_map(
             $this->macroTransformer->transform(...),
-            [...$directMacros, ...$inherited->notOverriddenBy($directMacros)],
+            $this->inheritedHostMacrosResolver
+                ->resolve($host->templateIds, $host->checkOptions->checkCommandId)
+                ->effectiveWith($directMacros),
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
