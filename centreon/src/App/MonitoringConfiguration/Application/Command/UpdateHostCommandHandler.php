@@ -150,9 +150,9 @@ final readonly class UpdateHostCommandHandler
 
         $this->assertRelationsAreNotCircular($command->id, $command->parentHostIds, $command->childHostIds);
 
-        if ($command->checkOptions->checkCommandId instanceof CommandId) {
-            $this->commandRepository->getById($command->checkOptions->checkCommandId);
-        }
+        $checkCommand = $command->checkOptions->checkCommandId instanceof CommandId
+            ? $this->commandRepository->getById($command->checkOptions->checkCommandId)
+            : null;
 
         // Excludes the host itself: keeping its own name is not a conflict.
         if ($this->repository->isNameUsedByHostOrTemplate($command->name, $command->id)) {
@@ -205,7 +205,11 @@ final readonly class UpdateHostCommandHandler
             severityId: $severityId,
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
-            dataProcessing: $command->dataProcessing,
+            // A Centreon Monitoring Agent pushes its results: freshness is forced, like the legacy form
+            // and the Core do, so a silent agent is still detected.
+            dataProcessing: $checkCommand?->isCentreonMonitoringAgent() === true
+                ? $command->dataProcessing->withCentreonMonitoringAgentFreshness()
+                : $command->dataProcessing,
             checkOptions: $checkOptions,
             // Absent on Cloud, where notifications follow another model: the stored block is kept.
             notifications: $command->notifications instanceof Notifications

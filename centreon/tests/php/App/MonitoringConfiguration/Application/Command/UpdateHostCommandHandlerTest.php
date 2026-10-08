@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -782,6 +783,45 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('set', $host->checkOptions->macros[0]->value);
     }
 
+    /**
+     * @return iterable<string, array{string, bool, bool}>
+     */
+    public static function checkCommands(): iterable
+    {
+        yield 'Centreon Monitoring Agent command' => ['OS-Linux-Centreon-Monitoring-Agent-Cpu', true, true];
+
+        yield 'plain command' => ['check_ping', true, false];
+
+        yield 'agent name on an unlocked command' => ['OS-Linux-Centreon-Monitoring-Agent-Cpu', false, false];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('checkCommands')]
+    public function testACentreonMonitoringAgentCommandForcesTheFreshness(string $commandName, bool $locked, bool $forced): void
+    {
+        $this->addPoller(1);
+        $this->commandRepository->commands[9] = new Command(
+            new CommandId(9),
+            new CommandName($commandName),
+            CommandTypeEnum::Check,
+            new CommandLine('$USER1$/check'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: $locked,
+            connector: null,
+            comment: null,
+        );
+        $this->seedHost(10);
+
+        $host = ($this->handler)($this->command(
+            10,
+            checkOptions: new CheckOptions(new CommandId(9)),
+            dataProcessing: new DataProcessing(checkFreshness: TriStateEnum::False, freshnessThreshold: 30),
+        ));
+
+        self::assertSame($forced ? TriStateEnum::True : TriStateEnum::False, $host->dataProcessing->checkFreshness);
+        self::assertSame($forced ? DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD : 30, $host->dataProcessing->freshnessThreshold);
+    }
+
     public function testResendingTheStoredNotificationsIsANoOp(): void
     {
         $this->addPoller(1);
@@ -964,6 +1004,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ?UserId $viewerId = null,
         array $macroChanges = [],
         ?Notifications $notifications = null,
+        DataProcessing $dataProcessing = new DataProcessing(),
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -980,6 +1021,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             checkOptions: $checkOptions,
             notifications: $notifications,
             macroChanges: $macroChanges,
+            dataProcessing: $dataProcessing,
         );
     }
 
