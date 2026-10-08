@@ -38,6 +38,9 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DataProcessing
 {
+    /** Seconds a Centreon Monitoring Agent host may stay silent before its result is considered stale. */
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 120;
+
     /**
      * @param list<string> $eventHandlerArgs
      */
@@ -98,6 +101,18 @@ final readonly class DataProcessing
             highFlapThreshold: NoValue::resolve($highFlapThreshold, $this->highFlapThreshold),
             eventHandlerCommandId: NoValue::resolve($eventHandlerCommandId, $this->eventHandlerCommandId),
             eventHandlerArgs: NoValue::resolve($eventHandlerArgs, $this->eventHandlerArgs),
+        );
+    }
+
+    /**
+     * A host checked by a Centreon Monitoring Agent pushes its results: freshness is always checked,
+     * with a fixed threshold, whatever was asked.
+     */
+    public function withCentreonMonitoringAgentFreshness(): self
+    {
+        return $this->with(
+            checkFreshness: TriStateEnum::True,
+            freshnessThreshold: self::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD,
         );
     }
 
