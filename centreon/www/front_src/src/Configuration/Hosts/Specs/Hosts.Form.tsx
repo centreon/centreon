@@ -1,6 +1,8 @@
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
+  labelAddNewEntry,
   labelChildHosts,
+  labelCreateServicesLinkedToTemplates,
   labelDataProcessing,
   labelDefault,
   labelDown,
@@ -160,6 +162,8 @@ export default () => {
           // The arguments go back as the list they came as.
           check_options: { args: ['3', '80%'], command_id: 9 },
           child_host_ids: [2],
+          // Never read back, so off as legacy opens an existing host.
+          create_services_linked_to_templates: false,
           data_processing: {
             acknowledgment_timeout: 15,
             check_freshness: 'true',
@@ -204,6 +208,7 @@ export default () => {
           },
           severity_id: 2,
           snmp_version: '2c',
+          template_ids: [6, 5],
           timezone_id: 7
         });
       });
@@ -685,6 +690,7 @@ export default () => {
           category_ids: [],
           check_options: untouchedCheckOptionsPayload,
           child_host_ids: [],
+          create_services_linked_to_templates: true,
           data_processing: untouchedDataProcessingPayload,
           extended_informations: untouchedExtendedInformationsPayload,
           host_group_ids: [],
@@ -695,6 +701,7 @@ export default () => {
           scheduling_options: untouchedSchedulingOptionsPayload,
           severity_id: null,
           snmp_version: null,
+          template_ids: [],
           timezone_id: null
         });
       });
@@ -768,6 +775,7 @@ export default () => {
           },
           severity_id: null,
           snmp_version: null,
+          template_ids: [],
           timezone_id: null
         });
       });
@@ -809,6 +817,7 @@ export default () => {
           category_ids: [],
           check_options: untouchedCheckOptionsPayload,
           child_host_ids: [],
+          create_services_linked_to_templates: true,
           data_processing: untouchedDataProcessingPayload,
           extended_informations: untouchedExtendedInformationsPayload,
           host_group_ids: [],
@@ -819,6 +828,7 @@ export default () => {
           scheduling_options: untouchedSchedulingOptionsPayload,
           severity_id: null,
           snmp_version: null,
+          template_ids: [],
           timezone_id: null
         });
       });
@@ -891,6 +901,7 @@ export default () => {
           category_ids: [3],
           check_options: untouchedCheckOptionsPayload,
           child_host_ids: [2],
+          create_services_linked_to_templates: true,
           data_processing: untouchedDataProcessingPayload,
           extended_informations: untouchedExtendedInformationsPayload,
           host_group_ids: [],
@@ -901,6 +912,7 @@ export default () => {
           scheduling_options: untouchedSchedulingOptionsPayload,
           severity_id: null,
           snmp_version: null,
+          template_ids: [],
           timezone_id: null
         });
       });
@@ -983,6 +995,7 @@ export default () => {
         expect(request.body.notifications).to.deep.equals(
           untouchedNotificationsPayload
         );
+        expect(request.body.template_ids).to.deep.equals([]);
         expect(request.body.scheduling_options).to.deep.equals(
           untouchedSchedulingOptionsPayload
         );
@@ -1906,6 +1919,258 @@ export default () => {
           'not.exist'
         );
       });
+    });
+
+    it('creates a host from its templates, in the order they were added', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates-0').click();
+      // The form's own selector, granted by host write access.
+      cy.waitForRequest('@getFormHostTemplates').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/host_templates'
+        );
+        expect(request.url.pathname).to.not.contain('/api/latest');
+      });
+      cy.get('.MuiAutocomplete-popper')
+        .contains('linux-server-standard')
+        .click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates-1').click();
+      // Not offered twice.
+      cy.get('.MuiAutocomplete-popper')
+        .contains('linux-server-standard')
+        .closest('li')
+        .should('have.attr', 'aria-disabled', 'true');
+      cy.get('.MuiAutocomplete-popper').contains('generic-active-host').click();
+
+      // On by default when creating, as legacy does.
+      cy.findByLabelText(labelCreateServicesLinkedToTemplates)
+        .should('be.checked')
+        .click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.template_ids).to.deep.equals([7, 5]);
+        expect(request.body.create_services_linked_to_templates).to.equal(
+          false
+        );
+      });
+    });
+
+    it('searches the templates by the name typed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates-0').click();
+      cy.get('.MuiAutocomplete-popper')
+        .contains('linux-server-standard')
+        .click();
+
+      // A row with a value excludes it first: the typed text is not the first
+      // search condition.
+      cy.findByTestId('host-form-templates-0').clear().type('g');
+
+      // The requests before the search come first: wait through them.
+      const waitForSearch = (remainingRequests: number): void => {
+        cy.waitForRequest('@getFormHostTemplates').then(({ request }) => {
+          const searchedName = new URL(request.url).searchParams.get(
+            'name[lk]'
+          );
+
+          if (searchedName !== 'g' && remainingRequests > 1) {
+            waitForSearch(remainingRequests - 1);
+
+            return;
+          }
+
+          expect(searchedName).to.equal('g');
+        });
+      };
+
+      waitForSearch(10);
+    });
+
+    it('leaves out a template row left empty', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates-0').click();
+      cy.get('.MuiAutocomplete-popper')
+        .contains('linux-server-standard')
+        .click();
+      cy.findByRole('button', { name: labelAddNewEntry }).click();
+
+      // Nothing picked yet: no template page to open.
+      cy.findAllByTestId('host-form-templates-edit')
+        .eq(1)
+        .should('be.disabled');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.template_ids).to.deep.equals([7]);
+      });
+    });
+
+    it('lets a user who may only look at hosts change no template', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-templates-0').should('be.disabled');
+      cy.findByRole('button', { name: labelAddNewEntry }).should('be.disabled');
+      cy.findByTestId('host-form-templates')
+        .findAllByTestId('delete-row')
+        .first()
+        .should('be.disabled');
+      cy.findByLabelText(labelCreateServicesLinkedToTemplates).should(
+        'be.disabled'
+      );
+    });
+
+    it('opens an existing host on its templates, in order', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-templates-0').should(
+        'have.value',
+        'generic-passive-host'
+      );
+      cy.findByTestId('host-form-templates-1').should(
+        'have.value',
+        'generic-active-host'
+      );
+      // Never read back: off, as legacy opens an existing host.
+      cy.findByLabelText(labelCreateServicesLinkedToTemplates).should(
+        'not.be.checked'
+      );
+    });
+
+    it('opens the configuration page of a template from its row', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.window().then((win) => {
+        cy.stub(win, 'open').as('openWindow');
+      });
+
+      cy.findAllByTestId('host-form-templates-edit').eq(0).click();
+
+      cy.get('@openWindow').should(
+        'have.been.calledWithMatch',
+        /main\.php\?p=60103&o=c&host_id=6$/,
+        '_blank'
+      );
+    });
+
+    it('saves the templates in the order they were dragged to', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-templates')
+        .findAllByTestId('drag-handle')
+        .should('have.length', 2);
+
+      cy.moveSortableElement({
+        direction: 'down',
+        element: cy
+          .findByTestId('host-form-templates')
+          .findAllByTestId('drag-handle')
+          .eq(0)
+      });
+
+      cy.findByTestId('host-form-templates-0').should(
+        'have.value',
+        'generic-active-host'
+      );
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.template_ids).to.deep.equals([5, 6]);
+      });
+    });
+
+    it('saves the templates left once one is removed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-templates')
+        .findAllByTestId('delete-row')
+        .eq(0)
+        .click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        // The first row, generic-passive-host, is the one removed.
+        expect(request.body.template_ids).to.deep.equals([5]);
+      });
+    });
+
+    it('offers the templates but not the services toggle on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByRole('button', { name: labelAddNewEntry }).should('exist');
+      cy.findByLabelText(labelCreateServicesLinkedToTemplates).should(
+        'not.exist'
+      );
     });
   });
 };

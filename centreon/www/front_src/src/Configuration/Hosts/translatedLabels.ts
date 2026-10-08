@@ -57,6 +57,11 @@ export const labelNormalCheckInterval = 'Normal Check Interval';
 export const labelRetryCheckInterval = 'Retry Check Interval';
 export const labelActiveChecksEnabled = 'Active Checks Enabled';
 export const labelPassiveChecksEnabled = 'Passive Checks Enabled';
+// Templates, spelled as the legacy host form and the shared list spell them.
+export const labelAddNewEntry = 'Add new entry';
+export const labelEditTemplate = 'Modify';
+export const labelCreateServicesLinkedToTemplates =
+  'Create Services linked to the Template too';
 
 // Yes / No / Default fields
 export const labelYes = 'Yes';
