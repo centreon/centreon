@@ -50,6 +50,7 @@ use App\MonitoringConfiguration\Domain\Event\HostCredentialsReleased;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -329,6 +330,63 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertSame(9, $result->checkOptions->checkCommandId?->value);
         self::assertSame(TriStateEnum::UseDefault, $result->dataProcessing->checkFreshness);
         self::assertNull($result->dataProcessing->freshnessThreshold);
+    }
+
+    public function testArgumentsAloneApplyToTheCommandTheHostAlreadyHas(): void
+    {
+        $this->addCommand(9, 'check_ping');
+        $this->seedHost(activated: true);
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9)),
+        ));
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            checkOptions: new CheckOptionsChanges(args: ['-w', '80']),
+        ));
+
+        self::assertSame(['-w', '80'], $result->checkOptions->args);
+        self::assertSame(9, $result->checkOptions->checkCommandId?->value);
+    }
+
+    public function testArgumentsAreRefusedWhenTheHostHasNoCheckCommand(): void
+    {
+        $this->seedHost(activated: true);
+
+        $this->expectException(CheckArgumentsRequireACommandException::class);
+
+        try {
+            ($this->handler)(new PatchHostCommand(
+                id: new HostId(self::HOST_ID),
+                updatedBy: 1,
+                checkOptions: new CheckOptionsChanges(args: ['-w', '80']),
+            ));
+        } finally {
+            self::assertSame([], $this->repository->updatedHosts);
+        }
+    }
+
+    public function testRemovingTheCommandClearsItsArguments(): void
+    {
+        $this->addCommand(9, 'check_ping');
+        $this->seedHost(activated: true);
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9), args: ['-w', '80']),
+        ));
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            checkOptions: new CheckOptionsChanges(checkCommandId: null),
+        ));
+
+        self::assertNull($result->checkOptions->checkCommandId);
+        self::assertSame([], $result->checkOptions->args);
     }
 
     public function testTheAdditiveInheritanceFlagsAreForcedOffWhenTheOptionIsDisabled(): void

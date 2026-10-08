@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Event\HostCredentialsReleased;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -64,6 +65,7 @@ final readonly class PatchHostCommandHandler
     {
         $host = $this->getHost($command);
         $this->assertNameIsAvailable($command, $host);
+        $this->assertArgumentsHaveACheckCommand($command, $host);
 
         // The vault write comes last, once every validation and every invariant of the new host has
         // passed: a rejected update must never leave an orphan secret behind.
@@ -93,6 +95,25 @@ final readonly class PatchHostCommandHandler
             && $this->repository->isNameUsedByHostOrTemplate($command->name)
         ) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
+        }
+    }
+
+    /**
+     * Arguments are provided on their own, they apply to the command the host already has. Left with
+     * none, they have nothing to belong to.
+     */
+    private function assertArgumentsHaveACheckCommand(PatchHostCommand $command, Host $host): void
+    {
+        if (! $command->checkOptions instanceof CheckOptionsChanges || ! is_array($command->checkOptions->args) || $command->checkOptions->args === []) {
+            return;
+        }
+
+        $commandId = $command->checkOptions->checkCommandId instanceof NoValue
+            ? $host->checkOptions->checkCommandId
+            : $command->checkOptions->checkCommandId;
+
+        if (! $commandId instanceof CommandId) {
+            throw new CheckArgumentsRequireACommandException();
         }
     }
 
