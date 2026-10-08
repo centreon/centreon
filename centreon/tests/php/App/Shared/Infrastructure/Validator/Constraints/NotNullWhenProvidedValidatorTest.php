@@ -106,6 +106,38 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
         $this->assertNoViolation();
     }
 
+    public function testAPropertyOfAnElementOfAListIsLookedUpInThatElement(): void
+    {
+        $this->sendBody('{"macros": [{"name": "TOKEN", "value": "a"}, {"name": null}]}');
+        $this->setPropertyPath('macros[1].name');
+
+        $constraint = new NotNullWhenProvided();
+        $this->validator->validate(null, $constraint);
+
+        $this->buildViolation($constraint->message)->atPath('macros[1].name')->assertRaised();
+    }
+
+    public function testAPropertyOfAnotherElementOfTheListDoesNotMatter(): void
+    {
+        $this->sendBody('{"macros": [{"name": "TOKEN"}, {"name": null}]}');
+        $this->setPropertyPath('macros[0].name');
+
+        $this->validator->validate(null, new NotNullWhenProvided());
+
+        $this->assertNoViolation();
+    }
+
+    public function testAnElementSentAsNullInAListRaisesAViolation(): void
+    {
+        $this->sendBody('{"contact_ids": [3, null]}');
+        $this->setPropertyPath('contactIds[1]');
+
+        $constraint = new NotNullWhenProvided();
+        $this->validator->validate(null, $constraint);
+
+        $this->buildViolation($constraint->message)->atPath('contactIds[1]')->assertRaised();
+    }
+
     public function testAnotherKeySentAsNullDoesNotMatter(): void
     {
         $this->sendBody('{"alias": null}');

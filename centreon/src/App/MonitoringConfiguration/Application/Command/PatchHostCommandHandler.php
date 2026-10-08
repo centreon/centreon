@@ -29,10 +29,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
-use App\MonitoringConfiguration\Domain\Event\HostCredentialsReleased;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
@@ -95,7 +95,7 @@ final readonly class PatchHostCommandHandler
         if (
             ! $command->name instanceof NoValue
             && $command->name->value !== $host->name->value
-            && $this->repository->isNameUsedByHostOrTemplate($command->name)
+            && $this->repository->isNameUsedByHostOrTemplate($command->name, $host->id())
         ) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
@@ -270,7 +270,8 @@ final readonly class PatchHostCommandHandler
 
     /**
      * A community removed from the host leaves its secret in the vault. It is removed once the update
-     * is committed: with its entry when the host keeps no other secret in it, alone otherwise.
+     * is committed: with its entry when the host keeps no other secret in it, alone otherwise. The
+     * purge is best effort: a leftover secret is harmless, and the update is already saved.
      */
     private function releaseCredentialsOf(Host $hostBefore, Host $hostAfter): void
     {
@@ -282,9 +283,10 @@ final readonly class PatchHostCommandHandler
             return;
         }
 
-        $this->eventBus->fire(new HostCredentialsReleased(
+        $this->eventBus->fire(new HostVaultPurgeRequested(
             $hostBefore,
-            $hostAfter->releasesVaultEntryOf($hostBefore, $this->vault) ? [] : [VaultKeyEnum::HostSnmpCommunity->value],
+            bestEffort: true,
+            keys: $hostAfter->releasesVaultEntryOf($hostBefore, $this->vault) ? [] : [VaultKeyEnum::HostSnmpCommunity->value],
         ));
     }
 }

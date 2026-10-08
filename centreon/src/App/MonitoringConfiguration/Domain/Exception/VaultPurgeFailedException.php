@@ -39,14 +39,6 @@ final class VaultPurgeFailedException extends \RuntimeException
         );
     }
 
-    public static function forUpdatedHost(HostId $hostId, \Throwable $previous): self
-    {
-        return new self(
-            sprintf('Host %d was updated but some of its removed credentials could not be purged from the vault.', $hostId->value),
-            previous: $previous,
-        );
-    }
-
     public static function forService(ServiceId $serviceId, \Throwable $previous): self
     {
         return new self(

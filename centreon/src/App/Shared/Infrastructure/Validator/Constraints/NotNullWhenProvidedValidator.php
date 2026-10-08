@@ -60,17 +60,39 @@ final class NotNullWhenProvidedValidator extends ConstraintValidator
             return;
         }
 
-        $keys = array_map($this->nameConverter->normalize(...), explode('.', $path));
-        $key = array_pop($keys);
+        $steps = $this->stepsOf($path);
+        $last = array_pop($steps);
+        if ($last === null) {
+            return;
+        }
 
         $payload = $this->payloadOf($request);
-        foreach ($keys as $section) {
-            $payload = $payload->section($section);
+        foreach ($steps as $step) {
+            $payload = is_int($step) ? $payload->item($step) : $payload->section($step);
         }
 
-        if ($payload->isNull($key)) {
+        $isNull = is_int($last) ? $payload->itemIsNull($last) : $payload->isNull($last);
+        if ($isNull) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
+    }
+
+    /**
+     * The path of a property in the body, as the keys to walk down and the indexes of the lists crossed
+     * on the way: `macros[0].name` gives `macros`, 0, `name`.
+     *
+     * @return list<int|string>
+     */
+    private function stepsOf(string $path): array
+    {
+        preg_match_all('/\[(?<index>\d+)\]|(?<key>[^.\[\]]+)/', $path, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
+
+        $steps = [];
+        foreach ($matches as $match) {
+            $steps[] = $match['key'] !== null ? $this->nameConverter->normalize($match['key']) : (int) $match['index'];
+        }
+
+        return $steps;
     }
 
     /**

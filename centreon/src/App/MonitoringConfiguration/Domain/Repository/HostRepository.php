@@ -87,8 +87,11 @@ interface HostRepository
      * A plain existence check, not `findOneByName(): ?Host`: a matching row can be a host
      * template, which has no poller relation and therefore cannot be hydrated into a valid
      * `Host` (poller is a required, non-nullable field on the aggregate).
+     *
+     * $excludedHostId leaves a host out of the lookup, so that a host can be renamed to a name that only
+     * differs from its own by its case.
      */
-    public function isNameUsedByHostOrTemplate(HostName $name): bool;
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool;
 
     /**
      * @return \IteratorAggregate<int, Host>&\Countable

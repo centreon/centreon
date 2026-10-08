@@ -46,10 +46,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Event\HostCredentialsReleased;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
@@ -268,6 +268,34 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertSame('front', $result->alias?->value);
     }
 
+    public function testRenamingAHostOnlyByTheCaseOfItsNameIsNotADuplicate(): void
+    {
+        $this->seedHost(activated: true);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            name: new HostName('SERVER-01'),
+        ));
+
+        self::assertSame('SERVER-01', $result->name->value);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostMassChanged::class, 1));
+    }
+
+    public function testItRejectsANameThatOnlyDiffersByCaseFromAnotherHost(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->add($this->host('server-02', activated: true));
+
+        $this->expectException(HostAlreadyExistsException::class);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            name: new HostName('SERVER-02'),
+        ));
+    }
+
     public function testMovingAHostCarriesThePreviousPollerOnTheEvent(): void
     {
         $this->seedHost(activated: true);
@@ -437,7 +465,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertSame('uuid-1', $this->vault->writeManyCalls[0]['uuid']);
         self::assertSame(['_HOSTSNMPCOMMUNITY' => 'new-secret'], $this->vault->writeManyCalls[0]['secrets']);
         self::assertSame(self::COMMUNITY_REFERENCE, $result->snmpCommunity?->value);
-        self::assertSame([], $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class));
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class));
     }
 
     /**
@@ -500,9 +528,10 @@ final class PatchHostCommandHandlerTest extends TestCase
         ));
 
         self::assertNull($result->snmpCommunity);
-        self::assertTrue($this->eventBus->shouldHaveDispatched(HostCredentialsReleased::class, 1));
-        $event = $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class)[0];
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostVaultPurgeRequested::class, 1));
+        $event = $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class)[0];
         self::assertSame([], $event->keys);
+        self::assertTrue($event->bestEffort);
         self::assertSame($before, $event->host);
     }
 
@@ -516,8 +545,9 @@ final class PatchHostCommandHandlerTest extends TestCase
             snmpCommunity: null,
         ));
 
-        $event = $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class)[0];
+        $event = $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class)[0];
         self::assertSame(['_HOSTSNMPCOMMUNITY'], $event->keys);
+        self::assertTrue($event->bestEffort);
     }
 
     public function testRemovingAPlaintextCommunityReleasesNothing(): void
@@ -531,7 +561,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         ));
 
         self::assertNull($result->snmpCommunity);
-        self::assertSame([], $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class));
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class));
     }
 
     public function testARejectedUpdateLeavesNoSecretInTheVault(): void

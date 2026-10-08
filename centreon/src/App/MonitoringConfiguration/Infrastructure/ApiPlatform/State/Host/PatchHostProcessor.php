@@ -55,13 +55,14 @@ final readonly class PatchHostProcessor implements ProcessorInterface
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $request = $context['request'] ?? null;
+        Assert::isInstanceOf($request, Request::class);
 
         $this->commandBus->execute($this->commandFactory->create(
             id: new HostId($uriVariables['id']),
             updatedBy: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
             input: $data,
-            payload: RequestPayload::fromRequest($request instanceof Request ? $request : null),
+            payload: RequestPayload::fromRequest($request),
         ));
     }
 }

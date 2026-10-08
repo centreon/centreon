@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\ApiPlatform;
 
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -39,17 +40,12 @@ final readonly class RequestPayload
     {
     }
 
-    public static function fromRequest(?Request $request): self
+    /**
+     * @throws BadRequestException when the body is empty or is not a JSON object
+     */
+    public static function fromRequest(Request $request): self
     {
-        if (! $request instanceof Request) {
-            return new self([]);
-        }
-
-        try {
-            return new self($request->toArray());
-        } catch (\Throwable) {
-            return new self([]);
-        }
+        return new self($request->toArray());
     }
 
     public function has(string $key): bool
@@ -70,5 +66,20 @@ final readonly class RequestPayload
         $section = $this->data[$key] ?? null;
 
         return new self(is_array($section) ? $section : []);
+    }
+
+    /**
+     * The keys sent inside the Nth element of a list of sub-objects, none when it is absent or not an object.
+     */
+    public function item(int $index): self
+    {
+        $item = $this->data[$index] ?? null;
+
+        return new self(is_array($item) ? $item : []);
+    }
+
+    public function itemIsNull(int $index): bool
+    {
+        return array_key_exists($index, $this->data) && $this->data[$index] === null;
     }
 }

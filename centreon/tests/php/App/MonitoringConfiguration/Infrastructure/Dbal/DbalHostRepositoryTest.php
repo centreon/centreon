@@ -1039,6 +1039,16 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name')));
     }
 
+    public function testIsNameUsedByHostOrTemplateLeavesTheExcludedHostOut(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+
+        self::assertFalse($this->repository->isNameUsedByHostOrTemplate(new HostName('SERVER-01'), new HostId($hostId)));
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('server-01'), new HostId($otherHostId)));
+    }
+
     public function testAddPersistsTheSnmpAndTimezoneColumns(): void
     {
         $pollerId = $this->createPoller('Central');
