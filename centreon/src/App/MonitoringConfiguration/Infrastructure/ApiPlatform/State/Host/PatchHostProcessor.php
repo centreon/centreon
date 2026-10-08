@@ -25,12 +25,13 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostPayload;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Webmozart\Assert\Assert;
 
 /**
@@ -41,6 +42,7 @@ final readonly class PatchHostProcessor implements ProcessorInterface
     public function __construct(
         private CommandBus $commandBus,
         private Security $security,
+        private PatchHostCommandFactory $commandFactory,
     ) {
     }
 
@@ -52,13 +54,14 @@ final readonly class PatchHostProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        $this->commandBus->execute(new PatchHostCommand(
+        $request = $context['request'] ?? null;
+
+        $this->commandBus->execute($this->commandFactory->create(
             id: new HostId($uriVariables['id']),
-            activated: $data->activated,
             updatedBy: $credentialUser->credential->userId->value,
-            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess()
-                ? null
-                : $credentialUser->credential->userId,
+            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            input: $data,
+            payload: PatchHostPayload::fromRequest($request instanceof Request ? $request : null),
         ));
     }
 }

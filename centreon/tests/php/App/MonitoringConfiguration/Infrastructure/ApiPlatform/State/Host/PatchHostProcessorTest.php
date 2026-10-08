@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\App\Shared\ApiTestCase;
 
 final class PatchHostProcessorTest extends ApiTestCase
@@ -107,16 +108,29 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertSame('enable', $this->latestActionType($hostId));
     }
 
-    public function testItRejectsAMissingActivatedField(): void
+    public function testAnEmptyBodyChangesNothing(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $pollerId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => []]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+        self::assertSame('0', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]));
+    }
+
+    public function testANullActivatedIsRejected(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
         $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
 
-        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => []]);
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => null]]);
 
         self::assertResponseStatusCodeSame(422);
-        // Validation runs before the command: the host is left untouched.
         self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
     }
 
@@ -212,6 +226,213 @@ final class PatchHostProcessorTest extends ApiTestCase
         // Out of ACL scope reads as not found (no existence leak, not a 403), and nothing is toggled.
         self::assertResponseStatusCodeSame(404);
         self::assertSame('1', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testItUpdatesOnlyTheSentFields(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+        $hostId = $this->insertHost($name, $pollerId);
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $pollerId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(204);
+        $row = $this->connection->fetchAssociative('SELECT host_name, host_address, host_alias FROM host WHERE host_id = ?', [$hostId]);
+        self::assertSame(['host_name' => $name, 'host_address' => '127.0.0.1', 'host_alias' => 'front'], $row);
+        self::assertSame('mc', $this->latestActionType($hostId));
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]));
+    }
+
+    public function testNullClearsTheAlias(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->connection->update('host', ['host_alias' => 'front'], ['host_id' => $hostId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['alias' => null]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertNull($this->connection->fetchOne('SELECT host_alias FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testAFieldThatCannotBeNullIsRejectedWhenSentAsNull(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['name' => null]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame($name, $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testASubObjectCannotBeNull(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['scheduling_options' => null]]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRefusesANameUsedByAnotherHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $takenName = $this->uniqueName('taken');
+        $this->insertHost($takenName, $pollerId);
+        $name = $this->uniqueName('host');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['name' => $takenName]]);
+
+        self::assertResponseStatusCodeSame(409);
+        self::assertSame($name, $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testItAcceptsTheCurrentNameOfTheHost(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['name' => $name, 'alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(204);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unknownReferences(): iterable
+    {
+        yield 'poller' => [['poller_id' => 9999999]];
+
+        yield 'timezone' => [['timezone_id' => 9999999]];
+
+        yield 'severity' => [['severity_id' => 9999999]];
+
+        yield 'check time period' => [['scheduling_options' => ['check_timeperiod_id' => 9999999]]];
+
+        yield 'icon' => [['extended_informations' => ['icon_id' => 9999999]]];
+
+        yield 'check command' => [['check_options' => ['command_id' => 9999999]]];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    #[DataProvider('unknownReferences')]
+    public function testItRejectsAReferenceToSomethingThatDoesNotExist(array $body): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => $body + ['alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertNull($this->connection->fetchOne('SELECT host_alias FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testMovingAHostFlagsBothPollers(): void
+    {
+        $this->login();
+        $oldPollerId = $this->insertPoller('Old');
+        $newPollerId = $this->insertPoller('New');
+        $hostId = $this->insertHost($this->uniqueName('host'), $oldPollerId);
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $oldPollerId]);
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $newPollerId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['poller_id' => $newPollerId]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame(
+            [$newPollerId],
+            $this->connection->fetchFirstColumn('SELECT nagios_server_id FROM ns_host_relation WHERE host_host_id = ?', [$hostId]),
+        );
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$oldPollerId]));
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$newPollerId]));
+    }
+
+    public function testASubObjectIsUpdatedFieldByField(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->connection->update('host', ['host_check_interval' => 7, 'host_max_check_attempts' => 3], ['host_id' => $hostId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['scheduling_options' => ['max_check_attempts' => 5]]]);
+
+        self::assertResponseStatusCodeSame(204);
+        $row = $this->connection->fetchAssociative('SELECT host_max_check_attempts, host_check_interval FROM host WHERE host_id = ?', [$hostId]);
+        self::assertSame(['host_max_check_attempts' => 5, 'host_check_interval' => 7], $row);
+    }
+
+    public function testNullClearsAValueInsideASubObject(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->connection->update('host', ['host_notification_interval' => 15], ['host_id' => $hostId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['notifications' => ['interval' => null, 'first_delay' => 2]]]);
+
+        self::assertResponseStatusCodeSame(204);
+        $row = $this->connection->fetchAssociative('SELECT host_notification_interval, host_first_notification_delay FROM host WHERE host_id = ?', [$hostId]);
+        self::assertSame(['host_notification_interval' => null, 'host_first_notification_delay' => 2], $row);
+    }
+
+    public function testTheExtendedInformationsAreUpdated(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+        $this->connection->insert('extended_host_information', ['host_host_id' => $hostId]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['extended_informations' => ['note' => 'hello']]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('hello', $this->connection->fetchOne('SELECT ehi_notes FROM extended_host_information WHERE host_host_id = ?', [$hostId]));
+    }
+
+    public function testArgumentsWithoutACheckCommandAreRejected(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['check_options' => ['args' => ['-w', '80']]]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertNull($this->connection->fetchOne('SELECT command_command_id_arg1 FROM host WHERE host_id = ?', [$hostId]));
+    }
+
+    public function testTheSnmpCommunityIsStoredAndCleared(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['snmp_community' => 'public', 'snmp_version' => '2c']]);
+
+        self::assertResponseStatusCodeSame(204);
+        $row = $this->connection->fetchAssociative('SELECT host_snmp_community, host_snmp_version FROM host WHERE host_id = ?', [$hostId]);
+        self::assertSame(['host_snmp_community' => 'public', 'host_snmp_version' => '2c'], $row);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['snmp_community' => null]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertNull($this->connection->fetchOne('SELECT host_snmp_community FROM host WHERE host_id = ?', [$hostId]));
     }
 
     private function insertPoller(string $name): int
