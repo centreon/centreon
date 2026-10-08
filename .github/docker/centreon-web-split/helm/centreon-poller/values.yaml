@@ -6,8 +6,11 @@
 #      and its pullwss token ("<token-name>:<token-value>").
 #   2. Create the Secret referenced by secrets.existingSecret.
 #   3. In the poller's broker configuration in Centreon: output host = the
-#      central broker endpoint (5669) reachable from this cluster, and
-#      "Cache directory" = engine.cbmodCacheDirectory.
+#      central broker endpoint (5669) reachable from this cluster. Keep the
+#      default "Cache directory" (/var/lib/centreon-engine, persisted).
+#
+# The engine image must keep its entrypoint out of /var/lib/centreon-engine
+# (MON-211751): older images would have it frozen on the persisted volume.
 
 # Resource names default to the release name (pod "<fullname>-0").
 fullnameOverride: ""
@@ -70,11 +73,6 @@ engine:
   addNetRaw: false
   # E.g. SMTP_HOST / SMTP_PORT / SMTP_FROM / SMTP_TLS for notifications.
   extraEnv: []
-  # cbmod's cache directory: its in-memory queue is saved there on a clean
-  # stop and reloaded at start. Must match "Cache directory" in the poller's
-  # broker configuration in Centreon; the first config delivery needs one
-  # engine restart to switch to it (a reload is not enough).
-  cbmodCacheDirectory: /var/cache/centreon-engine
   resources: {}
   # OpenTelemetry / Centreon Monitoring Agent (CMA) gRPC server, active once
   # an agent configuration is attached to the poller.
@@ -118,7 +116,7 @@ persistence:
   etc: 1Gi              # /etc/centreon
   logs: 5Gi             # /var/log/centreon-engine (+ retention.dat)
   cmaPki: 100Mi         # /etc/pki/centreon-engine (CMA CA)
-  cbmodCache: 5Gi       # engine.cbmodCacheDirectory
+  engineHome: 5Gi       # /var/lib/centreon-engine (cbmod's queue/cache)
   gorgoneData: 1Gi      # /var/lib/centreon-gorgone (keys, history)
 
 debug: false

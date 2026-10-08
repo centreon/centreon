@@ -3,8 +3,7 @@ Poller "{{ .Values.poller.name }}" (id {{ include "centreon-poller.id" . }}) dep
 gorgone connects to {{ ternary "wss" "ws" .Values.central.ssl }}://{{ .Values.central.host }}:{{ .Values.central.port }}{{ trimSuffix "/" .Values.central.baseUri }}/gorgone/pullwss/websocket
   kubectl -n {{ .Release.Namespace }} logs {{ include "centreon-poller.fullname" . }}-0 -c gorgone
 
-centengine crash-loops until the central exports its configuration:
-  1. Export the poller configuration from the central (generate + move + restart).
-  2. Check the poller's broker output host and "Cache directory"
-     ({{ .Values.engine.cbmodCacheDirectory }}) in Centreon, then restart the
-     engine once (a reload does not switch cbmod's cache directory).
+centengine crash-loops until the central exports its configuration: check the
+poller's broker output host in Centreon, then export the poller configuration
+(generate + move + restart). The restart back-off can delay the pickup by up
+to 5 minutes: `kubectl -n {{ .Release.Namespace }} delete pod {{ include "centreon-poller.fullname" . }}-0` applies it at once.

@@ -73,7 +73,10 @@ spec:
               own 902:902 775 /seed/broker
               # External command FIFO (centengine creates it, gorgone writes).
               own 901:901 775 /seed/centcmd
-              own 901:901 775 /seed/cbmod-cache
+              # Engine user's home = cbmod's default cache directory (queue
+              # saved on clean stop). Needs an image whose entrypoint is not
+              # in the home (MON-211751), or the seed would freeze it.
+              seed /var/lib/centreon-engine /seed/engine-home
               {{- if .Values.engine.otel.tls.existingSecret }}
               # CMA TLS identity: private to centengine (gorgone shares the pod).
               for f in /seed/otel-tls-src/*; do
@@ -91,7 +94,7 @@ spec:
             - { name: logs, mountPath: /seed/logs }
             - { name: centcmd, mountPath: /seed/centcmd }
             - { name: cma-pki, mountPath: /seed/pki }
-            - { name: cbmod-cache, mountPath: /seed/cbmod-cache }
+            - { name: engine-home, mountPath: /seed/engine-home }
             {{- if .Values.engine.otel.tls.existingSecret }}
             - { name: otel-tls-src, mountPath: /seed/otel-tls-src, readOnly: true }
             - { name: otel-tls, mountPath: /seed/otel-tls }
@@ -196,12 +199,13 @@ spec:
                 command: [sleep, {{ .Values.gracefulStop.waitSeconds | quote }}]
           {{- end }}
           volumeMounts:
+            # Home first: the command FIFO dir (rw) is mounted over it.
+            - { name: engine-home, mountPath: /var/lib/centreon-engine }
+            - { name: centcmd, mountPath: /var/lib/centreon-engine/rw }
             - { name: engine, mountPath: /etc/centreon-engine }
             - { name: broker, mountPath: /etc/centreon-broker }
-            - { name: centcmd, mountPath: /var/lib/centreon-engine/rw }
             - { name: logs, mountPath: /var/log/centreon-engine }
             - { name: cma-pki, mountPath: /etc/pki/centreon-engine }
-            - { name: cbmod-cache, mountPath: {{ .Values.engine.cbmodCacheDirectory }} }
             {{- if .Values.engine.otel.tls.existingSecret }}
             - { name: otel-tls, mountPath: {{ .Values.engine.otel.tls.mountPath }}, readOnly: true }
             {{- end }}
@@ -224,7 +228,7 @@ spec:
             medium: Memory
         {{- end }}
   volumeClaimTemplates:
-    {{- range $vol, $size := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "cbmod-cache" .Values.persistence.cbmodCache "gorgone-data" .Values.persistence.gorgoneData }}
+    {{- range $vol, $size := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "engine-home" .Values.persistence.engineHome "gorgone-data" .Values.persistence.gorgoneData }}
     - metadata:
         name: {{ $vol }}
       spec:

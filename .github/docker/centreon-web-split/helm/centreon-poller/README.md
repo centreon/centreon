@@ -14,10 +14,10 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
 
 1. In Centreon, **Add Poller**: note its `--uid` and its pullwss token
    (`<token-name>:<token-value>`).
-2. In the poller's broker configuration in Centreon:
-   - output host = the central broker endpoint reachable from this cluster
-     (raw TCP 5669, LoadBalancer or NodePort — not an Ingress);
-   - **Cache directory** = `/var/cache/centreon-engine` (`engine.cbmodCacheDirectory`).
+2. In the poller's broker configuration in Centreon, set the output host to
+   the central broker endpoint reachable from this cluster (raw TCP 5669,
+   LoadBalancer or NodePort — not an Ingress). Keep the default "Cache
+   directory": `/var/lib/centreon-engine` is persisted.
 3. Create the Secret (the central's `APP_SECRET` and `SALT` must match):
 
    ```powershell
@@ -37,8 +37,7 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
      --set secrets.existingSecret=poller-1
    ```
 
-5. Export the poller configuration from the central, then restart the engine
-   once (a reload does not switch cbmod to its cache directory).
+5. Export the poller configuration from the central.
 
 `centengine` crash-loops until the first configuration lands: expected. The
 kubelet's restart back-off grows up to 5 minutes, so a poller installed long
@@ -106,7 +105,7 @@ Poller-initiated (reverse) connections do not use this identity.
 | `etc` | `/etc/centreon` | gorgone config |
 | `logs` | `/var/log/centreon-engine` | Logs, `retention.dat` |
 | `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
-| `cbmod-cache` | `/var/cache/centreon-engine` | cbmod queue saved on clean stop |
+| `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
 
 The PVCs are kept on `helm uninstall` (Kubernetes never deletes
@@ -123,10 +122,9 @@ from the central, which saves the queue) while the engine's preStop waits
 Validated: on `kubectl delete pod` the engine stops cleanly within a second,
 writes `retention.dat` and keeps cbmod's cache files.
 
-cbmod's default cache directory is `/var/lib/centreon-engine`, the engine
-user's home, which also holds the image's entrypoint scripts: it is not
-persisted (an image upgrade would not update them), hence the "Cache
-directory" setting.
+Persisting `/var/lib/centreon-engine` requires an engine image whose
+entrypoint scripts are not in that directory (MON-211751); with an older image
+they would be frozen on the volume at their first-install version.
 
 ## Security
 
