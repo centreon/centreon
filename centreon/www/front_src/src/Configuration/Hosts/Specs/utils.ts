@@ -154,7 +154,8 @@ export const getCommandsResponse = () =>
 // What a save sends when no check command is set, on both platforms.
 export const untouchedCheckOptionsPayload = {
   args: [],
-  command_id: null
+  command_id: null,
+  macros: []
 };
 
 // onPrem only: cloud sends the four fields it allows.
@@ -232,7 +233,16 @@ export const getHostResponse = () => ({
   check_options: {
     args: ['3', '80%'],
     command: { id: 9, name: 'check-host-alive' },
-    macros: []
+    // A password's value is never sent back, nor is an unset description.
+    macros: [
+      {
+        description: 'Agent port',
+        is_password: false,
+        name: 'SNMPPORT',
+        value: '161'
+      },
+      { is_password: true, name: 'API_TOKEN' }
+    ]
   },
   child_hosts: [{ id: 2, name: 'host 2' }],
   // `low_flap_threshold` is unset, so the endpoint leaves it out.

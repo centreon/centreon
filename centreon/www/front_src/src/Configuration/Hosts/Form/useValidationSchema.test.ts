@@ -1,6 +1,7 @@
 import type { ValidationError } from 'yup';
 
 import {
+  labelAlreadyExists,
   labelInvalidAddress,
   labelInvalidGeographicCoordinates,
   labelMustBeAtMostCharacters,
@@ -321,6 +322,54 @@ describe('Host form validation', () => {
       expect(extendedInfosError(field, 'a'.repeat(max + 1))).toEqual(
         labelMustBeAtMostCharacters
       );
+    });
+  });
+
+  describe('Custom macros', () => {
+    const macro = (name: string, rest = {}) => ({
+      description: '',
+      isPassword: false,
+      name,
+      value: '',
+      ...rest
+    });
+
+    const macrosError = (macros: Array<object>): string | null => {
+      try {
+        schemaFor(false).validateSyncAt('checkOptions.macros', {
+          checkOptions: { macros }
+        });
+
+        return null;
+      } catch (error) {
+        return (error as ValidationError).message;
+      }
+    };
+
+    it('requires a name', () => {
+      expect(macrosError([macro('  ')])).toEqual(labelRequired);
+      expect(macrosError([macro('PORT')])).toBeNull();
+    });
+
+    it('refuses a name the server would store twice', () => {
+      expect(macrosError([macro('port'), macro(' PORT ')])).toEqual(
+        labelAlreadyExists
+      );
+      expect(macrosError([macro('PORT'), macro('HOST')])).toBeNull();
+    });
+
+    it('refuses what the API cannot store', () => {
+      expect(macrosError([macro('a'.repeat(248))])).toBeNull();
+      expect(macrosError([macro('a'.repeat(249))])).toEqual(
+        labelMustBeAtMostCharacters
+      );
+      expect(macrosError([macro('PORT', { value: 'a'.repeat(4097) })])).toEqual(
+        labelMustBeAtMostCharacters
+      );
+      // Counted in bytes: two each.
+      expect(
+        macrosError([macro('PORT', { description: 'é'.repeat(32768) })])
+      ).toEqual(labelMustBeAtMostCharacters);
     });
   });
 });
