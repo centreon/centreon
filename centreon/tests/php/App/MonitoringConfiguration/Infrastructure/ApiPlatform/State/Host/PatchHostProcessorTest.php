@@ -271,6 +271,37 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertSame($name, $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]));
     }
 
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function nullOnAFieldThatCannotBeNull(): iterable
+    {
+        yield 'check options arguments' => [['check_options' => ['args' => null]]];
+
+        yield 'event handler arguments' => [['data_processing' => ['event_handler_args' => null]]];
+
+        yield 'notification options' => [['notifications' => ['options' => null]]];
+
+        yield 'contact additive inheritance' => [['notifications' => ['contact_additive_inheritance' => null]]];
+
+        yield 'contact group additive inheritance' => [['notifications' => ['contact_group_additive_inheritance' => null]]];
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    #[DataProvider('nullOnAFieldThatCannotBeNull')]
+    public function testANullInsideASubObjectIsRefusedWithTheSameStatusAsAtTheRoot(array $body): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => $body]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testASubObjectCannotBeNull(): void
     {
         $this->login();
