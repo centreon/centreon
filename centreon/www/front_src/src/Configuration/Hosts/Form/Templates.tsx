@@ -36,12 +36,6 @@ const maxVisibleRows = 10;
 
 const createTemplateRow = (): TemplateRow => null;
 
-// The field's search parameters are wider than what the selector reads.
-const getEndpoint = (parameters: { page: number; search?: unknown }): string =>
-  getFormHostTemplatesEndpoint(
-    parameters as Parameters<typeof getFormHostTemplatesEndpoint>[0]
-  );
-
 const isSameTemplate = (option: SelectEntry, value: SelectEntry): boolean =>
   option.id === value.id;
 
@@ -82,7 +76,7 @@ const Templates = ({
         disabled={disabled}
         field="name"
         fullWidth
-        getEndpoint={getEndpoint}
+        getEndpoint={getFormHostTemplatesEndpoint}
         getOptionDisabled={(option: SelectEntry): boolean =>
           pickedElsewhere.includes(option.id as number)
         }
