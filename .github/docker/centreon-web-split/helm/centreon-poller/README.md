@@ -40,7 +40,11 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
 5. Export the poller configuration from the central, then restart the engine
    once (a reload does not switch cbmod to its cache directory).
 
-`centengine` crash-loops until the first configuration lands: expected.
+`centengine` crash-loops until the first configuration lands: expected. The
+kubelet's restart back-off grows up to 5 minutes, so a poller installed long
+before its first export can take that long to pick it up (`kubectl delete pod`
+to apply it at once). The same back-off delays a "restart" from the central
+(a clean exit) until the engine has run 10 minutes without restarting.
 
 ## Centreon Monitoring Agents (CMA)
 
@@ -116,7 +120,13 @@ grace period, losing cbmod's in-memory queue. With `gracefulStop.enabled`,
 gorgone's preStop sends the engine a gRPC shutdown (the path used by "restart"
 from the central, which saves the queue) while the engine's preStop waits
 `gracefulStop.waitSeconds`. Keep `terminationGracePeriodSeconds` above it.
-Not validated on a cluster yet.
+Validated: on `kubectl delete pod` the engine stops cleanly within a second,
+writes `retention.dat` and keeps cbmod's cache files.
+
+cbmod's default cache directory is `/var/lib/centreon-engine`, the engine
+user's home, which also holds the image's entrypoint scripts: it is not
+persisted (an image upgrade would not update them), hence the "Cache
+directory" setting.
 
 ## Security
 
