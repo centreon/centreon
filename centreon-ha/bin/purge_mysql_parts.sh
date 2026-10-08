@@ -46,9 +46,9 @@ for partition in $PARTITION_NAME; do
 
 	request="SELECT CONCAT('\"', PARTITION_NAME, '\"') FROM information_schema.PARTITIONS WHERE TABLE_NAME='$tmp_table' AND TABLE_SCHEMA='$tmp_db'"
 	if [ -z "$DB_ROOT_PASSWORD" ] ; then
-		result=$(mysql -B -u "$DB_ROOT_USER" -e "$request")
+		result=$(mariadb -B -u "$DB_ROOT_USER" -e "$request")
 	else
-		result=$(mysql -B -u "$DB_ROOT_USER" -p"$DB_ROOT_PASSWORD" -e "$request")
+		result=$(mariadb -B -u "$DB_ROOT_USER" -p"$DB_ROOT_PASSWORD" -e "$request")
 	fi
 	
 	for file in "$datadir/$partition#P#"* ; do
