@@ -46,7 +46,9 @@ const useFormInputs = ({
     input: Input
   ): Input => ({
     ...input,
-    getDisabled: () => !canEdit,
+    // Kept alongside the input's own rule, such as a field that waits for
+    // another one.
+    getDisabled: (values) => !canEdit || !!input.getDisabled?.(values),
     ...(input.grid && {
       grid: {
         ...input.grid,
