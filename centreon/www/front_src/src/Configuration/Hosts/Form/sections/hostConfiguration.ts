@@ -4,7 +4,9 @@ import { JsonDecoder } from 'ts.data.json';
 import { number, object, string } from 'yup';
 
 import {
+  commandsEndpoint,
   hostFormPollersEndpoint,
+  hostFormTimePeriodsEndpoint,
   timezonesEndpoint
 } from '../../api/endpoints';
 import { namedEntityDecoder } from '../../api/namedEntityDecoders';
@@ -12,6 +14,9 @@ import type { NamedEntity } from '../../models';
 import {
   labelActiveChecksEnabled,
   labelAlias,
+  labelArgs,
+  labelCheckCommand,
+  labelCheckPeriod,
   labelHostConfiguration,
   labelInvalidAddress,
   labelIpAddress,
@@ -31,6 +36,7 @@ import {
   labelSnmpVersion,
   labelTimezone
 } from '../../translatedLabels';
+import { argumentsToText, textToArguments } from '../commandArguments';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector } from '../selector';
 import {
@@ -77,15 +83,24 @@ type OptionalNumber = number | '';
 
 interface SchedulingOptionsValues {
   activeCheckEnabled: TriState;
+  checkPeriod: NamedEntity | null;
   maxCheckAttempts: OptionalNumber;
   normalCheckInterval: OptionalNumber;
   passiveCheckEnabled: TriState;
   retryCheckInterval: OptionalNumber;
 }
 
+// The API's `check_options`, built here alone: the host's macros belong to it
+// too.
+interface CheckOptionsValues {
+  args: string;
+  command: NamedEntity | null;
+}
+
 interface HostConfigurationDetail {
   address: string;
   alias: string;
+  checkOptions: CheckOptionsValues;
   name: string;
   poller: NamedEntity;
   schedulingOptions: SchedulingOptionsValues;
@@ -96,10 +111,16 @@ interface HostConfigurationDetail {
 
 const defaultSchedulingOptions: SchedulingOptionsValues = {
   activeCheckEnabled: defaultTriState,
+  checkPeriod: null,
   maxCheckAttempts: '',
   normalCheckInterval: '',
   passiveCheckEnabled: defaultTriState,
   retryCheckInterval: ''
+};
+
+const defaultCheckOptions: CheckOptionsValues = {
+  args: '',
+  command: null
 };
 
 const optionalNumberDecoder = JsonDecoder.optional(
@@ -113,6 +134,11 @@ const optionalTriStateDecoder = JsonDecoder.optional(
 const schedulingOptionsDecoder = JsonDecoder.object<SchedulingOptionsValues>(
   {
     activeCheckEnabled: optionalTriStateDecoder,
+    checkPeriod: JsonDecoder.optional(
+      JsonDecoder.nullable(
+        JsonDecoder.object(namedEntityDecoder, 'Check period')
+      )
+    ).map((value) => value ?? null),
     maxCheckAttempts: optionalNumberDecoder,
     normalCheckInterval: optionalNumberDecoder,
     passiveCheckEnabled: optionalTriStateDecoder,
@@ -121,11 +147,26 @@ const schedulingOptionsDecoder = JsonDecoder.object<SchedulingOptionsValues>(
   'Scheduling options',
   {
     activeCheckEnabled: 'active_check_enabled',
+    checkPeriod: 'check_period',
     maxCheckAttempts: 'max_check_attempts',
     normalCheckInterval: 'normal_check_interval',
     passiveCheckEnabled: 'passive_check_enabled',
     retryCheckInterval: 'retry_check_interval'
   }
+);
+
+const checkOptionsDecoder = JsonDecoder.object<CheckOptionsValues>(
+  {
+    args: JsonDecoder.optional(
+      JsonDecoder.array(JsonDecoder.string, 'Check command arguments')
+    ).map((value) => argumentsToText(value ?? [])),
+    command: JsonDecoder.optional(
+      JsonDecoder.nullable(
+        JsonDecoder.object(namedEntityDecoder, 'Check command')
+      )
+    ).map((value) => value ?? null)
+  },
+  'Check options'
 );
 
 const toApiNumber = (value: OptionalNumber | undefined): number | null =>
@@ -171,6 +212,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
   defaultValues: {
     address: '',
     alias: '',
+    checkOptions: defaultCheckOptions,
     name: '',
     poller: null,
     schedulingOptions: defaultSchedulingOptions,
@@ -182,6 +224,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     address: JsonDecoder.string,
     // Left out of the response when the host has none.
     alias: JsonDecoder.optional(JsonDecoder.string).map((value) => value ?? ''),
+    checkOptions: JsonDecoder.optional(
+      JsonDecoder.nullable(checkOptionsDecoder)
+    ).map((value) => value ?? defaultCheckOptions),
     name: JsonDecoder.string,
     poller: JsonDecoder.object(namedEntityDecoder, 'Poller'),
     schedulingOptions: JsonDecoder.optional(
@@ -203,11 +248,24 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     ).map((value) => value ?? null)
   },
   detailKeyMap: {
+    checkOptions: 'check_options',
     schedulingOptions: 'scheduling_options',
     snmpCommunity: 'snmp_community',
     snmpVersion: 'snmp_version'
   },
   getInputs: ({ isCloudPlatform, t }) => {
+    const checkPeriod = {
+      connectedAutocomplete: buildSelector({
+        endpoint: hostFormTimePeriodsEndpoint,
+        getOptionLabel: (option) => (option as SelectEntry)?.name,
+        queryKey: 'host-form-check-period'
+      }),
+      dataTestId: 'host-form-scheduling-options-checkPeriod',
+      fieldName: 'schedulingOptions.checkPeriod',
+      label: t(labelCheckPeriod),
+      type: InputType.SingleConnectedAutocomplete
+    };
+
     const checkNumbers = [
       getSchedulingNumberInput({
         fieldName: 'maxCheckAttempts',
@@ -339,17 +397,15 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             {
               fieldName: 'scheduling-options',
               grid: {
-                className: isCloudPlatform
-                  ? 'grid-cols-1 @[600px]:grid-cols-3'
-                  : 'grid-cols-1 @[600px]:grid-cols-2',
+                className: 'grid-cols-1 @[600px]:grid-cols-2',
                 columns: isCloudPlatform
-                  ? checkNumbers
+                  ? [checkPeriod, ...checkNumbers]
                   : [
                       {
                         fieldName: 'scheduling-check-numbers',
                         grid: {
                           className: 'grid-cols-1',
-                          columns: checkNumbers
+                          columns: [checkPeriod, ...checkNumbers]
                         },
                         label: 'host-form-scheduling-check-numbers',
                         type: InputType.Grid
@@ -380,6 +436,43 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
           ]
         },
         label: 'host-form-monitoring-layout',
+        type: InputType.Grid
+      },
+      // Below the SNMP community, not above as in the Figma: password managers
+      // pair the community with the text field before it and would type into
+      // the check command.
+      {
+        fieldName: 'check-options',
+        grid: {
+          className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
+          columns: [
+            {
+              connectedAutocomplete: buildSelector({
+                customQueryParameters: [
+                  { name: 'type[]', value: 'Check' },
+                  { name: 'is_activated', value: true }
+                ],
+                endpoint: commandsEndpoint,
+                getOptionLabel: (option) => (option as SelectEntry)?.name,
+                queryKey: 'host-form-check-command'
+              }),
+              dataTestId: 'host-form-check-options-command',
+              fieldName: 'checkOptions.command',
+              label: t(labelCheckCommand),
+              type: InputType.SingleConnectedAutocomplete
+            },
+            {
+              dataTestId: 'host-form-check-options-args',
+              fieldName: 'checkOptions.args',
+              // Arguments without a command are refused.
+              getDisabled: (values) => !values.checkOptions?.command,
+              label: t(labelArgs),
+              text: { placeholder: '!arg1!arg2' },
+              type: InputType.Text
+            }
+          ]
+        },
+        label: 'host-form-check-options',
         type: InputType.Grid
       }
     ];
@@ -429,6 +522,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       name,
       alias,
       address,
+      checkOptions = defaultCheckOptions,
       poller,
       schedulingOptions = defaultSchedulingOptions,
       snmpCommunity,
@@ -437,6 +531,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     } = values as {
       address: string;
       alias: string;
+      checkOptions?: CheckOptionsValues;
       name: string;
       poller: { id: number } | null;
       schedulingOptions?: SchedulingOptionsValues;
@@ -452,9 +547,15 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       address: address?.trim(),
       // The API has no empty alias: none is null.
       alias: alias?.trim() || null,
+      check_options: {
+        // Left over from a command since removed, they would be refused.
+        args: checkOptions.command ? textToArguments(checkOptions.args) : [],
+        command_id: checkOptions.command?.id ?? null
+      },
       name: name?.trim(),
       poller_id: poller?.id,
       scheduling_options: {
+        check_timeperiod_id: schedulingOptions.checkPeriod?.id ?? null,
         max_check_attempts: toApiNumber(schedulingOptions.maxCheckAttempts),
         normal_check_interval: toApiNumber(
           schedulingOptions.normalCheckInterval

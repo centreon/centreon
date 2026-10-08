@@ -34,6 +34,7 @@ import initialize, { pollersForbiddenMessage } from './initialize';
 import {
   refusedAddressResponse,
   resolvedAddressResponse,
+  untouchedCheckOptionsPayload,
   untouchedDataProcessingPayload,
   untouchedExtendedInformationsPayload,
   untouchedNotificationsPayload,
@@ -156,6 +157,8 @@ export default () => {
           address: '10.0.0.42',
           alias: 'alias of host 0 as the detail endpoint spells it',
           category_ids: [4],
+          // The arguments go back as the list they came as.
+          check_options: { args: ['3', '80%'], command_id: 9 },
           child_host_ids: [2],
           data_processing: {
             acknowledgment_timeout: 15,
@@ -193,6 +196,7 @@ export default () => {
           poller_id: 2,
           scheduling_options: {
             active_check_enabled: 'false',
+            check_timeperiod_id: 2,
             max_check_attempts: 3,
             normal_check_interval: 5,
             passive_check_enabled: 'true',
@@ -259,10 +263,16 @@ export default () => {
         'host-form-child-hosts',
         'host-form-notifications-contacts',
         'host-form-notifications-contact-groups',
-        'host-form-notifications-timeperiod'
+        'host-form-notifications-timeperiod',
+        'host-form-check-options-command',
+        'host-form-scheduling-options-checkPeriod'
       ].forEach((testId) => {
         cy.findByTestId(testId).should('be.disabled');
       });
+      // Host 0 has a command, so only read-only mode keeps its args disabled.
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.disabled');
       cy.findAllByTestId('host-form-notifications-interval')
         .eq(1)
         .should('be.disabled');
@@ -673,6 +683,7 @@ export default () => {
           address: '10.0.0.42',
           alias: null,
           category_ids: [],
+          check_options: untouchedCheckOptionsPayload,
           child_host_ids: [],
           data_processing: untouchedDataProcessingPayload,
           extended_informations: untouchedExtendedInformationsPayload,
@@ -729,6 +740,7 @@ export default () => {
           address: '10.0.0.42',
           alias: null,
           category_ids: [],
+          check_options: untouchedCheckOptionsPayload,
           child_host_ids: [],
           data_processing: {
             check_freshness: 'use_default',
@@ -749,6 +761,7 @@ export default () => {
           parent_host_ids: [],
           poller_id: 2,
           scheduling_options: {
+            check_timeperiod_id: null,
             max_check_attempts: null,
             normal_check_interval: null,
             retry_check_interval: null
@@ -794,6 +807,7 @@ export default () => {
           address: '10.0.0.42',
           alias: null,
           category_ids: [],
+          check_options: untouchedCheckOptionsPayload,
           child_host_ids: [],
           data_processing: untouchedDataProcessingPayload,
           extended_informations: untouchedExtendedInformationsPayload,
@@ -875,6 +889,7 @@ export default () => {
           address: '10.0.0.42',
           alias: null,
           category_ids: [3],
+          check_options: untouchedCheckOptionsPayload,
           child_host_ids: [2],
           data_processing: untouchedDataProcessingPayload,
           extended_informations: untouchedExtendedInformationsPayload,
@@ -977,6 +992,9 @@ export default () => {
         });
         expect(request.body.data_processing).to.deep.equals(
           untouchedDataProcessingPayload
+        );
+        expect(request.body.check_options).to.deep.equals(
+          untouchedCheckOptionsPayload
         );
       });
     });
@@ -1211,6 +1229,10 @@ export default () => {
         .closest('.MuiAutocomplete-root')
         .find('.MuiAutocomplete-clearIndicator')
         .click({ force: true });
+      cy.findByTestId('host-form-scheduling-options-checkPeriod')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
       cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
         .eq(1)
         .clear();
@@ -1227,6 +1249,7 @@ export default () => {
         });
         expect(request.body.scheduling_options).to.deep.equals({
           active_check_enabled: 'use_default',
+          check_timeperiod_id: null,
           max_check_attempts: null,
           normal_check_interval: 5,
           passive_check_enabled: 'true',
@@ -1287,6 +1310,7 @@ export default () => {
         });
         expect(request.body.scheduling_options).to.deep.equals({
           active_check_enabled: 'true',
+          check_timeperiod_id: null,
           max_check_attempts: 3,
           normal_check_interval: null,
           passive_check_enabled: 'false',
@@ -1348,6 +1372,128 @@ export default () => {
       cy.findByTestId(
         'host-form-scheduling-options-activeCheckEnabled-true'
       ).should('be.disabled');
+    });
+
+    it('opens an existing host on its check command and check period', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-command').should(
+        'have.value',
+        'check-host-alive'
+      );
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('have.value', '!3!80%')
+        .and('be.enabled');
+      cy.findByTestId('host-form-scheduling-options-checkPeriod').should(
+        'have.value',
+        'workhours'
+      );
+    });
+
+    it('creates a host with its check command, arguments and check period', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      // Arguments are refused without a command.
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.disabled');
+
+      cy.findByTestId('host-form-check-options-command').click();
+      // Only active check commands, as legacy offers.
+      cy.waitForRequest('@getFormCommands').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/commands');
+        expect(request.url.searchParams.getAll('type[]')).to.deep.equals([
+          'Check'
+        ]);
+        expect(request.url.searchParams.get('is_activated')).to.equal('true');
+      });
+      cy.get('.MuiAutocomplete-popper').contains('check-host-alive').click();
+
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.enabled')
+        .type('3!80%');
+
+      cy.findByTestId('host-form-scheduling-options-checkPeriod').click();
+      cy.waitForRequest('@getFormTimePeriods').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/timeperiods'
+        );
+      });
+      cy.get('.MuiAutocomplete-popper').contains('workhours').click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.check_options).to.deep.equals({
+          args: ['3', '80%'],
+          command_id: 9
+        });
+        expect(request.body.scheduling_options).to.deep.equals({
+          ...untouchedSchedulingOptionsPayload,
+          check_timeperiod_id: 2
+        });
+      });
+    });
+
+    it('sends no arguments once the check command is removed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-command')
+        .parents('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.disabled');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.check_options).to.deep.equals(
+          untouchedCheckOptionsPayload
+        );
+      });
+    });
+
+    it('offers the check command and check period on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByTestId('host-form-check-options-command').should('be.visible');
+      cy.findAllByTestId('host-form-check-options-args')
+        .eq(1)
+        .should('be.visible');
+      cy.findByTestId('host-form-scheduling-options-checkPeriod').should(
+        'be.visible'
+      );
     });
 
     it('opens an existing host on its data processing settings', () => {
