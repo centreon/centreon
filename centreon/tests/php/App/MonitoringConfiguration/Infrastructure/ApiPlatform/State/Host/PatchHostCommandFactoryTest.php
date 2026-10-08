@@ -35,10 +35,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInp
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostPayload;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostCommandFactory;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
+use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -130,7 +130,7 @@ final class PatchHostCommandFactoryTest extends TestCase
             updatedBy: 7,
             viewerId: null,
             input: $input,
-            payload: PatchHostPayload::fromRequest(Request::create('/', Request::METHOD_PATCH, content: $json, server: ['CONTENT_TYPE' => 'application/json'])),
+            payload: RequestPayload::fromRequest(Request::create('/', Request::METHOD_PATCH, content: $json, server: ['CONTENT_TYPE' => 'application/json'])),
         );
     }
 }

@@ -32,9 +32,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
-use App\MonitoringConfiguration\Infrastructure\Validator\NotNullWhenProvided;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
+use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use App\Shared\Infrastructure\Validator\Constraints\WhenVault;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -42,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Every key is optional: a key left out leaves the value untouched, a key sent as null clears it where
  * a value can be cleared. The properties that cannot be null carry {@see NotNullWhenProvided}, since
- * this DTO reads both cases as null (see {@see PatchHostPayload}).
+ * this DTO reads both cases as null (see {@see RequestPayload}).
  *
  * Do not add an `id` property here: it would flip a missing-host 404 into a 422 via
  * InvalidReferenceExceptionListener.

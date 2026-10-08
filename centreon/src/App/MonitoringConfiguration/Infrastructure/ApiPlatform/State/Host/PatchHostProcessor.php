@@ -27,9 +27,9 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostPayload;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Webmozart\Assert\Assert;
@@ -61,7 +61,7 @@ final readonly class PatchHostProcessor implements ProcessorInterface
             updatedBy: $credentialUser->credential->userId->value,
             viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
             input: $data,
-            payload: PatchHostPayload::fromRequest($request instanceof Request ? $request : null),
+            payload: RequestPayload::fromRequest($request instanceof Request ? $request : null),
         ));
     }
 }

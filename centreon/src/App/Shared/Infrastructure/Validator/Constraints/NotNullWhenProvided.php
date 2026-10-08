@@ -21,13 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Validator;
+namespace App\Shared\Infrastructure\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 
 /**
  * A property of a partial update that may be left out but never sent as null: the value is required once
- * the key is there. The Input DTO cannot see the difference, so the key is read from the request body.
+ * the key is there. The Input DTO cannot see the difference, so the key is read from the request body,
+ * at the path of the property (a nested property is looked up inside its sub-object).
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class NotNullWhenProvided extends Constraint

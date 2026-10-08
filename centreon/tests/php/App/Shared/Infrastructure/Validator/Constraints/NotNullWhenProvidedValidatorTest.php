@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Validator;
+namespace Tests\App\Shared\Infrastructure\Validator\Constraints;
 
-use App\MonitoringConfiguration\Infrastructure\Validator\NotNullWhenProvided;
-use App\MonitoringConfiguration\Infrastructure\Validator\NotNullWhenProvidedValidator;
+use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
+use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvidedValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
@@ -46,7 +46,7 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
     public function testAKeyLeftOutRaisesNoViolation(): void
     {
         $this->sendBody('{"alias": "front"}');
-        $this->setProperty($this->subject(), 'name');
+        $this->setPropertyPath('name');
 
         $this->validator->validate(null, new NotNullWhenProvided());
 
@@ -56,7 +56,7 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
     public function testAKeyWithAValueRaisesNoViolation(): void
     {
         $this->sendBody('{"name": "server-01"}');
-        $this->setProperty($this->subject(), 'name');
+        $this->setPropertyPath('name');
 
         $this->validator->validate('server-01', new NotNullWhenProvided());
 
@@ -66,29 +66,50 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
     public function testAKeySentAsNullRaisesAViolation(): void
     {
         $this->sendBody('{"name": null}');
-        $this->setProperty($this->subject(), 'name');
+        $this->setPropertyPath('name');
 
         $constraint = new NotNullWhenProvided();
         $this->validator->validate(null, $constraint);
 
-        $this->buildViolation($constraint->message)->assertRaised();
+        $this->buildViolation($constraint->message)->atPath('name')->assertRaised();
     }
 
     public function testACamelCasePropertyIsLookedUpUnderItsSnakeCaseKey(): void
     {
         $this->sendBody('{"poller_id": null}');
-        $this->setProperty($this->subject(), 'pollerId');
+        $this->setPropertyPath('pollerId');
 
         $constraint = new NotNullWhenProvided();
         $this->validator->validate(null, $constraint);
 
-        $this->buildViolation($constraint->message)->assertRaised();
+        $this->buildViolation($constraint->message)->atPath('pollerId')->assertRaised();
+    }
+
+    public function testANestedPropertyIsLookedUpInsideItsSubObject(): void
+    {
+        $this->sendBody('{"check_options": {"args": null}}');
+        $this->setPropertyPath('checkOptions.args');
+
+        $constraint = new NotNullWhenProvided();
+        $this->validator->validate(null, $constraint);
+
+        $this->buildViolation($constraint->message)->atPath('checkOptions.args')->assertRaised();
+    }
+
+    public function testANestedKeyIsNotConfusedWithTheSameKeyAtTheRoot(): void
+    {
+        $this->sendBody('{"args": null, "check_options": {"command_id": 3}}');
+        $this->setPropertyPath('checkOptions.args');
+
+        $this->validator->validate(null, new NotNullWhenProvided());
+
+        $this->assertNoViolation();
     }
 
     public function testAnotherKeySentAsNullDoesNotMatter(): void
     {
         $this->sendBody('{"alias": null}');
-        $this->setProperty($this->subject(), 'name');
+        $this->setPropertyPath('name');
 
         $this->validator->validate(null, new NotNullWhenProvided());
 
@@ -97,7 +118,7 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
 
     public function testWithoutARequestNothingIsChecked(): void
     {
-        $this->setProperty($this->subject(), 'name');
+        $this->setPropertyPath('name');
 
         $this->validator->validate(null, new NotNullWhenProvided());
 
@@ -107,15 +128,6 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
     protected function createValidator(): ConstraintValidatorInterface
     {
         return new NotNullWhenProvidedValidator($this->requestStack);
-    }
-
-    private function subject(): object
-    {
-        return new class () {
-            public ?string $name = null;
-
-            public ?int $pollerId = null;
-        };
     }
 
     private function sendBody(string $json): void

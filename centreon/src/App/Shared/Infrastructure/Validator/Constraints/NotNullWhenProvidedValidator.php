@@ -21,9 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Validator;
+namespace App\Shared\Infrastructure\Validator\Constraints;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostPayload;
+use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Validator\Constraint;
@@ -32,7 +33,11 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 final class NotNullWhenProvidedValidator extends ConstraintValidator
 {
-    private CamelCaseToSnakeCaseNameConverter $nameConverter;
+    private readonly CamelCaseToSnakeCaseNameConverter $nameConverter;
+
+    private ?Request $payloadRequest = null;
+
+    private ?RequestPayload $payload = null;
 
     public function __construct(private readonly RequestStack $requestStack)
     {
@@ -49,14 +54,35 @@ final class NotNullWhenProvidedValidator extends ConstraintValidator
             return;
         }
 
-        $property = $this->context->getPropertyName();
-        if ($property === null) {
+        $request = $this->requestStack->getCurrentRequest();
+        $path = $this->context->getPropertyPath();
+        if (! $request instanceof Request || $path === '') {
             return;
         }
 
-        $payload = PatchHostPayload::fromRequest($this->requestStack->getCurrentRequest());
-        if ($payload->isNull($this->nameConverter->normalize($property))) {
+        $keys = array_map($this->nameConverter->normalize(...), explode('.', $path));
+        $key = array_pop($keys);
+
+        $payload = $this->payloadOf($request);
+        foreach ($keys as $section) {
+            $payload = $payload->section($section);
+        }
+
+        if ($payload->isNull($key)) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
+    }
+
+    /**
+     * Decoded once per request, however many properties carry the constraint.
+     */
+    private function payloadOf(Request $request): RequestPayload
+    {
+        if (! $this->payload instanceof RequestPayload || $this->payloadRequest !== $request) {
+            $this->payloadRequest = $request;
+            $this->payload = RequestPayload::fromRequest($request);
+        }
+
+        return $this->payload;
     }
 }

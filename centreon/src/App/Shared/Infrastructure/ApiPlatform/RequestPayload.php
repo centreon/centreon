@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
+namespace App\Shared\Infrastructure\ApiPlatform;
 
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * The keys a caller actually sent in the request body. An Input DTO cannot tell a key left out from a
- * key sent as null (both read as null), and a partial update must: the first leaves the value alone,
- * the second clears it.
+ * The keys a caller actually sent in the request body, snake_case as on the wire. An Input DTO cannot
+ * tell a key left out from a key sent as null (both read as null), and a partial update must: the
+ * first leaves the value alone, the second clears it.
  */
-final readonly class PatchHostPayload
+final readonly class RequestPayload
 {
     /**
      * @param array<array-key, mixed> $data the decoded body, snake_case keys as on the wire

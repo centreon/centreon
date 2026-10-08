@@ -41,15 +41,17 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostExtendedInformationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostSchedulingOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostPayload;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
+use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use Webmozart\Assert\Assert;
 
 /**
@@ -64,19 +66,15 @@ final readonly class PatchHostCommandFactory
         int $updatedBy,
         ?UserId $viewerId,
         PatchHostInput $input,
-        PatchHostPayload $payload,
+        RequestPayload $payload,
     ): PatchHostCommand {
         return new PatchHostCommand(
             id: $id,
             updatedBy: $updatedBy,
-            activated: $this->provided($payload, 'activated', static fn (): bool => $input->activated ?? throw new \LogicException('activated is never null once provided.')),
-            name: $this->provided($payload, 'name', static fn (): HostName => new HostName((string) $input->name)),
-            address: $this->provided($payload, 'address', static fn (): HostAddress => new HostAddress((string) $input->address)),
-            pollerId: $this->provided($payload, 'poller_id', static function () use ($input): PollerId {
-                Assert::notNull($input->pollerId);
-
-                return new PollerId($input->pollerId);
-            }),
+            activated: $this->provided($payload, 'activated', fn (): bool => $this->required($input->activated)),
+            name: $this->provided($payload, 'name', fn (): HostName => new HostName($this->required($input->name))),
+            address: $this->provided($payload, 'address', fn (): HostAddress => new HostAddress($this->required($input->address))),
+            pollerId: $this->provided($payload, 'poller_id', fn (): PollerId => new PollerId($this->required($input->pollerId))),
             alias: $this->provided($payload, 'alias', function () use ($input): ?HostAlias {
                 $alias = $this->trimmedOrNull($input->alias);
 
@@ -87,30 +85,30 @@ final readonly class PatchHostCommandFactory
             timezoneId: $this->provided($payload, 'timezone_id', static fn (): ?TimezoneId => $input->timezoneId !== null ? new TimezoneId($input->timezoneId) : null),
             severityId: $this->provided($payload, 'severity_id', static fn (): ?HostSeverityId => $input->severityId !== null ? new HostSeverityId($input->severityId) : null),
             dataProcessing: $this->provided($payload, 'data_processing', fn (): DataProcessingChanges => $this->dataProcessing(
-                $input->dataProcessing ?? new DataProcessingInput(),
+                $this->required($input->dataProcessing),
                 $payload->section('data_processing'),
             )),
             extendedInformations: $this->provided($payload, 'extended_informations', fn (): ExtendedInformationsChanges => $this->extendedInformations(
-                $input,
+                $this->required($input->extendedInformations),
                 $payload->section('extended_informations'),
             )),
             schedulingOptions: $this->provided($payload, 'scheduling_options', fn (): SchedulingOptionsChanges => $this->schedulingOptions(
-                $input,
+                $this->required($input->schedulingOptions),
                 $payload->section('scheduling_options'),
             )),
             checkOptions: $this->provided($payload, 'check_options', fn (): CheckOptionsChanges => $this->checkOptions(
-                $input->checkOptions ?? new PatchHostCheckOptionsInput(),
+                $this->required($input->checkOptions),
                 $payload->section('check_options'),
             )),
             notifications: $this->provided($payload, 'notifications', fn (): NotificationsChanges => $this->notifications(
-                $input->notifications ?? new PatchHostNotificationsInput(),
+                $this->required($input->notifications),
                 $payload->section('notifications'),
             )),
             viewerId: $viewerId,
         );
     }
 
-    private function dataProcessing(DataProcessingInput $data, PatchHostPayload $sent): DataProcessingChanges
+    private function dataProcessing(DataProcessingInput $data, RequestPayload $sent): DataProcessingChanges
     {
         return new DataProcessingChanges(
             checkFreshness: $this->provided($sent, 'check_freshness', fn (): TriStateEnum => $this->triState($data->checkFreshness)),
@@ -125,11 +123,8 @@ final readonly class PatchHostCommandFactory
         );
     }
 
-    private function extendedInformations(PatchHostInput $input, PatchHostPayload $sent): ExtendedInformationsChanges
+    private function extendedInformations(CreateHostExtendedInformationsInput $data, RequestPayload $sent): ExtendedInformationsChanges
     {
-        $data = $input->extendedInformations;
-        Assert::notNull($data);
-
         return new ExtendedInformationsChanges(
             noteUrl: $this->provided($sent, 'note_url', fn (): ?string => $this->trimmedOrNull($data->noteUrl)),
             note: $this->provided($sent, 'note', fn (): ?string => $this->trimmedOrNull($data->note)),
@@ -141,11 +136,8 @@ final readonly class PatchHostCommandFactory
         );
     }
 
-    private function schedulingOptions(PatchHostInput $input, PatchHostPayload $sent): SchedulingOptionsChanges
+    private function schedulingOptions(CreateHostSchedulingOptionsInput $data, RequestPayload $sent): SchedulingOptionsChanges
     {
-        $data = $input->schedulingOptions;
-        Assert::notNull($data);
-
         return new SchedulingOptionsChanges(
             checkTimeperiodId: $this->provided($sent, 'check_timeperiod_id', static fn (): ?TimePeriodId => $data->checkTimeperiodId !== null ? new TimePeriodId($data->checkTimeperiodId) : null),
             maxCheckAttempts: $this->provided($sent, 'max_check_attempts', static fn (): ?int => $data->maxCheckAttempts),
@@ -156,7 +148,7 @@ final readonly class PatchHostCommandFactory
         );
     }
 
-    private function checkOptions(PatchHostCheckOptionsInput $data, PatchHostPayload $sent): CheckOptionsChanges
+    private function checkOptions(PatchHostCheckOptionsInput $data, RequestPayload $sent): CheckOptionsChanges
     {
         return new CheckOptionsChanges(
             checkCommandId: $this->provided($sent, 'command_id', static fn (): ?CommandId => $data->commandId !== null ? new CommandId($data->commandId) : null),
@@ -164,7 +156,7 @@ final readonly class PatchHostCommandFactory
         );
     }
 
-    private function notifications(PatchHostNotificationsInput $data, PatchHostPayload $sent): NotificationsChanges
+    private function notifications(PatchHostNotificationsInput $data, RequestPayload $sent): NotificationsChanges
     {
         return new NotificationsChanges(
             enabled: $this->provided($sent, 'enabled', static fn (): TriStateEnum => $data->enabled !== null ? TriStateEnum::from($data->enabled) : TriStateEnum::UseDefault),
@@ -185,9 +177,26 @@ final readonly class PatchHostCommandFactory
      *
      * @return T|NoValue
      */
-    private function provided(PatchHostPayload $payload, string $key, \Closure $value): mixed
+    private function provided(RequestPayload $payload, string $key, \Closure $value): mixed
     {
         return $payload->has($key) ? $value() : new NoValue();
+    }
+
+    /**
+     * Once a key is provided, the property that cannot be null is not: the constraint on the Input DTO
+     * has already refused it.
+     *
+     * @template T
+     *
+     * @param T|null $value
+     *
+     * @return T
+     */
+    private function required(mixed $value): mixed
+    {
+        Assert::notNull($value);
+
+        return $value;
     }
 
     private function triState(?TriStateEnum $value): TriStateEnum
