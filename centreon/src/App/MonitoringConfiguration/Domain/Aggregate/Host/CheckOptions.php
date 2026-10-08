@@ -41,9 +41,10 @@ final readonly class CheckOptions
      *                                 filtering that leaves key gaps is tolerated); legacy stores them
      *                                 bang-joined in host.command_command_id_arg1, so the join and
      *                                 #BR#/#T#/#R# encoding belong to the persistence layer, not here
-     * @param array<int, HostMacro> $macros the host's own custom macros ($_HOST<NAME>$); unrelated to the
-     *                                      check command, they live here only because the ticket groups
-     *                                      them under check_options
+     * @param array<int, HostMacro> $macros the host's own (direct) custom macros ($_HOST<NAME>$);
+     *                                      unrelated to the check command, they live here only because
+     *                                      the ticket groups them under check_options. Inherited macros
+     *                                      belong to the templates and the command, never to the host.
      */
     public function __construct(
         public ?CommandId $checkCommandId,
@@ -63,6 +64,11 @@ final readonly class CheckOptions
         foreach (['!', '#BR#', '#T#', '#R#'] as $reserved) {
             Assert::allNotContains($args, $reserved, 'CheckOptions::args must not contain the "!" delimiter or a #BR#/#T#/#R# escape token.');
         }
+
+        Assert::allTrue(
+            array_map(static fn (HostMacro $macro): bool => $macro->isDirect(), $macros),
+            'A host only owns direct macros.',
+        );
 
         $this->args = array_values($args);
         // A host cannot hold two macros with the same name: keep the first, matching legacy
@@ -100,14 +106,15 @@ final readonly class CheckOptions
             return false;
         }
 
-        foreach ($this->macros as $index => $macro) {
-            $otherMacro = $other->macros[$index];
-            if (
-                $macro->name->value !== $otherMacro->name->value
-                || $macro->value !== $otherMacro->value
-                || $macro->isPassword !== $otherMacro->isPassword
-                || $macro->description !== $otherMacro->description
-            ) {
+        // Macros are unique by name and carry no order (macro_order is not used): compare them as
+        // a set, so the same macros read back in another order are not seen as a change.
+        $otherMacrosByName = [];
+        foreach ($other->macros as $otherMacro) {
+            $otherMacrosByName[$otherMacro->name->value] = $otherMacro;
+        }
+        foreach ($this->macros as $macro) {
+            $otherMacro = $otherMacrosByName[$macro->name->value] ?? null;
+            if ($otherMacro === null || ! $macro->isEquivalentTo($otherMacro)) {
                 return false;
             }
         }

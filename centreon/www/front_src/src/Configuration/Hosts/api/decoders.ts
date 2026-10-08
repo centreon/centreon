@@ -8,16 +8,8 @@ import {
   type HostDetail,
   type PlatformContext
 } from '../Form/sections';
-import type { FormPoller, HostListItem, Icon } from '../models';
-import { namedEntityDecoder } from './namedEntityDecoders';
-
-const iconDecoder = JsonDecoder.object<Icon>(
-  {
-    ...namedEntityDecoder,
-    url: JsonDecoder.string
-  },
-  'Icon'
-);
+import type { FormPoller, HostListItem } from '../models';
+import { iconDecoder, namedEntityDecoder } from './namedEntityDecoders';
 
 // The detail endpoint answers with objects where the create takes ids, so the
 // poller arrives named and the autocomplete can render it without a lookup.

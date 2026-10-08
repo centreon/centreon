@@ -38,7 +38,9 @@ use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\VaultPurgeFailedException;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Tests\App\Shared\Double\FakeVault;
 
 final class PurgeHostVaultEventHandlerTest extends TestCase
@@ -47,10 +49,13 @@ final class PurgeHostVaultEventHandlerTest extends TestCase
 
     private PurgeHostVaultEventHandler $handler;
 
+    private LoggerInterface&MockObject $logger;
+
     protected function setUp(): void
     {
         $this->vault = new FakeVault();
-        $this->handler = new PurgeHostVaultEventHandler($this->vault, new VaultCredentialWriter($this->vault));
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->handler = new PurgeHostVaultEventHandler($this->vault, new VaultCredentialWriter($this->vault), $this->logger);
     }
 
     public function testItDoesNotPurgeAnythingWhenNothingIsVaulted(): void
@@ -81,6 +86,25 @@ final class PurgeHostVaultEventHandlerTest extends TestCase
             self::assertStringContainsString(' 1 ', $exception->getMessage());
             self::assertInstanceOf(\RuntimeException::class, $exception->getPrevious());
         }
+    }
+
+    public function testItPurgesAnEntryReleasedByASave(): void
+    {
+        // The host before the save still points to the entry the save left empty.
+        $this->vault->extractedUuids['secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY'] = 'uuid-1';
+
+        ($this->handler)(new HostVaultPurgeRequested($this->host(vaulted: true), bestEffort: true));
+
+        self::assertSame([['customPath' => 'monitoring/hosts', 'uuid' => 'uuid-1']], $this->vault->deleteCalls);
+    }
+
+    public function testABestEffortPurgeFailureIsOnlyLogged(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY'] = 'uuid-1';
+        $this->vault->deleteThrows = true;
+        $this->logger->expects(self::once())->method('warning');
+
+        ($this->handler)(new HostVaultPurgeRequested($this->host(vaulted: true), bestEffort: true));
     }
 
     private function host(bool $vaulted = false): Host

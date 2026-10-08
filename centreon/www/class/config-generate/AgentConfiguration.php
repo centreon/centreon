@@ -171,10 +171,10 @@ class AgentConfiguration extends AbstractObjectJSON
                         ? $tokens[$host['token']['name']]->getToken()
                         : '',
                 ],
-                array_filter(
+                array_values(array_filter(
                     $data['hosts'],
-                    static fn (array $host): bool => $hosts[$host['id']] ? true : false
-                )
+                    static fn (array $host): bool => isset($hosts[$host['id']])
+                ))
             );
         }
 

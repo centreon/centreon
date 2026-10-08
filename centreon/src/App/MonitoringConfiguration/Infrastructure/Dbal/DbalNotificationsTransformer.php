@@ -92,4 +92,41 @@ final readonly class DbalNotificationsTransformer implements TransformerInterfac
             $options,
         ));
     }
+
+    /**
+     * Read-side inverse of {@see self::options()}: parses the engine's comma-separated single-letter
+     * format back into the domain enums. NULL or '' (an empty list, as legacy writes) yields no
+     * option, kept distinct from the real 'n' ("notify on nothing").
+     *
+     * @return list<NotificationOptionEnum>
+     */
+    public static function optionsFromColumn(?string $column): array
+    {
+        if ($column === null || $column === '') {
+            return [];
+        }
+
+        $options = [];
+        foreach (explode(',', $column) as $letter) {
+            $option = match (trim($letter)) {
+                'd' => NotificationOptionEnum::Down,
+                'u' => NotificationOptionEnum::Unreachable,
+                'r' => NotificationOptionEnum::Recovery,
+                'f' => NotificationOptionEnum::Flapping,
+                's' => NotificationOptionEnum::DowntimeScheduled,
+                'n' => NotificationOptionEnum::None,
+                default => null,
+            };
+            if ($option !== null) {
+                $options[$option->name] = $option;
+            }
+        }
+
+        // Legacy (massive change, CLAPI) can store "n" next to real options: the real options win.
+        if (count($options) > 1) {
+            unset($options[NotificationOptionEnum::None->name]);
+        }
+
+        return array_values($options);
+    }
 }

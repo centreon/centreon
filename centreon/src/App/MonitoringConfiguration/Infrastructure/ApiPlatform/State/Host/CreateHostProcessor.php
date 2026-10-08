@@ -28,7 +28,6 @@ use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
@@ -36,8 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
@@ -64,11 +62,11 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
@@ -78,7 +76,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEve
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
@@ -125,6 +122,8 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private TransformerInterface $notificationsTransformer,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
+        private HostMacroTransformer $macroTransformer,
+        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -182,18 +181,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
 
         $checkOptionsInput = $data->checkOptions;
-        $checkOptions = new CheckOptions(
-            $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
-            $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
-            $checkOptionsInput instanceof CheckOptionsInput ? array_map(
-                static fn (HostMacroInput $macro): HostMacro => new HostMacro(
-                    new HostMacroName($macro->name),
-                    $macro->value,
-                    $macro->isPassword,
-                    $macro->description,
-                ),
-                $checkOptionsInput->macros,
-            ) : [],
+        $macroChanges = new Collection(
+            $checkOptionsInput instanceof CheckOptionsInput
+                ? array_values(array_map($this->macroTransformer->toChange(...), $checkOptionsInput->macros))
+                : [],
+            HostMacroChange::class,
         );
 
         // Cloud handles notifications through a different model and the input
@@ -223,8 +215,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             deployServicesFromTemplates: $data->createServicesLinkedToTemplates ?? true,
             extendedInformations: $extendedInformations,
             schedulingOptions: $schedulingOptions,
-            checkOptions: $checkOptions,
+            checkCommandId: $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
+            checkCommandArgs: $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
             notifications: $notifications,
+            macroChanges: $macroChanges,
         );
 
         $host = $this->commandBus->execute($command);
@@ -311,15 +305,15 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
+        // Every macro the host effectively has: its own, then those it still inherits, each with the
+        // id + parent a client resends to change it. The own macros are read back as stored, since
+        // their ids are only assigned on insertion.
+        $directMacros = array_values($this->hostRepository->findMacros($host->id())->toArray());
         $macroOutputs = array_map(
-            static fn (HostMacro $macro): HostMacroOutput => new HostMacroOutput(
-                $macro->name->value,
-                // A password macro's stored value is a vault reference (or secret) — never echoed.
-                $macro->isPassword ? null : $macro->value,
-                $macro->isPassword,
-                $macro->description,
-            ),
-            $host->checkOptions->macros,
+            $this->macroTransformer->transform(...),
+            $this->inheritedHostMacrosResolver
+                ->resolve($host->templateIds, $host->checkOptions->checkCommandId)
+                ->effectiveWith($directMacros),
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
