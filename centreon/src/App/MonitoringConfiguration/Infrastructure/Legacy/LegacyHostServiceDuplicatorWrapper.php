@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Service\HostServiceDuplicator;
-use App\MonitoringConfiguration\Domain\Service\ServiceCloner;
 use App\Security\Domain\Aggregate\UserId;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

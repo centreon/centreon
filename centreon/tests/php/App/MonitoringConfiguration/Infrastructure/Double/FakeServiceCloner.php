@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Service\ServiceCloner;
+use App\MonitoringConfiguration\Infrastructure\Legacy\ServiceCloner;
 use App\Security\Domain\Aggregate\UserId;
 
 final class FakeServiceCloner implements ServiceCloner

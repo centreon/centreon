@@ -21,11 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Service;
+namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\Security\Domain\Aggregate\UserId;
 
+/**
+ * Internal seam of the legacy host-service duplication adapter: the exclusive-service clone has no
+ * new-architecture equivalent yet, so it is delegated to the legacy procedural step. It lives in
+ * Infrastructure because only {@see LegacyHostServiceDuplicatorWrapper} consumes it (its contract even
+ * refers to the legacy session); no Domain or Application code depends on it.
+ */
 interface ServiceCloner
 {
     /**
