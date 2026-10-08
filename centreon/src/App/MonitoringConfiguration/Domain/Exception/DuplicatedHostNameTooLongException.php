@@ -29,11 +29,7 @@ namespace App\MonitoringConfiguration\Domain\Exception;
  */
 final class DuplicatedHostNameTooLongException extends \RuntimeException
 {
-    /**
-     * @param array<string, mixed> $criteria
-     */
     public function __construct(
-        public readonly array $criteria,
         string $message = 'The duplicated host name would exceed the maximum length.',
         int $code = 0,
         ?\Throwable $previous = null,

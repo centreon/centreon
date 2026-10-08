@@ -249,7 +249,7 @@ final readonly class DuplicateHostCommandHandler
             // The suffix only grows, so once it overflows the name length limit no suffix ever fits:
             // surface a distinct 422 instead of letting HostName throw an unmapped 500.
             if (mb_strlen($candidate) > HostName::MAX_LENGTH) {
-                throw new DuplicatedHostNameTooLongException(['name' => $sourceName->value]);
+                throw new DuplicatedHostNameTooLongException();
             }
 
             $candidateName = new HostName($candidate);
