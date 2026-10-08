@@ -86,7 +86,7 @@ Poller-initiated (reverse) connections do not use this identity.
 | `central.host` / `port` / `ssl` / `baseUri` | — / 443 / true / `/centreon` | pullwss endpoint |
 | `secrets.existingSecret` | — | Required. Keys in `secrets.keys` |
 | `images.engine` / `images.gorgone` | `ghcr.io/centreon/centreon-{engine,gorgone}:<appVersion>` | Testing: `docker.centreon.com/centreon/centreon-<c>-trixie` |
-| `engine.addNetRaw` | `true` | `check_icmp`, see Security |
+| `engine.addNetRaw` | `false` | `true` on CRI-O / OpenShift for `check_icmp`, see Security |
 | `gorgone.extraEnv` / `engine.extraEnv` | `[]` | E.g. `SMTP_*` on the engine |
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
 | `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
@@ -125,10 +125,10 @@ Pod Security Standards:
 - `restricted`: not supported. Seed init containers run as root (chown of
   fresh PVCs) and the images run `sudo apt-get` at startup (plugin installs),
   so `allowPrivilegeEscalation: false` breaks them.
-- `baseline`: only without the explicit `NET_RAW` add (`engine.addNetRaw: false`),
-  on a runtime that keeps NET_RAW by default (containerd: k3s, EKS, GKE, AKS).
-- With the defaults (`NET_RAW` added, needed on CRI-O), the namespace must be
-  `privileged`.
+- `baseline`: supported with the defaults. `check_icmp` needs NET_RAW, which
+  containerd grants by default (k3s, EKS, GKE, AKS).
+- CRI-O / OpenShift drop NET_RAW: set `engine.addNetRaw: true`, which requires
+  a `privileged` namespace.
 
 The engine's gRPC port (50155) is unauthenticated and can shut the engine
 down: restrict it with a NetworkPolicy.

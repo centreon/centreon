@@ -63,10 +63,10 @@ gorgone:
 engine:
   # check_icmp carries cap_net_raw: the container needs NET_RAW in its
   # bounding set. containerd keeps it by default, CRI-O / Podman drop it.
-  # Adding it explicitly is not allowed by the "baseline" Pod Security
-  # Standard (the namespace must then be "privileged"): set
-  # `addNetRaw: false` on a baseline namespace backed by containerd.
-  addNetRaw: true
+  # Off by default to stay within the "baseline" Pod Security Standard.
+  # Set it on CRI-O / OpenShift: adding NET_RAW explicitly then requires a
+  # "privileged" namespace.
+  addNetRaw: false
   # E.g. SMTP_HOST / SMTP_PORT / SMTP_FROM / SMTP_TLS for notifications.
   extraEnv: []
   # cbmod's cache directory: its in-memory queue is saved there on a clean
