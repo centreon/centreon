@@ -30,7 +30,7 @@ use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 
 /**
  * The additive-inheritance flags only mean something when the platform's `inheritance_mode`
- * option enables them; otherwise legacy silently drops whatever the client asked for
+ * option enables them; otherwise legacy silently drops whatever the caller asked for
  * (`NewHostFactory::create()`), and a fresh install ships that option disabled.
  */
 final readonly class AdditiveInheritanceModeApplier

@@ -207,7 +207,7 @@ final readonly class PatchHostCommandHandler
 
     /**
      * The check command the update gives the host, null when it provides none or removes the current
-     * one. Its existence has already been checked with the other references.
+     * one. Its existence is checked on the input.
      */
     private function providedCheckCommand(PatchHostCommand $command): ?Command
     {

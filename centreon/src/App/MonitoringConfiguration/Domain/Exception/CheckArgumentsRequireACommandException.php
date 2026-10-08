@@ -27,8 +27,8 @@ use App\Shared\Domain\Exception\AggregateConflictException;
 
 /**
  * An update leaves check command arguments on a host that has no check command: the arguments belong
- * to a command, so they cannot stand alone. Reported against `checkOptions`, the payload field the
- * arguments are provided in.
+ * to a command, so they cannot stand alone. Reported against `checkOptions`, the field of the update
+ * the arguments are given in.
  */
 final class CheckArgumentsRequireACommandException extends AggregateConflictException
 {
