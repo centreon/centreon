@@ -136,7 +136,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 // ON DUPLICATE KEY UPDATE keeps it idempotent, as legacy updateACL('DUP') does.
                 $this->realTimeConnection->executeStatement(
                     'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
-                        ON DUPLICATE KEY UPDATE service_id = VALUES(service_id)',
+                        ON DUPLICATE KEY UPDATE service_id = service_id',
                     ['groupId' => (int) $groupId, 'hostId' => $newHostId->value, 'serviceId' => (int) $serviceId],
                 );
             }
