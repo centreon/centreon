@@ -56,6 +56,13 @@ final readonly class LogActivityEventHandler
      */
     public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
+        // A non-loggable update still reaches the side-effect handlers (they react to the same
+        // AggregateUpdated supertype), but writes no activity-log line — the caller changed only
+        // properties legacy never logged. Enable/disable updates keep their own line (always loggable).
+        if ($event instanceof AggregateUpdated && ! $event->loggable) {
+            return;
+        }
+
         $aggregates = is_array($event->aggregate) ? $event->aggregate : [$event->aggregate];
 
         if ($aggregates === []) {
