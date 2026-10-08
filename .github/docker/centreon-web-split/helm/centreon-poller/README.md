@@ -108,6 +108,11 @@ Poller-initiated (reverse) connections do not use this identity.
 | `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
 
+Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
+ignores new chart defaults (e.g. a new volume size). A change to the volume
+list needs `kubectl delete sts <release> --cascade=orphan` before the upgrade,
+then `kubectl delete pod <release>-0`.
+
 The PVCs are kept on `helm uninstall` (Kubernetes never deletes
 volumeClaimTemplate PVCs): reinstalling under the same release name keeps the
 poller identity.
