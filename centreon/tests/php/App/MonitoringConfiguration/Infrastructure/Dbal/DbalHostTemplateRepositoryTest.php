@@ -97,6 +97,18 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertNotContains($lockedName, $names);
     }
 
+    public function testFindAllFiltersById(): void
+    {
+        $wantedId = $this->insertHostTemplate("wanted-{$this->tag}");
+        $this->insertHostTemplate("other-{$this->tag}");
+
+        $names = $this->names($this->repository->findAll(
+            (new HostTemplateCriteria())->withId(new HostTemplateId($wantedId))
+        ));
+
+        self::assertSame(["wanted-{$this->tag}"], $names);
+    }
+
     public function testFindAllFiltersByNameUsingLike(): void
     {
         $this->insertHostTemplate("match-{$this->tag}");
