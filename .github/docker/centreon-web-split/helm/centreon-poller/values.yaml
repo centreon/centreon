@@ -9,9 +9,7 @@
 #      central broker endpoint (5669) reachable from this cluster, and
 #      "Cache directory" = engine.cbmodCacheDirectory.
 
-# Resource names default to the release name. The pod host name is
-# "<fullname>-0" and is the CN of the CMA CA centengine generates at first
-# boot (agents pin it): never change it on an installed poller.
+# Resource names default to the release name (pod "<fullname>-0").
 fullnameOverride: ""
 
 imagePullSecrets: []
@@ -80,6 +78,19 @@ engine:
   # OpenTelemetry / Centreon Monitoring Agent (CMA) gRPC server, active once
   # an agent configuration is attached to the poller.
   otel:
+    # TLS identity presented to the agents (encryption "full" checks it
+    # against the FQDN they dial). The engine's default CA has CN = pod host
+    # name and no SAN, so it never matches an external FQDN.
+    # Secret of type kubernetes.io/tls (tls.crt, tls.key, optional ca.crt;
+    # cert-manager compatible) with the FQDN as SAN, mounted under
+    # tls.mountPath. In the poller's agent configuration in Centreon, set
+    # public certificate / private key (/ CA certificate) to
+    # <mountPath>/tls.crt, tls.key (, ca.crt). A self-signed CA works too:
+    # the engine issues its server certificates from it, copying its SANs.
+    tls:
+      existingSecret: ""
+      # Must stay under /etc/pki/ (enforced by the central's form).
+      mountPath: /etc/pki/centreon-poller
     service:
       enabled: true
       type: ClusterIP          # LoadBalancer / NodePort for agents outside the cluster

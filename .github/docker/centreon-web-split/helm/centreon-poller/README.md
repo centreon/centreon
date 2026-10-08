@@ -42,9 +42,30 @@ The pod spec is ported from the `centreon-central` chart's `_poller.tpl`.
 
 `centengine` crash-loops until the first configuration lands: expected.
 
-The pod host name is `<release>-0` (forced by the StatefulSet controller). It
-is the CN of the CMA CA, pinned by the agents: never rename the release (or
-change `fullnameOverride`) of an installed poller.
+## Centreon Monitoring Agents (CMA)
+
+Agents dial the poller on 4317 (`engine.otel.service`, LoadBalancer for agents
+outside the cluster). With `encryption: full` they check the poller
+certificate against the FQDN of their `endpoint`.
+
+The engine's default CA (`/etc/pki/centreon-engine/default_cma_ca.*`) has
+CN = host name and no SAN. The pod host name is `<release>-0` (forced by the
+StatefulSet controller), so it never matches an external FQDN. Provide the
+TLS identity instead:
+
+1. Create a `kubernetes.io/tls` Secret (`tls.crt`, `tls.key`, optional
+   `ca.crt`) with the FQDN agents dial as SAN, e.g. with cert-manager. A
+   self-signed CA also works: the engine issues its server certificates from
+   it and copies its SANs.
+2. `--set engine.otel.tls.existingSecret=<secret>` (mounted on
+   `/etc/pki/centreon-poller`).
+3. In the poller's agent configuration in Centreon: public certificate
+   `/etc/pki/centreon-poller/tls.crt`, private key
+   `/etc/pki/centreon-poller/tls.key` (CA certificate
+   `/etc/pki/centreon-poller/ca.crt` if any).
+4. Give the agents the CA in `ca_certificate`.
+
+Poller-initiated (reverse) connections do not use this identity.
 
 ## Central-side prerequisites
 
@@ -66,6 +87,7 @@ change `fullnameOverride`) of an installed poller.
 | `engine.addNetRaw` | `true` | `check_icmp`, see Security |
 | `gorgone.extraEnv` / `engine.extraEnv` | `[]` | E.g. `SMTP_*` on the engine |
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
+| `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
 | `gracefulStop` | enabled, 60s | See below |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
@@ -77,7 +99,7 @@ change `fullnameOverride`) of an installed poller.
 | `broker` | `/etc/centreon-broker` | Delivered cbmod config (not seeded) |
 | `etc` | `/etc/centreon` | gorgone config |
 | `logs` | `/var/log/centreon-engine` | Logs, `retention.dat` |
-| `cma-pki` | `/etc/pki/centreon-engine` | CMA CA (agents pin its fingerprint) |
+| `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
 | `cbmod-cache` | `/var/cache/centreon-engine` | cbmod queue saved on clean stop |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
 

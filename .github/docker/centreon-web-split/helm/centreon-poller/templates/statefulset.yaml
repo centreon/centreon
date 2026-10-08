@@ -45,8 +45,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       # Host name = pod name <fullname>-0 (forced by the StatefulSet
-      # controller): it is the CN of the CMA CA, keep the release name or
-      # fullnameOverride stable.
+      # controller): the CMA TLS identity comes from engine.otel.tls.
       # gorgone's systemctl shim dials "centengine:50155": it must reach this
       # pod's own engine.
       hostAliases:
@@ -189,6 +188,9 @@ spec:
             - { name: logs, mountPath: /var/log/centreon-engine }
             - { name: cma-pki, mountPath: /etc/pki/centreon-engine }
             - { name: cbmod-cache, mountPath: {{ .Values.engine.cbmodCacheDirectory }} }
+            {{- if .Values.engine.otel.tls.existingSecret }}
+            - { name: otel-tls, mountPath: {{ .Values.engine.otel.tls.mountPath }}, readOnly: true }
+            {{- end }}
           {{- with .Values.engine.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -196,6 +198,14 @@ spec:
       volumes:
         - name: centcmd
           emptyDir: {}
+        {{- with .Values.engine.otel.tls.existingSecret }}
+        - name: otel-tls
+          secret:
+            secretName: {{ . }}
+            # Secret files are root-owned: readable by centengine (901)
+            # only through the mode, no fsGroup (it would re-own the PVCs).
+            defaultMode: 0444
+        {{- end }}
   volumeClaimTemplates:
     {{- range $vol, $size := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "cbmod-cache" .Values.persistence.cbmodCache "gorgone-data" .Values.persistence.gorgoneData }}
     - metadata:

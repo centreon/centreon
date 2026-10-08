@@ -16,9 +16,10 @@ spec:
 {{- with .Values.engine.otel.service }}
 {{- if .enabled }}
 ---
-# CMA agents dial this endpoint (encryption=full: the CA CN is the pod
-# host name <fullname>-0). Not tied to readiness: the engine keeps
-# collecting while it restarts or while the central is unreachable.
+# CMA agents dial this endpoint; with encryption=full the certificate must
+# match the FQDN they use (engine.otel.tls). Not tied to readiness: the
+# engine keeps collecting while it restarts or while the central is
+# unreachable.
 apiVersion: v1
 kind: Service
 metadata:
