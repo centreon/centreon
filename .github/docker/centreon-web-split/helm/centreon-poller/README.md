@@ -72,6 +72,25 @@ TLS identity instead:
 
 Poller-initiated (reverse) connections do not use this identity.
 
+## SNMP traps
+
+`--set traps.enabled=true` adds `snmptrapd` (receives traps on 162/udp, spools
+them) and `centreontrapd` (matches them against the definitions delivered by
+the central, submits results to the engine's command FIFO) to the poller pod,
+plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
+`<release>-snmptrap` Service (LoadBalancer, UDP 162).
+
+- Generate and apply the SNMP traps database for the poller from the central
+  (Configuration > SNMP Traps > Generate). `centreontrapd` crash-loops until
+  `centreontrapd.sdb` is delivered.
+- `centreontrapd` matches the sender by source IP: the load balancer must keep
+  it. `externalTrafficPolicy: Local` (default) does with cloud load balancers
+  and MetalLB; k3s' built-in ServiceLB (klipper) does not.
+- `snmptrapd` runs as uid 900: the pod gets the
+  `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
+- Enabling traps on an installed poller changes the volume list (see
+  Persistence for the upgrade procedure).
+
 ## Central-side prerequisites
 
 - pullwss goes through the central's web server / ingress at
@@ -93,6 +112,8 @@ Poller-initiated (reverse) connections do not use this identity.
 | `gorgone.extraEnv` / `engine.extraEnv` | `[]` | E.g. `SMTP_*` on the engine |
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
 | `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
+| `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
+| `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
 | `gracefulStop` | enabled, 60s | See below |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
@@ -149,5 +170,5 @@ down: restrict it with a NetworkPolicy.
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
-- snmptrapd / centreontrapd and centreon-vmware are not covered yet.
+- centreon-vmware is not covered yet.
 - No NetworkPolicy shipped yet.
