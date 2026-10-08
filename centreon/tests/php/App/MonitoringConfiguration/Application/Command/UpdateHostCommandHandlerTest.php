@@ -320,6 +320,24 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame('existing-uuid', $this->vault->writeManyCalls[0]['uuid']);
     }
 
+    public function testRewritingOnlyTheVaultedSnmpCommunitySavesTheHostAndLogsAChange(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $reference = 'secret::vault::monitoring/hosts/existing-uuid::_HOSTSNMPCOMMUNITY';
+        $this->seedHost(10, snmpCommunity: new SnmpCommunity($reference));
+
+        $host = ($this->handler)($this->command(10, snmpCommunity: 'new-community'));
+
+        // The reference is unchanged, the secret behind it is not.
+        self::assertSame($reference, $host->snmpCommunity?->value);
+        self::assertCount(1, $this->hostRepository->updatedHosts);
+        /** @var list<HostUpdated> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);
+        self::assertCount(1, $events);
+        self::assertTrue($events[0]->loggable);
+    }
+
     public function testItRequestsADeferredVaultPurgeWhenAllSecretsAreRemoved(): void
     {
         $this->addPoller(1);
@@ -707,6 +725,26 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame(['_HOSTPWD' => 'new-secret'], $this->vault->writeManyCalls[0]['secrets']);
         self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', $host->checkOptions->macros[0]->value);
         self::assertSame(5, $host->checkOptions->macros[0]->id?->value);
+    }
+
+    public function testRewritingOnlyAPasswordSavesTheHostWithoutLoggingIt(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(10, macros: [
+            new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5)),
+        ]);
+
+        ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), 'new-secret', isPassword: true, id: new HostMacroId(5)),
+        ]));
+
+        // Legacy never logs the macros, but the host is saved and its side effects still run.
+        self::assertCount(1, $this->hostRepository->updatedHosts);
+        /** @var list<HostUpdated> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostUpdated::class);
+        self::assertCount(1, $events);
+        self::assertFalse($events[0]->loggable);
     }
 
     public function testTurningAPasswordIntoAPlainMacroClearsItsKey(): void

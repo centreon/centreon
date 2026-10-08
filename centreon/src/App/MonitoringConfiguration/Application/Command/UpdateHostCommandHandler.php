@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -168,7 +169,7 @@ final readonly class UpdateHostCommandHandler
             ? $this->extractVaultUuid($snmpCommunity->value)
             : $existingVaultUuid;
 
-        $checkOptions = $this->prepareCheckOptions($command, $existingHost, $vaultUuid);
+        [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $vaultUuid);
 
         // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
         // categories and severity are ACL-scoped (asserted above), so a restricted viewer never sees
@@ -223,11 +224,18 @@ final readonly class UpdateHostCommandHandler
             childHostIds: $command->childHostIds,
         );
 
+        // A vault reference only depends on the entry and the key, never on the value: a secret
+        // rewritten under the host's entry leaves the host with the very same reference, so it is
+        // tracked apart, to still save the host and fire its event.
+        $snmpCommunityRewritten = $this->isRewrittenInVault($command->snmpCommunity);
+
         $activationFlipped = $existingHost->activated !== $host->activated;
-        $loggedChange = $this->hasLoggedChange($existingHost, $host);
+        $loggedChange = $snmpCommunityRewritten || $this->hasLoggedChange($existingHost, $host);
         // Macros and contacts are compared by hasSameConfigurationAs() but never logged by legacy, so
         // they count among the unlogged changes, with the relations.
-        $unloggedChange = ! $host->hasSameConfigurationAs($existingHost) || ! $host->hasSameRelationsAs($existingHost);
+        $unloggedChange = $passwordRewritten
+            || ! $host->hasSameConfigurationAs($existingHost)
+            || ! $host->hasSameRelationsAs($existingHost);
 
         if (! $activationFlipped && ! $loggedChange && ! $unloggedChange) {
             return $host;
@@ -322,18 +330,37 @@ final readonly class UpdateHostCommandHandler
      *
      * @param ?string $vaultUuid the host's vault entry (its SNMP community's, or the existing one), or
      *                           null when there is none, or the vault is off
+     *
+     * @return array{CheckOptions, bool} the check options, and whether a password was written to the vault
      */
-    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, ?string $vaultUuid): CheckOptions
+    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, ?string $vaultUuid): array
     {
         $current = $existingHost->checkOptions->macros;
         $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId);
-        $macros = $this->hostMacroChangesResolver->resolve($command->macroChanges, $current, $inherited);
+        $resolved = $this->hostMacroChangesResolver->resolve($command->macroChanges, $current, $inherited);
         $macros = $this->writeToVault(
             $existingHost->id(),
-            fn (): array => $this->hostMacroSecretsSynchronizer->synchronize($macros, $current, $vaultUuid),
+            fn (): array => $this->hostMacroSecretsSynchronizer->synchronize($resolved, $current, $vaultUuid),
         );
 
-        return new CheckOptions($command->checkOptions->checkCommandId, $command->checkOptions->args, $macros);
+        // The synchronizer only swaps the value of the macros it wrote to the vault.
+        $passwordRewritten = array_any(
+            $macros,
+            static fn (HostMacro $macro, int $index): bool => $macro->value !== $resolved[$index]->value,
+        );
+
+        return [
+            new CheckOptions($command->checkOptions->checkCommandId, $command->checkOptions->args, $macros),
+            $passwordRewritten,
+        ];
+    }
+
+    /**
+     * Whether the submitted SNMP community is written to the vault (see resolveSnmpCommunity()).
+     */
+    private function isRewrittenInVault(?string $community): bool
+    {
+        return $community !== null && $this->vault->isEnabled() && ! $this->vault->isVaultPath($community);
     }
 
     /**
