@@ -458,6 +458,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('pollerId', $host->pollerId->value, ParameterType::INTEGER)
             ->setParameter('hostId', $hostId, ParameterType::INTEGER)
             ->executeStatement();
+
+        $this->replaceSeverity($hostId, $host->severityId);
     }
 
     /**
@@ -620,6 +622,24 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
+    }
+
+    /**
+     * The severity is the one row of `hostcategories_relation` pointing to a `hostcategories` row with a
+     * level: the categories, which have none, are left alone.
+     */
+    private function replaceSeverity(int $hostId, ?HostSeverityId $severityId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->delete('hostcategories_relation')
+            ->where('host_host_id = :hostId')
+            ->andWhere('hostcategories_hc_id IN (SELECT hc_id FROM hostcategories WHERE level IS NOT NULL)')
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
+
+        if ($severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $severityId->value);
+        }
     }
 
     private function updateExtendedInformations(Host $host): void

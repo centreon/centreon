@@ -72,7 +72,7 @@ interface HostRepository
 
     /**
      * Writes the host's own columns (including its activation flag and its notification columns), its
-     * extended information and its poller; the relations (templates, groups, categories, parents,
+     * extended information, its poller and its severity; the relations (templates, groups, categories, parents,
      * children, contacts) and the macros are not written here. Every field is written, so the host must
      * come from {@see findOne()} and be modified through its `with()` methods: a host read by
      * `findAll()` is only partially loaded and would reset what it does not carry. A silent no-op on an
