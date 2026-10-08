@@ -12,9 +12,11 @@ import {
   labelHostGroups,
   labelHostNotFound,
   labelInvalidAddress,
+  labelInvalidGeographicCoordinates,
   labelLinkedContactGroups,
   labelLinkedContacts,
   labelMustBeIntegerOfAtLeastOne,
+  labelMustBePositiveIntegerOrZero,
   labelNameMustNotStartWithModule,
   labelNo,
   labelNone,
@@ -32,6 +34,8 @@ import initialize, { pollersForbiddenMessage } from './initialize';
 import {
   refusedAddressResponse,
   resolvedAddressResponse,
+  untouchedDataProcessingPayload,
+  untouchedExtendedInformationsPayload,
   untouchedNotificationsPayload,
   untouchedSchedulingOptionsPayload
 } from './utils';
@@ -153,6 +157,26 @@ export default () => {
           alias: 'alias of host 0 as the detail endpoint spells it',
           category_ids: [4],
           child_host_ids: [2],
+          data_processing: {
+            acknowledgment_timeout: 15,
+            check_freshness: 'true',
+            event_handler_args: ['80', 'graceful'],
+            event_handler_command_id: 7,
+            event_handler_enabled: 'false',
+            flap_detection_enabled: 'true',
+            freshness_threshold: 120,
+            high_flap_threshold: 50,
+            low_flap_threshold: null
+          },
+          extended_informations: {
+            action_url: 'https://example.com/actions/host-0',
+            alt_icon: null,
+            comment: 'Racked in room B',
+            geo_coordinates: '48.8566,2.3522',
+            icon_id: 12,
+            note: 'Front web server',
+            note_url: null
+          },
           host_group_ids: [1],
           name: 'host 0 as the detail endpoint spells it',
           notifications: {
@@ -174,6 +198,7 @@ export default () => {
             passive_check_enabled: 'true',
             retry_check_interval: null
           },
+          severity_id: 2,
           snmp_version: '2c',
           timezone_id: 7
         });
@@ -649,12 +674,15 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
+          data_processing: untouchedDataProcessingPayload,
+          extended_informations: untouchedExtendedInformationsPayload,
           host_group_ids: [],
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
           parent_host_ids: [],
           poller_id: 2,
           scheduling_options: untouchedSchedulingOptionsPayload,
+          severity_id: null,
           snmp_version: null,
           timezone_id: null
         });
@@ -702,6 +730,20 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
+          data_processing: {
+            check_freshness: 'use_default',
+            event_handler_command_id: null,
+            event_handler_enabled: 'use_default',
+            freshness_threshold: null
+          },
+          // Alt icon and comments are refused on cloud.
+          extended_informations: {
+            action_url: null,
+            geo_coordinates: null,
+            icon_id: null,
+            note: null,
+            note_url: null
+          },
           host_group_ids: [1],
           name: 'srv-apache-02',
           parent_host_ids: [],
@@ -711,6 +753,7 @@ export default () => {
             normal_check_interval: null,
             retry_check_interval: null
           },
+          severity_id: null,
           snmp_version: null,
           timezone_id: null
         });
@@ -752,12 +795,15 @@ export default () => {
           alias: null,
           category_ids: [],
           child_host_ids: [],
+          data_processing: untouchedDataProcessingPayload,
+          extended_informations: untouchedExtendedInformationsPayload,
           host_group_ids: [],
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
           parent_host_ids: [],
           poller_id: 2,
           scheduling_options: untouchedSchedulingOptionsPayload,
+          severity_id: null,
           snmp_version: null,
           timezone_id: null
         });
@@ -830,12 +876,15 @@ export default () => {
           alias: null,
           category_ids: [3],
           child_host_ids: [2],
+          data_processing: untouchedDataProcessingPayload,
+          extended_informations: untouchedExtendedInformationsPayload,
           host_group_ids: [],
           name: 'srv-apache-02',
           notifications: untouchedNotificationsPayload,
           parent_host_ids: [1],
           poller_id: 2,
           scheduling_options: untouchedSchedulingOptionsPayload,
+          severity_id: null,
           snmp_version: null,
           timezone_id: null
         });
@@ -926,6 +975,9 @@ export default () => {
           snmp_version: null,
           timezone_id: null
         });
+        expect(request.body.data_processing).to.deep.equals(
+          untouchedDataProcessingPayload
+        );
       });
     });
 
@@ -1296,6 +1348,418 @@ export default () => {
       cy.findByTestId(
         'host-form-scheduling-options-activeCheckEnabled-true'
       ).should('be.disabled');
+    });
+
+    it('opens an existing host on its data processing settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-data-processing-checkFreshness-true').should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('have.value', '120');
+      cy.findAllByTestId('host-form-data-processing-acknowledgmentTimeout')
+        .eq(1)
+        .should('have.value', '15');
+      cy.findByTestId(
+        'host-form-data-processing-flapDetectionEnabled-true'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findAllByTestId('host-form-data-processing-lowFlapThreshold')
+        .eq(1)
+        .should('have.value', '');
+      cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
+        .eq(1)
+        .should('have.value', '50');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-false'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-eventHandler').should(
+        'have.value',
+        'restart-httpd'
+      );
+      cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
+        .eq(1)
+        .should('have.value', '!80!graceful');
+    });
+
+    it('creates a host with its data processing settings', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByTestId(
+        'host-form-data-processing-checkFreshness-use_default'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-checkFreshness-true').click();
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .type('300');
+      cy.findAllByTestId('host-form-data-processing-acknowledgmentTimeout')
+        .eq(1)
+        .type('10');
+      cy.findByTestId(
+        'host-form-data-processing-flapDetectionEnabled-false'
+      ).click();
+      cy.findAllByTestId('host-form-data-processing-lowFlapThreshold')
+        .eq(1)
+        .type('20');
+      cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
+        .eq(1)
+        .type('40');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-true'
+      ).click();
+
+      cy.findByTestId('host-form-data-processing-eventHandler').click();
+      cy.waitForRequest('@getFormCommands').then(({ request }) => {
+        expect(request.url.pathname).to.contain('/api/configuration/commands');
+        expect(request.url.pathname).to.not.contain('/api/latest');
+        expect(request.url.searchParams.get('is_activated')).to.equal('true');
+      });
+      cy.get('.MuiAutocomplete-popper').contains('restart-httpd').click();
+
+      cy.findAllByTestId('host-form-data-processing-eventHandlerArgs')
+        .eq(1)
+        .type('80!!graceful');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.data_processing).to.deep.equals({
+          acknowledgment_timeout: 10,
+          check_freshness: 'true',
+          event_handler_args: ['80', '', 'graceful'],
+          event_handler_command_id: 7,
+          event_handler_enabled: 'true',
+          flap_detection_enabled: 'false',
+          freshness_threshold: 300,
+          high_flap_threshold: 40,
+          low_flap_threshold: 20
+        });
+      });
+    });
+
+    it('refuses a negative flap threshold', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-data-processing-highFlapThreshold')
+        .eq(1)
+        .type('-1')
+        .blur();
+
+      cy.contains(labelMustBePositiveIntegerOrZero).should('be.visible');
+    });
+
+    it('offers only the cloud data processing settings on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findByTestId('host-form-data-processing-checkFreshness').should(
+        'exist'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('exist');
+      cy.findByTestId('host-form-data-processing-eventHandlerEnabled').should(
+        'exist'
+      );
+      cy.findByTestId('host-form-data-processing-eventHandler').should('exist');
+
+      [
+        'acknowledgmentTimeout',
+        'flapDetectionEnabled',
+        'lowFlapThreshold',
+        'highFlapThreshold',
+        'eventHandlerArgs'
+      ].forEach((field) => {
+        cy.findByTestId(`host-form-data-processing-${field}`).should(
+          'not.exist'
+        );
+      });
+    });
+
+    it('opens and saves back the data processing settings of a cloud host', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 2').click();
+
+      cy.waitForRequest('@getHost2');
+
+      cy.findByTestId('host-form-data-processing-checkFreshness-false').should(
+        'have.attr',
+        'aria-pressed',
+        'true'
+      );
+      cy.findAllByTestId('host-form-data-processing-freshnessThreshold')
+        .eq(1)
+        .should('have.value', '60');
+      cy.findByTestId(
+        'host-form-data-processing-eventHandlerEnabled-true'
+      ).should('have.attr', 'aria-pressed', 'true');
+      cy.findByTestId('host-form-data-processing-eventHandler').should(
+        'have.value',
+        ''
+      );
+
+      cy.findAllByTestId('host-form-address').eq(1).clear().type('10.0.0.42');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost2').then(({ request }) => {
+        expect(request.body.data_processing).to.deep.equals({
+          check_freshness: 'false',
+          event_handler_command_id: null,
+          event_handler_enabled: 'true',
+          freshness_threshold: 60
+        });
+      });
+    });
+
+    it('opens an existing host on its extended infos and severity', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note')
+        .eq(1)
+        .should('have.value', 'Front web server');
+      // Left out of the response, so still empty.
+      cy.findAllByTestId('host-form-extended-infos-noteUrl')
+        .eq(1)
+        .should('have.value', '');
+      cy.findAllByTestId('host-form-extended-infos-actionUrl')
+        .eq(1)
+        .should('have.value', 'https://example.com/actions/host-0');
+      cy.findAllByTestId('host-form-extended-infos-geoCoordinates')
+        .eq(1)
+        .should('have.value', '48.8566,2.3522');
+      cy.findAllByTestId('host-form-extended-infos-altIcon')
+        .eq(1)
+        .should('have.value', '');
+      cy.findAllByTestId('host-form-extended-infos-comment')
+        .eq(1)
+        .should('have.value', 'Racked in room B');
+      cy.findByTestId('host-form-extended-infos-icon').should(
+        'have.value',
+        'server.png'
+      );
+      cy.findByTestId('host-form-extended-infos-icon-preview')
+        .find('img')
+        .should('have.attr', 'alt', 'server.png');
+      cy.findByTestId('host-form-severity').should('have.value', 'Minor');
+    });
+
+    it('opens a host with no extended infos on empty fields', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 1').click();
+
+      cy.waitForRequest('@getHost1');
+
+      cy.findAllByTestId('host-form-name').eq(1).should('have.value', 'host 1');
+      cy.findAllByTestId('host-form-extended-infos-note')
+        .eq(1)
+        .should('have.value', '');
+      cy.findByTestId('host-form-extended-infos-icon').should('have.value', '');
+      cy.findByTestId('host-form-extended-infos-icon-preview')
+        .find('img')
+        .should('not.exist');
+      cy.findByTestId('host-form-severity').should('have.value', '');
+    });
+
+    it('clears the extended infos and severity of a host', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note').eq(1).clear();
+      cy.findAllByTestId('host-form-extended-infos-actionUrl')
+        .eq(1)
+        .clear()
+        .type('   ');
+      cy.findByTestId('host-form-extended-infos-icon')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+      cy.findByTestId('host-form-extended-infos-icon-preview')
+        .find('img')
+        .should('not.exist');
+      cy.findByTestId('host-form-severity')
+        .closest('.MuiAutocomplete-root')
+        .find('.MuiAutocomplete-clearIndicator')
+        .click({ force: true });
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.extended_informations).to.include({
+          action_url: null,
+          icon_id: null,
+          note: null
+        });
+        expect(request.body.severity_id).to.equal(null);
+      });
+    });
+
+    it('lets a user who may only look at hosts change no extended info', () => {
+      initialize({ hasWriteAccess: false });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-extended-infos-note')
+        .eq(1)
+        .should('be.disabled');
+      cy.findAllByTestId('host-form-extended-infos-comment')
+        .eq(1)
+        .should('be.disabled');
+      cy.findByTestId('host-form-extended-infos-icon').should('be.disabled');
+      cy.findByTestId('host-form-severity').should('be.disabled');
+    });
+
+    it('creates a host with its extended infos and severity', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findAllByTestId('host-form-extended-infos-note')
+        .eq(1)
+        .type('  Front web server  ');
+      cy.findAllByTestId('host-form-extended-infos-noteUrl')
+        .eq(1)
+        .type('https://example.com/notes');
+      cy.findAllByTestId('host-form-extended-infos-actionUrl')
+        .eq(1)
+        .type('https://example.com/actions');
+      cy.findAllByTestId('host-form-extended-infos-geoCoordinates')
+        .eq(1)
+        .type('-33.8688,151.2093');
+      cy.findAllByTestId('host-form-extended-infos-altIcon')
+        .eq(1)
+        .type('Web server');
+      cy.findAllByTestId('host-form-extended-infos-comment')
+        .eq(1)
+        .type('Racked in room B');
+
+      cy.findByTestId('host-form-extended-infos-icon').click();
+      // The host-scoped selector, granted by host write access.
+      cy.waitForRequest('@getFormMedias').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/medias'
+        );
+      });
+      cy.get('.MuiAutocomplete-popper').contains('router.png').click();
+      cy.findByTestId('host-form-extended-infos-icon-preview')
+        .find('img')
+        .should('have.attr', 'alt', 'router.png');
+
+      cy.findByTestId('host-form-severity').click();
+      cy.waitForRequest('@getFormHostSeverities').then(({ request }) => {
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/host_severities'
+        );
+      });
+      cy.get('.MuiAutocomplete-popper').contains('Critical').click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        expect(request.body.extended_informations).to.deep.equals({
+          action_url: 'https://example.com/actions',
+          alt_icon: 'Web server',
+          comment: 'Racked in room B',
+          geo_coordinates: '-33.8688,151.2093',
+          icon_id: 13,
+          note: 'Front web server',
+          note_url: 'https://example.com/notes'
+        });
+        // A field of the host, not of its extended informations.
+        expect(request.body.severity_id).to.equal(1);
+      });
+    });
+
+    it('refuses geographic coordinates out of range', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-extended-infos-geoCoordinates')
+        .eq(1)
+        .type('91,2')
+        .blur();
+
+      cy.contains(labelInvalidGeographicCoordinates).should('be.visible');
+    });
+
+    it('offers no alt icon nor comments on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      ['note', 'noteUrl', 'actionUrl', 'geoCoordinates'].forEach((field) => {
+        cy.findAllByTestId(`host-form-extended-infos-${field}`)
+          .eq(1)
+          .should('exist');
+      });
+      cy.findByTestId('host-form-extended-infos-icon').should('exist');
+      cy.findByTestId('host-form-severity').should('exist');
+
+      ['altIcon', 'comment'].forEach((field) => {
+        cy.findByTestId(`host-form-extended-infos-${field}`).should(
+          'not.exist'
+        );
+      });
     });
   });
 };

@@ -79,3 +79,29 @@ export const labelRecovery = 'Recovery';
 export const labelFlapping = 'Flapping';
 export const labelDowntimeScheduled = 'Downtime Scheduled';
 export const labelNone = 'None';
+
+export const labelFreshnessControlOptions = 'Freshness Control options';
+export const labelCheckFreshness = 'Check Freshness';
+export const labelFreshnessThreshold = 'Freshness Threshold';
+export const labelAcknowledgementTimeout = 'Acknowledgement timeout';
+export const labelFlappingOptions = 'Flapping options';
+export const labelFlapDetectionEnabled = 'Flap Detection Enabled';
+export const labelLowFlapThreshold = 'Low Flap Threshold';
+export const labelHighFlapThreshold = 'High Flap Threshold';
+export const labelEventHandler = 'Event Handler';
+export const labelEventHandlerEnabled = 'Event Handler Enabled';
+export const labelEventHandlerArguments = 'Args';
+export const labelSeconds = 'seconds';
+
+// Host Extended Infos
+export const labelNote = 'Note';
+export const labelNoteUrl = 'Note URL';
+export const labelActionUrl = 'Action URL';
+export const labelIcon = 'Icon';
+export const labelAltIcon = 'Alt icon';
+export const labelGeographicCoordinates = 'Geographic coordinates';
+export const labelHostSeverity = 'Host severity';
+export const labelComments = 'Comments';
+export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
+export const labelMustBeAtMostCharacters =
+  '{{label}} can be at most {{max}} characters';

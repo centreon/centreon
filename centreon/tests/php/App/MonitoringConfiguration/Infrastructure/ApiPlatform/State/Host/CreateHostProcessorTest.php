@@ -36,8 +36,10 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
@@ -1716,7 +1718,7 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'poller_id' => $pollerId,
                 'check_options' => [
                     'macros' => [
-                        ['name' => 'community', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                        ['name' => 'community', 'value' => 'public', 'is_password' => false],
                         ['name' => 'token', 'value' => 's3cr3t', 'is_password' => true],
                     ],
                 ],
@@ -1728,7 +1730,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'check_options' => [
                 'macros' => [
-                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false, 'description' => 'SNMP'],
+                    ['name' => 'COMMUNITY', 'value' => 'public', 'is_password' => false],
                     ['name' => 'TOKEN', 'is_password' => true],
                 ],
             ],
@@ -1738,11 +1740,15 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var array{id: int, check_options: array{macros: list<array<string, mixed>>}} $payload */
         $payload = $response->toArray();
         self::assertArrayNotHasKey('value', $payload['check_options']['macros'][1]);
+        // The description is no longer part of the macro wire object.
+        self::assertArrayNotHasKey('description', $payload['check_options']['macros'][0]);
+        // A direct macro has no parent: the null is dropped from the payload.
+        self::assertArrayNotHasKey('parent', $payload['check_options']['macros'][0]);
 
         $hostId = $payload['id'];
         /** @var list<array{host_macro_name: string, is_password: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY macro_order',
+            'SELECT host_macro_name, is_password FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
             [$hostId],
         );
         self::assertSame('$_HOSTCOMMUNITY$', $rows[0]['host_macro_name']);
@@ -1778,6 +1784,97 @@ final class CreateHostProcessorTest extends ApiTestCase
         $payload = $response->toArray();
         $names = array_map(static fn (array $macro): string => $macro['name'], $payload['check_options']['macros']);
         self::assertSame(['OWN'], $names);
+    }
+
+    public function testItRejectsANewMacroWithoutValue(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.32',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['name' => 'token', 'value' => null, 'is_password' => true]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItDoesNotStoreASubmittedMacroDescription(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // The description is a dropped macro property: not part of the macro object, it is not read.
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.41',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [
+                    ['name' => 'own', 'value' => 'kept', 'is_password' => false, 'description' => 'dropped'],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        /** @var array{id: int} $payload */
+        $payload = $response->toArray();
+        self::assertNull(
+            $this->connection->fetchOne('SELECT description FROM on_demand_macro_host WHERE host_host_id = ?', [$payload['id']]),
+        );
+    }
+
+    public function testItRejectsAVaultReferenceAsAMacroValue(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // No password value is ever echoed back, so a client has no legitimate reference to send;
+        // accepting one would copy another resource's secret under this host's vault entry.
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.34',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [[
+                    'name' => 'pwd',
+                    'value' => 'secret::hashicorp_vault::monitoring/hosts/other-uuid::_HOSTPWD',
+                    'is_password' => true,
+                ]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options.macros[0].value] A macro value cannot be a vault reference.\n",
+        ]);
+    }
+
+    public function testItRejectsAMacroReferringToAMacroTheHostDoesNotOwn(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        // A host being created owns no macro yet: any direct id is unknown.
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('server'),
+                'address' => '10.0.0.33',
+                'poller_id' => $pollerId,
+                'check_options' => ['macros' => [['id' => 123456, 'name' => 'token', 'value' => 'x', 'is_password' => false]]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[check_options] One or more macros do not exist on this host.\n",
+        ]);
     }
 
     public function testItRejectsAReservedMacroName(): void
@@ -2613,6 +2710,8 @@ final class CreateHostProcessorTest extends ApiTestCase
                 $notificationsTransformer,
                 $mediaUrlGenerator,
                 $timePeriodRepository,
+                new HostMacroTransformer(),
+                new HostMacroChangesResolver(),
                 $isCloudPlatform,
             ),
         );

@@ -318,6 +318,74 @@ final class HostTest extends TestCase
         yield 'children' => ['childHostIds'];
     }
 
+    public function testASaveDroppingEverySecretReleasesTheVaultEntry(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->host(
+            snmpCommunity: new SnmpCommunity($this->ref('uuid-1', 'SNMPCOMMUNITY')),
+            macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))],
+        );
+
+        self::assertTrue($this->host(snmpCommunity: new SnmpCommunity('public'))->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAnyRemainingReferenceToTheEntryKeepsIt(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->host(snmpCommunity: new SnmpCommunity($this->ref('uuid-1', 'SNMPCOMMUNITY')));
+
+        // The SNMP community is gone, but a password macro still points to the entry.
+        $after = $this->host(macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))]);
+
+        self::assertFalse($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAReferenceToAnotherEntryDoesNotKeepTheOldOne(): void
+    {
+        // getVaultUuid() reports the first entry found: the check must look for the old entry itself.
+        $vault = $this->vaultKnowing('uuid-1', 'uuid-2');
+        $before = $this->host(macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))]);
+        $after = $this->host(macros: [$this->passwordMacro('other', $this->ref('uuid-2', 'OTHER'))]);
+
+        self::assertTrue($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAHostThatHadNoEntryReleasesNothing(): void
+    {
+        self::assertFalse($this->host()->releasesVaultEntryOf($this->host(snmpCommunity: new SnmpCommunity('public')), new FakeVault()));
+    }
+
+    public function testANonPasswordMacroLookingLikeAReferenceDoesNotKeepTheEntry(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->host(macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))]);
+        $after = $this->host(macros: [new HostMacro(new HostMacroName('token'), $this->ref('uuid-1', 'TOKEN'), isPassword: false)]);
+
+        self::assertTrue($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    private function ref(string $uuid, string $name): string
+    {
+        return "secret::vault::monitoring/hosts/{$uuid}::_HOST{$name}";
+    }
+
+    private function vaultKnowing(string ...$uuids): FakeVault
+    {
+        $vault = new FakeVault();
+        foreach ($uuids as $uuid) {
+            foreach (['SNMPCOMMUNITY', 'TOKEN', 'OTHER'] as $name) {
+                $vault->extractedUuids[$this->ref($uuid, $name)] = $uuid;
+            }
+        }
+
+        return $vault;
+    }
+
+    private function passwordMacro(string $name, string $value): HostMacro
+    {
+        return new HostMacro(new HostMacroName($name), $value, isPassword: true);
+    }
+
     /**
      * @param list<int> $parentHostIds
      * @param list<int> $childHostIds

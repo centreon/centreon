@@ -25,8 +25,15 @@ export const hostFormContactsEndpoint = '/configuration/hosts/contacts';
 export const hostFormContactGroupsEndpoint =
   '/configuration/hosts/contact_groups';
 export const hostFormTimePeriodsEndpoint = '/configuration/hosts/timeperiods';
+export const hostFormHostSeveritiesEndpoint =
+  '/configuration/hosts/host_severities';
+export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 
 export const timezonesEndpoint = '/configuration/timezones';
+
+// No host-scoped command selector exists: this one is granted by the command
+// ACLs rather than by host write access.
+export const commandsEndpoint = '/configuration/commands';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;

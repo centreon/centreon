@@ -28,14 +28,24 @@ use App\Shared\Domain\Event\DeliveredAfterCommitInterface;
 use App\Shared\Domain\Event\EventInterface;
 
 /**
- * Deferred because a vault purge cannot be rolled back: it must only happen once the deletion is
- * committed.
+ * Deferred because a vault purge cannot be rolled back: it must only happen once the write that
+ * makes it safe is committed.
+ *
+ * Fired for a deleted host, and for a host whose save released its vault entry (see
+ * {@see Host::releasesVaultEntryOf()}): $host is then the host as it was before the save, the one
+ * still pointing to the entry.
  */
 final readonly class HostVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
+    /**
+     * @param bool $bestEffort a failed purge is only logged instead of reported to the caller: set it
+     *                         when the purge merely tidies up an entry left empty by a successful save,
+     *                         an orphan entry being harmless
+     */
     public function __construct(
         public Host $host,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+        public bool $bestEffort = false,
     ) {
     }
 
