@@ -4101,7 +4101,7 @@ paths:
   '/api/latest/administration/tokens/{token_name}/users/{user_id}':
     $ref: ./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml
   /api/latest/administration/parameters:
-    post:
+    get:
       tags:
         - Administration
       summary: 'Administration parameters'
@@ -4115,6 +4115,7 @@ paths:
                 properties:
                   monitoring_default_downtime_duration: { type: integer, description: 'Default downtime duration', example: 3600 }
                   monitoring_default_refresh_interval: { type: integer, description: 'Default monitoring refresh interval', example: 15 }
+                  statistics_default_refresh_interval: { type: integer, description: 'Default statistics refresh interval', example: 15 }
                   monitoring_default_acknowledgement_persistent: { type: boolean, description: 'Default monitoring acknowledgement persistent option', example: true }
                   monitoring_default_acknowledgement_sticky: { type: boolean, description: 'Default monitoring acknowledgement sticky option', example: true }
                   monitoring_default_acknowledgement_notify: { type: boolean, description: 'Default monitoring acknowledgement notify option', example: true }
@@ -4122,7 +4123,9 @@ paths:
                   monitoring_default_acknowledgement_with_services: { type: boolean, description: 'Default monitoring acknowledgement with services option', example: true }
                   monitoring_default_downtime_fixed: { type: boolean, description: 'Default monitoring downtime fixed option', example: true }
                   monitoring_default_downtime_with_services: { type: boolean, description: 'Default set downtimes on services attached to hosts option', example: true }
+                  is_resource_status_full_search_enabled: { type: boolean, description: 'Whether the Resource Status free text search also covers the information field (full search mode)', example: true }
                   is_additive_inheritance_enabled: { type: boolean, description: 'Whether the contact and contact group additive inheritance is enabled (inheritance mode set to vertical)', example: false }
+                  monitoring_interval_length: { type: integer, description: 'Interval length in seconds used by the monitoring engine to compute check intervals', example: 60 }
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':

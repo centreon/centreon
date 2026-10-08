@@ -21,19 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-final readonly class CommandMacroOutput
+use App\Shared\Domain\Exception\AggregateNotFoundException;
+
+/**
+ * A submitted macro refers (by id + parent) to a macro the host neither owns nor inherits.
+ * Reported against `checkOptions`, the payload field the macros are submitted in.
+ */
+final class HostMacroNotFoundException extends AggregateNotFoundException
 {
     /**
-     * @param ?int $id null when the macro is used in the command line but not stored; the null is
-     *                 then dropped from the payload by skip_null_values
-     * @param string $type host|service
+     * @param list<int> $ids
      */
-    public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $type,
-    ) {
+    public function __construct(array $ids)
+    {
+        parent::__construct(['checkOptions' => $ids], 'One or more macros do not exist on this host.');
     }
 }

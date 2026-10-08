@@ -21,19 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
-final readonly class CommandMacroOutput
+use Webmozart\Assert\Assert;
+
+/**
+ * Identifies a macro within the table its {@see HostMacroParentEnum} points to: a direct or template
+ * macro's `on_demand_macro_host.host_macro_id`, a check-command macro's
+ * `on_demand_macro_command.command_macro_id`. Only meaningful together with that parent.
+ */
+final readonly class HostMacroId
 {
-    /**
-     * @param ?int $id null when the macro is used in the command line but not stored; the null is
-     *                 then dropped from the payload by skip_null_values
-     * @param string $type host|service
-     */
-    public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $type,
-    ) {
+    public function __construct(public int $value)
+    {
+        Assert::positiveInteger($value);
     }
 }

@@ -25,10 +25,17 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\ReservedMacroName;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use App\Shared\Domain\VaultInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+/**
+ * The macro wire object as submitted: the same shape as HostMacroOutput. The macro is addressed by
+ * id + parent, a null id being a new macro.
+ */
 final readonly class HostMacroInput
 {
     public function __construct(
@@ -44,18 +51,48 @@ final readonly class HostMacroInput
         ])]
         public string $name,
 
-        // Masked in logs: may carry a password macro's plaintext (see HostMacro::$value).
+        // Masked in logs: may carry a password macro's plaintext (see HostMacro::$value). Null keeps
+        // the stored value of an existing password macro; an empty string is an explicit value.
+        // A vault reference is never accepted: no password value is ever echoed back, so a client
+        // has no legitimate reference to send, and accepting one would let it copy another
+        // resource's secret under this host's vault entry.
         #[Sensitive]
         #[Assert\Length(max: HostMacro::MAX_VALUE_LENGTH)]
-        public string $value = '',
+        #[Assert\Regex(
+            pattern: '/^' . VaultInterface::VAULT_PATH_PREFIX . '/',
+            match: false,
+            message: 'A macro value cannot be a vault reference.',
+        )]
+        public ?string $value = null,
 
         public bool $isPassword = false,
 
-        // Counted in bytes, not characters: on_demand_macro_host.description is a MySQL TEXT column
-        // bounded to 65,535 bytes, so a multibyte description must be measured as the bytes it occupies
-        // to reject it with a 422 instead of failing at insertion time.
-        #[Assert\Length(max: HostMacro::MAX_DESCRIPTION_LENGTH, countUnit: Assert\Length::COUNT_BYTES)]
-        public ?string $description = null,
+        #[Assert\Positive]
+        public ?int $id = null,
+
+        #[Assert\Choice(callback: [self::class, 'parents'])]
+        public ?string $parent = null,
     ) {
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function parents(): array
+    {
+        return array_map(static fn (HostMacroParentEnum $parent): string => $parent->value, HostMacroParentEnum::cases());
+    }
+
+    #[Assert\Callback]
+    public function validateValueIsProvided(ExecutionContextInterface $context): void
+    {
+        // Mirrors the HostMacroChange invariant as a field violation: a null value keeps
+        // the stored value, which only an existing password macro has a use for since its value is
+        // never echoed back. Whether the stored macro really is a password is checked on write.
+        if ($this->value === null && ($this->id === null || ! $this->isPassword)) {
+            $context->buildViolation('A value is required, except to keep the stored value of an existing password macro.')
+                ->atPath('value')
+                ->addViolation();
+        }
     }
 }
