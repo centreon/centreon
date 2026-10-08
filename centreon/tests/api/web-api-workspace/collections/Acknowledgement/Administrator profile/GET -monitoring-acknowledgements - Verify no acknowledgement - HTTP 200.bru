@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrlWeb}}/monitoring/acknowledgements
+  url: {{baseUrlWeb}}/monitoring/acknowledgements?limit=100
   body: none
   auth: inherit
 }
@@ -14,13 +14,48 @@ assert {
   res.status: eq 200
 }
 
+script:post-response {
+  // Removing an acknowledgement reaches the database asynchronously, and the
+  // removed one stays listed with its deletion time set. Poll the list until no
+  // active acknowledgement remains on the test host, and hand the last response
+  // to the tests.
+  const hostId = parseInt(bru.getEnvVar("Host1Id"));
+  if (!Number.isInteger(hostId)) {
+    throw new Error("Host1Id env var is not set");
+  }
+  const isActiveOnHost = (ack) => ack.host_id === hostId && !ack.deletion_time;
+  const timeoutMs = parseInt(bru.getEnvVar("monitoringWaitMs")) || 30000;
+  const url = bru.interpolate("{{baseUrlWeb}}/monitoring/acknowledgements?limit=100");
+  const start = Date.now();
+  let body = res.getBody();
+  while ((body.result || []).some(isActiveOnHost) && Date.now() - start < timeoutMs) {
+    await bru.sleep(1000);
+    try {
+      const response = await bru.sendRequest({
+        method: "GET",
+        url,
+        headers: { "X-AUTH-TOKEN": bru.interpolate("{{authToken}}") },
+        timeout: 10000
+      });
+      body = response.data;
+    } catch (error) {
+      throw new Error(`Polling ${url} failed after ${Date.now() - start} ms: ${error.message}`);
+    }
+  }
+  res.setBody(body);
+}
+
 tests {
-  test("The acknowledgements list is empty after disacknowledgement.", function () {
+  test("No active acknowledgement remains on the test host after disacknowledgement.", function () {
     const body = res.getBody();
     expect(body).to.be.an("object");
     expect(body).to.have.property("result").that.is.an("array");
-    const hostAck = body.result.find(r => r.host_id === parseInt(bru.getEnvVar("Host1Id")));
-    expect(hostAck).to.be.undefined;
+    expect(body.meta.total, "more acknowledgements than the listed page holds").to.be.at.most(body.result.length);
+    const hostId = parseInt(bru.getEnvVar("Host1Id"));
+    expect(Number.isInteger(hostId), "Host1Id env var is not set").to.be.true;
+    // A service acknowledgement also carries its host's host_id, so this covers both.
+    const activeAck = body.result.find(ack => ack.host_id === hostId && !ack.deletion_time);
+    expect(activeAck, `acknowledgement still active on host ${hostId} after polling: ${JSON.stringify(activeAck)}`).to.be.undefined;
   });
 }
 
