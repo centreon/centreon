@@ -93,8 +93,7 @@ const Templates = ({
 
   return (
     <div className="flex flex-col gap-2" data-testid={dataTestId}>
-      {/* MUI's own font weight would beat a Tailwind class. */}
-      <Typography fontWeight="bold" variant="body1">
+      <Typography className="font-bold" variant="body1">
         {label}
       </Typography>
       {/* The shared list has no read-only mode: a disabled fieldset turns off
