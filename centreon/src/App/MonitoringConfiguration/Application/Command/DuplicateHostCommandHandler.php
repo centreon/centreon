@@ -113,12 +113,17 @@ final readonly class DuplicateHostCommandHandler
             try {
                 $this->purgeMintedVaultEntry($source, $copy);
             } catch (\Throwable $purgeException) {
-                // The purge failure must never replace the original cause. Record it so the orphan
-                // vault entry it leaves behind is at least traceable.
-                $this->logger->warning('The vault entry minted for a failed host duplication could not be purged.', [
-                    'source_host_id' => $command->hostId->value,
-                    'exception' => $purgeException,
-                ]);
+                // The purge failure must never replace the original cause. Record it, with the copy's
+                // own vault entry, so the orphan it leaves behind can be located directly. The logging
+                // is itself guarded: a failing logger (or UUID read) must not mask the original cause.
+                try {
+                    $this->logger->warning('The vault entry minted for a failed host duplication could not be purged.', [
+                        'source_host_id' => $command->hostId->value,
+                        'copy_vault_uuid' => $copy->getVaultUuid($this->vault),
+                        'exception' => $purgeException,
+                    ]);
+                } catch (\Throwable) {
+                }
             }
 
             throw $exception;
@@ -194,10 +199,10 @@ final readonly class DuplicateHostCommandHandler
         $macros = array_map(
             function (HostMacro $macro) use ($newReferences): HostMacro {
                 $key = $this->macroVaultKey($macro);
-                $value = $macro->isPassword && isset($newReferences[$key]) ? $newReferences[$key] : $macro->value;
+                $reMintedValue = $macro->isPassword && isset($newReferences[$key]) ? $newReferences[$key] : null;
 
-                // The copy owns a fresh macro row: never carry over the source's macro id.
-                return new HostMacro($macro->name, $value, $macro->isPassword);
+                // The copy owns a fresh macro row (no source id), with the re-minted secret when vaulted.
+                return $macro->copyWithoutIdentity($reMintedValue);
             },
             $source->checkOptions->macros,
         );
@@ -209,9 +214,8 @@ final readonly class DuplicateHostCommandHandler
     }
 
     /**
-     * The source's check options with its macros rebuilt as the copy's own fresh rows — same name,
-     * value and password flag, but no source macro id carried over (add() keys on name/value, but the
-     * copy must not borrow the source's identity). Used when no secret is re-minted.
+     * The source's check options with its macros rebuilt as the copy's own fresh rows (same name,
+     * value and password flag, no source macro id). Used when no secret is re-minted.
      */
     private function copyCheckOptions(CheckOptions $checkOptions): CheckOptions
     {
@@ -219,7 +223,7 @@ final readonly class DuplicateHostCommandHandler
             $checkOptions->checkCommandId,
             $checkOptions->args,
             array_map(
-                static fn (HostMacro $macro): HostMacro => new HostMacro($macro->name, $macro->value, $macro->isPassword),
+                static fn (HostMacro $macro): HostMacro => $macro->copyWithoutIdentity(),
                 $checkOptions->macros,
             ),
         );

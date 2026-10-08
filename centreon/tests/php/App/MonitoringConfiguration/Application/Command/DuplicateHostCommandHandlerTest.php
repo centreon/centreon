@@ -292,8 +292,9 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             snmpVersion: SnmpVersionEnum::TwoC,
             snmpCommunity: new SnmpCommunity('public'),
             checkOptions: new CheckOptions(null, [], [
-                new HostMacro(new HostMacroName('token'), $macroReference, isPassword: true),
-                new HostMacro(new HostMacroName('plain'), 'visible-value', isPassword: false),
+                // Both carry a source id, to prove neither branch (re-minted or verbatim) copies it over.
+                new HostMacro(new HostMacroName('token'), $macroReference, true, new HostMacroId(7)),
+                new HostMacro(new HostMacroName('plain'), 'visible-value', false, new HostMacroId(42)),
             ]),
         );
 
@@ -312,12 +313,14 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
         $macrosByName = [];
         foreach ($copy->checkOptions->macros as $macro) {
-            $macrosByName[$macro->name->value] = $macro->value;
+            $macrosByName[$macro->name->value] = $macro;
+            // The copy owns fresh rows: no source macro id on either branch.
+            self::assertNull($macro->id);
         }
         // The vaulted macro gets a fresh reference; the plaintext macro is untouched.
-        self::assertNotSame($macroReference, $macrosByName['TOKEN']);
-        self::assertStringStartsWith('secret::', $macrosByName['TOKEN']);
-        self::assertSame('visible-value', $macrosByName['PLAIN']);
+        self::assertNotSame($macroReference, $macrosByName['TOKEN']->value);
+        self::assertStringStartsWith('secret::', $macrosByName['TOKEN']->value);
+        self::assertSame('visible-value', $macrosByName['PLAIN']->value);
     }
 
     public function testDoesNotMintAVaultEntryWhenTheNameConflicts(): void
@@ -393,11 +396,13 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             self::assertSame('duplicateHostAccess failed', $exception->getMessage());
         }
 
-        // The swallowed purge failure is still recorded, so the orphan entry it leaves is traceable.
+        // The swallowed purge failure is still recorded, with the copy's own vault entry, so the orphan
+        // it leaves is directly locatable.
         $warning = $this->logger->lastRecord();
         self::assertNotNull($warning);
         self::assertSame('warning', $warning['level']);
         self::assertSame(1, $warning['context']['source_host_id'] ?? null);
+        self::assertSame('new-uuid', $warning['context']['copy_vault_uuid'] ?? null);
     }
 
     public function testDoesNotPurgeTheSourceVaultEntryWhenTheCopySharesItAndPersistenceFails(): void
