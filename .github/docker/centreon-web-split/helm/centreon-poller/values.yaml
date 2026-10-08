@@ -99,6 +99,33 @@ engine:
       externalTrafficPolicy: ""
       annotations: {}
 
+# SNMP traps: snmptrapd (162/udp) + centreontrapd in the poller pod. Changes
+# the volume list: enabling it on an installed poller needs
+# `kubectl delete sts <release> --cascade=orphan` before the upgrade.
+traps:
+  enabled: false
+  images:
+    snmptrapd:
+      repository: ghcr.io/centreon/centreon-snmptrapd
+      tag: ""
+      pullPolicy: IfNotPresent
+    centreontrapd:
+      repository: ghcr.io/centreon/centreon-centreontrapd
+      tag: ""
+      pullPolicy: IfNotPresent
+  logLevel: error
+  # centreontrapd matches traps by source IP: keep externalTrafficPolicy Local
+  # (Cluster SNATs the source to a node IP).
+  service:
+    type: LoadBalancer
+    port: 162
+    nodePort: ""
+    loadBalancerSourceRanges: []
+    externalTrafficPolicy: Local
+    annotations: {}
+  snmptrapdResources: {}
+  centreontrapdResources: {}
+
 # Pod stop: gorgone's preStop asks centengine for a gRPC shutdown (the same
 # path as "restart" from the central), so cbmod saves its queue; centengine's
 # preStop waits for it instead of getting a SIGTERM right away.
@@ -118,6 +145,7 @@ persistence:
   cmaPki: 100Mi         # /etc/pki/centreon-engine (CMA CA)
   engineHome: 5Gi       # /var/lib/centreon-engine (cbmod's queue/cache)
   gorgoneData: 1Gi      # /var/lib/centreon-gorgone (keys, history)
+  trapsConfig: 100Mi    # /etc/snmp/centreon_traps (traps.enabled)
 
 debug: false
 
