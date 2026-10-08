@@ -95,6 +95,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
                     403 => new Model\Response('You are not allowed to duplicate hosts'),
                     404 => new Model\Response('Host not found'),
                     409 => new Model\Response('A host with the generated name already exists'),
+                    422 => new Model\Response('The generated host name would exceed the maximum length'),
                 ],
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",

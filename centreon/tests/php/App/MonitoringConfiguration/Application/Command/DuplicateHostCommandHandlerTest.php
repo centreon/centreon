@@ -47,8 +47,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
+use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
@@ -101,7 +103,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $source = $this->storeSourceHost(1, 'web');
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy, 'the copy is persisted under the first free "_1" suffix');
@@ -129,15 +131,16 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertEquals($source->checkOptions, $copy->checkOptions);
     }
 
-    public function testThrowsConflictWhenTheSuffixWouldExceedTheNameLengthLimit(): void
+    public function testThrowsUnprocessableWhenTheSuffixWouldExceedTheNameLengthLimit(): void
     {
         // A source name already at the maximum length leaves no room for the "_<n>" suffix, so no
-        // candidate is valid — this must surface as a 409, not an unmapped 500 from HostName.
+        // candidate is valid — a validation failure on the generated name (422), not an
+        // already-taken conflict (409) nor an unmapped 500 from HostName.
         $this->storeSourceHost(1, str_repeat('a', HostName::MAX_LENGTH));
 
-        $this->expectException(HostAlreadyExistsException::class);
+        $this->expectException(DuplicatedHostNameTooLongException::class);
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
     }
 
     public function testSkipsAlreadyTakenSuffixes(): void
@@ -145,7 +148,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->storeSourceHost(1, 'web');
         $this->storeSourceHost(2, 'web_1');
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         self::assertNotNull($this->findCopyByName('web_2'), 'the next free suffix is used instead');
         self::assertCount(3, $this->repository->hosts, 'no extra copy is created for the taken suffix');
@@ -155,7 +158,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $this->expectException(HostNotFoundException::class);
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(999), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(999), duplicatedBy: new UserId(42), viewerId: null));
     }
 
     public function testThrowsConflictWhenEveryCandidateNameIsTaken(): void
@@ -165,14 +168,14 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
         $this->expectException(HostAlreadyExistsException::class);
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
     }
 
     public function testCopiesTheSourceAclScopeOntoTheCopy(): void
     {
         $this->storeSourceHost(1, 'web');
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         $copy = $this->findCopyByName('web_1');
         self::assertNotNull($copy);
@@ -186,7 +189,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $this->storeSourceHost(1, 'web');
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDuplicated::class, 1));
         $event = $this->eventBus->getDispatchedEvents(HostDuplicated::class)[0];
@@ -204,7 +207,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $this->storeSourceHost(1, 'web');
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDuplicationRequested::class, 1));
         $event = $this->eventBus->getDispatchedEvents(HostServicesDuplicationRequested::class)[0];
@@ -230,7 +233,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->vault->resolved[$macroReference] = 's3cr3t';
         $this->repository->hosts[1] = $this->buildVaultedHost(1, 'web', $snmpReference, $macroReference);
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         // The source's secrets are read back to plaintext and rewritten under a single fresh entry
         // (null UUID), never the source's — so the copy cannot share the source's vault paths.
@@ -262,7 +265,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->vault->vaultEnabled = true;
         $source = $this->storeSourceHost(1, 'web');
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         self::assertSame([], $this->vault->writeManyCalls);
         $copy = $this->findCopyByName('web_1');
@@ -298,7 +301,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             ]),
         );
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         // Only the vaulted macro is re-minted: the fresh entry holds just that key.
         self::assertCount(1, $this->vault->writeManyCalls);
@@ -333,7 +336,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->repository->forceNameUsed = true;
 
         try {
-            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
             self::fail('expected a HostAlreadyExistsException');
         } catch (HostAlreadyExistsException) {
             // expected
@@ -359,7 +362,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->resourceAccessRepository->duplicateHostAccessThrows = true;
 
         try {
-            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
             self::fail('expected the persistence failure to propagate');
         } catch (\RuntimeException) {
             // expected
@@ -389,7 +392,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->vault->deleteThrows = true;
 
         try {
-            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
             self::fail('expected the persistence failure to propagate');
         } catch (\RuntimeException $exception) {
             // The original cause surfaces, not the swallowed purge failure.
@@ -416,7 +419,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->resourceAccessRepository->duplicateHostAccessThrows = true;
 
         try {
-            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
             self::fail('expected the persistence failure to propagate');
         } catch (\RuntimeException) {
             // expected
@@ -441,7 +444,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             ]),
         );
 
-        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: 42, viewerId: null));
+        ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
 
         $macro = $this->findCopyByName('web_1')?->checkOptions->macros[0];
         self::assertNotNull($macro);

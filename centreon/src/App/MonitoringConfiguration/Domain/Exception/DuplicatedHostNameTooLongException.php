@@ -21,24 +21,23 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Command;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\Security\Domain\Aggregate\UserId;
-
-final readonly class DuplicateHostCommand
+/**
+ * The name generated for a duplicated host would exceed the maximum length: a validation failure on
+ * the generated value (HTTP 422), not a name-already-taken conflict (HTTP 409).
+ */
+final class DuplicatedHostNameTooLongException extends \RuntimeException
 {
     /**
-     * @param HostId $hostId the host to duplicate
-     * @param UserId $duplicatedBy the user performing the duplication (action-log actor)
-     * @param ?UserId $viewerId null when the caller is unrestricted (admin); a non-null value scopes
-     *                          the source lookup to what that user can access via ACL, so an
-     *                          inaccessible host reads as not found (mirrors CreateHostCommand)
+     * @param array<string, mixed> $criteria
      */
     public function __construct(
-        public HostId $hostId,
-        public UserId $duplicatedBy,
-        public ?UserId $viewerId,
+        public readonly array $criteria,
+        string $message = 'The duplicated host name would exceed the maximum length.',
+        int $code = 0,
+        ?\Throwable $previous = null,
     ) {
+        parent::__construct($message, $code, $previous);
     }
 }

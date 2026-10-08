@@ -30,10 +30,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
+use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -104,7 +104,7 @@ final readonly class DuplicateHostCommandHandler
             // The shared handlers reacting to AggregateDuplicated do the rest: the action log (with field
             // detail), the poller's `nagios_server.updated` flag, and the centAcl reload flag
             // (ReloadAclEventHandler flags only here — the copy's scope was already seeded above).
-            $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy));
+            $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy->value));
         } catch (\Throwable $exception) {
             // The DB writes roll back with the command-bus transaction, but the vault entry minted for
             // the copy does not: purge it so a failed duplication leaves nothing dangling. The purge
@@ -134,7 +134,7 @@ final readonly class DuplicateHostCommandHandler
         $this->eventBus->fire(new HostServicesDuplicationRequested(
             sourceHostId: $command->hostId,
             newHostId: $copy->id(),
-            duplicatedBy: new UserId($command->duplicatedBy),
+            duplicatedBy: $command->duplicatedBy,
         ));
     }
 
@@ -247,12 +247,9 @@ final readonly class DuplicateHostCommandHandler
         for ($index = 1; $index <= self::MAX_NAME_ATTEMPTS; $index++) {
             $candidate = $sourceName->value . '_' . $index;
             // The suffix only grows, so once it overflows the name length limit no suffix ever fits:
-            // surface a distinct 409 instead of letting HostName throw an unmapped 500.
+            // surface a distinct 422 instead of letting HostName throw an unmapped 500.
             if (mb_strlen($candidate) > HostName::MAX_LENGTH) {
-                throw new HostAlreadyExistsException(
-                    ['name' => $sourceName->value],
-                    'The duplicated host name would exceed the maximum length.',
-                );
+                throw new DuplicatedHostNameTooLongException(['name' => $sourceName->value]);
             }
 
             $candidateName = new HostName($candidate);
