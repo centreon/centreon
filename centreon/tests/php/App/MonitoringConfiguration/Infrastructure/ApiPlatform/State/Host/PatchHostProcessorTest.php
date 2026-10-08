@@ -473,6 +473,47 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertSame('mc', $this->latestActionType($hostId));
     }
 
+    public function testActivatingWithAnotherChangeLogsOneMassChangeLine(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false, 'alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('0', $this->connection->fetchOne('SELECT host_activate FROM host WHERE host_id = ?', [$hostId]));
+        self::assertSame('mc', $this->latestActionType($hostId));
+        self::assertSame([1], $this->actionLineCounts($hostId));
+    }
+
+    public function testActivationIsLoggedAsEnableOrDisableWhenTheOtherKeysChangeNothing(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('host');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => false, 'name' => $name]]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('disable', $this->latestActionType($hostId));
+        self::assertSame([1], $this->actionLineCounts($hostId));
+    }
+
+    public function testAnotherChangeWithoutActivationLogsOneMassChangeLine(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('host'), $pollerId);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $hostId, self::PATCH_HEADERS + ['json' => ['activated' => true, 'alias' => 'front']]);
+
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('mc', $this->latestActionType($hostId));
+        self::assertSame([1], $this->actionLineCounts($hostId));
+    }
+
     private function insertPoller(string $name): int
     {
         $this->connection->insert('nagios_server', [
@@ -505,6 +546,17 @@ final class PatchHostProcessorTest extends ApiTestCase
     private function uniqueName(string $prefix = 'host'): string
     {
         return $prefix . '-' . bin2hex(random_bytes(6));
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function actionLineCounts(int $hostId): array
+    {
+        return $this->realTimeConnection->fetchFirstColumn(
+            "SELECT COUNT(*) FROM log_action WHERE object_id = ? AND object_type = 'host'",
+            [$hostId],
+        );
     }
 
     private function latestActionType(int $hostId): mixed
