@@ -74,6 +74,16 @@ spec:
               # External command FIFO (centengine creates it, gorgone writes).
               own 901:901 775 /seed/centcmd
               own 901:901 775 /seed/cbmod-cache
+              {{- if .Values.engine.otel.tls.existingSecret }}
+              # CMA TLS identity: private to centengine (gorgone shares the pod).
+              for f in /seed/otel-tls-src/*; do
+                n=$(basename "$f")
+                cp "$f" "/seed/otel-tls/$n"
+                chown 901:901 "/seed/otel-tls/$n"
+                case "$n" in *.key) chmod 600 "/seed/otel-tls/$n" ;; *) chmod 644 "/seed/otel-tls/$n" ;; esac
+              done
+              own 901:901 750 /seed/otel-tls
+              {{- end }}
               ls -lnd /seed/*
           volumeMounts:
             - { name: engine, mountPath: /seed/engine }
@@ -82,6 +92,10 @@ spec:
             - { name: centcmd, mountPath: /seed/centcmd }
             - { name: cma-pki, mountPath: /seed/pki }
             - { name: cbmod-cache, mountPath: /seed/cbmod-cache }
+            {{- if .Values.engine.otel.tls.existingSecret }}
+            - { name: otel-tls-src, mountPath: /seed/otel-tls-src, readOnly: true }
+            - { name: otel-tls, mountPath: /seed/otel-tls }
+            {{- end }}
         - name: seed-gorgone
           image: {{ $gorgoneImage }}
           imagePullPolicy: {{ .Values.images.gorgone.pullPolicy }}
@@ -199,12 +213,15 @@ spec:
         - name: centcmd
           emptyDir: {}
         {{- with .Values.engine.otel.tls.existingSecret }}
-        - name: otel-tls
+        # Only seed-engine reads the Secret; it copies it into otel-tls owned
+        # by centengine (key 0600). No fsGroup: it would re-own the PVCs.
+        - name: otel-tls-src
           secret:
             secretName: {{ . }}
-            # Secret files are root-owned: readable by centengine (901)
-            # only through the mode, no fsGroup (it would re-own the PVCs).
-            defaultMode: 0444
+            defaultMode: 0400
+        - name: otel-tls
+          emptyDir:
+            medium: Memory
         {{- end }}
   volumeClaimTemplates:
     {{- range $vol, $size := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "cbmod-cache" .Values.persistence.cbmodCache "gorgone-data" .Values.persistence.gorgoneData }}

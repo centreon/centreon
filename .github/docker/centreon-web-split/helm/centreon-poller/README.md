@@ -57,8 +57,10 @@ TLS identity instead:
    `ca.crt`) with the FQDN agents dial as SAN, e.g. with cert-manager. A
    self-signed CA also works: the engine issues its server certificates from
    it and copies its SANs.
-2. `--set engine.otel.tls.existingSecret=<secret>` (mounted on
-   `/etc/pki/centreon-poller`).
+2. `--set engine.otel.tls.existingSecret=<secret>`. The init container copies
+   it to `/etc/pki/centreon-poller`, owned by centengine (key `0600`, not
+   readable by gorgone). A renewed certificate is picked up at the next pod
+   restart.
 3. In the poller's agent configuration in Centreon: public certificate
    `/etc/pki/centreon-poller/tls.crt`, private key
    `/etc/pki/centreon-poller/tls.key` (CA certificate
