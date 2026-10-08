@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use App\Shared\Domain\NoValue;
 
 /**
@@ -55,6 +56,9 @@ final readonly class PatchHostCommand
         public NoValue|PollerId $pollerId = new NoValue(),
         public NoValue|HostAlias|null $alias = new NoValue(),
         public NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
+        // Plaintext until the handler vaults it, and LoggingMiddleware logs every payload.
+        #[Sensitive]
+        public NoValue|string|null $snmpCommunity = new NoValue(),
         public NoValue|TimezoneId|null $timezoneId = new NoValue(),
         public NoValue|HostSeverityId|null $severityId = new NoValue(),
         public NoValue|DataProcessingChanges $dataProcessing = new NoValue(),

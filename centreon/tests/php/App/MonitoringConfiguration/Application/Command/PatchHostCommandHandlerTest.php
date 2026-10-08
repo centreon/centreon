@@ -34,20 +34,27 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Event\HostCredentialsReleased;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
@@ -55,16 +62,20 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeVault;
 
 final class PatchHostCommandHandlerTest extends TestCase
 {
     private const HOST_ID = 5;
+    private const COMMUNITY_REFERENCE = 'secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY';
 
     private FakeHostRepository $repository;
 
     private FakeCommandRepository $commandRepository;
 
     private FakeOptionRepository $optionRepository;
+
+    private FakeVault $vault;
 
     private EventBusSpy $eventBus;
 
@@ -75,10 +86,13 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->repository = new FakeHostRepository();
         $this->commandRepository = new FakeCommandRepository();
         $this->optionRepository = new FakeOptionRepository();
+        $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
         $this->handler = new PatchHostCommandHandler(
             $this->repository,
             $this->commandRepository,
+            $this->vault,
+            new VaultCredentialWriter($this->vault),
             new AdditiveInheritanceModeApplier($this->optionRepository),
             $this->eventBus,
         );
@@ -351,12 +365,171 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertTrue($result->notifications?->contactAdditiveInheritance);
     }
 
-    private function seedHost(bool $activated, ?string $alias = null): Host
+    public function testANewCommunityIsVaultedUnderTheHostsOwnEntry(): void
     {
-        return $this->repository->seed($this->host('server-01', $activated, $alias), self::HOST_ID);
+        $this->seedHostWithVaultedCommunity();
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            snmpCommunity: 'new-secret',
+        ));
+
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame('uuid-1', $this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['_HOSTSNMPCOMMUNITY' => 'new-secret'], $this->vault->writeManyCalls[0]['secrets']);
+        self::assertSame(
+            'secret::vault::monitoring/hosts/new-uuid::_HOSTSNMPCOMMUNITY',
+            $result->snmpCommunity?->value,
+        );
+        self::assertSame([$result], $this->repository->updatedHosts);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class));
     }
 
-    private function host(string $name, bool $activated, ?string $alias = null): Host
+    public function testACommunityIsStoredAsIsWhenTheVaultIsOff(): void
+    {
+        $this->seedHost(activated: true);
+        $this->vault->vaultEnabled = false;
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            snmpCommunity: 'public',
+        ));
+
+        self::assertSame('public', $result->snmpCommunity?->value);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testAVaultReferenceFromTheCallerIsIgnored(): void
+    {
+        $this->seedHostWithVaultedCommunity();
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            alias: new HostAlias('front'),
+            snmpCommunity: 'secret::vault::monitoring/hosts/other::_HOSTSNMPCOMMUNITY',
+        ));
+
+        self::assertSame(self::COMMUNITY_REFERENCE, $result->snmpCommunity?->value);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testRemovingTheOnlySecretReleasesTheWholeVaultEntry(): void
+    {
+        $before = $this->seedHostWithVaultedCommunity();
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            snmpCommunity: null,
+        ));
+
+        self::assertNull($result->snmpCommunity);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostCredentialsReleased::class, 1));
+        $event = $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class)[0];
+        self::assertSame([], $event->keys);
+        self::assertSame($before, $event->host);
+    }
+
+    public function testRemovingTheCommunityKeepsTheEntryWhileAPasswordMacroStillUsesIt(): void
+    {
+        $this->seedHostWithVaultedCommunity(withPasswordMacro: true);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            snmpCommunity: null,
+        ));
+
+        $event = $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class)[0];
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $event->keys);
+    }
+
+    public function testRemovingAPlaintextCommunityReleasesNothing(): void
+    {
+        $this->seedHost(activated: true, community: 'public');
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            snmpCommunity: null,
+        ));
+
+        self::assertNull($result->snmpCommunity);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostCredentialsReleased::class));
+    }
+
+    public function testARejectedUpdateLeavesNoSecretInTheVault(): void
+    {
+        $this->seedHostWithVaultedCommunity();
+        $this->repository->add($this->host('server-02', activated: true));
+
+        try {
+            ($this->handler)(new PatchHostCommand(
+                id: new HostId(self::HOST_ID),
+                updatedBy: 1,
+                name: new HostName('server-02'),
+                snmpCommunity: 'new-secret',
+            ));
+            self::fail('The duplicate name should have been rejected.');
+        } catch (HostAlreadyExistsException) {
+            self::assertSame([], $this->vault->writeManyCalls);
+            self::assertSame([], $this->repository->updatedHosts);
+        }
+    }
+
+    public function testAVaultFailureSavesNothing(): void
+    {
+        $this->seedHostWithVaultedCommunity();
+        $this->vault->writeThrows = true;
+
+        try {
+            ($this->handler)(new PatchHostCommand(
+                id: new HostId(self::HOST_ID),
+                updatedBy: 1,
+                alias: new HostAlias('front'),
+                snmpCommunity: 'new-secret',
+            ));
+            self::fail('The vault failure should have been reported.');
+        } catch (VaultWriteFailedException $exception) {
+            self::assertInstanceOf(\RuntimeException::class, $exception->getPrevious());
+            self::assertSame([], $this->repository->updatedHosts);
+            self::assertSame([], $this->eventBus->getDispatchedEvents(HostMassChanged::class));
+        }
+    }
+
+    private function seedHostWithVaultedCommunity(bool $withPasswordMacro = false): Host
+    {
+        $this->vault->extractedUuids[self::COMMUNITY_REFERENCE] = 'uuid-1';
+        $macros = [];
+        if ($withPasswordMacro) {
+            $reference = 'secret::vault::monitoring/hosts/uuid-1::_HOSTTOKEN';
+            $this->vault->extractedUuids[$reference] = 'uuid-1';
+            $macros[] = new HostMacro(new HostMacroName('TOKEN'), $reference, isPassword: true);
+        }
+
+        return $this->repository->seed(new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            snmpCommunity: new SnmpCommunity(self::COMMUNITY_REFERENCE),
+            checkOptions: new CheckOptions(null, macros: $macros),
+        ), self::HOST_ID);
+    }
+
+    private function seedHost(bool $activated, ?string $alias = null, ?string $community = null): Host
+    {
+        return $this->repository->seed($this->host('server-01', $activated, $alias, $community), self::HOST_ID);
+    }
+
+    private function host(string $name, bool $activated, ?string $alias = null, ?string $community = null): Host
     {
         return new Host(
             id: null,
@@ -367,6 +540,7 @@ final class PatchHostCommandHandlerTest extends TestCase
             pollerId: new PollerId(1),
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: new Collection([], HostGroupId::class),
+            snmpCommunity: $community !== null ? new SnmpCommunity($community) : null,
         );
     }
 
