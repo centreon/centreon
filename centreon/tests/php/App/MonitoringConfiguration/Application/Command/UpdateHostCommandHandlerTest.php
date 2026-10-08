@@ -74,6 +74,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
@@ -339,6 +340,38 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         // The save succeeded: failing to tidy up the emptied entry must not fail the request.
         self::assertTrue($events[0]->bestEffort);
         self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
+    }
+
+    public function testAFailedSnmpCommunityVaultWriteSavesNothing(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+        $this->seedHost(10, name: 'server-old');
+
+        try {
+            ($this->handler)($this->command(10, name: 'server-new', snmpCommunity: 'new-community'));
+            self::fail('A failed vault write must be reported.');
+        } catch (VaultWriteFailedException $exception) {
+            self::assertInstanceOf(\RuntimeException::class, $exception->getPrevious());
+        }
+
+        self::assertSame([], $this->hostRepository->updatedHosts);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostUpdated::class));
+    }
+
+    public function testAFailedPasswordMacroVaultWriteSavesNothing(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+        $this->seedHost(10);
+
+        $this->expectException(VaultWriteFailedException::class);
+
+        ($this->handler)($this->command(10, macroChanges: [
+            new HostMacroChange(new HostMacroName('pwd'), 'plain-secret', isPassword: true),
+        ]));
     }
 
     public function testItIgnoresAVaultReferenceSentAsTheSnmpCommunity(): void

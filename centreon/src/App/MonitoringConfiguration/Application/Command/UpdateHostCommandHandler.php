@@ -54,6 +54,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
@@ -323,7 +324,10 @@ final readonly class UpdateHostCommandHandler
         $current = $existingHost->checkOptions->macros;
         $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId);
         $macros = $this->hostMacroChangesResolver->resolve($command->macroChanges, $current, $inherited);
-        $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, $current, $vaultUuid);
+        $macros = $this->writeToVault(
+            $existingHost->id(),
+            fn (): array => $this->hostMacroSecretsSynchronizer->synchronize($macros, $current, $vaultUuid),
+        );
 
         return new CheckOptions($command->checkOptions->checkCommandId, $command->checkOptions->args, $macros);
     }
@@ -344,10 +348,13 @@ final readonly class UpdateHostCommandHandler
         if ($community === null) {
             $stored = $existingHost->snmpCommunity?->value;
             if ($existingVaultUuid !== null && $stored !== null && $this->vault->isVaultPath($stored)) {
-                $this->vaultCredentialWriter->persist(
-                    VaultPathEnum::MonitoringHosts,
-                    VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity),
-                    $existingVaultUuid,
+                $this->writeToVault(
+                    $existingHost->id(),
+                    fn (): array => $this->vaultCredentialWriter->persist(
+                        VaultPathEnum::MonitoringHosts,
+                        VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity),
+                        $existingVaultUuid,
+                    ),
                 );
             }
 
@@ -358,13 +365,35 @@ final readonly class UpdateHostCommandHandler
             return $existingHost->snmpCommunity;
         }
 
-        $stored = $this->vaultCredentialWriter->persist(
-            VaultPathEnum::MonitoringHosts,
-            VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community),
-            $existingVaultUuid,
+        $stored = $this->writeToVault(
+            $existingHost->id(),
+            fn (): array => $this->vaultCredentialWriter->persist(
+                VaultPathEnum::MonitoringHosts,
+                VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community),
+                $existingVaultUuid,
+            ),
         );
 
         return new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]);
+    }
+
+    /**
+     * Runs a vault write made before the host is saved: a failure there means nothing was persisted,
+     * reported as an upstream failure (HTTP 502) rather than an internal error.
+     *
+     * @template T
+     *
+     * @param callable(): T $write
+     *
+     * @return T
+     */
+    private function writeToVault(HostId $hostId, callable $write): mixed
+    {
+        try {
+            return $write();
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forHost($hostId, $exception);
+        }
     }
 
     /**
