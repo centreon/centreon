@@ -91,6 +91,32 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
 - Enabling traps on an installed poller changes the volume list (see
   Persistence for the upgrade procedure).
 
+## VMware connector
+
+`--set vmware.enabled=true` adds `centreon-vmware` to the poller pod. The
+engine's VMware plugins reach it as `centreon-vmware:5700` (host alias to the
+pod itself), its configuration (`/etc/centreon/centreon_vmware.json`) is
+delivered by the central through gorgone, and it restarts on each update.
+
+There is no public image: it embeds the VMware Perl SDK, under a Broadcom
+license. Build it from a `centreon-plugins` checkout with the SDK archives in
+`sdks-vmware/` (see its README), push it to a **private** registry and give
+the chart its reference and pull secret:
+
+```powershell
+docker build -f .github/docker/connector/Dockerfile.connector-vmware `
+  -t registry.example.com/centreon/connector-vmware:<version> .
+docker push registry.example.com/centreon/connector-vmware:<version>
+
+helm upgrade poller-1 . -n pollers --reset-then-reuse-values `
+  --set vmware.enabled=true `
+  --set vmware.image.repository=registry.example.com/centreon/connector-vmware `
+  --set vmware.image.tag=<version> `
+  --set "imagePullSecrets[0].name=<registry-secret>"
+```
+
+Enabling it does not change the volume list.
+
 ## Central-side prerequisites
 
 - pullwss goes through the central's web server / ingress at
@@ -114,6 +140,7 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
 | `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
 | `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
 | `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
+| `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
 | `gracefulStop` | enabled, 60s | See below |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
@@ -170,5 +197,4 @@ down: restrict it with a NetworkPolicy.
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
-- centreon-vmware is not covered yet.
 - No NetworkPolicy shipped yet.

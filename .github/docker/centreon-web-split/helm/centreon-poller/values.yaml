@@ -126,6 +126,19 @@ traps:
   snmptrapdResources: {}
   centreontrapdResources: {}
 
+# VMware connector (centreon-vmware) in the poller pod, reached by the
+# engine's VMware plugins as centreon-vmware:5700. There is no public image:
+# it embeds the licensed VMware Perl SDK. Build it from centreon-plugins with
+# the SDK and push it to a private registry (see README), reachable through
+# imagePullSecrets.
+vmware:
+  enabled: false
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources: {}
+
 # Pod stop: gorgone's preStop asks centengine for a gRPC shutdown (the same
 # path as "restart" from the central), so cbmod saves its queue; centengine's
 # preStop waits for it instead of getting a SIGTERM right away.

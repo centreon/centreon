@@ -35,6 +35,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- toString $id -}}
 {{- end -}}
 
+{{/* No default VMware connector image: it embeds the licensed VMware Perl
+     SDK, so it is built by the user and pushed to a private registry. */}}
+{{- define "centreon-poller.vmwareImage" -}}
+{{- $msg := "vmware.image.repository and vmware.image.tag are required: build the connector image with the VMware SDK and push it to a private registry (see README)" -}}
+{{- printf "%s:%s" (required $msg .Values.vmware.image.repository) (toString (required $msg .Values.vmware.image.tag)) -}}
+{{- end -}}
+
 {{- define "centreon-poller.secretName" -}}
 {{- required "secrets.existingSecret is required (GORGONE_TOKEN, APP_SECRET, SALT)" .Values.secrets.existingSecret -}}
 {{- end -}}

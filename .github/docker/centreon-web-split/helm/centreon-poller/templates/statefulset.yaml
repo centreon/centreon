@@ -48,9 +48,15 @@ spec:
       # controller): the CMA TLS identity comes from engine.otel.tls.
       # gorgone's systemctl shim dials "centengine:50155": it must reach this
       # pod's own engine.
+      # The VMware connector is reached as "centreon-vmware" (same name as
+      # with install-poller), here in the same pod.
       hostAliases:
         - ip: 127.0.0.1
-          hostnames: [centengine]
+          hostnames:
+            - centengine
+            {{- if .Values.vmware.enabled }}
+            - centreon-vmware
+            {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       {{- if .Values.traps.enabled }}
       # snmptrapd runs as uid 900 and binds 162/udp: Docker allows it through
@@ -135,6 +141,23 @@ spec:
             - { name: traps-config, mountPath: /seed/traps-config }
             - { name: traps-spool, mountPath: /seed/traps-spool }
             {{- end }}
+        {{- if .Values.vmware.enabled }}
+        # The connector's default config (until the central delivers one),
+        # never overwritten.
+        - name: seed-vmware
+          image: {{ include "centreon-poller.vmwareImage" . }}
+          imagePullPolicy: {{ .Values.vmware.image.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              [ -e /seed/etc/centreon_vmware.json ] ||
+                cp -p /etc/centreon/centreon_vmware.json /seed/etc/
+              ls -ln /seed/etc/centreon_vmware.json
+          volumeMounts:
+            - { name: etc, mountPath: /seed/etc }
+        {{- end }}
       containers:
         - name: gorgone
           image: {{ $gorgoneImage }}
@@ -270,6 +293,27 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
         {{- end }}
+        {{- end }}
+        {{- if .Values.vmware.enabled }}
+        # VMware connector, queried by the engine's VMware plugins on 5700.
+        # Its config (/etc/centreon/centreon_vmware.json) is delivered by the
+        # central through gorgone; the connector restarts itself on change.
+        - name: centreon-vmware
+          image: {{ include "centreon-poller.vmwareImage" . }}
+          imagePullPolicy: {{ .Values.vmware.image.pullPolicy }}
+          env:
+            - { name: TZ, value: {{ .Values.poller.timezone | quote }} }
+            - { name: DEBUG, value: {{ .Values.debug | quote }} }
+            {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" .Values.secrets.keys.appSecret) | nindent 12 }}
+            {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "SALT" "key" .Values.secrets.keys.salt) | nindent 12 }}
+          ports:
+            - { name: vmware, containerPort: 5700 }
+          volumeMounts:
+            - { name: etc, mountPath: /etc/centreon }
+          {{- with .Values.vmware.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
         {{- end }}
       volumes:
         - name: centcmd
