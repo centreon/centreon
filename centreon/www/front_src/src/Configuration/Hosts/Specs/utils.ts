@@ -212,6 +212,14 @@ export const getHostTemplatesResponse = () =>
     { id: 6, name: 'generic-passive-host' }
   ]);
 
+// The form's own selector: a third template the listing filter does not know.
+export const getFormHostTemplatesResponse = () =>
+  toCollection([
+    { id: 5, name: 'generic-active-host' },
+    { id: 6, name: 'generic-passive-host' },
+    { id: 7, name: 'linux-server-standard' }
+  ]);
+
 // The shape MON-210415 (#11809) gives the detail endpoint: objects where the
 // create takes ids. Mocked here until it lands; nothing stubs it at runtime.
 //
@@ -271,5 +279,10 @@ export const getHostResponse = () => ({
   },
   severity: { id: 2, name: 'Minor' },
   snmp_version: '2c',
+  // The reverse of the listing row's order: the first one prevails.
+  templates: [
+    { id: 6, name: 'generic-passive-host' },
+    { id: 5, name: 'generic-active-host' }
+  ],
   timezone: { id: 7, name: 'Europe/Paris' }
 });
