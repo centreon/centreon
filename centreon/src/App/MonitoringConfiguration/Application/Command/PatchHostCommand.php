@@ -23,9 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\NoValue;
 
+/**
+ * A partial update: every field left to {@see NoValue} is untouched, null clears the ones that can be
+ * cleared, anything else replaces the current value.
+ */
 final readonly class PatchHostCommand
 {
     /**
@@ -36,8 +48,20 @@ final readonly class PatchHostCommand
      */
     public function __construct(
         public HostId $id,
-        public bool $activated,
         public int $updatedBy,
+        public NoValue|bool $activated = new NoValue(),
+        public NoValue|HostName $name = new NoValue(),
+        public NoValue|HostAddress $address = new NoValue(),
+        public NoValue|PollerId $pollerId = new NoValue(),
+        public NoValue|HostAlias|null $alias = new NoValue(),
+        public NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
+        public NoValue|TimezoneId|null $timezoneId = new NoValue(),
+        public NoValue|HostSeverityId|null $severityId = new NoValue(),
+        public NoValue|DataProcessingChanges $dataProcessing = new NoValue(),
+        public NoValue|ExtendedInformationsChanges $extendedInformations = new NoValue(),
+        public NoValue|SchedulingOptionsChanges $schedulingOptions = new NoValue(),
+        public NoValue|CheckOptionsChanges $checkOptions = new NoValue(),
+        public NoValue|NotificationsChanges $notifications = new NoValue(),
         public ?UserId $viewerId = null,
     ) {
     }

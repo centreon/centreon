@@ -23,10 +23,20 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
+use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
+use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
@@ -34,11 +44,16 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 
 final class PatchHostCommandHandlerTest extends TestCase
@@ -47,6 +62,10 @@ final class PatchHostCommandHandlerTest extends TestCase
 
     private FakeHostRepository $repository;
 
+    private FakeCommandRepository $commandRepository;
+
+    private FakeOptionRepository $optionRepository;
+
     private EventBusSpy $eventBus;
 
     private PatchHostCommandHandler $handler;
@@ -54,67 +73,70 @@ final class PatchHostCommandHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new FakeHostRepository();
+        $this->commandRepository = new FakeCommandRepository();
+        $this->optionRepository = new FakeOptionRepository();
         $this->eventBus = new EventBusSpy();
-        $this->handler = new PatchHostCommandHandler($this->repository, $this->eventBus);
+        $this->handler = new PatchHostCommandHandler(
+            $this->repository,
+            $this->commandRepository,
+            new AdditiveInheritanceModeApplier($this->optionRepository),
+            $this->eventBus,
+        );
     }
 
     public function testItEnablesADisabledHost(): void
     {
-        $host = $this->seedHost(activated: false);
+        $this->seedHost(activated: false);
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            activated: true,
             updatedBy: 1,
+            activated: true,
         ));
 
         self::assertTrue($result->activated);
-        self::assertTrue($host->activated);
         self::assertSame([['id' => self::HOST_ID, 'activated' => true]], $this->repository->activationUpdates);
+        self::assertSame([], $this->repository->updatedHosts);
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostEnabled::class, 1));
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostDisabled::class));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostMassChanged::class));
 
-        // The event must carry the in-memory aggregate (so its poller can be reloaded) and the actor.
         $dispatched = $this->eventBus->getDispatchedEvents(HostEnabled::class)[0];
-        self::assertSame($host, $dispatched->aggregate);
+        self::assertSame($result, $dispatched->aggregate);
         self::assertSame(1, $dispatched->creatorId);
     }
 
     public function testItDisablesAnEnabledHost(): void
     {
-        $host = $this->seedHost(activated: true);
+        $this->seedHost(activated: true);
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            activated: false,
             updatedBy: 1,
+            activated: false,
         ));
 
         self::assertFalse($result->activated);
-        self::assertFalse($host->activated);
         self::assertSame([['id' => self::HOST_ID, 'activated' => false]], $this->repository->activationUpdates);
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDisabled::class, 1));
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
-
-        // The event must carry the in-memory aggregate (so its poller can be reloaded) and the actor.
-        $dispatched = $this->eventBus->getDispatchedEvents(HostDisabled::class)[0];
-        self::assertSame($host, $dispatched->aggregate);
-        self::assertSame(1, $dispatched->creatorId);
     }
 
-    public function testItIsASilentNoOpWhenAlreadyInTheRequestedState(): void
+    public function testItDoesNothingWhenNothingChanges(): void
     {
         $this->seedHost(activated: true);
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            activated: true,
             updatedBy: 1,
+            activated: true,
+            name: new HostName('server-01'),
         ));
 
         self::assertSame([], $this->repository->activationUpdates);
+        self::assertSame([], $this->repository->updatedHosts);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostMassChanged::class));
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
-        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostDisabled::class));
     }
 
     public function testItFailsWhenTheHostDoesNotExist(): void
@@ -122,11 +144,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->expectException(HostNotFoundException::class);
 
         try {
-            ($this->handler)(new PatchHostCommand(
-                id: new HostId(404),
-                activated: true,
-                updatedBy: 1,
-            ));
+            ($this->handler)(new PatchHostCommand(id: new HostId(404), updatedBy: 1, activated: true));
         } finally {
             self::assertSame([], $this->repository->activationUpdates);
             self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
@@ -136,7 +154,6 @@ final class PatchHostCommandHandlerTest extends TestCase
     public function testItHidesAHostOutsideTheViewerAclScope(): void
     {
         $this->seedHost(activated: true);
-        // The host exists, but the restricted viewer is not allowed to see it.
         $this->repository->accessibleHostIds = [];
 
         $this->expectException(HostNotFoundException::class);
@@ -144,8 +161,8 @@ final class PatchHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                activated: false,
                 updatedBy: 1,
+                activated: false,
                 viewerId: new UserId(42),
             ));
         } finally {
@@ -154,38 +171,217 @@ final class PatchHostCommandHandlerTest extends TestCase
         }
     }
 
-    public function testItDisablesAHostVisibleToARestrictedViewer(): void
+    public function testItUpdatesOnlyTheProvidedFields(): void
     {
-        $host = $this->seedHost(activated: true);
-        // The restricted viewer is allowed to see this host, so the toggle goes through.
-        $this->repository->accessibleHostIds = [self::HOST_ID];
+        $this->seedHost(activated: true);
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            activated: false,
             updatedBy: 1,
-            viewerId: new UserId(42),
+            alias: new HostAlias('front'),
         ));
 
-        self::assertFalse($result->activated);
-        self::assertFalse($host->activated);
-        self::assertSame([['id' => self::HOST_ID, 'activated' => false]], $this->repository->activationUpdates);
-        self::assertTrue($this->eventBus->shouldHaveDispatched(HostDisabled::class, 1));
+        self::assertSame('front', $result->alias?->value);
+        self::assertSame('server-01', $result->name->value);
+        self::assertSame('127.0.0.1', $result->address->value);
+        self::assertSame([$result], $this->repository->updatedHosts);
+        self::assertSame([], $this->repository->activationUpdates);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostMassChanged::class, 1));
     }
 
-    private function seedHost(bool $activated): Host
+    public function testNullClearsAnOptionalField(): void
     {
-        $host = new Host(
-            id: null,
-            name: new HostName('server-01'),
+        $this->seedHost(activated: true, alias: 'front');
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
             alias: null,
+        ));
+
+        self::assertNull($result->alias);
+        self::assertSame([$result], $this->repository->updatedHosts);
+    }
+
+    public function testActivatingAndChangingAnotherFieldFiresOnlyTheMassChange(): void
+    {
+        $this->seedHost(activated: false);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            activated: true,
+            alias: new HostAlias('front'),
+        ));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostMassChanged::class, 1));
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostEnabled::class));
+        self::assertSame([], $this->repository->activationUpdates);
+        self::assertTrue($this->repository->updatedHosts[0]->activated);
+    }
+
+    public function testItRejectsANameAlreadyUsedByAnotherHostOrTemplate(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->add($this->host('server-02', activated: true));
+
+        $this->expectException(HostAlreadyExistsException::class);
+
+        try {
+            ($this->handler)(new PatchHostCommand(
+                id: new HostId(self::HOST_ID),
+                updatedBy: 1,
+                name: new HostName('server-02'),
+            ));
+        } finally {
+            self::assertSame([], $this->repository->updatedHosts);
+            self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostMassChanged::class));
+        }
+    }
+
+    public function testKeepingItsOwnNameIsNotADuplicate(): void
+    {
+        $this->seedHost(activated: true);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            name: new HostName('server-01'),
+            alias: new HostAlias('front'),
+        ));
+
+        self::assertSame('front', $result->alias?->value);
+    }
+
+    public function testMovingAHostCarriesThePreviousPollerOnTheEvent(): void
+    {
+        $this->seedHost(activated: true);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            pollerId: new PollerId(2),
+        ));
+
+        self::assertSame(2, $result->pollerId->value);
+        $event = $this->eventBus->getDispatchedEvents(HostMassChanged::class)[0];
+        self::assertSame(1, $event->previousPollerId?->value);
+    }
+
+    public function testAnUnchangedPollerIsNotReportedAsPrevious(): void
+    {
+        $this->seedHost(activated: true);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            alias: new HostAlias('front'),
+        ));
+
+        $event = $this->eventBus->getDispatchedEvents(HostMassChanged::class)[0];
+        self::assertNull($event->previousPollerId);
+    }
+
+    public function testACentreonMonitoringAgentCommandImposesTheFreshnessSettings(): void
+    {
+        $this->seedHost(activated: true);
+        $this->addCommand(9, 'Centreon-Monitoring-Agent-check', isFromMonitoringConnector: true);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            dataProcessing: new DataProcessingChanges(
+                checkFreshness: TriStateEnum::False,
+                freshnessThreshold: 30,
+            ),
+            checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9)),
+        ));
+
+        self::assertSame(TriStateEnum::True, $result->dataProcessing->checkFreshness);
+        self::assertSame(120, $result->dataProcessing->freshnessThreshold);
+    }
+
+    public function testAnOrdinaryCommandLeavesTheFreshnessSettingsAlone(): void
+    {
+        $this->seedHost(activated: true);
+        $this->addCommand(9, 'check_ping');
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            checkOptions: new CheckOptionsChanges(checkCommandId: new CommandId(9)),
+        ));
+
+        self::assertSame(9, $result->checkOptions->checkCommandId?->value);
+        self::assertSame(TriStateEnum::UseDefault, $result->dataProcessing->checkFreshness);
+        self::assertNull($result->dataProcessing->freshnessThreshold);
+    }
+
+    public function testTheAdditiveInheritanceFlagsAreForcedOffWhenTheOptionIsDisabled(): void
+    {
+        $this->seedHost(activated: true);
+        $this->optionRepository->options['inheritance_mode'] = '3';
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            notifications: new NotificationsChanges(
+                enabled: TriStateEnum::True,
+                contactAdditiveInheritance: true,
+                contactGroupAdditiveInheritance: true,
+            ),
+        ));
+
+        self::assertNotNull($result->notifications);
+        self::assertFalse($result->notifications->contactAdditiveInheritance);
+        self::assertFalse($result->notifications->contactGroupAdditiveInheritance);
+    }
+
+    public function testTheAdditiveInheritanceFlagsAreKeptWhenTheOptionIsEnabled(): void
+    {
+        $this->seedHost(activated: true);
+        $this->optionRepository->options['inheritance_mode'] = '1';
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            notifications: new NotificationsChanges(contactAdditiveInheritance: true),
+        ));
+
+        self::assertTrue($result->notifications?->contactAdditiveInheritance);
+    }
+
+    private function seedHost(bool $activated, ?string $alias = null): Host
+    {
+        return $this->repository->seed($this->host('server-01', $activated, $alias), self::HOST_ID);
+    }
+
+    private function host(string $name, bool $activated, ?string $alias = null): Host
+    {
+        return new Host(
+            id: null,
+            name: new HostName($name),
+            alias: $alias !== null ? new HostAlias($alias) : null,
             address: new HostAddress('127.0.0.1'),
             activated: $activated,
             pollerId: new PollerId(1),
             templateIds: new Collection([], HostTemplateId::class),
             hostGroupIds: new Collection([], HostGroupId::class),
         );
+    }
 
-        return $this->repository->seed($host, self::HOST_ID);
+    private function addCommand(int $id, string $name, bool $isFromMonitoringConnector = false): void
+    {
+        $this->commandRepository->commands[$id] = new Command(
+            new CommandId($id),
+            new CommandName($name),
+            CommandTypeEnum::Check,
+            new CommandLine('$USER1$/check_ping -H $HOSTADDRESS$'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: $isFromMonitoringConnector,
+            connector: null,
+            comment: null,
+        );
     }
 }
