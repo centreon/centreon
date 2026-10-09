@@ -304,6 +304,35 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertSame([7], $this->ids($result->childHostIds));
     }
 
+    public function testAHostTheViewerCannotSeeCannotBeLinked(): void
+    {
+        $this->seedHost();
+        $this->seedOtherHost(6);
+        $this->repository->accessibleHostIds = [self::HOST_ID];
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(6)]), viewerId: new UserId(self::VIEWER_ID)));
+    }
+
+    public function testAReplacementKeepsTheLinksToHostsTheViewerCannotSee(): void
+    {
+        $this->seedHost(parentIds: [6], childIds: [8]);
+        $this->seedOtherHost(6);
+        $this->seedOtherHost(7);
+        $this->seedOtherHost(8);
+        $this->repository->accessibleHostIds = [self::HOST_ID, 7];
+
+        $result = ($this->handler)($this->command(
+            parentHostIds: ListChange::replace([new HostId(7)]),
+            childHostIds: ListChange::remove([new HostId(8)]),
+            viewerId: new UserId(self::VIEWER_ID),
+        ));
+
+        self::assertSame([7, 6], $this->ids($result->parentHostIds));
+        self::assertSame([8], $this->ids($result->childHostIds));
+    }
+
     public function testAnUnknownParentIsRejected(): void
     {
         $this->seedHost();
@@ -561,6 +590,8 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
      * @param list<int> $contactIds
      * @param list<int> $contactGroupIds
      * @param list<NotificationOptionEnum> $options
+     * @param list<int> $parentIds
+     * @param list<int> $childIds
      */
     private function seedHost(
         array $hostGroupIds = [],
@@ -569,6 +600,8 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         array $contactIds = [],
         array $contactGroupIds = [],
         array $options = [],
+        array $parentIds = [],
+        array $childIds = [],
     ): Host {
         return $this->repository->seed(new Host(
             id: null,
@@ -580,6 +613,8 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             templateIds: new Collection(array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds), HostTemplateId::class),
             hostGroupIds: new Collection(array_map(static fn (int $id): HostGroupId => new HostGroupId($id), $hostGroupIds), HostGroupId::class),
             categoryIds: new Collection(array_map(static fn (int $id): HostCategoryId => new HostCategoryId($id), $categoryIds), HostCategoryId::class),
+            parentHostIds: new Collection(array_map(static fn (int $id): HostId => new HostId($id), $parentIds), HostId::class),
+            childHostIds: new Collection(array_map(static fn (int $id): HostId => new HostId($id), $childIds), HostId::class),
             notifications: new Notifications(
                 enabled: TriStateEnum::UseDefault,
                 contactIds: new Collection(array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $contactIds), NotificationContactId::class),

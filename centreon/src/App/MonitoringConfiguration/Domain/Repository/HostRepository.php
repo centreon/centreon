@@ -109,11 +109,15 @@ interface HostRepository
     /**
      * Never returns a host template, though both share the `host` table.
      *
+     * With a viewer, a host outside their ACL scope is left out of the result, like an unknown one,
+     * as {@see findOne()} does.
+     *
      * @param Collection<HostId> $ids
+     * @param ?UserId $viewerId null means the requester is unrestricted
      *
      * @return Collection<HostName> indexed by id
      */
-    public function findNamesByIds(Collection $ids): Collection;
+    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.

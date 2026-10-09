@@ -59,8 +59,8 @@ use App\Shared\Domain\NoValue;
  *
  * The resources a change brings are checked here, as the authority, after the same rules ran earlier
  * on the input. A resource the requester cannot access is reported like one that does not exist, and
- * a replacement leaves in place the links the requester cannot see (host groups, categories, contacts
- * and contact groups are scoped by access rights, templates and hosts are not). A null viewer is an
+ * a replacement leaves in place the links the requester cannot see (host groups, categories, hosts,
+ * contacts and contact groups are scoped by access rights, templates are not). A null viewer is an
  * unrestricted requester.
  */
 final readonly class HostRelationsUpdater
@@ -79,18 +79,23 @@ final readonly class HostRelationsUpdater
     public function applyTo(Host $host, PatchHostCommand $command): Host
     {
         $viewerId = $command->viewerId;
+        $isHostVisible = $command->parentHostIds instanceof NoValue && $command->childHostIds instanceof NoValue
+            ? null
+            : $this->visibleHosts($host, $viewerId);
 
         $parentHostIds = $this->resolve(
             $command->parentHostIds,
             $host->parentHostIds,
             HostId::class,
-            fn (array $ids) => $this->assertHostsExist($ids, 'parentHostIds'),
+            fn (array $ids) => $this->assertHostsAccessible($ids, 'parentHostIds', $viewerId),
+            $isHostVisible,
         );
         $childHostIds = $this->resolve(
             $command->childHostIds,
             $host->childHostIds,
             HostId::class,
-            fn (array $ids) => $this->assertHostsExist($ids, 'childHostIds'),
+            fn (array $ids) => $this->assertHostsAccessible($ids, 'childHostIds', $viewerId),
+            $isHostVisible,
         );
         if ($parentHostIds instanceof Collection || $childHostIds instanceof Collection) {
             $this->assertRelationsAreNotCircular(
@@ -250,16 +255,36 @@ final readonly class HostRelationsUpdater
     /**
      * @param list<HostId> $ids
      */
-    private function assertHostsExist(array $ids, string $criterion): void
+    private function assertHostsAccessible(array $ids, string $criterion, ?UserId $viewerId): void
     {
         $missingIds = $this->missingIds(
             $ids,
-            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class))->toArray()),
+            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class), $viewerId)->toArray()),
         );
 
         if ($missingIds !== []) {
             throw new HostNotFoundException($missingIds, $criterion);
         }
+    }
+
+    /**
+     * Which of the hosts this one is linked to the requester can see: the others are left in place by a
+     * replacement and left alone by a removal, like the other scoped relations.
+     *
+     * @return (\Closure(HostId): bool)|null null when the requester can see everything
+     */
+    private function visibleHosts(Host $host, ?UserId $viewerId): ?\Closure
+    {
+        if (! $viewerId instanceof UserId) {
+            return null;
+        }
+
+        $visibleIds = array_keys($this->hostRepository->findNamesByIds(
+            new Collection([...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()], HostId::class),
+            $viewerId,
+        )->toArray());
+
+        return static fn (HostId $id): bool => in_array($id->value, $visibleIds, true);
     }
 
     /**

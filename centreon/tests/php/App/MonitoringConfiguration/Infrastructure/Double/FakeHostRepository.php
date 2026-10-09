@@ -92,17 +92,6 @@ final class FakeHostRepository implements HostRepository
         $this->indexParentEdges($id, $host);
     }
 
-    private function indexParentEdges(int $id, Host $host): void
-    {
-        foreach ($host->parentHostIds as $parentId) {
-            $this->parentIds[$id][] = $parentId->value;
-        }
-
-        foreach ($host->childHostIds as $childId) {
-            $this->parentIds[$childId->value][] = $id;
-        }
-    }
-
     /**
      * Honors {@see $accessibleHostIds} when a viewer is given, returning null (like the real
      * repository) for a host outside the viewer's scope, so the ACL not-found path is exercised
@@ -194,10 +183,14 @@ final class FakeHostRepository implements HostRepository
         return new Collection(array_values($this->hosts), Host::class);
     }
 
-    public function findNamesByIds(Collection $ids): Collection
+    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
     {
         $names = [];
         foreach ($ids as $id) {
+            if ($viewerId instanceof UserId && $this->accessibleHostIds !== null && ! in_array($id->value, $this->accessibleHostIds, true)) {
+                continue;
+            }
+
             if (isset($this->hosts[$id->value])) {
                 $names[$id->value] = $this->hosts[$id->value]->name;
             }
@@ -237,5 +230,16 @@ final class FakeHostRepository implements HostRepository
             array_map(static fn (int $id): HostId => new HostId($id), array_keys($seen)),
             HostId::class,
         );
+    }
+
+    private function indexParentEdges(int $id, Host $host): void
+    {
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
     }
 }
