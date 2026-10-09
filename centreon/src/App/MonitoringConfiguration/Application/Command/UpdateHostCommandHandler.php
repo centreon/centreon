@@ -133,7 +133,6 @@ final readonly class UpdateHostCommandHandler
         try {
             return $this->update($command, $vaultWritten);
         } catch (\Throwable $exception) {
-            // @phpstan-ignore if.alwaysFalse (update() sets it by reference before it throws)
             if ($vaultWritten) {
                 $this->logger->warning(
                     'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
