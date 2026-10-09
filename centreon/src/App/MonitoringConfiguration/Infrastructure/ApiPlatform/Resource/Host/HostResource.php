@@ -82,6 +82,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
         ),
         new Patch(
             uriTemplate: '/configuration/hosts/{id}',
+            // Digits only, as on GET: a non-numeric id is a 404, not a 500 in the processor.
+            requirements: ['id' => '\d+'],
             status: 204,
             // Write-only action: no item provider, the handler loads the host itself and answers 404
             // when it is missing or outside the viewer's scope.
@@ -104,6 +106,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
         ),
         new Put(
             uriTemplate: '/configuration/hosts/{id}',
+            // Digits only, as on GET: a non-numeric id is a 404, not a 500 in the processor.
+            requirements: ['id' => '\d+'],
             // Write-only replace: the processor loads the host itself (404 via the handler when it is
             // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
             // full updated resource.
@@ -171,6 +175,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
         ),
         new Delete(
             uriTemplate: '/configuration/hosts/{id}',
+            // Digits only, as on GET: a non-numeric id is a 404, not a 500 in the processor.
+            requirements: ['id' => '\d+'],
             processor: DeleteHostProcessor::class,
             read: false,
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
