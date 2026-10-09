@@ -72,6 +72,7 @@ use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
@@ -90,6 +91,7 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
@@ -1051,6 +1053,93 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame(2, $host->severityId?->value);
     }
 
+    public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedViewer(): void
+    {
+        $this->addPoller(1);
+        foreach ([20, 21, 30, 31] as $relatedId) {
+            $this->seedHost($relatedId, name: 'related-' . $relatedId);
+        }
+        // Hosts 20 and 30 are visible to the viewer; 21 and 31 belong to a scope they cannot see.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(20), new HostId(30)], HostId::class);
+        $this->seedHost(
+            10,
+            parentHostIds: new Collection([new HostId(20), new HostId(21)], HostId::class),
+            childHostIds: new Collection([new HostId(30), new HostId(31)], HostId::class),
+        );
+
+        // The viewer resends only the relations they can see, as a GET -> PUT round trip would.
+        $host = ($this->handler)($this->command(
+            10,
+            viewerId: new UserId(42),
+            parentHostIds: new Collection([new HostId(20)], HostId::class),
+            childHostIds: new Collection([new HostId(30)], HostId::class),
+        ));
+
+        self::assertSame([20, 21], $this->sortedIds($host->parentHostIds));
+        self::assertSame([30, 31], $this->sortedIds($host->childHostIds));
+    }
+
+    public function testItPreservesOutOfScopeNotificationContactsForARestrictedViewer(): void
+    {
+        $this->addPoller(1);
+        // Contact 1 and contact group 5 are visible to the viewer; contact 2 and group 6 are not.
+        $this->resourceAccessRepository->accessibleContactIds = new Collection([new NotificationContactId(1)], NotificationContactId::class);
+        $this->resourceAccessRepository->accessibleContactGroupIds = new Collection([new ContactGroupId(5)], ContactGroupId::class);
+        $this->seedHost(10, notifications: $this->notifications([NotificationOptionEnum::Down], [1, 2], [5, 6]));
+
+        // The viewer drops every contact they can see: only those are removed.
+        $host = ($this->handler)($this->command(
+            10,
+            viewerId: new UserId(42),
+            notifications: $this->notifications([NotificationOptionEnum::Down]),
+        ));
+
+        self::assertSame([2], $this->sortedIds($host->notifications->contactIds ?? new Collection([], NotificationContactId::class)));
+        self::assertSame([6], $this->sortedIds($host->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
+    }
+
+    public function testItReplacesTheRelatedHostsAndContactsWholesaleForAnUnrestrictedViewer(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(20, name: 'related-20');
+        $this->seedHost(21, name: 'related-21');
+        $this->seedHost(
+            10,
+            notifications: $this->notifications([NotificationOptionEnum::Down], [1, 2], [5, 6]),
+            parentHostIds: new Collection([new HostId(20), new HostId(21)], HostId::class),
+        );
+
+        // An admin (no viewer id) sees everything, so whatever is left out is removed.
+        $host = ($this->handler)($this->command(
+            10,
+            notifications: $this->notifications([NotificationOptionEnum::Down], [1]),
+            parentHostIds: new Collection([new HostId(20)], HostId::class),
+        ));
+
+        self::assertSame([20], $this->sortedIds($host->parentHostIds));
+        self::assertSame([1], $this->sortedIds($host->notifications->contactIds ?? new Collection([], NotificationContactId::class)));
+        self::assertSame([], $this->sortedIds($host->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
+    }
+
+    public function testItRejectsACycleClosedThroughAPreservedRelation(): void
+    {
+        $this->addPoller(1);
+        // 20 is a child of 21, the viewer can see 20 but not 21.
+        $this->seedHost(21, name: 'related-21');
+        $this->seedHost(20, name: 'related-20', parentHostIds: new Collection([new HostId(21)], HostId::class));
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(20)], HostId::class);
+        $this->seedHost(10, childHostIds: new Collection([new HostId(21)], HostId::class));
+
+        // Making 20 a parent of host 10 closes 10 -> 21 -> 20 -> 10 through the preserved child 21.
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->command(
+            10,
+            viewerId: new UserId(42),
+            parentHostIds: new Collection([new HostId(20)], HostId::class),
+        ));
+    }
+
     public function testItFiresANonLoggableUpdateWhenOnlyRelationsChange(): void
     {
         $this->addPoller(1);
@@ -1120,6 +1209,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
      * @param ?Collection<HostTemplateId> $templateIds
      * @param ?Collection<HostGroupId> $hostGroupIds
      * @param list<HostMacroChange> $macroChanges
+     * @param ?Collection<HostId> $parentHostIds
+     * @param ?Collection<HostId> $childHostIds
      */
     private function command(
         int $id,
@@ -1135,6 +1226,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         array $macroChanges = [],
         ?Notifications $notifications = null,
         DataProcessing $dataProcessing = new DataProcessing(),
+        ?Collection $parentHostIds = null,
+        ?Collection $childHostIds = null,
     ): UpdateHostCommand {
         return new UpdateHostCommand(
             id: new HostId($id),
@@ -1152,6 +1245,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             notifications: $notifications,
             macroChanges: $macroChanges,
             dataProcessing: $dataProcessing,
+            parentHostIds: $parentHostIds ?? new Collection([], HostId::class),
+            childHostIds: $childHostIds ?? new Collection([], HostId::class),
         );
     }
 
@@ -1159,6 +1254,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
      * @param ?Collection<HostGroupId> $hostGroupIds
      * @param list<HostMacro> $macros the host's stored direct macros
      * @param ?Collection<HostTemplateId> $templateIds
+     * @param ?Collection<HostId> $parentHostIds
+     * @param ?Collection<HostId> $childHostIds
      */
     private function seedHost(
         int $id,
@@ -1171,6 +1268,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         array $macros = [],
         ?Collection $templateIds = null,
         ?Notifications $notifications = null,
+        ?Collection $parentHostIds = null,
+        ?Collection $childHostIds = null,
     ): Host {
         $host = new Host(
             id: null,
@@ -1185,6 +1284,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             snmpCommunity: $snmpCommunity,
             checkOptions: new CheckOptions(null, [], $macros),
             notifications: $notifications,
+            parentHostIds: $parentHostIds ?? new Collection([], HostId::class),
+            childHostIds: $childHostIds ?? new Collection([], HostId::class),
         );
 
         return $this->hostRepository->seed($host, $id);
@@ -1193,8 +1294,9 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     /**
      * @param list<NotificationOptionEnum> $options
      * @param list<int> $contactIds
+     * @param list<int> $contactGroupIds
      */
-    private function notifications(array $options, array $contactIds = []): Notifications
+    private function notifications(array $options, array $contactIds = [], array $contactGroupIds = []): Notifications
     {
         return new Notifications(
             enabled: TriStateEnum::True,
@@ -1202,10 +1304,26 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
                 array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $contactIds),
                 NotificationContactId::class,
             ),
-            contactGroupIds: new Collection([], ContactGroupId::class),
+            contactGroupIds: new Collection(
+                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $contactGroupIds),
+                ContactGroupId::class,
+            ),
             options: $options,
             interval: 30,
         );
+    }
+
+    /**
+     * @param Collection<covariant AggregateRootId> $ids
+     *
+     * @return list<int>
+     */
+    private function sortedIds(Collection $ids): array
+    {
+        $values = array_map(static fn (AggregateRootId $id): int => $id->value, array_values($ids->toArray()));
+        sort($values);
+
+        return $values;
     }
 
     private function addPoller(int $id): void
