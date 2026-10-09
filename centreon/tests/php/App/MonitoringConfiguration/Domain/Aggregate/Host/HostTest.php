@@ -66,6 +66,27 @@ final class HostTest extends TestCase
         self::assertCount(1, $host->childHostIds);
     }
 
+    public function testItRejectsAHostThatIsItsOwnParent(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->host(id: 5, parentHostIds: [5]);
+    }
+
+    public function testItRejectsAHostThatIsItsOwnChild(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->host(id: 5, childHostIds: [5]);
+    }
+
+    public function testItAcceptsAKnownIdThatIsNeitherParentNorChild(): void
+    {
+        $host = $this->host(id: 5, parentHostIds: [7], childHostIds: [8]);
+
+        self::assertSame(5, $host->id()->value);
+    }
+
     public function testItEnablesTheHost(): void
     {
         $host = $this->host(activated: false);
@@ -260,6 +281,46 @@ final class HostTest extends TestCase
         self::assertTrue($this->persistedHost()->hasSameConfigurationAs($other));
     }
 
+    #[DataProvider('relationProvider')]
+    public function testSameRelationsDetectsARelationChange(string $relation): void
+    {
+        $other = match ($relation) {
+            'templateIds' => $this->persistedHost(templateIds: new Collection([new HostTemplateId(3)], HostTemplateId::class)),
+            'hostGroupIds' => $this->persistedHost(hostGroupIds: new Collection([new HostGroupId(4)], HostGroupId::class)),
+            'categoryIds' => $this->persistedHost(categoryIds: new Collection([new HostCategoryId(5)], HostCategoryId::class)),
+            'parentHostIds' => $this->persistedHost(parentHostIds: new Collection([new HostId(6)], HostId::class)),
+            'childHostIds' => $this->persistedHost(childHostIds: new Collection([new HostId(7)], HostId::class)),
+            default => self::fail("Unknown relation {$relation}"),
+        };
+
+        self::assertFalse($this->persistedHost()->hasSameRelationsAs($other));
+    }
+
+    public function testSameRelationsComparesTheSetsButTheTemplateOrder(): void
+    {
+        $host = $this->persistedHost(
+            templateIds: new Collection([new HostTemplateId(1), new HostTemplateId(2)], HostTemplateId::class),
+            hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class),
+        );
+
+        self::assertTrue($host->hasSameRelationsAs($host->with(
+            hostGroupIds: new Collection([new HostGroupId(2), new HostGroupId(1)], HostGroupId::class),
+        )));
+        self::assertFalse($host->hasSameRelationsAs($host->with(
+            templateIds: new Collection([new HostTemplateId(2), new HostTemplateId(1)], HostTemplateId::class),
+        )));
+    }
+
+    public function testWithReplacesTheProvidedRelationsOnly(): void
+    {
+        $original = $this->persistedHost(hostGroupIds: new Collection([new HostGroupId(4)], HostGroupId::class));
+
+        $changed = $original->with(parentHostIds: new Collection([new HostId(6)], HostId::class));
+
+        self::assertSame([6], array_map(static fn (HostId $id): int => $id->value, $changed->parentHostIds->toArray()));
+        self::assertSame([4], array_map(static fn (HostGroupId $id): int => $id->value, $changed->hostGroupIds->toArray()));
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -355,9 +416,10 @@ final class HostTest extends TestCase
         bool $activated = true,
         ?SnmpCommunity $snmpCommunity = null,
         array $macros = [],
+        ?int $id = null,
     ): Host {
         return new Host(
-            id: null,
+            id: $id !== null ? new HostId($id) : null,
             name: new HostName('server-01'),
             alias: null,
             address: new HostAddress('127.0.0.1'),

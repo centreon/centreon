@@ -81,6 +81,16 @@ interface HostRepository
     public function update(Host $host): void;
 
     /**
+     * Full replace of a host's relations and macros (PUT semantics), complementing {@see update()},
+     * which writes its own fields and its poller. Every relation table (host groups,
+     * categories/severity, templates, parents/children, contacts/contact groups) is cleared and
+     * re-inserted from $host. Macros are written in place instead: a macro the host already stores
+     * keeps its id and is updated, any other is inserted as a new macro of the host, and a stored
+     * macro no longer listed is deleted. A silent no-op on an unknown id or a host template.
+     */
+    public function replaceRelationsAndMacros(Host $host): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *
@@ -111,8 +121,13 @@ interface HostRepository
      * Includes $ids themselves, minus any that is not a host.
      *
      * @param Collection<HostId> $ids
+     * @param ?HostId $excludingHostId on an update, the edited host's own parent/child edges are
+     *                                 about to be replaced, so they must not contribute phantom
+     *                                 ancestors to the circular-inheritance check; pass its id to
+     *                                 drop every `host_hostparent_relation` row touching it from
+     *                                 the traversal
      *
      * @return Collection<HostId>
      */
-    public function findAncestorIds(Collection $ids): Collection;
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection;
 }
