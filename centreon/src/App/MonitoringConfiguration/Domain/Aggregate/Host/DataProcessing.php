@@ -67,14 +67,7 @@ final readonly class DataProcessing
         if ($highFlapThreshold !== null) {
             Assert::range($highFlapThreshold, 0, 100, 'DataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         }
-        Assert::allString($eventHandlerArgs);
-        // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R# (CommandArgumentsFormatter),
-        // matching legacy. The legacy read path splits on '!' and decodes those tokens, so an argument
-        // carrying the '!' delimiter or a literal #BR#/#T#/#R# would not round-trip; raw \n\t\r are fine
-        // because the formatter encodes them. Same rule as CheckOptions::$args.
-        foreach (['!', '#BR#', '#T#', '#R#'] as $reserved) {
-            Assert::allNotContains($eventHandlerArgs, $reserved, 'DataProcessing::eventHandlerArgs must not contain the "!" delimiter or a #BR#/#T#/#R# escape token.');
-        }
+        CommandArguments::assertValid($eventHandlerArgs, 'DataProcessing::eventHandlerArgs');
     }
 
     /**

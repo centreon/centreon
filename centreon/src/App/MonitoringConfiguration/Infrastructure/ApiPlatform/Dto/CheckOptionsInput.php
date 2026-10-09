@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
-use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
+use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -42,24 +42,8 @@ final readonly class CheckOptionsInput
         ])]
         public ?int $commandId = null,
 
-        #[Assert\All([
-            new Assert\Type('string'),
-            // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R#
-            // (CommandArgumentsFormatter). The legacy reader splits on '!' and decodes those tokens,
-            // so an argument carrying the '!' delimiter or a literal #BR#/#T#/#R# would not round-trip;
-            // raw \n\t\r stay allowed because the formatter encodes them. Same rule as
-            // DataProcessingInput::$eventHandlerArgs.
-            new Assert\Regex(
-                pattern: '/!/',
-                match: false,
-                message: 'A check command argument cannot contain "!".',
-            ),
-            new Assert\Regex(
-                pattern: '/#(?:BR|T|R)#/',
-                match: false,
-                message: 'A check command argument cannot contain the reserved escape tokens #BR#, #T# or #R#.',
-            ),
-        ])]
+        #[Assert\All([new Assert\Type('string')])]
+        #[ValidCommandArguments('check command')]
         public array $args = [],
 
         #[Assert\Valid]
@@ -74,28 +58,6 @@ final readonly class CheckOptionsInput
         // the 500 the value object's assertion would otherwise produce for an API client.
         if ($this->commandId === null && $this->args !== []) {
             $context->buildViolation('Check command arguments require a check command to be set.')
-                ->atPath('args')
-                ->addViolation();
-        }
-    }
-
-    #[Assert\Callback]
-    public function validateFormattedArgumentsFitStorage(ExecutionContextInterface $context): void
-    {
-        // No per-argument or count limit: only the single string the repository ultimately stores
-        // in the TEXT column `host.command_command_id_arg1` is bounded. Reuse the exact formatter
-        // the repository uses so the measured length is precisely what will be persisted.
-        $args = array_values(array_filter($this->args, 'is_string'));
-        if (count($args) !== count($this->args)) {
-            // Non-string entries are already reported by the Assert\All(Type) constraint above.
-            return;
-        }
-
-        $formatted = CommandArgumentsFormatter::format($args);
-        // Byte length ('8bit'), not character count: the TEXT column limit is in bytes, so a
-        // multi-byte argument must be measured as the bytes it will actually occupy.
-        if ($formatted !== null && \mb_strlen($formatted, '8bit') > CommandArgumentsFormatter::MAX_STORAGE_LENGTH) {
-            $context->buildViolation('The check command arguments are too long.')
                 ->atPath('args')
                 ->addViolation();
         }
