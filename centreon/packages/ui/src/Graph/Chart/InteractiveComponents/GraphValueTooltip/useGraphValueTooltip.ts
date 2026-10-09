@@ -1,17 +1,8 @@
 import { useAtomValue } from 'jotai';
-import {
-  always,
-  cond,
-  equals,
-  filter,
-  isNil,
-  prop,
-  reverse,
-  sortBy,
-  T
-} from 'ramda';
+import { always, cond, equals, isNil, prop, reverse, sortBy, T } from 'ramda';
 
 import { useLocaleDateTimeFormat } from '../../../../utils';
+import { isMetricDisplayedInTooltip } from '../../../common/utils';
 import type { GraphTooltipData, Tooltip } from '../../models';
 import { graphTooltipDataAtom } from '../interactionWithGraphAtoms';
 
@@ -19,12 +10,12 @@ interface UseGraphValueTooltipState extends Omit<GraphTooltipData, 'date'> {
   dateTime: string;
 }
 
-interface UseGraphValueTooltipProps extends Pick<Tooltip, 'sortOrder'> {
-  isSingleMode: boolean;
-}
+interface UseGraphValueTooltipProps
+  extends Pick<Tooltip, 'sortOrder'>,
+    Partial<Pick<Tooltip, 'mode'>> {}
 
 export const useGraphValueTooltip = ({
-  isSingleMode,
+  mode,
   sortOrder
 }: UseGraphValueTooltipProps): UseGraphValueTooltipState | null => {
   const { format } = useLocaleDateTimeFormat();
@@ -34,12 +25,13 @@ export const useGraphValueTooltip = ({
     return null;
   }
 
-  const filteredMetrics = isSingleMode
-    ? filter(
-        ({ id }) => equals(id, graphTooltipData.highlightedMetricId),
-        graphTooltipData.metrics
-      )
-    : graphTooltipData.metrics;
+  const filteredMetrics = graphTooltipData.metrics.filter(({ id, value }) =>
+    isMetricDisplayedInTooltip({
+      isHighlighted: equals(id, graphTooltipData.highlightedMetricId),
+      mode,
+      value
+    })
+  );
 
   const sortedMetrics = cond([
     [equals('name'), always(sortBy(prop('name'), filteredMetrics))],
