@@ -6,7 +6,7 @@ description: >-
 type: application
 version: 0.1.0
 # Default image tag (stable images are tagged with the major version).
-appVersion: "26.11"
+appVersion: "26.10"
 kubeVersion: ">=1.29.0-0"
 keywords:
   - centreon
