@@ -107,6 +107,28 @@ final class PurgeHostVaultEventHandlerTest extends TestCase
         ($this->handler)(new HostVaultPurgeRequested($this->host(vaulted: true), bestEffort: true));
     }
 
+    public function testItDeletesOnlyTheGivenKeysOfTheEntry(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY'] = 'uuid-1';
+
+        ($this->handler)(new HostVaultPurgeRequested($this->host(vaulted: true), bestEffort: true, keys: ['_HOSTSNMPCOMMUNITY']));
+
+        self::assertSame([], $this->vault->deleteCalls);
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame('uuid-1', $this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
+        self::assertSame([], $this->vault->writeManyCalls[0]['secrets']);
+    }
+
+    public function testAFailedKeyDeletionIsOnlyLoggedInBestEffort(): void
+    {
+        $this->vault->extractedUuids['secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY'] = 'uuid-1';
+        $this->vault->writeThrows = true;
+        $this->logger->expects(self::once())->method('warning');
+
+        ($this->handler)(new HostVaultPurgeRequested($this->host(vaulted: true), bestEffort: true, keys: ['_HOSTSNMPCOMMUNITY']));
+    }
+
     private function host(bool $vaulted = false): Host
     {
         $macros = $vaulted

@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 
 /**
- * The aggregate is already deleted and committed, only its vault entry is left behind.
+ * The change is already committed, only the vault entries it made useless are left behind.
  */
 final class VaultPurgeFailedException extends \RuntimeException
 {
