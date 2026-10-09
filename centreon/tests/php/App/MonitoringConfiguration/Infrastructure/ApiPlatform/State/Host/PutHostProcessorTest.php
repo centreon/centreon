@@ -478,6 +478,31 @@ final class PutHostProcessorTest extends ApiTestCase
         ));
     }
 
+    public function testOnlyTheLastOfAMacroSentTwiceIsStored(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $macroId = $this->insertMacro($hostId, '$_HOSTFOO$', 'v1', description: 'set by legacy');
+
+        // The same id + parent twice refers to a single macro: the last one sent wins.
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [
+                    ['id' => $macroId, 'parent' => null, 'name' => 'foo', 'value' => 'first', 'is_password' => false],
+                    ['id' => $macroId, 'parent' => null, 'name' => 'bar', 'value' => 'last', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(
+            [['host_macro_id' => $macroId, 'host_macro_name' => '$_HOSTBAR$', 'host_macro_value' => 'last', 'description' => 'set by legacy']],
+            $this->macroRows($hostId),
+        );
+    }
+
     public function testItDeletesADirectMacroNoLongerSubmitted(): void
     {
         $this->login();
