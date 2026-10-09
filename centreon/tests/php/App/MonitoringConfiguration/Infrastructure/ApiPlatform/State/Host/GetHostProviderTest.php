@@ -332,9 +332,10 @@ final class GetHostProviderTest extends ApiTestCase
      * on-premise-only pans of the contract are dropped exactly as CreateHostProcessor drops them
      * (CreateHostProcessorTest::testItOmitsTheOnPremiseOnlyDataProcessingFieldsOnCloud,
      * ::testItOmitsTheTriStateFieldsOnACloudPlatform, ::testItDropsTheNotificationsOnACloudPlatform).
-     * The host is created on-premises (default platform) so every on-premise field is persisted,
-     * then the provider is forced to Cloud and the host re-read: the shaping must happen on read,
-     * not leak the stored on-premise values.
+     * The host is stored with every on-premise field populated, then read through a provider forced
+     * to Cloud: the shaping must happen on read, not leak the stored on-premise values. It is seeded
+     * in SQL rather than through POST because the forced provider only lives until the kernel
+     * reboots, which the client does between two requests.
      */
     public function testItOmitsTheCloudSensitiveFieldsOnACloudPlatform(): void
     {
@@ -344,45 +345,29 @@ final class GetHostProviderTest extends ApiTestCase
         $eventHandlerCommandId = $this->insertCommand($this->uniqueName('eh'), 2);
         $timePeriodId = $this->insertTimePeriod($this->uniqueName('24x7'));
         $contactId = $this->insertNotificationContact('notified');
-        $name = $this->uniqueName('server');
 
-        // Created on-premises: acknowledgment_timeout, the flap settings, event_handler_args, the
-        // tri-state checks and the notifications block are all persisted.
-        $created = $this->request('POST', self::BASE_ENDPOINT, [
-            'headers' => ['accept' => 'application/json'],
-            'json' => [
-                'name' => $name,
-                'address' => '10.0.0.70',
-                'poller_id' => $pollerId,
-                'data_processing' => [
-                    'check_freshness' => 'true',
-                    'freshness_threshold' => 120,
-                    'flap_detection_enabled' => 'false',
-                    'low_flap_threshold' => 10,
-                    'high_flap_threshold' => 60,
-                    'event_handler_enabled' => 'true',
-                    'event_handler_command_id' => $eventHandlerCommandId,
-                    'event_handler_args' => ['-w', '80'],
-                    'acknowledgment_timeout' => 15,
-                ],
-                'scheduling_options' => [
-                    'check_timeperiod_id' => $timePeriodId,
-                    'max_check_attempts' => 3,
-                    'active_check_enabled' => 'true',
-                    'passive_check_enabled' => 'false',
-                ],
-                'notifications' => [
-                    'enabled' => 'true',
-                    'contacts' => [$contactId],
-                    'options' => ['down', 'recovery'],
-                    'interval' => 30,
-                ],
-            ],
-        ]);
-
-        self::assertResponseStatusCodeSame(201);
-        /** @var int $hostId */
-        $hostId = $created->toArray()['id'];
+        // acknowledgment_timeout, the flap settings, event_handler_args, the tri-state checks and
+        // the notifications block are all persisted, as an on-premise creation leaves them.
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $this->connection->update('host', [
+            'host_check_freshness' => '1',
+            'host_freshness_threshold' => 120,
+            'host_flap_detection_enabled' => '0',
+            'host_low_flap_threshold' => 10,
+            'host_high_flap_threshold' => 60,
+            'host_event_handler_enabled' => '1',
+            'command_command_id2' => $eventHandlerCommandId,
+            'command_command_id_arg2' => '!-w!80',
+            'host_acknowledgement_timeout' => 15,
+            'timeperiod_tp_id' => $timePeriodId,
+            'host_max_check_attempts' => 3,
+            'host_active_checks_enabled' => '1',
+            'host_passive_checks_enabled' => '0',
+            'host_notifications_enabled' => '1',
+            'host_notification_options' => 'd,r',
+            'host_notification_interval' => 30,
+        ], ['host_id' => $hostId]);
+        $this->connection->insert('contact_host_relation', ['contact_id' => $contactId, 'host_host_id' => $hostId]);
 
         $this->forceCloudPlatform();
 
