@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
 use App\MonitoringConfiguration\Application\Command\ExtendedInformationsChanges;
+use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
@@ -160,7 +161,7 @@ final readonly class PatchHostCommandFactory
     {
         return new NotificationsChanges(
             enabled: $this->provided($sent, 'enabled', static fn (): TriStateEnum => $data->enabled !== null ? TriStateEnum::from($data->enabled) : TriStateEnum::UseDefault),
-            options: $this->provided($sent, 'options', static fn (): array => array_map(NotificationOptionEnumResolver::toDomain(...), $data->options)),
+            options: $this->provided($sent, 'options', static fn (): ListChange => ListChange::replace(array_map(NotificationOptionEnumResolver::toDomain(...), $data->options))),
             interval: $this->provided($sent, 'interval', static fn (): ?int => $data->interval),
             periodId: $this->provided($sent, 'timeperiod_id', static fn (): ?TimePeriodId => $data->timeperiodId !== null ? new TimePeriodId($data->timeperiodId) : null),
             firstDelay: $this->provided($sent, 'first_delay', static fn (): ?int => $data->firstDelay),

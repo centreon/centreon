@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
+use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
@@ -77,9 +78,14 @@ use App\Shared\Domain\Collection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeContactGroupRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
@@ -140,6 +146,15 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->timePeriodRepository,
                 $this->mediaRepository,
                 $this->commandRepository,
+                $this->resourceAccessRepository,
+            ),
+            new HostRelationsUpdater(
+                new FakeHostGroupRepository(),
+                new FakeHostTemplateRepository(),
+                new FakeHostCategoryRepository(),
+                $this->repository,
+                new FakeNotificationContactRepository(),
+                new FakeContactGroupRepository(),
                 $this->resourceAccessRepository,
             ),
             $this->vault,

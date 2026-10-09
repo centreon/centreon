@@ -177,7 +177,16 @@ final readonly class Notifications
             && $this->recoveryDelay === $other->recoveryDelay
             && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
             && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
-            && $this->idValues($this->contactIds) === $this->idValues($other->contactIds)
+            && $this->hasSameContactsAs($other);
+    }
+
+    /**
+     * The contacts and the contact groups, compared as sets: they are relations of the host, written on
+     * their own.
+     */
+    public function hasSameContactsAs(self $other): bool
+    {
+        return $this->idValues($this->contactIds) === $this->idValues($other->contactIds)
             && $this->idValues($this->contactGroupIds) === $this->idValues($other->contactGroupIds);
     }
 

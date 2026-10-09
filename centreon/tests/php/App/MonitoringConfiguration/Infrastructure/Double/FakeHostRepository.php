@@ -73,6 +73,7 @@ final class FakeHostRepository implements HostRepository
         $reflection->setValue($host, new HostId($id));
 
         $this->hosts[$id] = $host;
+        $this->indexParentEdges($id, $host);
 
         return $host;
     }
@@ -88,7 +89,11 @@ final class FakeHostRepository implements HostRepository
         $reflection->setValue($host, new HostId($id));
 
         $this->hosts[$id] = $host;
+        $this->indexParentEdges($id, $host);
+    }
 
+    private function indexParentEdges(int $id, Host $host): void
+    {
         foreach ($host->parentHostIds as $parentId) {
             $this->parentIds[$id][] = $parentId->value;
         }

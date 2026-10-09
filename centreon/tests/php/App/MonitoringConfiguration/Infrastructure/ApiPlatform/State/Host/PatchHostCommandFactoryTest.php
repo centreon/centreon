@@ -25,6 +25,8 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
+use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\ListChangeModeEnum;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
@@ -118,7 +120,9 @@ final class PatchHostCommandFactoryTest extends TestCase
         );
 
         self::assertInstanceOf(NotificationsChanges::class, $command->notifications);
-        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $command->notifications->options);
+        self::assertInstanceOf(ListChange::class, $command->notifications->options);
+        self::assertSame(ListChangeModeEnum::Replace, $command->notifications->options->mode);
+        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $command->notifications->options->values);
         self::assertInstanceOf(NoValue::class, $command->notifications->interval);
         self::assertInstanceOf(NoValue::class, $command->notifications->contactAdditiveInheritance);
     }

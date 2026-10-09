@@ -45,11 +45,11 @@ use App\Shared\Domain\NoValue;
 final readonly class NotificationsChanges
 {
     /**
-     * @param NoValue|list<NotificationOptionEnum> $options
+     * @param NoValue|ListChange<NotificationOptionEnum> $options
      */
     public function __construct(
         public NoValue|TriStateEnum $enabled = new NoValue(),
-        public NoValue|array $options = new NoValue(),
+        public NoValue|ListChange $options = new NoValue(),
         public NoValue|int|null $interval = new NoValue(),
         public NoValue|TimePeriodId|null $periodId = new NoValue(),
         public NoValue|int|null $firstDelay = new NoValue(),
@@ -61,9 +61,11 @@ final readonly class NotificationsChanges
 
     public function applyTo(?Notifications $current): Notifications
     {
-        return ($current ?? Notifications::default())->with(
+        $notifications = $current ?? Notifications::default();
+
+        return $notifications->with(
             enabled: $this->enabled,
-            options: $this->options,
+            options: $this->options instanceof ListChange ? $this->options->applyTo($notifications->options) : $this->options,
             interval: $this->interval,
             periodId: $this->periodId,
             firstDelay: $this->firstDelay,

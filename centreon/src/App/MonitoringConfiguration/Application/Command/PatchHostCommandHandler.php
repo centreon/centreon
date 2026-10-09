@@ -25,10 +25,12 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
+use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
@@ -61,6 +63,7 @@ final readonly class PatchHostCommandHandler
         private HostRepository $repository,
         private CommandRepository $commandRepository,
         private HostReferencesChecker $references,
+        private HostRelationsUpdater $relations,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
@@ -74,6 +77,7 @@ final readonly class PatchHostCommandHandler
         // The references come before the name: a restricted viewer must not be able to tell a duplicate
         // name from a resource they cannot access.
         $this->assertReferencesExist($command);
+        $withRelations = $this->relations->applyTo($host, $command);
         $this->assertNameIsAvailable($command, $host);
         $this->assertArgumentsHaveACheckCommand($command, $host);
 
@@ -82,7 +86,7 @@ final readonly class PatchHostCommandHandler
         // community in place, so if saving the host then fails the previous value is lost: the same
         // trade-off as the Core partial update, the vault being outside the database transaction.
         $secretToVault = $this->communityToVault($command);
-        $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($host, $command), $command, $secretToVault);
+        $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($withRelations, $command), $command, $secretToVault);
         $this->saveAndNotify($host, $updatedHost, $command->updatedBy, secretRewritten: $secretToVault !== null);
 
         return $updatedHost;
@@ -291,8 +295,14 @@ final readonly class PatchHostCommandHandler
      */
     private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten): void
     {
-        if ($secretRewritten || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
+        $relationsChanged = ! $hostAfter->hasSameRelationsAs($hostBefore) || ! $this->hasSameContactsAs($hostAfter, $hostBefore);
+
+        if ($secretRewritten || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
             $this->repository->update($hostAfter);
+            if ($relationsChanged) {
+                $this->repository->replaceRelations($hostAfter);
+            }
+
             $this->eventBus->fire(new HostMassChanged(
                 $hostAfter,
                 $updatedBy,
@@ -333,5 +343,10 @@ final readonly class PatchHostCommandHandler
             bestEffort: true,
             keys: $hostAfter->releasesVaultEntryOf($hostBefore, $this->vault) ? [] : [VaultKeyEnum::HostSnmpCommunity->value],
         ));
+    }
+
+    private function hasSameContactsAs(Host $host, Host $other): bool
+    {
+        return ($host->notifications ?? Notifications::default())->hasSameContactsAs($other->notifications ?? Notifications::default());
     }
 }
