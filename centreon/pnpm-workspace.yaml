@@ -8,3 +8,7 @@ packages:
 
 # 7 days
 minimumReleaseAge: 10080
+
+overrides:
+  "axios@1": "1.18.0"
+
