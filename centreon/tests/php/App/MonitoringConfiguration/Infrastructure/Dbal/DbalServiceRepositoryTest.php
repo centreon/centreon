@@ -181,6 +181,19 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         self::assertSame($hostId, $services->toArray()[0]->hostId->value);
     }
 
+    public function testFindFromServiceTemplatesLeavesAServiceSharedWithAnotherHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+        $templateId = $this->createServiceTemplate('ping-template');
+        $sharedId = $this->createService('shared', $hostId);
+        $this->setServiceTemplate($sharedId, $templateId);
+        $this->linkServiceToHost($sharedId, $otherHostId);
+
+        self::assertCount(0, $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId]));
+    }
+
     public function testFindFromServiceTemplatesReturnsNothingWithoutTemplates(): void
     {
         $hostId = $this->createHost('server-01', $this->createPoller('Central'));

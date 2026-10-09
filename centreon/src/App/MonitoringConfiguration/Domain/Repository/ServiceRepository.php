@@ -44,7 +44,9 @@ interface ServiceRepository
 
     /**
      * The services of this host that come from one of the given service templates, the ones a host
-     * gets from its host templates. Hydrated like {@see findExclusivelyLinkedToHostId()}.
+     * gets from its host templates. Like {@see findExclusivelyLinkedToHostId()}, a service also
+     * reachable through another host or a hostgroup is left out, and so is never deleted from under
+     * them. Hydrated like {@see findExclusivelyLinkedToHostId()}.
      *
      * @param list<int> $serviceTemplateIds
      *

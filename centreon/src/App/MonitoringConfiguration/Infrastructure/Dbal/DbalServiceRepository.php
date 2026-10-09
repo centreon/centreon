@@ -32,6 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -61,17 +62,9 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->from(self::TABLE_NAME, 's')
             ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
             ->innerJoin('hsr', 'host', 'h', 'h.host_id = hsr.host_host_id')
-            // A service reachable through more than one relation row (another host, or a shared
-            // hostgroup) is not exclusively this host's, and is left alone — mirrors legacy
-            // `findServiceIdsExclusivelyLinkedToHostId()`.
-            ->innerJoin(
-                's',
-                '(SELECT service_service_id FROM host_service_relation GROUP BY service_service_id HAVING COUNT(*) = 1)',
-                'uniq',
-                'uniq.service_service_id = s.service_id',
-            )
             ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
             ->andWhere("h.host_register = '1'");
+        $this->keepOnlyServicesWithASingleRelation($qb);
 
         /** @var list<array{service_id: int|string, service_description: string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -92,6 +85,7 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
             ->andWhere("s.service_register = '1'")
             ->andWhere($qb->expr()->in('s.service_template_model_stm_id', $qb->createNamedParameter($serviceTemplateIds, ArrayParameterType::INTEGER)));
+        $this->keepOnlyServicesWithASingleRelation($qb);
 
         /** @var list<array{service_id: int|string, service_description: string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -111,6 +105,21 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
             ->executeStatement();
 
         $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
+    }
+
+    /**
+     * A service reachable through more than one relation row (another host, or a shared hostgroup)
+     * is not exclusively one host's, and is left alone — mirrors legacy
+     * `findServiceIdsExclusivelyLinkedToHostId()`.
+     */
+    private function keepOnlyServicesWithASingleRelation(QueryBuilder $qb): void
+    {
+        $qb->innerJoin(
+            's',
+            '(SELECT service_service_id FROM host_service_relation GROUP BY service_service_id HAVING COUNT(*) = 1)',
+            'uniq',
+            'uniq.service_service_id = s.service_id',
+        );
     }
 
     /**
