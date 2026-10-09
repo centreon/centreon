@@ -158,6 +158,27 @@ jobs:
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
+      # Image saved by the dockerize job: avoids a registry pull per collection; on a miss, compose pulls it.
+      - name: Restore slim image from cache
+        id: cache-docker-slim
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: ./docker-image
+          key: docker-image-${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        env:
+          REGISTRY_URL: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+        run: |
+          docker load --input "$GITHUB_WORKSPACE/docker-image/$IMAGE_NAME.tar"
+          docker tag "$IMAGE_NAME:$IMAGE_TAG" "$REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG"
+          rm -rf "$GITHUB_WORKSPACE/docker-image"
+
       # Start Centreon web and database containers and adding custom setup environment if exists
       - name: Start Centreon Web and database containers with specific setup if exists
         env:
