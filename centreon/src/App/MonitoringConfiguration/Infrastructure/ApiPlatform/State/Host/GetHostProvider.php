@@ -272,11 +272,11 @@ final readonly class GetHostProvider implements ProviderInterface
         // Every macro the host effectively has, as CreateHost returns them: its own (hydrated with
         // their ids by findOne), then those it still inherits, each with the id + parent a client
         // resends to change it.
-        $directMacros = $host->checkOptions->macros;
-        $inherited = $this->inheritedHostMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
         $macroOutputs = array_map(
             $this->macroTransformer->transform(...),
-            [...$directMacros, ...$inherited->notOverriddenBy($directMacros)],
+            $this->inheritedHostMacrosResolver
+                ->resolve($host->templateIds, $host->checkOptions->checkCommandId)
+                ->effectiveWith($host->checkOptions->macros),
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
