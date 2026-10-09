@@ -90,7 +90,12 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
 
 - Generate and apply the SNMP traps database for the poller from the central
   (Configuration > SNMP Traps > Generate). `centreontrapd` crash-loops until
-  `centreontrapd.sdb` is delivered.
+  `centreontrapd.sdb` is delivered, logging "Can't open the file
+  .../centreontrapd.sdb: Read-only file system" (the definitions are
+  read-only for it, only gorgone writes them).
+- With `traps.logLevel=info` or `debug`, "Duplicate trap detected ...
+  Skipping" also shows up for matched traps (second pass while the result is
+  submitted): it does not mean the host is unknown.
 - `centreontrapd` matches the sender by source IP: the load balancer must keep
   it. `externalTrafficPolicy: Local` (default) does with cloud load balancers
   and MetalLB; k3s' built-in ServiceLB (klipper) does not.
