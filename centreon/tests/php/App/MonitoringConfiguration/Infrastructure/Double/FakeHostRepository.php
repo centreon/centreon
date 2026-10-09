@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -47,6 +48,9 @@ final class FakeHostRepository implements HostRepository
 
     /** @var list<array{id: int, activated: bool}> */
     public array $activationUpdates = [];
+
+    /** @var list<Host> */
+    public array $updatedHosts = [];
 
     /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
@@ -114,6 +118,11 @@ final class FakeHostRepository implements HostRepository
         return $host;
     }
 
+    public function findMacros(HostId $id): Collection
+    {
+        return new Collection($this->hosts[$id->value]->checkOptions->macros ?? [], HostMacro::class);
+    }
+
     public function remove(Host $host): void
     {
         unset($this->hosts[$host->id()->value]);
@@ -128,10 +137,20 @@ final class FakeHostRepository implements HostRepository
         }
     }
 
-    public function isNameUsedByHostOrTemplate(HostName $name): bool
+    public function update(Host $host): void
+    {
+        if (! isset($this->hosts[$host->id()->value])) {
+            return;
+        }
+
+        $this->updatedHosts[] = $host;
+        $this->hosts[$host->id()->value] = $host;
+    }
+
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
     {
         foreach ($this->hosts as $host) {
-            if ($host->name->value === $name->value) {
+            if ($host->id()->value !== $excludedHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
                 return true;
             }
         }

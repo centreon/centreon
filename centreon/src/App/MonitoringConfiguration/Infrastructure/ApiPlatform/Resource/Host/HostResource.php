@@ -59,18 +59,20 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
         new Patch(
             uriTemplate: '/configuration/hosts/{id}',
             status: 204,
-            // Write-only action: no item provider (reading the whole host to toggle a bool is wasteful).
-            // The processor resolves the host and returns 404 via the handler when it is missing.
+            // Write-only action: no item provider, the handler loads the host itself and answers 404
+            // when it is missing or outside the viewer's scope.
             read: false,
             processor: PatchHostProcessor::class,
             input: PatchHostInput::class,
             output: false,
             openapi: new Model\Operation(
-                description: 'Enable or disable a single host.',
+                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts and macros are not handled yet.',
                 responses: [
-                    204 => new Model\Response('Host activation status updated'),
+                    204 => new Model\Response('Host updated (or left as it was when nothing changed)'),
                     404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host or host template already uses this name'),
                     422 => new Model\Response('Invalid input'),
+                    502 => new Model\Response('The vault could not be reached'),
                 ],
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",

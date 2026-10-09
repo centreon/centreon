@@ -78,5 +78,10 @@ interface PollerRepository
      */
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
 
+    /**
+     * Same flag, for a poller that is no longer the one a resource references (a host moved away).
+     */
+    public function flagIdAsChanged(PollerId $pollerId): void;
+
     public function withCmaCertificates(): self;
 }

@@ -137,6 +137,7 @@ export const getTimezonesResponse = () =>
 
 export const untouchedSchedulingOptionsPayload = {
   active_check_enabled: 'use_default',
+  check_timeperiod_id: null,
   max_check_attempts: null,
   normal_check_interval: null,
   passive_check_enabled: 'use_default',
@@ -146,8 +147,15 @@ export const untouchedSchedulingOptionsPayload = {
 export const getCommandsResponse = () =>
   toCollection([
     { id: 7, name: 'restart-httpd' },
-    { id: 8, name: 'notify-by-email' }
+    { id: 8, name: 'notify-by-email' },
+    { id: 9, name: 'check-host-alive' }
   ]);
+
+// What a save sends when no check command is set, on both platforms.
+export const untouchedCheckOptionsPayload = {
+  args: [],
+  command_id: null
+};
 
 // onPrem only: cloud sends the four fields it allows.
 export const untouchedDataProcessingPayload = {
@@ -204,6 +212,14 @@ export const getHostTemplatesResponse = () =>
     { id: 6, name: 'generic-passive-host' }
   ]);
 
+// The form's own selector: a third template the listing filter does not know.
+export const getFormHostTemplatesResponse = () =>
+  toCollection([
+    { id: 5, name: 'generic-active-host' },
+    { id: 6, name: 'generic-passive-host' },
+    { id: 7, name: 'linux-server-standard' }
+  ]);
+
 // The shape MON-210415 (#11809) gives the detail endpoint: objects where the
 // create takes ids. Mocked here until it lands; nothing stubs it at runtime.
 //
@@ -213,6 +229,11 @@ export const getHostResponse = () => ({
   address: '10.10.10.10',
   alias: 'alias of host 0 as the detail endpoint spells it',
   categories: [{ id: 4, name: 'Virtual' }],
+  check_options: {
+    args: ['3', '80%'],
+    command: { id: 9, name: 'check-host-alive' },
+    macros: []
+  },
   child_hosts: [{ id: 2, name: 'host 2' }],
   // `low_flap_threshold` is unset, so the endpoint leaves it out.
   data_processing: {
@@ -251,12 +272,17 @@ export const getHostResponse = () => ({
   poller: { id: 2, name: 'Poller EU' },
   scheduling_options: {
     active_check_enabled: 'false',
-    check_period: { id: 1, name: '24x7' },
+    check_period: { id: 2, name: 'workhours' },
     max_check_attempts: 3,
     normal_check_interval: 5,
     passive_check_enabled: 'true'
   },
   severity: { id: 2, name: 'Minor' },
   snmp_version: '2c',
+  // The reverse of the listing row's order: the first one prevails.
+  templates: [
+    { id: 6, name: 'generic-passive-host' },
+    { id: 5, name: 'generic-active-host' }
+  ],
   timezone: { id: 7, name: 'Europe/Paris' }
 });
