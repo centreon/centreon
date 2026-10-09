@@ -24,26 +24,20 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\State\ProcessorInterface;
-use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
+use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
@@ -52,6 +46,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
@@ -63,11 +58,6 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
@@ -86,9 +76,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTim
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Infrastructure\Security\CredentialUser;
-use App\Shared\Application\Command\CommandBus;
-use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -96,19 +87,29 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
- * @implements ProcessorInterface<CreateHostInput, HostResource>
+ * Returns the full detail of one host. The response body is identical in shape to the CreateHost
+ * *response* (not its request): the enrichment below mirrors CreateHostProcessor, resolving the ids
+ * the aggregate carries into the named `{id, name}` outputs the contract exposes. The asymmetry is
+ * intentional — CreateHost's *request* takes bare ids (`poller_id`, `template_id`, …), while both
+ * its response and this read expose the richer objects (`poller: {id, name}`, …) the host form
+ * needs. Secrets (snmpCommunity, password macros) are never part of HostResource and so are never
+ * surfaced.
+ *
+ * @implements ProviderInterface<HostResource>
  */
-final readonly class CreateHostProcessor implements ProcessorInterface
+final readonly class GetHostProvider implements ProviderInterface
 {
     /**
      * @param TransformerInterface<Host, HostResource> $transformer
      * @param TransformerInterface<?Notifications, ?HostNotificationsOutput> $notificationsTransformer
      */
     public function __construct(
-        private CommandBus $commandBus,
         #[Autowire(service: HostResourceTransformer::class)]
         private TransformerInterface $transformer,
+        #[Autowire(service: HostNotificationsTransformer::class)]
+        private TransformerInterface $notificationsTransformer,
         private Security $security,
+        private HostRepository $hostRepository,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
         private CommandRepository $commandRepository,
@@ -116,12 +117,10 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private HostCategoryRepository $hostCategoryRepository,
         private HostSeverityRepository $hostSeverityRepository,
         private TimezoneRepository $timezoneRepository,
-        private HostRepository $hostRepository,
         private MediaRepository $mediaRepository,
-        #[Autowire(service: HostNotificationsTransformer::class)]
-        private TransformerInterface $notificationsTransformer,
         private MediaUrlGenerator $mediaUrlGenerator,
         private TimePeriodRepository $timePeriodRepository,
+        private ResourceAccessRepository $resourceAccessRepository,
         private HostMacroTransformer $macroTransformer,
         private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
@@ -129,117 +128,55 @@ final readonly class CreateHostProcessor implements ProcessorInterface
     ) {
     }
 
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): HostResource
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): HostResource
     {
+        Assert::integer($uriVariables['id']);
+        $hostId = new HostId($uriVariables['id']);
+
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        // Deduplicated the same way legacy does (AddHost::linkHostGroups()): a client repeating an
-        // id is tolerated, not rejected, but must not produce one hostgroup_relation row per
-        // repetition.
-        $hostGroupIds = new Collection(
-            array_map(static fn (int $id): HostGroupId => new HostGroupId($id), array_unique($data->hostGroupIds)),
+        // Admin (unrestricted) sees every host; a restricted viewer is scoped in the query, and an
+        // out-of-scope host comes back null, indistinguishable from a missing one (no existence leak).
+        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess()
+            ? null
+            : $credentialUser->credential->userId;
+
+        $host = $this->hostRepository->findOne($hostId, $viewerId);
+        if (! $host instanceof Host) {
+            throw new HostNotFoundException([$hostId->value], 'id');
+        }
+
+        return $this->buildResource($host, $viewerId);
+    }
+
+    private function buildResource(Host $host, ?UserId $viewerId): HostResource
+    {
+        $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
+
+        // The aggregate carries the host's full associations; here, on the read side, a restricted
+        // viewer's view is narrowed to what they may access — the host groups, categories and
+        // severity are ACL-scoped (as they are on write, CreateHostCommandHandler), so an
+        // out-of-scope one is dropped from the response rather than surfaced (no existence leak).
+        // The id list is scoped first; the name lookup then runs on a list already known to be
+        // accessible. Keeping this in the read model, not in findOne(), leaves the aggregate whole
+        // for the write paths that also load it.
+        $groupIds = $this->scopeToAccessible(
+            $host->hostGroupIds,
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null,
             HostGroupId::class,
         );
-
-        $dpInput = $data->dataProcessing ?? new DataProcessingInput();
-        $dataProcessing = new DataProcessing(
-            checkFreshness: $dpInput->checkFreshness ?? TriStateEnum::UseDefault,
-            flapDetectionEnabled: $dpInput->flapDetectionEnabled ?? TriStateEnum::UseDefault,
-            eventHandlerEnabled: $dpInput->eventHandlerEnabled ?? TriStateEnum::UseDefault,
-            acknowledgmentTimeout: $dpInput->acknowledgmentTimeout,
-            freshnessThreshold: $dpInput->freshnessThreshold,
-            lowFlapThreshold: $dpInput->lowFlapThreshold,
-            highFlapThreshold: $dpInput->highFlapThreshold,
-            eventHandlerCommandId: $dpInput->eventHandlerCommandId !== null ? new CommandId($dpInput->eventHandlerCommandId) : null,
-            eventHandlerArgs: array_values($dpInput->eventHandlerArgs),
-        );
-
-        $extendedInformationsInput = $data->extendedInformations;
-        $extendedInformations = new ExtendedInformations(
-            noteUrl: $extendedInformationsInput?->noteUrl,
-            note: $extendedInformationsInput?->note,
-            actionUrl: $extendedInformationsInput?->actionUrl,
-            iconId: $extendedInformationsInput?->iconId !== null ? new MediaId($extendedInformationsInput->iconId) : null,
-            altIcon: $extendedInformationsInput?->altIcon,
-            comment: $extendedInformationsInput?->comment,
-            geoCoordinates: $extendedInformationsInput?->geoCoordinates !== null
-                ? GeoCoordinates::fromString($extendedInformationsInput->geoCoordinates)
-                : null,
-        );
-
-        $schedulingOptionsInput = $data->schedulingOptions;
-        $schedulingOptions = new SchedulingOptions(
-            checkTimeperiodId: $schedulingOptionsInput?->checkTimeperiodId !== null
-                ? new TimePeriodId($schedulingOptionsInput->checkTimeperiodId)
-                : null,
-            maxCheckAttempts: $schedulingOptionsInput?->maxCheckAttempts,
-            normalCheckInterval: $schedulingOptionsInput?->normalCheckInterval,
-            retryCheckInterval: $schedulingOptionsInput?->retryCheckInterval,
-            activeCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->activeCheckEnabled),
-            passiveCheckEnabled: $this->triStateOrDefault($schedulingOptionsInput?->passiveCheckEnabled),
-        );
-
-        $checkOptionsInput = $data->checkOptions;
-        $macroChanges = new Collection(
-            $checkOptionsInput instanceof CheckOptionsInput
-                ? array_values(array_map($this->macroTransformer->toChange(...), $checkOptionsInput->macros))
-                : [],
-            HostMacroChange::class,
-        );
-
-        // Cloud handles notifications through a different model and the input
-        // validator rejects the block there, so the host simply carries none — and the
-        // response omits the key rather than advertising a feature that platform lacks.
-        $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
-        $alias = $this->trimmedOrNull($data->alias);
-
-        $command = new CreateHostCommand(
-            name: new HostName($data->name),
-            address: new HostAddress($data->address),
-            pollerId: new PollerId($data->pollerId),
-            hostGroupIds: $hostGroupIds,
-            creatorId: $credentialUser->credential->userId->value,
-            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
-            dataProcessing: $dataProcessing,
-            alias: $alias !== null ? new HostAlias($alias) : null,
-            templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),
-            categoryIds: $this->toIdCollection($data->categoryIds, HostCategoryId::class),
-            parentHostIds: $this->toIdCollection($data->parentHostIds, HostId::class),
-            childHostIds: $this->toIdCollection($data->childHostIds, HostId::class),
-            snmpVersion: $data->snmpVersion,
-            snmpCommunity: $this->trimmedOrNull($data->snmpCommunity),
-            timezoneId: $data->timezoneId !== null ? new TimezoneId($data->timezoneId) : null,
-            severityId: $data->severityId !== null ? new HostSeverityId($data->severityId) : null,
-            // Absent on Cloud, where linked services are always created.
-            deployServicesFromTemplates: $data->createServicesLinkedToTemplates ?? true,
-            extendedInformations: $extendedInformations,
-            schedulingOptions: $schedulingOptions,
-            checkCommandId: $checkOptionsInput?->commandId !== null ? new CommandId($checkOptionsInput->commandId) : null,
-            checkCommandArgs: $checkOptionsInput instanceof CheckOptionsInput ? $checkOptionsInput->args : [],
-            notifications: $notifications,
-            macroChanges: $macroChanges,
-        );
-
-        $host = $this->commandBus->execute($command);
-        Assert::isInstanceOf($host, Host::class);
-
-        $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
-        $groupNames = $this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray();
+        $groupNames = $this->hostGroupRepository->findNamesByIds($groupIds)->toArray();
 
         $groups = [];
-        foreach ($host->hostGroupIds as $groupId) {
+        foreach ($groupIds as $groupId) {
             if (isset($groupNames[$groupId->value])) {
                 $groups[] = new HostGroupOutput($groupId->value, $groupNames[$groupId->value]->value);
             }
         }
 
-        $icon = $this->resolveIcon($host->extendedInformations?->iconId);
-
         $checkCommandOutput = null;
         if ($host->checkOptions->checkCommandId instanceof CommandId) {
-            // The command exists (the handler already validated it), so this resolves it purely to
-            // surface its name in the response, the same way the poller name is resolved above.
             $checkCommand = $this->commandRepository->getById($host->checkOptions->checkCommandId);
             $checkCommandOutput = new HostCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
         }
@@ -257,16 +194,27 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             }
         }
 
+        // Parent and child hosts are ACL-scoped like host groups above, as the legacy host form hides
+        // the out-of-scope ones (CentreonHost::getObjectForSelect2()).
+        $accessibleHostIds = $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostIds($viewerId) : null;
+        $parentHostIds = $this->scopeToAccessible($host->parentHostIds, $accessibleHostIds, HostId::class);
+        $childHostIds = $this->scopeToAccessible($host->childHostIds, $accessibleHostIds, HostId::class);
         $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
-            [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()],
+            [...$parentHostIds->toArray(), ...$childHostIds->toArray()],
             HostId::class,
         ))->toArray();
-        $resource->parentHosts = $this->toRelatedHosts($host->parentHostIds, $relatedHostNames);
-        $resource->childHosts = $this->toRelatedHosts($host->childHostIds, $relatedHostNames);
+        $resource->parentHosts = $this->toRelatedHosts($parentHostIds, $relatedHostNames);
+        $resource->childHosts = $this->toRelatedHosts($childHostIds, $relatedHostNames);
 
-        $categoryNames = $this->hostCategoryRepository->findNamesByIds($host->categoryIds)->toArray();
+        // Categories are ACL-scoped like host groups above: out-of-scope ones are hidden here.
+        $categoryIds = $this->scopeToAccessible(
+            $host->categoryIds,
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            HostCategoryId::class,
+        );
+        $categoryNames = $this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray();
         $resource->categories = [];
-        foreach ($host->categoryIds as $categoryId) {
+        foreach ($categoryIds as $categoryId) {
             if (isset($categoryNames[$categoryId->value])) {
                 $resource->categories[] = new HostCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
             }
@@ -279,7 +227,12 @@ final readonly class CreateHostProcessor implements ProcessorInterface
                 : null;
         }
 
-        if ($host->severityId instanceof HostSeverityId) {
+        // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a
+        // restricted viewer rather than surfaced.
+        if ($host->severityId instanceof HostSeverityId && $this->isAccessible(
+            $host->severityId,
+            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+        )) {
             $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
             $resource->severity = $severityName instanceof HostSeverityName
                 ? new HostSeverityOutput($host->severityId->value, $severityName->value)
@@ -288,10 +241,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
 
         // Nullable sub-object, like `severity`/`timezone`: left null (and so omitted) when every
         // field is empty, rather than emitted as an all-null object (which the serializer collapses
-        // to an invalid `[]`). GetHostProvider mirrors this so the two bodies stay identical.
+        // to an invalid `[]`). Mirrors CreateHostProcessor so the two bodies stay identical.
         $resource->extendedInformations = null;
         $extended = $host->extendedInformations;
         if ($extended instanceof ExtendedInformations) {
+            $icon = $this->resolveIcon($extended->iconId);
             $geoCoordinates = $extended->geoCoordinates instanceof GeoCoordinates
                 ? (string) $extended->geoCoordinates
                 : null;
@@ -322,21 +276,50 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
-        // Every macro the host effectively has: its own, then those it still inherits, each with the
-        // id + parent a client resends to change it. The own macros are read back as stored, since
-        // their ids are only assigned on insertion.
-        $directMacros = array_values($this->hostRepository->findMacros($host->id())->toArray());
+        // Every macro the host effectively has, as CreateHost returns them: its own (hydrated with
+        // their ids by findOne), then those it still inherits, each with the id + parent a client
+        // resends to change it.
         $macroOutputs = array_map(
             $this->macroTransformer->transform(...),
             $this->inheritedHostMacrosResolver
                 ->resolve($host->templateIds, $host->checkOptions->checkCommandId)
-                ->effectiveWith($directMacros),
+                ->effectiveWith($host->checkOptions->macros),
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
-        $resource->notifications = $this->notificationsTransformer->transform($host->notifications);
+        // Cloud handles notifications through a different model; CreateHost omits the block there, so
+        // GET must too, keeping the two bodies identical. The repository stays platform-agnostic and
+        // always hydrates what is persisted, so the Cloud decision is applied here (not in findOne).
+        $resource->notifications = $this->isCloudPlatform
+            ? null
+            : $this->notificationsTransformer->transform($this->scopeNotifications($host->notifications, $viewerId));
 
         return $resource;
+    }
+
+    /**
+     * Notification contacts and contact groups are ACL-scoped like the other associations, as the
+     * legacy host form hides the out-of-scope ones (CentreonContact::getObjectForSelect2(),
+     * CentreonContactgroup::getObjectForSelect2()).
+     */
+    private function scopeNotifications(?Notifications $notifications, ?UserId $viewerId): ?Notifications
+    {
+        if (! $notifications instanceof Notifications || ! $viewerId instanceof UserId) {
+            return $notifications;
+        }
+
+        return $notifications->withContacts(
+            $this->scopeToAccessible(
+                $notifications->contactIds,
+                $this->resourceAccessRepository->findAccessibleContactIds($viewerId),
+                NotificationContactId::class,
+            ),
+            $this->scopeToAccessible(
+                $notifications->contactGroupIds,
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId),
+                ContactGroupId::class,
+            ),
+        );
     }
 
     private function buildDataProcessingOutput(DataProcessing $dataProcessing): DataProcessingOutput
@@ -361,11 +344,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         );
     }
 
-    private function triStateOrDefault(?TriStateEnum $value): TriStateEnum
-    {
-        return $value ?? TriStateEnum::UseDefault;
-    }
-
     private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?TimePeriodResource
     {
         if (! $checkTimeperiodId instanceof TimePeriodId) {
@@ -381,36 +359,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             : null;
     }
 
-    /**
-     * Always built on-premise, even for a request carrying no notification block: the columns are
-     * written either way (with the Default tri-state), so the response reports what was actually
-     * persisted rather than dropping the key.
-     */
-    private function buildNotifications(?CreateHostNotificationsInput $input): Notifications
-    {
-        $input ??= new CreateHostNotificationsInput();
-
-        // A client repeating a contact or contact group id is tolerated: Notifications collapses it.
-        return new Notifications(
-            enabled: TriStateEnum::from($input->enabled),
-            contactIds: new Collection(
-                array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), $input->contacts),
-                NotificationContactId::class,
-            ),
-            contactGroupIds: new Collection(
-                array_map(static fn (int $id): ContactGroupId => new ContactGroupId($id), $input->contactGroups),
-                ContactGroupId::class,
-            ),
-            options: array_map(NotificationOptionEnumResolver::toDomain(...), $input->options),
-            interval: $input->interval,
-            periodId: $input->timeperiodId !== null ? new TimePeriodId($input->timeperiodId) : null,
-            firstDelay: $input->firstDelay,
-            recoveryDelay: $input->recoveryDelay,
-            contactAdditiveInheritance: $input->contactAdditiveInheritance,
-            contactGroupAdditiveInheritance: $input->contactGroupAdditiveInheritance,
-        );
-    }
-
     private function resolveIcon(?MediaId $iconId): ?HostIconOutput
     {
         if (! $iconId instanceof MediaId) {
@@ -424,32 +372,57 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             : null;
     }
 
-    private function trimmedOrNull(?string $value): ?string
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $trimmed = trim($value);
-
-        return $trimmed === '' ? null : $trimmed;
-    }
-
     /**
-     * @template T of object
+     * Keeps only the ids the viewer may access, mirroring the per-viewer ACL checks enforced on
+     * write (host groups, categories, severity, parent/child hosts, notification contacts). A null
+     * $accessible means no restriction applies (admin, or an unrestricted dimension), so the ids
+     * pass through unchanged. The returned list is known to be in-scope, so the follow-up name
+     * lookup needs no further filtering.
      *
-     * @param list<int> $ids
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     * @param Collection<T>|null $accessible
      * @param class-string<T> $className
      *
      * @return Collection<T>
      */
-    private function toIdCollection(array $ids, string $className): Collection
+    private function scopeToAccessible(Collection $ids, ?Collection $accessible, string $className): Collection
     {
-        // Deduplicated as legacy does: hostcategories_relation has no unique key, so a repeat
-        // would reach config generation twice.
+        if (! $accessible instanceof Collection) {
+            return $ids;
+        }
+
+        $accessibleValues = array_map(static fn (AggregateRootId $id): int => $id->value, $accessible->toArray());
+
         return new Collection(
-            array_map(static fn (int $id): object => new $className($id), array_values(array_unique($ids))),
+            array_values(array_filter(
+                $ids->toArray(),
+                static fn (AggregateRootId $id): bool => in_array($id->value, $accessibleValues, true),
+            )),
             $className,
+        );
+    }
+
+    /**
+     * Single-id counterpart of {@see self::scopeToAccessible()} for the host's severity. A null
+     * $accessible means no restriction applies, so the id is accessible.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param T $id
+     * @param Collection<T>|null $accessible
+     */
+    private function isAccessible(AggregateRootId $id, ?Collection $accessible): bool
+    {
+        if (! $accessible instanceof Collection) {
+            return true;
+        }
+
+        return in_array(
+            $id->value,
+            array_map(static fn (AggregateRootId $accessibleId): int => $accessibleId->value, $accessible->toArray()),
+            true,
         );
     }
 

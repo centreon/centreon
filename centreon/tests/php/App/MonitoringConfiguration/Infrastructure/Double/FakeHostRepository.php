@@ -77,6 +77,14 @@ final class FakeHostRepository implements HostRepository
 
         $this->hosts[$id] = $host;
 
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
+
         return $host;
     }
 

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -127,4 +128,13 @@ interface ResourceAccessRepository
      * @return Collection<ContactGroupId> empty means the user can access no contact group at all
      */
     public function findAccessibleContactGroupIds(UserId $userId): Collection;
+
+    /**
+     * Hosts follow the real-time ACL cache (`centreon_acl`), which already resolves every
+     * resource-scoping rule per Access Group, so a restricted user is always limited to the hosts
+     * listed there: like contacts, there is no "no restriction applies" case to signal.
+     *
+     * @return Collection<HostId> empty means the user can access no host at all
+     */
+    public function findAccessibleHostIds(UserId $userId): Collection;
 }

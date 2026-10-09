@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
@@ -38,6 +39,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
@@ -58,6 +60,25 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             securityMessage: 'You are not allowed to create hosts',
             input: CreateHostInput::class,
             processor: CreateHostProcessor::class,
+        ),
+        new Get(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Without this, `{id}` also captures the sibling host-form selector routes
+            // (/configuration/hosts/pollers, /host-categories, /medias, ...): the literal segment is
+            // cast to int 0 and routed here, 500ing on HostId(0). Constrain it to digits so those
+            // GET routes keep matching their own providers.
+            requirements: ['id' => '\d+'],
+            provider: GetHostProvider::class,
+            openapi: new Model\Operation(
+                responses: [
+                    403 => new Model\Response('You are not allowed to view hosts'),
+                    404 => new Model\Response('Host not found'),
+                ],
+            ),
+            security: '
+                is_granted("' . HostPermissionEnum::CanRead->value . '") or
+                is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to view hosts',
         ),
         new Patch(
             uriTemplate: '/configuration/hosts/{id}',

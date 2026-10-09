@@ -163,6 +163,29 @@ final readonly class Notifications
         );
     }
 
+    /**
+     * Same settings, other contacts and contact groups — the relations {@see self::with()} leaves
+     * alone.
+     *
+     * @param Collection<NotificationContactId> $contactIds
+     * @param Collection<ContactGroupId> $contactGroupIds
+     */
+    public function withContacts(Collection $contactIds, Collection $contactGroupIds): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $contactIds,
+            contactGroupIds: $contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: $this->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $this->contactGroupAdditiveInheritance,
+        );
+    }
+
     public function equals(self $other): bool
     {
         return $this->enabled === $other->enabled

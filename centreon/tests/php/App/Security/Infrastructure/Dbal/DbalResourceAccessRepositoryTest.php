@@ -531,6 +531,34 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedContactGroupId], $accessibleIds);
     }
 
+    public function testUserWithNoAclGroupHasAccessToNoHost(): void
+    {
+        $contactId = $this->createContact('no-group-hosts-' . uniqid());
+
+        // Like contacts, hosts carry no "all hosts" fallback: centreon_acl already resolves every
+        // resource rule, so a user belonging to no Access Group reaches nothing.
+        self::assertCount(0, $this->repository->findAccessibleHostIds(new UserId($contactId)));
+    }
+
+    public function testUserSeesTheHostsTheRealTimeAclGrantsToItsAccessGroups(): void
+    {
+        $viewerId = $this->createContact('viewer-hosts-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+        $otherAclGroupId = $this->createAccessGroupForContact($this->createContact('other-hosts-' . uniqid()));
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9101]);
+        // A service-level row does not grant the host on its own.
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9102, 'service_id' => 1]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $otherAclGroupId, 'host_id' => 9103]);
+
+        $accessibleIds = array_map(
+            static fn (HostId $id): int => $id->value,
+            $this->repository->findAccessibleHostIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertSame([9101], $accessibleIds);
+    }
+
     private function createAccessGroupForContact(int $contactId): int
     {
         $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);

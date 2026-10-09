@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -59,6 +60,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var Collection<ContactGroupId> unlike the nullable ones, contact groups have no "unrestricted" case */
     public Collection $accessibleContactGroupIds;
 
+    /** @var Collection<HostId> unlike the nullable ones, hosts have no "unrestricted" case */
+    public Collection $accessibleHostIds;
+
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
@@ -68,6 +72,7 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     {
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
         $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
+        $this->accessibleHostIds = new Collection([], HostId::class);
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -108,6 +113,11 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     public function findAccessibleContactGroupIds(UserId $userId): Collection
     {
         return $this->accessibleContactGroupIds;
+    }
+
+    public function findAccessibleHostIds(UserId $userId): Collection
+    {
+        return $this->accessibleHostIds;
     }
 
     public function findAccessibleImageFolderIds(UserId $userId): ?Collection

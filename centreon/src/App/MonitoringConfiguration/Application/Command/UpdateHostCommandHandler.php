@@ -181,7 +181,16 @@ final readonly class UpdateHostCommandHandler
 
         $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds);
 
-        $this->assertRelationsAreNotCircular($command->id, $command->parentHostIds, $command->childHostIds);
+        // Parent and child hosts are ACL-scoped on read like host groups (the legacy host form hides
+        // the out-of-scope ones), so they are preserved the same way as the relations below. The
+        // circularity check runs on the final lists, since a preserved relation is kept in the graph.
+        $accessibleHostIds = $command->viewerId instanceof UserId
+            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId)
+            : null;
+        $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $accessibleHostIds, HostId::class);
+        $childHostIds = $this->preserveInaccessible($command->childHostIds, $existingHost->childHostIds, $accessibleHostIds, HostId::class);
+
+        $this->assertRelationsAreNotCircular($command->id, $parentHostIds, $childHostIds);
 
         $checkCommand = $command->checkOptions->checkCommandId instanceof CommandId
             ? $this->commandRepository->getById($command->checkOptions->checkCommandId)
@@ -246,14 +255,16 @@ final readonly class UpdateHostCommandHandler
             checkOptions: $checkOptions,
             // Absent on Cloud, where notifications follow another model: the stored block is kept.
             notifications: $command->notifications instanceof Notifications
-                ? $this->additiveInheritanceModeApplier->apply($command->notifications)
+                ? $this->additiveInheritanceModeApplier->apply(
+                    $this->preserveInaccessibleContacts($command->notifications, $existingHost->notifications, $command->viewerId),
+                )
                 : new NoValue(),
             activated: $command->activated,
             templateIds: $command->templateIds,
             hostGroupIds: $hostGroupIds,
             categoryIds: $categoryIds,
-            parentHostIds: $command->parentHostIds,
-            childHostIds: $command->childHostIds,
+            parentHostIds: $parentHostIds,
+            childHostIds: $childHostIds,
         );
 
         // A vault reference only depends on the entry and the key, never on the value: a secret
@@ -542,6 +553,35 @@ final readonly class UpdateHostCommandHandler
         );
 
         return new Collection([...$submitted->toArray(), ...array_values($preserved)], $className);
+    }
+
+    /**
+     * {@see self::preserveInaccessible()} applied to the notification contacts and contact groups,
+     * which the legacy host form hides too when out of the viewer's scope.
+     */
+    private function preserveInaccessibleContacts(
+        Notifications $submitted,
+        ?Notifications $existing,
+        ?UserId $viewerId,
+    ): Notifications {
+        if (! $existing instanceof Notifications || ! $viewerId instanceof UserId) {
+            return $submitted;
+        }
+
+        return $submitted->withContacts(
+            $this->preserveInaccessible(
+                $submitted->contactIds,
+                $existing->contactIds,
+                $this->resourceAccessRepository->findAccessibleContactIds($viewerId),
+                NotificationContactId::class,
+            ),
+            $this->preserveInaccessible(
+                $submitted->contactGroupIds,
+                $existing->contactGroupIds,
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId),
+                ContactGroupId::class,
+            ),
+        );
     }
 
     /**
