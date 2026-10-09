@@ -32,20 +32,23 @@ use App\Shared\Domain\Event\EventInterface;
  * makes it safe is committed.
  *
  * Fired for a deleted host, and for a host whose save released its vault entry (see
- * {@see Host::releasesVaultEntryOf()}): $host is then the host as it was before the save, the one
- * still pointing to the entry.
+ * {@see Host::releasesVaultEntryOf()}) or only some of its secrets: $host is then the host as it was
+ * before the save, the one still pointing to the entry.
  */
 final readonly class HostVaultPurgeRequested implements DeliveredAfterCommitInterface, EventInterface
 {
     /**
      * @param bool $bestEffort a failed purge is only logged instead of reported to the caller: set it
-     *                         when the purge merely tidies up an entry left empty by a successful save,
-     *                         an orphan entry being harmless
+     *                         when the purge merely tidies up secrets left by a successful save,
+     *                         an orphan secret being harmless
+     * @param list<string> $keys the keys to remove from the host's vault entry; empty means the whole
+     *                           entry
      */
     public function __construct(
         public Host $host,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
         public bool $bestEffort = false,
+        public array $keys = [],
     ) {
     }
 

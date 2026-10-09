@@ -139,6 +139,19 @@ final readonly class InheritedHostMacros
     }
 
     /**
+     * Every macro a host effectively has: its direct macros first, then the inherited ones they do
+     * not shadow.
+     *
+     * @param list<HostMacro> $direct
+     *
+     * @return list<HostMacro>
+     */
+    public function effectiveWith(array $direct): array
+    {
+        return [...$direct, ...$this->notOverriddenBy($direct)];
+    }
+
+    /**
      * @return list<HostMacro>
      */
     public function toList(): array

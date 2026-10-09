@@ -337,6 +337,50 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame(['one', 'two'], $after->dataProcessing->eventHandlerArgs);
     }
 
+    public function testUpdateReplacesTheSeverityAndKeepsTheCategories(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $categoryId = $this->createHostCategory('Production');
+        $oldSeverityId = $this->createHostSeverity('Critical', level: 1);
+        $newSeverityId = $this->createHostSeverity('Minor', level: 4);
+        $this->linkHostToCategory($hostId, $categoryId);
+        $this->linkHostToCategory($hostId, $oldSeverityId);
+
+        $this->repository->update($this->findHost($hostId)->with(severityId: new HostSeverityId($newSeverityId)));
+
+        $after = $this->findHost($hostId);
+        self::assertSame($newSeverityId, $after->severityId?->value);
+        self::assertSame([$categoryId], array_map(static fn (HostCategoryId $id): int => $id->value, iterator_to_array($after->categoryIds)));
+    }
+
+    public function testUpdateSetsASeverityOnAHostWithNone(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $severityId = $this->createHostSeverity('Critical', level: 1);
+
+        $this->repository->update($this->findHost($hostId)->with(severityId: new HostSeverityId($severityId)));
+
+        self::assertSame($severityId, $this->findHost($hostId)->severityId?->value);
+    }
+
+    public function testUpdateClearsTheSeverityWithNull(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $categoryId = $this->createHostCategory('Production');
+        $severityId = $this->createHostSeverity('Critical', level: 1);
+        $this->linkHostToCategory($hostId, $categoryId);
+        $this->linkHostToCategory($hostId, $severityId);
+
+        $this->repository->update($this->findHost($hostId)->with(severityId: null));
+
+        $after = $this->findHost($hostId);
+        self::assertNull($after->severityId);
+        self::assertCount(1, $after->categoryIds);
+    }
+
     public function testUpdateClearsAnOptionalValueWithNull(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -1037,6 +1081,16 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->createHostTemplate('shared-name');
 
         self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name')));
+    }
+
+    public function testIsNameUsedByHostOrTemplateLeavesTheExcludedHostOut(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+
+        self::assertFalse($this->repository->isNameUsedByHostOrTemplate(new HostName('SERVER-01'), new HostId($hostId)));
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('server-01'), new HostId($otherHostId)));
     }
 
     public function testAddPersistsTheSnmpAndTimezoneColumns(): void
@@ -1844,6 +1898,36 @@ final class DbalHostRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testFindMacrosReturnsTheHostOwnMacrosWithTheirIds(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-find-macros', $pollerId);
+        $otherHostId = $this->createHost('server-other', $pollerId);
+        $this->insertHostMacro($hostId, '$_HOSTCOMMUNITY$', 'public', isPassword: false, order: 0);
+        $this->insertHostMacro($hostId, '$_HOSTTOKEN$', 's3cr3t', isPassword: true, order: 1);
+        $this->insertHostMacro($otherHostId, '$_HOSTELSEWHERE$', 'x', isPassword: false, order: 0);
+
+        $macros = array_values($this->repository->findMacros(new HostId($hostId))->toArray());
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT host_macro_id FROM on_demand_macro_host WHERE host_host_id = ? ORDER BY host_macro_id',
+            [$hostId],
+        );
+        self::assertSame(['COMMUNITY', 'TOKEN'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros));
+        self::assertSame(array_map('intval', $ids), array_map(static fn (HostMacro $macro): ?int => $macro->id?->value, $macros));
+        self::assertTrue($macros[1]->isPassword);
+        self::assertTrue($macros[0]->isDirect());
+    }
+
+    public function testFindMacrosReturnsNothingForAHostWithoutMacros(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-no-macros', $pollerId);
+
+        self::assertCount(0, $this->repository->findMacros(new HostId($hostId)));
+    }
+
     private function hostWithNotifications(int $pollerId, ?Notifications $notifications): Host
     {
         return new Host(
@@ -1969,6 +2053,14 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->connection->insert('hostcategories', ['hc_name' => $name, 'hc_alias' => $name, 'level' => $level]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkHostToCategory(int $hostId, int $categoryId): void
+    {
+        $this->connection->insert('hostcategories_relation', [
+            'hostcategories_hc_id' => $categoryId,
+            'host_host_id' => $hostId,
+        ]);
     }
 
     private function linkHostToParent(int $hostId, int $parentId): void

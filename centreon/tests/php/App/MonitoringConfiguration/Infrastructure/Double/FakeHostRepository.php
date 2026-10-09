@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
@@ -123,6 +124,11 @@ final class FakeHostRepository implements HostRepository
         return $host;
     }
 
+    public function findMacros(HostId $id): Collection
+    {
+        return new Collection($this->hosts[$id->value]->checkOptions->macros ?? [], HostMacro::class);
+    }
+
     public function remove(Host $host): void
     {
         unset($this->hosts[$host->id()->value]);
@@ -147,14 +153,14 @@ final class FakeHostRepository implements HostRepository
         $this->hosts[$host->id()->value] = $host;
     }
 
-    public function isNameUsedByHostOrTemplate(HostName $name): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
     {
         if ($this->forceNameUsed) {
             return true;
         }
 
         foreach ($this->hosts as $host) {
-            if ($host->name->value === $name->value) {
+            if ($host->id()->value !== $excludedHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
                 return true;
             }
         }

@@ -23,19 +23,18 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
@@ -47,7 +46,6 @@ use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
-use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
@@ -56,9 +54,9 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -73,8 +71,6 @@ final readonly class CreateHostCommandHandler
     /** Must match legacy: both address the same vault entries. */
     public const HOST_VAULT_PATH = 'monitoring/hosts';
     public const HOST_SNMP_COMMUNITY_KEY = '_HOSTSNMPCOMMUNITY';
-    private const INHERITANCE_MODE_OPTION = 'inheritance_mode';
-    private const ADDITIVE_INHERITANCE_MODE = 1;
 
     public function __construct(
         private HostRepository $repository,
@@ -86,8 +82,9 @@ final readonly class CreateHostCommandHandler
         private TimezoneRepository $timezoneRepository,
         private CommandRepository $commandRepository,
         private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
+        private HostMacroChangesResolver $hostMacroChangesResolver,
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
-        private OptionRepository $optionRepository,
+        private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private ResourceAccessRepository $resourceAccessRepository,
         private VaultInterface $vault,
         private EventBus $eventBus,
@@ -132,13 +129,21 @@ final readonly class CreateHostCommandHandler
         // above: existence and the "must be a check command" rule are validated at the API boundary
         // (CheckCommandTypeValidator, →422), but this getById() stays as the last word so a command
         // deleted between validation and execution surfaces as a 404 rather than a broken write.
-        if ($command->checkOptions->checkCommandId instanceof CommandId) {
-            $this->commandRepository->getById($command->checkOptions->checkCommandId);
+        if ($command->checkCommandId instanceof CommandId) {
+            $this->commandRepository->getById($command->checkCommandId);
         }
 
         if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
+
+        // Every validation runs before the first vault write, so a rejected request never leaves an
+        // orphan secret behind. Inherited macros are resolved from the requested templates and the
+        // check command together, so a submitted macro that merely duplicates an inherited one is
+        // dropped.
+        $checkOptions = new CheckOptions($command->checkCommandId, $command->checkCommandArgs);
+        $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkCommandId);
+        $macros = $this->hostMacroChangesResolver->resolve(array_values($command->macroChanges->toArray()), [], $inherited);
 
         // Vault the SNMP community first so its entry's UUID can be reused for the password macros:
         // legacy keeps all of a host's secrets (SNMP community + password macros) under a single vault
@@ -147,9 +152,11 @@ final readonly class CreateHostCommandHandler
         $snmpCommunity = $this->vaultOrPlaintext($command->snmpCommunity);
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity ? $this->extractVaultUuid($snmpCommunity->value) : null;
 
-        // Resolve inherited macros from the requested templates and the check command together, so a
-        // submitted macro that merely duplicates an inherited one is dropped.
-        $checkOptions = $this->prepareCheckOptions($command->checkOptions, $command->templateIds, $vaultUuid);
+        // Moves any password macro's plaintext into the vault, leaving a `secret::` reference in its
+        // place. A host being created owns no macro yet, so there is nothing previous to purge.
+        $checkOptions = $checkOptions->with(
+            macros: $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid),
+        );
 
         $host = new Host(
             id: null,
@@ -171,7 +178,7 @@ final readonly class CreateHostCommandHandler
             extendedInformations: $command->extendedInformations,
             schedulingOptions: $command->schedulingOptions,
             checkOptions: $checkOptions,
-            notifications: $this->applyInheritanceMode($command->notifications),
+            notifications: $this->additiveInheritanceModeApplier->apply($command->notifications),
         );
 
         $this->repository->add($host);
@@ -189,64 +196,6 @@ final readonly class CreateHostCommandHandler
         }
 
         return $host;
-    }
-
-    /**
-     * Drops macros the host merely inherits (from its templates or its check command) and moves any
-     * password macro's plaintext into the vault, leaving a `secret::` reference in its place, before
-     * the host is persisted.
-     *
-     * @param Collection<HostTemplateId> $templateIds
-     * @param ?string $vaultUuid the vault entry minted for the SNMP community, so the password macros
-     *                           join the same entry (null when there is none, or the vault is off)
-     */
-    private function prepareCheckOptions(CheckOptions $checkOptions, Collection $templateIds, ?string $vaultUuid): CheckOptions
-    {
-        $inherited = $this->inheritedHostMacrosResolver->resolve($templateIds, $checkOptions->checkCommandId);
-        $macros = $inherited->withoutRedundant($checkOptions->macros);
-        $macros = $this->hostMacroSecretsSynchronizer->synchronize($macros, [], $vaultUuid);
-
-        return new CheckOptions($checkOptions->checkCommandId, $checkOptions->args, $macros);
-    }
-
-    /**
-     * The additive-inheritance flags only mean something when the platform's `inheritance_mode`
-     * option enables them; otherwise legacy silently drops whatever the client asked for
-     * (`NewHostFactory::create()`), and a fresh install ships that option disabled.
-     */
-    private function applyInheritanceMode(?Notifications $notifications): ?Notifications
-    {
-        if (! $notifications instanceof Notifications) {
-            return null;
-        }
-
-        if (! $notifications->contactAdditiveInheritance && ! $notifications->contactGroupAdditiveInheritance) {
-            return $notifications;
-        }
-
-        if ($this->isAdditiveInheritanceEnabled()) {
-            return $notifications;
-        }
-
-        return $notifications->withoutAdditiveInheritance();
-    }
-
-    /**
-     * `inheritance_mode` is a platform-wide setting of Administration > Parameters; only the
-     * value `1` turns additive inheritance on, and a fresh install ships `3`. A missing row reads
-     * as disabled, mirroring legacy's own fallback when OptionService returns nothing.
-     */
-    private function isAdditiveInheritanceEnabled(): bool
-    {
-        try {
-            $option = $this->optionRepository->getByName(new OptionName(self::INHERITANCE_MODE_OPTION));
-        } catch (OptionDoesNotExistException) {
-            return false;
-        }
-
-        // Cast rather than compared as a string: the column is a varchar and legacy reads it
-        // with (int) too (AddHost::createHost()), so a stored '01' must not flip the answer.
-        return (int) $option->value->value === self::ADDITIVE_INHERITANCE_MODE;
     }
 
     /**

@@ -53,6 +53,7 @@ use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -70,6 +71,30 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $handler(new HostCreated($host, 1));
 
         self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItAlsoFlagsThePollerAHostWasMovedAwayFrom(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostMassChanged($host, 1, previousPollerId: new PollerId(2)));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+        self::assertSame([2], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsOnlyTheCurrentPollerWhenTheHostDidNotMove(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostMassChanged($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
     }
 
     public function testItFlagsTheHostsPollerOnActivationChange(): void

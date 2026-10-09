@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -394,6 +395,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return $this->transformer->transform($row);
     }
 
+    public function findMacros(HostId $id): Collection
+    {
+        return new Collection(
+            array_map(DbalHostTransformer::createMacro(...), $this->findMacroRows($id->value)),
+            HostMacro::class,
+        );
+    }
+
     public function remove(Host $host): void
     {
         $hostId = $host->id()->value;
@@ -449,6 +458,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('pollerId', $host->pollerId->value, ParameterType::INTEGER)
             ->setParameter('hostId', $hostId, ParameterType::INTEGER)
             ->executeStatement();
+
+        $this->replaceSeverity($hostId, $host->severityId);
     }
 
     /**
@@ -456,13 +467,17 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
      * introduced here. This is the only safeguard against a duplicate name.
      */
-    public function isNameUsedByHostOrTemplate(HostName $name): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')
             ->from(self::TABLE_NAME)
             ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
             ->setMaxResults(1);
+
+        if ($excludedHostId instanceof HostId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludedHostId->value, ParameterType::INTEGER)));
+        }
 
         return (bool) $qb->executeQuery()->fetchOne();
     }
@@ -607,6 +622,24 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
+    }
+
+    /**
+     * The severity is the one row of `hostcategories_relation` pointing to a `hostcategories` row with a
+     * level: the categories, which have none, are left alone.
+     */
+    private function replaceSeverity(int $hostId, ?HostSeverityId $severityId): void
+    {
+        $this->connection->createQueryBuilder()
+            ->delete('hostcategories_relation')
+            ->where('host_host_id = :hostId')
+            ->andWhere('hostcategories_hc_id IN (SELECT hc_id FROM hostcategories WHERE level IS NOT NULL)')
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
+
+        if ($severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $severityId->value);
+        }
     }
 
     private function updateExtendedInformations(Host $host): void
