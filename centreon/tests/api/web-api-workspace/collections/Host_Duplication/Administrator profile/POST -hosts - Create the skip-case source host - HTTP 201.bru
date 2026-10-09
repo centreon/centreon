@@ -1,0 +1,40 @@
+meta {
+  name: POST /configuration/hosts - Create the skip-case source host - HTTP 201
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSkipName}}",
+    "alias": "{{HostSkipAlias}}",
+    "address": "127.0.0.1",
+    "monitoring_server_id": 1,
+    "normal_check_interval": 3,
+    "max_check_attempts": 1,
+    "templates": [{{HostTemplate1Id}}]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Skip-case source host created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("HostSkipId", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -27,18 +27,21 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
 use App\Shared\Domain\Event\AggregateDeleted;
+use App\Shared\Domain\Event\AggregateDuplicated;
 use App\Shared\Domain\Event\AggregateUpdated;
 use App\Shared\Domain\Event\AsEventHandler;
 
 /**
- * Reacts to a create, update or deletion of any poller-scoped resource (see {@see PollerScopedInterface}):
- * the owning poller's configuration just changed, so its `nagios_server.updated` flag must be raised,
- * or the monitoring engine keeps running on stale configuration until something else touches it.
- * Reacting to the {@see AggregateUpdated} supertype also catches its enable/disable specializations.
- * Duplication is not wired yet.
+ * Reacts to the creation, update, deletion or duplication of any poller-scoped resource (see
+ * {@see PollerScopedInterface}): the owning poller's configuration just changed, so its
+ * `nagios_server.updated` flag must be raised, or the monitoring engine keeps running on stale
+ * configuration until something else touches it. Reacting to the {@see AggregateUpdated} supertype
+ * also catches its enable/disable specializations.
  */
 #[AsEventHandler]
 final readonly class FlagPollerChangedEventHandler
@@ -48,7 +51,10 @@ final readonly class FlagPollerChangedEventHandler
     ) {
     }
 
-    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted $event): void
+    /**
+     * @param AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated<covariant AggregateRoot<AggregateRootId>> $event
+     */
+    public function __invoke(AggregateCreated|AggregateUpdated|AggregateDeleted|AggregateDuplicated $event): void
     {
         if (! $event->aggregate instanceof PollerScopedInterface) {
             return;

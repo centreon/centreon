@@ -1,0 +1,497 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use Doctrine\DBAL\Connection;
+use Tests\App\Shared\ApiTestCase;
+
+final class DuplicateHostProcessorTest extends ApiTestCase
+{
+    private Connection $connection;
+
+    private Connection $realTimeConnection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
+
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $this->realTimeConnection = $realTimeConnection;
+    }
+
+    public function testItRequiresAuthentication(): void
+    {
+        $this->request('POST', '/api/configuration/hosts/1/_duplicate');
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testItIsForbiddenForUserWithoutSufficientAcl(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        $username = bin2hex(random_bytes(8));
+        $this->createApiUser($this->connection, $username, admin: false);
+        $this->login($username);
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testItReturns404WhenTheHostDoesNotExist(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/configuration/hosts/2147483000/_duplicate');
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testItReturns404WhenTheHostIsOutsideTheViewerAclScope(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        // A non-admin with the host read/write role but no ACL access to this host: the source lookup
+        // is ACL-scoped, so an out-of-scope host reads as not found (404), not 403 or 204. Proves the
+        // command's viewerId scoping — dropping it would let this restricted user reach the host (204).
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $this->grantHostReadAndWriteTopologyRole($contactId);
+
+        $this->login($username);
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testItDuplicatesAHostWithTheFirstFreeSuffix(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->connection->fetchOne(
+            "SELECT host_id FROM host WHERE host_name = :name AND host_register = '1'",
+            ['name' => $name . '_1'],
+        );
+        self::assertIsScalar($copyId, 'the copy is persisted under the first free "_1" suffix');
+        self::assertNotSame($hostId, (int) $copyId);
+    }
+
+    public function testItReturns422WhenNoSuffixedNameCanFit(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        // A source already at the maximum name length: appending any "_<n>" suffix overflows the limit,
+        // so the handler can never build a free name and surfaces a 422 (validation failure on the
+        // generated name) rather than an unmapped 500.
+        $name = str_pad($this->uniqueName('web'), HostName::MAX_LENGTH, 'x');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItFlagsTheSourcePollerAsChanged(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $pollerId]);
+        $hostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $updatedFlag = $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]);
+        self::assertSame('1', $updatedFlag);
+    }
+
+    public function testItCopiesTheSourceAclConfigurationRelationsOntoTheCopy(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'res-' . $name,
+            'acl_res_alias' => 'res-' . $name,
+            'acl_res_activate' => '1',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_resources_host_relations', [
+            'host_host_id' => $hostId,
+            'acl_res_id' => $aclResId,
+        ]);
+        $this->connection->insert('acl_resources_hostex_relations', [
+            'host_host_id' => $hostId,
+            'acl_res_id' => $aclResId,
+        ]);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+
+        foreach (['acl_resources_host_relations', 'acl_resources_hostex_relations'] as $table) {
+            $copyRelationCount = $this->connection->fetchOne(
+                "SELECT COUNT(*) FROM {$table} WHERE host_host_id = :hostId AND acl_res_id = :aclResId",
+                ['hostId' => $copyId, 'aclResId' => $aclResId],
+            );
+            self::assertIsScalar($copyRelationCount);
+            self::assertSame(1, (int) $copyRelationCount, "the copy inherits the source {$table} row");
+        }
+    }
+
+    public function testItCopiesTheSourceRealtimeAclRowsOntoTheCopy(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'grp-' . $name,
+            'acl_group_alias' => 'grp-' . $name,
+            'acl_group_activate' => '1',
+        ]);
+        $groupId = (int) $this->connection->lastInsertId();
+
+        // Seed the real-time cache scoping the source host to that group (host-level row).
+        $this->realTimeConnection->insert('centreon_acl', [
+            'group_id' => $groupId,
+            'host_id' => $hostId,
+            'service_id' => null,
+        ]);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+
+        $copyAclCount = $this->realTimeConnection->fetchOne(
+            'SELECT COUNT(*) FROM centreon_acl WHERE host_id = :hostId AND service_id IS NULL AND group_id = :groupId',
+            ['hostId' => $copyId, 'groupId' => $groupId],
+        );
+        self::assertIsScalar($copyAclCount);
+        self::assertSame(1, (int) $copyAclCount, 'the copy inherits the source real-time ACL row');
+    }
+
+    public function testItReLinksSharedServicesOntoTheCopyButLeavesExclusiveOnesToTheLegacyClone(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $sourceId = $this->insertHost($name, $pollerId);
+        $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        // A service shared with another host must be re-linked (not cloned) onto the copy; this path is
+        // pure SQL on the configuration connection and needs no legacy session, so it runs even under
+        // the token-authenticated test.
+        $sharedServiceId = $this->insertService('shared');
+        $this->linkService($sourceId, $sharedServiceId);
+        $this->linkService($otherHostId, $sharedServiceId);
+
+        // A service exclusive to the source is cloned through the legacy procedural multipleServiceInDB,
+        // which needs the legacy www runtime (_CENTREON_PATH_ + the DB-Func.php file). The integration
+        // harness has neither, so that step fails and is swallowed+logged, and the exclusive service is
+        // not materialised on the copy here — the real clone is validated end to end on the CDE. (Under
+        // token auth the session itself is no longer the blocker: it is rebuilt from the actor.)
+        $exclusiveServiceId = $this->insertService('exclusive');
+        $this->linkService($sourceId, $exclusiveServiceId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$sourceId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+
+        $sharedCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+            [$copyId, $sharedServiceId],
+        );
+        self::assertIsScalar($sharedCount);
+        self::assertSame(1, (int) $sharedCount, 'the shared service is re-linked onto the copy');
+
+        $exclusiveCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+            [$copyId, $exclusiveServiceId],
+        );
+        self::assertIsScalar($exclusiveCount);
+        self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is cloned by the legacy runtime (absent in integration), never re-linked; the clone is validated on the CDE');
+    }
+
+    public function testItSkipsASuffixAlreadyTakenByAHostTemplate(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $sourceId = $this->insertHost($name, $pollerId);
+        // A host TEMPLATE (host_register = '0') already owns the "_1" name: the copy must skip it and
+        // take "_2", proving the uniqueness check spans hosts and templates alike.
+        $this->insertHostTemplate($name . '_1');
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$sourceId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->connection->fetchOne(
+            "SELECT host_id FROM host WHERE host_name = :name AND host_register = '1'",
+            ['name' => $name . '_2'],
+        );
+        self::assertIsScalar($copyId, 'the copy skips the template-held "_1" and takes "_2"');
+        self::assertNotSame($sourceId, (int) $copyId);
+    }
+
+    public function testItReLinksEveryServiceWhenNoneIsExclusive(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $sourceId = $this->insertHost($name, $pollerId);
+        $otherHostId = $this->insertHost($this->uniqueName('web'), $pollerId);
+
+        // Only a shared service: nothing needs the legacy clone, so the duplication completes cleanly
+        // even under token auth — the cloner early-returns on an empty exclusive-service list, and the
+        // service ACL scoping (duplicateHostServiceAccess) runs.
+        $sharedServiceId = $this->insertService('shared');
+        $this->linkService($sourceId, $sharedServiceId);
+        $this->linkService($otherHostId, $sharedServiceId);
+
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'grp-' . $name,
+            'acl_group_alias' => 'grp-' . $name,
+            'acl_group_activate' => '1',
+        ]);
+        $groupId = (int) $this->connection->lastInsertId();
+        // The source host is scoped to that group in the real-time cache (host-level row).
+        $this->realTimeConnection->insert('centreon_acl', [
+            'group_id' => $groupId,
+            'host_id' => $sourceId,
+            'service_id' => null,
+        ]);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$sourceId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+        $count = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM host_service_relation WHERE host_host_id = ? AND service_service_id = ?',
+            [$copyId, $sharedServiceId],
+        );
+        self::assertIsScalar($count);
+        self::assertSame(1, (int) $count, 'the only (shared) service is re-linked onto the copy');
+
+        // duplicateHostServiceAccess scoped the copy's service to the source's group in the real-time
+        // cache, so a non-admin sees it without waiting for the centAcl cron.
+        $serviceAclCount = $this->realTimeConnection->fetchOne(
+            'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id = ? AND group_id = ?',
+            [$copyId, $sharedServiceId, $groupId],
+        );
+        self::assertIsScalar($serviceAclCount);
+        self::assertSame(1, (int) $serviceAclCount, 'the copy service is ACL-scoped for the source group');
+    }
+
+    public function testItLogsAnAddActivityLineWithFieldDetailForTheCopy(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $hostId = $this->insertHost($name, $pollerId);
+
+        $this->login();
+
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+        self::assertResponseStatusCodeSame(204);
+
+        $copyId = $this->hostIdByName($name . '_1');
+
+        // The ticket requires one action-log "a" (add) line per copy, with field detail — fixing the
+        // legacy inconsistency where a duplicate left the log empty. It is written through the new
+        // ActivityLogging stack, whose repository binds the real-time connection, so log_action and
+        // log_action_modification live in centreon_storage and are read through $this->realTimeConnection.
+        $logRow = $this->realTimeConnection->fetchAssociative(
+            "SELECT action_log_id, action_type, object_name FROM log_action WHERE object_type = 'host' AND object_id = ?",
+            [$copyId],
+        );
+        self::assertIsArray($logRow, 'an action-log line is written for the copy');
+        self::assertSame('a', $logRow['action_type'], 'the duplication is logged as an add (a) action');
+        self::assertSame($name . '_1', $logRow['object_name'], 'the action-log line names the copy');
+
+        $detailCount = $this->realTimeConnection->fetchOne(
+            'SELECT COUNT(*) FROM log_action_modification WHERE action_log_id = ?',
+            [$logRow['action_log_id']],
+        );
+        self::assertIsScalar($detailCount);
+        self::assertGreaterThan(0, (int) $detailCount, 'the action-log line carries the copied fields as detail');
+    }
+
+    private function insertPoller(string $name): int
+    {
+        $this->connection->insert('nagios_server', [
+            'name' => $name,
+            'ns_ip_address' => '127.0.0.1',
+            'uid' => random_int(1, \PHP_INT_MAX),
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertHost(string $name, int $pollerId): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_address' => '127.0.0.1',
+            'host_activate' => '1',
+            'host_register' => '1',
+        ]);
+        $hostId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('ns_host_relation', [
+            'host_host_id' => $hostId,
+            'nagios_server_id' => $pollerId,
+        ]);
+
+        return $hostId;
+    }
+
+    private function insertHostTemplate(string $name): int
+    {
+        $this->connection->insert('host', [
+            'host_name' => $name,
+            'host_register' => '0',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertService(string $prefix): int
+    {
+        $this->connection->insert('service', [
+            'service_description' => $prefix . '-' . bin2hex(random_bytes(4)),
+            'service_register' => '1',
+            'service_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkService(int $hostId, int $serviceId): void
+    {
+        $this->connection->insert('host_service_relation', [
+            'host_host_id' => $hostId,
+            'service_service_id' => $serviceId,
+        ]);
+    }
+
+    private function uniqueName(string $prefix = 'host'): string
+    {
+        return $prefix . '_' . bin2hex(random_bytes(4));
+    }
+
+    private function hostIdByName(string $name): int
+    {
+        $id = $this->connection->fetchOne(
+            "SELECT host_id FROM host WHERE host_name = :name AND host_register = '1'",
+            ['name' => $name],
+        );
+        self::assertIsScalar($id, "expected a persisted host named {$name}");
+
+        return (int) $id;
+    }
+
+    private function createNonAdminContact(string $alias): int
+    {
+        $this->createApiUser($this->connection, $alias, admin: false);
+
+        /** @var int|string $contactId */
+        $contactId = $this->connection->fetchOne(
+            'SELECT contact_id FROM contact WHERE contact_alias = :alias',
+            ['alias' => $alias],
+        );
+
+        return (int) $contactId;
+    }
+
+    /**
+     * Grants the "Configuration > Hosts > Hosts" read-write topology access (the legacy menu role
+     * bridged to HostPermissionEnum::CanReadAndWrite), without any resource-scoping ACL — so the
+     * contact passes the permission gate but sees no host through centreon_acl.
+     */
+    private function grantHostReadAndWriteTopologyRole(int $contactId): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'topology-rw-group-' . $contactId,
+            'acl_group_alias' => 'topology-rw-group-' . $contactId,
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_topology', [
+            'acl_topo_name' => 'topology-rw-rule-' . $contactId,
+            'acl_topo_alias' => 'topology-rw-rule-' . $contactId,
+            'acl_topo_activate' => '1',
+        ]);
+        $aclTopoId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_topology_relations', [
+            'acl_group_id' => $aclGroupId,
+            'acl_topology_id' => $aclTopoId,
+        ]);
+
+        foreach ([6, 601, 60101] as $topologyPage) {
+            $topologyId = $this->connection->fetchOne(
+                'SELECT topology_id FROM topology WHERE topology_page = :page',
+                ['page' => $topologyPage],
+            );
+            self::assertIsScalar($topologyId, "topology_page {$topologyPage} not found in fixtures");
+
+            $this->connection->insert('acl_topology_relations', [
+                'topology_topology_id' => (int) $topologyId,
+                'acl_topo_id' => $aclTopoId,
+                'access_right' => 1,
+            ]);
+        }
+    }
+}

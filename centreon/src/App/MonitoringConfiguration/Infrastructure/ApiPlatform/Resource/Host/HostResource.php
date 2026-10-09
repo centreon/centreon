@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
@@ -80,6 +81,30 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to update hosts',
+        ),
+        new Post(
+            uriTemplate: '/configuration/hosts/{id}/_duplicate',
+            // No body, no item to read, no output: a 204 action that duplicates one host by id.
+            read: false,
+            deserialize: false,
+            validate: false,
+            output: false,
+            status: 204,
+            processor: DuplicateHostProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Duplicate a host',
+                description: 'Duplicates a single host. The copy takes the source name with the first '
+                    . 'free "_<n>" suffix. Unitary, not a bulk operation.',
+                responses: [
+                    204 => new Model\Response('Host duplicated'),
+                    403 => new Model\Response('You are not allowed to duplicate hosts'),
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host with the generated name already exists'),
+                    422 => new Model\Response('The generated host name would exceed the maximum length'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to duplicate hosts',
         ),
         new Put(
             uriTemplate: '/configuration/hosts/{id}',

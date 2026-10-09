@@ -1,0 +1,27 @@
+meta {
+  name: GET /configuration/hosts - Assert the _1 suffix held by a template is skipped - HTTP 200
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts?search={"name":"{{HostSkipName}}_1"}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("No host takes the _1 suffix: it is held by a host template, which the generator skips", function () {
+    const body = res.getBody();
+    expect(body.result).to.have.lengthOf(0);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

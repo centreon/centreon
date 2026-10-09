@@ -8,6 +8,7 @@ api_platform:
     exception_to_status:
         ApiPlatform\Validator\Exception\ValidationException: 422 # Input validation errors are unprocessable entities, not bad requests
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
+        App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException: 422 # a generated name too long is a validation failure, not a name-already-taken conflict
         App\Shared\Domain\Exception\AggregateNotFoundException: 404
         App\Shared\Domain\Exception\AggregateConflictException: 409 # unless the failed criteria name an input field, see InvalidReferenceExceptionListener
         App\Shared\Domain\Exception\EngineSecretsUnavailableException: 503
