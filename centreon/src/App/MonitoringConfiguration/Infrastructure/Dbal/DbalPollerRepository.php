@@ -438,11 +438,16 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class));
         }
 
+        $this->flagIdAsChanged($resource->pollerId);
+    }
+
+    public function flagIdAsChanged(PollerId $pollerId): void
+    {
         $qb = $this->connection->createQueryBuilder();
         $qb->update(self::TABLE_NAME)
             ->set('updated', $qb->createNamedParameter('1'))
             ->where('id = :poller_id')
-            ->setParameter('poller_id', $resource->pollerId->value)
+            ->setParameter('poller_id', $pollerId->value)
             ->executeStatement();
     }
 

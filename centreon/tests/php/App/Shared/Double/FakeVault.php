@@ -122,7 +122,7 @@ final class FakeVault implements VaultInterface
 
         $paths = [];
         foreach (array_keys($secrets) as $key) {
-            $paths[$key] = $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/new-uuid::%s', $customPath, $key);
+            $paths[$key] = $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/%s::%s', $customPath, $uuid ?? 'new-uuid', $key);
         }
 
         return $paths;

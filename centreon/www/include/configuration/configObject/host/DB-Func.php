@@ -42,6 +42,7 @@ use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\HostTemplateServicesCleaner;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -1235,213 +1236,6 @@ function deleteHostServiceMultiTemplate($hID, $scndHID, $host_list, $antiLoop = 
     $dbResult->closeCursor();
 }
 
-function updateHost($hostId = null, $isMassiveChange = false, $configuration = null)
-{
-    global $form, $pearDB, $centreon, $isCloudPlatform;
-
-    $hostObj = new CentreonHost($pearDB);
-
-    if (! $hostId) {
-        return;
-    }
-
-    $host = new CentreonHost($pearDB);
-
-    $ret = [];
-
-    $ret = ! isset($configuration) ? $form->getSubmitValues() : $configuration;
-
-    $kernel = Kernel::createForWeb();
-    /** @var Logger $logger */
-    $logger = $kernel->getContainer()->get(Logger::class);
-    /** @var VaultEligibilityService $vaultEligibilityService */
-    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
-
-    // Retrieve UUID for vault path before updating values in database.
-    $vaultPath = null;
-    if ($vaultEligibilityService->shouldUseVault()) {
-        $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
-    }
-
-    if (! $isCloudPlatform) {
-        if (! isset($ret['contact_additive_inheritance'])) {
-            $ret['contact_additive_inheritance'] = '0';
-        }
-        if (! isset($ret['cg_additive_inheritance'])) {
-            $ret['cg_additive_inheritance'] = '0';
-        }
-    }
-
-    $server_id = $ret['nagios_server_id'] ?? $form->getSubmitValue('nagios_server_id');
-
-    if (! isset($server_id) || $server_id == '' || $server_id == 0) {
-        $server_id = null;
-    }
-
-    if (! $isCloudPlatform) {
-        if (isset($ret['command_command_id_arg1']) && $ret['command_command_id_arg1'] != null) {
-            $ret['command_command_id_arg1'] = str_replace("\n", '#BR#', $ret['command_command_id_arg1']);
-            $ret['command_command_id_arg1'] = str_replace("\t", '#T#', $ret['command_command_id_arg1']);
-            $ret['command_command_id_arg1'] = str_replace("\r", '#R#', $ret['command_command_id_arg1']);
-        }
-        if (isset($ret['command_command_id_arg2']) && $ret['command_command_id_arg2'] != null) {
-            $ret['command_command_id_arg2'] = str_replace("\n", '#BR#', $ret['command_command_id_arg2']);
-            $ret['command_command_id_arg2'] = str_replace("\t", '#T#', $ret['command_command_id_arg2']);
-            $ret['command_command_id_arg2'] = str_replace("\r", '#R#', $ret['command_command_id_arg2']);
-        }
-    }
-
-    $ret['host_name'] = $host->checkIllegalChar($ret['host_name'], $server_id);
-    if ($ret['host_snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
-        unset($ret['host_snmp_community']);
-    }
-    $bindParams = sanitizeFormHostParameters($ret);
-
-    if ($isCloudPlatform) {
-        $bindParams = resetUnwantedParameters($bindParams);
-        $bindParams = resetHostTypeSpecificParams(
-            $bindParams,
-            isset($ret['host_register']) && $ret['host_register'] === '0' ? true : false
-        );
-    }
-
-    $rq = 'UPDATE host SET ';
-    foreach (array_keys($bindParams) as $token) {
-        $rq .= ltrim($token, ':') . ' = ' . $token . ', ';
-    }
-    $rq = rtrim($rq, ', ');
-    $rq .= ' WHERE host_id = :hostId';
-    $stmt = $pearDB->prepare($rq);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $stmt->bindValue($token, $value, $paramType);
-        }
-    }
-    $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
-    $stmt->execute();
-
-    // Update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
-        // Cleanup host service link to host template to be removed
-        $newTp = [];
-        foreach ($_POST['tpSelect'] as $tmpl) {
-            $newTp[$tmpl] = $tmpl;
-        }
-
-        $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-        $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $tplStatement->execute();
-        while ($hst = $tplStatement->fetch()) {
-            if (! isset($newTp[$hst['host_tpl_id']])) {
-                deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
-            }
-        }
-
-        // Set template
-        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
-    } elseif (isset($ret['use']) && $ret['use']) {
-        $already_stored = [];
-        $tplTab = preg_split("/\,/", $ret['use']);
-        $j = 0;
-        $deleteTplStatement = $pearDB->prepare('DELETE FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-        $deleteTplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $deleteTplStatement->execute();
-        $insertTplStatement = $pearDB->prepare('INSERT INTO host_template_relation (`host_host_id`, `host_tpl_id`, `order`) VALUES (:hostId, :tplId, :tplOrder)');
-        foreach ($tplTab as $val) {
-            $tplId = getMyHostID($val);
-            if (! isset($already_stored[$tplId]) && $tplId) {
-                $insertTplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-                $insertTplStatement->bindValue(':tplId', (int) $tplId, PDO::PARAM_INT);
-                $insertTplStatement->bindValue(':tplOrder', $j, PDO::PARAM_INT);
-                $insertTplStatement->execute();
-                $j++;
-                $already_stored[$tplId] = 1;
-            }
-        }
-    } else {
-        // Cleanup host service link to host template to be removed
-        $newTp = [];
-
-        $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-        $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $tplStatement->execute();
-        while ($hst = $tplStatement->fetch()) {
-            if (! isset($newTp[$hst['host_tpl_id']])) {
-                deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
-            }
-        }
-
-        // Set template
-        $hostObj->setTemplates($hostId, []);
-    }
-
-    // Update demand macros
-    if (
-        isset($_REQUEST['macroInput'], $_REQUEST['macroValue'])
-    ) {
-        $macroDescription = [];
-        foreach ($_REQUEST as $nam => $ele) {
-            if (preg_match_all("/^macroDescription_(\w+)$/", $nam, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $match) {
-                    $macroDescription[$match[1]] = $ele;
-                }
-            }
-        }
-        $hostObj->insertMacro(
-            $hostId,
-            $_REQUEST['macroInput'],
-            $_REQUEST['macroValue'],
-            $_REQUEST['macroPassword'] ?? [],
-            $macroDescription,
-            false,
-            $ret['command_command_id'] ?? false
-        );
-    } else {
-        $deleteMacroStatement = $pearDB->prepare('DELETE FROM on_demand_macro_host WHERE host_host_id = :hostId');
-        $deleteMacroStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-        $deleteMacroStatement->execute();
-    }
-
-    if (isset($ret['criticality_id'])) {
-        setHostCriticality($hostId, $ret['criticality_id']);
-    }
-
-    // If there is a vault configuration write into vault
-    if ($vaultEligibilityService->shouldUseVault()) {
-        /** @var ReadVaultRepositoryInterface $readVaultRepository */
-        $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-
-        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
-        $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-        $writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
-        try {
-            updateHostSecretsInVault(
-                $readVaultRepository,
-                $writeVaultRepository,
-                $logger,
-                $vaultPath,
-                (int) $hostId,
-                $hostObj->getFormattedMacros(),
-                $bindParams[':host_snmp_community'][PDO::PARAM_STR] ?? null
-            );
-        } catch (Throwable $ex) {
-            error_log((string) $ex);
-        }
-    }
-
-    // Logs
-    // Prepare value for changelog
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_HOST,
-        object_id: $hostId,
-        object_name: $ret['host_name'],
-        action_type: ActionLog::ACTION_TYPE_CHANGE,
-        fields: $fields
-    );
-    $centreon->user->access->updateACL(['type' => 'HOST', 'id' => $hostId, 'action' => 'UPDATE']);
-}
-
 function updateHost_MC($hostId = null)
 {
     global $form, $pearDB, $centreon, $isCloudPlatform;
@@ -1532,17 +1326,67 @@ function updateHost_MC($hostId = null)
         $statement->execute();
     }
     // update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
-        $oldTp = [];
-        if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
-            $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-            $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-            $tplStatement->execute();
-            while ($hst = $tplStatement->fetch()) {
-                $oldTp[$hst['host_tpl_id']] = $hst['host_tpl_id'];
+    if (isset($_REQUEST['tpSelect']) && is_array($_REQUEST['tpSelect'])) {
+        $hostIdParameter = QueryParameters::create([QueryParameter::int('hostId', (int) $hostId)]);
+        $findTemplateIds = static fn (): array => array_map('intval', $pearDB->fetchFirstColumn(
+            'SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId',
+            $hostIdParameter
+        ));
+        $previousTemplateIds = $findTemplateIds();
+        $isIncrementalMode = isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0;
+        // Replacement mode may unlink templates: their services deployed on the host must go.
+        // Host templates are skipped, they have no deployed services.
+        $cleanRemovedTemplateServices = ! $isIncrementalMode
+            && (string) $pearDB->fetchOne(
+                'SELECT `host_register` FROM `host` WHERE `host_id` = :hostId',
+                $hostIdParameter
+            ) === '1';
+        if ($isIncrementalMode) {
+            // Keep the current templates and only add the selected ones.
+            $hostObj->setTemplates(
+                $hostId,
+                $_REQUEST['tpSelect'],
+                array_combine($previousTemplateIds, $previousTemplateIds)
+            );
+        } elseif (! $cleanRemovedTemplateServices) {
+            $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+        } else {
+            // The cleaner writes through another connection, so both steps cannot share one transaction.
+            // The new templates are only committed once the cleanup succeeded: on failure the host keeps
+            // its previous templates and services, and the mass change goes on with the other hosts.
+            $ownTransaction = ! $pearDB->isTransactionActive();
+            try {
+                if ($ownTransaction) {
+                    $pearDB->startTransaction();
+                }
+                $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+
+                /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
+                $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
+                // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
+                $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
+                    (int) $hostId,
+                    $previousTemplateIds,
+                    $findTemplateIds()
+                );
+
+                if ($ownTransaction) {
+                    $pearDB->commitTransaction();
+                }
+            } catch (Throwable $ex) {
+                // A transaction opened by the caller is the caller's to roll back.
+                if (! $ownTransaction) {
+                    throw $ex;
+                }
+                if ($pearDB->isTransactionActive()) {
+                    $pearDB->rollBackTransaction();
+                }
+                $logger->error('Failed to replace the host templates, previous templates kept', [
+                    'host_id' => (int) $hostId,
+                    'exception' => $ex,
+                ]);
             }
         }
-        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect'], $oldTp);
     }
 
     // Update on demand macros
