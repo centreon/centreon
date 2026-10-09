@@ -22,7 +22,7 @@ import {
 } from 'ramda';
 
 import type { BarStyle } from '../BarChart/models';
-import type { LineStyle } from '../Chart/models';
+import type { LineStyle, Tooltip } from '../Chart/models';
 import type { Threshold, Thresholds } from './models';
 import { formatMetricValueWithUnit } from './timeSeries';
 import type { Line, TimeValue } from './timeSeries/models';
@@ -277,4 +277,26 @@ export const computPixelsToShiftMouse = (
   }
 
   return Math.round(8 / hoursDiffInGraph);
+};
+
+interface IsMetricDisplayedInTooltipProps
+  extends Partial<Pick<Tooltip, 'mode'>> {
+  isHighlighted: boolean;
+  value?: number | null;
+}
+
+export const isMetricDisplayedInTooltip = ({
+  mode,
+  isHighlighted,
+  value
+}: IsMetricDisplayedInTooltipProps): boolean => {
+  if (equals(mode, 'single')) {
+    return isHighlighted;
+  }
+
+  if (equals(mode, 'defined')) {
+    return Boolean(value);
+  }
+
+  return true;
 };

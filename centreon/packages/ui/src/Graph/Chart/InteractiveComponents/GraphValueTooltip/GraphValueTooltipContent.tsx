@@ -9,20 +9,21 @@ import { mousePositionAtom } from '../interactionWithGraphAtoms';
 import { useGraphValueTooltip } from './useGraphValueTooltip';
 import { useGraphValueTooltipStyles } from './useGraphValueTooltipStyles';
 
-interface Props extends Pick<Tooltip, 'sortOrder'> {
+interface Props
+  extends Pick<Tooltip, 'sortOrder'>,
+    Partial<Pick<Tooltip, 'mode'>> {
   base: number;
-  isSingleMode: boolean;
 }
 
 const GraphValueTooltipContent = ({
   base,
-  isSingleMode,
+  mode,
   sortOrder
 }: Props): JSX.Element | null => {
   const { classes } = useGraphValueTooltipStyles();
   const mousePosition = useAtomValue(mousePositionAtom);
 
-  const graphValue = useGraphValueTooltip({ isSingleMode, sortOrder });
+  const graphValue = useGraphValueTooltip({ mode, sortOrder });
 
   if (isNil(graphValue) || isNil(mousePosition)) {
     return null;

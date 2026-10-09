@@ -74,7 +74,7 @@ export interface ThresholdTooltip {
   thresholdLabel?: string;
 }
 export interface Tooltip {
-  mode: 'all' | 'single' | 'hidden';
+  mode: 'all' | 'single' | 'hidden' | 'defined';
   renderComponent?: (args: TooltipData) => ReactNode;
   sortOrder: 'name' | 'ascending' | 'descending';
 }
