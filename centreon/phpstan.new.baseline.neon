@@ -1,6 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: src/App/MonitoringConfiguration/Application/Command/UpdateHostCommandHandler.php
+
+		-
 			message: '#^Trait App\\Shared\\Domain\\Repository\\SearchableCriteriaTrait is used zero times and is not analysed\.$#'
 			identifier: trait.unused
 			count: 1

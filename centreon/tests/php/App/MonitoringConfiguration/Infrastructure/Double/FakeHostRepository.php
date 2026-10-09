@@ -52,6 +52,9 @@ final class FakeHostRepository implements HostRepository
     /** @var list<Host> */
     public array $updatedHosts = [];
 
+    /** Thrown by update(), to simulate a failure after the vault was written. */
+    public ?\Throwable $updateThrows = null;
+
     /** @var list<Host> */
     public array $relationsReplacedHosts = [];
 
@@ -136,6 +139,10 @@ final class FakeHostRepository implements HostRepository
 
     public function update(Host $host): void
     {
+        if ($this->updateThrows instanceof \Throwable) {
+            throw $this->updateThrows;
+        }
+
         if (! isset($this->hosts[$host->id()->value])) {
             return;
         }
@@ -145,6 +152,11 @@ final class FakeHostRepository implements HostRepository
     }
 
     public function replaceRelations(Host $host): void
+    {
+        $this->replaceRelationsAndMacros($host);
+    }
+
+    public function replaceRelationsAndMacros(Host $host): void
     {
         $id = $host->id()->value;
         if (! isset($this->hosts[$id])) {
