@@ -6,10 +6,9 @@ import {
 } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
-import { isEmpty } from 'ramda';
+import { isEmpty, isNotNil } from 'ramda';
 import { ReactElement } from 'react';
 
-import FederatedComponent from '../../../components/FederatedComponents';
 import CloudInstallCommand from './CloudInstallCommand/CloudInstallCommand';
 import ExportConfiguration from './ExportConfiguration';
 
@@ -45,12 +44,10 @@ export const PollerSubMenu = ({
   const platformFeatures = useAtomValue(platformFeaturesAtom);
   const userPermissions = useAtomValue(userPermissionsAtom);
 
-  // Explicitly false, not falsy: the atom is null until /platform/features
-  // resolves, and a loose check would flash this on-premise entry on a cloud
-  // platform.
+  // Wait for /platform/features: the modal reads isCloudPlatform once to
+  // decide whether the central address is asked or derived.
   const canCreatePoller =
-    platformFeatures?.isCloudPlatform === false &&
-    !!userPermissions?.create_edit_poller_cfg;
+    isNotNil(platformFeatures) && !!userPermissions?.create_edit_poller_cfg;
 
   return (
     <List className="min-w-[256px] p-0" data-testid="poller-menu">
@@ -94,12 +91,6 @@ export const PollerSubMenu = ({
       {exportConfig.isExportButtonEnabled && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <ExportConfiguration closeSubMenu={closeSubMenu} />
-        </ListItem>
-      )}
-
-      {platformFeatures?.isCloudPlatform && (
-        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
-          <FederatedComponent path="/cloud-extensions" />
         </ListItem>
       )}
 
