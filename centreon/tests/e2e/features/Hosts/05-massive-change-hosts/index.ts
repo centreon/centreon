@@ -33,8 +33,8 @@ const checkHostsProperties = (hostName) => {
 
 // Unknown Examples values throw instead of silently falling back to another case.
 const templateUpdateModes: Record<string, number> = {
-  Incremental: 0,
-  Replacement: 1
+  incremental: 0,
+  replacement: 1
 };
 const previousServicesCounts: Record<string, number> = { kept: 1, removed: 0 };
 
@@ -195,7 +195,7 @@ When(
       .click();
     cy.getIframeBody()
       .find(
-        `input[name="mc_mod_tplp[mc_mod_tplp]"][value="${lookup(templateUpdateModes, mode)}"]`
+        `input[name="mc_mod_tplp[mc_mod_tplp]"][value="${lookup(templateUpdateModes, mode.toLowerCase())}"]`
       )
       .check({ force: true });
     // "Create Services linked to the Template too": deploys the new template's services.
