@@ -98,13 +98,10 @@ class AgentConfigurationTest extends TestCase
     private function formatReverseConnections(array $hosts): array
     {
         $data = [
-            'agent_initiated' => false,
-            'poller_initiated' => true,
+            'is_reverse' => true,
             'otel_public_certificate' => null,
-            'otel_ca_certificate' => null,
             'otel_private_key' => null,
-            'port' => null,
-            'create_host_auto' => false,
+            'otel_ca_certificate' => null,
             'tokens' => [],
             'hosts' => $hosts,
         ];
