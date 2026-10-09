@@ -42,6 +42,15 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s:%s" (required $msg .Values.vmware.image.repository) (toString (required $msg .Values.vmware.image.tag)) -}}
 {{- end -}}
 
+{{/* Secret holding the CMA TLS identity: provided, or issued by cert-manager. */}}
+{{- define "centreon-poller.otelTlsSecret" -}}
+{{- if .Values.engine.otel.tls.existingSecret -}}
+{{- .Values.engine.otel.tls.existingSecret -}}
+{{- else if .Values.engine.otel.tls.certManager.enabled -}}
+{{- printf "%s-otel-tls" (include "centreon-poller.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "centreon-poller.secretName" -}}
 {{- required "secrets.existingSecret is required (GORGONE_TOKEN, APP_SECRET, SALT)" .Values.secrets.existingSecret -}}
 {{- end -}}

@@ -56,19 +56,27 @@ CN = host name and no SAN. The pod host name is `<release>-0` (forced by the
 StatefulSet controller), so it never matches an external FQDN. Provide the
 TLS identity instead:
 
-1. Create a `kubernetes.io/tls` Secret (`tls.crt`, `tls.key`, optional
-   `ca.crt`) with the FQDN agents dial as SAN, e.g. with cert-manager. A
-   self-signed CA also works: the engine issues its server certificates from
-   it and copies its SANs.
-2. `--set engine.otel.tls.existingSecret=<secret>`. The init container copies
-   it to `/etc/pki/centreon-poller`, owned by centengine (key `0600`, not
-   readable by gorgone). A renewed certificate is picked up at the next pod
-   restart.
+1. Get a certificate with the FQDN agents dial as SAN, either:
+   - **cert-manager** (recommended): `engine.otel.tls.certManager.enabled=true`,
+     `dnsNames` = the FQDN(s), `issuerRef` = your Issuer / ClusterIssuer
+     (e.g. a CA Issuer whose CA the agents trust). The chart creates the
+     `Certificate`; cert-manager writes the Secret `<release>-otel-tls` and
+     renews it.
+   - or a `kubernetes.io/tls` Secret of yours (`tls.crt`, `tls.key`, optional
+     `ca.crt`): `engine.otel.tls.existingSecret=<secret>`. A self-signed CA
+     also works: the engine issues its server certificates from it.
+
+   The CA's subject must differ from the server certificate's (a CA named
+   after the FQDN makes the server certificate look self-signed to agents).
+2. The init container copies the Secret to `/etc/pki/centreon-poller`, owned
+   by centengine (key `0600`, not readable by gorgone). A renewed certificate
+   is picked up at the next pod restart.
 3. In the poller's agent configuration in Centreon: public certificate
    `/etc/pki/centreon-poller/tls.crt`, private key
    `/etc/pki/centreon-poller/tls.key` (CA certificate
-   `/etc/pki/centreon-poller/ca.crt` if any).
-4. Give the agents the CA in `ca_certificate`.
+   `/etc/pki/centreon-poller/ca.crt` if any), then export with **Restart**
+   (a reload does not load the OpenTelemetry module).
+4. Give the agents the CA in `ca_certificate` (`install_cma.ps1 -CA <file>`).
 
 Poller-initiated (reverse) connections do not use this identity.
 
@@ -138,6 +146,7 @@ Enabling it does not change the volume list.
 | `gorgone.extraEnv` / `engine.extraEnv` | `[]` | E.g. `SMTP_*` on the engine |
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
 | `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
+| `engine.otel.tls.certManager` | disabled | Certificate issued by cert-manager (`dnsNames`, `issuerRef`), see CMA |
 | `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
 | `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
 | `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |

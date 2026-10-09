@@ -3,6 +3,7 @@
 {{- $fullname := include "centreon-poller.fullname" . -}}
 {{- $engineImage := include "centreon-poller.image" (dict "ctx" . "image" .Values.images.engine) -}}
 {{- $gorgoneImage := include "centreon-poller.image" (dict "ctx" . "image" .Values.images.gorgone) -}}
+{{- $otelTlsSecret := include "centreon-poller.otelTlsSecret" . -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -91,7 +92,7 @@ spec:
               # saved on clean stop). Needs an image whose entrypoint is not
               # in the home (MON-211751), or the seed would freeze it.
               seed /var/lib/centreon-engine /seed/engine-home
-              {{- if .Values.engine.otel.tls.existingSecret }}
+              {{- if $otelTlsSecret }}
               # CMA TLS identity: private to centengine (gorgone shares the pod).
               for f in /seed/otel-tls-src/*; do
                 n=$(basename "$f")
@@ -109,7 +110,7 @@ spec:
             - { name: centcmd, mountPath: /seed/centcmd }
             - { name: cma-pki, mountPath: /seed/pki }
             - { name: engine-home, mountPath: /seed/engine-home }
-            {{- if .Values.engine.otel.tls.existingSecret }}
+            {{- if $otelTlsSecret }}
             - { name: otel-tls-src, mountPath: /seed/otel-tls-src, readOnly: true }
             - { name: otel-tls, mountPath: /seed/otel-tls }
             {{- end }}
@@ -251,7 +252,7 @@ spec:
             - { name: broker, mountPath: /etc/centreon-broker }
             - { name: logs, mountPath: /var/log/centreon-engine }
             - { name: cma-pki, mountPath: /etc/pki/centreon-engine }
-            {{- if .Values.engine.otel.tls.existingSecret }}
+            {{- if $otelTlsSecret }}
             - { name: otel-tls, mountPath: {{ .Values.engine.otel.tls.mountPath }}, readOnly: true }
             {{- end }}
           {{- with .Values.engine.resources }}
@@ -323,7 +324,7 @@ spec:
         - name: traps-spool
           emptyDir: {}
         {{- end }}
-        {{- with .Values.engine.otel.tls.existingSecret }}
+        {{- with $otelTlsSecret }}
         # Only seed-engine reads the Secret; it copies it into otel-tls owned
         # by centengine (key 0600). No fsGroup: it would re-own the PVCs.
         - name: otel-tls-src

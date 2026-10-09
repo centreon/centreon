@@ -1,0 +1,29 @@
+{{- with .Values.engine.otel.tls.certManager }}
+{{- if and .enabled (not $.Values.engine.otel.tls.existingSecret) }}
+{{- if not .dnsNames }}
+{{- fail "engine.otel.tls.certManager.dnsNames is required (FQDN the agents dial)" }}
+{{- end }}
+# CMA TLS identity issued and renewed by cert-manager. The pod copies the
+# Secret at start: a renewed certificate is used from the next restart.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "centreon-poller.fullname" $ }}-otel
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+spec:
+  secretName: {{ include "centreon-poller.otelTlsSecret" $ }}
+  commonName: {{ first .dnsNames | quote }}
+  dnsNames:
+    {{- toYaml .dnsNames | nindent 4 }}
+  duration: {{ .duration }}
+  renewBefore: {{ .renewBefore }}
+  privateKey:
+    {{- toYaml .privateKey | nindent 4 }}
+  usages: [server auth, digital signature, key encipherment]
+  issuerRef:
+    name: {{ required "engine.otel.tls.certManager.issuerRef.name is required" .issuerRef.name }}
+    kind: {{ .issuerRef.kind }}
+    group: {{ .issuerRef.group }}
+{{- end }}
+{{- end }}

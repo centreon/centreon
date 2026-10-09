@@ -88,6 +88,22 @@ engine:
     # the engine issues its server certificates from it, copying its SANs.
     tls:
       existingSecret: ""
+      # Or let cert-manager issue it (Secret "<fullname>-otel-tls"). The
+      # issuer is yours: e.g. a CA Issuer whose CA the agents already trust.
+      # Renewals are picked up at the next pod restart.
+      certManager:
+        enabled: false
+        dnsNames: []           # FQDN(s) the agents dial; the first one is the CN
+        issuerRef:
+          name: ""
+          kind: Issuer         # or ClusterIssuer
+          group: cert-manager.io
+        duration: 2160h        # 90 days
+        renewBefore: 360h      # 15 days
+        privateKey:
+          algorithm: RSA
+          size: 2048
+          rotationPolicy: Always
       # Must stay under /etc/pki/ (enforced by the central's form).
       mountPath: /etc/pki/centreon-poller
     service:
