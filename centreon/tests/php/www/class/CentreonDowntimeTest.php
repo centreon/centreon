@@ -66,10 +66,55 @@ class CentreonDowntimeTest extends TestCase
 
         $downtimes = $this->downtime->getForEnabledServicegroups();
 
-        $this->assertCount(4, $downtimes);
         $this->assertEqualsCanonicalizing(
-            ['12-1001', '12-1002', '22-1001', '22-1002'],
-            $this->downtimeServicePairs($downtimes)
+            [
+                '12-1001-1,2,3,4,5',
+                '12-1002-1,2,3,4,5',
+                '22-1001-6,7',
+                '22-1002-6,7',
+            ],
+            $this->downtimeSignatures($downtimes)
+        );
+    }
+
+    public function testEveryPeriodOfADowntimeTargetingAServiceTemplateIsApplied(): void
+    {
+        $this->serviceGroupStatement->method('fetch')->willReturnOnConsecutiveCalls(
+            $this->serviceGroupDowntimeRecord(['dt_id' => '12', 'dtp_day_of_week' => '1,2,3,4,5']),
+            $this->serviceGroupDowntimeRecord(['dt_id' => '12', 'dtp_day_of_week' => '6,7']),
+            false
+        );
+        $this->templateServicesStatement->method('fetch')->willReturnOnConsecutiveCalls(
+            $this->templateService('1', '1001', '100'),
+            false
+        );
+
+        $downtimes = $this->downtime->getForEnabledServicegroups();
+
+        $this->assertEqualsCanonicalizing(
+            ['12-1001-1,2,3,4,5', '12-1001-6,7'],
+            $this->downtimeSignatures($downtimes)
+        );
+    }
+
+    public function testServicesOnlyReceiveTheDowntimesOfTheirOwnServiceTemplate(): void
+    {
+        $this->serviceGroupStatement->method('fetch')->willReturnOnConsecutiveCalls(
+            $this->serviceGroupDowntimeRecord(['dt_id' => '12', 'service_id' => '100']),
+            $this->serviceGroupDowntimeRecord(['dt_id' => '22', 'service_id' => '200']),
+            false
+        );
+        $this->templateServicesStatement->method('fetch')->willReturnOnConsecutiveCalls(
+            $this->templateService('1', '1001', '100'),
+            $this->templateService('2', '1002', '200'),
+            false
+        );
+
+        $downtimes = $this->downtime->getForEnabledServicegroups();
+
+        $this->assertEqualsCanonicalizing(
+            ['12-1001-1,2,3,4,5', '22-1002-1,2,3,4,5'],
+            $this->downtimeSignatures($downtimes)
         );
     }
 
@@ -94,7 +139,10 @@ class CentreonDowntimeTest extends TestCase
 
         $downtimes = $this->downtime->getForEnabledServicegroups();
 
-        $this->assertEqualsCanonicalizing(['5-2001', '12-1001'], $this->downtimeServicePairs($downtimes));
+        $this->assertEqualsCanonicalizing(
+            ['5-2001-1,2,3,4,5', '12-1001-1,2,3,4,5'],
+            $this->downtimeSignatures($downtimes)
+        );
     }
 
     /**
@@ -142,12 +190,14 @@ class CentreonDowntimeTest extends TestCase
     /**
      * @param list<array<string, mixed>> $downtimes
      *
-     * @return list<string> "<downtime id>-<service id>" pairs
+     * @return list<string> "<downtime id>-<service id>-<period days of week>" signatures
      */
-    private function downtimeServicePairs(array $downtimes): array
+    private function downtimeSignatures(array $downtimes): array
     {
         return array_map(
-            static fn (array $downtime): string => $downtime['dt_id'] . '-' . $downtime['service_id'],
+            static fn (array $downtime): string => $downtime['dt_id']
+                . '-' . $downtime['service_id']
+                . '-' . $downtime['dtp_day_of_week'],
             $downtimes
         );
     }
