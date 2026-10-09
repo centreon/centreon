@@ -52,6 +52,9 @@ final class FakeHostRepository implements HostRepository
     /** @var list<Host> */
     public array $updatedHosts = [];
 
+    /** @var list<Host> */
+    public array $relationsReplacedHosts = [];
+
     /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
      * writes from both sides: a host created with children becomes their parent in the graph.
@@ -147,10 +150,33 @@ final class FakeHostRepository implements HostRepository
         $this->hosts[$host->id()->value] = $host;
     }
 
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
+    public function replaceRelations(Host $host): void
+    {
+        $id = $host->id()->value;
+        if (! isset($this->hosts[$id])) {
+            return;
+        }
+
+        $this->relationsReplacedHosts[] = $host;
+        $this->hosts[$id] = $host;
+
+        // Rebuild this host's edges in the ancestor map (full replace, like the real one).
+        unset($this->parentIds[$id]);
+        foreach ($this->parentIds as $child => $parents) {
+            $this->parentIds[$child] = array_values(array_filter($parents, static fn (int $parent): bool => $parent !== $id));
+        }
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
+    }
+
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
     {
         foreach ($this->hosts as $host) {
-            if ($host->id()->value !== $excludedHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
+            if ($host->id()->value !== $excludingHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
                 return true;
             }
         }
@@ -175,8 +201,9 @@ final class FakeHostRepository implements HostRepository
         return new Collection($names, HostName::class);
     }
 
-    public function findAncestorIds(Collection $ids): Collection
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection
     {
+        $exclude = $excludingHostId?->value;
         $seen = [];
         $queue = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
 
@@ -187,7 +214,16 @@ final class FakeHostRepository implements HostRepository
             }
             $seen[$current] = true;
 
+            // Drop every edge touching the excluded host: where it is the child (skip its outgoing
+            // traversal) and where it is a parent (never queue it).
+            if ($current === $exclude) {
+                continue;
+            }
+
             foreach ($this->parentIds[$current] ?? [] as $parentId) {
+                if ($parentId === $exclude) {
+                    continue;
+                }
                 $queue[] = $parentId;
             }
         }

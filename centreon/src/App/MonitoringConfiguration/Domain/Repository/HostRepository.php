@@ -81,6 +81,14 @@ interface HostRepository
     public function update(Host $host): void;
 
     /**
+     * Full replace of a host's relations (host groups, categories and severity, templates, parents and
+     * children, contacts and contact groups), complementing {@see update()}: every relation table is
+     * cleared and written again from $host. The macros are not touched. A silent no-op on an unknown id
+     * or a host template.
+     */
+    public function replaceRelations(Host $host): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *
@@ -88,10 +96,10 @@ interface HostRepository
      * template, which has no poller relation and therefore cannot be hydrated into a valid
      * `Host` (poller is a required, non-nullable field on the aggregate).
      *
-     * $excludedHostId leaves a host out of the lookup, so that a host can be renamed to a name that only
-     * differs from its own by its case.
+     * @param ?HostId $excludingHostId leaves a host out of the lookup, so that a host can be renamed to a
+     *                                 name that only differs from its own by its case
      */
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool;
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool;
 
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
@@ -111,8 +119,12 @@ interface HostRepository
      * Includes $ids themselves, minus any that is not a host.
      *
      * @param Collection<HostId> $ids
+     * @param ?HostId $excludingHostId on an update, the edited host's own parent and child edges are about
+     *                                 to be replaced, so they must not contribute phantom ancestors to the
+     *                                 circular-inheritance check: pass its id to drop every
+     *                                 `host_hostparent_relation` row touching it from the traversal
      *
      * @return Collection<HostId>
      */
-    public function findAncestorIds(Collection $ids): Collection;
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection;
 }

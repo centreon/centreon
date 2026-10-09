@@ -182,7 +182,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function add(Host $host): void
     {
         $extendedInformations = $host->extendedInformations;
-        $notifications = $host->notifications;
 
         $qb = $this->connection->createQueryBuilder();
         $qb->insert(self::TABLE_NAME)
@@ -225,43 +224,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->setParameter('pollerId', $host->pollerId->value)
             ->executeStatement();
 
-        foreach ($host->hostGroupIds as $hostGroupId) {
-            $this->connection->createQueryBuilder()
-                ->insert('hostgroup_relation')
-                ->values(['hostgroup_hg_id' => ':groupId', 'host_host_id' => ':hostId'])
-                ->setParameter('groupId', $hostGroupId->value)
-                ->setParameter('hostId', $hostId)
-                ->executeStatement();
-        }
-
-        // Categories and the severity share this table, told apart only by `hostcategories.level`.
-        foreach ($host->categoryIds as $categoryId) {
-            $this->linkToHostCategory($hostId, $categoryId->value);
-        }
-
-        if ($host->severityId instanceof HostSeverityId) {
-            $this->linkToHostCategory($hostId, $host->severityId->value);
-        }
-
-        // Contiguous, unlike AddHost, which leaves gaps from the array_unique() keys.
-        $order = 0;
-        foreach ($host->templateIds as $templateId) {
-            $this->connection->createQueryBuilder()
-                ->insert('host_template_relation')
-                ->values(['host_tpl_id' => ':templateId', 'host_host_id' => ':hostId', '`order`' => ':order'])
-                ->setParameter('templateId', $templateId->value)
-                ->setParameter('hostId', $hostId)
-                ->setParameter('order', $order++)
-                ->executeStatement();
-        }
-
-        foreach ($host->parentHostIds as $parentHostId) {
-            $this->insertParentRelation(parentId: $parentHostId->value, childId: $hostId);
-        }
-
-        foreach ($host->childHostIds as $childHostId) {
-            $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
-        }
+        $this->insertRelations($hostId, $host);
 
         foreach ($host->checkOptions->macros as $macro) {
             $this->connection->createQueryBuilder()
@@ -278,26 +241,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 ->setParameter('isPassword', $macro->isPassword ? 1 : null)
                 ->setParameter('hostId', $hostId)
                 ->executeStatement();
-        }
-
-        if ($notifications instanceof Notifications) {
-            foreach ($notifications->contactIds as $contactId) {
-                $this->connection->createQueryBuilder()
-                    ->insert('contact_host_relation')
-                    ->values(['contact_id' => ':contactId', 'host_host_id' => ':hostId'])
-                    ->setParameter('contactId', $contactId->value)
-                    ->setParameter('hostId', $hostId)
-                    ->executeStatement();
-            }
-
-            foreach ($notifications->contactGroupIds as $contactGroupId) {
-                $this->connection->createQueryBuilder()
-                    ->insert('contactgroup_host_relation')
-                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'host_host_id' => ':hostId'])
-                    ->setParameter('contactGroupId', $contactGroupId->value)
-                    ->setParameter('hostId', $hostId)
-                    ->executeStatement();
-            }
         }
     }
 
@@ -467,7 +410,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
      * introduced here. This is the only safeguard against a duplicate name.
      */
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')
@@ -475,8 +418,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
             ->setMaxResults(1);
 
-        if ($excludedHostId instanceof HostId) {
-            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludedHostId->value, ParameterType::INTEGER)));
+        if ($excludingHostId instanceof HostId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludingHostId->value, ParameterType::INTEGER)));
         }
 
         return (bool) $qb->executeQuery()->fetchOne();
@@ -589,15 +532,29 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return new Collection($names, HostName::class);
     }
 
-    public function findAncestorIds(Collection $ids): Collection
+    public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
         if ($idValues === []) {
             return new Collection([], HostId::class);
         }
 
+        $params = ['ids' => $idValues];
+        $types = ['ids' => ArrayParameterType::INTEGER];
+
+        // On an update, the edited host's own parent/child edges are about to be replaced, so they
+        // must not contribute phantom ancestors: drop from the traversal every relation row on
+        // either side of it. A genuine new cycle passes through the edited host via its new edges,
+        // never through this middle path, so excluding it here cannot hide one.
+        $excludeClause = '';
+        if ($excludingHostId instanceof HostId) {
+            $excludeClause = ' AND hhr.host_host_id <> :excludeId AND hhr.host_parent_hp_id <> :excludeId';
+            $params['excludeId'] = $excludingHostId->value;
+            $types['excludeId'] = ParameterType::INTEGER;
+        }
+
         // UNION, not UNION ALL: a loop already in the data cannot hang the query.
-        $sql = <<<'SQL'
+        $sql = <<<SQL
             WITH RECURSIVE ancestors (host_id) AS (
                 SELECT h.host_id
                 FROM host h
@@ -606,7 +563,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
                 SELECT hhr.host_parent_hp_id
                 FROM host_hostparent_relation hhr
                 INNER JOIN ancestors a ON a.host_id = hhr.host_host_id
-                WHERE hhr.host_parent_hp_id IS NOT NULL
+                WHERE hhr.host_parent_hp_id IS NOT NULL{$excludeClause}
             )
             SELECT host_id FROM ancestors
             SQL;
@@ -614,14 +571,119 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         /** @var list<array{host_id: int|string}> $rows */
         $rows = $this->connection->executeQuery(
             $sql,
-            ['ids' => $idValues],
-            ['ids' => ArrayParameterType::INTEGER],
+            $params,
+            $types,
         )->fetchAllAssociative();
 
         return new Collection(
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
         );
+    }
+
+    /**
+     * Full replace of a host's relations, complementing {@see update()}, which writes its own fields and
+     * its poller. Every relation table (host groups, categories and severity, templates, parents and
+     * children, contacts and contact groups) is cleared and written again from $host. The macros are
+     * not touched. A silent no-op on an unknown id or a host template.
+     */
+    public function replaceRelations(Host $host): void
+    {
+        $hostId = $host->id()->value;
+        if (! $this->isRegisteredHost($hostId)) {
+            return;
+        }
+
+        $this->clearRelations($hostId);
+        $this->insertRelations($hostId, $host);
+    }
+
+    /**
+     * The relations add() and replaceRelations() write: everything but the poller and the macros.
+     */
+    private function insertRelations(int $hostId, Host $host): void
+    {
+        $notifications = $host->notifications;
+
+        foreach ($host->hostGroupIds as $hostGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('hostgroup_relation')
+                ->values(['hostgroup_hg_id' => ':groupId', 'host_host_id' => ':hostId'])
+                ->setParameter('groupId', $hostGroupId->value)
+                ->setParameter('hostId', $hostId)
+                ->executeStatement();
+        }
+
+        // Categories and the severity share this table, told apart only by `hostcategories.level`.
+        foreach ($host->categoryIds as $categoryId) {
+            $this->linkToHostCategory($hostId, $categoryId->value);
+        }
+
+        if ($host->severityId instanceof HostSeverityId) {
+            $this->linkToHostCategory($hostId, $host->severityId->value);
+        }
+
+        // Contiguous, unlike AddHost, which leaves gaps from the array_unique() keys.
+        $order = 0;
+        foreach ($host->templateIds as $templateId) {
+            $this->connection->createQueryBuilder()
+                ->insert('host_template_relation')
+                ->values(['host_tpl_id' => ':templateId', 'host_host_id' => ':hostId', '`order`' => ':order'])
+                ->setParameter('templateId', $templateId->value)
+                ->setParameter('hostId', $hostId)
+                ->setParameter('order', $order++)
+                ->executeStatement();
+        }
+
+        foreach ($host->parentHostIds as $parentHostId) {
+            $this->insertParentRelation(parentId: $parentHostId->value, childId: $hostId);
+        }
+
+        foreach ($host->childHostIds as $childHostId) {
+            $this->insertParentRelation(parentId: $hostId, childId: $childHostId->value);
+        }
+
+        if ($notifications instanceof Notifications) {
+            foreach ($notifications->contactIds as $contactId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contact_host_relation')
+                    ->values(['contact_id' => ':contactId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactId', $contactId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+
+            foreach ($notifications->contactGroupIds as $contactGroupId) {
+                $this->connection->createQueryBuilder()
+                    ->insert('contactgroup_host_relation')
+                    ->values(['contactgroup_cg_id' => ':contactGroupId', 'host_host_id' => ':hostId'])
+                    ->setParameter('contactGroupId', $contactGroupId->value)
+                    ->setParameter('hostId', $hostId)
+                    ->executeStatement();
+            }
+        }
+    }
+
+    /**
+     * Removes every relation row insertRelations() writes for this host, so that they can be written
+     * again from scratch. Parents and children both live in host_hostparent_relation, on either side
+     * of the id.
+     */
+    private function clearRelations(int $hostId): void
+    {
+        foreach (['hostgroup_relation', 'hostcategories_relation', 'host_template_relation', 'contact_host_relation', 'contactgroup_host_relation'] as $table) {
+            $this->connection->createQueryBuilder()
+                ->delete($table)
+                ->where('host_host_id = :hostId')
+                ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+                ->executeStatement();
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete('host_hostparent_relation')
+            ->where($qb->expr()->or('host_host_id = :hostId', 'host_parent_hp_id = :hostId'))
+            ->setParameter('hostId', $hostId, ParameterType::INTEGER)
+            ->executeStatement();
     }
 
     /**
