@@ -42,55 +42,23 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
-use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
-use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\DataProcessingOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCategoryOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckCommandOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCheckOptionsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostEventHandlerCommandOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostExtendedInformationsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostGroupOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostNotificationsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSchedulingOptionsOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostSeverityOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTimezoneOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
-use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
@@ -100,30 +68,12 @@ use Webmozart\Assert\Assert;
  */
 final readonly class PutHostProcessor implements ProcessorInterface
 {
-    /**
-     * @param TransformerInterface<Host, HostResource> $transformer
-     * @param TransformerInterface<?Notifications, ?HostNotificationsOutput> $notificationsTransformer
-     */
     public function __construct(
         private CommandBus $commandBus,
-        #[Autowire(service: HostResourceTransformer::class)]
-        private TransformerInterface $transformer,
         private Security $security,
-        private PollerRepository $pollerRepository,
-        private HostGroupRepository $hostGroupRepository,
-        private CommandRepository $commandRepository,
-        private HostTemplateRepository $hostTemplateRepository,
-        private HostCategoryRepository $hostCategoryRepository,
-        private HostSeverityRepository $hostSeverityRepository,
-        private TimezoneRepository $timezoneRepository,
         private HostRepository $hostRepository,
-        private MediaRepository $mediaRepository,
-        #[Autowire(service: HostNotificationsTransformer::class)]
-        private TransformerInterface $notificationsTransformer,
-        private MediaUrlGenerator $mediaUrlGenerator,
-        private TimePeriodRepository $timePeriodRepository,
         private HostMacroTransformer $macroTransformer,
-        private InheritedHostMacrosResolver $inheritedHostMacrosResolver,
+        private HostResourceBuilder $resourceBuilder,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -196,6 +146,7 @@ final readonly class PutHostProcessor implements ProcessorInterface
         // block there, so the host simply carries none.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
+        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
 
         $command = new UpdateHostCommand(
             id: $hostId,
@@ -205,7 +156,7 @@ final readonly class PutHostProcessor implements ProcessorInterface
             activated: $data->activated,
             hostGroupIds: $hostGroupIds,
             updatedBy: $credentialUser->credential->userId->value,
-            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            viewerId: $viewerId,
             dataProcessing: $dataProcessing,
             alias: $alias !== null ? new HostAlias($alias) : null,
             templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),
@@ -228,162 +179,20 @@ final readonly class PutHostProcessor implements ProcessorInterface
         $host = $this->commandBus->execute($command);
         Assert::isInstanceOf($host, Host::class);
 
-        $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
-        $groupNames = $this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray();
-
-        $groups = [];
-        foreach ($host->hostGroupIds as $groupId) {
-            if (isset($groupNames[$groupId->value])) {
-                $groups[] = new HostGroupOutput($groupId->value, $groupNames[$groupId->value]->value);
-            }
-        }
-
-        $icon = $this->resolveIcon($host->extendedInformations?->iconId);
-
-        $checkCommandOutput = null;
-        if ($host->checkOptions->checkCommandId instanceof CommandId) {
-            // The command exists (the handler already validated it), so this resolves it purely to
-            // surface its name in the response, the same way the poller name is resolved above.
-            $checkCommand = $this->commandRepository->getById($host->checkOptions->checkCommandId);
-            $checkCommandOutput = new HostCheckCommandOutput($checkCommand->id()->value, $checkCommand->name->value);
-        }
-
-        $resource = $this->transformer->transform($host);
-        $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerName[$host->pollerId->value]->value ?? '');
-        $resource->groups = $groups;
-        $resource->dataProcessing = $this->buildDataProcessingOutput($host->dataProcessing);
-
-        $templateNames = $this->hostTemplateRepository->findNamesByIds($host->templateIds)->toArray();
-        $resource->templates = [];
-        foreach ($host->templateIds as $templateId) {
-            if (isset($templateNames[$templateId->value])) {
-                $resource->templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]->value);
-            }
-        }
-
-        $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
-            [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()],
-            HostId::class,
-        ))->toArray();
-        $resource->parentHosts = $this->toRelatedHosts($host->parentHostIds, $relatedHostNames);
-        $resource->childHosts = $this->toRelatedHosts($host->childHostIds, $relatedHostNames);
-
-        $categoryNames = $this->hostCategoryRepository->findNamesByIds($host->categoryIds)->toArray();
-        $resource->categories = [];
-        foreach ($host->categoryIds as $categoryId) {
-            if (isset($categoryNames[$categoryId->value])) {
-                $resource->categories[] = new HostCategoryOutput($categoryId->value, $categoryNames[$categoryId->value]->value);
-            }
-        }
-
-        if ($host->timezoneId instanceof TimezoneId) {
-            $timezoneName = $this->timezoneRepository->findNameById($host->timezoneId);
-            $resource->timezone = $timezoneName instanceof TimezoneName
-                ? new HostTimezoneOutput($host->timezoneId->value, $timezoneName->value)
-                : null;
-        }
-
-        if ($host->severityId instanceof HostSeverityId) {
-            $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
-            $resource->severity = $severityName instanceof HostSeverityName
-                ? new HostSeverityOutput($host->severityId->value, $severityName->value)
-                : null;
-        }
-
-        // Nullable sub-object, like `severity`/`timezone`: left null (and so omitted) when every
-        // field is empty, rather than emitted as an all-null object (which the serializer collapses
-        // to an invalid `[]`). Mirrors CreateHostProcessor so the two bodies stay identical.
-        $resource->extendedInformations = null;
-        $extended = $host->extendedInformations;
-        if ($extended instanceof ExtendedInformations) {
-            $geoCoordinates = $extended->geoCoordinates instanceof GeoCoordinates
-                ? (string) $extended->geoCoordinates
-                : null;
-            if ($extended->noteUrl !== null
-                || $extended->note !== null
-                || $extended->actionUrl !== null
-                || $icon instanceof HostIconOutput
-                || $extended->altIcon !== null
-                || $extended->comment !== null
-                || $geoCoordinates !== null
-            ) {
-                $resource->extendedInformations = new HostExtendedInformationsOutput(
-                    noteUrl: $extended->noteUrl,
-                    note: $extended->note,
-                    actionUrl: $extended->actionUrl,
-                    icon: $icon,
-                    altIcon: $extended->altIcon,
-                    comment: $extended->comment,
-                    geoCoordinates: $geoCoordinates,
-                );
-            }
-        }
-        $resource->schedulingOptions = new HostSchedulingOptionsOutput(
-            checkPeriod: $this->resolveCheckPeriod($host->schedulingOptions->checkTimeperiodId),
-            maxCheckAttempts: $host->schedulingOptions->maxCheckAttempts,
-            normalCheckInterval: $host->schedulingOptions->normalCheckInterval,
-            retryCheckInterval: $host->schedulingOptions->retryCheckInterval,
-            activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
-            passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
-        );
-        // Every macro the host effectively has: its own, then those it still inherits, each with the
-        // id + parent a client resends to change it. The own macros are read back as stored, since a
-        // macro created by this update only gets its id on insertion.
-        $directMacros = array_values($this->hostRepository->findMacros($host->id())->toArray());
-        $macroOutputs = array_map(
-            $this->macroTransformer->transform(...),
-            $this->inheritedHostMacrosResolver
-                ->resolve($host->templateIds, $host->checkOptions->checkCommandId)
-                ->effectiveWith($directMacros),
-        );
-        $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
-
-        // Cloud handles notifications through another model: the stored block is kept, never exposed.
-        $resource->notifications = $this->isCloudPlatform ? null : $this->notificationsTransformer->transform($host->notifications);
-
-        return $resource;
-    }
-
-    private function buildDataProcessingOutput(DataProcessing $dataProcessing): DataProcessingOutput
-    {
-        $eventHandler = null;
-        if ($dataProcessing->eventHandlerCommandId instanceof CommandId) {
-            $command = $this->commandRepository->getById($dataProcessing->eventHandlerCommandId);
-            $eventHandler = new HostEventHandlerCommandOutput($command->id()->value, $command->name->value);
-        }
-
-        // On a Cloud platform the on-premise-only members are not part of the contract.
-        return new DataProcessingOutput(
-            checkFreshness: $dataProcessing->checkFreshness,
-            freshnessThreshold: $dataProcessing->freshnessThreshold,
-            eventHandlerEnabled: $dataProcessing->eventHandlerEnabled,
-            eventHandler: $eventHandler,
-            acknowledgmentTimeout: $this->isCloudPlatform ? null : $dataProcessing->acknowledgmentTimeout,
-            flapDetectionEnabled: $this->isCloudPlatform ? null : $dataProcessing->flapDetectionEnabled,
-            lowFlapThreshold: $this->isCloudPlatform ? null : $dataProcessing->lowFlapThreshold,
-            highFlapThreshold: $this->isCloudPlatform ? null : $dataProcessing->highFlapThreshold,
-            eventHandlerArgs: $this->isCloudPlatform ? [] : $dataProcessing->eventHandlerArgs,
+        // Built like the GetHost body, so a restricted viewer gets back only what they may see:
+        // the out-of-scope associations the update preserved stay hidden. The own macros are read
+        // back as stored, since a macro created by this update only gets its id on insertion.
+        return $this->resourceBuilder->build(
+            $host->with(checkOptions: $host->checkOptions->with(
+                macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
+            )),
+            $viewerId,
         );
     }
 
     private function triStateOrDefault(?TriStateEnum $value): TriStateEnum
     {
         return $value ?? TriStateEnum::UseDefault;
-    }
-
-    private function resolveCheckPeriod(?TimePeriodId $checkTimeperiodId): ?TimePeriodResource
-    {
-        if (! $checkTimeperiodId instanceof TimePeriodId) {
-            return null;
-        }
-
-        $name = $this->timePeriodRepository
-            ->findNamesByIds(new Collection([$checkTimeperiodId], TimePeriodId::class))
-            ->toArray()[$checkTimeperiodId->value] ?? null;
-
-        return $name instanceof TimePeriodName
-            ? new TimePeriodResource($checkTimeperiodId->value, $name->value)
-            : null;
     }
 
     /**
@@ -416,19 +225,6 @@ final readonly class PutHostProcessor implements ProcessorInterface
         );
     }
 
-    private function resolveIcon(?MediaId $iconId): ?HostIconOutput
-    {
-        if (! $iconId instanceof MediaId) {
-            return null;
-        }
-
-        $icon = $this->mediaRepository->findByIds(new Collection([$iconId], MediaId::class))->toArray()[$iconId->value] ?? null;
-
-        return $icon instanceof Media
-            ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
-            : null;
-    }
-
     private function trimmedOrNull(?string $value): ?string
     {
         if ($value === null) {
@@ -456,23 +252,5 @@ final readonly class PutHostProcessor implements ProcessorInterface
             array_map(static fn (int $id): object => new $className($id), array_values(array_unique($ids))),
             $className,
         );
-    }
-
-    /**
-     * @param Collection<HostId> $hostIds
-     * @param array<array-key, HostName> $names indexed by host id
-     *
-     * @return list<RelatedHostOutput>
-     */
-    private function toRelatedHosts(Collection $hostIds, array $names): array
-    {
-        $related = [];
-        foreach ($hostIds as $hostId) {
-            if (isset($names[$hostId->value])) {
-                $related[] = new RelatedHostOutput($hostId->value, $names[$hostId->value]->value);
-            }
-        }
-
-        return $related;
     }
 }
