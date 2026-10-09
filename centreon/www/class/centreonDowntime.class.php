@@ -625,7 +625,7 @@ class CentreonDowntime
 
         while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             if ((int) $record['service_register'] === self::SERVICE_REGISTER_SERVICE_TEMPLATE) {
-                $templateDowntimeInformation[(int) $record['service_id']] = [
+                $templateDowntimeInformation[(int) $record['service_id']][] = [
                     'dt_id' => $record['dt_id'],
                     'dt_activate' => $record['dt_activate'],
                     'dtp_start_time' => $record['dtp_start_time'],
@@ -643,15 +643,17 @@ class CentreonDowntime
 
         if ($templateDowntimeInformation !== []) {
             foreach ($this->findServicesByServiceTemplateIds(array_keys($templateDowntimeInformation)) as $service) {
-                $downtimes[] = array_merge(
-                    $templateDowntimeInformation[$service['service_template_model_stm_id']],
-                    [
-                        'host_id' => $service['host_id'],
-                        'host_name' => $service['host_name'],
-                        'service_id' => $service['service_id'],
-                        'service_description' => $service['service_description'],
-                    ]
-                );
+                foreach ($templateDowntimeInformation[(int) $service['service_template_model_stm_id']] as $downtimeInformation) {
+                    $downtimes[] = array_merge(
+                        $downtimeInformation,
+                        [
+                            'host_id' => $service['host_id'],
+                            'host_name' => $service['host_name'],
+                            'service_id' => $service['service_id'],
+                            'service_description' => $service['service_description'],
+                        ]
+                    );
+                }
             }
         }
 
