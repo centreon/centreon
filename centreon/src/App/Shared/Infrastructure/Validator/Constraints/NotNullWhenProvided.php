@@ -21,23 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Event;
+namespace App\Shared\Infrastructure\Validator\Constraints;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Shared\Domain\Event\AggregateMassChanged;
+use Symfony\Component\Validator\Constraint;
 
-final readonly class HostMassChanged extends AggregateMassChanged
+/**
+ * A property of a partial update that may be left out but never sent as null: the value is required once
+ * the key is there. The Input DTO cannot see the difference, so the key is read from the request body,
+ * at the path of the property (a nested property is looked up inside its sub-object).
+ */
+#[\Attribute(\Attribute::TARGET_PROPERTY)]
+final class NotNullWhenProvided extends Constraint
 {
-    /**
-     * @param ?PollerId $previousPollerId the poller the host was moved away from, null when it stayed
-     */
-    public function __construct(
-        Host $aggregate,
-        int $creatorId,
-        public ?PollerId $previousPollerId = null,
-        \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-        parent::__construct($aggregate, $creatorId, $firedAt);
-    }
+    public string $message = 'This value cannot be null.';
 }
