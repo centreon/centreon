@@ -111,8 +111,8 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
-        $targetKey = $this->sanitizeIdentifier($targetKey);
-        $sourceKey = $this->sanitizeIdentifier($sourceKey);
+        $targetKey = $this->sanitizeColumnIdentifier($targetKey);
+        $sourceKey = $this->sanitizeColumnIdentifier($sourceKey);
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
@@ -175,7 +175,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                $key = $this->sanitizeIdentifier($key);
+                $key = $this->sanitizeColumnIdentifier($key);
                 $sql .= " {$filterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
                 $value = str_replace('_', "\_", $value);
