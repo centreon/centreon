@@ -88,6 +88,7 @@ interface HostRepository
      */
     public function replaceRelations(Host $host): void;
 
+    /**
      * Full replace of a host's relations and macros (PUT semantics), complementing {@see update()},
      * which writes its own fields and its poller. Every relation table (host groups,
      * categories/severity, templates, parents/children, contacts/contact groups) is cleared and
