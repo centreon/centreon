@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
@@ -52,5 +54,9 @@ final readonly class FlagPollerChangedEventHandler
         }
 
         $this->pollerRepository->flagAsChanged($event->aggregate);
+
+        if ($event instanceof HostMassChanged && $event->previousPollerId instanceof PollerId) {
+            $this->pollerRepository->flagIdAsChanged($event->previousPollerId);
+        }
     }
 }

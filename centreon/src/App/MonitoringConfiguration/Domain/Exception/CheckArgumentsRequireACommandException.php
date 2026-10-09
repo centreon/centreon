@@ -21,23 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Event;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Shared\Domain\Event\AggregateMassChanged;
+use App\Shared\Domain\Exception\AggregateConflictException;
 
-final readonly class HostMassChanged extends AggregateMassChanged
+/**
+ * An update leaves check command arguments on a host that has no check command: the arguments belong
+ * to a command, so they cannot stand alone. Reported against `checkOptions`, the field of the update
+ * the arguments are given in.
+ */
+final class CheckArgumentsRequireACommandException extends AggregateConflictException
 {
-    /**
-     * @param ?PollerId $previousPollerId the poller the host was moved away from, null when it stayed
-     */
-    public function __construct(
-        Host $aggregate,
-        int $creatorId,
-        public ?PollerId $previousPollerId = null,
-        \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-        parent::__construct($aggregate, $creatorId, $firedAt);
+    public function __construct()
+    {
+        parent::__construct(['checkOptions' => ['args']], 'Check command arguments require a check command to be set.');
     }
 }

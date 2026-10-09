@@ -24,25 +24,16 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Exception;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceId;
 
 /**
- * The change is already committed, only the vault entries it made useless are left behind.
+ * A secret could not be written to the vault before the host was saved: nothing was persisted.
  */
-final class VaultPurgeFailedException extends \RuntimeException
+final class VaultWriteFailedException extends \RuntimeException
 {
     public static function forHost(HostId $hostId, \Throwable $previous): self
     {
         return new self(
-            sprintf('Host %d was deleted but its vault entry could not be purged.', $hostId->value),
-            previous: $previous,
-        );
-    }
-
-    public static function forService(ServiceId $serviceId, \Throwable $previous): self
-    {
-        return new self(
-            sprintf('Service %d was deleted but its vault entry could not be purged.', $serviceId->value),
+            sprintf('Host %d was not updated: its credentials could not be written to the vault.', $hostId->value),
             previous: $previous,
         );
     }
