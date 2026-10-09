@@ -661,6 +661,55 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertStringNotContainsString('tpl-uuid', $host->checkOptions->macros[0]->value);
     }
 
+    /**
+     * The macro changes are checked before any secret is written: clearing the community in the
+     * same request as an unknown macro id must not delete the community's key from the vault,
+     * which the stored host, left unchanged by the rejected request, still points to.
+     */
+    public function testAnUnknownMacroIdLeavesTheVaultUntouched(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
+        );
+
+        try {
+            ($this->handler)($this->command(10, snmpCommunity: null, macroChanges: [
+                new HostMacroChange(new HostMacroName('stale'), 'a', isPassword: false, id: new HostMacroId(99)),
+            ]));
+            self::fail('An unknown macro id must be rejected.');
+        } catch (HostMacroNotFoundException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
+    public function testAMissingMacroValueLeavesTheVaultUntouched(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
+            macros: [new HostMacro(new HostMacroName('plain'), 'a', isPassword: false, id: new HostMacroId(5))],
+        );
+
+        try {
+            // A null value keeps the stored one, which only a stored password allows: 'plain' is not one.
+            ($this->handler)($this->command(10, snmpCommunity: 'new-community', macroChanges: [
+                new HostMacroChange(new HostMacroName('plain'), null, isPassword: true, id: new HostMacroId(5)),
+            ]));
+            self::fail('A missing value on a plain macro must be rejected.');
+        } catch (HostMacroValueRequiredException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
     public function testEmptyingTheSnmpCommunityRemovesItsKeyFromTheVault(): void
     {
         // A password macro keeps the entry alive, but the community's key must not linger in it.
