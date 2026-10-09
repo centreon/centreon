@@ -2,6 +2,9 @@ meta {
   name: GET /monitoring/acknowledgements - Verify no acknowledgement - HTTP 200
   type: http
   seq: 15
+  tags: [
+    ignore
+  ]
 }
 
 get {
@@ -62,4 +65,12 @@ tests {
 settings {
   encodeUrl: true
   timeout: 0
+}
+
+docs {
+  Temporarily skipped (`ignore` tag): Gorgone can send an acknowledgement and
+  its removal to the engine in reverse order when both are requested within the
+  same second, so the removal is lost and this check fails at random. Remove the
+  `ignore` tag once https://github.com/centreon/centreon-collect/pull/3867 is
+  released.
 }
