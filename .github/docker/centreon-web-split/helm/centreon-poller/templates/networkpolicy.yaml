@@ -1,0 +1,38 @@
+{{- with .Values.networkPolicy }}
+{{- if .enabled }}
+# Only the CMA port (and the trap port when enabled) are reachable. The
+# engine's gRPC API (50155, no auth, can shut the engine down) and the VMware
+# connector (5700) stay pod-local: traffic inside the pod is not filtered.
+# Egress is left open (central, broker, monitored hosts). Needs a CNI that
+# enforces NetworkPolicy (k3s does by default); ignored otherwise.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "centreon-poller.fullname" $ }}
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "centreon-poller.selectorLabels" $ | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - { port: 4317, protocol: TCP }
+      {{- with .otelFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- if $.Values.traps.enabled }}
+    - ports:
+        - { port: 162, protocol: UDP }
+      {{- with .trapsFrom }}
+      from:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- with .extraIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- end }}

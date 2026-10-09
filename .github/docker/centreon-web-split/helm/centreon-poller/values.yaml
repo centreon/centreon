@@ -155,6 +155,17 @@ vmware:
     pullPolicy: IfNotPresent
   resources: {}
 
+# Ingress allowed to the poller pod: CMA (4317/tcp) and traps (162/udp, when
+# enabled). Everything else is denied, incl. the engine's unauthenticated gRPC
+# API (50155). Sources: NetworkPolicy peers (ipBlock, namespaceSelector,
+# podSelector); empty = anywhere. With a load balancer that does not keep the
+# client IP, filter on the load balancer instead (loadBalancerSourceRanges).
+networkPolicy:
+  enabled: true
+  otelFrom: []
+  trapsFrom: []
+  extraIngress: []
+
 # Pod stop: gorgone's preStop asks centengine for a gRPC shutdown (the same
 # path as "restart" from the central), so cbmod saves its queue; centengine's
 # preStop waits for it instead of getting a SIGTERM right away.

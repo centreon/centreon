@@ -150,6 +150,7 @@ Enabling it does not change the volume list.
 | `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
 | `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
 | `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
+| `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
 | `gracefulStop` | enabled, 60s | See below |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
@@ -200,10 +201,13 @@ Pod Security Standards:
 - CRI-O / OpenShift drop NET_RAW: set `engine.addNetRaw: true`, which requires
   a `privileged` namespace.
 
-The engine's gRPC port (50155) is unauthenticated and can shut the engine
-down: restrict it with a NetworkPolicy.
+NetworkPolicy (`networkPolicy.enabled`, default on, needs an enforcing CNI):
+only 4317/tcp (CMA) and 162/udp (traps, when enabled) are reachable from
+outside the pod; restrict their sources with `networkPolicy.otelFrom` /
+`trapsFrom`. The engine's gRPC API (50155, unauthenticated, can shut the
+engine down) and the VMware connector (5700) are only reachable from inside
+the pod. Egress is not restricted (central, broker, monitored hosts).
 
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
-- No NetworkPolicy shipped yet.
