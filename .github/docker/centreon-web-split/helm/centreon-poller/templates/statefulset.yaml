@@ -182,20 +182,6 @@ spec:
             {{- end }}
           # No probes: a central outage must neither restart the poller nor
           # cut the CMA agents off.
-          {{- if .Values.gracefulStop.enabled }}
-          lifecycle:
-            preStop:
-              exec:
-                # gRPC SHUTDOWN of the engine (what "restart centengine" does):
-                # cbmod saves its queue, unlike on SIGTERM.
-                command:
-                  - perl
-                  - /usr/local/lib/centreon-gorgone/grpc-signal.pl
-                  - centengine
-                  - "50155"
-                  - /com.centreon.engine.Engine/SignalProcess
-                  - "0801"
-          {{- end }}
           volumeMounts:
             - { name: engine, mountPath: /etc/centreon-engine }
             - { name: broker, mountPath: /etc/centreon-broker }
@@ -237,13 +223,6 @@ spec:
             exec:
               command: [test, -f, /tmp/docker.ready]
             periodSeconds: 10
-          {{- if .Values.gracefulStop.enabled }}
-          lifecycle:
-            preStop:
-              exec:
-                # Leaves time for gorgone's gRPC shutdown before the SIGTERM.
-                command: [sleep, {{ .Values.gracefulStop.waitSeconds | quote }}]
-          {{- end }}
           volumeMounts:
             # Home first: the command FIFO dir (rw) is mounted over it.
             - { name: engine-home, mountPath: /var/lib/centreon-engine }

@@ -166,13 +166,8 @@ networkPolicy:
   trapsFrom: []
   extraIngress: []
 
-# Pod stop: gorgone's preStop asks centengine for a gRPC shutdown (the same
-# path as "restart" from the central), so cbmod saves its queue; centengine's
-# preStop waits for it instead of getting a SIGTERM right away.
-gracefulStop:
-  enabled: true
-  waitSeconds: 60
-terminationGracePeriodSeconds: 90
+# On SIGTERM centengine stops cleanly (~15 s) and cbmod saves its queue.
+terminationGracePeriodSeconds: 60
 
 # Volume claim templates: cannot be changed after the first install
 # (StatefulSet restriction).

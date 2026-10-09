@@ -156,7 +156,6 @@ Enabling it does not change the volume list.
 | `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
 | `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
 | `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
-| `gracefulStop` | enabled, 60s | See below |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -182,13 +181,12 @@ poller identity.
 
 ## Pod stop
 
-On SIGTERM, centengine does not exit cleanly and is killed at the end of the
-grace period, losing cbmod's in-memory queue. With `gracefulStop.enabled`,
-gorgone's preStop sends the engine a gRPC shutdown (the path used by "restart"
-from the central, which saves the queue) while the engine's preStop waits
-`gracefulStop.waitSeconds`. Keep `terminationGracePeriodSeconds` above it.
-Validated: on `kubectl delete pod` the engine stops cleanly within a second,
-writes `retention.dat` and keeps cbmod's cache files.
+On SIGTERM (rollout, drain, `kubectl delete pod`), centengine stops cleanly
+in ~15 s: it writes `retention.dat` and cbmod saves its queue to its cache
+directory, reloaded at the next start (validated with the broker unreachable:
+the new pod "starts with 238 in queue"). `terminationGracePeriodSeconds`
+(60 s) leaves room for it. An abrupt death (node loss, OOM kill) still loses
+the in-memory part of the queue.
 
 Persisting `/var/lib/centreon-engine` requires an engine image whose
 entrypoint scripts are not in that directory (MON-211751); with an older image
