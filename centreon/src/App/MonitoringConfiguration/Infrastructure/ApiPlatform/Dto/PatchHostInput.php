@@ -29,9 +29,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostCategories;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHosts;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
+use App\MonitoringConfiguration\Infrastructure\Validator\ExistingHostTemplates;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimezone;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
@@ -149,41 +152,41 @@ final readonly class PatchHostInput
         public array $hostGroupIdsToRemove = [],
 
         #[ApiProperty(description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new AccessibleHostCategories()])]
         public array $categoryIds = [],
 
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new AccessibleHostCategories()])]
         public array $categoryIdsToAdd = [],
 
         #[IdList]
         public array $categoryIdsToRemove = [],
 
         #[ApiProperty(description: 'Replaces the templates, in the order given: it sets the inheritance order. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new ExistingHostTemplates()])]
         public array $templateIds = [],
 
         #[ApiProperty(description: 'Added after the current templates.')]
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new ExistingHostTemplates()])]
         public array $templateIdsToAdd = [],
 
         #[IdList]
         public array $templateIdsToRemove = [],
 
         #[ApiProperty(description: 'Replaces the hosts this one depends on. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new AccessibleHosts()])]
         public array $parentHostIds = [],
 
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new AccessibleHosts()])]
         public array $parentHostIdsToAdd = [],
 
         #[IdList]
         public array $parentHostIdsToRemove = [],
 
         #[ApiProperty(description: 'Replaces the hosts that depend on this one. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new AccessibleHosts()])]
         public array $childHostIds = [],
 
-        #[IdList]
+        #[Assert\Sequentially([new IdList(), new AccessibleHosts()])]
         public array $childHostIdsToAdd = [],
 
         #[IdList]
