@@ -45,6 +45,7 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\Shared\ApiTestCase;
 
 final class PutHostProcessorTest extends ApiTestCase
@@ -686,6 +687,43 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function inaccessibleNotificationRecipients(): iterable
+    {
+        yield 'contact' => ['contacts', 'One or more contacts do not exist or are not accessible.'];
+
+        yield 'contact group' => ['contact_groups', 'One or more contact groups do not exist or are not accessible.'];
+    }
+
+    /**
+     * An existing contact or contact group outside the viewer's Access Groups is rejected like a
+     * missing one, as on CreateHost, and nothing is written.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('inaccessibleNotificationRecipients')]
+    public function testARestrictedViewerCannotNotifyAnInaccessibleRecipient(string $field, string $message): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $inaccessibleId = $field === 'contacts'
+            ? $this->insertNotificationContact('outsider')
+            : $this->insertContactGroup('outsiders');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(pollerIds: [$pollerId]));
+
+        $response = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'notifications' => [$field => [$inaccessibleId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString("[notifications.{$field}] {$message}", $this->validationMessage($response));
+        self::assertSame([], $this->intColumn('SELECT contact_id FROM contact_host_relation WHERE host_host_id = ?', $hostId));
+        self::assertSame([], $this->intColumn('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId));
+    }
+
     public function testARestrictedViewerRoundTripKeepsOutOfScopeGroupsCategoriesAndSeverity(): void
     {
         $pollerId = $this->insertPoller('Central');
@@ -899,6 +937,27 @@ final class PutHostProcessorTest extends ApiTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContactGroup(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function validationMessage(ResponseInterface $response): string
+    {
+        /** @var array{message?: string} $body */
+        $body = $response->toArray(false);
+
+        return $body['message'] ?? '';
     }
 
     /**
