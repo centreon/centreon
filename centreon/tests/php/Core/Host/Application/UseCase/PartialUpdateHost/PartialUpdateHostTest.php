@@ -44,6 +44,7 @@ use Core\Common\Application\VaultEligibilityService;
 use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\HostTemplateServicesCleaner;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -66,8 +67,6 @@ use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
-use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
-use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\PartialUpdateHost\PartialUpdateHostPresenterStub;
 
 beforeEach(function (): void {
@@ -96,8 +95,7 @@ beforeEach(function (): void {
         readCommandRepository:  $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
         adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),
-        readServiceTemplateRepository: $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
-        writeServiceRepository: $this->writeServiceRepository = $this->createMock(WriteServiceRepositoryInterface::class),
+        hostTemplateServicesCleaner: $this->hostTemplateServicesCleaner = $this->createMock(HostTemplateServicesCleaner::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -662,7 +660,7 @@ it('should present a ConflictResponse when a parent template creates a circular 
 
 // Test for template removal and service cleanup
 
-it('should call deleteServicesFromRemovedTemplates when a template is removed', function (): void {
+it('should clean the services of the removed templates', function (): void {
     // Host initially has direct parents [2, 3, 4], request updates to [2, 3] => template 4 is removed
     $this->request->templates = [2, 3];
 
@@ -733,55 +731,30 @@ it('should call deleteServicesFromRemovedTemplates when a template is removed', 
         ->expects($this->exactly(2))
         ->method('addParent');
 
-    // findParents is called multiple times:
+    // findParents is called twice:
     //   1st: in updateParentTemplates to compute removed templates (before delete)
-    //   2nd+3rd: in cleanServicesFromRemovedTemplates to expand template chains
-    //   4th: in deleteServicesFromTemplate to find parents of removed template 4
-    //   5th: in updateMacros to resolve inheritance chain
+    //   2nd: in updateMacros to resolve inheritance chain
     $initialParents = [
         ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
         ['child_id' => 1, 'parent_id' => 3, 'order' => 1],
         ['child_id' => 1, 'parent_id' => 4, 'order' => 2],
         ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
     ];
-    $template2Parents = [
-        ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
-    ];
-    $template3Parents = [];
-    $template4Parents = [];
     $updatedParents = [
         ['child_id' => 1, 'parent_id' => 2, 'order' => 0],
         ['child_id' => 1, 'parent_id' => 3, 'order' => 1],
         ['child_id' => 2, 'parent_id' => 3, 'order' => 0],
     ];
     $this->readHostRepository
-        ->expects($this->exactly(5))
+        ->expects($this->exactly(2))
         ->method('findParents')
-        ->willReturnOnConsecutiveCalls(
-            $initialParents,      // updateParentTemplates: compute removed templates
-            $template2Parents,    // expandTemplateChain: expand template 2
-            $template3Parents,    // expandTemplateChain: expand template 3
-            $template4Parents,    // deleteServicesFromTemplate: parents of template 4
-            $updatedParents,      // updateMacros: resolve inheritance chain
-        );
+        ->willReturnOnConsecutiveCalls($initialParents, $updatedParents);
 
-    // Service template cleanup for removed template 4
-    $this->readServiceTemplateRepository
+    // Only direct parents are compared: template 4 is the one removed
+    $this->hostTemplateServicesCleaner
         ->expects($this->once())
-        ->method('findIdsByHostTemplateId')
-        ->with(4)
-        ->willReturn([10]); // template 4 provides service template 10
-
-    $this->readServiceTemplateRepository
-        ->expects($this->once())
-        ->method('isLinkedToAnyHostTemplate')
-        ->with(10, [2, 3]) // check against remaining expanded template IDs
-        ->willReturn(false); // not provided by remaining templates
-
-    $this->writeServiceRepository
-        ->expects($this->once())
-        ->method('deleteByHostIdAndServiceTemplateId')
-        ->with($this->hostId, 10);
+        ->method('cleanServicesFromRemovedTemplates')
+        ->with($this->hostId, [2, 3, 4], [2, 3]);
 
     // Macros
     $this->readHostMacroRepository
