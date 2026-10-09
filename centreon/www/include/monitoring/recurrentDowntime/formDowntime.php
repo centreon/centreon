@@ -133,6 +133,49 @@ if ($o == 'a') {
 
 $form->addElement('header', 'periods', _('Periods'));
 
+// The hours of a new downtime are stored in the timezone of its creator.
+// The user timezone has no foreign key, so it may point to a timezone that no longer exists:
+// it is then handled as a user without timezone, for which the cron uses the host timezone order.
+// It is read from the database: the one kept in session is not refreshed when the user changes it.
+$centreonGmt = new CentreonGMT();
+$timezones = $centreonGmt->getGMTList();
+$creatorTimezoneId = (int) $centreonGmt->getMyGTMFromUser($centreon->user->get_id());
+if (! isset($timezones[$creatorTimezoneId])) {
+    $creatorTimezoneId = null;
+}
+
+// An existing downtime keeps the timezone it was created with, whoever edits it
+$downtimeTimezoneId = $o == 'c' || $o == 'w' ? $downtime->getInfos((int) $id)['timezone_id'] : $creatorTimezoneId;
+
+if ($downtimeTimezoneId !== null) {
+    $form->addElement(
+        'text',
+        'timezone_warning',
+        sprintf(
+            _('The hours are applied in the %s timezone.'),
+            htmlspecialchars($timezones[$downtimeTimezoneId] ?? '', ENT_QUOTES, 'UTF-8')
+        )
+    );
+} elseif ($o == 'a') {
+    $form->addElement(
+        'text',
+        'timezone_warning',
+        _(
+            'No timezone is set in your user settings. The first one found is used by default, '
+            . 'in this order: host, poller, Centreon platform, server configuration.'
+        )
+    );
+} else {
+    $form->addElement(
+        'text',
+        'timezone_warning',
+        _(
+            'No timezone is set for this downtime. The first one found is used by default, '
+            . 'in this order: host, poller, Centreon platform, server configuration.'
+        )
+    );
+}
+
 // Tab 1
 $form->addElement('header', 'information', _('General Information'));
 $form->addElement('header', 'linkManagement', _('Links Management'));
@@ -314,7 +357,12 @@ if ($form->validate()) {
     if ($valid) {
         if ($values['o'] == 'a') {
             $activate = $values['downtime_activate']['downtime_activate'];
-            $id = $downtime->add($values['downtime_name'], $values['downtime_description'], $activate);
+            $id = $downtime->add(
+                $values['downtime_name'],
+                $values['downtime_description'],
+                $activate,
+                $creatorTimezoneId
+            );
             if ($id !== false) {
                 foreach ($values['periods'] as $periods) {
                     $downtime->addPeriod($id, $periods);

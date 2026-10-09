@@ -230,6 +230,36 @@ $populateCentralAddress = function () use ($pearDB, &$errorMessage, $version, $r
     LoggerUpgrade::create()->info($version, 'Successfully populated central_address for all platforms');
 };
 
+$addDowntimeTimezoneColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    if ($pearDB->columnExists(
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'downtime',
+        'dt_timezone_id'
+    )) {
+        LoggerUpgrade::create()->info($version, 'dt_timezone_id column already exists, skipping');
+
+        return;
+    }
+
+    $errorMessage = 'Unable to add dt_timezone_id column to downtime';
+    LoggerUpgrade::create()->info($version, 'Adding dt_timezone_id column to downtime');
+
+    // Recurrent downtime hours are wall-clock times: they are stored as entered and only
+    // the timezone they are expressed in is added, so that DST is applied at runtime.
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `downtime`
+            ADD COLUMN `dt_timezone_id` int(11) unsigned DEFAULT NULL
+                COMMENT 'Timezone of the period hours (NULL = host timezone)' AFTER `dt_activate`,
+            ADD KEY `downtime_timezone_id` (`dt_timezone_id`),
+            ADD CONSTRAINT `downtime_ibfk_1` FOREIGN KEY (`dt_timezone_id`)
+                REFERENCES `timezone` (`timezone_id`) ON DELETE SET NULL
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, 'Successfully added dt_timezone_id column');
+};
+
 $realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, $version): void {
     $errorMessage = "Unable to realign command audit logs to the 'command' object type";
     LoggerUpgrade::create()->info($version, "Realigning command audit logs from 'commands' to 'command'");
@@ -251,6 +281,7 @@ try {
 
     $addCentralAddressColumn();
     $fixGorgoneCommunicationTypeComment();
+    $addDowntimeTimezoneColumn();
 
     $realignCommandActionLogObjectType();
 
