@@ -121,7 +121,7 @@ final readonly class CreateHostCommandHandler
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $command->viewerId);
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
@@ -351,27 +351,34 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Not ACL-scoped: the legacy API never exposed these two fields, and its form writes back
-     * whatever is posted (DB-Func.php's updateHostHostParent()), so there is nothing stricter to
-     * be ISO with. Host templates resolve to nothing here, so one cannot be smuggled in.
+     * ACL-scoped like host groups: a restricted viewer may only link the hosts within their scope,
+     * as the legacy form only offers those (CentreonHost::getObjectForSelect2()). Unknown and
+     * inaccessible ids are not told apart, so a restricted viewer cannot probe for hosts they
+     * cannot see. Host templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?UserId $viewerId): void
     {
-        $this->assertHostsExist($parentHostIds, 'parentHostIds');
-        $this->assertHostsExist($childHostIds, 'childHostIds');
+        $accessibleHostIds = $viewerId instanceof UserId && count($parentHostIds) + count($childHostIds) > 0
+            ? $this->resourceAccessRepository->findAccessibleHostIds($viewerId)
+            : null;
+
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
     }
 
     /**
      * @param Collection<HostId> $hostIds
+     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
     {
         $missingIds = $this->missingIds(
             $hostIds,
             fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
+            $accessibleHostIds,
         );
 
         if ($missingIds !== []) {

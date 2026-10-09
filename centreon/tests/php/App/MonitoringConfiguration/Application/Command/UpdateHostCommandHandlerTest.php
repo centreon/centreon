@@ -1121,6 +1121,23 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([], $this->sortedIds($host->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
     }
 
+    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(20, name: 'hidden-parent');
+        // Host 20 exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(10)], HostId::class);
+        $this->seedHost(10);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->command(
+            10,
+            viewerId: new UserId(42),
+            parentHostIds: new Collection([new HostId(20)], HostId::class),
+        ));
+    }
+
     public function testItRejectsACycleClosedThroughAPreservedRelation(): void
     {
         $this->addPoller(1);

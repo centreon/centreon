@@ -179,14 +179,15 @@ final readonly class UpdateHostCommandHandler
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds);
+        $accessibleHostIds = $command->viewerId instanceof UserId
+            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId)
+            : null;
+
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);
 
         // Parent and child hosts are ACL-scoped on read like host groups (the legacy host form hides
         // the out-of-scope ones), so they are preserved the same way as the relations below. The
         // circularity check runs on the final lists, since a preserved relation is kept in the graph.
-        $accessibleHostIds = $command->viewerId instanceof UserId
-            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId)
-            : null;
         $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $accessibleHostIds, HostId::class);
         $childHostIds = $this->preserveInaccessible($command->childHostIds, $existingHost->childHostIds, $accessibleHostIds, HostId::class);
 
@@ -721,23 +722,31 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
+     * ACL-scoped like host groups: a restricted viewer may only link the hosts within their scope,
+     * as the legacy form only offers those (CentreonHost::getObjectForSelect2()). Unknown and
+     * inaccessible ids are not told apart, so a restricted viewer cannot probe for hosts they
+     * cannot see. Host templates resolve to nothing here, so one cannot be smuggled in.
+     *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
+     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?Collection $accessibleHostIds): void
     {
-        $this->assertHostsExist($parentHostIds, 'parentHostIds');
-        $this->assertHostsExist($childHostIds, 'childHostIds');
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
     }
 
     /**
      * @param Collection<HostId> $hostIds
+     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
     {
         $missingIds = $this->missingIds(
             $hostIds,
             fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
+            $accessibleHostIds,
         );
 
         if ($missingIds !== []) {
