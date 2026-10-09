@@ -136,14 +136,17 @@ class SqlRequestParametersTranslator
                     $orderQuery .= ', ';
                 }
                 $col = $this->concordanceArray[$name];
-                if (strtoupper($order) === RequestParameters::ORDER_ASC) {
+                $direction = strtoupper($order) === RequestParameters::ORDER_DESC
+                    ? RequestParameters::ORDER_DESC
+                    : RequestParameters::ORDER_ASC;
+                if ($direction === RequestParameters::ORDER_ASC) {
                     // NULLs are treated as lowest value in MySQL/MariaDB, so for ASC they appear first.
                     // The IS NULL trick ensures NULLs sort last for ASC ordering.
-                    $orderQuery .= sprintf('%s IS NULL, %s %s', $col, $col, $order);
+                    $orderQuery .= sprintf('%s IS NULL, %s %s', $col, $col, $direction);
                 } else {
                     // For DESC, NULLs are already last (lowest value → last in descending order).
                     // Adding IS NULL would create a computed expression that prevents index usage.
-                    $orderQuery .= sprintf('%s %s', $col, $order);
+                    $orderQuery .= sprintf('%s %s', $col, $direction);
                 }
             }
         }
@@ -156,10 +159,13 @@ class SqlRequestParametersTranslator
         foreach ($this->requestParameters->getSort() as $name => $order) {
             if (array_key_exists($name, $this->concordanceArray)) {
                 $col = $this->concordanceArray[$name];
-                if (strtoupper($order) === RequestParameters::ORDER_ASC) {
-                    $queryBuilder->addOrderBy(sprintf('%s IS NULL, %s', $col, $col), $order);
+                $direction = strtoupper($order) === RequestParameters::ORDER_DESC
+                    ? RequestParameters::ORDER_DESC
+                    : RequestParameters::ORDER_ASC;
+                if ($direction === RequestParameters::ORDER_ASC) {
+                    $queryBuilder->addOrderBy(sprintf('%s IS NULL, %s', $col, $col), $direction);
                 } else {
-                    $queryBuilder->addOrderBy($col, $order);
+                    $queryBuilder->addOrderBy($col, $direction);
                 }
             }
         }
