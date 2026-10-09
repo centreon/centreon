@@ -2,6 +2,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+import { buildCountHostServicesFromTemplateQuery } from '../common';
+
 const hostNames = ['host2', 'host3', 'host4'];
 
 const templates = {
@@ -75,13 +77,7 @@ const countHostServicesFromTemplate = (
   cy
     .requestOnDatabase({
       database: 'centreon',
-      query:
-        'SELECT COUNT(*) AS total FROM host_service_relation hsr ' +
-        'JOIN host h ON h.host_id = hsr.host_host_id ' +
-        'JOIN service s ON s.service_id = hsr.service_service_id ' +
-        'JOIN service st ON st.service_id = s.service_template_model_stm_id ' +
-        `WHERE h.host_name = '${hostName}' ` +
-        `AND st.service_description = '${serviceTemplate}'`
+      query: buildCountHostServicesFromTemplateQuery(hostName, serviceTemplate)
     })
     .then(([rows]) => cy.wrap(Number(rows[0].total), { log: false }));
 
