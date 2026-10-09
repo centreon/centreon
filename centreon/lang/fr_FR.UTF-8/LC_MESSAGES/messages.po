@@ -12059,12 +12059,12 @@ msgid "No time period selected"
 msgstr "Aucune période temporelle sélectionnée"
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
-msgid "No timezone is set for this downtime: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
-msgstr "Aucun fuseau horaire n'est défini pour cette plage de maintenance : le premier fuseau horaire trouvé est utilisé, dans cet ordre : hôte, collecteur, Centreon, configuration du serveur"
+msgid "No timezone is set for this downtime. The first one found is used by default, in this order: host, poller, Centreon platform, server configuration."
+msgstr "Aucun fuseau horaire n'est défini pour cette plage de maintenance. Le premier trouvé est utilisé par défaut, dans cet ordre : hôte, collecteur, plateforme Centreon, configuration de serveur."
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
-msgid "No timezone is set in your user settings: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
-msgstr "Aucun fuseau horaire n'est défini dans vos paramètres utilisateur : le premier fuseau horaire trouvé est utilisé, dans cet ordre : hôte, collecteur, Centreon, configuration du serveur"
+msgid "No timezone is set in your user settings. The first one found is used by default, in this order: host, poller, Centreon platform, server configuration."
+msgstr "Aucun fuseau horaire n'est défini dans vos paramètres utilisateur. Le premier trouvé est utilisé par défaut, dans cet ordre : hôte, collecteur, plateforme Centreon, configuration de serveur."
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
@@ -16933,8 +16933,8 @@ msgstr "L'icône de sévérité d'hôtes avec l'identifiant '%d' n'existe pas"
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #, php-format
-msgid "The hours are applied in the %s timezone"
-msgstr "Les heures sont appliquées dans le fuseau horaire %s"
+msgid "The hours are applied in the %s timezone."
+msgstr "Les heures sont appliquées dans le fuseau horaire %s."
 
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"

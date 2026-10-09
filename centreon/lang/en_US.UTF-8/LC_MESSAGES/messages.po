@@ -11756,12 +11756,12 @@ msgid "No time period selected"
 msgstr "No time period selected"
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
-msgid "No timezone is set for this downtime: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
-msgstr "No timezone is set for this downtime: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+msgid "No timezone is set for this downtime. The first one found is used by default, in this order: host, poller, Centreon platform, server configuration."
+msgstr "No timezone is set for this downtime. The first one found is used by default, in this order: host, poller, Centreon platform, server configuration."
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
-msgid "No timezone is set in your user settings: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
-msgstr "No timezone is set in your user settings: the first timezone found is used, in this order: host, poller, Centreon, server configuration"
+msgid "No timezone is set in your user settings. The first one found is used by default, in this order: host, poller, Centreon platform, server configuration."
+msgstr "No timezone is set in your user settings. The first one found is used by default, in this order: host, poller, Centreon platform, server configuration."
 
 #: centreon/src/Centreon/Domain/PlatformTopology/PlatformTopologyService.php
 #: centreon/src/Centreon/Domain/RemoteServer/RemoteServerService.php
@@ -16561,8 +16561,8 @@ msgstr "The host severity icon with id '%d' does not exist"
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #, php-format
-msgid "The hours are applied in the %s timezone"
-msgstr "The hours are applied in the %s timezone"
+msgid "The hours are applied in the %s timezone."
+msgstr "The hours are applied in the %s timezone."
 
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"

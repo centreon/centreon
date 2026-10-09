@@ -152,7 +152,7 @@ if ($downtimeTimezoneId !== null) {
         'text',
         'timezone_warning',
         sprintf(
-            _('The hours are applied in the %s timezone'),
+            _('The hours are applied in the %s timezone.'),
             htmlspecialchars($timezones[$downtimeTimezoneId] ?? '', ENT_QUOTES, 'UTF-8')
         )
     );
@@ -161,8 +161,8 @@ if ($downtimeTimezoneId !== null) {
         'text',
         'timezone_warning',
         _(
-            'No timezone is set in your user settings: the first timezone found is used, '
-            . 'in this order: host, poller, Centreon, server configuration'
+            'No timezone is set in your user settings. The first one found is used by default, '
+            . 'in this order: host, poller, Centreon platform, server configuration.'
         )
     );
 } else {
@@ -170,8 +170,8 @@ if ($downtimeTimezoneId !== null) {
         'text',
         'timezone_warning',
         _(
-            'No timezone is set for this downtime: the first timezone found is used, '
-            . 'in this order: host, poller, Centreon, server configuration'
+            'No timezone is set for this downtime. The first one found is used by default, '
+            . 'in this order: host, poller, Centreon platform, server configuration.'
         )
     );
 }
