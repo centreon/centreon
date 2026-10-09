@@ -43,6 +43,16 @@ interface ServiceRepository
     public function findExclusivelyLinkedToHostId(HostId $hostId): Collection;
 
     /**
+     * The services of this host that come from one of the given service templates, the ones a host
+     * gets from its host templates. Hydrated like {@see findExclusivelyLinkedToHostId()}.
+     *
+     * @param list<int> $serviceTemplateIds
+     *
+     * @return Collection<Service>
+     */
+    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection;
+
+    /**
      * Also removes the dependencies left without a parent service by this deletion.
      */
     public function remove(Service $service): void;

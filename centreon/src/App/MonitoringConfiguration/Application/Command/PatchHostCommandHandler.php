@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
@@ -40,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
@@ -47,6 +49,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -64,6 +67,7 @@ final readonly class PatchHostCommandHandler
         private CommandRepository $commandRepository,
         private HostReferencesChecker $references,
         private HostRelationsUpdater $relations,
+        private HostTemplateServicesCleaner $templateServices,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
@@ -88,6 +92,10 @@ final readonly class PatchHostCommandHandler
         $secretToVault = $this->communityToVault($command);
         $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($withRelations, $command), $command, $secretToVault);
         $this->saveAndNotify($host, $updatedHost, $command->updatedBy, secretRewritten: $secretToVault !== null);
+
+        if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), new UserId($command->updatedBy)));
+        }
 
         return $updatedHost;
     }
@@ -301,6 +309,7 @@ final readonly class PatchHostCommandHandler
             $this->repository->update($hostAfter);
             if ($relationsChanged) {
                 $this->repository->replaceRelations($hostAfter);
+                $this->templateServices->cleanUp($hostBefore, $hostAfter, $updatedBy);
             }
 
             $this->eventBus->fire(new HostMassChanged(

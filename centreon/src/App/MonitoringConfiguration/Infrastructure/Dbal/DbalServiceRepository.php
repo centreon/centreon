@@ -76,6 +76,50 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         /** @var list<array{service_id: int|string, service_description: string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
+        return $this->hydrate($hostId, $rows);
+    }
+
+    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    {
+        if ($serviceTemplateIds === []) {
+            return new Collection([], Service::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('s.service_id', 's.service_description')
+            ->from(self::TABLE_NAME, 's')
+            ->innerJoin('s', 'host_service_relation', 'hsr', 'hsr.service_service_id = s.service_id')
+            ->where($qb->expr()->eq('hsr.host_host_id', $qb->createNamedParameter($hostId->value, ParameterType::INTEGER)))
+            ->andWhere("s.service_register = '1'")
+            ->andWhere($qb->expr()->in('s.service_template_model_stm_id', $qb->createNamedParameter($serviceTemplateIds, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{service_id: int|string, service_description: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return $this->hydrate($hostId, $rows);
+    }
+
+    public function remove(Service $service): void
+    {
+        $serviceId = $service->id()->value;
+        $parentDependencyIds = $this->findDependencyIds('dependency_serviceParent_relation', 'service_service_id', $serviceId);
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete(self::TABLE_NAME)
+            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
+            ->andWhere("service_register = '1'")
+            ->executeStatement();
+
+        $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
+    }
+
+    /**
+     * @param list<array{service_id: int|string, service_description: string}> $rows
+     *
+     * @return Collection<Service>
+     */
+    private function hydrate(HostId $hostId, array $rows): Collection
+    {
         if ($rows === []) {
             return new Collection([], Service::class);
         }
@@ -99,20 +143,6 @@ final readonly class DbalServiceRepository extends DbalRepository implements Ser
         );
 
         return new Collection($services, Service::class);
-    }
-
-    public function remove(Service $service): void
-    {
-        $serviceId = $service->id()->value;
-        $parentDependencyIds = $this->findDependencyIds('dependency_serviceParent_relation', 'service_service_id', $serviceId);
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb->delete(self::TABLE_NAME)
-            ->where($qb->expr()->eq('service_id', $qb->createNamedParameter($serviceId, ParameterType::INTEGER)))
-            ->andWhere("service_register = '1'")
-            ->executeStatement();
-
-        $this->deleteDependenciesWithoutMember('dependency_serviceParent_relation', $parentDependencyIds);
     }
 
     /**

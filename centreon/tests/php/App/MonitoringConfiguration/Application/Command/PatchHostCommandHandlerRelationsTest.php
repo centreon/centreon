@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -52,7 +53,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\Service;
+use App\MonitoringConfiguration\Domain\Aggregate\Service\ServiceName;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
+use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
@@ -78,6 +84,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
@@ -99,6 +106,8 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     private FakeNotificationContactRepository $contactRepository;
 
+    private FakeServiceRepository $serviceRepository;
+
     private FakeContactGroupRepository $contactGroupRepository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
@@ -114,6 +123,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
         $this->hostCategoryRepository = new FakeHostCategoryRepository();
         $this->contactRepository = new FakeNotificationContactRepository();
+        $this->serviceRepository = new FakeServiceRepository();
         $this->contactGroupRepository = new FakeContactGroupRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->eventBus = new EventBusSpy();
@@ -141,6 +151,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->contactGroupRepository,
                 $this->resourceAccessRepository,
             ),
+            new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
             $vault,
             new VaultCredentialWriter($vault),
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
@@ -393,6 +404,75 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertSame([NotificationOptionEnum::Flapping], $this->optionsOf($removed));
     }
 
+    public function testRemovingATemplateDeletesTheServicesOnlyItProvides(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
+        $fromFirst = $this->seedService('ping', serviceTemplateId: 10);
+        $fromSecond = $this->seedService('disk', serviceTemplateId: 20);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+
+        self::assertArrayNotHasKey($fromFirst->id()->value, $this->serviceRepository->services);
+        self::assertArrayHasKey($fromSecond->id()->value, $this->serviceRepository->services);
+        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceDeleted::class, 1));
+        self::assertTrue($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class, 1));
+    }
+
+    public function testAServiceAKeptTemplateAlsoProvidesIsKept(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [10]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+
+        self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(ServiceDeleted::class));
+    }
+
+    public function testReplacingTheTemplatesCleansTheServicesOfTheOnesLeft(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2)])));
+
+        self::assertArrayNotHasKey($service->id()->value, $this->serviceRepository->services);
+    }
+
+    public function testAddingATemplateDeletesNothing(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        $this->hostTemplateRepository->serviceTemplateIdsByTemplate = [1 => [10], 2 => [20]];
+        $service = $this->seedService('ping', serviceTemplateId: 10);
+
+        ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(2)])));
+
+        self::assertArrayHasKey($service->id()->value, $this->serviceRepository->services);
+    }
+
+    public function testTheServicesOfTheTemplatesCanBeCreatedOnceTheUpdateIsCommitted(): void
+    {
+        $this->seedHost(templateIds: [1]);
+
+        ($this->handler)($this->command(alias: new HostAlias('front'), deployServicesFromTemplates: true));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class, 1));
+    }
+
+    public function testNothingIsDeployedUnlessAskedOrWithoutTemplates(): void
+    {
+        $this->seedHost(templateIds: [1]);
+        ($this->handler)($this->command(alias: new HostAlias('front')));
+
+        $this->seedHost();
+        ($this->handler)($this->command(alias: new HostAlias('back'), deployServicesFromTemplates: true));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
     /**
      * @template T of AggregateRootId
      *
@@ -424,6 +504,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         NoValue|ListChange $contactGroupIds = new NoValue(),
         NoValue|NotificationsChanges $notifications = new NoValue(),
         NoValue|HostAlias $alias = new NoValue(),
+        bool $deployServicesFromTemplates = false,
         ?UserId $viewerId = null,
     ): PatchHostCommand {
         return new PatchHostCommand(
@@ -438,6 +519,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             childHostIds: $childHostIds,
             contactIds: $contactIds,
             contactGroupIds: $contactGroupIds,
+            deployServicesFromTemplates: $deployServicesFromTemplates,
             viewerId: $viewerId,
         );
     }
@@ -505,6 +587,15 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 options: $options,
             ),
         ), self::HOST_ID);
+    }
+
+    private function seedService(string $name, int $serviceTemplateId): Service
+    {
+        $service = new Service(null, new ServiceName($name), new HostId(self::HOST_ID));
+        $this->serviceRepository->add($service);
+        $this->serviceRepository->serviceTemplateIdOf[$service->id()->value] = $serviceTemplateId;
+
+        return $service;
     }
 
     /**
