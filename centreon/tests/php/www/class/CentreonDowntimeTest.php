@@ -118,6 +118,28 @@ class CentreonDowntimeTest extends TestCase
         );
     }
 
+    public function testADowntimePeriodReachedThroughSeveralHostTemplatesIsAppliedOnce(): void
+    {
+        // The service group links the service template through two host templates
+        $this->serviceGroupStatement->method('fetch')->willReturnOnConsecutiveCalls(
+            $this->serviceGroupDowntimeRecord(['dt_id' => '12', 'host_id' => '10', 'host_name' => 'host-template-1']),
+            $this->serviceGroupDowntimeRecord(['dt_id' => '12', 'host_id' => '11', 'host_name' => 'host-template-2']),
+            false
+        );
+        $this->templateServicesStatement->method('fetch')->willReturnOnConsecutiveCalls(
+            $this->templateService('1', '1001', '100'),
+            $this->templateService('2', '1002', '100'),
+            false
+        );
+
+        $downtimes = $this->downtime->getForEnabledServicegroups();
+
+        $this->assertEqualsCanonicalizing(
+            ['12-1001-1,2,3,4,5', '12-1002-1,2,3,4,5'],
+            $this->downtimeSignatures($downtimes)
+        );
+    }
+
     public function testRegularServiceDowntimesAreKeptAlongsideServiceTemplateOnes(): void
     {
         $this->serviceGroupStatement->method('fetch')->willReturnOnConsecutiveCalls(

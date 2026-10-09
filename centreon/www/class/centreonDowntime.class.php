@@ -625,7 +625,7 @@ class CentreonDowntime
 
         while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             if ((int) $record['service_register'] === self::SERVICE_REGISTER_SERVICE_TEMPLATE) {
-                $templateDowntimeInformation[(int) $record['service_id']][] = [
+                $downtimeInformation = [
                     'dt_id' => $record['dt_id'],
                     'dt_activate' => $record['dt_activate'],
                     'dtp_start_time' => $record['dtp_start_time'],
@@ -636,6 +636,8 @@ class CentreonDowntime
                     'dtp_fixed' => $record['dtp_fixed'],
                     'dtp_duration' => $record['dtp_duration'],
                 ];
+                // The same period is returned once per host template linking the service template to the service group
+                $templateDowntimeInformation[(int) $record['service_id']][serialize($downtimeInformation)] = $downtimeInformation;
             } else {
                 $downtimes[] = $record;
             }
