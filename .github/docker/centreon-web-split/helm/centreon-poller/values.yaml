@@ -19,8 +19,8 @@ imagePullSecrets: []
 
 # Stable images are published on ghcr.io, tagged with the major version (same
 # convention as install-poller). Empty tag = the chart's appVersion.
-# Release candidates: docker.centreon.com/centreon/centreon-<component>-trixie
-# with tag <major>.<minor>.<patch> (e.g. 26.10.0); unstable: develop.
+# Pre-release: docker.centreon.com/centreon/centreon-<component>-trixie with
+# the maintenance branch tag (e.g. dev-26.10.x) or develop.
 images:
   engine:
     repository: ghcr.io/centreon/centreon-engine
