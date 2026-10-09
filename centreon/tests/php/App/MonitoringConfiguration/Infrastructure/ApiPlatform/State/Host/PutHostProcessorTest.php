@@ -128,6 +128,18 @@ final class PutHostProcessorTest extends ApiTestCase
         );
     }
 
+    public function testItReturns404ForANonNumericId(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('PUT', '/api/configuration/hosts/not-a-number', [
+            'json' => $this->payload($this->uniqueName('server'), $pollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testItReturns404ForAnUnknownHost(): void
     {
         $this->login();

@@ -72,6 +72,15 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testItReturnsNotFoundForANonNumericId(): void
+    {
+        $this->login();
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/not-a-number', self::PATCH_HEADERS + ['json' => ['activated' => false]]);
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testItReturnsNotFoundForAnUnknownHost(): void
     {
         $this->login();

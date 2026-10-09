@@ -59,6 +59,15 @@ final class DeleteHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testItReturns404ForANonNumericId(): void
+    {
+        $this->login();
+
+        $this->request('DELETE', '/api/configuration/hosts/not-a-number');
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testItReturns404ForANonExistentHost(): void
     {
         $this->login();
