@@ -24,11 +24,17 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
@@ -54,6 +60,7 @@ final readonly class PatchHostCommandHandler
     public function __construct(
         private HostRepository $repository,
         private CommandRepository $commandRepository,
+        private HostReferencesChecker $references,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
@@ -64,6 +71,9 @@ final readonly class PatchHostCommandHandler
     public function __invoke(PatchHostCommand $command): Host
     {
         $host = $this->getHost($command);
+        // The references come before the name: a restricted viewer must not be able to tell a duplicate
+        // name from a resource they cannot access.
+        $this->assertReferencesExist($command);
         $this->assertNameIsAvailable($command, $host);
         $this->assertArgumentsHaveACheckCommand($command, $host);
 
@@ -88,6 +98,41 @@ final readonly class PatchHostCommandHandler
         }
 
         return $host;
+    }
+
+    /**
+     * The same rules ran on the input, earlier: this is the authoritative check, against what exists now.
+     * The check command is not listed: loading it, for the Centreon Monitoring Agent rule, is its check.
+     */
+    private function assertReferencesExist(PatchHostCommand $command): void
+    {
+        if ($command->pollerId instanceof PollerId) {
+            $this->references->assertPollerAccessible($command->pollerId, $command->viewerId);
+        }
+
+        if ($command->severityId instanceof HostSeverityId) {
+            $this->references->assertSeverityAccessible($command->severityId, $command->viewerId);
+        }
+
+        if ($command->timezoneId instanceof TimezoneId) {
+            $this->references->assertTimezoneExists($command->timezoneId);
+        }
+
+        if ($command->extendedInformations instanceof ExtendedInformationsChanges && $command->extendedInformations->iconId instanceof MediaId) {
+            $this->references->assertMediaExists($command->extendedInformations->iconId);
+        }
+
+        if ($command->schedulingOptions instanceof SchedulingOptionsChanges && $command->schedulingOptions->checkTimeperiodId instanceof TimePeriodId) {
+            $this->references->assertTimePeriodExists($command->schedulingOptions->checkTimeperiodId);
+        }
+
+        if ($command->notifications instanceof NotificationsChanges && $command->notifications->periodId instanceof TimePeriodId) {
+            $this->references->assertTimePeriodExists($command->notifications->periodId);
+        }
+
+        if ($command->dataProcessing instanceof DataProcessingChanges && $command->dataProcessing->eventHandlerCommandId instanceof CommandId) {
+            $this->references->assertCommandExists($command->dataProcessing->eventHandlerCommandId);
+        }
     }
 
     private function assertNameIsAvailable(PatchHostCommand $command, Host $host): void
@@ -227,7 +272,7 @@ final readonly class PatchHostCommandHandler
 
     /**
      * The check command the update gives the host, null when it provides none or removes the current
-     * one. Its existence is checked on the input.
+     * one. Throws CommandNotFoundException when it does not exist.
      */
     private function providedCheckCommand(PatchHostCommand $command): ?Command
     {
