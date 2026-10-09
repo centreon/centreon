@@ -30,7 +30,6 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -289,9 +288,6 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findAdminWithRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
-            RequestParameters::CONCORDANCE_MODE_STRICT
-        );
         $sqlTranslator->setConcordanceArray([
             'name' => 'c.contact_name',
         ]);
@@ -675,7 +671,6 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
 
         // Update the SQL query with the RequestParameters through SqlRequestParametersTranslator
         $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator?->setConcordanceArray([
             'id' => 'contact_id',
             'alias' => 'contact_alias',

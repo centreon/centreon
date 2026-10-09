@@ -26,27 +26,17 @@ namespace Centreon\Infrastructure\ActionLog;
 use Centreon\Domain\ActionLog\ActionLog;
 use Centreon\Domain\ActionLog\Interfaces\ActionLogRepositoryInterface;
 use Centreon\Domain\Repository\RepositoryException;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 
 class ActionLogRepositoryRDB extends AbstractRepositoryDRB implements ActionLogRepositoryInterface
 {
-    /** @var SqlRequestParametersTranslator */
-    private $sqlRequestTranslator;
-
     /**
      * @param DatabaseConnection $db
-     * @param SqlRequestParametersTranslator $sqlRequestTranslator
      */
-    public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
+    public function __construct(DatabaseConnection $db)
     {
         $this->db = $db;
-        $this->sqlRequestTranslator = $sqlRequestTranslator;
-        $this->sqlRequestTranslator
-            ->getRequestParameters()
-            ->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
     }
 
     /**
