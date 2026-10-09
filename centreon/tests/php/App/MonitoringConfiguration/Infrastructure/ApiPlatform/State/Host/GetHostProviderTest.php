@@ -328,6 +328,61 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
+     * As the legacy host form, a restricted viewer only sees the parent/child hosts, notification
+     * contacts and contact groups within their ACL scope; the out-of-scope ones are left out rather
+     * than surfaced (no existence leak).
+     */
+    public function testItHidesTheOutOfScopeRelatedHostsAndContactsFromANonAdmin(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('accessible'), $pollerId);
+        $visibleParentId = $this->insertHost($this->uniqueName('visible-parent'), $pollerId);
+        $hiddenParentId = $this->insertHost($this->uniqueName('hidden-parent'), $pollerId);
+        $visibleChildId = $this->insertHost($this->uniqueName('visible-child'), $pollerId);
+        $hiddenChildId = $this->insertHost($this->uniqueName('hidden-child'), $pollerId);
+        foreach ([$visibleParentId, $hiddenParentId] as $parentId) {
+            $this->connection->insert('host_hostparent_relation', ['host_parent_hp_id' => $parentId, 'host_host_id' => $hostId]);
+        }
+        foreach ([$visibleChildId, $hiddenChildId] as $childId) {
+            $this->connection->insert('host_hostparent_relation', ['host_parent_hp_id' => $hostId, 'host_host_id' => $childId]);
+        }
+
+        $visibleContactId = $this->insertNotificationContact('visible-contact');
+        $hiddenContactId = $this->insertNotificationContact('hidden-contact');
+        $visibleContactGroupId = $this->insertContactGroup('visible-cg');
+        $hiddenContactGroupId = $this->insertContactGroup('hidden-cg');
+        foreach ([$visibleContactId, $hiddenContactId] as $contactId) {
+            $this->connection->insert('contact_host_relation', ['contact_id' => $contactId, 'host_host_id' => $hostId]);
+        }
+        foreach ([$visibleContactGroupId, $hiddenContactGroupId] as $contactGroupId) {
+            $this->connection->insert('contactgroup_host_relation', ['contactgroup_cg_id' => $contactGroupId, 'host_host_id' => $hostId]);
+        }
+
+        $username = bin2hex(random_bytes(8));
+        $viewerId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadTopologyRole($viewerId);
+        foreach ([$hostId, $visibleParentId, $visibleChildId] as $accessibleHostId) {
+            $this->linkHostToAcl($accessibleHostId, $aclGroupId);
+        }
+        $this->connection->insert('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId, 'contact_contact_id' => $visibleContactId]);
+        $this->connection->insert('acl_group_contactgroups_relations', ['acl_group_id' => $aclGroupId, 'cg_cg_id' => $visibleContactGroupId]);
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId, [
+            'headers' => ['accept' => 'application/json'],
+        ]);
+        self::assertResponseStatusCodeSame(200);
+        $body = $response->toArray();
+
+        self::assertSame([$visibleParentId], $this->idsOf($body['parent_hosts']));
+        self::assertSame([$visibleChildId], $this->idsOf($body['child_hosts']));
+        Assert::isArray($body['notifications']);
+        self::assertSame([$visibleContactId], $this->idsOf($body['notifications']['contacts']));
+        self::assertSame([$visibleContactGroupId], $this->idsOf($body['notifications']['contact_groups']));
+    }
+
+    /**
      * The GET body reflects the CreateHost response, Cloud included: on a Cloud platform the three
      * on-premise-only pans of the contract are dropped exactly as CreateHostProcessor drops them
      * (CreateHostProcessorTest::testItOmitsTheOnPremiseOnlyDataProcessingFieldsOnCloud,
@@ -605,6 +660,21 @@ final class GetHostProviderTest extends ApiTestCase
         ]);
 
         return $imgId;
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function idsOf(mixed $items): array
+    {
+        Assert::isList($items);
+
+        return array_map(static function (mixed $item): int {
+            Assert::isArray($item);
+            Assert::integer($item['id']);
+
+            return $item['id'];
+        }, $items);
     }
 
     private function uniqueName(string $prefix = 'host'): string
