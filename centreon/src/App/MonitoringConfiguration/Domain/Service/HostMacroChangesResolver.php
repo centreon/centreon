@@ -44,6 +44,9 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException
  * - Whatever ends up equivalent to the inherited macro of its name is dropped: the host relies
  *   on inheritance instead, so echoing back an untouched inherited macro never materialises a copy.
  *
+ * A macro is referenced by id + parent, so the same reference sent twice makes no sense: only the
+ * last one sent is applied. A new macro (no id) refers to nothing and is never dropped this way.
+ *
  * A check-command macro is resolved by name, never by id: whatever id is sent with
  * `parent: command`, the change refers to the macro the host inherits under its name. A command
  * macro is never a password and always carries an empty value, so its id holds nothing a write
@@ -68,7 +71,7 @@ final readonly class HostMacroChangesResolver
         $unknownIds = [];
         $valueRequired = [];
         $resolved = [];
-        foreach ($changes as $change) {
+        foreach ($this->lastChangePerReference($changes) as $change) {
             $source = $this->findSource($change, $current, $inherited);
 
             if (! $this->isResolvedByName($change) && ! $source instanceof HostMacro) {
@@ -95,6 +98,35 @@ final readonly class HostMacroChangesResolver
         }
 
         return $inherited->withoutRedundant($resolved);
+    }
+
+    /**
+     * Keeps, for each id + parent reference, only the last change sent for it, in submission order.
+     *
+     * @param list<HostMacroChange> $changes
+     *
+     * @return list<HostMacroChange>
+     */
+    private function lastChangePerReference(array $changes): array
+    {
+        $lastIndexes = [];
+        foreach ($changes as $index => $change) {
+            if (! $change->isNew()) {
+                $lastIndexes[$this->reference($change)] = $index;
+            }
+        }
+
+        return array_values(array_filter(
+            $changes,
+            fn (HostMacroChange $change, int $index): bool => $change->isNew()
+                || $lastIndexes[$this->reference($change)] === $index,
+            ARRAY_FILTER_USE_BOTH,
+        ));
+    }
+
+    private function reference(HostMacroChange $change): string
+    {
+        return ($change->parent->value ?? 'direct') . ':' . $change->id?->value;
     }
 
     /**

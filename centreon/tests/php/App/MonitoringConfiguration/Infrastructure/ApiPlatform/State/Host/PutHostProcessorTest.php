@@ -37,12 +37,15 @@ use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use Tests\App\Shared\ApiTestCase;
 
 final class PutHostProcessorTest extends ApiTestCase
@@ -123,6 +126,18 @@ final class PutHostProcessorTest extends ApiTestCase
             $newName,
             $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]),
         );
+    }
+
+    public function testItReturns404ForANonNumericId(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('PUT', '/api/configuration/hosts/not-a-number', [
+            'json' => $this->payload($this->uniqueName('server'), $pollerId),
+        ]);
+
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testItReturns404ForAnUnknownHost(): void
@@ -463,6 +478,31 @@ final class PutHostProcessorTest extends ApiTestCase
         ));
     }
 
+    public function testOnlyTheLastOfAMacroSentTwiceIsStored(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $macroId = $this->insertMacro($hostId, '$_HOSTFOO$', 'v1', description: 'set by legacy');
+
+        // The same id + parent twice refers to a single macro: the last one sent wins.
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [
+                    ['id' => $macroId, 'parent' => null, 'name' => 'foo', 'value' => 'first', 'is_password' => false],
+                    ['id' => $macroId, 'parent' => null, 'name' => 'bar', 'value' => 'last', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertSame(
+            [['host_macro_id' => $macroId, 'host_macro_name' => '$_HOSTBAR$', 'host_macro_value' => 'last', 'description' => 'set by legacy']],
+            $this->macroRows($hostId),
+        );
+    }
+
     public function testItDeletesADirectMacroNoLongerSubmitted(): void
     {
         $this->login();
@@ -648,6 +688,10 @@ final class PutHostProcessorTest extends ApiTestCase
         yield 'category' => ['category_ids', 'category'];
 
         yield 'severity' => ['severity_id', 'severity'];
+
+        yield 'parent host' => ['parent_host_ids', 'host'];
+
+        yield 'child host' => ['child_host_ids', 'host'];
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('inaccessibleReferences')]
@@ -661,6 +705,8 @@ final class PutHostProcessorTest extends ApiTestCase
             'group' => $this->insertHostGroup($this->uniqueName('group')),
             'category' => $this->insertHostCategory($this->uniqueName('category')),
             'severity' => $this->insertHostSeverity($this->uniqueName('severity')),
+            // Exists, but has no centreon_acl row for the viewer.
+            'host' => $this->insertHost($this->uniqueName('hidden'), $pollerId),
         ];
         $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
         $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(
@@ -676,6 +722,43 @@ final class PutHostProcessorTest extends ApiTestCase
 
         // Unknown and inaccessible are not told apart.
         self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function inaccessibleNotificationRecipients(): iterable
+    {
+        yield 'contact' => ['contacts', 'One or more contacts do not exist or are not accessible.'];
+
+        yield 'contact group' => ['contact_groups', 'One or more contact groups do not exist or are not accessible.'];
+    }
+
+    /**
+     * An existing contact or contact group outside the viewer's Access Groups is rejected like a
+     * missing one, as on CreateHost, and nothing is written.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('inaccessibleNotificationRecipients')]
+    public function testARestrictedViewerCannotNotifyAnInaccessibleRecipient(string $field, string $message): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $inaccessibleId = $field === 'contacts'
+            ? $this->insertNotificationContact('outsider')
+            : $this->insertContactGroup('outsiders');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(pollerIds: [$pollerId]));
+
+        $response = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'notifications' => [$field => [$inaccessibleId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertStringContainsString("[notifications.{$field}] {$message}", $this->validationMessage($response));
+        self::assertSame([], $this->intColumn('SELECT contact_id FROM contact_host_relation WHERE host_host_id = ?', $hostId));
+        self::assertSame([], $this->intColumn('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId));
     }
 
     public function testARestrictedViewerRoundTripKeepsOutOfScopeGroupsCategoriesAndSeverity(): void
@@ -719,6 +802,74 @@ final class PutHostProcessorTest extends ApiTestCase
         );
     }
 
+    /**
+     * The legacy host form hides the related hosts, contacts and contact groups outside the
+     * viewer's scope: a round trip keeps them stored, and the response, built like the GetHost
+     * body, never surfaces them (nor the hidden groups, categories and severity).
+     */
+    public function testARestrictedViewerRoundTripKeepsAndHidesOutOfScopeRelations(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
+        $hiddenGroupId = $this->insertHostGroup($this->uniqueName('group'));
+        $hiddenSeverityId = $this->insertHostSeverity($this->uniqueName('severity'));
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $visibleParentId = $this->insertHost($this->uniqueName('visible-parent'), $pollerId);
+        $hiddenParentId = $this->insertHost($this->uniqueName('hidden-parent'), $pollerId);
+        $hiddenChildId = $this->insertHost($this->uniqueName('hidden-child'), $pollerId);
+        $this->insertParentRelation($hostId, $visibleParentId);
+        $this->insertParentRelation($hostId, $hiddenParentId);
+        $this->insertParentRelation($hiddenChildId, $hostId);
+        $visibleContactId = $this->insertNotificationContact('visible-contact');
+        $hiddenContactId = $this->insertNotificationContact('hidden-contact');
+        foreach ([$visibleContactId, $hiddenContactId] as $contactId) {
+            $this->connection->insert('contact_host_relation', ['contact_id' => $contactId, 'host_host_id' => $hostId]);
+        }
+        foreach ([$accessibleGroupId, $hiddenGroupId] as $groupId) {
+            $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $groupId, 'host_host_id' => $hostId]);
+        }
+        $this->connection->insert('hostcategories_relation', ['hostcategories_hc_id' => $hiddenSeverityId, 'host_host_id' => $hostId]);
+
+        $aclGroupId = $this->loginRestrictedViewer(pollerIds: [$pollerId], hostGroupIds: [$accessibleGroupId]);
+        foreach ([$hostId, $visibleParentId] as $accessibleHostId) {
+            $this->linkHostToAcl($accessibleHostId, $aclGroupId);
+        }
+        $this->connection->insert('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId, 'contact_contact_id' => $visibleContactId]);
+
+        // What the viewer can see of the host, sent back unchanged.
+        $response = $this->request('PUT', $this->endpoint($hostId), [
+            'headers' => ['accept' => 'application/json'],
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'host_group_ids' => [$accessibleGroupId],
+                'parent_host_ids' => [$visibleParentId],
+                'notifications' => ['contacts' => [$visibleContactId]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(200);
+        /** @var array{groups: list<array{id: int}>, parent_hosts: list<array{id: int}>, child_hosts: list<mixed>, notifications: array{contacts: list<array{id: int}>}} $body */
+        $body = $response->toArray();
+        self::assertSame([$accessibleGroupId], array_column($body['groups'], 'id'));
+        self::assertArrayNotHasKey('severity', $body);
+        self::assertSame([$visibleParentId], array_column($body['parent_hosts'], 'id'));
+        self::assertSame([], $body['child_hosts']);
+        self::assertSame([$visibleContactId], array_column($body['notifications']['contacts'], 'id'));
+
+        self::assertEqualsCanonicalizing(
+            [$visibleParentId, $hiddenParentId],
+            $this->intColumn('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$hiddenChildId],
+            $this->intColumn('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = ?', $hostId),
+        );
+        self::assertEqualsCanonicalizing(
+            [$visibleContactId, $hiddenContactId],
+            $this->intColumn('SELECT contact_id FROM contact_host_relation WHERE host_host_id = ?', $hostId),
+        );
+    }
+
     private function forceCloudPlatform(): void
     {
         $this->forcePlatform(isCloudPlatform: true);
@@ -735,12 +886,12 @@ final class PutHostProcessorTest extends ApiTestCase
     {
         $container = self::getContainer();
 
-        /** @var CommandBus $commandBus */
-        $commandBus = $container->get(CommandBus::class);
         /** @var HostResourceTransformer $transformer */
         $transformer = $container->get(HostResourceTransformer::class);
-        /** @var Security $security */
-        $security = $container->get(Security::class);
+        /** @var HostNotificationsTransformer $notificationsTransformer */
+        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
         /** @var PollerRepository $pollerRepository */
         $pollerRepository = $container->get(PollerRepository::class);
         /** @var HostGroupRepository $hostGroupRepository */
@@ -755,43 +906,47 @@ final class PutHostProcessorTest extends ApiTestCase
         $hostSeverityRepository = $container->get(HostSeverityRepository::class);
         /** @var TimezoneRepository $timezoneRepository */
         $timezoneRepository = $container->get(TimezoneRepository::class);
-        /** @var HostRepository $hostRepository */
-        $hostRepository = $container->get(HostRepository::class);
         /** @var MediaRepository $mediaRepository */
         $mediaRepository = $container->get(MediaRepository::class);
-        /** @var HostNotificationsTransformer $notificationsTransformer */
-        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
         /** @var MediaUrlGenerator $mediaUrlGenerator */
         $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
         /** @var TimePeriodRepository $timePeriodRepository */
         $timePeriodRepository = $container->get(TimePeriodRepository::class);
+        /** @var ResourceAccessRepository $resourceAccessRepository */
+        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
         /** @var HostMacroTransformer $macroTransformer */
         $macroTransformer = $container->get(HostMacroTransformer::class);
         /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
         $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+
+        $resourceBuilder = new HostResourceBuilder(
+            $transformer,
+            $notificationsTransformer,
+            $hostRepository,
+            $pollerRepository,
+            $hostGroupRepository,
+            $commandRepository,
+            $hostTemplateRepository,
+            $hostCategoryRepository,
+            $hostSeverityRepository,
+            $timezoneRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $timePeriodRepository,
+            $resourceAccessRepository,
+            $macroTransformer,
+            $inheritedHostMacrosResolver,
+            $isCloudPlatform,
+        );
+
+        /** @var CommandBus $commandBus */
+        $commandBus = $container->get(CommandBus::class);
 
         $container->set(
             PutHostProcessor::class,
-            new PutHostProcessor(
-                $commandBus,
-                $transformer,
-                $security,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $hostRepository,
-                $mediaRepository,
-                $notificationsTransformer,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                $macroTransformer,
-                $inheritedHostMacrosResolver,
-                $isCloudPlatform,
-            ),
+            new PutHostProcessor($commandBus, $security, $hostRepository, $macroTransformer, $resourceBuilder, $isCloudPlatform),
         );
     }
 
@@ -819,6 +974,27 @@ final class PutHostProcessorTest extends ApiTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContactGroup(string $prefix): int
+    {
+        $name = $this->uniqueName($prefix);
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function validationMessage(ResponseInterface $response): string
+    {
+        /** @var array{message?: string} $body */
+        $body = $response->toArray(false);
+
+        return $body['message'] ?? '';
     }
 
     /**

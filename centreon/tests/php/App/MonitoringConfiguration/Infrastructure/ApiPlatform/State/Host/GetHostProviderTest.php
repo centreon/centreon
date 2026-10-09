@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -475,8 +476,6 @@ final class GetHostProviderTest extends ApiTestCase
         $transformer = $container->get(HostResourceTransformer::class);
         /** @var HostNotificationsTransformer $notificationsTransformer */
         $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
-        /** @var Security $security */
-        $security = $container->get(Security::class);
         /** @var HostRepository $hostRepository */
         $hostRepository = $container->get(HostRepository::class);
         /** @var PollerRepository $pollerRepository */
@@ -505,30 +504,30 @@ final class GetHostProviderTest extends ApiTestCase
         $macroTransformer = $container->get(HostMacroTransformer::class);
         /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
         $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
 
-        $container->set(
-            GetHostProvider::class,
-            new GetHostProvider(
-                $transformer,
-                $notificationsTransformer,
-                $security,
-                $hostRepository,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $mediaRepository,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                $resourceAccessRepository,
-                $macroTransformer,
-                $inheritedHostMacrosResolver,
-                $isCloudPlatform,
-            ),
+        $resourceBuilder = new HostResourceBuilder(
+            $transformer,
+            $notificationsTransformer,
+            $hostRepository,
+            $pollerRepository,
+            $hostGroupRepository,
+            $commandRepository,
+            $hostTemplateRepository,
+            $hostCategoryRepository,
+            $hostSeverityRepository,
+            $timezoneRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $timePeriodRepository,
+            $resourceAccessRepository,
+            $macroTransformer,
+            $inheritedHostMacrosResolver,
+            $isCloudPlatform,
         );
+
+        $container->set(GetHostProvider::class, new GetHostProvider($security, $hostRepository, $resourceBuilder));
     }
 
     private function insertPoller(string $name): int

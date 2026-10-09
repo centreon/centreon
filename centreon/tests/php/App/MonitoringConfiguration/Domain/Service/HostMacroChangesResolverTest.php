@@ -278,6 +278,56 @@ final class HostMacroChangesResolverTest extends TestCase
         self::assertSame([], $macros);
     }
 
+    public function testOnlyTheLastOfADirectMacroSentTwiceIsKept(): void
+    {
+        $current = [$this->direct(5, 'foo', 'old')];
+
+        // Id 5 under no parent refers to a single macro: the last change sent for it wins.
+        $macros = $this->resolver->resolve([
+            $this->change('foo', 'a', id: 5),
+            $this->change('bar', 'b', id: 5),
+        ], $current, $this->inherited);
+
+        self::assertSame(['BAR'], $this->names($macros));
+        self::assertSame(5, $macros[0]->id?->value);
+        self::assertSame('b', $macros[0]->value);
+    }
+
+    public function testOnlyTheLastOfAnInheritedMacroSentTwiceIsKept(): void
+    {
+        $macros = $this->resolver->resolve([
+            $this->change('tplval', 'first', id: 11, parent: HostMacroParentEnum::Template),
+            $this->change('tplval', 'second', id: 11, parent: HostMacroParentEnum::Template),
+        ], [], $this->inherited);
+
+        self::assertCount(1, $macros);
+        self::assertSame('second', $macros[0]->value);
+    }
+
+    public function testTheSameIdUnderAnotherParentIsAnotherMacro(): void
+    {
+        // The parent is the id namespace: direct macro 11 and template macro 11 are two macros.
+        $current = [$this->direct(11, 'own', 'old')];
+
+        $macros = $this->resolver->resolve([
+            $this->change('own', 'new', id: 11),
+            $this->change('tplval', 'overridden', id: 11, parent: HostMacroParentEnum::Template),
+        ], $current, $this->inherited);
+
+        self::assertSame(['OWN', 'TPLVAL'], $this->names($macros));
+    }
+
+    public function testNewMacrosAreNeverMergedTogether(): void
+    {
+        // Without an id, a change refers to no stored macro: none is dropped as a repeat.
+        $macros = $this->resolver->resolve([
+            $this->change('one', 'a'),
+            $this->change('two', 'b'),
+        ], [], $this->inherited);
+
+        self::assertSame(['ONE', 'TWO'], $this->names($macros));
+    }
+
     public function testAnUnknownDirectOrTemplateIdIsRejected(): void
     {
         try {
