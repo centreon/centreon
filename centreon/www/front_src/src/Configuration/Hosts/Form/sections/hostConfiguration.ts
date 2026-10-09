@@ -21,7 +21,6 @@ import {
   labelCheckPeriod,
   labelCreateServicesLinkedToTemplates,
   labelCustomMacros,
-  labelDescription,
   labelHostConfiguration,
   labelInvalidAddress,
   labelIpAddress,
@@ -45,7 +44,7 @@ import {
   labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import Macros, { type MacroRow } from '../Macros';
+import Macros, { type MacroParent, type MacroRow } from '../Macros';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector, toIds } from '../selector';
 import Templates, { type TemplateRow } from '../Templates';
@@ -64,10 +63,9 @@ const aliasMaxLength = 200;
 const addressMaxLength = 255;
 const snmpCommunityMaxLength = 255;
 // `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters,
-// the value 4096 characters, the description 65535 bytes.
+// the value 4096 characters.
 const macroNameMaxLength = 248;
 const macroValueMaxLength = 4096;
-const macroDescriptionMaxBytes = 65535;
 // The set `CreateHostInput` forbids, character for character. A backslash is
 // not among them, so the form must not refuse `C:\temp` either.
 const forbiddenNameCharacters = /^[^~!$%^&*"|'<>?,()=]*$/;
@@ -146,21 +144,30 @@ const defaultCheckOptions: CheckOptionsValues = {
 const toMacroName = (name: string): string => name.trim().toUpperCase();
 
 interface MacroDetail {
-  description: string;
+  id: number | null;
   isPassword: boolean;
   name: string;
+  parent: MacroParent | null;
   value?: string | null;
 }
 
 const macroDecoder = JsonDecoder.object<MacroDetail>(
   {
-    description: JsonDecoder.optional(
-      JsonDecoder.nullable(JsonDecoder.string)
-    ).map((value) => value ?? ''),
+    id: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)).map(
+      (value) => value ?? null
+    ),
     isPassword: JsonDecoder.optional(JsonDecoder.boolean).map(
       (value) => value ?? false
     ),
     name: JsonDecoder.string,
+    parent: JsonDecoder.optional(
+      JsonDecoder.nullable(
+        JsonDecoder.oneOf<MacroParent>(
+          [JsonDecoder.isExactly('template'), JsonDecoder.isExactly('command')],
+          'Macro parent'
+        )
+      )
+    ).map((value) => value ?? null),
     // Never sent back for a password.
     value: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string))
   },
@@ -174,19 +181,22 @@ const macroDecoder = JsonDecoder.object<MacroDetail>(
   })
 );
 
+// Inherited macros go back with their id and parent: unchanged, the server
+// drops them; changed, they become the host's own.
 const toMacroPayload = ({
-  description,
   hasStoredPassword,
+  id,
   isPassword,
   name,
+  parent,
   value
 }: MacroRow) => ({
-  description: description || null,
+  id,
   is_password: isPassword,
   name: toMacroName(name),
-  // A password left empty is the one already stored: none is sent, rather
-  // than a fake value the server would store.
-  ...(!(isPassword && hasStoredPassword && value === '') && { value })
+  parent,
+  // A password left empty is the one already stored: null keeps it.
+  value: isPassword && hasStoredPassword && value === '' ? null : value
 });
 
 const optionalNumberDecoder = JsonDecoder.optional(
@@ -253,17 +263,6 @@ const getMacrosSchema = (t: TFunction) =>
   array()
     .of(
       object({
-        description: string().test(
-          'fits-storage',
-          t(labelMustBeAtMostCharacters, {
-            label: t(labelDescription),
-            max: macroDescriptionMaxBytes
-          }),
-          // Bytes, as the server counts them.
-          (value) =>
-            new TextEncoder().encode(value ?? '').length <=
-            macroDescriptionMaxBytes
-        ),
         name: string()
           .trim()
           .max(

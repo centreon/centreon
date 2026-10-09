@@ -3,6 +3,7 @@ import {
   labelAddNewEntry,
   labelAlreadyExists,
   labelChildHosts,
+  labelCommandInheritance,
   labelCreateServicesLinkedToTemplates,
   labelDataProcessing,
   labelDefault,
@@ -29,6 +30,7 @@ import {
   labelRelations,
   labelResolve,
   labelSnmpVersion,
+  labelTemplateInheritance,
   labelTimezone,
   labelUnreachable,
   labelYes
@@ -164,15 +166,37 @@ export default () => {
           check_options: {
             args: ['3', '80%'],
             command_id: 9,
-            // No value for the password: the stored one is kept.
+            // A null value keeps the stored password; the inherited macros
+            // go back untouched, so the server drops them.
             macros: [
               {
-                description: 'Agent port',
+                id: 1,
                 is_password: false,
                 name: 'SNMPPORT',
+                parent: null,
                 value: '161'
               },
-              { description: null, is_password: true, name: 'API_TOKEN' }
+              {
+                id: 2,
+                is_password: true,
+                name: 'API_TOKEN',
+                parent: null,
+                value: null
+              },
+              {
+                id: 11,
+                is_password: false,
+                name: 'OS',
+                parent: 'template',
+                value: 'linux'
+              },
+              {
+                id: 4,
+                is_password: false,
+                name: 'WARNING',
+                parent: 'command',
+                value: ''
+              }
             ]
           },
           child_host_ids: [2],
@@ -1996,7 +2020,9 @@ export default () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
       cy.findByTestId('host-form-templates-0').click();
       cy.get('.MuiAutocomplete-popper')
         .contains('linux-server-standard')
@@ -2039,12 +2065,16 @@ export default () => {
       cy.findByTestId('host-form-poller').click();
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
       cy.findByTestId('host-form-templates-0').click();
       cy.get('.MuiAutocomplete-popper')
         .contains('linux-server-standard')
         .click();
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
 
       // Nothing picked yet: no template page to open.
       cy.findAllByTestId('host-form-templates-edit')
@@ -2058,7 +2088,7 @@ export default () => {
       });
     });
 
-    it('lets a user who may only look at hosts change no template', () => {
+    it('lets a user who may only look at hosts change no template nor macro', () => {
       initialize({ hasWriteAccess: false });
 
       cy.waitForRequest('@getAllHosts');
@@ -2068,7 +2098,15 @@ export default () => {
       cy.waitForRequest('@getHost');
 
       cy.findByTestId('host-form-templates-0').should('be.disabled');
-      cy.findByRole('button', { name: labelAddNewEntry }).should('be.disabled');
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .should('be.disabled');
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .should('be.disabled');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-0-value"]'
+      ).should('be.disabled');
       cy.findByTestId('host-form-templates')
         .findAllByTestId('delete-row')
         .first()
@@ -2214,9 +2252,6 @@ export default () => {
       cy.get('input[data-testid="host-form-check-options-macros-0-value"]')
         .type('161')
         .should('have.attr', 'type', 'text');
-      cy.get(
-        'input[data-testid="host-form-check-options-macros-0-description"]'
-      ).type('Agent port');
 
       cy.findByTestId('host-form-check-options-macros')
         .findByRole('button', { name: labelAddNewEntry })
@@ -2242,15 +2277,17 @@ export default () => {
           ...untouchedCheckOptionsPayload,
           macros: [
             {
-              description: 'Agent port',
+              id: null,
               is_password: false,
               name: 'SNMPPORT',
+              parent: null,
               value: '161'
             },
             {
-              description: null,
+              id: null,
               is_password: true,
               name: 'API_TOKEN',
+              parent: null,
               value: 's3cret'
             }
           ]
@@ -2274,15 +2311,98 @@ export default () => {
         'input[data-testid="host-form-check-options-macros-0-value"]'
       ).should('have.value', '161');
       cy.get(
-        'input[data-testid="host-form-check-options-macros-0-description"]'
-      ).should('have.value', 'Agent port');
-      cy.get(
         'input[data-testid="host-form-check-options-macros-1-name"]'
       ).should('have.value', 'API_TOKEN');
       // Masked, and empty: the API never sends a password back.
       cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
         .should('have.attr', 'type', 'password')
         .and('have.value', '');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-2-name"]'
+      ).should('have.value', 'OS');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-3-name"]'
+      ).should('have.value', 'WARNING');
+    });
+
+    it('tints inherited macros as legacy does, until they are changed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .contains(labelTemplateInheritance)
+        .scrollIntoView()
+        .should('be.visible');
+      cy.findByTestId('host-form-check-options-macros')
+        .contains(labelCommandInheritance)
+        .scrollIntoView()
+        .should('be.visible');
+
+      const macroRow = (index: number) =>
+        cy
+          .get(
+            `input[data-testid="host-form-check-options-macros-${index}-name"]`
+          )
+          .closest('li');
+
+      macroRow(0).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+      macroRow(2).should('have.css', 'background-color', 'rgb(255, 203, 107)');
+      macroRow(3).should('have.css', 'background-color', 'rgb(182, 252, 167)');
+
+      // Overridden: the host's own from now on.
+      cy.get('input[data-testid="host-form-check-options-macros-2-value"]')
+        .clear()
+        .type('debian');
+      macroRow(2).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+      // Back to the inherited value: inherited again.
+      cy.get('input[data-testid="host-form-check-options-macros-2-value"]')
+        .clear()
+        .type('linux');
+      macroRow(2).should('have.css', 'background-color', 'rgb(255, 203, 107)');
+    });
+
+    it('overrides an inherited macro and replaces a stored password', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-1-value"]'
+      ).type('n3w');
+      cy.get('input[data-testid="host-form-check-options-macros-2-value"]')
+        .clear()
+        .type('debian');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        // Id and parent tell the server which inherited macro this overrides.
+        expect(request.body.check_options.macros.slice(1, 3)).to.deep.equals([
+          {
+            id: 2,
+            is_password: true,
+            name: 'API_TOKEN',
+            parent: null,
+            value: 'n3w'
+          },
+          {
+            id: 11,
+            is_password: false,
+            name: 'OS',
+            parent: 'template',
+            value: 'debian'
+          }
+        ]);
+      });
     });
 
     it('refuses two custom macros of the same name', () => {

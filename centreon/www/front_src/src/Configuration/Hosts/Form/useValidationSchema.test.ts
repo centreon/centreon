@@ -327,9 +327,11 @@ describe('Host form validation', () => {
 
   describe('Custom macros', () => {
     const macro = (name: string, rest = {}) => ({
-      description: '',
+      hasStoredPassword: false,
+      id: null,
       isPassword: false,
       name,
+      parent: null,
       value: '',
       ...rest
     });
@@ -363,13 +365,12 @@ describe('Host form validation', () => {
       expect(macrosError([macro('a'.repeat(249))])).toEqual(
         labelMustBeAtMostCharacters
       );
+      expect(
+        macrosError([macro('PORT', { value: 'a'.repeat(4096) })])
+      ).toBeNull();
       expect(macrosError([macro('PORT', { value: 'a'.repeat(4097) })])).toEqual(
         labelMustBeAtMostCharacters
       );
-      // Counted in bytes: two each.
-      expect(
-        macrosError([macro('PORT', { description: 'é'.repeat(32768) })])
-      ).toEqual(labelMustBeAtMostCharacters);
     });
   });
 });

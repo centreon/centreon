@@ -14,32 +14,66 @@ import { useTranslation } from 'react-i18next';
 
 import {
   labelAddNewEntry,
-  labelDescription,
+  labelCommandInheritance,
   labelName,
   labelPassword,
+  labelTemplateInheritance,
   labelValue
 } from '../translatedLabels';
 
+export type MacroParent = 'command' | 'template';
+
 export interface MacroRow {
-  description: string;
   // A password the server keeps but never sends back: left empty, it is kept.
   hasStoredPassword: boolean;
+  // Null for a new macro, and for a command macro the command never recorded.
+  id: number | null;
   isPassword: boolean;
   name: string;
+  // Where an inherited macro comes from, null for the host's own.
+  parent: MacroParent | null;
   value: string;
 }
 
 const maxVisibleRows = 10;
 
+// Legacy's colours for inherited macros, the same in both of its themes.
+const parentClassName: Record<MacroParent, string> = {
+  command: 'bg-[#b6fca7] dark:bg-[#b6fca7]/30',
+  template: 'bg-[#ffcb6b] dark:bg-[#ffcb6b]/30'
+};
+
+const legend: Array<{ label: string; parent: MacroParent }> = [
+  { label: labelTemplateInheritance, parent: 'template' },
+  { label: labelCommandInheritance, parent: 'command' }
+];
+
 const createMacroRow = (): MacroRow => ({
-  description: '',
   hasStoredPassword: false,
+  id: null,
   isPassword: false,
   name: '',
+  parent: null,
   value: ''
 });
 
-// The host's own macros, `$_HOST<NAME>$`, in order.
+// Still what the host inherits: once changed, it is the host's own override,
+// as legacy shows it.
+const isUnchangedInherited = (
+  macro: MacroRow,
+  initialMacros: Array<MacroRow>
+): boolean =>
+  !!macro.parent &&
+  initialMacros.some(
+    (initialMacro) =>
+      initialMacro.parent === macro.parent &&
+      initialMacro.id === macro.id &&
+      initialMacro.name === macro.name &&
+      initialMacro.value === macro.value &&
+      initialMacro.isPassword === macro.isPassword
+  );
+
+// The host's macros, `$_HOST<NAME>$`, in order: its own, then the inherited ones.
 const Macros = ({
   dataTestId,
   fieldName,
@@ -49,6 +83,7 @@ const Macros = ({
   const { t } = useTranslation();
   const {
     errors,
+    initialValues,
     setFieldTouched,
     setFieldValue,
     submitCount,
@@ -57,6 +92,8 @@ const Macros = ({
   } = useFormikContext<FormikValues>();
 
   const macros = (getIn(values, fieldName) ?? []) as Array<MacroRow>;
+  const initialMacros = (getIn(initialValues, fieldName) ??
+    []) as Array<MacroRow>;
   const disabled = !!getDisabled?.(values);
 
   const getError = (index: number, key: keyof MacroRow): string | undefined => {
@@ -71,7 +108,7 @@ const Macros = ({
     setField,
     value: macro
   }: RenderRowParams<MacroRow>): ReactElement => {
-    const getFieldProps = (key: 'description' | 'name' | 'value') => ({
+    const getFieldProps = (key: 'name' | 'value') => ({
       dataTestId: `${dataTestId}-${index}-${key}`,
       disabled,
       error: getError(index, key),
@@ -85,9 +122,7 @@ const Macros = ({
     });
 
     return (
-      // Name and value side by side as designed; the description joins them
-      // once the list is wide enough.
-      <div className="grid grid-cols-2 gap-2 @[700px]:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2">
         <TextField {...getFieldProps('name')} label={t(labelName)} required />
         <TextField
           {...getFieldProps('value')}
@@ -99,20 +134,30 @@ const Macros = ({
           }
           type={macro.isPassword ? 'password' : 'text'}
         />
-        <TextField
-          {...getFieldProps('description')}
-          containerClassName="col-span-2 @[700px]:col-span-1"
-          label={t(labelDescription)}
-        />
       </div>
     );
   };
 
   return (
     <div className="flex flex-col gap-2" data-testid={dataTestId}>
-      <Typography fontWeight="bold" variant="body1">
+      <Typography className="font-bold" variant="body1">
         {label}
       </Typography>
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {legend.map(({ label: legendLabel, parent }) => (
+          <Typography
+            className="flex items-center gap-1"
+            key={parent}
+            variant="body2"
+          >
+            <span
+              aria-hidden
+              className={`inline-block size-3 rounded-sm ${parentClassName[parent]}`}
+            />
+            {t(legendLabel)}
+          </Typography>
+        ))}
+      </div>
       {/* The shared list has no read-only mode: a disabled fieldset turns off
           its add, delete and drag buttons natively. */}
       <fieldset className="m-0 min-w-0 border-0 p-0" disabled={disabled}>
@@ -137,6 +182,13 @@ const Macros = ({
           addLabel={t(labelAddNewEntry)}
           createValue={createMacroRow}
           draggable={!disabled}
+          getRowClassName={({ value: macro }) =>
+            `rounded p-1 ${
+              macro.parent && isUnchangedInherited(macro, initialMacros)
+                ? parentClassName[macro.parent]
+                : ''
+            }`
+          }
           label={label}
           maxVisibleRows={maxVisibleRows}
           onChange={(nextMacros): void => {

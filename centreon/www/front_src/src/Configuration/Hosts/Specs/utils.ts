@@ -233,15 +233,25 @@ export const getHostResponse = () => ({
   check_options: {
     args: ['3', '80%'],
     command: { id: 9, name: 'check-host-alive' },
-    // A password's value is never sent back, nor is an unset description.
+    // The host's own macros, then the inherited ones. Null keys are left out:
+    // a password's value, a direct macro's parent.
     macros: [
+      { id: 1, is_password: false, name: 'SNMPPORT', value: '161' },
+      { id: 2, is_password: true, name: 'API_TOKEN' },
       {
-        description: 'Agent port',
+        id: 11,
         is_password: false,
-        name: 'SNMPPORT',
-        value: '161'
+        name: 'OS',
+        parent: 'template',
+        value: 'linux'
       },
-      { is_password: true, name: 'API_TOKEN' }
+      {
+        id: 4,
+        is_password: false,
+        name: 'WARNING',
+        parent: 'command',
+        value: ''
+      }
     ]
   },
   child_hosts: [{ id: 2, name: 'host 2' }],
