@@ -153,4 +153,5 @@ export interface UserPermissions {
   manage_discovery_commands: boolean;
   see_miscellaneous_commands: boolean;
   manage_miscellaneous_commands: boolean;
+  create_edit_poller_cfg: boolean;
 }
