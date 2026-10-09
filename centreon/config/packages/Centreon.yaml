@@ -66,6 +66,13 @@ services:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
 
+    Core\Common\Application\CurrentUserIdResolverInterface:
+        class: Core\Common\Infrastructure\CurrentUserIdResolver
+
+    # Reached from the legacy mass change of hosts (www/include/configuration/configObject/host/DB-Func.php).
+    Core\Host\Application\HostTemplateServicesCleaner:
+        public: true
+
     Adaptation\Database\Connection\Model\ConnectionConfig:
         arguments:
             $host: '%database_host%'

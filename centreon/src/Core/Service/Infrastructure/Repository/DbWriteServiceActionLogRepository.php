@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\Repository;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Common\Application\CurrentUserIdResolverInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Domain\Common\GeoCoords;
@@ -46,14 +46,14 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
-     * @param ContactInterface $contact
+     * @param CurrentUserIdResolverInterface $currentUserIdResolver
      * @param ReadServiceRepositoryInterface $readServiceRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
-        private readonly ContactInterface $contact,
+        private readonly CurrentUserIdResolverInterface $currentUserIdResolver,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db,
@@ -77,7 +77,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $serviceId,
                 $serviceName,
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getCurrentUserId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -109,7 +109,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $serviceId,
                     $serviceName,
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->contact->getId()
+                    $this->getCurrentUserId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             } catch (\Throwable $ex) {
@@ -139,7 +139,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $serviceId,
                 $newService->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getCurrentUserId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -184,7 +184,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     $actionType,
-                    $this->contact->getId()
+                    $this->getCurrentUserId()
                 );
 
                 unset($diff['isActivated']);
@@ -196,7 +196,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getCurrentUserId()
                 );
             }
 
@@ -234,7 +234,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service['id'],
                     $service['name'],
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->contact->getId()
+                    $this->getCurrentUserId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -247,6 +247,19 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
             throw $ex;
         }
+    }
+
+    /**
+     * The action log needs an author: callers always run behind an authenticated API request or a legacy session.
+     *
+     * @throws RepositoryException
+     *
+     * @return int
+     */
+    private function getCurrentUserId(): int
+    {
+        return $this->currentUserIdResolver->getUserId()
+            ?? throw new RepositoryException('Cannot identify the current user to write the action log.');
     }
 
     /**
