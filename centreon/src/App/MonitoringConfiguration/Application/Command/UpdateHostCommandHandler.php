@@ -44,6 +44,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
@@ -78,6 +79,7 @@ use App\Shared\Domain\Vault\VaultCredentials;
 use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Full replace (PUT) of a single host. Deliberately duplicates {@see CreateHostCommandHandler}'s
@@ -112,10 +114,41 @@ final readonly class UpdateHostCommandHandler
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
+        private LoggerInterface $logger,
     ) {
     }
 
+    /**
+     * The secrets are written to the vault before the host is saved, so that an unreachable vault
+     * saves nothing (HTTP 502). The vault is outside the transaction: when the update fails after a
+     * successful vault write, the database rolls back but the vault keeps the new values, which the
+     * stored references may now resolve to (changed secret) or miss (cleared key). This divergence is
+     * logged as a warning rather than left silent. A failure of the commit itself, after this handler
+     * returns, is not covered.
+     */
     public function __invoke(UpdateHostCommand $command): Host
+    {
+        $vaultWritten = false;
+
+        try {
+            return $this->update($command, $vaultWritten);
+        } catch (\Throwable $exception) {
+            // @phpstan-ignore if.alwaysFalse (update() sets it by reference before it throws)
+            if ($vaultWritten) {
+                $this->logger->warning(
+                    'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
+                    ['host_id' => $command->id->value, 'exception' => $exception],
+                );
+            }
+
+            throw $exception;
+        }
+    }
+
+    /**
+     * @param bool $vaultWritten set to true once a vault write has succeeded
+     */
+    private function update(UpdateHostCommand $command, bool &$vaultWritten): Host
     {
         // Viewer-scoped: findOne returns null for a host outside the viewer's ACL scope, the same as a
         // nonexistent one, so a restricted viewer can never tell them apart.
@@ -164,12 +197,12 @@ final readonly class UpdateHostCommandHandler
         // On an update that entry may already exist, so its UUID is reused rather than minting a second.
         $existingVaultUuid = $this->vault->isEnabled() ? $existingHost->getVaultUuid($this->vault) : null;
 
-        $snmpCommunity = $this->resolveSnmpCommunity($command->snmpCommunity, $existingHost, $existingVaultUuid);
+        $snmpCommunity = $this->resolveSnmpCommunity($command->snmpCommunity, $existingHost, $existingVaultUuid, $vaultWritten);
         $vaultUuid = $snmpCommunity instanceof SnmpCommunity
             ? $this->extractVaultUuid($snmpCommunity->value)
             : $existingVaultUuid;
 
-        [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $vaultUuid);
+        [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $vaultUuid, $vaultWritten);
 
         // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
         // categories and severity are ACL-scoped (asserted above), so a restricted viewer never sees
@@ -279,6 +312,21 @@ final readonly class UpdateHostCommandHandler
             $this->eventBus->fire(new HostVaultPurgeRequested($existingHost, bestEffort: true));
         }
 
+        // Like the PATCH, removing a template removes the services it brought to the host. Fired
+        // before the deployment, so the services of the remaining templates are deployed afterwards.
+        $templateIdValues = static fn (Host $host): array => array_map(
+            static fn (HostTemplateId $id): int => $id->value,
+            $host->templateIds->toArray(),
+        );
+        if (array_diff($templateIdValues($existingHost), $templateIdValues($host)) !== []) {
+            $this->eventBus->fire(new HostTemplateServicesCleanupRequested(
+                $host->id(),
+                $existingHost->templateIds,
+                $host->templateIds,
+                new UserId($command->updatedBy),
+            ));
+        }
+
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
             $this->eventBus->fire(new HostServicesDeploymentRequested(
                 $host->id(),
@@ -330,17 +378,26 @@ final readonly class UpdateHostCommandHandler
      *
      * @param ?string $vaultUuid the host's vault entry (its SNMP community's, or the existing one), or
      *                           null when there is none, or the vault is off
+     * @param bool $vaultWritten see writeToVault()
      *
      * @return array{CheckOptions, bool} the check options, and whether a password was written to the vault
      */
-    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, ?string $vaultUuid): array
+    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, ?string $vaultUuid, bool &$vaultWritten): array
     {
         $current = $existingHost->checkOptions->macros;
         $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId);
         $resolved = $this->hostMacroChangesResolver->resolve($command->macroChanges, $current, $inherited);
+        $synchronized = false;
         $macros = $this->writeToVault(
             $existingHost->id(),
             fn (): array => $this->hostMacroSecretsSynchronizer->synchronize($resolved, $current, $vaultUuid),
+            $synchronized,
+        );
+        // The synchronizer leaves the vault untouched when no password macro is involved.
+        $vaultWritten = $vaultWritten || (
+            $synchronized
+            && $this->vault->isEnabled()
+            && array_any([...$resolved, ...$current], static fn (HostMacro $macro): bool => $macro->isPassword)
         );
 
         // The synchronizer only swaps the value of the macros it wrote to the vault.
@@ -369,8 +426,10 @@ final readonly class UpdateHostCommandHandler
      * - null: the community is emptied, and its key removed from that entry;
      * - a `secret::` reference: never trusted from the caller, the host keeps the community it has;
      * - anything else: the new community, stored as is without a vault.
+     *
+     * @param bool $vaultWritten see writeToVault()
      */
-    private function resolveSnmpCommunity(?string $community, Host $existingHost, ?string $existingVaultUuid): ?SnmpCommunity
+    private function resolveSnmpCommunity(?string $community, Host $existingHost, ?string $existingVaultUuid, bool &$vaultWritten): ?SnmpCommunity
     {
         if (! $this->vault->isEnabled()) {
             return $community === null ? null : new SnmpCommunity($community);
@@ -386,6 +445,7 @@ final readonly class UpdateHostCommandHandler
                         VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity),
                         $existingVaultUuid,
                     ),
+                    $vaultWritten,
                 );
             }
 
@@ -403,28 +463,35 @@ final readonly class UpdateHostCommandHandler
                 VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community),
                 $existingVaultUuid,
             ),
+            $vaultWritten,
         );
 
         return new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]);
     }
 
     /**
-     * Runs a vault write made before the host is saved: a failure there means nothing was persisted,
-     * reported as an upstream failure (HTTP 502) rather than an internal error.
+     * Runs a vault write made before the host is saved: a failure there means the host itself was not
+     * persisted, reported as an upstream failure (HTTP 502) rather than an internal error.
      *
      * @template T
      *
      * @param callable(): T $write
+     * @param bool $vaultWritten set to true once the write succeeds, so a later failure of the update
+     *                           can report that the vault may diverge from the database
      *
      * @return T
      */
-    private function writeToVault(HostId $hostId, callable $write): mixed
+    private function writeToVault(HostId $hostId, callable $write, bool &$vaultWritten): mixed
     {
         try {
-            return $write();
+            $result = $write();
         } catch (\Throwable $exception) {
             throw VaultWriteFailedException::forHost($hostId, $exception);
         }
+
+        $vaultWritten = true;
+
+        return $result;
     }
 
     /**

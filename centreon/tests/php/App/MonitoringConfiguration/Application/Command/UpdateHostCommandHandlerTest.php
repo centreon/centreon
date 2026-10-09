@@ -69,6 +69,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Event\HostTemplateServicesCleanupRequested;
 use App\MonitoringConfiguration\Domain\Event\HostUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
@@ -93,6 +94,7 @@ use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\VaultInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
@@ -106,6 +108,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneReposito
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class UpdateHostCommandHandlerTest extends KernelTestCase
 {
@@ -128,6 +131,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     private FakeHostSeverityRepository $hostSeverityRepository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
+
+    private LoggerSpy $logger;
 
     protected function setUp(): void
     {
@@ -159,6 +164,9 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
         $container->set(TimezoneRepository::class, new FakeTimezoneRepository());
         $container->set(HostTemplateRepository::class, $this->hostTemplateRepository);
+
+        $this->logger = new LoggerSpy();
+        $container->set(LoggerInterface::class, $this->logger);
 
         /** @var UpdateHostCommandHandler $handler */
         $handler = $container->get(UpdateHostCommandHandler::class);
@@ -391,6 +399,61 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(10, macroChanges: [
             new HostMacroChange(new HostMacroName('pwd'), 'plain-secret', isPassword: true),
         ]));
+    }
+
+    public function testAFailureAfterAVaultWriteIsLoggedAsAWarning(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $existingReference = 'secret::vault::monitoring/hosts/existing-uuid::_HOSTSNMPCOMMUNITY';
+        $this->vault->extractedUuids[$existingReference] = 'existing-uuid';
+        $this->seedHost(10, snmpCommunity: new SnmpCommunity($existingReference));
+        $failure = new \RuntimeException('database down');
+        $this->hostRepository->updateThrows = $failure;
+
+        try {
+            ($this->handler)($this->command(10, snmpCommunity: 'new-community'));
+            self::fail('The failure must be rethrown.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame($failure, $exception);
+        }
+
+        // The vault now holds the new community while the rolled-back row still references it.
+        self::assertCount(1, $this->logger->warningMessages);
+        self::assertSame(10, $this->logger->warningMessages[0]['context']['host_id']);
+        self::assertSame($failure, $this->logger->warningMessages[0]['context']['exception']);
+    }
+
+    public function testAFailureWithoutAVaultWriteLogsNothing(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(10, name: 'server-old', snmpCommunity: null);
+        $this->hostRepository->updateThrows = new \RuntimeException('database down');
+
+        try {
+            ($this->handler)($this->command(10, name: 'server-new', snmpCommunity: null));
+            self::fail('The failure must be rethrown.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame([], $this->logger->warningMessages);
+    }
+
+    public function testAFailedVaultWriteLogsNoDivergence(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+        $this->seedHost(10);
+
+        try {
+            ($this->handler)($this->command(10, snmpCommunity: 'new-community'));
+            self::fail('A failed vault write must be reported.');
+        } catch (VaultWriteFailedException) {
+        }
+
+        self::assertSame([], $this->logger->warningMessages);
     }
 
     public function testItIgnoresAVaultReferenceSentAsTheSnmpCommunity(): void
@@ -920,6 +983,35 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class)));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    public function testItRequestsTheCleanupOfTheServicesOfARemovedTemplate(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+        $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
+
+        ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(8)], HostTemplateId::class)));
+
+        /** @var list<HostTemplateServicesCleanupRequested> $events */
+        $events = $this->eventBus->getDispatchedEvents(HostTemplateServicesCleanupRequested::class);
+        self::assertCount(1, $events);
+        self::assertSame(10, $events[0]->hostId->value);
+        self::assertSame(7, $events[0]->previousTemplateIds->toArray()[0]->value);
+        self::assertSame(8, $events[0]->templateIds->toArray()[0]->value);
+    }
+
+    public function testItRequestsNoCleanupWhenNoTemplateIsRemoved(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+        $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
+
+        ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7), new HostTemplateId(8)], HostTemplateId::class)));
+
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateServicesCleanupRequested::class));
     }
 
     public function testItPreservesOutOfScopeHostGroupsForARestrictedViewer(): void
