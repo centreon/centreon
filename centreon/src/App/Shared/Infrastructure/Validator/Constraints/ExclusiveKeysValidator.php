@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-final class NotNullWhenProvidedValidator extends ConstraintValidator
+final class ExclusiveKeysValidator extends ConstraintValidator
 {
     public function __construct(private readonly CurrentRequestPayload $currentPayload)
     {
@@ -37,25 +37,28 @@ final class NotNullWhenProvidedValidator extends ConstraintValidator
 
     public function validate(mixed $value, Constraint $constraint): void
     {
-        if (! $constraint instanceof NotNullWhenProvided) {
-            throw new UnexpectedTypeException($constraint, NotNullWhenProvided::class);
+        if (! $constraint instanceof ExclusiveKeys) {
+            throw new UnexpectedTypeException($constraint, ExclusiveKeys::class);
         }
 
-        if ($value !== null) {
+        $payload = $this->currentPayload->get()?->walk(RequestPayload::steps($this->context->getPropertyPath()));
+        if (! $payload instanceof RequestPayload) {
             return;
         }
 
-        $payload = $this->currentPayload->get();
-        $steps = RequestPayload::steps($this->context->getPropertyPath());
-        $last = array_pop($steps);
-        if (! $payload instanceof RequestPayload || $last === null) {
-            return;
-        }
+        foreach ($constraint->sets as $set) {
+            $sent = array_values(array_filter(
+                $set,
+                static fn (string $property): bool => $payload->has(RequestPayload::keyOf($property)),
+            ));
+            if (count($sent) < 2) {
+                continue;
+            }
 
-        $payload = $payload->walk($steps);
-        $isNull = is_int($last) ? $payload->itemIsNull($last) : $payload->isNull($last);
-        if ($isNull) {
-            $this->context->buildViolation($constraint->message)->addViolation();
+            $this->context->buildViolation($constraint->message)
+                ->setParameter('{{ keys }}', implode(', ', array_map(static fn (string $property): string => RequestPayload::keyOf($property), $set)))
+                ->atPath($sent[1])
+                ->addViolation();
         }
     }
 }

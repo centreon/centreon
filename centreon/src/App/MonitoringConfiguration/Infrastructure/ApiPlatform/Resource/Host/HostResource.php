@@ -66,7 +66,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
             input: PatchHostInput::class,
             output: false,
             openapi: new Model\Operation(
-                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts and macros are not handled yet.',
+                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts, contact groups and notification options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"). The macros are not handled yet.',
                 responses: [
                     204 => new Model\Response('Host updated (or left as it was when nothing changed)'),
                     404 => new Model\Response('Host not found'),

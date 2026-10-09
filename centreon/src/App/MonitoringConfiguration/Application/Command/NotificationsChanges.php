@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Exception\ExclusiveNotificationOptionException;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 
@@ -62,10 +63,14 @@ final readonly class NotificationsChanges
     public function applyTo(?Notifications $current): Notifications
     {
         $notifications = $current ?? Notifications::default();
+        $options = $this->options instanceof ListChange ? $this->options->applyTo($notifications->options) : $this->options;
+        if (is_array($options) && count($options) > 1 && in_array(NotificationOptionEnum::None, $options, true)) {
+            throw new ExclusiveNotificationOptionException();
+        }
 
         return $notifications->with(
             enabled: $this->enabled,
-            options: $this->options instanceof ListChange ? $this->options->applyTo($notifications->options) : $this->options,
+            options: $options,
             interval: $this->interval,
             periodId: $this->periodId,
             firstDelay: $this->firstDelay,

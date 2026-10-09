@@ -61,6 +61,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceDeleted;
 use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\ContactGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\ExclusiveNotificationOptionException;
 use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
@@ -416,6 +417,17 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->expectException(ContactGroupNotFoundException::class);
 
         ($this->handler)($this->command(contactGroupIds: ListChange::add([new ContactGroupId(99)])));
+    }
+
+    public function testNoneCannotJoinTheOptionsTheHostAlreadyHas(): void
+    {
+        $this->seedHost(options: [NotificationOptionEnum::Down]);
+        /** @var ListChange<NotificationOptionEnum> $add */
+        $add = ListChange::add([NotificationOptionEnum::None]);
+
+        $this->expectException(ExclusiveNotificationOptionException::class);
+
+        ($this->handler)($this->command(notifications: new NotificationsChanges(options: $add)));
     }
 
     public function testNotificationOptionsAreAddedToAndRemovedFromTheCurrentOnes(): void
