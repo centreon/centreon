@@ -29,16 +29,19 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 
 #[ApiResource(
     shortName: 'Host',
@@ -102,6 +105,25 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to duplicate hosts',
+        ),
+        new Put(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Write-only replace: the processor loads the host itself (404 via the handler when it is
+            // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
+            // full updated resource.
+            read: false,
+            processor: PutHostProcessor::class,
+            input: UpdateHostInput::class,
+            openapi: new Model\Operation(
+                description: 'Fully update a single host (replace semantics).',
+                responses: [
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('Host name already used by another host or template'),
+                    422 => new Model\Response('Invalid input, or a referenced resource that does not exist or is not accessible'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update hosts',
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',
