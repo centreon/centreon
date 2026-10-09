@@ -24,10 +24,18 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
@@ -140,6 +148,36 @@ final class FakePollerRepository implements PollerRepository
     public function flagIdAsChanged(PollerId $pollerId): void
     {
         $this->flaggedPollerIds[] = $pollerId->value;
+    }
+
+    /**
+     * A poller that exists under the given id, whatever its other properties.
+     */
+    public function seed(int $id): Poller
+    {
+        $poller = new Poller(
+            id: null,
+            name: new PollerName('Poller ' . $id),
+            address: new PollerAddress('127.0.0.1'),
+            isCentral: false,
+            isDefault: false,
+            isActivated: true,
+            pollerType: PollerTypeEnum::VM,
+            uid: new PollerUid(123456789012345),
+            globalMacros: new Collection([], GlobalMacro::class),
+            gorgoneConfiguration: new GorgoneConfiguration(),
+            engineInformation: new EngineInformation(),
+            brokerInformation: new BrokerInformation(),
+            connectorConfiguration: new ConnectorConfiguration(),
+            trapConfiguration: new TrapConfiguration(),
+            pollerCommands: new Collection([], PollerCommand::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setValue($poller, new PollerId($id));
+        $this->pollers[$id] = $poller;
+
+        return $poller;
     }
 
     public function withCmaCertificates(): self

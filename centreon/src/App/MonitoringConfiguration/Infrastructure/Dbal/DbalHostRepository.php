@@ -413,7 +413,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
      * introduced here. This is the only safeguard against a duplicate name.
      */
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')
@@ -421,8 +421,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
             ->setMaxResults(1);
 
-        if ($excludedHostId instanceof HostId) {
-            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludedHostId->value, ParameterType::INTEGER)));
+        if ($excludingHostId instanceof HostId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludingHostId->value, ParameterType::INTEGER)));
         }
 
         return (bool) $qb->executeQuery()->fetchOne();
@@ -508,9 +508,13 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         ];
     }
 
-    public function findNamesByIds(Collection $ids): Collection
+    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        if ($viewerId instanceof UserId) {
+            $idValues = array_values(array_intersect($idValues, $this->findAccessibleHostIds($viewerId)));
+        }
+
         if ($idValues === []) {
             return new Collection([], HostName::class);
         }
@@ -585,6 +589,23 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     }
 
     /**
+     * Full replace of a host's relations, complementing {@see update()}, which writes its own fields and
+     * its poller. Every relation table (host groups, categories and severity, templates, parents and
+     * children, contacts and contact groups) is cleared and written again from $host. The macros are
+     * not touched. A silent no-op on an unknown id or a host template.
+     */
+    public function replaceRelations(Host $host): void
+    {
+        $hostId = $host->id()->value;
+        if (! $this->isRegisteredHost($hostId)) {
+            return;
+        }
+
+        $this->clearRelations($hostId);
+        $this->insertRelations($hostId, $host);
+    }
+
+    /**
      * The severity is the one row of `hostcategories_relation` pointing to a `hostcategories` row with a
      * level: the categories, which have none, are left alone.
      */
@@ -603,8 +624,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     }
 
     /**
-     * The relations add() and replaceRelationsAndMacros() write: everything but the poller (a
-     * column-like relation written by add()/update()) and the macros.
+     * The relations add(), replaceRelations() and replaceRelationsAndMacros() write: everything but
+     * the poller (a column-like relation written by add()/update()) and the macros.
      */
     private function insertRelations(int $hostId, Host $host): void
     {

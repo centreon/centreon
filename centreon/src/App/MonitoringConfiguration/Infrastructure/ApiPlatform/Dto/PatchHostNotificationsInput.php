@@ -26,19 +26,37 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContacts;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExclusiveNotificationOption;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimePeriod;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Infrastructure\Validator\Constraints\ExclusiveKeys;
+use App\Shared\Infrastructure\Validator\Constraints\IdList;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * The notification settings of a host. A key left out is left untouched. The contacts and contact
- * groups are not part of it: they are relations, changed on their own.
+ * The notification settings of a host. A key left out is left untouched. The contacts, the contact
+ * groups and the options each have three keys, of which only one can be sent: the list is replaced,
+ * added to, or removed from.
  */
+#[ExclusiveKeys([
+    ['contacts', 'contactsToAdd', 'contactsToRemove'],
+    ['contactGroups', 'contactGroupsToAdd', 'contactGroupsToRemove'],
+    ['options', 'optionsToAdd', 'optionsToRemove'],
+])]
 final readonly class PatchHostNotificationsInput
 {
     /**
+     * @param list<int> $contacts replaces the contacts, an empty list removes them all
+     * @param list<int> $contactsToAdd
+     * @param list<int> $contactsToRemove
+     * @param list<int> $contactGroups
+     * @param list<int> $contactGroupsToAdd
+     * @param list<int> $contactGroupsToRemove
      * @param list<string> $options
+     * @param list<string> $optionsToAdd
+     * @param list<string> $optionsToRemove
      */
     public function __construct(
         #[ApiProperty(description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.')]
@@ -54,6 +72,43 @@ final readonly class PatchHostNotificationsInput
             new ExclusiveNotificationOption(),
         ])]
         public array $options = [],
+
+        #[ApiProperty(
+            description: 'Added to the current options. "none" is exclusive.',
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+        )]
+        #[Assert\Sequentially([
+            new Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])]),
+            new ExclusiveNotificationOption(),
+        ])]
+        public array $optionsToAdd = [],
+
+        #[ApiProperty(
+            description: 'Removed from the current options.',
+            openapiContext: ['type' => 'array', 'items' => ['type' => 'string', 'enum' => NotificationOptionEnumResolver::API_VALUES]],
+        )]
+        #[Assert\All([new Assert\Choice(callback: [self::class, 'apiOptions'])])]
+        public array $optionsToRemove = [],
+
+        #[ApiProperty(description: 'Replaces the contacts; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
+        #[Assert\Sequentially([new IdList(), new AccessibleContacts()])]
+        public array $contacts = [],
+
+        #[Assert\Sequentially([new IdList(), new AccessibleContacts()])]
+        public array $contactsToAdd = [],
+
+        #[IdList]
+        public array $contactsToRemove = [],
+
+        #[ApiProperty(description: 'Replaces the contact groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.')]
+        #[Assert\Sequentially([new IdList(), new AccessibleContactGroups()])]
+        public array $contactGroups = [],
+
+        #[Assert\Sequentially([new IdList(), new AccessibleContactGroups()])]
+        public array $contactGroupsToAdd = [],
+
+        #[IdList]
+        public array $contactGroupsToRemove = [],
 
         #[Assert\PositiveOrZero]
         public ?int $interval = null,

@@ -25,10 +25,15 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
+use App\MonitoringConfiguration\Application\Command\ExtendedInformationsChanges;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
+use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
+use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
@@ -44,24 +49,50 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\MediaNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeContactGroupRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
+use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -76,6 +107,18 @@ final class PatchHostCommandHandlerTest extends TestCase
 
     private FakeOptionRepository $optionRepository;
 
+    private FakePollerRepository $pollerRepository;
+
+    private FakeHostSeverityRepository $hostSeverityRepository;
+
+    private FakeTimezoneRepository $timezoneRepository;
+
+    private FakeTimePeriodRepository $timePeriodRepository;
+
+    private FakeMediaRepository $mediaRepository;
+
+    private FakeResourceAccessRepository $resourceAccessRepository;
+
     private FakeVault $vault;
 
     private EventBusSpy $eventBus;
@@ -87,11 +130,36 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->repository = new FakeHostRepository();
         $this->commandRepository = new FakeCommandRepository();
         $this->optionRepository = new FakeOptionRepository();
+        $this->pollerRepository = new FakePollerRepository();
+        $this->hostSeverityRepository = new FakeHostSeverityRepository();
+        $this->timezoneRepository = new FakeTimezoneRepository();
+        $this->timePeriodRepository = new FakeTimePeriodRepository();
+        $this->mediaRepository = new FakeMediaRepository();
+        $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
         $this->handler = new PatchHostCommandHandler(
             $this->repository,
             $this->commandRepository,
+            new HostReferencesChecker(
+                $this->pollerRepository,
+                $this->hostSeverityRepository,
+                $this->timezoneRepository,
+                $this->timePeriodRepository,
+                $this->mediaRepository,
+                $this->commandRepository,
+                $this->resourceAccessRepository,
+            ),
+            new HostRelationsUpdater(
+                new FakeHostGroupRepository(),
+                new FakeHostTemplateRepository(),
+                new FakeHostCategoryRepository(),
+                $this->repository,
+                new FakeNotificationContactRepository(),
+                new FakeContactGroupRepository(),
+                $this->resourceAccessRepository,
+            ),
+            new HostTemplateServicesCleaner(new FakeHostTemplateRepository(), new FakeServiceRepository(), $this->eventBus),
             $this->vault,
             new VaultCredentialWriter($this->vault),
             new AdditiveInheritanceModeApplier($this->optionRepository),
@@ -296,9 +364,123 @@ final class PatchHostCommandHandlerTest extends TestCase
         ));
     }
 
+    public function testItAcceptsReferencesThatExist(): void
+    {
+        $this->seedHost(activated: true);
+        $this->pollerRepository->seed(2);
+        $this->hostSeverityRepository->hostSeverities[4] = new HostSeverityName('Critical');
+        $this->timezoneRepository->timezones[12] = new Timezone(new TimezoneId(12), new TimezoneName('Europe/Paris'));
+        $this->mediaRepository->existingIds = [17];
+        $this->timePeriodRepository->existingIds = [1];
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            pollerId: new PollerId(2),
+            timezoneId: new TimezoneId(12),
+            severityId: new HostSeverityId(4),
+            extendedInformations: new ExtendedInformationsChanges(iconId: new MediaId(17)),
+            schedulingOptions: new SchedulingOptionsChanges(checkTimeperiodId: new TimePeriodId(1)),
+            notifications: new NotificationsChanges(periodId: new TimePeriodId(1)),
+        ));
+
+        self::assertSame(2, $result->pollerId->value);
+        self::assertSame(12, $result->timezoneId?->value);
+        self::assertSame(4, $result->severityId?->value);
+    }
+
+    /**
+     * @param class-string<\Throwable> $exception
+     */
+    #[DataProvider('unknownReferenceProvider')]
+    public function testItRejectsAReferenceThatNoLongerExists(PatchHostCommand $command, string $exception): void
+    {
+        $this->seedHost(activated: true);
+
+        try {
+            ($this->handler)($command);
+            self::fail('The reference should have been rejected.');
+        } catch (\Throwable $thrown) {
+            self::assertInstanceOf($exception, $thrown);
+        }
+
+        self::assertSame([], $this->repository->updatedHosts);
+        self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostMassChanged::class));
+    }
+
+    /**
+     * @return iterable<string, array{PatchHostCommand, class-string<\Throwable>}>
+     */
+    public static function unknownReferenceProvider(): iterable
+    {
+        $id = new HostId(self::HOST_ID);
+
+        yield 'poller' => [new PatchHostCommand($id, 1, pollerId: new PollerId(99)), PollerNotFoundException::class];
+
+        yield 'severity' => [new PatchHostCommand($id, 1, severityId: new HostSeverityId(99)), HostSeverityNotFoundException::class];
+
+        yield 'timezone' => [new PatchHostCommand($id, 1, timezoneId: new TimezoneId(99)), TimezoneNotFoundException::class];
+
+        yield 'icon' => [new PatchHostCommand($id, 1, extendedInformations: new ExtendedInformationsChanges(iconId: new MediaId(99))), MediaNotFoundException::class];
+
+        yield 'check time period' => [new PatchHostCommand($id, 1, schedulingOptions: new SchedulingOptionsChanges(checkTimeperiodId: new TimePeriodId(99))), TimePeriodNotFoundException::class];
+
+        yield 'notification time period' => [new PatchHostCommand($id, 1, notifications: new NotificationsChanges(periodId: new TimePeriodId(99))), TimePeriodNotFoundException::class];
+
+        yield 'event handler command' => [new PatchHostCommand($id, 1, dataProcessing: new DataProcessingChanges(eventHandlerCommandId: new CommandId(99))), CommandNotFoundException::class];
+    }
+
+    public function testAPollerOutsideTheViewerScopeIsReportedAsNotFound(): void
+    {
+        $this->seedHost(activated: true);
+        $this->pollerRepository->seed(2);
+        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+
+        $this->expectException(PollerNotFoundException::class);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            pollerId: new PollerId(2),
+            viewerId: new UserId(7),
+        ));
+    }
+
+    public function testASeverityOutsideTheViewerScopeIsReportedAsNotFound(): void
+    {
+        $this->seedHost(activated: true);
+        $this->hostSeverityRepository->hostSeverities[4] = new HostSeverityName('Critical');
+        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([new HostSeverityId(5)], HostSeverityId::class);
+
+        $this->expectException(HostSeverityNotFoundException::class);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            severityId: new HostSeverityId(4),
+            viewerId: new UserId(7),
+        ));
+    }
+
+    public function testReferencesAreCheckedBeforeTheName(): void
+    {
+        $this->seedHost(activated: true);
+        $this->repository->add($this->host('server-02', activated: true));
+
+        $this->expectException(PollerNotFoundException::class);
+
+        ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            name: new HostName('server-02'),
+            pollerId: new PollerId(99),
+        ));
+    }
+
     public function testMovingAHostCarriesThePreviousPollerOnTheEvent(): void
     {
         $this->seedHost(activated: true);
+        $this->pollerRepository->seed(2);
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),

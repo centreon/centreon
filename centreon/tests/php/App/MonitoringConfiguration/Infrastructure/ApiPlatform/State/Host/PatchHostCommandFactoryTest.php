@@ -25,11 +25,14 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
+use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\ListChangeModeEnum;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostSchedulingOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOptionsInput;
@@ -110,6 +113,60 @@ final class PatchHostCommandFactoryTest extends TestCase
         self::assertSame([], $command->checkOptions->args);
     }
 
+    public function testTheKeyOfAListTellsHowItChanges(): void
+    {
+        $replaced = $this->create(new PatchHostInput(hostGroupIds: [1, 2]), '{"host_group_ids": [1, 2]}');
+        $added = $this->create(new PatchHostInput(templateIdsToAdd: [3]), '{"template_ids_to_add": [3]}');
+        $removed = $this->create(new PatchHostInput(parentHostIdsToRemove: [4]), '{"parent_host_ids_to_remove": [4]}');
+        $cleared = $this->create(new PatchHostInput(categoryIds: []), '{"category_ids": []}');
+        $untouched = $this->create(new PatchHostInput(), '{}');
+
+        self::assertInstanceOf(ListChange::class, $replaced->hostGroupIds);
+        self::assertSame(ListChangeModeEnum::Replace, $replaced->hostGroupIds->mode);
+        self::assertSame([1, 2], array_map(static fn (HostGroupId $id): int => $id->value, $replaced->hostGroupIds->values));
+        self::assertInstanceOf(ListChange::class, $added->templateIds);
+        self::assertSame(ListChangeModeEnum::Add, $added->templateIds->mode);
+        self::assertInstanceOf(ListChange::class, $removed->parentHostIds);
+        self::assertSame(ListChangeModeEnum::Remove, $removed->parentHostIds->mode);
+        self::assertInstanceOf(ListChange::class, $cleared->categoryIds);
+        self::assertSame([], $cleared->categoryIds->values);
+        self::assertInstanceOf(NoValue::class, $untouched->hostGroupIds);
+        self::assertInstanceOf(NoValue::class, $untouched->childHostIds);
+        self::assertInstanceOf(NoValue::class, $untouched->contactIds);
+    }
+
+    public function testTheContactsAreReadInsideTheNotifications(): void
+    {
+        $command = $this->create(
+            new PatchHostInput(notifications: new PatchHostNotificationsInput(contactsToAdd: [5], contactGroups: [6])),
+            '{"notifications": {"contacts_to_add": [5], "contact_groups": [6]}}',
+        );
+
+        self::assertInstanceOf(ListChange::class, $command->contactIds);
+        self::assertSame(ListChangeModeEnum::Add, $command->contactIds->mode);
+        self::assertInstanceOf(ListChange::class, $command->contactGroupIds);
+        self::assertSame(ListChangeModeEnum::Replace, $command->contactGroupIds->mode);
+    }
+
+    public function testTheServicesOfTheTemplatesAreOnlyCreatedWhenAsked(): void
+    {
+        self::assertTrue($this->create(new PatchHostInput(createServicesLinkedToTemplates: true), '{"create_services_linked_to_templates": true}')->deployServicesFromTemplates);
+        self::assertFalse($this->create(new PatchHostInput(), '{}')->deployServicesFromTemplates);
+    }
+
+    public function testTheOptionsCanBeAddedToAndRemovedFrom(): void
+    {
+        $added = $this->create(
+            new PatchHostInput(notifications: new PatchHostNotificationsInput(optionsToAdd: ['flapping'])),
+            '{"notifications": {"options_to_add": ["flapping"]}}',
+        );
+
+        self::assertInstanceOf(NotificationsChanges::class, $added->notifications);
+        self::assertInstanceOf(ListChange::class, $added->notifications->options);
+        self::assertSame(ListChangeModeEnum::Add, $added->notifications->options->mode);
+        self::assertSame([NotificationOptionEnum::Flapping], $added->notifications->options->values);
+    }
+
     public function testTheNotificationOptionsAreMappedToTheDomain(): void
     {
         $command = $this->create(
@@ -118,7 +175,9 @@ final class PatchHostCommandFactoryTest extends TestCase
         );
 
         self::assertInstanceOf(NotificationsChanges::class, $command->notifications);
-        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $command->notifications->options);
+        self::assertInstanceOf(ListChange::class, $command->notifications->options);
+        self::assertSame(ListChangeModeEnum::Replace, $command->notifications->options->mode);
+        self::assertSame([NotificationOptionEnum::Down, NotificationOptionEnum::Recovery], $command->notifications->options->values);
         self::assertInstanceOf(NoValue::class, $command->notifications->interval);
         self::assertInstanceOf(NoValue::class, $command->notifications->contactAdditiveInheritance);
     }

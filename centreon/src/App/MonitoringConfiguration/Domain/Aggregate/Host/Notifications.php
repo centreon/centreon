@@ -138,6 +138,8 @@ final readonly class Notifications
 
     /**
      * @param NoValue|list<NotificationOptionEnum> $options
+     * @param NoValue|Collection<NotificationContactId> $contactIds
+     * @param NoValue|Collection<ContactGroupId> $contactGroupIds
      */
     public function with(
         NoValue|TriStateEnum $enabled = new NoValue(),
@@ -148,11 +150,13 @@ final readonly class Notifications
         NoValue|int|null $recoveryDelay = new NoValue(),
         NoValue|bool $contactAdditiveInheritance = new NoValue(),
         NoValue|bool $contactGroupAdditiveInheritance = new NoValue(),
+        NoValue|Collection $contactIds = new NoValue(),
+        NoValue|Collection $contactGroupIds = new NoValue(),
     ): self {
         return new self(
             enabled: NoValue::resolve($enabled, $this->enabled),
-            contactIds: $this->contactIds,
-            contactGroupIds: $this->contactGroupIds,
+            contactIds: NoValue::resolve($contactIds, $this->contactIds),
+            contactGroupIds: NoValue::resolve($contactGroupIds, $this->contactGroupIds),
             options: NoValue::resolve($options, $this->options),
             interval: NoValue::resolve($interval, $this->interval),
             periodId: NoValue::resolve($periodId, $this->periodId),
@@ -173,7 +177,16 @@ final readonly class Notifications
             && $this->recoveryDelay === $other->recoveryDelay
             && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
             && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
-            && $this->idValues($this->contactIds) === $this->idValues($other->contactIds)
+            && $this->hasSameContactsAs($other);
+    }
+
+    /**
+     * The contacts and the contact groups, compared as sets: they are relations of the host, written on
+     * their own.
+     */
+    public function hasSameContactsAs(self $other): bool
+    {
+        return $this->idValues($this->contactIds) === $this->idValues($other->contactIds)
             && $this->idValues($this->contactGroupIds) === $this->idValues($other->contactGroupIds);
     }
 

@@ -1249,6 +1249,20 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ));
     }
 
+    public function testFindNamesByIdsLeavesOutTheHostsOutsideTheViewersScope(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $visibleId = $this->createHost('visible-host', $pollerId);
+        $hiddenId = $this->createHost('hidden-host', $pollerId);
+        $viewerId = new UserId(45);
+        $this->accessGroupRepository->groupIdsByUserId[$viewerId->value] = [503];
+        $this->linkHostToAcl($visibleId, 503);
+        $ids = new Collection([new HostId($visibleId), new HostId($hiddenId)], HostId::class);
+
+        self::assertSame([$visibleId], array_keys($this->repository->findNamesByIds($ids, $viewerId)->toArray()));
+        self::assertCount(2, $this->repository->findNamesByIds($ids));
+    }
+
     public function testFindNamesByIdsIgnoresHostTemplates(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -1292,6 +1306,139 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->linkHostToParent($secondId, $firstId);
 
         self::assertSame([$firstId, $secondId], $this->ancestorIdsOf($firstId));
+    }
+
+    public function testReplaceRelationsRewritesEveryRelationOfTheHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $oldGroupId = $this->createHostGroup('old-group');
+        $newGroupId = $this->createHostGroup('new-group');
+        $oldCategoryId = $this->createHostCategory('old-category');
+        $newCategoryId = $this->createHostCategory('new-category');
+        $severityId = $this->createHostSeverity('Critical', level: 1);
+        $oldTemplateId = $this->createHostTemplate('old-template');
+        $firstTemplateId = $this->createHostTemplate('first-template');
+        $secondTemplateId = $this->createHostTemplate('second-template');
+        $oldParentId = $this->createHost('old-parent', $pollerId);
+        $newParentId = $this->createHost('new-parent', $pollerId);
+        $oldChildId = $this->createHost('old-child', $pollerId);
+        $newChildId = $this->createHost('new-child', $pollerId);
+        $oldContactId = $this->createContact('old-contact');
+        $newContactId = $this->createContact('new-contact');
+        $oldContactGroupId = $this->createContactGroup('old-contact-group');
+        $newContactGroupId = $this->createContactGroup('new-contact-group');
+        $this->linkHostToGroup($hostId, $oldGroupId);
+        $this->linkHostToCategory($hostId, $oldCategoryId);
+        $this->linkHostToCategory($hostId, $severityId);
+        $this->linkHostToTemplate($hostId, $oldTemplateId);
+        $this->linkHostToParent($hostId, $oldParentId);
+        $this->linkHostToParent($oldChildId, $hostId);
+        $this->connection->insert('contact_host_relation', ['contact_id' => $oldContactId, 'host_host_id' => $hostId]);
+        $this->connection->insert('contactgroup_host_relation', ['contactgroup_cg_id' => $oldContactGroupId, 'host_host_id' => $hostId]);
+
+        $before = $this->findHost($hostId);
+
+        $this->repository->replaceRelations($before->with(
+            templateIds: new Collection([new HostTemplateId($secondTemplateId), new HostTemplateId($firstTemplateId)], HostTemplateId::class),
+            hostGroupIds: new Collection([new HostGroupId($newGroupId)], HostGroupId::class),
+            categoryIds: new Collection([new HostCategoryId($newCategoryId)], HostCategoryId::class),
+            parentHostIds: new Collection([new HostId($newParentId)], HostId::class),
+            childHostIds: new Collection([new HostId($newChildId)], HostId::class),
+            notifications: ($before->notifications ?? Notifications::default())->with(
+                contactIds: new Collection([new NotificationContactId($newContactId)], NotificationContactId::class),
+                contactGroupIds: new Collection([new ContactGroupId($newContactGroupId)], ContactGroupId::class),
+            ),
+        ));
+
+        $after = $this->findHost($hostId);
+        self::assertSame([$secondTemplateId, $firstTemplateId], array_map(static fn (HostTemplateId $id): int => $id->value, $after->templateIds->toArray()));
+        self::assertSame([$newGroupId], array_map(static fn (HostGroupId $id): int => $id->value, $after->hostGroupIds->toArray()));
+        self::assertSame([$newCategoryId], array_map(static fn (HostCategoryId $id): int => $id->value, $after->categoryIds->toArray()));
+        self::assertSame($severityId, $after->severityId?->value);
+        self::assertSame([$newParentId], array_map(static fn (HostId $id): int => $id->value, $after->parentHostIds->toArray()));
+        self::assertSame([$newChildId], array_map(static fn (HostId $id): int => $id->value, $after->childHostIds->toArray()));
+        self::assertSame([$newContactId], array_map(static fn (NotificationContactId $id): int => $id->value, $after->notifications?->contactIds->toArray() ?? []));
+        self::assertSame([$newContactGroupId], array_map(static fn (ContactGroupId $id): int => $id->value, $after->notifications?->contactGroupIds->toArray() ?? []));
+    }
+
+    public function testReplaceRelationsClearsWhatIsNotListedAnymore(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $this->linkHostToGroup($hostId, $this->createHostGroup('group'));
+        $this->linkHostToTemplate($hostId, $this->createHostTemplate('template'));
+        $this->linkHostToParent($hostId, $this->createHost('parent', $pollerId));
+
+        $this->repository->replaceRelations($this->findHost($hostId)->with(
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            parentHostIds: new Collection([], HostId::class),
+        ));
+
+        $after = $this->findHost($hostId);
+        self::assertCount(0, $after->templateIds);
+        self::assertCount(0, $after->hostGroupIds);
+        self::assertCount(0, $after->parentHostIds);
+    }
+
+    public function testReplaceRelationsLeavesTheMacrosAndTheOtherHostsAlone(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+        $groupId = $this->createHostGroup('group');
+        $this->linkHostToGroup($otherHostId, $groupId);
+        $this->insertHostMacro($hostId, '$_HOSTKEPT$', 'value', false, 0);
+
+        $this->repository->replaceRelations($this->findHost($hostId)->with(
+            hostGroupIds: new Collection([new HostGroupId($groupId)], HostGroupId::class),
+        ));
+
+        self::assertSame(
+            [1],
+            $this->intColumn('SELECT COUNT(*) FROM on_demand_macro_host WHERE host_host_id = ?', $hostId),
+        );
+        self::assertSame(
+            [$groupId],
+            $this->intColumn('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = ?', $otherHostId),
+        );
+    }
+
+    public function testReplaceRelationsNeverTouchesAHostTemplate(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $templateId = $this->createHostTemplate('generic-active-host');
+        $groupId = $this->createHostGroup('group');
+        $host = new Host(
+            id: new HostId($templateId),
+            name: new HostName('generic-active-host'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([new HostGroupId($groupId)], HostGroupId::class),
+        );
+
+        $this->repository->replaceRelations($host);
+
+        self::assertSame([], $this->intColumn('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = ?', $templateId));
+    }
+
+    public function testFindAncestorIdsLeavesTheExcludedHostOutOfTheTraversal(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('edited', $pollerId);
+        $childId = $this->createHost('child', $pollerId);
+        $this->linkHostToParent($childId, $hostId);
+
+        $withEdge = array_map(static fn (HostId $id): int => $id->value, $this->repository->findAncestorIds(new Collection([new HostId($childId)], HostId::class))->toArray());
+        $withoutEdge = array_map(static fn (HostId $id): int => $id->value, $this->repository->findAncestorIds(new Collection([new HostId($childId)], HostId::class), new HostId($hostId))->toArray());
+
+        sort($withEdge);
+        self::assertSame([$hostId, $childId], $withEdge);
+        self::assertSame([$childId], $withoutEdge);
     }
 
     public function testFindAncestorIdsReturnsNothingForAnEmptyInput(): void
