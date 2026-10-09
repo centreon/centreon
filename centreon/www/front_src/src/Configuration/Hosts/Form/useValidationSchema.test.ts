@@ -329,6 +329,7 @@ describe('Host form validation', () => {
     const macro = (name: string, rest = {}) => ({
       hasStoredPassword: false,
       id: null,
+      inherited: null,
       isPassword: false,
       name,
       parent: null,
@@ -358,6 +359,18 @@ describe('Host form validation', () => {
         labelAlreadyExists
       );
       expect(macrosError([macro('PORT'), macro('HOST')])).toBeNull();
+      // Two blank names are missing, not duplicates.
+      expect(macrosError([macro(''), macro('')])).toEqual(labelRequired);
+    });
+
+    it('reports a duplicate name on the later row', () => {
+      expect(() =>
+        schemaFor(false).validateSyncAt('checkOptions.macros', {
+          checkOptions: { macros: [macro('port'), macro(' PORT ')] }
+        })
+      ).toThrow(
+        expect.objectContaining({ path: 'checkOptions.macros[1].name' })
+      );
     });
 
     it('refuses what the API cannot store', () => {

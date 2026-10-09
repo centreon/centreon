@@ -44,7 +44,11 @@ import {
   labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import Macros, { type MacroParent, type MacroRow } from '../Macros';
+import Macros, {
+  isUnchangedInherited,
+  type MacroParent,
+  type MacroRow
+} from '../Macros';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector, toIds } from '../selector';
 import Templates, { type TemplateRow } from '../Templates';
@@ -177,12 +181,15 @@ const macroDecoder = JsonDecoder.object<MacroDetail>(
   ({ value, ...macro }): MacroRow => ({
     ...macro,
     hasStoredPassword: macro.isPassword,
+    inherited: macro.parent
+      ? { isPassword: macro.isPassword, name: macro.name, value: value ?? '' }
+      : null,
     value: value ?? ''
   })
 );
 
-// Inherited macros go back with their id and parent: unchanged, the server
-// drops them; changed, they become the host's own.
+// A changed inherited macro goes back with its id and parent, so the server
+// turns it into the host's own.
 const toMacroPayload = ({
   hasStoredPassword,
   id,
@@ -736,7 +743,11 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         // Left over from a command since removed, they would be refused.
         args: checkOptions.command ? textToArguments(checkOptions.args) : [],
         command_id: checkOptions.command?.id ?? null,
-        macros: (checkOptions.macros ?? []).map(toMacroPayload)
+        // Unchanged inherited macros stay inherited. Not sent, they cannot go
+        // stale once the templates or the command change.
+        macros: (checkOptions.macros ?? [])
+          .filter((macro) => !isUnchangedInherited(macro))
+          .map(toMacroPayload)
       },
       // Refused on cloud, which always creates them.
       ...(!isCloudPlatform && {

@@ -23,11 +23,15 @@ import {
 
 export type MacroParent = 'command' | 'template';
 
+type InheritedMacro = Pick<MacroRow, 'isPassword' | 'name' | 'value'>;
+
 export interface MacroRow {
   // A password the server keeps but never sends back: left empty, it is kept.
   hasStoredPassword: boolean;
   // Null for a new macro, and for a command macro the command never recorded.
   id: number | null;
+  // An inherited macro as the host received it, null for the host's own.
+  inherited: InheritedMacro | null;
   isPassword: boolean;
   name: string;
   // Where an inherited macro comes from, null for the host's own.
@@ -51,6 +55,7 @@ const legend: Array<{ label: string; parent: MacroParent }> = [
 const createMacroRow = (): MacroRow => ({
   hasStoredPassword: false,
   id: null,
+  inherited: null,
   isPassword: false,
   name: '',
   parent: null,
@@ -59,19 +64,16 @@ const createMacroRow = (): MacroRow => ({
 
 // Still what the host inherits: once changed, it is the host's own override,
 // as legacy shows it.
-const isUnchangedInherited = (
-  macro: MacroRow,
-  initialMacros: Array<MacroRow>
-): boolean =>
-  !!macro.parent &&
-  initialMacros.some(
-    (initialMacro) =>
-      initialMacro.parent === macro.parent &&
-      initialMacro.id === macro.id &&
-      initialMacro.name === macro.name &&
-      initialMacro.value === macro.value &&
-      initialMacro.isPassword === macro.isPassword
-  );
+export const isUnchangedInherited = ({
+  inherited,
+  isPassword,
+  name,
+  value
+}: MacroRow): boolean =>
+  !!inherited &&
+  inherited.isPassword === isPassword &&
+  inherited.name === name &&
+  inherited.value === value;
 
 // The host's macros, `$_HOST<NAME>$`, in order: its own, then the inherited ones.
 const Macros = ({
@@ -83,7 +85,6 @@ const Macros = ({
   const { t } = useTranslation();
   const {
     errors,
-    initialValues,
     setFieldTouched,
     setFieldValue,
     submitCount,
@@ -92,8 +93,6 @@ const Macros = ({
   } = useFormikContext<FormikValues>();
 
   const macros = (getIn(values, fieldName) ?? []) as Array<MacroRow>;
-  const initialMacros = (getIn(initialValues, fieldName) ??
-    []) as Array<MacroRow>;
   const disabled = !!getDisabled?.(values);
 
   const getError = (index: number, key: keyof MacroRow): string | undefined => {
@@ -184,7 +183,7 @@ const Macros = ({
           draggable={!disabled}
           getRowClassName={({ value: macro }) =>
             `rounded p-1 ${
-              macro.parent && isUnchangedInherited(macro, initialMacros)
+              macro.parent && isUnchangedInherited(macro)
                 ? parentClassName[macro.parent]
                 : ''
             }`

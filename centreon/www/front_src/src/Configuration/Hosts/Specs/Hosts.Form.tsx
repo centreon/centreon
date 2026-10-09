@@ -166,8 +166,8 @@ export default () => {
           check_options: {
             args: ['3', '80%'],
             command_id: 9,
-            // A null value keeps the stored password; the inherited macros
-            // go back untouched, so the server drops them.
+            // A null value keeps the stored password; the untouched
+            // inherited macros are left out.
             macros: [
               {
                 id: 1,
@@ -182,20 +182,6 @@ export default () => {
                 name: 'API_TOKEN',
                 parent: null,
                 value: null
-              },
-              {
-                id: 11,
-                is_password: false,
-                name: 'OS',
-                parent: 'template',
-                value: 'linux'
-              },
-              {
-                id: 4,
-                is_password: false,
-                name: 'WARNING',
-                parent: 'command',
-                value: ''
               }
             ]
           },
@@ -2386,7 +2372,7 @@ export default () => {
 
       cy.waitForRequest('@patchHost').then(({ request }) => {
         // Id and parent tell the server which inherited macro this overrides.
-        expect(request.body.check_options.macros.slice(1, 3)).to.deep.equals([
+        expect(request.body.check_options.macros.slice(1)).to.deep.equals([
           {
             id: 2,
             is_password: true,
@@ -2400,6 +2386,36 @@ export default () => {
             name: 'OS',
             parent: 'template',
             value: 'debian'
+          }
+        ]);
+      });
+    });
+
+    it('deletes a custom macro by leaving it out', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findAllByTestId('delete-row')
+        .first()
+        .click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        // The stored password keeps its own id and null value.
+        expect(request.body.check_options.macros).to.deep.equals([
+          {
+            id: 2,
+            is_password: true,
+            name: 'API_TOKEN',
+            parent: null,
+            value: null
           }
         ]);
       });
