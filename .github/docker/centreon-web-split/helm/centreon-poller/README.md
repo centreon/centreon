@@ -169,6 +169,14 @@ Enabling it does not change the volume list.
 | `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
 | `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
+| `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`), redelivered by the central |
+
+Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
+`cma-pki` makes the engine generate a **new** default CMA CA, so every agent
+pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
+(not the case with `engine.otel.tls`, whose identity comes from your Secret or
+issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
+configuration (`engine`, `broker`, traps) comes back with the next export.
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
 ignores new chart defaults (e.g. a new volume size). A change to the volume
@@ -187,6 +195,25 @@ directory, reloaded at the next start (validated with the broker unreachable:
 the new pod "starts with 238 in queue"). `terminationGracePeriodSeconds`
 (60 s) leaves room for it. An abrupt death (node loss, OOM kill) still loses
 the in-memory part of the queue.
+
+## Node loss
+
+A StatefulSet pod is never recreated elsewhere while Kubernetes cannot confirm
+it stopped (at most one pod per identity): when its node dies, the pod is
+evicted after ~5-6 min but stays bound to the dead node.
+
+1. Make sure the node is really down (no split-brain with a running poller).
+2. `kubectl delete pod <release>-0 --force --grace-period=0`, or taint the node
+   `node.kubernetes.io/out-of-service=nodeshutdown:NoExecute` (also detaches
+   its volumes).
+3. The pod starts on another node only if its volumes can follow it: not with
+   node-local storage (`local-path`); within the same zone with EBS-like
+   block storage.
+4. Every node must be able to pull every image (pull secret / registry
+   credentials), or the restart stalls on `ImagePullBackOff`.
+
+The in-memory part of cbmod's queue is lost; the on-disk part and the poller
+identity are kept.
 
 Persisting `/var/lib/centreon-engine` requires an engine image whose
 entrypoint scripts are not in that directory (MON-211751); with an older image
@@ -210,6 +237,9 @@ outside the pod; restrict their sources with `networkPolicy.otelFrom` /
 `trapsFrom`. The engine's gRPC API (50155, unauthenticated, can shut the
 engine down) and the VMware connector (5700) are only reachable from inside
 the pod. Egress is not restricted (central, broker, monitored hosts).
+With k3s (kube-router), a source pod selected by `podSelector` is only
+allowed a moment after it starts: its very first connection may be refused
+(retry). Sources given as `ipBlock` are not affected.
 
 ## Known limitations
 
