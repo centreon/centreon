@@ -9,7 +9,7 @@ import { getColorFromDataAndTresholds } from '../common/utils';
 import AnimatedPie from './AnimatedPie';
 import { thresholdThickness } from './Thresholds';
 import { GaugeProps } from './models';
-import { angles } from './utils';
+import { getAngles } from './utils';
 
 const dataThickness = 45;
 
@@ -43,7 +43,7 @@ const PieData = ({
 
   return (
     <Pie
-      {...angles}
+      {...getAngles()}
       data={pieData}
       innerRadius={radius - dataThickness * dataThicknessFactor}
       outerRadius={
