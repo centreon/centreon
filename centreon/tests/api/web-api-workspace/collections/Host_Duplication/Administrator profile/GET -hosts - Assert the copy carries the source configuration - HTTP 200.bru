@@ -1,0 +1,46 @@
+meta {
+  name: GET /configuration/hosts/{hostId} - Assert the copy carries the source configuration - HTTP 200
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/{{CopyHostId}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The copy carries the source configuration beyond its name (alias, address, template, group, macro)", function () {
+    const body = res.getBody();
+
+    expect(body.id, "the copy is a brand-new host").to.not.equal(Number(bru.getEnvVar("Host1Id")));
+    expect(body.name).to.eql(`${bru.getEnvVar("Host1Name")}_1`);
+    expect(body.alias).to.eql(bru.getEnvVar("Host1Alias"));
+    expect(body.address).to.eql("127.0.0.1");
+
+    const templateIds = body.templates.map((template) => template.id);
+    expect(templateIds, "the source template is carried over").to.include(
+      Number(bru.getEnvVar("HostTemplate1Id"))
+    );
+
+    const groupIds = body.groups.map((group) => group.id);
+    expect(groupIds, "the source host group is carried over").to.include(
+      Number(bru.getEnvVar("HostGroup1Id"))
+    );
+
+    const macroValues = body.macros.map((macro) => macro.value);
+    expect(macroValues, "the source macro is carried over as its own fresh row").to.include(
+      bru.getEnvVar("HostMacro1Value")
+    );
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,7 +1,7 @@
 meta {
   name: POST /configuration/hosts - Create host - HTTP 201
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
@@ -18,7 +18,16 @@ body:json {
     "monitoring_server_id": 1,
     "normal_check_interval": 3,
     "max_check_attempts": 1,
-    "templates": [{{HostTemplate1Id}}]
+    "templates": [{{HostTemplate1Id}}],
+    "groups": [{{HostGroup1Id}}],
+    "macros": [
+      {
+        "name": "{{HostMacro1Name}}",
+        "value": "{{HostMacro1Value}}",
+        "is_password": false,
+        "description": "Carried over to the duplicated copy"
+      }
+    ]
   }
 }
 

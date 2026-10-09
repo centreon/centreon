@@ -1,7 +1,7 @@
 meta {
-  name: POST /configuration/hosts/{hostId}/_duplicate - Duplicate the host - HTTP 204
+  name: POST /configuration/hosts/{hostId}/_duplicate - An unprivileged user cannot duplicate a host - HTTP 403
   type: http
-  seq: 8
+  seq: 2
 }
 
 post {
@@ -11,7 +11,7 @@ post {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 403
 }
 
 settings {
