@@ -129,9 +129,11 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
 
         $bindValues = [];
         $subQuery = [];
-        foreach ($groupIds as $key => $groupId) {
+        $key = 0;
+        foreach ($groupIds as $groupId) {
             $bindValues[":group_id_{$key}"] = $groupId;
             $subQuery[] = "(:group_id_{$key}, :host_id)";
+            $key++;
         }
 
         $statement = $this->db->prepare($this->translateDbName(
@@ -158,9 +160,11 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
 
         $bindValues = [];
         $subQuery = [];
-        foreach ($hostIds as $key => $hostId) {
+        $key = 0;
+        foreach ($hostIds as $hostId) {
             $bindValues[":host_id_{$key}"] = $hostId;
             $subQuery[] = "(:host_id_{$key}, :group_id)";
+            $key++;
         }
 
         $statement = $this->db->prepare($this->translateDbName(

@@ -332,8 +332,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         $bindValues = [];
-        foreach ($metricNames as $index => $metricName) {
+        $index = 0;
+        foreach ($metricNames as $metricName) {
             $bindValues[':metric_name_' . $index] = $metricName;
+            $index++;
         }
 
         $metricNamesQuery = implode(', ', \array_keys($bindValues));
@@ -404,8 +406,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     private function executeQueryForFindServices(\PDOStatement $statement, array $metricNames): \PDOStatement
     {
         $bindValues = [];
-        foreach ($metricNames as $index => $metricName) {
+        $index = 0;
+        foreach ($metricNames as $metricName) {
             $bindValues[':metric_name_' . $index] = $metricName;
+            $index++;
         }
 
         foreach ($bindValues as $bindToken => $bindValue) {
@@ -534,8 +538,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
-        foreach ($serviceNames as $key => $serviceName) {
+        $key = 0;
+        foreach ($serviceNames as $serviceName) {
             $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
+            $key++;
         }
 
         $bindTokens = implode(', ', array_keys($bindServiceNames));
@@ -560,8 +566,10 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
-        foreach ($metaserviceIds as $key => $metaserviceId) {
+        $key = 0;
+        foreach ($metaserviceIds as $metaserviceId) {
             $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_' . $metaserviceId => \PDO::PARAM_STR];
+            $key++;
         }
 
         $bindTokens = implode(', ', array_keys($bindMetaserviceNames));
