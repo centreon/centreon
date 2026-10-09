@@ -25,6 +25,7 @@ namespace App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -413,6 +414,28 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 array_values(array_unique($contactGroupIds)),
             ),
             ContactGroupId::class,
+        );
+    }
+
+    public function findAccessibleHostIds(UserId $userId): Collection
+    {
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+        if ($accessGroupIds === []) {
+            return new Collection([], HostId::class);
+        }
+
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT host_id')
+            ->from('centreon_acl')
+            ->where('service_id IS NULL')
+            ->andWhere($qb->expr()->in('group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{host_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new Collection(
+            array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
+            HostId::class,
         );
     }
 

@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
@@ -39,6 +40,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodName;
@@ -192,12 +194,17 @@ final readonly class GetHostProvider implements ProviderInterface
             }
         }
 
+        // Parent and child hosts are ACL-scoped like host groups above, as the legacy host form hides
+        // the out-of-scope ones (CentreonHost::getObjectForSelect2()).
+        $accessibleHostIds = $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostIds($viewerId) : null;
+        $parentHostIds = $this->scopeToAccessible($host->parentHostIds, $accessibleHostIds, HostId::class);
+        $childHostIds = $this->scopeToAccessible($host->childHostIds, $accessibleHostIds, HostId::class);
         $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
-            [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()],
+            [...$parentHostIds->toArray(), ...$childHostIds->toArray()],
             HostId::class,
         ))->toArray();
-        $resource->parentHosts = $this->toRelatedHosts($host->parentHostIds, $relatedHostNames);
-        $resource->childHosts = $this->toRelatedHosts($host->childHostIds, $relatedHostNames);
+        $resource->parentHosts = $this->toRelatedHosts($parentHostIds, $relatedHostNames);
+        $resource->childHosts = $this->toRelatedHosts($childHostIds, $relatedHostNames);
 
         // Categories are ACL-scoped like host groups above: out-of-scope ones are hidden here.
         $categoryIds = $this->scopeToAccessible(
@@ -285,9 +292,34 @@ final readonly class GetHostProvider implements ProviderInterface
         // always hydrates what is persisted, so the Cloud decision is applied here (not in findOne).
         $resource->notifications = $this->isCloudPlatform
             ? null
-            : $this->notificationsTransformer->transform($host->notifications);
+            : $this->notificationsTransformer->transform($this->scopeNotifications($host->notifications, $viewerId));
 
         return $resource;
+    }
+
+    /**
+     * Notification contacts and contact groups are ACL-scoped like the other associations, as the
+     * legacy host form hides the out-of-scope ones (CentreonContact::getObjectForSelect2(),
+     * CentreonContactgroup::getObjectForSelect2()).
+     */
+    private function scopeNotifications(?Notifications $notifications, ?UserId $viewerId): ?Notifications
+    {
+        if (! $notifications instanceof Notifications || ! $viewerId instanceof UserId) {
+            return $notifications;
+        }
+
+        return $notifications->withContacts(
+            $this->scopeToAccessible(
+                $notifications->contactIds,
+                $this->resourceAccessRepository->findAccessibleContactIds($viewerId),
+                NotificationContactId::class,
+            ),
+            $this->scopeToAccessible(
+                $notifications->contactGroupIds,
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId),
+                ContactGroupId::class,
+            ),
+        );
     }
 
     private function buildDataProcessingOutput(DataProcessing $dataProcessing): DataProcessingOutput
@@ -341,8 +373,8 @@ final readonly class GetHostProvider implements ProviderInterface
     }
 
     /**
-     * Keeps only the ids the viewer may access, mirroring the per-viewer ACL checks
-     * CreateHostCommandHandler enforces on write (host groups, categories, severity). A null
+     * Keeps only the ids the viewer may access, mirroring the per-viewer ACL checks enforced on
+     * write (host groups, categories, severity, parent/child hosts, notification contacts). A null
      * $accessible means no restriction applies (admin, or an unrestricted dimension), so the ids
      * pass through unchanged. The returned list is known to be in-scope, so the follow-up name
      * lookup needs no further filtering.
