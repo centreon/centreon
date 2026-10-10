@@ -477,7 +477,7 @@ overrides:
       - php-json
       - php-process
       - openssl
-      - perl-DBD-MySQL
+      - (perl-DBD-MySQL or perl-DBD-MariaDB)
       - perl-DBI
       - perl-HTML-Parser
       - perl(File::Which)
@@ -545,6 +545,7 @@ overrides:
       - libfile-which-perl
       - lsb-release
       - "mariadb-client | mysql-client"
+      - (libdbd-mysql-perl | libdbd-mariadb-perl)
       - cron
       - apache2
       - rrdtool
