@@ -12,6 +12,17 @@ export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 # Database names default to the stock values but can be overridden.
 MYSQL_DB_CONFIGURATION="${MYSQL_DB_CONFIGURATION:-centreon}"
 MYSQL_DB_STORAGE="${MYSQL_DB_STORAGE:-centreon_storage}"
+# === TEMPORARY DEBUG (MON-XXXXX: investigating MySQL vs MariaDB install divergence) ===
+# - enable mysqld general_log to capture every statement
+# - stream php install script stdout+stderr instead of redirecting to /dev/null
+# - probe SHOW DATABASES between every step to pinpoint when the `centreon` db
+#   disappears (we know it does — only `centreon_storage` survives on mysql)
+echo "==================== DEBUG: install instrumentation ON ===================="
+mysql -h"${MYSQL_HOST}" -uroot -e "SET GLOBAL general_log_file='/tmp/centreon-install-debug.log'; SET GLOBAL general_log='ON'" || echo "DEBUG: failed to enable general_log"
+debug_show_databases() {
+  echo "DEBUG[$1] SHOW DATABASES → $(mysql -N -s -h"${MYSQL_HOST}" -uroot -e 'SHOW DATABASES' 2>&1 | tr '\n' ' ')"
+}
+debug_show_databases "before-anything"
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
 sed -i "s/\"db_configuration\": \"[^\"]*\"/\"db_configuration\": \"${MYSQL_DB_CONFIGURATION}\"/" /usr/share/centreon/www/install/tmp/database.json
