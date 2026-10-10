@@ -450,6 +450,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl >= 0.3.13-20
+      - logrotate
     provides:
       - centreon-backup
       - centreon-clapi
@@ -495,8 +496,6 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
-    recommends:
-      - logrotate
 
   deb:
     depends:
@@ -534,6 +533,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl (>= 0.3.13-20)
+      - logrotate
     provides:
       - centreon-web-apache
       - centreon-web-common
@@ -585,8 +585,6 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
-    recommends:
-      - logrotate
 
 rpm:
   summary: Centreon WebUI
