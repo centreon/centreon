@@ -464,6 +464,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl >= 0.3.13-20
+      - logrotate
     provides:
       - centreon-backup
       - centreon-clapi
@@ -530,6 +531,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl (>= 0.3.13-20)
+      - logrotate
     provides:
       - centreon-web-apache
       - centreon-web-common
