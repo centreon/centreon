@@ -57,13 +57,16 @@ const useInheritedMacros = (fieldName: string): void => {
 
         // A template the endpoint does not know (or a server without the
         // endpoint yet) lends nothing.
-        if ((response as ResponseError).statusCode !== 404) {
-          showErrorMessage((response as ResponseError).message);
+        if ((response as ResponseError).statusCode === 404) {
+          return [];
         }
 
-        return [];
+        // Any other failure leaves the rows as they are.
+        showErrorMessage((response as ResponseError).message);
+        throw new Error((response as ResponseError).message);
       },
-      queryKey: ['host-form-template-macros', id]
+      queryKey: ['host-form-template-macros', id],
+      retry: false
     }))
   });
 

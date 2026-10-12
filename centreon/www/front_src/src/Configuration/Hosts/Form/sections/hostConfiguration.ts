@@ -248,11 +248,13 @@ const getMacrosSchema = (t: TFunction) =>
           )
           // A stored password is never sent back: one no longer a password
           // needs its value typed in clear, or the server refuses it.
-          .when(['hasStoredPassword', 'isPassword'], {
-            is: (hasStoredPassword: boolean, isPassword: boolean) =>
-              hasStoredPassword && !isPassword,
-            then: (schema) => schema.required(t(labelRequired))
-          })
+          .when(
+            ['hasStoredPassword', 'isPassword'],
+            ([hasStoredPassword, isPassword], schema) =>
+              hasStoredPassword && !isPassword
+                ? schema.required(t(labelRequired))
+                : schema
+          )
       })
     )
     // The server silently keeps the first of two macros of the same name.

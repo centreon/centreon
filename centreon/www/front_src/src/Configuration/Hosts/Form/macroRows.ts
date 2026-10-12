@@ -182,7 +182,7 @@ export const mergeInheritedMacros = (
     ...keptMacros,
     ...inherited.filter(
       (inheritedMacro) =>
-        !names.includes(inheritedMacro.name) &&
+        !names.includes(toMacroName(inheritedMacro.name)) &&
         !keptMacros.some((macro) => isSameSource(macro, inheritedMacro))
     )
   ];

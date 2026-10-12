@@ -1,4 +1,7 @@
+import { Method } from '@centreon/ui';
+
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
+import { getHostTemplateMacrosEndpoint } from '../api/endpoints';
 import {
   labelAddNewEntry,
   labelAlreadyExists,
@@ -2580,6 +2583,35 @@ export default () => {
             }
           ]);
         });
+      });
+
+      it('keeps the rows as they are when a template fails to load', () => {
+        initialize({});
+
+        cy.interceptAPIRequest({
+          alias: 'getTemplateMacros5',
+          method: Method.GET,
+          path: `**${getHostTemplateMacrosEndpoint({ id: 5 })}`,
+          response: { code: 500, message: 'Internal error' },
+          statusCode: 500
+        });
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.contains('host 0').click();
+
+        cy.waitForRequest('@getHost');
+
+        cy.findByTestId('host-form-templates')
+          .findAllByTestId('delete-row')
+          .first()
+          .click();
+        cy.waitForRequest('@getTemplateMacros5');
+
+        cy.contains('Internal error').should('be.visible');
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(2, 'value').should('have.value', 'linux');
+        macroInput(3, 'name').should('have.value', 'WARNING');
       });
 
       it('follows the templates changed on an existing host', () => {
