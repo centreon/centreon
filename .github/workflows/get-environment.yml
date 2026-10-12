@@ -69,6 +69,12 @@ on:
       php_version:
         description: "PHP version to use (based on phpXX label)"
         value: ${{ jobs.get-environment.outputs.php_version }}
+      testing_tag:
+        description: "testing bundle tag the run is on (testing-<scope>-<type>-YYYYMMNN-XX.YY-N), empty otherwise"
+        value: ${{ jobs.get-environment.outputs.testing_tag }}
+      testing_bundle_path:
+        description: "S3 path of the testing bundle (bundles/<scope>/<XX.YY>/<type>/<YYYYMMNN>/<N>), empty otherwise"
+        value: ${{ jobs.get-environment.outputs.testing_bundle_path }}
 
 jobs:
   get-environment:
@@ -93,6 +99,8 @@ jobs:
       skip_workflow: ${{ steps.skip_workflow.outputs.result }}
       labels: ${{ steps.has_skip_label.outputs.labels }}
       php_version: ${{ steps.get_php_version.outputs.php_version }}
+      testing_tag: ${{ steps.parse_testing_tag.outputs.tag }}
+      testing_bundle_path: ${{ steps.parse_testing_tag.outputs.bundle_path }}
 
     steps:
       - name: Check if PR has skip label
@@ -290,11 +298,30 @@ jobs:
 
             return prPath;
 
+      # Testing bundle tags (MON-195707): scope, type and major come from the tag name.
+      - name: Parse testing tag
+        id: parse_testing_tag
+        if: ${{ startsWith(github.ref, 'refs/tags/testing-') }}
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^testing-(cloud|onprem)-(release|hotfix)-([0-9]{8})-([0-9]{2}\.[0-9]{2})-([1-9][0-9]*)$ ]]; then
+            echo "::error::Invalid testing tag $GITHUB_REF_NAME, expected testing-<cloud|onprem>-<release|hotfix>-YYYYMMNN-XX.YY-N"
+            exit 1
+          fi
+          {
+            echo "tag=$GITHUB_REF_NAME"
+            echo "scope=${BASH_REMATCH[1]}"
+            echo "type=${BASH_REMATCH[2]}"
+            echo "major=${BASH_REMATCH[4]}"
+            echo "bundle_path=bundles/${BASH_REMATCH[1]}/${BASH_REMATCH[4]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}/${BASH_REMATCH[5]}"
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
       - name: Get stability
         id: get_stability
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_PATH: ${{ steps.pr_path.outputs.result || '[]' }}
+          TESTING_TAG: ${{ steps.parse_testing_tag.outputs.tag }}
         with:
           script: |
             const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
@@ -338,7 +365,10 @@ jobs:
             };
 
             let stability;
-            if (eventName === 'push' && refType === 'tag') {
+            if (process.env.TESTING_TAG) {
+              console.log(`Testing bundle tag detected: ${process.env.TESTING_TAG}`);
+              stability = 'testing';
+            } else if (eventName === 'push' && refType === 'tag') {
               console.log(`Push event on a tag detected.`);
               stability = isStableTag(ref) ? 'stable' : getStability(ref);
             } else {
@@ -433,6 +463,8 @@ jobs:
 
       - name: "Get release type: hotfix, release or not defined if not a release"
         id: get_release_type
+        env:
+          TESTING_TAG_TYPE: ${{ steps.parse_testing_tag.outputs.type }}
         run: |
           # Set REF_NAME (branch or tag)
           REF_NAME="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
@@ -444,7 +476,10 @@ jobs:
           # Get release type based on ref type
           # if ref_type is a branch => use prefix of branch name
           # if ref_type is a tag => use comment associated to the tag
-          if [[ "$REF_TYPE" == "branch" ]]; then
+          # a testing bundle tag carries the type in its name
+          if [[ -n "$TESTING_TAG_TYPE" ]]; then
+            RELEASE_TYPE="$TESTING_TAG_TYPE"
+          elif [[ "$REF_TYPE" == "branch" ]]; then
             BASE=$(echo "$REF_NAME" | cut -d '-' -f 1)
             if [[ "$BASE" == "hotfix" || "$BASE" == "release" ]]; then
               RELEASE_TYPE="$BASE"
@@ -495,6 +530,8 @@ jobs:
           CURRENT_MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
           EVENT_NAME: ${{ github.event_name }}
           PR_PATH: ${{ steps.pr_path.outputs.result || '[]' }}
+          TESTING_TAG_SCOPE: ${{ steps.parse_testing_tag.outputs.scope }}
+          TESTING_TAG_MAJOR: ${{ steps.parse_testing_tag.outputs.major }}
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -510,9 +547,22 @@ jobs:
             const isCloudCandidate =
               !currentMajorVersion.match(/\.10$/);
             let releaseScope = "unknown";
+            const testingTagScope = process.env.TESTING_TAG_SCOPE;
 
+            // testing bundle tag, whatever the event: the scope comes from the tag name and must match the version
+            if (testingTagScope) {
+              if (process.env.TESTING_TAG_MAJOR !== currentMajorVersion) {
+                core.setFailed(`❌ Testing tag major ${process.env.TESTING_TAG_MAJOR} does not match version ${currentMajorVersion}`);
+                return;
+              }
+              if ((testingTagScope === "cloud") !== isCloudCandidate) {
+                core.setFailed(`❌ Testing tag scope ${testingTagScope} does not match major ${currentMajorVersion}`);
+                return;
+              }
+              releaseScope = testingTagScope;
+            }
             // in a nightly context, whatever the event_name is, the release context does not matter
-            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
+            else if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
               releaseScope = isCloudCandidate ? "cloud" : "onprem";
             } else if (eventName === "pull_request") {
               // handle if triggering event is a pull_request
