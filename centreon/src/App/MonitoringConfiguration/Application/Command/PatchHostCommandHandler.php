@@ -24,14 +24,24 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
+use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
 use App\MonitoringConfiguration\Domain\Event\HostEnabled;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
@@ -39,6 +49,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -54,6 +65,9 @@ final readonly class PatchHostCommandHandler
     public function __construct(
         private HostRepository $repository,
         private CommandRepository $commandRepository,
+        private HostReferencesChecker $references,
+        private HostRelationsUpdater $relations,
+        private HostTemplateServicesCleaner $templateServices,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
@@ -64,6 +78,10 @@ final readonly class PatchHostCommandHandler
     public function __invoke(PatchHostCommand $command): Host
     {
         $host = $this->getHost($command);
+        // The references come before the name: a restricted viewer must not be able to tell a duplicate
+        // name from a resource they cannot access.
+        $this->assertReferencesExist($command);
+        $withRelations = $this->relations->applyTo($host, $command);
         $this->assertNameIsAvailable($command, $host);
         $this->assertArgumentsHaveACheckCommand($command, $host);
 
@@ -72,8 +90,12 @@ final readonly class PatchHostCommandHandler
         // community in place, so if saving the host then fails the previous value is lost: the same
         // trade-off as the Core partial update, the vault being outside the database transaction.
         $secretToVault = $this->communityToVault($command);
-        $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($host, $command), $command, $secretToVault);
+        $updatedHost = $this->withSnmpCommunity($host, $this->applyChanges($withRelations, $command), $command, $secretToVault);
         $this->saveAndNotify($host, $updatedHost, $command->updatedBy, secretRewritten: $secretToVault !== null);
+
+        if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), new UserId($command->updatedBy)));
+        }
 
         return $updatedHost;
     }
@@ -88,6 +110,41 @@ final readonly class PatchHostCommandHandler
         }
 
         return $host;
+    }
+
+    /**
+     * The same rules ran on the input, earlier: this is the authoritative check, against what exists now.
+     * The check command is not listed: loading it, for the Centreon Monitoring Agent rule, is its check.
+     */
+    private function assertReferencesExist(PatchHostCommand $command): void
+    {
+        if ($command->pollerId instanceof PollerId) {
+            $this->references->assertPollerAccessible($command->pollerId, $command->viewerId);
+        }
+
+        if ($command->severityId instanceof HostSeverityId) {
+            $this->references->assertSeverityAccessible($command->severityId, $command->viewerId);
+        }
+
+        if ($command->timezoneId instanceof TimezoneId) {
+            $this->references->assertTimezoneExists($command->timezoneId);
+        }
+
+        if ($command->extendedInformations instanceof ExtendedInformationsChanges && $command->extendedInformations->iconId instanceof MediaId) {
+            $this->references->assertMediaExists($command->extendedInformations->iconId);
+        }
+
+        if ($command->schedulingOptions instanceof SchedulingOptionsChanges && $command->schedulingOptions->checkTimeperiodId instanceof TimePeriodId) {
+            $this->references->assertTimePeriodExists($command->schedulingOptions->checkTimeperiodId);
+        }
+
+        if ($command->notifications instanceof NotificationsChanges && $command->notifications->periodId instanceof TimePeriodId) {
+            $this->references->assertTimePeriodExists($command->notifications->periodId);
+        }
+
+        if ($command->dataProcessing instanceof DataProcessingChanges && $command->dataProcessing->eventHandlerCommandId instanceof CommandId) {
+            $this->references->assertCommandExists($command->dataProcessing->eventHandlerCommandId);
+        }
     }
 
     private function assertNameIsAvailable(PatchHostCommand $command, Host $host): void
@@ -227,7 +284,7 @@ final readonly class PatchHostCommandHandler
 
     /**
      * The check command the update gives the host, null when it provides none or removes the current
-     * one. Its existence is checked on the input.
+     * one. Throws CommandNotFoundException when it does not exist.
      */
     private function providedCheckCommand(PatchHostCommand $command): ?Command
     {
@@ -246,8 +303,15 @@ final readonly class PatchHostCommandHandler
      */
     private function saveAndNotify(Host $hostBefore, Host $hostAfter, int $updatedBy, bool $secretRewritten): void
     {
-        if ($secretRewritten || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
+        $relationsChanged = ! $hostAfter->hasSameRelationsAs($hostBefore) || ! $this->hasSameContactsAs($hostAfter, $hostBefore);
+
+        if ($secretRewritten || $relationsChanged || ! $hostAfter->hasSameConfigurationAs($hostBefore)) {
             $this->repository->update($hostAfter);
+            if ($relationsChanged) {
+                $this->repository->replaceRelations($hostAfter);
+                $this->templateServices->cleanUp($hostBefore, $hostAfter, $updatedBy);
+            }
+
             $this->eventBus->fire(new HostMassChanged(
                 $hostAfter,
                 $updatedBy,
@@ -288,5 +352,10 @@ final readonly class PatchHostCommandHandler
             bestEffort: true,
             keys: $hostAfter->releasesVaultEntryOf($hostBefore, $this->vault) ? [] : [VaultKeyEnum::HostSnmpCommunity->value],
         ));
+    }
+
+    private function hasSameContactsAs(Host $host, Host $other): bool
+    {
+        return ($host->notifications ?? Notifications::default())->hasSameContactsAs($other->notifications ?? Notifications::default());
     }
 }

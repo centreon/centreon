@@ -78,6 +78,7 @@ overrides:
       - centreon-perl-libs < ${NEXT_MAJOR_VERSION}
       - net-snmp
       - perl(SNMP)
+      - logrotate
     replaces:
       - centreon-trap-central
       - centreon-trap-poller
@@ -88,6 +89,7 @@ overrides:
       - libsnmp-perl
       - snmptrapd
       - snmpd
+      - logrotate
 
 rpm:
   summary: Centreon Traps

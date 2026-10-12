@@ -23,10 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
-use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
+use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * The check command of a host and the arguments it is called with. A key left out is left untouched,
@@ -46,36 +45,9 @@ final readonly class PatchHostCheckOptionsInput
         ])]
         public ?int $commandId = null,
 
-        #[Assert\All([
-            new Assert\Type('string'),
-            new Assert\Regex(
-                pattern: '/!/',
-                match: false,
-                message: 'A check command argument cannot contain "!".',
-            ),
-            new Assert\Regex(
-                pattern: '/#(?:BR|T|R)#/',
-                match: false,
-                message: 'A check command argument cannot contain the reserved escape tokens #BR#, #T# or #R#.',
-            ),
-        ])]
+        #[Assert\All([new Assert\Type('string')])]
+        #[ValidCommandArguments('check command')]
         public array $args = [],
     ) {
-    }
-
-    #[Assert\Callback]
-    public function validateFormattedArgumentsFitStorage(ExecutionContextInterface $context): void
-    {
-        $args = array_values(array_filter($this->args, 'is_string'));
-        if (count($args) !== count($this->args)) {
-            return;
-        }
-
-        $formatted = CommandArgumentsFormatter::format($args);
-        if ($formatted !== null && \mb_strlen($formatted, '8bit') > CommandArgumentsFormatter::MAX_STORAGE_LENGTH) {
-            $context->buildViolation('The check command arguments are too long.')
-                ->atPath('args')
-                ->addViolation();
-        }
     }
 }

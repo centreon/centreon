@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Validator\Constraints;
 
+use App\Shared\Infrastructure\ApiPlatform\CurrentRequestPayload;
 use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvided;
 use App\Shared\Infrastructure\Validator\Constraints\NotNullWhenProvidedValidator;
 use Symfony\Component\HttpFoundation\Request;
@@ -159,7 +160,7 @@ final class NotNullWhenProvidedValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new NotNullWhenProvidedValidator($this->requestStack);
+        return new NotNullWhenProvidedValidator(new CurrentRequestPayload($this->requestStack));
     }
 
     private function sendBody(string $json): void

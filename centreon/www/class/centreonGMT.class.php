@@ -587,8 +587,8 @@ class CentreonGMT
             $sTimezone = $this->timezoneById[$gmt];
         } else {
             $this->getCentreonTimezone();
-            if (! empty($this->sDefaultTimezone) && ! empty($this->timezones[$this->sDefaultTimezone])) {
-                $sTimezone = $this->timezones[$this->sDefaultTimezone];
+            if (! empty($this->sDefaultTimezone) && ! empty($this->timezoneById[$this->sDefaultTimezone])) {
+                $sTimezone = $this->timezoneById[$this->sDefaultTimezone];
             } else { // if we take the empty PHP
                 $sTimezone = date_default_timezone_get();
             }

@@ -25,6 +25,7 @@ namespace App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -79,6 +80,67 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function flagAllResourcesAsChanged(): void
     {
         $this->connection->executeStatement('UPDATE acl_resources SET changed = 1');
+    }
+
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        // Configuration relations (main connection). INSERT ... SELECT keeps the copy in one round trip
+        // and writes nothing when the source has no relation. Legacy centreonACL::duplicateHostAcl.
+        foreach (['acl_resources_host_relations', 'acl_resources_hostex_relations'] as $table) {
+            $this->connection->executeStatement(
+                sprintf(
+                    'INSERT INTO %s (host_host_id, acl_res_id)
+                        SELECT :newHostId, acl_res_id FROM %s WHERE host_host_id = :sourceHostId',
+                    $table,
+                    $table,
+                ),
+                ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
+            );
+        }
+
+        // Real-time cache (centreon_storage connection): copy the source's host-level rows per group so
+        // a non-admin sees the copy immediately. Read and inserts share the real-time connection, so a
+        // single INSERT ... SELECT does it in one round trip and writes nothing when the source has no
+        // row. Legacy updateACL('DUP'); the service-level rows are written by duplicateHostServiceAccess()
+        // after the copy's services exist.
+        $this->realTimeConnection->executeStatement(
+            'INSERT INTO centreon_acl (group_id, host_id, service_id)
+                SELECT DISTINCT group_id, :newHostId, NULL FROM centreon_acl
+                WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['newHostId' => $newHostId->value, 'sourceHostId' => $sourceHostId->value],
+        );
+    }
+
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void
+    {
+        // The copy's services (cloned + re-linked), read from the configuration connection where
+        // host_service_relation lives; nothing to scope when the copy has no service.
+        /** @var list<int|string> $serviceIds */
+        $serviceIds = $this->connection->fetchFirstColumn(
+            'SELECT service_service_id FROM host_service_relation WHERE host_host_id = :newHostId',
+            ['newHostId' => $newHostId->value],
+        );
+        if ($serviceIds === []) {
+            return;
+        }
+
+        // Groups that already see the source host (its host-level rows), from the real-time cache.
+        /** @var list<int|string> $groupIds */
+        $groupIds = $this->realTimeConnection->fetchFirstColumn(
+            'SELECT DISTINCT group_id FROM centreon_acl WHERE host_id = :sourceHostId AND service_id IS NULL',
+            ['sourceHostId' => $sourceHostId->value],
+        );
+
+        foreach ($groupIds as $groupId) {
+            foreach ($serviceIds as $serviceId) {
+                // ON DUPLICATE KEY UPDATE keeps it idempotent, as legacy updateACL('DUP') does.
+                $this->realTimeConnection->executeStatement(
+                    'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, :serviceId)
+                        ON DUPLICATE KEY UPDATE service_id = service_id',
+                    ['groupId' => (int) $groupId, 'hostId' => $newHostId->value, 'serviceId' => (int) $serviceId],
+                );
+            }
+        }
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -413,6 +475,38 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 array_values(array_unique($contactGroupIds)),
             ),
             ContactGroupId::class,
+        );
+    }
+
+    /**
+     * Host-level ACL is a real-time cache (`centreon_acl`, on a separate connection than the
+     * `host` table) mapping accessible host ids per Access Group — mirrors legacy exactly.
+     * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
+     * the query count stays constant regardless of how many hosts exist or are returned.
+     */
+    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
+    {
+        $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
+        if ($accessGroupIds === [] || $among?->count() === 0) {
+            return new Collection([], HostId::class);
+        }
+
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('DISTINCT host_id')
+            ->from('centreon_acl')
+            ->where('service_id IS NULL')
+            ->andWhere($qb->expr()->in('group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+        if ($among instanceof Collection) {
+            $amongIds = array_values(array_map(static fn (HostId $id): int => $id->value, $among->toArray()));
+            $qb->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($amongIds, ArrayParameterType::INTEGER)));
+        }
+
+        /** @var list<array{host_id: int|string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new Collection(
+            array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
+            HostId::class,
         );
     }
 

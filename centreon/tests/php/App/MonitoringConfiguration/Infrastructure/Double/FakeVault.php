@@ -97,7 +97,13 @@ final class FakeVault implements VaultInterface
             return null;
         }
 
-        return $this->extractedUuids[$value] ?? null;
+        // Unless a test maps it explicitly, the uuid is read from the reference itself
+        // (`secret::<vault>::<path>/<uuid>::<key>`), like a real vault.
+        if (array_key_exists($value, $this->extractedUuids)) {
+            return $this->extractedUuids[$value];
+        }
+
+        return preg_match('#/([^/:]+)::[^:]+$#', $value, $matches) === 1 ? $matches[1] : null;
     }
 
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
@@ -113,7 +119,8 @@ final class FakeVault implements VaultInterface
             throw new \RuntimeException('Unable to write vault credential');
         }
 
-        return $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/new-uuid::%s', $customPath, $key);
+        // Like a real vault, a write to an existing entry lands under that entry's uuid.
+        return $this->writtenPaths[$key] ?? sprintf('secret::vault::%s/%s::%s', $customPath, $uuid ?? 'new-uuid', $key);
     }
 
     public function writeMany(string $customPath, array $secrets, ?string $uuid = null, array $deletes = []): array

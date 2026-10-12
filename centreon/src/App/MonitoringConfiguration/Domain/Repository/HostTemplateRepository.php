@@ -73,4 +73,14 @@ interface HostTemplateRepository
      * @return Collection<HostTemplate>
      */
     public function findInheritanceLine(Collection $directTemplateIds): Collection;
+
+    /**
+     * The service templates the given host templates provide: the ones linked to the templates
+     * themselves, and to their ancestors (the whole inheritance chain, active or not).
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return list<int> service template ids
+     */
+    public function findServiceTemplateIds(Collection $templateIds): array;
 }
