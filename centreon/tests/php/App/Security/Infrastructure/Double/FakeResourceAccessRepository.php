@@ -134,9 +134,21 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         return $this->accessibleContactGroupIds;
     }
 
-    public function findAccessibleHostIds(UserId $userId): Collection
+    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
     {
-        return $this->accessibleHostIds;
+        if (! $among instanceof Collection) {
+            return $this->accessibleHostIds;
+        }
+
+        $amongIds = array_map(static fn (HostId $id): int => $id->value, $among->toArray());
+
+        return new Collection(
+            array_values(array_filter(
+                $this->accessibleHostIds->toArray(),
+                static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
+            )),
+            HostId::class,
+        );
     }
 
     public function findAccessibleImageFolderIds(UserId $userId): ?Collection

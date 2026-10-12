@@ -478,10 +478,16 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessibleHostIds(UserId $userId): Collection
+    /**
+     * Host-level ACL is a real-time cache (`centreon_acl`, on a separate connection than the
+     * `host` table) mapping accessible host ids per Access Group — mirrors legacy exactly.
+     * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
+     * the query count stays constant regardless of how many hosts exist or are returned.
+     */
+    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
     {
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
-        if ($accessGroupIds === []) {
+        if ($accessGroupIds === [] || $among?->count() === 0) {
             return new Collection([], HostId::class);
         }
 
@@ -490,6 +496,10 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->from('centreon_acl')
             ->where('service_id IS NULL')
             ->andWhere($qb->expr()->in('group_id', $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)));
+        if ($among instanceof Collection) {
+            $amongIds = array_values(array_map(static fn (HostId $id): int => $id->value, $among->toArray()));
+            $qb->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($amongIds, ArrayParameterType::INTEGER)));
+        }
 
         /** @var list<array{host_id: int|string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
