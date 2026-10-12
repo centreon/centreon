@@ -24,17 +24,19 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
-use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
-use App\MonitoringConfiguration\Application\Service\VaultWrites;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -48,12 +50,17 @@ use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CheckArgumentsRequireACommandException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
 use App\Shared\Domain\NoValue;
+use App\Shared\Domain\Vault\VaultCredentials;
+use App\Shared\Domain\Vault\VaultKeyEnum;
+use App\Shared\Domain\Vault\VaultPathEnum;
 use App\Shared\Domain\VaultInterface;
 use Psr\Log\LoggerInterface;
 
@@ -67,8 +74,9 @@ final readonly class PatchHostCommandHandler
         private HostRelationsUpdater $relations,
         private HostTemplateServicesCleaner $templateServices,
         private HostMacrosUpdater $macros,
-        private HostSecretsSynchronizer $secrets,
+        private HostMacroSecretsSynchronizer $macroSecrets,
         private VaultInterface $vault,
+        private VaultCredentialWriter $vaultCredentialWriter,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private EventBus $eventBus,
         private LoggerInterface $logger,
@@ -77,30 +85,12 @@ final readonly class PatchHostCommandHandler
 
     /**
      * The secrets are written to the vault before the host is saved, so that an unreachable vault saves
-     * nothing. The vault is outside the transaction: when the update fails after a successful vault
-     * write, the database rolls back but the vault keeps what was written, which the stored references
-     * may now resolve to (changed secret) or miss (cleared key). That divergence is logged as a warning
-     * rather than left silent. A failure of the commit itself, after this handler returns, is not covered.
+     * nothing. The vault is outside the transaction: when the host cannot be saved after that, the
+     * database rolls back but the vault keeps what was written, which the stored references may now
+     * resolve to (changed secret) or miss (cleared key). That divergence is logged as a warning rather
+     * than left silent. A failure of the commit itself, after this handler returns, is not covered.
      */
     public function __invoke(PatchHostCommand $command): Host
-    {
-        $vaultWrites = new VaultWrites();
-
-        try {
-            return $this->patch($command, $vaultWrites);
-        } catch (\Throwable $exception) {
-            if ($vaultWrites->happened()) {
-                $this->logger->warning(
-                    'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
-                    ['host_id' => $command->id->value, 'exception' => $exception],
-                );
-            }
-
-            throw $exception;
-        }
-    }
-
-    private function patch(PatchHostCommand $command, VaultWrites $vaultWrites): Host
     {
         $host = $this->getHost($command);
         // The references come before the name: a restricted viewer must not be able to tell a duplicate
@@ -118,14 +108,26 @@ final readonly class PatchHostCommandHandler
 
         // The vault write comes last, once every validation and every invariant of the new host has
         // passed: a rejected update must never leave an orphan secret behind.
-        $synchronized = $this->secrets->synchronize($host, $updatedHost, $command->snmpCommunity, $macros !== null, $vaultWrites);
-        $this->saveAndNotify($host, $synchronized->host, $command->updatedBy, secretRewritten: $synchronized->secretRewritten);
+        $updatedHost = $this->moveSecretsToTheVault($host, $updatedHost, $command, macrosChanged: $macros !== null);
 
-        if ($command->deployServicesFromTemplates && count($synchronized->host->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested($synchronized->host->id(), new UserId($command->updatedBy)));
+        try {
+            $this->saveAndNotify($host, $updatedHost, $command->updatedBy, secretRewritten: $this->providesASecret($command));
+        } catch (\Throwable $exception) {
+            if ($this->touchesTheVault($host, $updatedHost, $command)) {
+                $this->logger->warning(
+                    'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
+                    ['host_id' => $command->id->value, 'exception' => $exception],
+                );
+            }
+
+            throw $exception;
         }
 
-        return $synchronized->host;
+        if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), new UserId($command->updatedBy)));
+        }
+
+        return $updatedHost;
     }
 
     private function getHost(PatchHostCommand $command): Host
@@ -231,6 +233,87 @@ final readonly class PatchHostCommandHandler
                 ? new NoValue()
                 : $this->additiveInheritanceModeApplier->apply($command->notifications->applyTo($host->notifications)),
             activated: $command->activated,
+        );
+    }
+
+    /**
+     * The community and the password macros share the vault entry of the host, a new one when it has none
+     * yet: the community given is written to it, a community removed has its key removed, and the macros
+     * go through {@see HostMacroSecretsSynchronizer}, with the entry the community may just have created.
+     * A reference to the vault given by the caller is ignored: the host keeps the community it has.
+     * Without a vault, nothing is vaulted and the community is stored as is, like on creation.
+     */
+    private function moveSecretsToTheVault(Host $before, Host $after, PatchHostCommand $command, bool $macrosChanged): Host
+    {
+        $community = $command->snmpCommunity;
+
+        if (! $this->vault->isEnabled()) {
+            return $community instanceof NoValue ? $after : $after->with(snmpCommunity: $community === null ? null : new SnmpCommunity($community));
+        }
+
+        $vaultUuid = $before->getVaultUuid($this->vault);
+        $snmpCommunity = $after->snmpCommunity;
+        if ($community === null) {
+            $snmpCommunity = null;
+            if ($vaultUuid !== null && $before->snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($before->snmpCommunity->value)) {
+                $this->writeToTheVault($before, VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity), $vaultUuid);
+            }
+        } elseif (is_string($community) && ! $this->vault->isVaultPath($community)) {
+            $stored = $this->writeToTheVault($before, VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community), $vaultUuid);
+            $snmpCommunity = new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]);
+            $vaultUuid = $this->vault->extractUuid($snmpCommunity->value);
+        }
+
+        $macros = $after->checkOptions->macros;
+        if ($macrosChanged) {
+            try {
+                $macros = $this->macroSecrets->synchronize(array_values($macros), array_values($before->checkOptions->macros), $vaultUuid);
+            } catch (\Throwable $exception) {
+                throw VaultWriteFailedException::forHost($before->id(), $exception);
+            }
+        }
+
+        return $after->with(snmpCommunity: $snmpCommunity, checkOptions: $after->checkOptions->with(macros: $macros));
+    }
+
+    /**
+     * @return array<string, string> the reference stored for each key written
+     */
+    private function writeToTheVault(Host $host, VaultCredentials $credentials, ?string $vaultUuid): array
+    {
+        try {
+            return $this->vaultCredentialWriter->persist(VaultPathEnum::MonitoringHosts, $credentials, $vaultUuid);
+        } catch (\Throwable $exception) {
+            throw VaultWriteFailedException::forHost($host->id(), $exception);
+        }
+    }
+
+    /**
+     * A secret given is written to the vault, and the host keeps the very same reference when it already had
+     * one, since the path of a vaulted value only depends on its entry and its key: the update still counts.
+     */
+    private function providesASecret(PatchHostCommand $command): bool
+    {
+        if (! $this->vault->isEnabled()) {
+            return false;
+        }
+
+        if (is_string($command->snmpCommunity) && ! $this->vault->isVaultPath($command->snmpCommunity)) {
+            return true;
+        }
+
+        return $command->macros instanceof MacroChanges
+            && array_any($command->macros->changes, static fn (HostMacroChange $change): bool => $change->isPassword && $change->value !== null);
+    }
+
+    private function touchesTheVault(Host $before, Host $after, PatchHostCommand $command): bool
+    {
+        return $this->vault->isEnabled() && (
+            ! $command->snmpCommunity instanceof NoValue
+            || (
+                $command->macros instanceof MacroChanges
+                && array_any([...$before->checkOptions->macros, ...$after->checkOptions->macros], static fn (HostMacro $macro): bool => $macro->isPassword)
+            )
         );
     }
 

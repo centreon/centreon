@@ -77,7 +77,7 @@ final class PatchHostMacrosProcessorTest extends ApiTestCase
         self::assertFalse($this->macroExists($dropped));
 
         $this->patch(['check_options' => ['macros_to_upsert' => [
-            ['name' => 'port', 'value' => '9090'],
+            ['id' => $port, 'name' => 'port', 'value' => '9090'],
             ['name' => 'other', 'value' => 'z'],
         ]]]);
         self::assertSame(['ADDED' => 'y', 'OTHER' => 'z', 'PORT' => '9090'], $this->macros());
@@ -138,6 +138,8 @@ final class PatchHostMacrosProcessorTest extends ApiTestCase
         yield 'an unknown macro' => [['check_options' => ['macros' => [['id' => 999999, 'name' => 'port', 'value' => '1']]]]];
 
         yield 'a removal of an unknown macro' => [['check_options' => ['macros_to_remove' => [999999]]]];
+
+        yield 'a new macro with the name of one the host has' => [['check_options' => ['macros_to_upsert' => [['name' => 'port', 'value' => '1']]]]];
 
         yield 'two macros of the same name in the list' => [['check_options' => ['macros_to_upsert' => [['name' => 'new', 'value' => '1'], ['name' => 'NEW', 'value' => '2']]]]];
 

@@ -66,7 +66,7 @@ final readonly class PatchHostCheckOptionsInput
         #[Assert\Valid]
         public array $macros = [],
 
-        #[ApiProperty(description: "Writes these macros and keeps the other ones. Same macros as above; without an id, a macro takes the place of the host's own macro of the same name when there is one.")]
+        #[ApiProperty(description: 'Writes these macros and keeps the other ones. Same macros as above.')]
         #[Assert\Valid]
         public array $macrosToUpsert = [],
 

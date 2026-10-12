@@ -80,10 +80,9 @@ final readonly class HostMacrosUpdater
             return $this->assertNamesAreUnique($this->changesResolver->resolve($changes->changes, $current, $inherited));
         }
 
-        $pointedAt = array_map(fn (HostMacroChange $change): HostMacroChange => $this->pointAtOwnMacroOfSameName($change, $current), $changes->changes);
-        $resolved = $this->changesResolver->resolve($pointedAt, $current, $inherited);
+        $resolved = $this->changesResolver->resolve($changes->changes, $current, $inherited);
 
-        return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $pointedAt, $resolved));
+        return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $changes->changes, $resolved));
     }
 
     /**
@@ -172,25 +171,6 @@ final readonly class HostMacrosUpdater
         }
 
         return $names;
-    }
-
-    /**
-     * A new macro named like one the host owns is a write to that macro, not a second macro.
-     *
-     * @param list<HostMacro> $current
-     */
-    private function pointAtOwnMacroOfSameName(HostMacroChange $change, array $current): HostMacroChange
-    {
-        if (! $change->isNew()) {
-            return $change;
-        }
-
-        $own = array_find($current, static fn (HostMacro $macro): bool => $macro->name->value === $change->name->value);
-        if (! $own instanceof HostMacro) {
-            return $change;
-        }
-
-        return new HostMacroChange($change->name, $change->value, $change->isPassword, $own->id);
     }
 
     /**

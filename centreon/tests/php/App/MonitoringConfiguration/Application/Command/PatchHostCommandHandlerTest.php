@@ -35,7 +35,6 @@ use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
-use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
@@ -188,12 +187,9 @@ final class PatchHostCommandHandlerTest extends TestCase
                 new FakeStandardMacroRepository(['$_HOSTRESERVED$']),
                 $this->vault,
             ),
-            new HostSecretsSynchronizer(
-                $this->vault,
-                new VaultCredentialWriter($this->vault),
-                new HostMacroSecretsSynchronizer($this->vault, new VaultCredentialWriter($this->vault)),
-            ),
+            new HostMacroSecretsSynchronizer($this->vault, new VaultCredentialWriter($this->vault)),
             $this->vault,
+            new VaultCredentialWriter($this->vault),
             new AdditiveInheritanceModeApplier($this->optionRepository),
             $this->eventBus,
             $this->logger,

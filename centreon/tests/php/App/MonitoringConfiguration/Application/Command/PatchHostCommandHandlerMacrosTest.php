@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
-use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -142,12 +141,9 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 new FakeStandardMacroRepository(['$_HOSTRESERVED$']),
                 $this->vault,
             ),
-            new HostSecretsSynchronizer(
-                $this->vault,
-                new VaultCredentialWriter($this->vault),
-                new HostMacroSecretsSynchronizer($this->vault, new VaultCredentialWriter($this->vault)),
-            ),
+            new HostMacroSecretsSynchronizer($this->vault, new VaultCredentialWriter($this->vault)),
             $this->vault,
+            new VaultCredentialWriter($this->vault),
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $this->logger,
@@ -180,19 +176,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         ]));
 
         self::assertSame(['KEPT' => 'k', 'PORT' => '8080', 'ADDED' => 'y'], $this->valuesByName($result));
-    }
-
-    public function testAnUpsertWithoutIdUpdatesTheMacroOfTheSameName(): void
-    {
-        $this->seedHost([$this->macro('PORT', '80', id: 10)]);
-
-        $result = $this->patch(MacroChanges::upsert([
-            new HostMacroChange(new HostMacroName('PORT'), '9090', false),
-        ]));
-
-        self::assertCount(1, $result->checkOptions->macros);
-        self::assertSame('9090', $this->macroNamed($result, 'PORT')->value);
-        self::assertSame(10, $this->macroNamed($result, 'PORT')->id?->value);
     }
 
     public function testAnUpsertThatChangesNothingSavesNothing(): void
@@ -503,13 +486,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'macrosWritten' => true,
         ]];
 
-        yield 'upsert: a macro without id takes the place of the one of the same name' => [[
-            'before' => [['A', '1', false, 10]],
-            'changes' => MacroChanges::upsert([$change('A', '9')]),
-            'after' => ['A' => ['9', false]],
-            'macrosWritten' => true,
-        ]];
-
         yield 'upsert: a macro with a new name is added' => [[
             'before' => [['A', '1', false, 10]],
             'changes' => MacroChanges::upsert([$change('B', '2')]),
@@ -517,9 +493,9 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'macrosWritten' => true,
         ]];
 
-        yield 'upsert: a password of the same name gets its new value under the same reference' => [[
+        yield 'upsert: a password gets its new value under the same reference' => [[
             'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
-            'changes' => MacroChanges::upsert([$change('TOKEN', 'new-secret', true)]),
+            'changes' => MacroChanges::upsert([$change('TOKEN', 'new-secret', true, 10)]),
             'after' => ['TOKEN' => [$reference('TOKEN'), true]],
             'vaultCalls' => [['secrets' => ['_HOSTTOKEN' => 'new-secret'], 'deletes' => []]],
             'massChanged' => true,
@@ -527,7 +503,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
         yield 'upsert: a password that stops being one leaves the vault' => [[
             'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
-            'changes' => MacroChanges::upsert([$change('TOKEN', 'plain', false)]),
+            'changes' => MacroChanges::upsert([$change('TOKEN', 'plain', false, 10)]),
             'after' => ['TOKEN' => ['plain', false]],
             'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
             'macrosWritten' => true,
@@ -640,6 +616,10 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         yield 'an upsert with two new macros of the same name' => [MacroChanges::upsert([
             new HostMacroChange(new HostMacroName('NEW'), '1', false),
             new HostMacroChange(new HostMacroName('NEW'), '2', false),
+        ])];
+
+        yield 'an upsert without id of a name the host already has' => [MacroChanges::upsert([
+            new HostMacroChange(new HostMacroName('A'), '9', false),
         ])];
 
         yield 'an upsert with a new macro and a rename onto its name' => [MacroChanges::upsert([
@@ -843,11 +823,13 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         }
     }
 
-    public function testAVaultFailureAfterTheCommunityWasWrittenIsReportedAsADivergence(): void
+    public function testAVaultFailureInTheMiddleOfTheSecretsSavesNothing(): void
     {
         $this->vault->vaultEnabled = true;
         $this->vault->writeThrowsOnCall = 2;
         $this->seedHost();
+
+        $this->expectException(VaultWriteFailedException::class);
 
         try {
             ($this->handler)(new PatchHostCommand(
@@ -856,12 +838,40 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 snmpCommunity: 'a-community',
                 macros: MacroChanges::upsert([new HostMacroChange(new HostMacroName('TOKEN'), 'secret', true)]),
             ));
-            self::fail('The vault failure should have been reported.');
-        } catch (VaultWriteFailedException) {
+        } finally {
             self::assertCount(2, $this->vault->writeManyCalls);
             self::assertSame([], $this->repository->updatedHosts);
+        }
+    }
+
+    public function testAHostThatCannotBeSavedAfterTheVaultWasWrittenIsReportedAsADivergence(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->seedHost();
+        $this->repository->updateThrows = new \RuntimeException('database down');
+
+        try {
+            $this->patch(MacroChanges::upsert([new HostMacroChange(new HostMacroName('TOKEN'), 'secret', true)]));
+            self::fail('The failure of the database should have been reported.');
+        } catch (\RuntimeException) {
+            self::assertCount(1, $this->vault->writeManyCalls);
             self::assertCount(1, $this->logger->warningMessages);
             self::assertStringContainsString('may now diverge', $this->logger->warningMessages[0]['message']);
+        }
+    }
+
+    public function testAHostThatCannotBeSavedWithoutTouchingTheVaultIsNotReportedAsADivergence(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->seedHost();
+        $this->repository->updateThrows = new \RuntimeException('database down');
+
+        try {
+            $this->patch(MacroChanges::upsert([new HostMacroChange(new HostMacroName('PORT'), '80', false)]));
+            self::fail('The failure of the database should have been reported.');
+        } catch (\RuntimeException) {
+            self::assertSame([], $this->vault->writeManyCalls);
+            self::assertSame([], $this->logger->warningMessages);
         }
     }
 

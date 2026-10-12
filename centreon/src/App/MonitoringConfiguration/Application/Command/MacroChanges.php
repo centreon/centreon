@@ -31,8 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
  * them, or removes some of them.
  *
  * - a replacement and a write carry the macros as submitted, each one pointing to the macro it
- *   changes by id and parent, or being new when it has no id. A write also takes a macro without id as
- *   the update of the host's own macro of the same name, when there is one;
+ *   changes by id and parent, or being new when it has no id;
  * - a removal carries the ids of the host's own macros.
  */
 final readonly class MacroChanges

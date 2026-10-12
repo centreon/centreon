@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
-use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
@@ -168,12 +167,9 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 new FakeStandardMacroRepository(),
                 $vault,
             ),
-            new HostSecretsSynchronizer(
-                $vault,
-                new VaultCredentialWriter($vault),
-                new HostMacroSecretsSynchronizer($vault, new VaultCredentialWriter($vault)),
-            ),
+            new HostMacroSecretsSynchronizer($vault, new VaultCredentialWriter($vault)),
             $vault,
+            new VaultCredentialWriter($vault),
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $logger,
