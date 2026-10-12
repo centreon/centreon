@@ -236,7 +236,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         if (
             $viewerId instanceof UserId
-            && ! in_array($id->value, $this->findAccessibleHostIds($viewerId), true)
+            && ! in_array($id->value, $this->findAccessibleHostIds($viewerId, [$id->value]), true)
         ) {
             // Exists but outside the viewer's ACL scope, or does not exist at all — both read as
             // "not found" to the caller, so as not to leak existence (see HostRepository::findOne()).
@@ -512,7 +512,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
         if ($viewerId instanceof UserId) {
-            $idValues = array_values(array_intersect($idValues, $this->findAccessibleHostIds($viewerId)));
+            $idValues = array_values(array_intersect($idValues, $this->findAccessibleHostIds($viewerId, array_values($idValues))));
         }
 
         if ($idValues === []) {
@@ -886,16 +886,18 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
      * the query count stays constant regardless of how many hosts exist or are returned.
      *
+     * @param ?list<int> $among when given, only these hosts are looked up, instead of every host the user can see
+     *
      * @return list<int>
      */
-    private function findAccessibleHostIds(UserId $userId): array
+    private function findAccessibleHostIds(UserId $userId, ?array $among = null): array
     {
         $groupIds = array_map(
             static fn (AccessGroupId $id): int => $id->value,
             iterator_to_array($this->accessGroupRepository->findActiveGroupIdsForUser($userId)),
         );
 
-        if ($groupIds === []) {
+        if ($groupIds === [] || $among === []) {
             return [];
         }
 
@@ -904,6 +906,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->from('centreon_acl')
             ->where('service_id IS NULL')
             ->andWhere($qb->expr()->in('group_id', $qb->createNamedParameter($groupIds, ArrayParameterType::INTEGER)));
+        if ($among !== null) {
+            $qb->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($among, ArrayParameterType::INTEGER)));
+        }
 
         /** @var list<array{host_id: int|string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();

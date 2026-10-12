@@ -41,6 +41,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 {
     public bool $unrestrictedPollerAccess = true;
 
+    /** How many times an access list has been loaded, for the host groups, the categories, the contacts and the contact groups. */
+    public int $accessListLoads = 0;
+
     /** @var ?Collection<HostGroupId> null means unrestricted, matching the real contract */
     public ?Collection $accessibleHostGroupIds = null;
 
@@ -87,6 +90,8 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
     {
+        ++$this->accessListLoads;
+
         return $this->accessibleHostCategoryIds;
     }
 
@@ -97,16 +102,22 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findAccessibleHostGroupIds(UserId $userId): ?Collection
     {
+        ++$this->accessListLoads;
+
         return $this->accessibleHostGroupIds;
     }
 
     public function findAccessibleContactIds(UserId $userId): Collection
     {
+        ++$this->accessListLoads;
+
         return $this->accessibleContactIds;
     }
 
     public function findAccessibleContactGroupIds(UserId $userId): Collection
     {
+        ++$this->accessListLoads;
+
         return $this->accessibleContactGroupIds;
     }
 

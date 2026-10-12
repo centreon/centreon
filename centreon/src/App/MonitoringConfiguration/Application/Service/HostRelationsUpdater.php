@@ -79,22 +79,23 @@ final readonly class HostRelationsUpdater
     public function applyTo(Host $host, PatchHostCommand $command): Host
     {
         $viewerId = $command->viewerId;
-        $isHostVisible = $command->parentHostIds instanceof NoValue && $command->childHostIds instanceof NoValue
-            ? null
-            : $this->visibleHosts($host, $viewerId);
+        $reachableHostIds = $this->reachableHostIds($host, $command, $viewerId);
+        $isHostVisible = $viewerId instanceof UserId
+            ? static fn (HostId $id): bool => in_array($id->value, $reachableHostIds, true)
+            : null;
 
         $parentHostIds = $this->resolve(
             $command->parentHostIds,
             $host->parentHostIds,
             HostId::class,
-            fn (array $ids) => $this->assertHostsAccessible($ids, 'parentHostIds', $viewerId),
+            fn (array $ids) => $this->assertHostsExist($ids, 'parentHostIds', $reachableHostIds),
             $isHostVisible,
         );
         $childHostIds = $this->resolve(
             $command->childHostIds,
             $host->childHostIds,
             HostId::class,
-            fn (array $ids) => $this->assertHostsAccessible($ids, 'childHostIds', $viewerId),
+            fn (array $ids) => $this->assertHostsExist($ids, 'childHostIds', $reachableHostIds),
             $isHostVisible,
         );
         if ($parentHostIds instanceof Collection || $childHostIds instanceof Collection) {
@@ -112,19 +113,19 @@ final readonly class HostRelationsUpdater
                 HostTemplateId::class,
                 fn (array $ids) => $this->assertTemplatesExist($ids),
             ),
-            hostGroupIds: $this->resolve(
+            hostGroupIds: $this->resolveScoped(
                 $command->hostGroupIds,
                 $host->hostGroupIds,
                 HostGroupId::class,
-                fn (array $ids) => $this->assertHostGroupsAccessible($ids, $viewerId),
-                $this->visibleIn($viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null),
+                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null,
+                fn (array $ids, ?Collection $accessible) => $this->assertHostGroupsAccessible($ids, $accessible),
             ),
-            categoryIds: $this->resolve(
+            categoryIds: $this->resolveScoped(
                 $command->categoryIds,
                 $host->categoryIds,
                 HostCategoryId::class,
-                fn (array $ids) => $this->assertCategoriesAccessible($ids, $viewerId),
-                $this->visibleIn($viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null),
+                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+                fn (array $ids, ?Collection $accessible) => $this->assertCategoriesAccessible($ids, $accessible),
             ),
             parentHostIds: $parentHostIds,
             childHostIds: $childHostIds,
@@ -143,21 +144,53 @@ final readonly class HostRelationsUpdater
         $notifications = $host->notifications ?? Notifications::default();
 
         return $host->with(notifications: $notifications->with(
-            contactIds: $this->resolve(
+            contactIds: $this->resolveScoped(
                 $command->contactIds,
                 $notifications->contactIds,
                 NotificationContactId::class,
-                fn (array $ids) => $this->assertContactsAccessible($ids, $viewerId),
-                $this->visibleIn($viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactIds($viewerId) : null),
+                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactIds($viewerId) : null,
+                fn (array $ids, ?Collection $accessible) => $this->assertContactsAccessible($ids, $accessible),
             ),
-            contactGroupIds: $this->resolve(
+            contactGroupIds: $this->resolveScoped(
                 $command->contactGroupIds,
                 $notifications->contactGroupIds,
                 ContactGroupId::class,
-                fn (array $ids) => $this->assertContactGroupsAccessible($ids, $viewerId),
-                $this->visibleIn($viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId) : null),
+                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId) : null,
+                fn (array $ids, ?Collection $accessible) => $this->assertContactGroupsAccessible($ids, $accessible),
             ),
         ));
+    }
+
+    /**
+     * Like {@see resolve()} for a relation scoped by what the requester can see: the list of what they
+     * can see is loaded once, and only when the relation is changed, to check what is brought and to
+     * tell what is left in place.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param NoValue|ListChange<T> $change
+     * @param Collection<T> $current
+     * @param class-string<T> $className
+     * @param \Closure(): (Collection<T>|null) $loadAccessible null when the requester can see everything
+     * @param \Closure(list<T>, Collection<T>|null): void $assertExist
+     *
+     * @return NoValue|Collection<T>
+     */
+    private function resolveScoped(NoValue|ListChange $change, Collection $current, string $className, \Closure $loadAccessible, \Closure $assertExist): NoValue|Collection
+    {
+        if ($change instanceof NoValue) {
+            return $change;
+        }
+
+        $accessible = $loadAccessible();
+
+        return $this->resolve(
+            $change,
+            $current,
+            $className,
+            static fn (array $ids) => $assertExist($ids, $accessible),
+            $this->visibleIn($accessible),
+        );
     }
 
     /**
@@ -207,13 +240,14 @@ final readonly class HostRelationsUpdater
 
     /**
      * @param list<HostGroupId> $ids
+     * @param Collection<HostGroupId>|null $accessible null when the requester can see everything
      */
-    private function assertHostGroupsAccessible(array $ids, ?UserId $viewerId): void
+    private function assertHostGroupsAccessible(array $ids, ?Collection $accessible): void
     {
         $missingIds = $this->missingIds(
             $ids,
             array_keys($this->hostGroupRepository->findNamesByIds(new Collection($ids, HostGroupId::class))->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null,
+            $accessible,
         );
 
         if ($missingIds !== []) {
@@ -238,13 +272,14 @@ final readonly class HostRelationsUpdater
 
     /**
      * @param list<HostCategoryId> $ids
+     * @param Collection<HostCategoryId>|null $accessible null when the requester can see everything
      */
-    private function assertCategoriesAccessible(array $ids, ?UserId $viewerId): void
+    private function assertCategoriesAccessible(array $ids, ?Collection $accessible): void
     {
         $missingIds = $this->missingIds(
             $ids,
             array_keys($this->hostCategoryRepository->findNamesByIds(new Collection($ids, HostCategoryId::class))->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            $accessible,
         );
 
         if ($missingIds !== []) {
@@ -254,13 +289,11 @@ final readonly class HostRelationsUpdater
 
     /**
      * @param list<HostId> $ids
+     * @param list<int> $reachableHostIds the hosts that exist and the requester can see
      */
-    private function assertHostsAccessible(array $ids, string $criterion, ?UserId $viewerId): void
+    private function assertHostsExist(array $ids, string $criterion, array $reachableHostIds): void
     {
-        $missingIds = $this->missingIds(
-            $ids,
-            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class), $viewerId)->toArray()),
-        );
+        $missingIds = $this->missingIds($ids, $reachableHostIds);
 
         if ($missingIds !== []) {
             throw new HostNotFoundException($missingIds, $criterion);
@@ -268,34 +301,40 @@ final readonly class HostRelationsUpdater
     }
 
     /**
-     * Which of the hosts this one is linked to the requester can see: the others are left in place by a
-     * replacement and left alone by a removal, like the other scoped relations.
+     * Among the hosts this one is linked to and the ones the update brings or removes, the ones that exist
+     * and the requester can see, found in one lookup: the others do not exist for them, and are left in
+     * place by a replacement and left alone by a removal, like the other scoped relations.
      *
-     * @return (\Closure(HostId): bool)|null null when the requester can see everything
+     * @return list<int>
      */
-    private function visibleHosts(Host $host, ?UserId $viewerId): ?\Closure
+    private function reachableHostIds(Host $host, PatchHostCommand $command, ?UserId $viewerId): array
     {
-        if (! $viewerId instanceof UserId) {
-            return null;
+        $changes = array_filter([$command->parentHostIds, $command->childHostIds], static fn (NoValue|ListChange $change): bool => $change instanceof ListChange);
+        if ($changes === []) {
+            return [];
         }
 
-        $visibleIds = array_keys($this->hostRepository->findNamesByIds(
-            new Collection([...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()], HostId::class),
-            $viewerId,
-        )->toArray());
+        $ids = [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()];
+        foreach ($changes as $change) {
+            $ids = [...$ids, ...$change->values];
+        }
 
-        return static fn (HostId $id): bool => in_array($id->value, $visibleIds, true);
+        return array_map(
+            intval(...),
+            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class), $viewerId)->toArray()),
+        );
     }
 
     /**
      * @param list<NotificationContactId> $ids
+     * @param Collection<NotificationContactId>|null $accessible null when the requester can see everything
      */
-    private function assertContactsAccessible(array $ids, ?UserId $viewerId): void
+    private function assertContactsAccessible(array $ids, ?Collection $accessible): void
     {
         $missingIds = $this->missingIds(
             $ids,
             array_keys($this->contactRepository->findNamesByIds(new Collection($ids, NotificationContactId::class))->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactIds($viewerId) : null,
+            $accessible,
         );
 
         if ($missingIds !== []) {
@@ -305,13 +344,14 @@ final readonly class HostRelationsUpdater
 
     /**
      * @param list<ContactGroupId> $ids
+     * @param Collection<ContactGroupId>|null $accessible null when the requester can see everything
      */
-    private function assertContactGroupsAccessible(array $ids, ?UserId $viewerId): void
+    private function assertContactGroupsAccessible(array $ids, ?Collection $accessible): void
     {
         $missingIds = $this->missingIds(
             $ids,
             array_keys($this->contactGroupRepository->findNamesByIds(new Collection($ids, ContactGroupId::class))->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId) : null,
+            $accessible,
         );
 
         if ($missingIds !== []) {

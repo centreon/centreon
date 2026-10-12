@@ -277,6 +277,25 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         ($this->handler)($this->command(templateIds: ListChange::add([new HostTemplateId(99)])));
     }
 
+    public function testARestrictedRequesterLoadsNoAccessListWhenNoRelationChanges(): void
+    {
+        $this->seedHost();
+
+        ($this->handler)($this->command(viewerId: new UserId(self::VIEWER_ID)));
+
+        self::assertSame(0, $this->resourceAccessRepository->accessListLoads);
+    }
+
+    public function testAnAccessListIsLoadedOnceForTheRelationThatChanges(): void
+    {
+        $this->seedHost();
+        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
+
+        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), viewerId: new UserId(self::VIEWER_ID)));
+
+        self::assertSame(1, $this->resourceAccessRepository->accessListLoads);
+    }
+
     public function testCategoriesAreReplacedAndAnInaccessibleOneIsRejected(): void
     {
         $this->seedHost(categoryIds: [1]);
