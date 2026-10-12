@@ -96,16 +96,27 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
-     * The route pins `{id}` to `\d+`. A non-numeric id must not match the route (404), never reach
-     * the provider — where `Assert::integer($uriVariables['id'])` would throw and surface as a 500.
-     * This locks that constraint: dropping it would turn this case into a documented 500.
+     * The route pins `{id}` to a positive integer. Any other id must not match the route (404), never
+     * reach the provider — where `Assert::integer($uriVariables['id'])` or HostId(0) would throw and
+     * surface as a 500. This locks that constraint: dropping it would turn this case into a 500.
      */
-    public function testItReturns404ForANonNumericId(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidIds')]
+    public function testItReturns404ForAnInvalidId(string $id): void
     {
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . '/not-a-number');
+        $this->request('GET', self::BASE_ENDPOINT . '/' . $id);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidIds(): iterable
+    {
+        yield 'non-numeric' => ['not-a-number'];
+        yield 'zero' => ['0'];
+        yield 'leading zero' => ['007'];
     }
 
     /**

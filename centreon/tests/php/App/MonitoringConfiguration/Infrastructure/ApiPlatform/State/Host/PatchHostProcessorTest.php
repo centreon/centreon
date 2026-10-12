@@ -72,13 +72,24 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    public function testItReturnsNotFoundForANonNumericId(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidIds')]
+    public function testItReturnsNotFoundForAnInvalidId(string $id): void
     {
         $this->login();
 
-        $this->request('PATCH', self::BASE_ENDPOINT . '/not-a-number', self::PATCH_HEADERS + ['json' => ['activated' => false]]);
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $id, self::PATCH_HEADERS + ['json' => ['activated' => false]]);
 
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidIds(): iterable
+    {
+        yield 'non-numeric' => ['not-a-number'];
+        yield 'zero' => ['0'];
+        yield 'leading zero' => ['007'];
     }
 
     public function testItReturnsNotFoundForAnUnknownHost(): void

@@ -128,16 +128,27 @@ final class PutHostProcessorTest extends ApiTestCase
         );
     }
 
-    public function testItReturns404ForANonNumericId(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidIds')]
+    public function testItReturns404ForAnInvalidId(string $id): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
 
-        $this->request('PUT', '/api/configuration/hosts/not-a-number', [
+        $this->request('PUT', '/api/configuration/hosts/' . $id, [
             'json' => $this->payload($this->uniqueName('server'), $pollerId),
         ]);
 
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidIds(): iterable
+    {
+        yield 'non-numeric' => ['not-a-number'];
+        yield 'zero' => ['0'];
+        yield 'leading zero' => ['007'];
     }
 
     public function testItReturns404ForAnUnknownHost(): void
