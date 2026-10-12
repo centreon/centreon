@@ -160,6 +160,48 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         ));
     }
 
+    public function testFindFromServiceTemplatesReturnsTheServicesOfTheHostBuiltFromThoseTemplates(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+        $templateId = $this->createServiceTemplate('ping-template');
+        $otherTemplateId = $this->createServiceTemplate('disk-template');
+        $fromTemplate = $this->createService('ping', $hostId);
+        $fromOtherTemplate = $this->createService('disk', $hostId);
+        $ofOtherHost = $this->createService('ping', $otherHostId);
+        $this->setServiceTemplate($fromTemplate, $templateId);
+        $this->setServiceTemplate($fromOtherTemplate, $otherTemplateId);
+        $this->setServiceTemplate($ofOtherHost, $templateId);
+
+        $services = $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId]);
+
+        self::assertCount(1, $services);
+        self::assertSame($fromTemplate, $services->toArray()[0]->id()->value);
+        self::assertSame($hostId, $services->toArray()[0]->hostId->value);
+    }
+
+    public function testFindFromServiceTemplatesLeavesAServiceSharedWithAnotherHost(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $otherHostId = $this->createHost('server-02', $pollerId);
+        $templateId = $this->createServiceTemplate('ping-template');
+        $sharedId = $this->createService('shared', $hostId);
+        $this->setServiceTemplate($sharedId, $templateId);
+        $this->linkServiceToHost($sharedId, $otherHostId);
+
+        self::assertCount(0, $this->repository->findFromServiceTemplates(new HostId($hostId), [$templateId]));
+    }
+
+    public function testFindFromServiceTemplatesReturnsNothingWithoutTemplates(): void
+    {
+        $hostId = $this->createHost('server-01', $this->createPoller('Central'));
+        $this->createService('ping', $hostId);
+
+        self::assertCount(0, $this->repository->findFromServiceTemplates(new HostId($hostId), []));
+    }
+
     private function createDependency(): int
     {
         $this->connection->insert('dependency', ['dep_name' => 'dependency-' . bin2hex(random_bytes(4))]);
@@ -198,6 +240,11 @@ final class DbalServiceRepositoryTest extends KernelTestCase
         ]);
 
         return $hostId;
+    }
+
+    private function setServiceTemplate(int $serviceId, int $serviceTemplateId): void
+    {
+        $this->connection->update('service', ['service_template_model_stm_id' => $serviceTemplateId], ['service_id' => $serviceId]);
     }
 
     private function createService(string $description, int $hostId): int
