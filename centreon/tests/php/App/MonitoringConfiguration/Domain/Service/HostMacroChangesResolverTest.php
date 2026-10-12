@@ -305,6 +305,18 @@ final class HostMacroChangesResolverTest extends TestCase
         self::assertSame('second', $macros[0]->value);
     }
 
+    public function testOnlyTheLastOfACommandMacroSentTwiceIsKeptWhateverItsIds(): void
+    {
+        // A command macro is referenced by name: its id is not reliable, so two ids are one macro.
+        $macros = $this->resolver->resolve([
+            $this->change('cmd', 'first', id: 31, parent: HostMacroParentEnum::Command),
+            $this->change('cmd', 'last', id: 99, parent: HostMacroParentEnum::Command),
+        ], [], $this->inherited);
+
+        self::assertCount(1, $macros);
+        self::assertSame('last', $macros[0]->value);
+    }
+
     public function testTheSameIdUnderAnotherParentIsAnotherMacro(): void
     {
         // The parent is the id namespace: direct macro 11 and template macro 11 are two macros.

@@ -45,8 +45,9 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException
  * - Whatever ends up equivalent to the inherited macro of its name is dropped: the host relies
  *   on inheritance instead, so echoing back an untouched inherited macro never materialises a copy.
  *
- * A macro is referenced by id + parent, so the same reference sent twice makes no sense: only the
- * last one sent is applied. A new macro (no id) refers to nothing and is never dropped this way.
+ * A macro is referenced by id + parent (by name for a command macro, see below), so the same
+ * reference sent twice makes no sense: only the last one sent is applied. A new macro (no id)
+ * refers to nothing and is never dropped this way.
  *
  * A password macro stays a password: a change cannot set is_password to false on a macro whose
  * source is a password, nor override by name an inherited password with a plain macro, whether
@@ -141,8 +142,15 @@ final readonly class HostMacroChangesResolver
         ));
     }
 
+    /**
+     * A command macro is referenced by name, like it is resolved (see the class docblock).
+     */
     private function reference(HostMacroChange $change): string
     {
+        if ($change->parent === HostMacroParentEnum::Command) {
+            return HostMacroParentEnum::Command->value . ':' . $change->name->value;
+        }
+
         return ($change->parent->value ?? 'direct') . ':' . $change->id?->value;
     }
 
