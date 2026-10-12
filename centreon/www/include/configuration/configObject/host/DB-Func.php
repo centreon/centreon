@@ -40,6 +40,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\HostTemplateServicesCleaner;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
@@ -1577,17 +1578,67 @@ function updateHost_MC($hostId = null)
     }
 
     // update multiple templates
-    if (isset($_REQUEST['tpSelect'])) {
-        $oldTp = [];
-        if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
-            $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
-            $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
-            $tplStatement->execute();
-            while ($hst = $tplStatement->fetch()) {
-                $oldTp[$hst['host_tpl_id']] = $hst['host_tpl_id'];
+    if (isset($_REQUEST['tpSelect']) && is_array($_REQUEST['tpSelect'])) {
+        $hostIdParameter = QueryParameters::create([QueryParameter::int('hostId', (int) $hostId)]);
+        $findTemplateIds = static fn (): array => array_map('intval', $pearDB->fetchFirstColumn(
+            'SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId',
+            $hostIdParameter
+        ));
+        $previousTemplateIds = $findTemplateIds();
+        $isIncrementalMode = isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0;
+        // Replacement mode may unlink templates: their services deployed on the host must go.
+        // Host templates are skipped, they have no deployed services.
+        $cleanRemovedTemplateServices = ! $isIncrementalMode
+            && (string) $pearDB->fetchOne(
+                'SELECT `host_register` FROM `host` WHERE `host_id` = :hostId',
+                $hostIdParameter
+            ) === '1';
+        if ($isIncrementalMode) {
+            // Keep the current templates and only add the selected ones.
+            $hostObj->setTemplates(
+                $hostId,
+                $_REQUEST['tpSelect'],
+                array_combine($previousTemplateIds, $previousTemplateIds)
+            );
+        } elseif (! $cleanRemovedTemplateServices) {
+            $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+        } else {
+            // The cleaner writes through another connection, so both steps cannot share one transaction.
+            // The new templates are only committed once the cleanup succeeded: on failure the host keeps
+            // its previous templates and services, and the mass change goes on with the other hosts.
+            $ownTransaction = ! $pearDB->isTransactionActive();
+            try {
+                if ($ownTransaction) {
+                    $pearDB->startTransaction();
+                }
+                $hostObj->setTemplates($hostId, $_REQUEST['tpSelect']);
+
+                /** @var HostTemplateServicesCleaner $hostTemplateServicesCleaner */
+                $hostTemplateServicesCleaner = $kernel->getContainer()->get(HostTemplateServicesCleaner::class);
+                // Read back what was saved: setTemplates() drops templates that would create an inheritance loop.
+                $hostTemplateServicesCleaner->cleanServicesFromRemovedTemplates(
+                    (int) $hostId,
+                    $previousTemplateIds,
+                    $findTemplateIds()
+                );
+
+                if ($ownTransaction) {
+                    $pearDB->commitTransaction();
+                }
+            } catch (Throwable $ex) {
+                // A transaction opened by the caller is the caller's to roll back.
+                if (! $ownTransaction) {
+                    throw $ex;
+                }
+                if ($pearDB->isTransactionActive()) {
+                    $pearDB->rollBackTransaction();
+                }
+                $logger->error('Failed to replace the host templates, previous templates kept', [
+                    'host_id' => (int) $hostId,
+                    'exception' => $ex,
+                ]);
             }
         }
-        $hostObj->setTemplates($hostId, $_REQUEST['tpSelect'], $oldTp);
     }
 
     // Update on demand macros
