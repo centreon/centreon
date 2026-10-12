@@ -179,8 +179,8 @@ final readonly class PutHostProcessor implements ProcessorInterface
         $host = $this->commandBus->execute($command);
         Assert::isInstanceOf($host, Host::class);
 
-        // Built like the GetHost body, so a restricted viewer gets back only what they may see:
-        // the out-of-scope associations the update preserved stay hidden. The own macros are read
+        // A restricted viewer gets back only what they may see: the out-of-scope associations the
+        // update preserved stay hidden. The own macros are read
         // back as stored, since a macro created by this update only gets its id on insertion.
         return $this->resourceBuilder->build(
             $host->with(checkOptions: $host->checkOptions->with(

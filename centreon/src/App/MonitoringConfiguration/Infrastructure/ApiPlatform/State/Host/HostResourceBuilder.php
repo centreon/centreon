@@ -81,10 +81,10 @@ use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Builds the HostResource a host endpoint answers with (GetHost, PutHost), resolving the ids the
- * aggregate carries into the named `{id, name}` outputs the contract exposes, in the shape of the
- * CreateHost response. A restricted viewer's view is narrowed to what they may access, so an
- * out-of-scope association is never surfaced, whichever endpoint answers. Secrets (snmpCommunity,
+ * Builds the HostResource every host endpoint answers with (POST, GET, PUT), resolving the ids the
+ * aggregate carries into the named `{id, name}` outputs the contract exposes. A restricted viewer's
+ * view is narrowed to what they may access, so an out-of-scope association is never surfaced,
+ * whichever endpoint answers. Secrets (snmpCommunity,
  * password macros) are never part of HostResource and so are never surfaced.
  */
 final readonly class HostResourceBuilder
@@ -250,9 +250,8 @@ final readonly class HostResourceBuilder
             activeCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->activeCheckEnabled,
             passiveCheckEnabled: $this->isCloudPlatform ? null : $host->schedulingOptions->passiveCheckEnabled,
         );
-        // Every macro the host effectively has, as CreateHost returns them: its own (hydrated with
-        // their ids by findOne), then those it still inherits, each with the id + parent a client
-        // resends to change it.
+        // Every macro the host effectively has: its own (with their stored ids), then those it still
+        // inherits, each with the id + parent a client resends to change it.
         $macroOutputs = array_map(
             $this->macroTransformer->transform(...),
             $this->inheritedHostMacrosResolver
@@ -261,9 +260,9 @@ final readonly class HostResourceBuilder
         );
         $resource->checkOptions = new HostCheckOptionsOutput($checkCommandOutput, $host->checkOptions->args, $macroOutputs);
 
-        // Cloud handles notifications through a different model; CreateHost omits the block there, so
-        // GET must too, keeping the two bodies identical. The repository stays platform-agnostic and
-        // always hydrates what is persisted, so the Cloud decision is applied here (not in findOne).
+        // Cloud handles notifications through a different model, so the block is omitted there. The
+        // repository stays platform-agnostic and always hydrates what is persisted, so the Cloud
+        // decision is applied here (not in findOne).
         $resource->notifications = $this->isCloudPlatform
             ? null
             : $this->notificationsTransformer->transform($this->scopeNotifications($host->notifications, $viewerId));

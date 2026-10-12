@@ -35,12 +35,9 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
- * Returns the full detail of one host. The response body is identical in shape to the CreateHost
- * *response* (not its request): HostResourceBuilder resolves the ids the aggregate carries into the
- * named `{id, name}` outputs the contract exposes. The asymmetry is
- * intentional — CreateHost's *request* takes bare ids (`poller_id`, `template_id`, …), while both
- * its response and this read expose the richer objects (`poller: {id, name}`, …) the host form
- * needs. Secrets (snmpCommunity, password macros) are never part of HostResource and so are never
+ * Returns the full detail of one host, built by HostResourceBuilder like the POST and PUT responses.
+ * A write takes bare ids (`poller_id`, `template_id`, …), while every response exposes the richer
+ * objects (`poller: {id, name}`, …) the host form needs. Secrets (snmpCommunity, password macros) are never part of HostResource and so are never
  * surfaced.
  *
  * @implements ProviderInterface<HostResource>

@@ -41,8 +41,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -2916,28 +2918,33 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var TimezoneRepository $timezoneRepository */
         $timezoneRepository = $container->get(TimezoneRepository::class);
 
+        /** @var ResourceAccessRepository $resourceAccessRepository */
+        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
+        $macroTransformer = new HostMacroTransformer();
+
+        $resourceBuilder = new HostResourceBuilder(
+            $transformer,
+            $notificationsTransformer,
+            $hostRepository,
+            $pollerRepository,
+            $hostGroupRepository,
+            $commandRepository,
+            $hostTemplateRepository,
+            $hostCategoryRepository,
+            $hostSeverityRepository,
+            $timezoneRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $timePeriodRepository,
+            $resourceAccessRepository,
+            $macroTransformer,
+            new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
+            $isCloudPlatform,
+        );
+
         $container->set(
             CreateHostProcessor::class,
-            new CreateHostProcessor(
-                $commandBus,
-                $transformer,
-                $security,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $hostRepository,
-                $mediaRepository,
-                $notificationsTransformer,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                new HostMacroTransformer(),
-                new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
-                $isCloudPlatform,
-            ),
+            new CreateHostProcessor($commandBus, $security, $hostRepository, $macroTransformer, $resourceBuilder, $isCloudPlatform),
         );
     }
 
