@@ -27,17 +27,22 @@ use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
 use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\ListChangeModeEnum;
+use App\MonitoringConfiguration\Application\Command\MacroChangeModeEnum;
+use App\MonitoringConfiguration\Application\Command\MacroChanges;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\NotificationOptionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostSchedulingOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DataProcessingInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOptionsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostCommandFactory;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
@@ -182,9 +187,46 @@ final class PatchHostCommandFactoryTest extends TestCase
         self::assertInstanceOf(NoValue::class, $command->notifications->contactAdditiveInheritance);
     }
 
+    public function testTheMacrosAreReplacedWrittenOrRemovedFromTheKeySent(): void
+    {
+        $replaced = $this->create(
+            new PatchHostInput(checkOptions: new PatchHostCheckOptionsInput(macros: [new HostMacroInput(name: 'port', value: '80', id: 10)])),
+            '{"check_options": {"macros": [{"id": 10, "name": "port", "value": "80"}]}}',
+        );
+        self::assertInstanceOf(MacroChanges::class, $replaced->macros);
+        self::assertSame(MacroChangeModeEnum::Replace, $replaced->macros->mode);
+        self::assertSame(10, $replaced->macros->changes[0]->id?->value);
+
+        $written = $this->create(
+            new PatchHostInput(checkOptions: new PatchHostCheckOptionsInput(macrosToUpsert: [new HostMacroInput(name: 'token', value: 'x', isPassword: true)])),
+            '{"check_options": {"macros_to_upsert": [{"name": "token", "value": "x", "is_password": true}]}}',
+        );
+        self::assertInstanceOf(MacroChanges::class, $written->macros);
+        self::assertSame(MacroChangeModeEnum::Upsert, $written->macros->mode);
+        self::assertTrue($written->macros->changes[0]->isPassword);
+
+        $removed = $this->create(
+            new PatchHostInput(checkOptions: new PatchHostCheckOptionsInput(macrosToRemove: [10, 11])),
+            '{"check_options": {"macros_to_remove": [10, 11]}}',
+        );
+        self::assertInstanceOf(MacroChanges::class, $removed->macros);
+        self::assertSame(MacroChangeModeEnum::Remove, $removed->macros->mode);
+        self::assertSame([10, 11], array_map(static fn (HostMacroId $id): int => $id->value, $removed->macros->removedIds));
+    }
+
+    public function testTheMacrosAreLeftAloneWhenNoKeyIsSent(): void
+    {
+        $command = $this->create(
+            new PatchHostInput(checkOptions: new PatchHostCheckOptionsInput(args: ['a'])),
+            '{"check_options": {"args": ["a"]}}',
+        );
+
+        self::assertInstanceOf(NoValue::class, $command->macros);
+    }
+
     private function create(PatchHostInput $input, string $json): \App\MonitoringConfiguration\Application\Command\PatchHostCommand
     {
-        return new PatchHostCommandFactory()->create(
+        return new PatchHostCommandFactory(new HostMacroTransformer())->create(
             id: new HostId(1),
             updatedBy: 7,
             viewerId: null,

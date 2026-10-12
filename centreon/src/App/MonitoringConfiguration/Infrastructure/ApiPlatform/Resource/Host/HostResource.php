@@ -70,7 +70,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             input: PatchHostInput::class,
             output: false,
             openapi: new Model\Operation(
-                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts, contact groups and notification options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"). The macros are not handled yet.',
+                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts, contact groups and notification options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"). The custom macros (in "check_options") also have three keys, of which only one can be sent: "macros" replaces them, "macros_to_upsert" writes the macros given and keeps the other ones, and "macros_to_remove" removes macros by id.',
                 responses: [
                     204 => new Model\Response('Host updated (or left as it was when nothing changed)'),
                     404 => new Model\Response('Host not found'),
