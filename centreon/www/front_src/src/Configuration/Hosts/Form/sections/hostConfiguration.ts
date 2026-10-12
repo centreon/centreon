@@ -151,6 +151,7 @@ const defaultCheckOptions: CheckOptionsValues = {
 const toMacroPayload = ({
   hasStoredPassword,
   id,
+  isErased,
   isPassword,
   name,
   parent,
@@ -160,8 +161,9 @@ const toMacroPayload = ({
   is_password: isPassword,
   name: toMacroName(name),
   parent,
-  // A password left empty is the one already stored: null keeps it.
-  value: isPassword && hasStoredPassword && value === '' ? null : value
+  // Null keeps a stored password; once cleared, what is typed replaces it,
+  // empty included.
+  value: hasStoredPassword && !isErased ? null : value
 });
 
 const optionalNumberDecoder = JsonDecoder.optional(
@@ -238,23 +240,13 @@ const getMacrosSchema = (t: TFunction) =>
             })
           )
           .required(t(labelRequired)),
-        value: string()
-          .max(
-            macroValueMaxLength,
-            t(labelMustBeAtMostCharacters, {
-              label: t(labelValue),
-              max: macroValueMaxLength
-            })
-          )
-          // A stored password is never sent back: one no longer a password
-          // needs its value typed in clear, or the server refuses it.
-          .when(
-            ['hasStoredPassword', 'isPassword'],
-            ([hasStoredPassword, isPassword], schema) =>
-              hasStoredPassword && !isPassword
-                ? schema.required(t(labelRequired))
-                : schema
-          )
+        value: string().max(
+          macroValueMaxLength,
+          t(labelMustBeAtMostCharacters, {
+            label: t(labelValue),
+            max: macroValueMaxLength
+          })
+        )
       })
     )
     // The server silently keeps the first of two macros of the same name.

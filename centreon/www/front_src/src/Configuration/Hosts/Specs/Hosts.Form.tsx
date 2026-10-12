@@ -31,7 +31,6 @@ import {
   labelParentHosts,
   labelRecovery,
   labelRelations,
-  labelRequired,
   labelResolve,
   labelSnmpVersion,
   labelTemplateInheritance,
@@ -2303,10 +2302,11 @@ export default () => {
       cy.get(
         'input[data-testid="host-form-check-options-macros-1-name"]'
       ).should('have.value', 'API_TOKEN');
-      // Masked, and empty: the API never sends a password back.
+      // Masked and locked: the API never sends a password back.
       cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
         .should('have.attr', 'type', 'password')
-        .and('have.value', '');
+        .and('have.value', '********')
+        .and('be.disabled');
       cy.get(
         'input[data-testid="host-form-check-options-macros-2-name"]'
       ).should('have.value', 'OS');
@@ -2365,6 +2365,7 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
+      cy.findByTestId('host-form-check-options-macros-1-value-clear').click();
       cy.get(
         'input[data-testid="host-form-check-options-macros-1-value"]'
       ).type('n3w');
@@ -2395,7 +2396,7 @@ export default () => {
       });
     });
 
-    it('asks for the value of a stored password once unmasked', () => {
+    it('keeps a stored password one, replaced only once cleared', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -2404,35 +2405,65 @@ export default () => {
 
       cy.waitForRequest('@getHost');
 
+      // As legacy: a stored password stays one; other macros may change.
       cy.findAllByTestId('host-form-check-options-macros-password')
         .eq(1)
-        .click();
+        .should('be.disabled');
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(0)
+        .should('be.enabled');
 
-      // The server never sends it back: it cannot be shown in clear.
+      cy.findByTestId('host-form-check-options-macros-1-value-clear').click();
       cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
-        .should('have.attr', 'type', 'text')
-        .and('have.value', '');
-      cy.findByTestId('host-form-check-options-macros')
-        .contains(labelRequired)
-        .should('be.visible');
-      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
-        'be.disabled'
-      );
+        .should('be.enabled')
+        .and('have.value', '')
+        .and('be.focused');
 
-      cy.get(
-        'input[data-testid="host-form-check-options-macros-1-value"]'
-      ).type('in-clear');
+      // Back to keeping the stored one.
+      cy.findByTestId('host-form-check-options-macros-1-value-revert').click();
+      cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
+        .should('be.disabled')
+        .and('have.value', '********');
+
+      // Cleared and left empty: an empty password.
+      cy.findByTestId('host-form-check-options-macros-1-value-clear').click();
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
 
       cy.waitForRequest('@patchHost').then(({ request }) => {
         expect(request.body.check_options.macros[1]).to.deep.equals({
           id: 2,
-          is_password: false,
+          is_password: true,
           name: 'API_TOKEN',
           parent: null,
-          value: 'in-clear'
+          value: ''
         });
       });
+    });
+
+    it('lets a macro added on edition turn into a password and back', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(4)
+        .click();
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-4-value"]'
+      ).should('have.attr', 'type', 'password');
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(4)
+        .click();
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-4-value"]'
+      ).should('have.attr', 'type', 'text');
     });
 
     it('deletes a custom macro by leaving it out', () => {

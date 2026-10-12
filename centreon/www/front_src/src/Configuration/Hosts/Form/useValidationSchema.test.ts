@@ -330,6 +330,7 @@ describe('Host form validation', () => {
       hasStoredPassword: false,
       id: null,
       inherited: null,
+      isErased: false,
       isPassword: false,
       name,
       parent: null,
@@ -361,22 +362,6 @@ describe('Host form validation', () => {
       expect(macrosError([macro('PORT'), macro('HOST')])).toBeNull();
       // Two blank names are missing, not duplicates.
       expect(macrosError([macro(''), macro('')])).toEqual(labelRequired);
-    });
-
-    it('asks for the value of a stored password no longer masked', () => {
-      const storedPassword = { hasStoredPassword: true, id: 2 };
-
-      expect(
-        macrosError([macro('TOKEN', { ...storedPassword, isPassword: true })])
-      ).toBeNull();
-      expect(
-        macrosError([macro('TOKEN', { ...storedPassword, isPassword: false })])
-      ).toEqual(labelRequired);
-      expect(
-        macrosError([
-          macro('TOKEN', { ...storedPassword, isPassword: false, value: 'x' })
-        ])
-      ).toBeNull();
     });
 
     it('reports a duplicate name on the later row', () => {

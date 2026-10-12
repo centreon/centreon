@@ -26,6 +26,7 @@ import {
   type MacroParent,
   type MacroRow
 } from './macroRows';
+import StoredSecretField from './StoredSecretField';
 import useInheritedMacros from './useInheritedMacros';
 
 const maxVisibleRows = 10;
@@ -73,6 +74,7 @@ const Macros = ({
   const renderRow = ({
     index,
     setField,
+    setValue,
     value: macro
   }: RenderRowParams<MacroRow>): ReactElement => {
     const getFieldProps = (key: 'name' | 'value') => ({
@@ -91,13 +93,18 @@ const Macros = ({
     return (
       <div className="grid grid-cols-2 gap-2">
         <TextField {...getFieldProps('name')} label={t(labelName)} required />
-        <TextField
+        <StoredSecretField
           {...getFieldProps('value')}
           // Keeps the browser from filling a saved login in.
           autoComplete={macro.isPassword ? 'new-password' : 'off'}
+          isErased={macro.isErased}
+          isStored={macro.hasStoredPassword}
           label={t(labelValue)}
-          placeholder={
-            macro.hasStoredPassword && macro.isPassword ? '********' : undefined
+          onErase={(): void =>
+            setValue({ ...macro, isErased: true, value: '' })
+          }
+          onRevert={(): void =>
+            setValue({ ...macro, isErased: false, value: '' })
           }
           type={macro.isPassword ? 'password' : 'text'}
         />
@@ -137,16 +144,14 @@ const Macros = ({
                 <LockOpenIcon />
               ),
               id: `${dataTestId}-password`,
+              // As legacy: a stored password stays one.
+              isDisabled: macro.hasStoredPassword,
               label: labelPassword,
               onClick: (): void => {
                 setFieldValue(
                   `${fieldName}.${index}.isPassword`,
                   !macro.isPassword
                 );
-                // Unmasking a stored password asks for its value at once.
-                if (macro.hasStoredPassword && macro.isPassword) {
-                  setFieldTouched(`${fieldName}.${index}.value`, true, false);
-                }
               }
             }
           ]}

@@ -11,6 +11,8 @@ export interface MacroRow {
   id: number | null;
   // An inherited macro as the host received it, null for the host's own.
   inherited: InheritedMacro | null;
+  // A stored password the user cleared to type a new one.
+  isErased: boolean;
   isPassword: boolean;
   name: string;
   // Where an inherited macro comes from, null for the host's own.
@@ -22,6 +24,7 @@ export const createMacroRow = (): MacroRow => ({
   hasStoredPassword: false,
   id: null,
   inherited: null,
+  isErased: false,
   isPassword: false,
   name: '',
   parent: null,
@@ -71,6 +74,7 @@ const getMacroDecoder = (defaultParent: MacroParent | null) =>
     const row = {
       ...macro,
       hasStoredPassword: macro.isPassword,
+      isErased: false,
       value: value ?? ''
     };
 
@@ -99,11 +103,13 @@ export const templateMacrosDecoder = JsonDecoder.object(
 // as legacy shows it.
 export const isUnchangedInherited = ({
   inherited,
+  isErased,
   isPassword,
   name,
   value
 }: MacroRow): boolean =>
   !!inherited &&
+  !isErased &&
   inherited.isPassword === isPassword &&
   inherited.name === name &&
   inherited.value === value;
@@ -171,6 +177,7 @@ export const mergeInheritedMacros = (
             hasStoredPassword: false,
             id: null,
             inherited: null,
+            isErased: false,
             parent: null
           }
         ];
