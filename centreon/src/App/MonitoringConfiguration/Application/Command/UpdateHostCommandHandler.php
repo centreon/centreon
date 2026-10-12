@@ -179,8 +179,15 @@ final readonly class UpdateHostCommandHandler
 
         $this->assertTimezoneExists($command->timezoneId);
 
+        // Only the hosts involved are looked up: those submitted, and those already linked that
+        // may have to be preserved.
         $accessibleHostIds = $command->viewerId instanceof UserId
-            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId)
+            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId, new Collection([
+                ...$command->parentHostIds->toArray(),
+                ...$command->childHostIds->toArray(),
+                ...$existingHost->parentHostIds->toArray(),
+                ...$existingHost->childHostIds->toArray(),
+            ], HostId::class))
             : null;
 
         $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);

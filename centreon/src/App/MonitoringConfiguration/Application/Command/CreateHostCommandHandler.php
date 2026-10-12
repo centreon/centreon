@@ -361,8 +361,11 @@ final readonly class CreateHostCommandHandler
      */
     private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?UserId $viewerId): void
     {
-        $accessibleHostIds = $viewerId instanceof UserId && count($parentHostIds) + count($childHostIds) > 0
-            ? $this->resourceAccessRepository->findAccessibleHostIds($viewerId)
+        $accessibleHostIds = $viewerId instanceof UserId
+            ? $this->resourceAccessRepository->findAccessibleHostIds(
+                $viewerId,
+                new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
+            )
             : null;
 
         $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);

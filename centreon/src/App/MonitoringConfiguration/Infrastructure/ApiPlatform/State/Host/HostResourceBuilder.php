@@ -166,7 +166,12 @@ final readonly class HostResourceBuilder
 
         // Parent and child hosts are ACL-scoped like host groups above, as the legacy host form hides
         // the out-of-scope ones (CentreonHost::getObjectForSelect2()).
-        $accessibleHostIds = $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostIds($viewerId) : null;
+        $accessibleHostIds = $viewerId instanceof UserId
+            ? $this->resourceAccessRepository->findAccessibleHostIds(
+                $viewerId,
+                new Collection([...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()], HostId::class),
+            )
+            : null;
         $parentHostIds = $this->scopeToAccessible($host->parentHostIds, $accessibleHostIds, HostId::class);
         $childHostIds = $this->scopeToAccessible($host->childHostIds, $accessibleHostIds, HostId::class);
         $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(

@@ -486,8 +486,12 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      */
     public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
     {
+        if ($among?->count() === 0) {
+            return new Collection([], HostId::class);
+        }
+
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
-        if ($accessGroupIds === [] || $among?->count() === 0) {
+        if ($accessGroupIds === []) {
             return new Collection([], HostId::class);
         }
 
