@@ -25,6 +25,7 @@ namespace App\Shared\Infrastructure\ApiPlatform;
 
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * The keys a caller actually sent in the request body, snake_case as on the wire. An Input DTO cannot
@@ -81,5 +82,47 @@ final readonly class RequestPayload
     public function itemIsNull(int $index): bool
     {
         return array_key_exists($index, $this->data) && $this->data[$index] === null;
+    }
+
+    /**
+     * The key of the body a property of an input is read from: its name, in snake_case.
+     */
+    public static function keyOf(string $propertyName): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->normalize($propertyName);
+    }
+
+    /**
+     * The path of a property of an input, as the keys of the body to walk down and the indexes of the
+     * lists crossed on the way, keys in snake_case: `macros[0].checkOptions` gives `macros`, 0, `check_options`.
+     *
+     * @return list<int|string>
+     */
+    public static function steps(string $propertyPath): array
+    {
+        preg_match_all('/\[(?<index>\d+)\]|(?<key>[^.\[\]]+)/', $propertyPath, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
+
+        $nameConverter = new CamelCaseToSnakeCaseNameConverter();
+        $steps = [];
+        foreach ($matches as $match) {
+            $steps[] = $match['key'] !== null ? $nameConverter->normalize($match['key']) : (int) $match['index'];
+        }
+
+        return $steps;
+    }
+
+    /**
+     * The keys sent at the end of the given steps, none when a step is absent.
+     *
+     * @param list<int|string> $steps
+     */
+    public function walk(array $steps): self
+    {
+        $payload = $this;
+        foreach ($steps as $step) {
+            $payload = is_int($step) ? $payload->item($step) : $payload->section($step);
+        }
+
+        return $payload;
     }
 }

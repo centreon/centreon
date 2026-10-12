@@ -35,6 +35,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var array<int, HostTemplate> */
     public array $hostTemplates = [];
 
+    /** @var array<int, list<int>> the service templates a template provides, its ancestors' included, indexed by template id */
+    public array $serviceTemplateIdsByTemplate = [];
+
     /** @var array<int, MediaId> inherited icon ids indexed by host id */
     public array $inheritedIconIds = [];
 
@@ -51,6 +54,16 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         }
 
         return new Collection($names, HostTemplateName::class);
+    }
+
+    public function findServiceTemplateIds(Collection $templateIds): array
+    {
+        $serviceTemplateIds = [];
+        foreach ($templateIds as $id) {
+            array_push($serviceTemplateIds, ...($this->serviceTemplateIdsByTemplate[$id->value] ?? []));
+        }
+
+        return array_values(array_unique($serviceTemplateIds));
     }
 
     public function findInheritedIconIds(Collection $hostIds): Collection

@@ -201,6 +201,41 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         return new Collection($iconIds, MediaId::class);
     }
 
+    public function findServiceTemplateIds(Collection $templateIds): array
+    {
+        $ids = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()));
+        if ($ids === []) {
+            return [];
+        }
+
+        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
+        // recursion run forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT host_id
+                FROM host
+                WHERE host_id IN (:ids)
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT DISTINCT hsr.service_service_id
+            FROM host_service_relation hsr
+            INNER JOIN chain c ON c.id = hsr.host_host_id
+            INNER JOIN service s ON s.service_id = hsr.service_service_id AND s.service_register = '0'
+            SQL;
+
+        /** @var list<int|string> $serviceTemplateIds */
+        $serviceTemplateIds = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $ids],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchFirstColumn();
+
+        return array_map(intval(...), $serviceTemplateIds);
+    }
+
     public function findInheritanceLine(Collection $directTemplateIds): Collection
     {
         $directIds = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $directTemplateIds->toArray()));

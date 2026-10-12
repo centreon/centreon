@@ -360,6 +360,35 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertCount(0, $this->repository->findInheritedIconIds(new Collection([], HostId::class)));
     }
 
+    public function testFindServiceTemplateIdsFollowsTheInheritanceChain(): void
+    {
+        $parentId = $this->insertHostTemplate('parent-template');
+        $childId = $this->insertHostTemplate('child-template');
+        $unrelatedId = $this->insertHostTemplate('unrelated-template');
+        $this->linkHostToTemplate($childId, $parentId, 0);
+        $ownServiceTemplate = $this->insertService(null, null);
+        $inheritedServiceTemplate = $this->insertService(null, null);
+        $unrelatedServiceTemplate = $this->insertService(null, null);
+        $this->linkServiceToHost($ownServiceTemplate, $childId);
+        $this->linkServiceToHost($inheritedServiceTemplate, $parentId);
+        $this->linkServiceToHost($unrelatedServiceTemplate, $unrelatedId);
+
+        $ids = $this->repository->findServiceTemplateIds(new Collection([new HostTemplateId($childId)], HostTemplateId::class));
+
+        sort($ids);
+        self::assertSame([$ownServiceTemplate, $inheritedServiceTemplate], $ids);
+    }
+
+    public function testFindServiceTemplateIdsIgnoresARegularServiceAndAnEmptyInput(): void
+    {
+        $templateId = $this->insertHostTemplate('template');
+        $regularService = $this->insertService(null, null, '1');
+        $this->linkServiceToHost($regularService, $templateId);
+
+        self::assertSame([], $this->repository->findServiceTemplateIds(new Collection([new HostTemplateId($templateId)], HostTemplateId::class)));
+        self::assertSame([], $this->repository->findServiceTemplateIds(new Collection([], HostTemplateId::class)));
+    }
+
     public function testFindInheritanceLineReturnsTheDirectTemplatesWithTheirMacros(): void
     {
         $templateId = $this->insertHostTemplate("tpl-{$this->tag}");
@@ -492,6 +521,14 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
     public function testFindInheritanceLineReturnsAnEmptyCollectionForNoIds(): void
     {
         self::assertSame([], $this->inheritanceLine());
+    }
+
+    private function linkServiceToHost(int $serviceId, int $hostId): void
+    {
+        $this->connection->insert('host_service_relation', [
+            'host_host_id' => $hostId,
+            'service_service_id' => $serviceId,
+        ]);
     }
 
     /**
