@@ -75,6 +75,7 @@ use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -861,24 +862,26 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($events[0]->loggable);
     }
 
-    public function testTurningAPasswordIntoAPlainMacroClearsItsKey(): void
+    public function testTurningAPasswordIntoAPlainMacroLeavesTheVaultUntouched(): void
     {
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
-        $community = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
         $this->seedHost(
             10,
-            snmpCommunity: new SnmpCommunity($community),
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
             macros: [new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5))],
         );
 
-        $host = ($this->handler)($this->command(10, snmpCommunity: 'public', macroChanges: [
-            new HostMacroChange(new HostMacroName('pwd'), 'now-visible', isPassword: false, id: new HostMacroId(5)),
-        ]));
+        try {
+            ($this->handler)($this->command(10, snmpCommunity: 'public', macroChanges: [
+                new HostMacroChange(new HostMacroName('pwd'), 'now-visible', isPassword: false, id: new HostMacroId(5)),
+            ]));
+            self::fail('A password macro turned into a plain one must be rejected.');
+        } catch (HostMacroPasswordUnmaskedException) {
+        }
 
-        self::assertSame(['now-visible', false], [$host->checkOptions->macros[0]->value, $host->checkOptions->macros[0]->isPassword]);
-        $deletes = array_merge(...array_column($this->vault->writeManyCalls, 'deletes'));
-        self::assertSame(['_HOSTPWD'], $deletes);
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->hostRepository->updatedHosts);
     }
 
     public function testAnEmptyPasswordIsStoredWithoutReachingTheVault(): void
