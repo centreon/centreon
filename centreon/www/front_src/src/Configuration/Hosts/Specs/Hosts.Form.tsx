@@ -2602,13 +2602,15 @@ export default () => {
           .click();
         cy.waitForRequest('@getTemplateMacros5');
 
-        // Host 0 has its own check command: no command macro from template 5.
+        // Host 0 keeps its own check command's WARNING, not template 5's
+        // command macros; template 5's OS replaces template 6's.
         macroInput(0, 'name').should('have.value', 'SNMPPORT');
         macroInput(1, 'name').should('have.value', 'API_TOKEN');
-        macroInput(2, 'name').should('have.value', 'OS');
-        macroInput(2, 'value').should('have.value', 'linux');
-        macroInput(3, 'name').should('have.value', 'TIMEOUT');
-        macroInput(4, 'name').should('not.exist');
+        macroInput(2, 'name').should('have.value', 'WARNING');
+        macroInput(3, 'name').should('have.value', 'OS');
+        macroInput(3, 'value').should('have.value', 'linux');
+        macroInput(4, 'name').should('have.value', 'TIMEOUT');
+        macroInput(5, 'name').should('not.exist');
       });
     });
 

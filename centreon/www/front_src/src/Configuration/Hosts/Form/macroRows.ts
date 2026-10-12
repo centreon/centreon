@@ -116,21 +116,28 @@ const isSameSource = (macro: MacroRow, other: MacroRow): boolean =>
 // What a host inherits from its templates' macros, as `InheritedHostMacros`
 // resolves it: per name, the first template in order wins (each template's
 // macros come nearest first), and command macros only fill names no template
-// defines. The host's own check command overrides its templates', and its
-// macros cannot be read here: with one, the templates' command macros are left
-// out.
+// defines.
+//
+// Command macros are approximate: the server takes one check command (the
+// host's own, or the first one in the template line) plus its templates'
+// service template commands, and a template's macros do not say which command
+// each comes from. With a host check command, the templates' command macros
+// are left out and `hostCommandMacros` (those it was loaded with, while that
+// command is unchanged) stand for them; without one, every template's are kept.
 export const resolveInheritedMacros = ({
   hasCheckCommand,
+  hostCommandMacros = [],
   templatesMacros
 }: {
   hasCheckCommand: boolean;
+  hostCommandMacros?: Array<MacroRow>;
   templatesMacros: Array<Array<MacroRow>>;
 }): Array<MacroRow> => {
   const macros = templatesMacros.flat();
   const candidates = [
     ...macros.filter(({ parent }) => parent === 'template'),
     ...(hasCheckCommand
-      ? []
+      ? hostCommandMacros
       : macros.filter(({ parent }) => parent === 'command'))
   ];
 

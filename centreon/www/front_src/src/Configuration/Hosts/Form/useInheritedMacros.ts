@@ -78,6 +78,12 @@ const useInheritedMacros = (fieldName: string): void => {
     : isFetched
       ? resolveInheritedMacros({
           hasCheckCommand,
+          hostCommandMacros: equals(
+            getCommandId(values),
+            getCommandId(initialValues)
+          )
+            ? initialInherited.filter(({ parent }) => parent === 'command')
+            : [],
           templatesMacros: templatesMacros.map(({ data }) => data ?? [])
         })
       : null;
