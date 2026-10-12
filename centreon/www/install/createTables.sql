@@ -1091,9 +1091,12 @@ CREATE TABLE `downtime` (
   `dt_name` varchar(100) NOT NULL,
   `dt_description` varchar(255) DEFAULT NULL,
   `dt_activate` enum('0','1') DEFAULT '1',
+  `dt_timezone_id` int(11) unsigned DEFAULT NULL COMMENT 'Timezone of the period hours (NULL = host timezone)',
   PRIMARY KEY (`dt_id`),
   UNIQUE KEY `downtime_idx02` (`dt_name`),
-  KEY `downtime_idx01` (`dt_id`,`dt_activate`)
+  KEY `downtime_idx01` (`dt_id`,`dt_activate`),
+  KEY `downtime_timezone_id` (`dt_timezone_id`),
+  CONSTRAINT `downtime_ibfk_1` FOREIGN KEY (`dt_timezone_id`) REFERENCES `timezone` (`timezone_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
