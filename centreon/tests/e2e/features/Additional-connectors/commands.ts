@@ -25,11 +25,6 @@ Cypress.Commands.add('updateAcc', (body: Acc) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
   cy.get('#mui-component-select-type').should('have.text', body.type);
   cy.get('svg[class*="deleteIcon"]').click();
-  // The poller dropdown has no cache (staleTime/gcTime = 0): every open clears
-  // its options and re-fetches them fresh, so wait for that fetch rather than
-  // racing it — a double-click here used to close then reopen the dropdown
-  // right before asserting on an option, which could land on the cleared,
-  // not-yet-refetched option list under CI load.
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.wait('@getPollers');
   cy.contains(body.pollers[0]).click();
