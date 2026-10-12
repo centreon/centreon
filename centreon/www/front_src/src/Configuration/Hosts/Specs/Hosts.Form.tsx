@@ -28,6 +28,7 @@ import {
   labelParentHosts,
   labelRecovery,
   labelRelations,
+  labelRequired,
   labelResolve,
   labelSnmpVersion,
   labelTemplateInheritance,
@@ -2388,6 +2389,46 @@ export default () => {
             value: 'debian'
           }
         ]);
+      });
+    });
+
+    it('asks for the value of a stored password once unmasked', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(1)
+        .click();
+
+      // The server never sends it back: it cannot be shown in clear.
+      cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
+        .should('have.attr', 'type', 'text')
+        .and('have.value', '');
+      cy.findByTestId('host-form-check-options-macros')
+        .contains(labelRequired)
+        .should('be.visible');
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
+        'be.disabled'
+      );
+
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-1-value"]'
+      ).type('in-clear');
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.check_options.macros[1]).to.deep.equals({
+          id: 2,
+          is_password: false,
+          name: 'API_TOKEN',
+          parent: null,
+          value: 'in-clear'
+        });
       });
     });
 

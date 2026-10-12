@@ -238,13 +238,21 @@ const getMacrosSchema = (t: TFunction) =>
             })
           )
           .required(t(labelRequired)),
-        value: string().max(
-          macroValueMaxLength,
-          t(labelMustBeAtMostCharacters, {
-            label: t(labelValue),
-            max: macroValueMaxLength
+        value: string()
+          .max(
+            macroValueMaxLength,
+            t(labelMustBeAtMostCharacters, {
+              label: t(labelValue),
+              max: macroValueMaxLength
+            })
+          )
+          // A stored password is never sent back: one no longer a password
+          // needs its value typed in clear, or the server refuses it.
+          .when(['hasStoredPassword', 'isPassword'], {
+            is: (hasStoredPassword: boolean, isPassword: boolean) =>
+              hasStoredPassword && !isPassword,
+            then: (schema) => schema.required(t(labelRequired))
           })
-        )
       })
     )
     // The server silently keeps the first of two macros of the same name.

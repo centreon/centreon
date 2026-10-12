@@ -143,6 +143,10 @@ const Macros = ({
                   `${fieldName}.${index}.isPassword`,
                   !macro.isPassword
                 );
+                // Unmasking a stored password asks for its value at once.
+                if (macro.hasStoredPassword && macro.isPassword) {
+                  setFieldTouched(`${fieldName}.${index}.value`, true, false);
+                }
               }
             }
           ]}

@@ -363,6 +363,22 @@ describe('Host form validation', () => {
       expect(macrosError([macro(''), macro('')])).toEqual(labelRequired);
     });
 
+    it('asks for the value of a stored password no longer masked', () => {
+      const storedPassword = { hasStoredPassword: true, id: 2 };
+
+      expect(
+        macrosError([macro('TOKEN', { ...storedPassword, isPassword: true })])
+      ).toBeNull();
+      expect(
+        macrosError([macro('TOKEN', { ...storedPassword, isPassword: false })])
+      ).toEqual(labelRequired);
+      expect(
+        macrosError([
+          macro('TOKEN', { ...storedPassword, isPassword: false, value: 'x' })
+        ])
+      ).toBeNull();
+    });
+
     it('reports a duplicate name on the later row', () => {
       expect(() =>
         schemaFor(false).validateSyncAt('checkOptions.macros', {
