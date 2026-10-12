@@ -2421,6 +2421,156 @@ export default () => {
       });
     });
 
+    describe('inherited from the templates picked', () => {
+      const templateBackground = 'rgb(255, 203, 107)';
+      const commandBackground = 'rgb(182, 252, 167)';
+
+      const macroInput = (index: number, key: 'name' | 'value') =>
+        cy.get(
+          `input[data-testid="host-form-check-options-macros-${index}-${key}"]`
+        );
+
+      const macroRow = (index: number) =>
+        macroInput(index, 'name').closest('li');
+
+      const openCreation = (): void => {
+        initialize({});
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.get('[data-testid="add-resource"]').click();
+      };
+
+      const addTemplate = (index: number, name: string): void => {
+        cy.findByTestId('host-form-templates')
+          .findByRole('button', { name: labelAddNewEntry })
+          .click();
+        cy.findByTestId(`host-form-templates-${index}`).click();
+        cy.get('.MuiAutocomplete-popper').contains(name).click();
+      };
+
+      it('shows what each template lends, the first one prevailing', () => {
+        openCreation();
+
+        addTemplate(0, 'generic-active-host');
+        cy.waitForRequest('@getTemplateMacros5').then(({ request }) => {
+          expect(request.url.pathname).to.contain(
+            '/api/configuration/hosts/host_templates/5'
+          );
+        });
+
+        macroInput(0, 'name').should('have.value', 'OS');
+        macroInput(0, 'value').should('have.value', 'linux');
+        macroRow(0).should('have.css', 'background-color', templateBackground);
+        macroInput(1, 'name').should('have.value', 'TIMEOUT');
+        macroInput(2, 'name').should('have.value', 'WARNING');
+        macroRow(2).should('have.css', 'background-color', commandBackground);
+
+        addTemplate(1, 'generic-passive-host');
+        cy.waitForRequest('@getTemplateMacros6');
+
+        // Template 5 still gives OS; template 6's WARNING beats the command's.
+        macroInput(0, 'value').should('have.value', 'linux');
+        macroInput(1, 'name').should('have.value', 'TIMEOUT');
+        macroInput(2, 'name').should('have.value', 'WARNING');
+        macroInput(2, 'value').should('have.value', '80');
+        macroRow(2).should('have.css', 'background-color', templateBackground);
+
+        cy.findByTestId('host-form-templates')
+          .findAllByTestId('delete-row')
+          .first()
+          .click();
+
+        // Only template 6 left.
+        macroInput(0, 'name').should('have.value', 'WARNING');
+        macroInput(1, 'name').should('have.value', 'OS');
+        macroInput(1, 'value').should('have.value', 'windows');
+        macroInput(2, 'name').should('not.exist');
+      });
+
+      it("leaves the templates' command macros out once a check command is picked", () => {
+        openCreation();
+
+        cy.findByTestId('host-form-check-options-command').click();
+        cy.get('.MuiAutocomplete-popper').contains('check-host-alive').click();
+
+        addTemplate(0, 'generic-active-host');
+        cy.waitForRequest('@getTemplateMacros5');
+
+        macroInput(1, 'name').should('have.value', 'TIMEOUT');
+        macroInput(2, 'name').should('not.exist');
+      });
+
+      it('lends nothing, silently, while the endpoint answers 404', () => {
+        openCreation();
+
+        addTemplate(0, 'linux-server-standard');
+        cy.waitForRequest('@getTemplateMacros7');
+
+        macroInput(0, 'name').should('not.exist');
+        cy.contains('Host template not found').should('not.exist');
+      });
+
+      it('sends only the macros the host changes or owns', () => {
+        openCreation();
+
+        cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+        cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+        cy.findByTestId('host-form-poller').click();
+        cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+        addTemplate(0, 'generic-active-host');
+        cy.waitForRequest('@getTemplateMacros5');
+
+        macroInput(1, 'value').clear().type('20');
+        macroRow(1).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+
+        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+        cy.waitForRequest('@createHost').then(({ request }) => {
+          // Id and parent make TIMEOUT an override of template 5's.
+          expect(request.body.check_options.macros).to.deep.equals([
+            {
+              id: 31,
+              is_password: false,
+              name: 'TIMEOUT',
+              parent: 'template',
+              value: '20'
+            }
+          ]);
+        });
+      });
+
+      it('follows the templates changed on an existing host', () => {
+        initialize({});
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.contains('host 0').click();
+
+        cy.waitForRequest('@getHost');
+
+        // As loaded: nothing fetched, the detail's inherited macros shown.
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(3, 'name').should('have.value', 'WARNING');
+
+        // Host 0's templates are 6 then 5: keep 5 alone.
+        cy.findByTestId('host-form-templates')
+          .findAllByTestId('delete-row')
+          .first()
+          .click();
+        cy.waitForRequest('@getTemplateMacros5');
+
+        // Host 0 has its own check command: no command macro from template 5.
+        macroInput(0, 'name').should('have.value', 'SNMPPORT');
+        macroInput(1, 'name').should('have.value', 'API_TOKEN');
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(2, 'value').should('have.value', 'linux');
+        macroInput(3, 'name').should('have.value', 'TIMEOUT');
+        macroInput(4, 'name').should('not.exist');
+      });
+    });
+
     it('refuses two custom macros of the same name', () => {
       initialize({});
 

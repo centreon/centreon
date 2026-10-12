@@ -221,6 +221,42 @@ export const getFormHostTemplatesResponse = () =>
     { id: 7, name: 'linux-server-standard' }
   ]);
 
+// What #11961 gives for one template: its own macros (no parent), then the
+// ones it inherits. Template 5 lends OS, TIMEOUT and, from its command, WARNING;
+// template 6 its own OS (which 5 wins when first) and a WARNING that beats any
+// command's. Template 7 is unknown to the endpoint: 404.
+export const getTemplateMacrosResponses = (): Record<number, object> => ({
+  5: {
+    id: 5,
+    macros: [
+      { id: 21, is_password: false, name: 'OS', value: 'linux' },
+      {
+        id: 31,
+        is_password: false,
+        name: 'TIMEOUT',
+        parent: 'template',
+        value: '10'
+      },
+      {
+        id: 41,
+        is_password: false,
+        name: 'WARNING',
+        parent: 'command',
+        value: ''
+      }
+    ],
+    name: 'generic-active-host'
+  },
+  6: {
+    id: 6,
+    macros: [
+      { id: 51, is_password: false, name: 'OS', value: 'windows' },
+      { id: 52, is_password: false, name: 'WARNING', value: '80' }
+    ],
+    name: 'generic-passive-host'
+  }
+});
+
 // The shape MON-210415 (#11809) gives the detail endpoint: objects where the
 // create takes ids. Mocked here until it lands; nothing stubs it at runtime.
 //

@@ -44,11 +44,13 @@ import {
   labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
-import Macros, {
+import Macros from '../Macros';
+import {
+  hostMacroDecoder,
   isUnchangedInherited,
-  type MacroParent,
-  type MacroRow
-} from '../Macros';
+  type MacroRow,
+  toMacroName
+} from '../macroRows';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector, toIds } from '../selector';
 import Templates, { type TemplateRow } from '../Templates';
@@ -144,50 +146,6 @@ const defaultCheckOptions: CheckOptionsValues = {
   macros: []
 };
 
-// As the server stores the name: trimmed, upper-cased.
-const toMacroName = (name: string): string => name.trim().toUpperCase();
-
-interface MacroDetail {
-  id: number | null;
-  isPassword: boolean;
-  name: string;
-  parent: MacroParent | null;
-  value?: string | null;
-}
-
-const macroDecoder = JsonDecoder.object<MacroDetail>(
-  {
-    id: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)).map(
-      (value) => value ?? null
-    ),
-    isPassword: JsonDecoder.optional(JsonDecoder.boolean).map(
-      (value) => value ?? false
-    ),
-    name: JsonDecoder.string,
-    parent: JsonDecoder.optional(
-      JsonDecoder.nullable(
-        JsonDecoder.oneOf<MacroParent>(
-          [JsonDecoder.isExactly('template'), JsonDecoder.isExactly('command')],
-          'Macro parent'
-        )
-      )
-    ).map((value) => value ?? null),
-    // Never sent back for a password.
-    value: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string))
-  },
-  'Macro',
-  { isPassword: 'is_password' }
-).map(
-  ({ value, ...macro }): MacroRow => ({
-    ...macro,
-    hasStoredPassword: macro.isPassword,
-    inherited: macro.parent
-      ? { isPassword: macro.isPassword, name: macro.name, value: value ?? '' }
-      : null,
-    value: value ?? ''
-  })
-);
-
 // A changed inherited macro goes back with its id and parent, so the server
 // turns it into the host's own.
 const toMacroPayload = ({
@@ -248,9 +206,9 @@ const checkOptionsDecoder = JsonDecoder.object<CheckOptionsValues>(
         JsonDecoder.object(namedEntityDecoder, 'Check command')
       )
     ).map((value) => value ?? null),
-    macros: JsonDecoder.optional(JsonDecoder.array(macroDecoder, 'Macros')).map(
-      (value) => value ?? []
-    )
+    macros: JsonDecoder.optional(
+      JsonDecoder.array(hostMacroDecoder, 'Macros')
+    ).map((value) => value ?? [])
   },
   'Check options'
 );

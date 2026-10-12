@@ -20,24 +20,13 @@ import {
   labelTemplateInheritance,
   labelValue
 } from '../translatedLabels';
-
-export type MacroParent = 'command' | 'template';
-
-type InheritedMacro = Pick<MacroRow, 'isPassword' | 'name' | 'value'>;
-
-export interface MacroRow {
-  // A password the server keeps but never sends back: left empty, it is kept.
-  hasStoredPassword: boolean;
-  // Null for a new macro, and for a command macro the command never recorded.
-  id: number | null;
-  // An inherited macro as the host received it, null for the host's own.
-  inherited: InheritedMacro | null;
-  isPassword: boolean;
-  name: string;
-  // Where an inherited macro comes from, null for the host's own.
-  parent: MacroParent | null;
-  value: string;
-}
+import {
+  createMacroRow,
+  isUnchangedInherited,
+  type MacroParent,
+  type MacroRow
+} from './macroRows';
+import useInheritedMacros from './useInheritedMacros';
 
 const maxVisibleRows = 10;
 
@@ -51,29 +40,6 @@ const legend: Array<{ label: string; parent: MacroParent }> = [
   { label: labelTemplateInheritance, parent: 'template' },
   { label: labelCommandInheritance, parent: 'command' }
 ];
-
-const createMacroRow = (): MacroRow => ({
-  hasStoredPassword: false,
-  id: null,
-  inherited: null,
-  isPassword: false,
-  name: '',
-  parent: null,
-  value: ''
-});
-
-// Still what the host inherits: once changed, it is the host's own override,
-// as legacy shows it.
-export const isUnchangedInherited = ({
-  inherited,
-  isPassword,
-  name,
-  value
-}: MacroRow): boolean =>
-  !!inherited &&
-  inherited.isPassword === isPassword &&
-  inherited.name === name &&
-  inherited.value === value;
 
 // The host's macros, `$_HOST<NAME>$`, in order: its own, then the inherited ones.
 const Macros = ({
@@ -91,6 +57,8 @@ const Macros = ({
     touched,
     values
   } = useFormikContext<FormikValues>();
+
+  useInheritedMacros(fieldName);
 
   const macros = (getIn(values, fieldName) ?? []) as Array<MacroRow>;
   const disabled = !!getDisabled?.(values);
