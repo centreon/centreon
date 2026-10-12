@@ -255,6 +255,11 @@ final class HostResource
         public bool $activated,
 
         public ?SnmpVersionEnum $snmpVersion = null,
+
+        // The community itself is write-only (a secret, possibly in the vault): this only tells
+        // whether one is set, which a client cannot otherwise know.
+        #[ApiProperty(description: 'Whether an SNMP community is set. The community itself is never returned.', writable: false)]
+        public bool $isSnmpCommunityDefined = false,
     ) {
     }
 }

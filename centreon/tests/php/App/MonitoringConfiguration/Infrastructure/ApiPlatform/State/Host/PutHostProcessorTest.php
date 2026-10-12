@@ -478,6 +478,29 @@ final class PutHostProcessorTest extends ApiTestCase
         ));
     }
 
+    public function testItTellsWhetherAnSnmpCommunityIsDefined(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+
+        $withCommunity = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [...$this->payload($this->uniqueName('server'), $pollerId), 'snmp_community' => 'public'],
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertArrayNotHasKey('snmp_community', $withCommunity);
+        self::assertTrue($withCommunity['is_snmp_community_defined']);
+
+        // A PUT without it empties the community.
+        $withoutCommunity = $this->request('PUT', $this->endpoint($hostId), [
+            'json' => $this->payload($this->uniqueName('server'), $pollerId),
+        ])->toArray();
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertFalse($withoutCommunity['is_snmp_community_defined']);
+    }
+
     public function testAPasswordMacroCannotBecomePlain(): void
     {
         $this->login();

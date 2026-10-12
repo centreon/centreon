@@ -225,8 +225,9 @@ final class GetHostProviderTest extends ApiTestCase
 
         $getBody = $fetched->toArray();
 
-        // Secrets are never part of the resource, on either endpoint.
+        // Secrets are never part of the resource, on either endpoint: only whether one is set.
         self::assertArrayNotHasKey('snmp_community', $getBody);
+        self::assertTrue($getBody['is_snmp_community_defined']);
 
         // A password macro's value is redacted (null), asserted directly so the guarantee does not
         // rely solely on the body-to-body comparison below (which would pass even if both leaked).

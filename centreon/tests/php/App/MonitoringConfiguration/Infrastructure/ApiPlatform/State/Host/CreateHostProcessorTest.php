@@ -1163,8 +1163,9 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         $payload = $response->toArray();
         // Write-only: legacy never returns it either, and with a vault configured the stored value
-        // would be a `secret::` reference.
+        // would be a `secret::` reference. Only whether one is set is exposed.
         self::assertArrayNotHasKey('snmp_community', $payload);
+        self::assertTrue($payload['is_snmp_community_defined']);
 
         /** @var int $hostId */
         $hostId = $payload['id'];
