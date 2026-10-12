@@ -126,8 +126,8 @@ final readonly class HostResourceBuilder
 
         // The aggregate carries the host's full associations; here, on the read side, a restricted
         // viewer's view is narrowed to what they may access — the host groups, categories and
-        // severity are ACL-scoped (as they are on write, CreateHostCommandHandler), so an
-        // out-of-scope one is dropped from the response rather than surfaced (no existence leak).
+        // severity are ACL-scoped, so an out-of-scope one is dropped from the response rather than
+        // surfaced (no existence leak).
         // The id list is scoped first; the name lookup then runs on a list already known to be
         // accessible. Keeping this in the read model, not in findOne(), leaves the aggregate whole
         // for the write paths that also load it.
@@ -164,8 +164,8 @@ final readonly class HostResourceBuilder
             }
         }
 
-        // Parent and child hosts are ACL-scoped like host groups above, as the legacy host form hides
-        // the out-of-scope ones (CentreonHost::getObjectForSelect2()).
+        // Out-of-scope parent and child hosts are hidden, as the legacy host form does
+        // (CentreonHost::getObjectForSelect2()).
         $accessibleHostIds = $viewerId instanceof UserId
             ? $this->resourceAccessRepository->findAccessibleHostIds(
                 $viewerId,
@@ -181,7 +181,7 @@ final readonly class HostResourceBuilder
         $resource->parentHosts = $this->toRelatedHosts($parentHostIds, $relatedHostNames);
         $resource->childHosts = $this->toRelatedHosts($childHostIds, $relatedHostNames);
 
-        // Categories are ACL-scoped like host groups above: out-of-scope ones are hidden here.
+        // Out-of-scope categories are hidden.
         $categoryIds = $this->scopeToAccessible(
             $host->categoryIds,
             $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
@@ -214,9 +214,8 @@ final readonly class HostResourceBuilder
                 : null;
         }
 
-        // Nullable sub-object, like `severity`/`timezone`: left null (and so omitted) when every
-        // field is empty, rather than emitted as an all-null object (which the serializer collapses
-        // to an invalid `[]`). Mirrors CreateHostProcessor so the two bodies stay identical.
+        // Left null (and so omitted) when every field is empty, rather than emitted as an all-null
+        // object (which the serializer collapses to an invalid `[]`).
         $resource->extendedInformations = null;
         $extended = $host->extendedInformations;
         if ($extended instanceof ExtendedInformations) {
@@ -348,11 +347,9 @@ final readonly class HostResourceBuilder
     }
 
     /**
-     * Keeps only the ids the viewer may access, mirroring the per-viewer ACL checks enforced on
-     * write (host groups, categories, severity, parent/child hosts, notification contacts). A null
-     * $accessible means no restriction applies (admin, or an unrestricted dimension), so the ids
-     * pass through unchanged. The returned list is known to be in-scope, so the follow-up name
-     * lookup needs no further filtering.
+     * Keeps only the ids the viewer may access. A null $accessible means no restriction applies
+     * (admin, or an unrestricted dimension), so the ids pass through unchanged. The returned list is
+     * known to be in-scope, so the follow-up name lookup needs no further filtering.
      *
      * @template T of AggregateRootId
      *

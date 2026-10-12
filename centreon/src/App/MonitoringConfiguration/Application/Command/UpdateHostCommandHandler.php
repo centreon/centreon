@@ -192,9 +192,9 @@ final readonly class UpdateHostCommandHandler
 
         $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);
 
-        // Parent and child hosts are ACL-scoped on read like host groups (the legacy host form hides
-        // the out-of-scope ones), so they are preserved the same way as the relations below. The
-        // circularity check runs on the final lists, since a preserved relation is kept in the graph.
+        // Out-of-scope parent and child hosts are hidden from a restricted viewer (as by the legacy
+        // host form), who cannot resend them, so they are preserved. The circularity check runs on
+        // the final lists, since a preserved relation is kept in the graph.
         $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $accessibleHostIds, HostId::class);
         $childHostIds = $this->preserveInaccessible($command->childHostIds, $existingHost->childHostIds, $accessibleHostIds, HostId::class);
 
@@ -733,10 +733,10 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * ACL-scoped like host groups: a restricted viewer may only link the hosts within their scope,
-     * as the legacy form only offers those (CentreonHost::getObjectForSelect2()). Unknown and
-     * inaccessible ids are not told apart, so a restricted viewer cannot probe for hosts they
-     * cannot see. Host templates resolve to nothing here, so one cannot be smuggled in.
+     * ACL-scoped: a restricted viewer may only link the hosts within their scope, as the legacy
+     * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
+     * are not told apart, so a restricted viewer cannot probe for hosts they cannot see. Host
+     * templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds

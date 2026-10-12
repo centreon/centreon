@@ -351,10 +351,10 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * ACL-scoped like host groups: a restricted viewer may only link the hosts within their scope,
-     * as the legacy form only offers those (CentreonHost::getObjectForSelect2()). Unknown and
-     * inaccessible ids are not told apart, so a restricted viewer cannot probe for hosts they
-     * cannot see. Host templates resolve to nothing here, so one cannot be smuggled in.
+     * ACL-scoped: a restricted viewer may only link the hosts within their scope, as the legacy
+     * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
+     * are not told apart, so a restricted viewer cannot probe for hosts they cannot see. Host
+     * templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
