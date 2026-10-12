@@ -36,6 +36,26 @@ $errorMessage = '';
 
 // TODO add your functions here
 
+$removeDuplicateHostGroupRelations = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to remove the duplicate host group relations';
+    LoggerUpgrade::create()->info($version, 'Removing the duplicate host group relations');
+
+    // Saving a host group as a non-admin user used to insert again every kept host,
+    // so the same host/host group pair could be stored several times. Keep the oldest row.
+    $deletedRows = $pearDB->delete(
+        <<<'SQL'
+            DELETE duplicate
+            FROM `hostgroup_relation` duplicate
+            INNER JOIN `hostgroup_relation` kept
+                ON kept.`hostgroup_hg_id` = duplicate.`hostgroup_hg_id`
+                AND kept.`host_host_id` = duplicate.`host_host_id`
+                AND kept.`hgr_id` < duplicate.`hgr_id`
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Successfully removed {$deletedRows} duplicate host group relations");
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -52,6 +72,7 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
+    $removeDuplicateHostGroupRelations();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
