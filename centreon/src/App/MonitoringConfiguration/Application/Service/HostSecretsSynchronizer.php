@@ -63,14 +63,12 @@ final readonly class HostSecretsSynchronizer
      * @param Host $after the host the update gives, its macros in the form they were submitted
      * @param NoValue|string|null $community what the update says about the SNMP community
      * @param bool $macrosChanged whether the update touches the macros
-     * @param bool $vaultWritten set to true once a vault write has succeeded, so the caller can report that the
-     *                           vault may diverge from the database if the host is not saved afterwards
-     *
-     * @param-out bool $vaultWritten
+     * @param VaultWrites $vaultWrites records that a vault write has succeeded, so the caller can report that the
+     *                                 vault may diverge from the database if the host is not saved afterwards
      *
      * @throws VaultWriteFailedException
      */
-    public function synchronize(Host $before, Host $after, NoValue|string|null $community, bool $macrosChanged, bool &$vaultWritten): SynchronizedHost
+    public function synchronize(Host $before, Host $after, NoValue|string|null $community, bool $macrosChanged, VaultWrites $vaultWrites): SynchronizedHost
     {
         if (! $this->vault->isEnabled()) {
             return new SynchronizedHost($this->withCommunityAsIs($after, $community), false);
@@ -83,10 +81,10 @@ final readonly class HostSecretsSynchronizer
         if ($community === null) {
             $snmpCommunity = null;
             if ($vaultUuid !== null && $before->snmpCommunity instanceof SnmpCommunity && $this->vault->isVaultPath($before->snmpCommunity->value)) {
-                $this->write($before, VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity), $vaultUuid, $vaultWritten);
+                $this->write($before, VaultCredentials::empty()->clear(VaultKeyEnum::HostSnmpCommunity), $vaultUuid, $vaultWrites);
             }
         } elseif (is_string($community) && ! $this->vault->isVaultPath($community)) {
-            $stored = $this->write($before, VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community), $vaultUuid, $vaultWritten);
+            $stored = $this->write($before, VaultCredentials::empty()->set(VaultKeyEnum::HostSnmpCommunity, $community), $vaultUuid, $vaultWrites);
             $snmpCommunity = new SnmpCommunity($stored[VaultKeyEnum::HostSnmpCommunity->value]);
             $vaultUuid = $this->vault->extractUuid($snmpCommunity->value);
             $secretRewritten = true;
@@ -104,7 +102,9 @@ final readonly class HostSecretsSynchronizer
                 throw VaultWriteFailedException::forHost($before->id(), $exception);
             }
 
-            $vaultWritten = $vaultWritten || $involvesAPassword;
+            if ($involvesAPassword) {
+                $vaultWrites->record();
+            }
             $secretRewritten = $secretRewritten || array_any(
                 $macros,
                 static fn (HostMacro $macro, int $index): bool => $macro->value !== $submitted[$index]->value,
@@ -127,11 +127,9 @@ final readonly class HostSecretsSynchronizer
     }
 
     /**
-     * @param-out bool $vaultWritten
-     *
      * @return array<string, string> the reference stored for each key written
      */
-    private function write(Host $host, VaultCredentials $credentials, ?string $vaultUuid, bool &$vaultWritten): array
+    private function write(Host $host, VaultCredentials $credentials, ?string $vaultUuid, VaultWrites $vaultWrites): array
     {
         try {
             $stored = $this->vaultCredentialWriter->persist(VaultPathEnum::MonitoringHosts, $credentials, $vaultUuid);
@@ -139,7 +137,7 @@ final readonly class HostSecretsSynchronizer
             throw VaultWriteFailedException::forHost($host->id(), $exception);
         }
 
-        $vaultWritten = true;
+        $vaultWrites->record();
 
         return $stored;
     }

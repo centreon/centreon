@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
+use App\MonitoringConfiguration\Application\Service\VaultWrites;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
@@ -83,12 +84,12 @@ final readonly class PatchHostCommandHandler
      */
     public function __invoke(PatchHostCommand $command): Host
     {
-        $vaultWritten = false;
+        $vaultWrites = new VaultWrites();
 
         try {
-            return $this->patch($command, $vaultWritten);
+            return $this->patch($command, $vaultWrites);
         } catch (\Throwable $exception) {
-            if ($vaultWritten) {
+            if ($vaultWrites->happened()) {
                 $this->logger->warning(
                     'A host update failed after writing to its vault entry: the vault may now diverge from the host stored in the database.',
                     ['host_id' => $command->id->value, 'exception' => $exception],
@@ -99,10 +100,7 @@ final readonly class PatchHostCommandHandler
         }
     }
 
-    /**
-     * @param-out bool $vaultWritten
-     */
-    private function patch(PatchHostCommand $command, bool &$vaultWritten): Host
+    private function patch(PatchHostCommand $command, VaultWrites $vaultWrites): Host
     {
         $host = $this->getHost($command);
         // The references come before the name: a restricted viewer must not be able to tell a duplicate
@@ -120,7 +118,7 @@ final readonly class PatchHostCommandHandler
 
         // The vault write comes last, once every validation and every invariant of the new host has
         // passed: a rejected update must never leave an orphan secret behind.
-        $synchronized = $this->secrets->synchronize($host, $updatedHost, $command->snmpCommunity, $macros !== null, $vaultWritten);
+        $synchronized = $this->secrets->synchronize($host, $updatedHost, $command->snmpCommunity, $macros !== null, $vaultWrites);
         $this->saveAndNotify($host, $synchronized->host, $command->updatedBy, secretRewritten: $synchronized->secretRewritten);
 
         if ($command->deployServicesFromTemplates && count($synchronized->host->templateIds) > 0) {
