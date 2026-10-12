@@ -32,6 +32,8 @@ final class HostCollectionOutput
     /** @var list<HostTemplateOutput> */
     public array $templates;
 
+    public ?HostIconOutput $icon = null;
+
     public function __construct(
         #[ApiProperty(identifier: true)]
         public int $id,

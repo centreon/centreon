@@ -54,9 +54,6 @@ final class BrokerConfigurationFactory
     public const DEFAULT_LOG_DIRECTORY = '/var/log/centreon-broker';
     public const CENTRAL_MODULE_OUTPUT_NAME = 'central-module-master-output';
 
-    /** Vault sub-path under which broker credentials are stored (mirrors the legacy broker path). */
-    public const BROKER_VAULT_CUSTOM_PATH = 'configuration/broker';
-
     public function createDefault(
         PollerId $pollerId,
         string $pollerName,

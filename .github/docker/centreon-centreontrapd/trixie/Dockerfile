@@ -146,7 +146,8 @@ EOF
 
 # Runtime environment and build metadata
 ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5 \
-    DEBUG=false
+    DEBUG=false \
+    CENTREONTRAPD_LOG_LEVEL=error
 
 # OCI image metadata for supply chain traceability (used by Scout, registries, and auditing)
 ARG BUILD_DATE

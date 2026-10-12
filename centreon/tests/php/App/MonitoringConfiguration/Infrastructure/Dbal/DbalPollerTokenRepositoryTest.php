@@ -27,9 +27,12 @@ use App\MonitoringConfiguration\Domain\Exception\PollerTokenNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalPollerTokenRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private PollerTokenRepository $repository;
 
     private Connection $connection;
@@ -43,6 +46,8 @@ final class DbalPollerTokenRepositoryTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+
+        $this->clearInstalledPlatformRows($this->connection, 'authentication_tokens');
     }
 
     public function testThrowsWhenNoValidPollerTokenExists(): void

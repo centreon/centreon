@@ -1581,6 +1581,16 @@ a.infobulle:hover   {z-index:25;}
     width:310px;
     text-align:center;
     border-radius:4px;
+    /*
+     * This container sits on every legacy page but stays empty unless a page
+     * pushes a message into it. Empty, it is invisible yet still hit-tested, so
+     * it silently swallows clicks on whatever it covers - the form tab bar, for
+     * instance, since the legacy breadcrumb that used to push page content below
+     * it was removed. Its content is only text and an image (see
+     * centreonMsg.class.php), never anything interactive, so giving up pointer
+     * events costs nothing.
+     */
+    pointer-events: none;
 }
 #centreonMsg.react-centreon-message    {
     top:10px;

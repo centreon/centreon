@@ -55,9 +55,12 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalPollerRepositoryTest extends KernelTestCase
 {
+    use ClearsInstalledPlatformRows;
+
     private Connection $connection;
 
     private DbalPollerRepository $repository;
@@ -71,6 +74,8 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+
+        $this->clearInstalledPlatformRows($connection, 'cfg_resource_instance_relations', 'cfg_resource', 'nagios_server');
 
         $connection->insert('nagios_server', ['id' => 1, 'name' => 'Central', 'localhost' => '1', 'ns_activate' => '1', 'ns_ip_address' => '127.0.0.1', 'uid' => 100000000000001]);
         $connection->insert('cfg_resource', ['resource_id' => 1, 'resource_name' => '$USER1$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'path to plugins', 'resource_activate' => '1', 'is_password' => 0]);
@@ -289,6 +294,15 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
 
         $this->repository->flagAsChanged($this->buildHost(pollerId: 1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    public function testFlagIdAsChangedRaisesTheUpdatedFlagOfThatPoller(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagIdAsChanged(new PollerId(1));
 
         self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
     }

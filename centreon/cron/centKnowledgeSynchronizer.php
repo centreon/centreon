@@ -21,6 +21,8 @@
 
 require_once realpath(__DIR__ . '/../www/class/centreon-knowledge/wikiApi.class.php');
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 try {
     $wikiApi = new WikiApi();
     $wikiApi->synchronize();

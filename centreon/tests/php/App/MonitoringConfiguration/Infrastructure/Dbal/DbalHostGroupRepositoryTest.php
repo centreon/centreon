@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -56,7 +57,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostGroupRepository(
             $this->connection,
             new DbalHostGroupTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
         );
     }
 

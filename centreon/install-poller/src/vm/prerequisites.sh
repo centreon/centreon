@@ -133,7 +133,8 @@ function _vmCheckNetwork() {
   [ "${GORGONE_SSL}" = "true" ] && scheme="https"
   local target="${scheme}://${CENTRAL_HOST}:${CENTRAL_PORT}"
 
-  if curl -sf --max-time 10 "${target}" >/dev/null 2>&1; then
+  # -k: reachability check only, a self-signed central cert must not fail it.
+  if curl -ksf --max-time 10 "${target}" >/dev/null 2>&1; then
     consoleInfo "Network connectivity to ${target}: OK"
     logInfo "Network check to ${target}: OK"
   else

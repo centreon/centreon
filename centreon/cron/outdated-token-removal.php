@@ -25,6 +25,8 @@ declare(strict_types=1);
 require_once realpath(__DIR__ . '/../config/centreon.config.php');
 include_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 
+require_once _CENTREON_PATH_ . '/cron/checkConfiguration.php';
+
 $centreonDbName = $conf_centreon['db'];
 
 // Init DB connections
