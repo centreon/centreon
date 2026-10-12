@@ -142,6 +142,90 @@ final class PatchHostMacrosProcessorTest extends ApiTestCase
         yield 'a removal that is not a list of ids' => [['check_options' => ['macros_to_remove' => ['port']]]];
     }
 
+    #[DataProvider('requesters')]
+    public function testOnlyWhoMaySeeAndChangeTheHostChangesItsMacros(string $requester, int $status, string $key): void
+    {
+        $portId = $this->insertMacro('PORT', '80');
+        $this->actAs($requester);
+        $body = match ($key) {
+            'macros' => ['check_options' => ['macros' => [['id' => $portId, 'name' => 'port', 'value' => '8080']]]],
+            'macros_to_upsert' => ['check_options' => ['macros_to_upsert' => [['id' => $portId, 'name' => 'port', 'value' => '8080']]]],
+            default => ['check_options' => ['macros_to_remove' => [$portId]]],
+        };
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $this->hostId, self::PATCH_HEADERS + ['json' => $body]);
+
+        self::assertResponseStatusCodeSame($status);
+        $changed = match ($key) {
+            'macros_to_remove' => [],
+            default => ['PORT' => '8080'],
+        };
+        self::assertSame($status === 204 ? $changed : ['PORT' => '80'], $this->macros());
+    }
+
+    /**
+     * @return iterable<string, array{string, int, string}>
+     */
+    public static function requesters(): iterable
+    {
+        foreach (['macros', 'macros_to_upsert', 'macros_to_remove'] as $key) {
+            yield 'an administrator, ' . $key => ['administrator', 204, $key];
+
+            yield 'a user who has access to the host, ' . $key => ['user with access to the host', 204, $key];
+
+            yield 'a user without any access right, ' . $key => ['user without any access right', 403, $key];
+
+            yield 'a user who cannot see the host, ' . $key => ['user who cannot see the host', 404, $key];
+        }
+    }
+
+    private function actAs(string $requester): void
+    {
+        if ($requester === 'administrator') {
+            return;
+        }
+
+        $alias = bin2hex(random_bytes(8));
+        $this->createApiUser($this->connection, $alias, admin: false);
+        if ($requester !== 'user without any access right') {
+            $aclGroupId = $this->grantHostReadAndWrite($alias);
+            if ($requester === 'user with access to the host') {
+                /** @var Connection $realTimeConnection */
+                $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+                $realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $this->hostId]);
+            }
+        }
+
+        $this->login($alias);
+    }
+
+    /**
+     * Gives the user the "Configuration > Hosts > Hosts" read-write topology access, through an access group
+     * whose id is returned.
+     */
+    private function grantHostReadAndWrite(string $alias): int
+    {
+        /** @var int|string $contactId */
+        $contactId = $this->connection->fetchOne('SELECT contact_id FROM contact WHERE contact_alias = :alias', ['alias' => $alias]);
+
+        $this->connection->insert('acl_groups', ['acl_group_name' => 'macros-' . $contactId, 'acl_group_alias' => 'macros-' . $contactId, 'acl_group_activate' => '1']);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId, 'contact_contact_id' => $contactId]);
+
+        $this->connection->insert('acl_topology', ['acl_topo_name' => 'macros-' . $contactId, 'acl_topo_alias' => 'macros-' . $contactId, 'acl_topo_activate' => '1']);
+
+        $aclTopologyId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_group_topology_relations', ['acl_group_id' => $aclGroupId, 'acl_topology_id' => $aclTopologyId]);
+
+        foreach ([6, 601, 60101] as $topologyPage) {
+            $topologyId = $this->connection->fetchOne('SELECT topology_id FROM topology WHERE topology_page = :page', ['page' => $topologyPage]);
+            self::assertIsScalar($topologyId, "topology_page {$topologyPage} not found in fixtures");
+            $this->connection->insert('acl_topology_relations', ['topology_topology_id' => (int) $topologyId, 'acl_topo_id' => $aclTopologyId, 'access_right' => 1]);
+        }
+
+        return $aclGroupId;
+    }
+
     /**
      * @param array<string, mixed> $body
      */

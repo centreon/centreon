@@ -57,6 +57,7 @@ use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeContactGroupRepository;
@@ -312,6 +313,278 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
         self::assertSame([], $this->vault->writeManyCalls);
         self::assertSame([], $this->repository->macrosReplacedHosts);
+    }
+
+    /**
+     * @param array{
+     *     vault?: bool,
+     *     community?: ?string,
+     *     before?: list<array{string, string, bool, int}>,
+     *     changes: MacroChanges,
+     *     after: array<string, array{string, bool}>,
+     *     vaultCalls?: list<array{secrets: array<string, string>, deletes: list<string>}>,
+     *     macrosWritten?: bool,
+     *     massChanged?: bool,
+     *     purged?: bool,
+     * } $scenario every macro is [value, isPassword], by name; the vault is on unless said otherwise
+     */
+    #[DataProvider('macroScenarios')]
+    public function testTheMacrosEndUpAsExpected(array $scenario): void
+    {
+        $this->vault->vaultEnabled = $scenario['vault'] ?? true;
+        $this->seedHost(
+            array_map(
+                fn (array $macro): HostMacro => $this->macro($macro[0], $macro[1], $macro[2], $macro[3]),
+                $scenario['before'] ?? [],
+            ),
+            $scenario['community'] ?? null,
+        );
+
+        $result = $this->patch($scenario['changes']);
+
+        $after = [];
+        foreach ($result->checkOptions->macros as $macro) {
+            $after[$macro->name->value] = [$macro->value, $macro->isPassword];
+        }
+        self::assertEquals($scenario['after'], $after, 'the macros of the host');
+        self::assertSame(
+            $scenario['vaultCalls'] ?? [],
+            array_map(
+                static fn (array $call): array => ['secrets' => $call['secrets'], 'deletes' => $call['deletes']],
+                $this->vault->writeManyCalls,
+            ),
+            'what is written to the vault',
+        );
+        self::assertSame($scenario['macrosWritten'] ?? false, $this->repository->macrosReplacedHosts !== [], 'the macros are written to the database');
+        self::assertSame($scenario['massChanged'] ?? ($scenario['macrosWritten'] ?? false), $this->eventBus->getDispatchedEvents(HostMassChanged::class) !== [], 'the change is notified');
+        self::assertSame($scenario['purged'] ?? false, $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class) !== [], 'the vault entry is purged');
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function macroScenarios(): iterable
+    {
+        $reference = static fn (string $name, string $uuid = 'uuid-1'): string => 'secret::vault::monitoring/hosts/' . $uuid . '::_HOST' . $name;
+        $change = static fn (string $name, ?string $value, bool $isPassword = false, ?int $id = null): HostMacroChange => new HostMacroChange(
+            new HostMacroName($name),
+            $value,
+            $isPassword,
+            $id === null ? null : new HostMacroId($id),
+        );
+
+        // --- replace: the macros given are the macros of the host
+        yield 'replace: a value changes' => [[
+            'before' => [['PORT', '80', false, 10]],
+            'changes' => MacroChanges::replace([$change('PORT', '8080', false, 10)]),
+            'after' => ['PORT' => ['8080', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: the same macros change nothing' => [[
+            'before' => [['PORT', '80', false, 10]],
+            'changes' => MacroChanges::replace([$change('PORT', '80', false, 10)]),
+            'after' => ['PORT' => ['80', false]],
+        ]];
+
+        yield 'replace: a plain macro is added, the vault is left alone' => [[
+            'changes' => MacroChanges::replace([$change('ADDED', 'y')]),
+            'after' => ['ADDED' => ['y', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: a password is added and goes to the vault' => [[
+            'changes' => MacroChanges::replace([$change('TOKEN', 'secret', true)]),
+            'after' => ['TOKEN' => [$reference('TOKEN', 'new-uuid'), true]],
+            'vaultCalls' => [['secrets' => ['_HOSTTOKEN' => 'secret'], 'deletes' => []]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: a password is added without a vault and stays as it is' => [[
+            'vault' => false,
+            'changes' => MacroChanges::replace([$change('TOKEN', 'secret', true)]),
+            'after' => ['TOKEN' => ['secret', true]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: a password without a value is kept' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::replace([$change('TOKEN', null, true, 10)]),
+            'after' => ['TOKEN' => [$reference('TOKEN'), true]],
+        ]];
+
+        yield 'replace: a password without a value is kept without a vault' => [[
+            'vault' => false,
+            'before' => [['TOKEN', 'plain-secret', true, 10]],
+            'changes' => MacroChanges::replace([$change('TOKEN', null, true, 10)]),
+            'after' => ['TOKEN' => ['plain-secret', true]],
+        ]];
+
+        yield 'replace: a new password value is written under the same reference' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::replace([$change('TOKEN', 'new-secret', true, 10)]),
+            'after' => ['TOKEN' => [$reference('TOKEN'), true]],
+            'vaultCalls' => [['secrets' => ['_HOSTTOKEN' => 'new-secret'], 'deletes' => []]],
+            'massChanged' => true,
+        ]];
+
+        yield 'replace: a password that stops being one gets its plain value and leaves the vault' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::replace([$change('TOKEN', 'plain', false, 10)]),
+            'after' => ['TOKEN' => ['plain', false]],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+            'purged' => true,
+        ]];
+
+        yield 'replace: a password that stops being one leaves the entry while another password uses it' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10], ['OTHER', $reference('OTHER'), true, 11]],
+            'changes' => MacroChanges::replace([$change('TOKEN', 'plain', false, 10), $change('OTHER', null, true, 11)]),
+            'after' => ['TOKEN' => ['plain', false], 'OTHER' => [$reference('OTHER'), true]],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: a macro that becomes a password goes to the vault' => [[
+            'before' => [['TOKEN', 'plain', false, 10]],
+            'changes' => MacroChanges::replace([$change('TOKEN', 'plain', true, 10)]),
+            'after' => ['TOKEN' => [$reference('TOKEN', 'new-uuid'), true]],
+            'vaultCalls' => [['secrets' => ['_HOSTTOKEN' => 'plain'], 'deletes' => []]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: the last password left out empties and releases the entry' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::replace([]),
+            'after' => [],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+            'purged' => true,
+        ]];
+
+        yield 'replace: a password left out while another stays only loses its key' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10], ['OTHER', $reference('OTHER'), true, 11]],
+            'changes' => MacroChanges::replace([$change('OTHER', null, true, 11)]),
+            'after' => ['OTHER' => [$reference('OTHER'), true]],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: a renamed password keeps its reference' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::replace([$change('RENAMED', null, true, 10)]),
+            'after' => ['RENAMED' => [$reference('TOKEN'), true]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'replace: an empty password is stored as it is' => [[
+            'changes' => MacroChanges::replace([$change('TOKEN', '', true)]),
+            'after' => ['TOKEN' => ['', true]],
+            'macrosWritten' => true,
+        ]];
+
+        // --- upsert: the macros given are written, the other ones are kept
+        yield 'upsert: the other macros are kept' => [[
+            'before' => [['A', '1', false, 10], ['B', '2', false, 11]],
+            'changes' => MacroChanges::upsert([$change('A', '9', false, 10)]),
+            'after' => ['A' => ['9', false], 'B' => ['2', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'upsert: a macro without id takes the place of the one of the same name' => [[
+            'before' => [['A', '1', false, 10]],
+            'changes' => MacroChanges::upsert([$change('A', '9')]),
+            'after' => ['A' => ['9', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'upsert: a macro with a new name is added' => [[
+            'before' => [['A', '1', false, 10]],
+            'changes' => MacroChanges::upsert([$change('B', '2')]),
+            'after' => ['A' => ['1', false], 'B' => ['2', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'upsert: a password of the same name gets its new value under the same reference' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::upsert([$change('TOKEN', 'new-secret', true)]),
+            'after' => ['TOKEN' => [$reference('TOKEN'), true]],
+            'vaultCalls' => [['secrets' => ['_HOSTTOKEN' => 'new-secret'], 'deletes' => []]],
+            'massChanged' => true,
+        ]];
+
+        yield 'upsert: a password that stops being one leaves the vault' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::upsert([$change('TOKEN', 'plain', false)]),
+            'after' => ['TOKEN' => ['plain', false]],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+            'purged' => true,
+        ]];
+
+        yield 'upsert: a new password joins the entry the host already has' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::upsert([$change('OTHER', 'secret', true)]),
+            'after' => ['TOKEN' => [$reference('TOKEN'), true], 'OTHER' => [$reference('OTHER'), true]],
+            'vaultCalls' => [['secrets' => ['_HOSTOTHER' => 'secret'], 'deletes' => []]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'upsert: a plain macro leaves the passwords and the vault alone' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::upsert([$change('PORT', '80')]),
+            'after' => ['TOKEN' => [$reference('TOKEN'), true], 'PORT' => ['80', false]],
+            'macrosWritten' => true,
+        ]];
+
+        // --- remove: the macros given, by id, are removed
+        yield 'remove: a plain macro' => [[
+            'before' => [['A', '1', false, 10], ['B', '2', false, 11]],
+            'changes' => MacroChanges::remove([new HostMacroId(10)]),
+            'after' => ['B' => ['2', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'remove: the only password releases the entry' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::remove([new HostMacroId(10)]),
+            'after' => [],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+            'purged' => true,
+        ]];
+
+        yield 'remove: one password of two only loses its key' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10], ['OTHER', $reference('OTHER'), true, 11]],
+            'changes' => MacroChanges::remove([new HostMacroId(10)]),
+            'after' => ['OTHER' => [$reference('OTHER'), true]],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'remove: a plain macro leaves the vault alone' => [[
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10], ['PORT', '80', false, 11]],
+            'changes' => MacroChanges::remove([new HostMacroId(11)]),
+            'after' => ['TOKEN' => [$reference('TOKEN'), true]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'remove: a password macro without a vault' => [[
+            'vault' => false,
+            'before' => [['TOKEN', 'plain-secret', true, 10]],
+            'changes' => MacroChanges::remove([new HostMacroId(10)]),
+            'after' => [],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'remove: the last password keeps the entry the community still uses' => [[
+            'community' => 'secret::vault::monitoring/hosts/uuid-1::_HOSTSNMPCOMMUNITY',
+            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
+            'changes' => MacroChanges::remove([new HostMacroId(10)]),
+            'after' => [],
+            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
+            'macrosWritten' => true,
+        ]];
     }
 
     /**
