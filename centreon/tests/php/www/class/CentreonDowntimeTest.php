@@ -178,6 +178,7 @@ class CentreonDowntimeTest extends TestCase
             [
                 'dt_id' => '1',
                 'dt_activate' => '1',
+                'dt_timezone_id' => null,
                 'dtp_start_time' => '08:00:00',
                 'dtp_end_time' => '18:00:00',
                 'dtp_day_of_week' => '1,2,3,4,5',
