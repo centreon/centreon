@@ -149,4 +149,15 @@ interface ResourceAccessRepository
      * @return Collection<ContactGroupId> empty means the user can access no contact group at all
      */
     public function findAccessibleContactGroupIds(UserId $userId): Collection;
+
+    /**
+     * Hosts follow the real-time ACL cache (`centreon_acl`), which already resolves every
+     * resource-scoping rule per Access Group, so a restricted user is always limited to the hosts
+     * listed there: like contacts, there is no "no restriction applies" case to signal.
+     *
+     * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see
+     *
+     * @return Collection<HostId> empty means the user can access no host at all
+     */
+    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection;
 }
