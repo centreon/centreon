@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use App\Shared\Infrastructure\Validator\Constraints\ExclusiveKeys;
 use App\Shared\Infrastructure\Validator\Constraints\IdList;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * The check command of a host and the arguments it is called with. A key left out is left untouched,
@@ -73,5 +74,27 @@ final readonly class PatchHostCheckOptionsInput
         #[IdList]
         public array $macrosToRemove = [],
     ) {
+    }
+
+    #[Assert\Callback]
+    public function validateMacroNamesAreUnique(ExecutionContextInterface $context): void
+    {
+        foreach (['macros' => $this->macros, 'macros_to_upsert' => $this->macrosToUpsert] as $key => $macros) {
+            $seen = [];
+            foreach ($macros as $index => $macro) {
+                if (! $macro instanceof HostMacroInput) {
+                    continue;
+                }
+
+                $name = mb_strtoupper(trim($macro->name));
+                if (isset($seen[$name])) {
+                    $context->buildViolation('Two macros cannot have the same name.')
+                        ->atPath(sprintf('%s[%d].name', $key, $index))
+                        ->addViolation();
+                }
+
+                $seen[$name] = true;
+            }
+        }
     }
 }

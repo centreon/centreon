@@ -139,7 +139,20 @@ final class PatchHostMacrosProcessorTest extends ApiTestCase
 
         yield 'a removal of an unknown macro' => [['check_options' => ['macros_to_remove' => [999999]]]];
 
+        yield 'two macros of the same name in the list' => [['check_options' => ['macros_to_upsert' => [['name' => 'new', 'value' => '1'], ['name' => 'NEW', 'value' => '2']]]]];
+
         yield 'a removal that is not a list of ids' => [['check_options' => ['macros_to_remove' => ['port']]]];
+    }
+
+    public function testARenameOntoTheNameOfAnotherMacroIsRefusedAndNothingIsLost(): void
+    {
+        $plain = $this->insertMacro('PLAIN', 'visible');
+        $this->insertMacro('OTHER', 'kept');
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $this->hostId, self::PATCH_HEADERS + ['json' => ['check_options' => ['macros_to_upsert' => [['id' => $plain, 'name' => 'other', 'value' => 'renamed']]]]]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame(['OTHER' => 'kept', 'PLAIN' => 'visible'], $this->macros());
     }
 
     #[DataProvider('requesters')]

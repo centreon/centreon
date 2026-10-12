@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\StandardMacro\StandardMacro;
+use App\MonitoringConfiguration\Domain\Exception\DuplicateHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\ReservedHostMacroNameException;
@@ -59,6 +60,7 @@ final readonly class HostMacrosUpdater
 
     /**
      * @throws HostMacroNotFoundException when a change refers to a macro the host neither owns nor inherits
+     * @throws DuplicateHostMacroNameException when the host would end up with two macros of the same name
      *
      * @return list<HostMacro> the direct macros the host must own, passwords in the form they were submitted
      */
@@ -75,13 +77,35 @@ final readonly class HostMacrosUpdater
         $inherited = $this->inheritedMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
 
         if ($changes->mode === MacroChangeModeEnum::Replace) {
-            return $this->changesResolver->resolve($changes->changes, $current, $inherited);
+            return $this->assertNamesAreUnique($this->changesResolver->resolve($changes->changes, $current, $inherited));
         }
 
         $pointedAt = array_map(fn (HostMacroChange $change): HostMacroChange => $this->pointAtOwnMacroOfSameName($change, $current), $changes->changes);
         $resolved = $this->changesResolver->resolve($pointedAt, $current, $inherited);
 
-        return $this->mergeWithUntouched($current, $pointedAt, $resolved);
+        return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $pointedAt, $resolved));
+    }
+
+    /**
+     * A host holds one macro per name. Two of the same would not be refused further down: only the first
+     * is kept, and the other is deleted with no error, so a rename onto a name the host already uses would
+     * lose one of the two macros.
+     *
+     * @param list<HostMacro> $macros
+     *
+     * @throws DuplicateHostMacroNameException
+     *
+     * @return list<HostMacro>
+     */
+    private function assertNamesAreUnique(array $macros): array
+    {
+        $names = array_map(static fn (HostMacro $macro): string => $macro->name->value, $macros);
+        $duplicates = array_keys(array_filter(array_count_values($names), static fn (int $count): bool => $count > 1));
+        if ($duplicates !== []) {
+            throw new DuplicateHostMacroNameException(array_map(static fn (int|string $name): string => (string) $name, $duplicates));
+        }
+
+        return $macros;
     }
 
     /**

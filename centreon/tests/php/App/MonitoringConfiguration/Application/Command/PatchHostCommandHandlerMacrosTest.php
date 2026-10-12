@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\MacroChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
@@ -41,17 +42,22 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
+use App\MonitoringConfiguration\Domain\Exception\DuplicateHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\ReservedHostMacroNameException;
+use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -87,6 +93,10 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
     private FakeVault $vault;
 
+    private FakeHostTemplateRepository $templateRepository;
+
+    private LoggerSpy $logger;
+
     private EventBusSpy $eventBus;
 
     private PatchHostCommandHandler $handler;
@@ -98,7 +108,9 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $this->vault->vaultEnabled = false;
 
         $this->eventBus = new EventBusSpy();
+        $this->logger = new LoggerSpy();
         $hostTemplateRepository = new FakeHostTemplateRepository();
+        $this->templateRepository = $hostTemplateRepository;
         $commandRepository = new FakeCommandRepository();
         $resourceAccessRepository = new FakeResourceAccessRepository();
 
@@ -138,7 +150,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             $this->vault,
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
-            new LoggerSpy(),
+            $this->logger,
         );
     }
 
@@ -585,6 +597,272 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
             'macrosWritten' => true,
         ]];
+    }
+
+    public function testARenameOntoTheNameOfAnotherMacroIsRefusedAndNothingIsLost(): void
+    {
+        $this->seedHost([$this->macro('A', '1', id: 10), $this->macro('B', '2', id: 11)]);
+
+        try {
+            $this->patch(MacroChanges::upsert([new HostMacroChange(new HostMacroName('B'), '9', false, new HostMacroId(10))]));
+            self::fail('The rename onto an existing name should have been refused.');
+        } catch (DuplicateHostMacroNameException) {
+            self::assertSame([], $this->repository->macrosReplacedHosts);
+            self::assertSame([], $this->repository->updatedHosts);
+        }
+    }
+
+    #[DataProvider('macrosWithTheSameName')]
+    public function testTwoMacrosOfTheSameNameAreRefused(MacroChanges $changes): void
+    {
+        $this->seedHost([$this->macro('A', '1', id: 10), $this->macro('B', '2', id: 11)]);
+
+        $this->expectException(DuplicateHostMacroNameException::class);
+
+        $this->patch($changes);
+    }
+
+    /**
+     * @return iterable<string, array{MacroChanges}>
+     */
+    public static function macrosWithTheSameName(): iterable
+    {
+        yield 'a replacement with two macros of the same name' => [MacroChanges::replace([
+            new HostMacroChange(new HostMacroName('B'), '9', false, new HostMacroId(10)),
+            new HostMacroChange(new HostMacroName('B'), '8', false, new HostMacroId(11)),
+        ])];
+
+        yield 'a replacement renaming a macro onto another one kept as it is' => [MacroChanges::replace([
+            new HostMacroChange(new HostMacroName('B'), '9', false, new HostMacroId(10)),
+            new HostMacroChange(new HostMacroName('B'), '2', false, new HostMacroId(11)),
+        ])];
+
+        yield 'an upsert with two new macros of the same name' => [MacroChanges::upsert([
+            new HostMacroChange(new HostMacroName('NEW'), '1', false),
+            new HostMacroChange(new HostMacroName('NEW'), '2', false),
+        ])];
+
+        yield 'an upsert with a new macro and a rename onto its name' => [MacroChanges::upsert([
+            new HostMacroChange(new HostMacroName('NEW'), '1', false),
+            new HostMacroChange(new HostMacroName('NEW'), '2', false, new HostMacroId(10)),
+        ])];
+    }
+
+    /**
+     * @param array{
+     *     templates?: array<int, list<array{string, string, bool, int}>>,
+     *     hostTemplates?: list<int>,
+     *     before?: list<array{string, string, bool, int}>,
+     *     templateChange?: ListChange<HostTemplateId>,
+     *     changes: MacroChanges,
+     *     after: array<string, array{string, bool}>,
+     *     vaultSecrets?: array<string, string>,
+     *     vaultCalls?: list<array{secrets: array<string, string>, deletes: list<string>}>,
+     *     macrosWritten?: bool,
+     * } $scenario every macro is [name, value, isPassword, id], and every macro of the result [value, isPassword]
+     */
+    #[DataProvider('inheritanceScenarios')]
+    public function testTheMacrosTheHostInheritsAreResolvedAgainstTheHostAfterTheUpdate(array $scenario): void
+    {
+        $this->vault->vaultEnabled = isset($scenario['vaultSecrets']);
+        $this->vault->resolved = $scenario['vaultSecrets'] ?? [];
+        foreach ($scenario['templates'] ?? [] as $templateId => $macros) {
+            $this->templateRepository->hostTemplates[$templateId] = new HostTemplate(
+                new HostTemplateId($templateId),
+                new HostTemplateName('template-' . $templateId),
+                new Collection(
+                    array_map(fn (array $macro): HostMacro => $this->macro($macro[0], $macro[1], $macro[2], $macro[3]), $macros),
+                    HostMacro::class,
+                ),
+            );
+        }
+
+        $this->repository->seed(new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection(array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $scenario['hostTemplates'] ?? []), HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(null, macros: array_map(fn (array $macro): HostMacro => $this->macro($macro[0], $macro[1], $macro[2], $macro[3]), $scenario['before'] ?? [])),
+        ), self::HOST_ID);
+
+        $result = ($this->handler)(new PatchHostCommand(
+            id: new HostId(self::HOST_ID),
+            updatedBy: 1,
+            templateIds: $scenario['templateChange'] ?? new NoValue(),
+            macros: $scenario['changes'],
+        ));
+
+        $after = [];
+        foreach ($result->checkOptions->macros as $macro) {
+            $after[$macro->name->value] = [$macro->value, $macro->isPassword];
+        }
+        self::assertEquals($scenario['after'], $after, 'the macros of the host');
+        self::assertSame($scenario['macrosWritten'] ?? false, $this->repository->macrosReplacedHosts !== [], 'the macros are written to the database');
+        self::assertSame(
+            $scenario['vaultCalls'] ?? [],
+            array_map(
+                static fn (array $call): array => ['secrets' => $call['secrets'], 'deletes' => $call['deletes']],
+                $this->vault->writeManyCalls,
+            ),
+            'what is written to the vault',
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function inheritanceScenarios(): iterable
+    {
+        $port = ['PORT', '80', false, 500];
+        $change = static fn (string $name, ?string $value, bool $isPassword = false, ?int $id = null, ?HostMacroParentEnum $parent = null): HostMacroChange => new HostMacroChange(
+            new HostMacroName($name),
+            $value,
+            $isPassword,
+            $id === null ? null : new HostMacroId($id),
+            $parent,
+        );
+
+        yield 'a macro equal to the inherited one is not copied' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'changes' => MacroChanges::upsert([$change('PORT', '80')]),
+            'after' => [],
+        ]];
+
+        yield 'a macro different from the inherited one overrides it' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'changes' => MacroChanges::upsert([$change('PORT', '90')]),
+            'after' => ['PORT' => ['90', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'an inherited macro overridden by its id and parent' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'changes' => MacroChanges::upsert([$change('PORT', '90', false, 500, HostMacroParentEnum::Template)]),
+            'after' => ['PORT' => ['90', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'an override set back to the inherited value is removed' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'before' => [['PORT', '90', false, 10]],
+            'changes' => MacroChanges::upsert([$change('PORT', '80', false, 10)]),
+            'after' => [],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'a replacement that gives back the inherited macros as they were read copies nothing' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'before' => [['OWN', 'x', false, 10]],
+            'changes' => MacroChanges::replace([
+                $change('OWN', 'x', false, 10),
+                $change('PORT', '80', false, 500, HostMacroParentEnum::Template),
+            ]),
+            'after' => ['OWN' => ['x', false]],
+        ]];
+
+        yield 'a macro equal to the one of a template added in the same update is not copied' => [[
+            'templates' => [1 => [$port], 2 => [['NEWONE', '1', false, 501]]],
+            'hostTemplates' => [1],
+            'templateChange' => ListChange::add([new HostTemplateId(2)]),
+            'changes' => MacroChanges::upsert([$change('NEWONE', '1')]),
+            'after' => [],
+        ]];
+
+        yield 'a macro equal to the one of a template removed in the same update is kept' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'templateChange' => ListChange::remove([new HostTemplateId(1)]),
+            'changes' => MacroChanges::upsert([$change('PORT', '80')]),
+            'after' => ['PORT' => ['80', false]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'a macro already equal to the inherited one is left alone by an update of another macro' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'before' => [['PORT', '80', false, 10]],
+            'changes' => MacroChanges::upsert([$change('OTHER', 'x')]),
+            'after' => ['PORT' => ['80', false], 'OTHER' => ['x', false]],
+            'macrosWritten' => true,
+        ]];
+
+        $reference = 'secret::vault::monitoring/hosts/template-uuid::_HOSTSECRET';
+
+        yield 'an inherited password taken over under another name is copied under the entry of the host' => [[
+            'vaultSecrets' => [$reference => 'the-template-secret'],
+            'templates' => [1 => [['SECRET', $reference, true, 600]]],
+            'hostTemplates' => [1],
+            'changes' => MacroChanges::upsert([$change('COPY', null, true, 600, HostMacroParentEnum::Template)]),
+            'after' => ['COPY' => ['secret::vault::monitoring/hosts/new-uuid::_HOSTCOPY', true]],
+            'vaultCalls' => [['secrets' => ['_HOSTCOPY' => 'the-template-secret'], 'deletes' => []]],
+            'macrosWritten' => true,
+        ]];
+
+        yield 'an inherited password given back unchanged is not copied' => [[
+            'vaultSecrets' => [$reference => 'the-template-secret'],
+            'templates' => [1 => [['SECRET', $reference, true, 600]]],
+            'hostTemplates' => [1],
+            'changes' => MacroChanges::replace([$change('SECRET', null, true, 600, HostMacroParentEnum::Template)]),
+            'after' => [],
+        ]];
+
+        yield 'an inherited password overridden with a new secret goes to the entry of the host' => [[
+            'vaultSecrets' => [$reference => 'the-template-secret'],
+            'templates' => [1 => [['SECRET', $reference, true, 600]]],
+            'hostTemplates' => [1],
+            'changes' => MacroChanges::upsert([$change('SECRET', 'my-own-secret', true, 600, HostMacroParentEnum::Template)]),
+            'after' => ['SECRET' => ['secret::vault::monitoring/hosts/new-uuid::_HOSTSECRET', true]],
+            'vaultCalls' => [['secrets' => ['_HOSTSECRET' => 'my-own-secret'], 'deletes' => []]],
+            'macrosWritten' => true,
+        ]];
+    }
+
+    public function testAVaultFailureOnAPasswordSavesNothing(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+        $this->seedHost();
+
+        try {
+            $this->patch(MacroChanges::upsert([new HostMacroChange(new HostMacroName('TOKEN'), 'secret', true)]));
+            self::fail('The vault failure should have been reported.');
+        } catch (VaultWriteFailedException) {
+            self::assertSame([], $this->repository->updatedHosts);
+            self::assertSame([], $this->repository->macrosReplacedHosts);
+            // Nothing was written before the failure, so there is no divergence to report.
+            self::assertSame([], $this->logger->warningMessages);
+        }
+    }
+
+    public function testAVaultFailureAfterTheCommunityWasWrittenIsReportedAsADivergence(): void
+    {
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrowsOnCall = 2;
+        $this->seedHost();
+
+        try {
+            ($this->handler)(new PatchHostCommand(
+                id: new HostId(self::HOST_ID),
+                updatedBy: 1,
+                snmpCommunity: 'a-community',
+                macros: MacroChanges::upsert([new HostMacroChange(new HostMacroName('TOKEN'), 'secret', true)]),
+            ));
+            self::fail('The vault failure should have been reported.');
+        } catch (VaultWriteFailedException) {
+            self::assertCount(2, $this->vault->writeManyCalls);
+            self::assertSame([], $this->repository->updatedHosts);
+            self::assertCount(1, $this->logger->warningMessages);
+            self::assertStringContainsString('may now diverge', $this->logger->warningMessages[0]['message']);
+        }
     }
 
     /**
