@@ -72,7 +72,7 @@ final class PatchHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('invalidIds')]
+    #[DataProvider('invalidIds')]
     public function testItReturnsNotFoundForAnInvalidId(string $id): void
     {
         $this->login();
@@ -88,7 +88,9 @@ final class PatchHostProcessorTest extends ApiTestCase
     public static function invalidIds(): iterable
     {
         yield 'non-numeric' => ['not-a-number'];
+
         yield 'zero' => ['0'];
+
         yield 'leading zero' => ['007'];
     }
 

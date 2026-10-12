@@ -75,7 +75,9 @@ final class DeleteHostProcessorTest extends ApiTestCase
     public static function invalidIds(): iterable
     {
         yield 'non-numeric' => ['not-a-number'];
+
         yield 'zero' => ['0'];
+
         yield 'leading zero' => ['007'];
     }
 
