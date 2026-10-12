@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 
 /**
@@ -47,6 +48,10 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException
  * A macro is referenced by id + parent, so the same reference sent twice makes no sense: only the
  * last one sent is applied. A new macro (no id) refers to nothing and is never dropped this way.
  *
+ * A password macro stays a password: a change cannot set is_password to false on a macro whose
+ * source is a password, nor override by name an inherited password with a plain macro, whether
+ * it is new or renamed. Its secret would otherwise be stored and echoed back in clear.
+ *
  * A check-command macro is resolved by name, never by id: whatever id is sent with
  * `parent: command`, the change refers to the macro the host inherits under its name. A command
  * macro is never a password and always carries an empty value, so its id holds nothing a write
@@ -62,6 +67,7 @@ final readonly class HostMacroChangesResolver
      * @param list<HostMacro> $current the host's stored direct macros (empty on creation)
      *
      * @throws HostMacroNotFoundException when a change refers to a macro the host neither owns nor inherits
+     * @throws HostMacroPasswordUnmaskedException when a change turns a password macro into a plain one
      * @throws HostMacroValueRequiredException when a change keeps the stored value of a macro that is not a stored password
      *
      * @return list<HostMacro> the direct macros the host must own
@@ -69,6 +75,7 @@ final readonly class HostMacroChangesResolver
     public function resolve(array $changes, array $current, InheritedHostMacros $inherited): array
     {
         $unknownIds = [];
+        $unmasked = [];
         $valueRequired = [];
         $resolved = [];
         foreach ($this->lastChangePerReference($changes) as $change) {
@@ -76,6 +83,12 @@ final readonly class HostMacroChangesResolver
 
             if (! $this->isResolvedByName($change) && ! $source instanceof HostMacro) {
                 $unknownIds[] = (int) $change->id?->value;
+
+                continue;
+            }
+
+            if ($this->unmasksPassword($change, $source, $inherited)) {
+                $unmasked[] = $change->name->value;
 
                 continue;
             }
@@ -91,6 +104,10 @@ final readonly class HostMacroChangesResolver
 
         if ($unknownIds !== []) {
             throw new HostMacroNotFoundException($unknownIds);
+        }
+
+        if ($unmasked !== []) {
+            throw new HostMacroPasswordUnmaskedException($unmasked);
         }
 
         if ($valueRequired !== []) {
@@ -140,6 +157,28 @@ final readonly class HostMacroChangesResolver
         }
 
         return $change->parent === HostMacroParentEnum::Command;
+    }
+
+    /**
+     * Whether a plain macro would replace a password: the macro it changes, or the inherited one it
+     * overrides by name. A direct macro resent under its own name introduces no override, so a plain
+     * one already shadowing an inherited password (legacy data) can still be echoed back.
+     */
+    private function unmasksPassword(HostMacroChange $change, ?HostMacro $source, InheritedHostMacros $inherited): bool
+    {
+        if ($change->isPassword) {
+            return false;
+        }
+
+        if ($source?->isPassword) {
+            return true;
+        }
+
+        $keepsDirectName = $source instanceof HostMacro
+            && ! $source->isInherited()
+            && $source->name->value === $change->name->value;
+
+        return ! $keepsDirectName && (bool) $inherited->findByName($change->name)?->isPassword;
     }
 
     /**

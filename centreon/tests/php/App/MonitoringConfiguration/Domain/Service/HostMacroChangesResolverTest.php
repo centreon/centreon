@@ -41,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\Shared\Domain\Collection;
@@ -368,6 +369,63 @@ final class HostMacroChangesResolverTest extends TestCase
             [],
             $this->inherited,
         );
+    }
+
+    public function testADirectPasswordCannotBecomePlain(): void
+    {
+        $current = [$this->direct(5, 'pwd', self::HOST_SECRET, isPassword: true)];
+
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve([$this->change('pwd', 'clear', id: 5)], $current, $this->inherited);
+    }
+
+    public function testAnInheritedPasswordCannotBecomePlain(): void
+    {
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve(
+            [$this->change('tplpwd', 'clear', id: 12, parent: HostMacroParentEnum::Template)],
+            [],
+            $this->inherited,
+        );
+    }
+
+    public function testAnInheritedPasswordCannotBeOverriddenByANewPlainMacro(): void
+    {
+        // Without its id, the same name still shadows the inherited password.
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve([$this->change('tplpwd', 'clear')], [], $this->inherited);
+    }
+
+    public function testAnInheritedPasswordCannotBeOverriddenByARenamedPlainMacro(): void
+    {
+        $current = [$this->direct(5, 'plain', 'x')];
+
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve([$this->change('tplpwd', 'x', id: 5)], $current, $this->inherited);
+    }
+
+    public function testAPlainMacroAlreadyShadowingAnInheritedPasswordCanBeEchoedBack(): void
+    {
+        // Legacy data: the override predates the rule, and resending it introduces nothing.
+        $current = [$this->direct(5, 'tplpwd', 'clear')];
+
+        $macros = $this->resolver->resolve([$this->change('tplpwd', 'clear', id: 5)], $current, $this->inherited);
+
+        self::assertSame(['TPLPWD'], $this->names($macros));
+        self::assertFalse($macros[0]->isPassword);
+    }
+
+    public function testAPlainMacroCanBecomeAPassword(): void
+    {
+        $current = [$this->direct(5, 'plain', 'x')];
+
+        $macros = $this->resolver->resolve([$this->change('plain', 'x', isPassword: true, id: 5)], $current, $this->inherited);
+
+        self::assertTrue($macros[0]->isPassword);
     }
 
     private function change(

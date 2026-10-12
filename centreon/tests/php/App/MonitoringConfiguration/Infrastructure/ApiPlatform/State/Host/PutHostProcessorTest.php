@@ -478,6 +478,29 @@ final class PutHostProcessorTest extends ApiTestCase
         ));
     }
 
+    public function testAPasswordMacroCannotBecomePlain(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $macroId = $this->insertMacro($hostId, '$_HOSTTOKEN$', 's3cr3t', isPassword: true);
+
+        $this->request('PUT', $this->endpoint($hostId), [
+            'json' => [
+                ...$this->payload($this->uniqueName('server'), $pollerId),
+                'check_options' => ['macros' => [
+                    ['id' => $macroId, 'parent' => null, 'name' => 'token', 'value' => 's3cr3t', 'is_password' => false],
+                ]],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSame(
+            [['host_macro_id' => $macroId, 'host_macro_name' => '$_HOSTTOKEN$', 'host_macro_value' => 's3cr3t', 'description' => null]],
+            $this->macroRows($hostId),
+        );
+    }
+
     public function testOnlyTheLastOfAMacroSentTwiceIsStored(): void
     {
         $this->login();
