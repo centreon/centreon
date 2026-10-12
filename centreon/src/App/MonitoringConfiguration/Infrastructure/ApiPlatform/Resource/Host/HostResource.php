@@ -29,15 +29,19 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 
 #[ApiResource(
     shortName: 'Host',
@@ -59,18 +63,63 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostP
         new Patch(
             uriTemplate: '/configuration/hosts/{id}',
             status: 204,
-            // Write-only action: no item provider (reading the whole host to toggle a bool is wasteful).
-            // The processor resolves the host and returns 404 via the handler when it is missing.
+            // Write-only action: no item provider, the handler loads the host itself and answers 404
+            // when it is missing or outside the viewer's scope.
             read: false,
             processor: PatchHostProcessor::class,
             input: PatchHostInput::class,
             output: false,
             openapi: new Model\Operation(
-                description: 'Enable or disable a single host.',
+                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts and macros are not handled yet.',
                 responses: [
-                    204 => new Model\Response('Host activation status updated'),
+                    204 => new Model\Response('Host updated (or left as it was when nothing changed)'),
                     404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host or host template already uses this name'),
                     422 => new Model\Response('Invalid input'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update hosts',
+        ),
+        new Post(
+            uriTemplate: '/configuration/hosts/{id}/_duplicate',
+            // No body, no item to read, no output: a 204 action that duplicates one host by id.
+            read: false,
+            deserialize: false,
+            validate: false,
+            output: false,
+            status: 204,
+            processor: DuplicateHostProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Duplicate a host',
+                description: 'Duplicates a single host. The copy takes the source name with the first '
+                    . 'free "_<n>" suffix. Unitary, not a bulk operation.',
+                responses: [
+                    204 => new Model\Response('Host duplicated'),
+                    403 => new Model\Response('You are not allowed to duplicate hosts'),
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host with the generated name already exists'),
+                    422 => new Model\Response('The generated host name would exceed the maximum length'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to duplicate hosts',
+        ),
+        new Put(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Write-only replace: the processor loads the host itself (404 via the handler when it is
+            // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
+            // full updated resource.
+            read: false,
+            processor: PutHostProcessor::class,
+            input: UpdateHostInput::class,
+            openapi: new Model\Operation(
+                description: 'Fully update a single host (replace semantics).',
+                responses: [
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('Host name already used by another host or template'),
+                    422 => new Model\Response('Invalid input, or a referenced resource that does not exist or is not accessible'),
                 ],
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",

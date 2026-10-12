@@ -137,10 +137,61 @@ export const getTimezonesResponse = () =>
 
 export const untouchedSchedulingOptionsPayload = {
   active_check_enabled: 'use_default',
+  check_timeperiod_id: null,
   max_check_attempts: null,
   normal_check_interval: null,
   passive_check_enabled: 'use_default',
   retry_check_interval: null
+};
+
+export const getCommandsResponse = () =>
+  toCollection([
+    { id: 7, name: 'restart-httpd' },
+    { id: 8, name: 'notify-by-email' },
+    { id: 9, name: 'check-host-alive' }
+  ]);
+
+// What a save sends when no check command is set, on both platforms.
+export const untouchedCheckOptionsPayload = {
+  args: [],
+  command_id: null
+};
+
+// onPrem only: cloud sends the four fields it allows.
+export const untouchedDataProcessingPayload = {
+  acknowledgment_timeout: null,
+  check_freshness: 'use_default',
+  event_handler_args: [],
+  event_handler_command_id: null,
+  event_handler_enabled: 'use_default',
+  flap_detection_enabled: 'use_default',
+  freshness_threshold: null,
+  high_flap_threshold: null,
+  low_flap_threshold: null
+};
+
+export const getHostSeveritiesResponse = () =>
+  toCollection([
+    { id: 1, name: 'Critical' },
+    { id: 2, name: 'Minor' }
+  ]);
+
+export const getMediasResponse = () =>
+  toCollection([
+    { id: 12, name: 'server.png', url: hostIcon },
+    { id: 13, name: 'router.png', url: hostIcon }
+  ]);
+
+// What a create sends when nothing of the Host Extended Infos section was
+// touched, onPrem; cloud sends neither `alt_icon` nor `comment`.
+export const untouchedExtendedInformationsPayload = {
+  action_url: null,
+  alt_icon: null,
+  comment: null,
+  geo_coordinates: null,
+  icon_id: null,
+  note: null,
+  note_url: null
 };
 
 // What a create sends when nothing of the Notification section was touched.
@@ -161,6 +212,14 @@ export const getHostTemplatesResponse = () =>
     { id: 6, name: 'generic-passive-host' }
   ]);
 
+// The form's own selector: a third template the listing filter does not know.
+export const getFormHostTemplatesResponse = () =>
+  toCollection([
+    { id: 5, name: 'generic-active-host' },
+    { id: 6, name: 'generic-passive-host' },
+    { id: 7, name: 'linux-server-standard' }
+  ]);
+
 // The shape MON-210415 (#11809) gives the detail endpoint: objects where the
 // create takes ids. Mocked here until it lands; nothing stubs it at runtime.
 //
@@ -170,7 +229,31 @@ export const getHostResponse = () => ({
   address: '10.10.10.10',
   alias: 'alias of host 0 as the detail endpoint spells it',
   categories: [{ id: 4, name: 'Virtual' }],
+  check_options: {
+    args: ['3', '80%'],
+    command: { id: 9, name: 'check-host-alive' },
+    macros: []
+  },
   child_hosts: [{ id: 2, name: 'host 2' }],
+  // `low_flap_threshold` is unset, so the endpoint leaves it out.
+  data_processing: {
+    acknowledgment_timeout: 15,
+    check_freshness: 'true',
+    event_handler: { id: 7, name: 'restart-httpd' },
+    event_handler_args: ['80', 'graceful'],
+    event_handler_enabled: 'false',
+    flap_detection_enabled: 'true',
+    freshness_threshold: 120,
+    high_flap_threshold: 50
+  },
+  // `note_url` and `alt_icon` are unset, so the endpoint leaves them out.
+  extended_informations: {
+    action_url: 'https://example.com/actions/host-0',
+    comment: 'Racked in room B',
+    geo_coordinates: '48.8566,2.3522',
+    icon: { id: 12, name: 'server.png', url: hostIcon },
+    note: 'Front web server'
+  },
   groups: [{ id: 1, name: 'Linux servers' }],
   name: 'host 0 as the detail endpoint spells it',
   // `recovery_delay` is unset, so the endpoint leaves it out.
@@ -189,11 +272,17 @@ export const getHostResponse = () => ({
   poller: { id: 2, name: 'Poller EU' },
   scheduling_options: {
     active_check_enabled: 'false',
-    check_period: { id: 1, name: '24x7' },
+    check_period: { id: 2, name: 'workhours' },
     max_check_attempts: 3,
     normal_check_interval: 5,
     passive_check_enabled: 'true'
   },
+  severity: { id: 2, name: 'Minor' },
   snmp_version: '2c',
+  // The reverse of the listing row's order: the first one prevails.
+  templates: [
+    { id: 6, name: 'generic-passive-host' },
+    { id: 5, name: 'generic-active-host' }
+  ],
   timezone: { id: 7, name: 'Europe/Paris' }
 });

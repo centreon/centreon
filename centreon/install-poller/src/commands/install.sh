@@ -110,6 +110,14 @@ function _installParseArguments() {
     --with-cma)
       WITH_CMA=1
       ;;
+    --cma-hostname)
+      shift
+      if [ $# -eq 0 ] || [ "${1#--}" != "$1" ]; then
+        consoleError "--cma-hostname requires a hostname."
+        exit 1
+      fi
+      CMA_HOSTNAME=$1
+      ;;
     --registry)
       shift
       FORCE_REGISTRY=$1
@@ -190,6 +198,15 @@ function _installValidateArgs() {
       ret=1
       ;;
     esac
+  fi
+
+  # Becomes the centengine container hostname: RFC 1123, max 64 chars (kernel limit)
+  if [ -n "${CMA_HOSTNAME}" ] && [ "${POLLER_TYPE}" = "docker" ]; then
+    local label='[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?'
+    if [ "${#CMA_HOSTNAME}" -gt 64 ] || ! [[ "${CMA_HOSTNAME}" =~ ^${label}(\.${label})*$ ]]; then
+      consoleError "Invalid --cma-hostname '${CMA_HOSTNAME}'. Expected a hostname or FQDN (e.g. poller.example.com), max 64 characters, no scheme or port."
+      ret=1
+    fi
   fi
 
   return ${ret}

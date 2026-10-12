@@ -44,6 +44,9 @@ final class FakePollerRepository implements PollerRepository
     /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
     public array $flaggedResources = [];
 
+    /** @var list<int> */
+    public array $flaggedPollerIds = [];
+
     public function add(Poller $poller): void
     {
         do {
@@ -132,6 +135,11 @@ final class FakePollerRepository implements PollerRepository
     public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
         $this->flaggedResources[] = $resource;
+    }
+
+    public function flagIdAsChanged(PollerId $pollerId): void
+    {
+        $this->flaggedPollerIds[] = $pollerId->value;
     }
 
     public function withCmaCertificates(): self
