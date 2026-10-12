@@ -2301,7 +2301,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('set by legacy', $rows[0]['description']);
         self::assertSame('$_HOSTADDED$', $rows[1]['host_macro_name']);
         // The host keeps its group although the host given carries none: only the macros are written.
-        self::assertSame(1, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM hostgroup_relation WHERE host_host_id = :id', ['id' => $hostId]));
+        self::assertCount(1, $this->connection->fetchAllAssociative('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :id', ['id' => $hostId]));
     }
 
     public function testReplaceMacrosNeverTouchesAHostTemplate(): void

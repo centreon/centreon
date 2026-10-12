@@ -28,8 +28,11 @@ use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
@@ -67,6 +70,8 @@ use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
@@ -86,11 +91,13 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationCont
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class PatchHostCommandHandlerRelationsTest extends TestCase
 {
@@ -130,6 +137,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->eventBus = new EventBusSpy();
         $vault = new FakeVault();
         $commandRepository = new FakeCommandRepository();
+        $logger = new LoggerSpy();
 
         $this->handler = new PatchHostCommandHandler(
             $this->repository,
@@ -153,10 +161,21 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->resourceAccessRepository,
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
+            new HostMacrosUpdater(
+                new InheritedHostMacrosResolver($this->hostTemplateRepository, $commandRepository),
+                new HostMacroChangesResolver(),
+                new FakeStandardMacroRepository(),
+                $vault,
+            ),
+            new HostSecretsSynchronizer(
+                $vault,
+                new VaultCredentialWriter($vault),
+                new HostMacroSecretsSynchronizer($vault, new VaultCredentialWriter($vault)),
+            ),
             $vault,
-            new VaultCredentialWriter($vault),
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
+            $logger,
         );
 
         foreach ([1, 2, 3] as $id) {

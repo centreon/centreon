@@ -31,8 +31,11 @@ use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
@@ -72,6 +75,8 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimePeriodNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -90,11 +95,13 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationCont
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class PatchHostCommandHandlerTest extends TestCase
 {
@@ -104,6 +111,10 @@ final class PatchHostCommandHandlerTest extends TestCase
     private FakeHostRepository $repository;
 
     private FakeCommandRepository $commandRepository;
+
+    private FakeHostTemplateRepository $hostTemplateRepository;
+
+    private LoggerSpy $logger;
 
     private FakeOptionRepository $optionRepository;
 
@@ -129,6 +140,8 @@ final class PatchHostCommandHandlerTest extends TestCase
     {
         $this->repository = new FakeHostRepository();
         $this->commandRepository = new FakeCommandRepository();
+        $this->hostTemplateRepository = new FakeHostTemplateRepository();
+        $this->logger = new LoggerSpy();
         $this->optionRepository = new FakeOptionRepository();
         $this->pollerRepository = new FakePollerRepository();
         $this->hostSeverityRepository = new FakeHostSeverityRepository();
@@ -159,11 +172,22 @@ final class PatchHostCommandHandlerTest extends TestCase
                 new FakeContactGroupRepository(),
                 $this->resourceAccessRepository,
             ),
-            new HostTemplateServicesCleaner(new FakeHostTemplateRepository(), new FakeServiceRepository(), $this->eventBus),
+            new HostTemplateServicesCleaner($this->hostTemplateRepository, new FakeServiceRepository(), $this->eventBus),
+            new HostMacrosUpdater(
+                new InheritedHostMacrosResolver($this->hostTemplateRepository, $this->commandRepository),
+                new HostMacroChangesResolver(),
+                new FakeStandardMacroRepository(['$_HOSTRESERVED$']),
+                $this->vault,
+            ),
+            new HostSecretsSynchronizer(
+                $this->vault,
+                new VaultCredentialWriter($this->vault),
+                new HostMacroSecretsSynchronizer($this->vault, new VaultCredentialWriter($this->vault)),
+            ),
             $this->vault,
-            new VaultCredentialWriter($this->vault),
             new AdditiveInheritanceModeApplier($this->optionRepository),
             $this->eventBus,
+            $this->logger,
         );
     }
 
@@ -715,9 +739,10 @@ final class PatchHostCommandHandlerTest extends TestCase
         self::assertSame([], $event->keys);
         self::assertTrue($event->bestEffort);
         self::assertSame($before, $event->host);
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
     }
 
-    public function testRemovingTheCommunityKeepsTheEntryWhileAPasswordMacroStillUsesIt(): void
+    public function testRemovingTheCommunityClearsItsKeyAndKeepsTheEntryWhileAPasswordMacroStillUsesIt(): void
     {
         $this->seedHostWithVaultedCommunity(withPasswordMacro: true);
 
@@ -727,9 +752,10 @@ final class PatchHostCommandHandlerTest extends TestCase
             snmpCommunity: null,
         ));
 
-        $event = $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class)[0];
-        self::assertSame(['_HOSTSNMPCOMMUNITY'], $event->keys);
-        self::assertTrue($event->bestEffort);
+        self::assertCount(1, $this->vault->writeManyCalls);
+        self::assertSame('uuid-1', $this->vault->writeManyCalls[0]['uuid']);
+        self::assertSame(['_HOSTSNMPCOMMUNITY'], $this->vault->writeManyCalls[0]['deletes']);
+        self::assertSame([], $this->eventBus->getDispatchedEvents(HostVaultPurgeRequested::class));
     }
 
     public function testRemovingAPlaintextCommunityReleasesNothing(): void

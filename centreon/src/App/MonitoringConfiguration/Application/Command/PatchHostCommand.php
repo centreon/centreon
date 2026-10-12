@@ -87,6 +87,7 @@ final readonly class PatchHostCommand
         public NoValue|ListChange $childHostIds = new NoValue(),
         public NoValue|ListChange $contactIds = new NoValue(),
         public NoValue|ListChange $contactGroupIds = new NoValue(),
+        public NoValue|MacroChanges $macros = new NoValue(),
         public bool $deployServicesFromTemplates = false,
         public ?UserId $viewerId = null,
     ) {
