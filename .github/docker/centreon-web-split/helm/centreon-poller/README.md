@@ -80,6 +80,30 @@ TLS identity instead:
 
 Poller-initiated (reverse) connections do not use this identity.
 
+## SNMP traps
+
+`--set traps.enabled=true` adds `snmptrapd` (receives traps on 162/udp, spools
+them) and `centreontrapd` (matches them against the definitions delivered by
+the central, submits results to the engine's command FIFO) to the poller pod,
+plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
+`<release>-snmptrap` Service (LoadBalancer, UDP 162).
+
+- Generate and apply the SNMP traps database for the poller from the central
+  (Configuration > SNMP Traps > Generate). `centreontrapd` crash-loops until
+  `centreontrapd.sdb` is delivered, logging "Can't open the file
+  .../centreontrapd.sdb: Read-only file system" (the definitions are
+  read-only for it, only gorgone writes them).
+- With `traps.logLevel=info` or `debug`, "Duplicate trap detected ...
+  Skipping" also shows up for matched traps (second pass while the result is
+  submitted): it does not mean the host is unknown.
+- `centreontrapd` matches the sender by source IP: the load balancer must keep
+  it. `externalTrafficPolicy: Local` (default) does with cloud load balancers
+  and MetalLB; k3s' built-in ServiceLB (klipper) does not.
+- `snmptrapd` runs as uid 900: the pod gets the
+  `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
+- Enabling traps on an installed poller changes the volume list (see
+  Persistence for the upgrade procedure).
+
 ## Central-side prerequisites
 
 - pullwss goes through the central's web server / ingress at
@@ -102,6 +126,8 @@ Poller-initiated (reverse) connections do not use this identity.
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
 | `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
 | `engine.otel.tls.certManager` | disabled | Certificate issued by cert-manager (`dnsNames`, `issuerRef`), see CMA |
+| `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
+| `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -115,13 +141,14 @@ Poller-initiated (reverse) connections do not use this identity.
 | `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
 | `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
+| `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`), redelivered by the central |
 
 Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
 `cma-pki` makes the engine generate a **new** default CMA CA, so every agent
 pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
 (not the case with `engine.otel.tls`, whose identity comes from your Secret or
 issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
-configuration (`engine`, `broker`) comes back with the next export.
+configuration (`engine`, `broker`, traps) comes back with the next export.
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
 ignores new chart defaults (e.g. a new volume size). A change to the volume
