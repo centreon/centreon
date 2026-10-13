@@ -33,6 +33,11 @@ use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
@@ -95,6 +100,8 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
     private FakeHostTemplateRepository $templateRepository;
 
+    private FakeCommandRepository $commandRepository;
+
     private LoggerSpy $logger;
 
     private EventBusSpy $eventBus;
@@ -112,6 +119,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $hostTemplateRepository = new FakeHostTemplateRepository();
         $this->templateRepository = $hostTemplateRepository;
         $commandRepository = new FakeCommandRepository();
+        $this->commandRepository = $commandRepository;
         $resourceAccessRepository = new FakeResourceAccessRepository();
 
         $this->handler = new PatchHostCommandHandler(
@@ -604,6 +612,39 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 self::assertSame([], $this->vault->writeManyCalls);
             }
         }
+    }
+
+    public function testACheckCommandMacroTheHostAlreadyOverridesIsReplacedWhateverIdIsSent(): void
+    {
+        $this->commandRepository->commands[9] = new Command(
+            new CommandId(9),
+            new CommandName('check_it'),
+            CommandTypeEnum::Check,
+            new CommandLine('$USER1$/check -a $_HOSTFROMCOMMAND$'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+        $this->repository->seed(new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(new CommandId(9), macros: [$this->macro('FROMCOMMAND', 'old', false, 10)]),
+        ), self::HOST_ID);
+
+        $host = $this->patch(MacroChanges::upsert([
+            new HostMacroChange(new HostMacroName('FROMCOMMAND'), 'new', false, new HostMacroId(999), HostMacroParentEnum::Command),
+        ]));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('new', $host->checkOptions->macros[0]->value);
     }
 
     #[DataProvider('macrosWithTheSameName')]

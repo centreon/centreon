@@ -192,7 +192,9 @@ final readonly class HostMacrosUpdater
                 continue;
             }
             if ($change->parent instanceof HostMacroParentEnum) {
-                $source = $inherited->findBySource($change->parent, $change->id);
+                $source = $change->parent === HostMacroParentEnum::Command
+                    ? $inherited->findByName($change->name)
+                    : $inherited->findBySource($change->parent, $change->id);
                 if ($source instanceof HostMacro) {
                     $overriddenNames[] = $source->name->value;
                 }
