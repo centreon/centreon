@@ -691,6 +691,26 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([9101], $accessibleIds);
     }
 
+    public function testOnlyTheHostsAmongTheGivenOnesAreLookedUp(): void
+    {
+        $viewerId = $this->createContact('viewer-among-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9201]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9202]);
+
+        $accessibleIds = array_map(
+            static fn (HostId $id): int => $id->value,
+            $this->repository->findAccessibleHostIds(
+                new UserId($viewerId),
+                new Collection([new HostId(9202), new HostId(9203)], HostId::class),
+            )->toArray(),
+        );
+
+        self::assertSame([9202], $accessibleIds);
+        self::assertCount(0, $this->repository->findAccessibleHostIds(new UserId($viewerId), new Collection([], HostId::class)));
+    }
+
     /**
      * @param list<int|string> $params
      */

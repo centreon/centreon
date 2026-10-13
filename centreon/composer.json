@@ -89,7 +89,6 @@
     "pestphp/pest": "3.*",
     "php-vfs/php-vfs": "1.4.*",
     "phpunit/phpunit": "11.*",
-    "squizlabs/php_codesniffer": "3.10.*",
     "symfony/browser-kit": "8.1.*",
     "symfony/debug-bundle": "8.1.*",
     "symfony/phpunit-bridge": "8.1.*",
