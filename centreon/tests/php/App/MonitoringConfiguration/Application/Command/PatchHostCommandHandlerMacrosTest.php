@@ -120,6 +120,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $this->templateRepository = $hostTemplateRepository;
         $commandRepository = new FakeCommandRepository();
         $this->commandRepository = $commandRepository;
+
         $resourceAccessRepository = new FakeResourceAccessRepository();
 
         $this->handler = new PatchHostCommandHandler(
