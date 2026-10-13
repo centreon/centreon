@@ -57,6 +57,7 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
         ActionEnum::Delete->value => 'd',
         ActionEnum::Enable->value => 'enable',
         ActionEnum::Disable->value => 'disable',
+        ActionEnum::MassChange->value => 'mc',
     ];
 
     public function __construct(

@@ -104,4 +104,58 @@ final class CheckOptionsTest extends TestCase
 
         self::assertSame([$first], $options->macros);
     }
+
+    public function testWithKeepsEveryValueWhenNothingIsProvided(): void
+    {
+        $original = new CheckOptions(new CommandId(1), ['-w'], [new HostMacro(new HostMacroName('TOKEN'), 'v', false)]);
+
+        self::assertTrue($original->equals($original->with()));
+    }
+
+    public function testWithReplacesTheArgumentsAndKeepsTheCommand(): void
+    {
+        $changed = (new CheckOptions(new CommandId(1), ['-w']))->with(args: ['-c', '90']);
+
+        self::assertSame(1, $changed->checkCommandId?->value);
+        self::assertSame(['-c', '90'], $changed->args);
+    }
+
+    public function testWithKeepsTheArgumentsWhenTheCommandChanges(): void
+    {
+        $changed = (new CheckOptions(new CommandId(1), ['-w']))->with(checkCommandId: new CommandId(2));
+
+        self::assertSame(2, $changed->checkCommandId?->value);
+        self::assertSame(['-w'], $changed->args);
+    }
+
+    public function testRemovingTheCommandAlsoClearsTheArguments(): void
+    {
+        $changed = (new CheckOptions(new CommandId(1), ['-w']))->with(checkCommandId: null);
+
+        self::assertNull($changed->checkCommandId);
+        self::assertSame([], $changed->args);
+    }
+
+    public function testRemovingTheCommandAndSendingArgumentsIsRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new CheckOptions(new CommandId(1)))->with(checkCommandId: null, args: ['-w']);
+    }
+
+    public function testArgumentsWithoutAnyCommandAreRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new CheckOptions(null))->with(args: ['-w']);
+    }
+
+    public function testEqualsComparesTheMacros(): void
+    {
+        $options = new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true, 'd')]);
+
+        self::assertTrue($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'v', true, 'd')])));
+        self::assertFalse($options->equals(new CheckOptions(null, [], [new HostMacro(new HostMacroName('TOKEN'), 'x', true, 'd')])));
+        self::assertFalse($options->equals(new CheckOptions(null)));
+    }
 }
