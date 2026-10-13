@@ -12,20 +12,34 @@ const labels = {
  */
 export class UserMenu {
   readonly profileButton: Locator;
+  readonly menu: Locator;
+  readonly connectedUser: Locator;
   readonly logoutButton: Locator;
 
   constructor(page: Page) {
-    this.profileButton = page.getByLabel(labels.profile, { exact: true });
-    this.logoutButton = page.getByText(labels.logout, { exact: true });
+    this.profileButton = page
+      .getByRole('banner')
+      .getByRole('button', { name: labels.profile });
+    this.menu = page.getByRole('tooltip').filter({
+      has: page.getByRole('button', { name: labels.logout })
+    });
+    // The first entry of the menu is the alias of the connected user.
+    this.connectedUser = this.menu.getByRole('listitem').first();
+    this.logoutButton = this.menu.getByRole('button', { name: labels.logout });
   }
 
   async open(): Promise<void> {
     await this.profileButton.click();
-    await expect(this.logoutButton).toBeVisible();
+    await expect(this.menu).toBeVisible();
   }
 
   async logout(): Promise<void> {
     await this.open();
     await this.logoutButton.click();
+  }
+
+  async expectConnectedAs(alias: string): Promise<void> {
+    await this.open();
+    await expect(this.connectedUser).toHaveText(alias);
   }
 }

@@ -1,20 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
 
-import { baseUrl } from './src/config/environment';
+import { adminStorageState, baseUrl } from './src/config/environment';
 
 export default defineConfig({
   expect: { timeout: 15_000 },
   forbidOnly: Boolean(process.env.CI),
-  // Specs that mutate the platform configuration must opt out with
-  // test.describe.configure({ mode: 'serial' }): the stack is shared.
+  // Specs mutating platform-wide settings declare a test lock (see README).
   fullyParallel: true,
   globalSetup: './src/stack/globalSetup.ts',
   globalTeardown: './src/stack/globalTeardown.ts',
   outputDir: './results/artifacts',
   projects: [
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
+      dependencies: ['setup'],
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
+      use: { ...devices['Desktop Chrome'], storageState: adminStorageState }
     }
   ],
   reporter: [

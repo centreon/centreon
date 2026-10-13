@@ -63,12 +63,18 @@ src/config/environment.ts     stack + URL settings, all env driven
 src/config/users.ts           credentials, reused from the Cypress fixtures
 src/stack/dockerStack.ts      docker compose up/down + readiness probe
 src/stack/globalSetup.ts      starts the platform once per run
+src/api/CentreonApi.ts        data seeding and cleanup through API v1 (CLAPI) and v2
 src/pages/BasePage.ts         navigation + "am I on this page" assertion
 src/pages/LoginPage.ts        page object of /centreon/login
 src/pages/ResourcesStatusPage.ts
-src/components/UserMenu.ts    component object shared by every page with a header
-src/fixtures/test.ts          page objects injected as Playwright fixtures
+src/pages/AuthenticationPage.ts          Administration > Authentication
+src/pages/AuthenticationTokensPage.ts    Administration > Authentication tokens
+src/components/               component objects: UserMenu, Snackbar, ConfirmationDialog,
+                              PasswordSecurityPolicyForm, CreateTokenDialog
+src/fixtures/test.ts          page objects, API client and disposable users as fixtures
+tests/auth.setup.ts           logs the admin in once, specs reuse the session
 tests/authentication/         specs
+tests/administration/
 ```
 
 ### Page Object Model conventions
@@ -86,9 +92,21 @@ tests/authentication/         specs
 - Specs get their page objects through fixtures and never instantiate a page
   object themselves.
 
+### Test data
+
+- Specs start logged in as admin (`storageState` saved by `tests/auth.setup.ts`);
+  specs testing the login form opt out with `anonymousStorageState`.
+- Specs seed their data through the `api` fixture and `createUser()`, with
+  `uniqueName()` names, and clean it in fixture teardown: specs never share data
+  and run in parallel on a single stack, with no container restart per feature.
+- Logging out ends the current session: do it as a dedicated user, never as the
+  shared admin.
+
 ## Notes
 
-- `fullyParallel` is enabled: the specs here do not mutate the platform. A spec
-  that changes the configuration must add
-  `test.describe.configure({ mode: 'serial' })` since the stack is shared.
+- `fullyParallel` is enabled. Specs changing a platform-wide setting declare a
+  [test lock](https://playwright.dev/docs/test-parallel) named after it, e.g.
+  `{ lock: 'password-security-policy' }`, and restore it in a fixture: tests
+  sharing a lock never run concurrently, across files and workers, and unlike
+  serial mode a failure does not skip the following tests.
 - Traces, screenshots and videos are kept on failure only, under `results/`.

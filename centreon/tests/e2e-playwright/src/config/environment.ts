@@ -27,6 +27,12 @@ export const centreonBasePath = '/centreon';
 /** Endpoint used as readiness probe: it answers only once Centreon is up. */
 export const platformVersionsUrl = `${baseUrl}${centreonBasePath}/api/latest/platform/versions`;
 
+/** Admin session saved by tests/auth.setup.ts and reused by every spec. */
+export const adminStorageState = resolve(__dirname, '../../.auth/admin.json');
+
+/** For specs that must start logged out. */
+export const anonymousStorageState = { cookies: [], origins: [] };
+
 /** Reuse a stack already running instead of starting/stopping one. */
 export const reuseExistingStack = process.env.E2E_SKIP_STACK === '1';
 
