@@ -24,9 +24,9 @@ Cypress.Commands.add('createAccWithMandatoryFields', (body: Acc) => {
 Cypress.Commands.add('updateAcc', (body: Acc) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type(body.name);
   cy.get('#mui-component-select-type').should('have.text', body.type);
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.get('svg[class*="deleteIcon"]').click();
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.wait('@getPollers');
   cy.contains(body.pollers[0]).click();
   cy.get('#Usernamevalue').clear().type(body.user);
   // To edit the password now you shoud use the pen edit icon

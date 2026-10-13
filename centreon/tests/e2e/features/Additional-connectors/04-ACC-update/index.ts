@@ -41,6 +41,10 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.api.centreon_keepalive}&action=keepAlive`
   }).as('keepAlive');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.api.monitoring_servers}?page=*`
+  }).as('getPollers');
 });
 
 after(() => {
