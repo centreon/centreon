@@ -26,6 +26,9 @@ namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandMacroTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -55,6 +58,130 @@ final class CommandTest extends TestCase
         yield 'not locked, -CMA- marker' => ['custom-CMA-check', false, false];
     }
 
+    public function testMacrosAreEmptyWhenCommandLineHasNoMacro(): void
+    {
+        $command = $this->createCommand('$USER1$/check_icmp -H $HOSTADDRESS$ -w $ARG1$');
+
+        self::assertSame([], $command->macros());
+    }
+
+    public function testMacrosAreDerivedFromCommandLineWithNullIdWhenNotStored(): void
+    {
+        $command = $this->createCommand('check $_HOSTUSER$ $_SERVICEPORT$ $_HOSTPASSWORD$');
+
+        self::assertEquals(
+            [
+                new CommandMacro(null, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'PASSWORD', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Service),
+            ],
+            $command->macros(),
+        );
+    }
+
+    public function testMacrosCanBeFilteredByType(): void
+    {
+        $command = $this->createCommand('check $_HOSTUSER$ $_SERVICEPORT$ $_HOSTPASSWORD$');
+
+        self::assertEquals(
+            [
+                new CommandMacro(null, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'PASSWORD', CommandMacroTypeEnum::Host),
+            ],
+            $command->macros(CommandMacroTypeEnum::Host),
+        );
+        self::assertEquals(
+            [new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Service)],
+            $command->macros(CommandMacroTypeEnum::Service),
+        );
+    }
+
+    public function testMacrosIdsAreMatchedOnNameAndType(): void
+    {
+        $command = $this->createCommand(
+            'check $_HOSTUSER$ $_SERVICEUSER$ $_HOSTPORT$',
+            [
+                new CommandMacro(new CommandMacroId(10), 'USER', CommandMacroTypeEnum::Service),
+                new CommandMacro(new CommandMacroId(11), 'USER', CommandMacroTypeEnum::Host),
+                // stale macro, no longer in the command line
+                new CommandMacro(new CommandMacroId(12), 'OLD', CommandMacroTypeEnum::Host),
+            ],
+        );
+
+        self::assertEquals(
+            [
+                new CommandMacro(new CommandMacroId(11), 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'PORT', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(10), 'USER', CommandMacroTypeEnum::Service),
+            ],
+            $command->macros(),
+        );
+    }
+
+    public function testFirstStoredMacroWinsOnDuplicates(): void
+    {
+        $command = $this->createCommand(
+            'check $_HOSTUSER$',
+            [
+                new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(4), 'USER', CommandMacroTypeEnum::Host),
+            ],
+        );
+
+        self::assertEquals([new CommandMacro(new CommandMacroId(3), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
+    }
+
+    public function testNonUppercaseMacrosAreIgnored(): void
+    {
+        $command = $this->createCommand(
+            'check $_HOSTUser$ $_HOSTuser$ $_HOSTUSER$ $_SERVICEport$ $_HOSTsnmpcommunity$',
+            [
+                new CommandMacro(new CommandMacroId(3), 'User', CommandMacroTypeEnum::Host),
+                new CommandMacro(new CommandMacroId(4), 'USER', CommandMacroTypeEnum::Host),
+            ],
+        );
+
+        self::assertEquals([new CommandMacro(new CommandMacroId(4), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
+    }
+
+    public function testSnmpHostMacrosAreExcluded(): void
+    {
+        $command = $this->createCommand(
+            'check -C $_HOSTSNMPCOMMUNITY$ -v $_HOSTSNMPVERSION$ $_HOSTUSER$ $_SERVICESNMPCOMMUNITY$',
+        );
+
+        self::assertEquals(
+            [
+                new CommandMacro(null, 'USER', CommandMacroTypeEnum::Host),
+                new CommandMacro(null, 'SNMPCOMMUNITY', CommandMacroTypeEnum::Service),
+            ],
+            $command->macros(),
+        );
+    }
+
+    public function testStoredMacrosAreLoadedLazilyAndOnce(): void
+    {
+        $loader = new class () {
+            public int $calls = 0;
+
+            /**
+             * @return list<CommandMacro>
+             */
+            public function load(): array
+            {
+                ++$this->calls;
+
+                return [new CommandMacro(new CommandMacroId(7), 'USER', CommandMacroTypeEnum::Host)];
+            }
+        };
+        $command = $this->createCommand('check $_HOSTUSER$', $loader->load(...));
+
+        self::assertSame(0, $loader->calls);
+        $command->macros();
+        self::assertEquals([new CommandMacro(new CommandMacroId(7), 'USER', CommandMacroTypeEnum::Host)], $command->macros());
+        self::assertSame(1, $loader->calls);
+    }
+
     private function command(string $name, bool $locked): Command
     {
         return new Command(
@@ -67,6 +194,25 @@ final class CommandTest extends TestCase
             isFromMonitoringConnector: $locked,
             connector: null,
             comment: null,
+        );
+    }
+
+    /**
+     * @param list<CommandMacro>|(\Closure(): list<CommandMacro>) $storedMacros
+     */
+    private function createCommand(string $commandLine, array|\Closure $storedMacros = []): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName('check'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine($commandLine),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+            storedMacros: $storedMacros,
         );
     }
 }
