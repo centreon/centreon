@@ -142,7 +142,7 @@ manageApacheAndPhpFpm() {
     systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php@PHP_MIN_VERSION@ > /dev/null 2>&1 || :
-    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod headers proxy proxy_fcgi proxy_wstunnel setenvif rewrite alias > /dev/null 2>&1 || :
     a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
