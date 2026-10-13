@@ -52,6 +52,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostMacroNameException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueIsAVaultReferenceException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
@@ -423,23 +424,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'massChanged' => true,
         ]];
 
-        yield 'replace: a password that stops being one gets its plain value and leaves the vault' => [[
-            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
-            'changes' => MacroChanges::replace([$change('TOKEN', 'plain', false, 10)]),
-            'after' => ['TOKEN' => ['plain', false]],
-            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
-            'macrosWritten' => true,
-            'purged' => true,
-        ]];
-
-        yield 'replace: a password that stops being one leaves the entry while another password uses it' => [[
-            'before' => [['TOKEN', $reference('TOKEN'), true, 10], ['OTHER', $reference('OTHER'), true, 11]],
-            'changes' => MacroChanges::replace([$change('TOKEN', 'plain', false, 10), $change('OTHER', null, true, 11)]),
-            'after' => ['TOKEN' => ['plain', false], 'OTHER' => [$reference('OTHER'), true]],
-            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
-            'macrosWritten' => true,
-        ]];
-
         yield 'replace: a macro that becomes a password goes to the vault' => [[
             'before' => [['TOKEN', 'plain', false, 10]],
             'changes' => MacroChanges::replace([$change('TOKEN', 'plain', true, 10)]),
@@ -499,15 +483,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'after' => ['TOKEN' => [$reference('TOKEN'), true]],
             'vaultCalls' => [['secrets' => ['_HOSTTOKEN' => 'new-secret'], 'deletes' => []]],
             'massChanged' => true,
-        ]];
-
-        yield 'upsert: a password that stops being one leaves the vault' => [[
-            'before' => [['TOKEN', $reference('TOKEN'), true, 10]],
-            'changes' => MacroChanges::upsert([$change('TOKEN', 'plain', false, 10)]),
-            'after' => ['TOKEN' => ['plain', false]],
-            'vaultCalls' => [['secrets' => [], 'deletes' => ['_HOSTTOKEN']]],
-            'macrosWritten' => true,
-            'purged' => true,
         ]];
 
         yield 'upsert: a new password joins the entry the host already has' => [[
@@ -612,6 +587,22 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             self::fail('The rename onto an existing name should have been refused.');
         } catch (DuplicateHostMacroNameException) {
             self::assertSame([], $this->repository->macrosReplacedHosts);
+        }
+    }
+
+    public function testAPasswordCannotStopBeingOneAndNothingIsWritten(): void
+    {
+        $reference = 'secret::vault::monitoring/hosts/uuid-1::_HOSTTOKEN';
+        $this->seedHost([$this->macro('TOKEN', $reference, true, 10)]);
+
+        foreach ([MacroChanges::replace(...), MacroChanges::upsert(...)] as $mode) {
+            try {
+                $this->patch($mode([new HostMacroChange(new HostMacroName('TOKEN'), 'plain', false, new HostMacroId(10))]));
+                self::fail('Turning a password into a plain macro should have been refused.');
+            } catch (HostMacroPasswordUnmaskedException) {
+                self::assertSame([], $this->repository->macrosReplacedHosts);
+                self::assertSame([], $this->vault->writeManyCalls);
+            }
         }
     }
 
