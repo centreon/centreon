@@ -729,6 +729,15 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             'macrosWritten' => true,
         ]];
 
+        yield 'an inherited macro the host already overrides is overridden again by its id and parent' => [[
+            'templates' => [1 => [$port]],
+            'hostTemplates' => [1],
+            'before' => [['PORT', '90', false, 10]],
+            'changes' => MacroChanges::upsert([$change('PORT', '95', false, 500, HostMacroParentEnum::Template)]),
+            'after' => ['PORT' => ['95', false]],
+            'macrosWritten' => true,
+        ]];
+
         yield 'an override set back to the inherited value is removed' => [[
             'templates' => [1 => [$port]],
             'hostTemplates' => [1],

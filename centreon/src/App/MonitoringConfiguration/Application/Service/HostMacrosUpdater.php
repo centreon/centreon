@@ -76,11 +76,11 @@ final readonly class HostMacrosUpdater
 
         $inherited = $this->inheritedMacrosResolver->resolve($host->templateIds, $host->checkOptions->checkCommandId);
 
-        if ($changes->mode === MacroChangeModeEnum::Replace) {
-            return $this->assertNamesAreUnique($this->changesResolver->resolve($changes->changes, $current, $inherited));
-        }
-
         $resolved = $this->changesResolver->resolve($changes->changes, $current, $inherited);
+
+        if ($changes->mode === MacroChangeModeEnum::Replace) {
+            return $this->assertNamesAreUnique($resolved);
+        }
 
         return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $changes->changes, $resolved));
     }
@@ -116,15 +116,11 @@ final readonly class HostMacrosUpdater
     private function remove(array $current, array $ids): array
     {
         $ownIds = array_map(static fn (HostMacro $macro): int => (int) $macro->id?->value, $current);
-        $unknownIds = array_values(array_diff(
-            array_map(static fn (HostMacroId $id): int => $id->value, $ids),
-            $ownIds,
-        ));
+        $removedIds = array_map(static fn (HostMacroId $id): int => $id->value, $ids);
+        $unknownIds = array_values(array_diff($removedIds, $ownIds));
         if ($unknownIds !== []) {
             throw new HostMacroNotFoundException($unknownIds);
         }
-
-        $removedIds = array_map(static fn (HostMacroId $id): int => $id->value, $ids);
 
         return array_values(array_filter(
             $current,
@@ -174,8 +170,9 @@ final readonly class HostMacrosUpdater
     }
 
     /**
-     * The macros a write did not point at are kept as they are; the ones it wrote follow. The order
-     * carries no meaning, a host holds its macros as a set.
+     * The macros a write did not point at are kept as they are; the ones it wrote follow. A write that
+     * points at an inherited macro replaces the macro the host owns under that name. The order carries no
+     * meaning, a host holds its macros as a set.
      *
      * @param list<HostMacro> $current
      * @param list<HostMacroChange> $changes
@@ -187,11 +184,14 @@ final readonly class HostMacrosUpdater
     {
         $ownIds = array_map(static fn (HostMacro $macro): int => (int) $macro->id?->value, $current);
         $pointedAtIds = [];
+        $overriddenNames = [];
         foreach ($changes as $change) {
             if (! $change->id instanceof HostMacroId) {
                 continue;
             }
             if ($change->parent instanceof HostMacroParentEnum) {
+                $overriddenNames[] = $change->name->value;
+
                 continue;
             }
             if (in_array($change->id->value, $ownIds, true)) {
@@ -201,7 +201,8 @@ final readonly class HostMacrosUpdater
 
         $kept = array_filter(
             $current,
-            static fn (HostMacro $macro): bool => ! in_array($macro->id?->value, $pointedAtIds, true),
+            static fn (HostMacro $macro): bool => ! in_array($macro->id?->value, $pointedAtIds, true)
+                && ! in_array($macro->name->value, $overriddenNames, true),
         );
 
         return array_values([...$kept, ...$resolved]);

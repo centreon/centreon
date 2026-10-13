@@ -291,6 +291,8 @@ final readonly class PatchHostCommandHandler
     /**
      * A secret given is written to the vault, and the host keeps the very same reference when it already had
      * one, since the path of a vaulted value only depends on its entry and its key: the update still counts.
+     * Any password given with a value counts, even when it ends up equal to the inherited macro or empty:
+     * reporting a change that did not happen is harmless, missing one would leave the poller stale.
      */
     private function providesASecret(PatchHostCommand $command): bool
     {
@@ -309,7 +311,8 @@ final readonly class PatchHostCommandHandler
     private function touchesTheVault(Host $before, Host $after, PatchHostCommand $command): bool
     {
         return $this->vault->isEnabled() && (
-            ! $command->snmpCommunity instanceof NoValue
+            $command->snmpCommunity === null
+            || (is_string($command->snmpCommunity) && ! $this->vault->isVaultPath($command->snmpCommunity))
             || (
                 $command->macros instanceof MacroChanges
                 && array_any([...$before->checkOptions->macros, ...$after->checkOptions->macros], static fn (HostMacro $macro): bool => $macro->isPassword)
@@ -385,9 +388,11 @@ final readonly class PatchHostCommandHandler
     }
 
     /**
-     * A host left without any secret leaves its entry empty in the vault. It is removed once the update
-     * is committed, so that a failed update never deletes a live secret. The purge is best effort: a
-     * leftover entry is harmless, and the update is already saved.
+     * A host left without any secret leaves its entry empty in the vault. The entry is removed once the
+     * update is committed, so that a failed update never deletes the entry itself. The keys cleared along
+     * the way, the community and the passwords removed or demoted, are cleared before the save, see
+     * {@see self::__invoke()}. The purge is best effort: a leftover entry is harmless, and the update is
+     * already saved.
      */
     private function releaseCredentialsOf(Host $hostBefore, Host $hostAfter): void
     {

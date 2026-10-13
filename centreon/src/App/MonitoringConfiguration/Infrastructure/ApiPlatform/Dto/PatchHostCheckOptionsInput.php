@@ -79,7 +79,7 @@ final readonly class PatchHostCheckOptionsInput
     #[Assert\Callback]
     public function validateMacroNamesAreUnique(ExecutionContextInterface $context): void
     {
-        foreach (['macros' => $this->macros, 'macros_to_upsert' => $this->macrosToUpsert] as $key => $macros) {
+        foreach (['macros' => $this->macros, 'macrosToUpsert' => $this->macrosToUpsert] as $key => $macros) {
             $seen = [];
             foreach ($macros as $index => $macro) {
                 if (! $macro instanceof HostMacroInput) {
