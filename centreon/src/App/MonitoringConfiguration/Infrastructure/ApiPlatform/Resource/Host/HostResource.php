@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
@@ -39,6 +40,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
@@ -60,8 +62,29 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             input: CreateHostInput::class,
             processor: CreateHostProcessor::class,
         ),
+        new Get(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Without this, `{id}` also captures the sibling host-form selector routes
+            // (/configuration/hosts/pollers, /host-categories, /medias, ...): the literal segment is
+            // cast to int 0 and routed here, 500ing on HostId(0). Constrain it to positive integers so
+            // those GET routes keep matching their own providers, and `/0` is a 404 too.
+            requirements: ['id' => '[1-9]\d*'],
+            provider: GetHostProvider::class,
+            openapi: new Model\Operation(
+                responses: [
+                    403 => new Model\Response('You are not allowed to view hosts'),
+                    404 => new Model\Response('Host not found'),
+                ],
+            ),
+            security: '
+                is_granted("' . HostPermissionEnum::CanRead->value . '") or
+                is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to view hosts',
+        ),
         new Patch(
             uriTemplate: '/configuration/hosts/{id}',
+            // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
             status: 204,
             // Write-only action: no item provider, the handler loads the host itself and answers 404
             // when it is missing or outside the viewer's scope.
@@ -108,6 +131,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
         ),
         new Put(
             uriTemplate: '/configuration/hosts/{id}',
+            // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
             // Write-only replace: the processor loads the host itself (404 via the handler when it is
             // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
             // full updated resource.
@@ -175,6 +200,8 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
         ),
         new Delete(
             uriTemplate: '/configuration/hosts/{id}',
+            // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
             processor: DeleteHostProcessor::class,
             read: false,
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
@@ -228,6 +255,11 @@ final class HostResource
         public bool $activated,
 
         public ?SnmpVersionEnum $snmpVersion = null,
+
+        // The community itself is write-only (a secret, possibly in the vault): this only tells
+        // whether one is set, which a client cannot otherwise know.
+        #[ApiProperty(description: 'Whether an SNMP community is set. The community itself is never returned.', writable: false)]
+        public bool $isSnmpCommunityDefined = false,
     ) {
     }
 }

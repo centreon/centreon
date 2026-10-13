@@ -63,6 +63,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var Collection<ContactGroupId> unlike the nullable ones, contact groups have no "unrestricted" case */
     public Collection $accessibleContactGroupIds;
 
+    /** @var Collection<HostId> unlike the nullable ones, hosts have no "unrestricted" case */
+    public Collection $accessibleHostIds;
+
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
     public array $grantedAccess = [];
 
@@ -80,6 +83,7 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     {
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
         $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
+        $this->accessibleHostIds = new Collection([], HostId::class);
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -128,6 +132,23 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         ++$this->accessListLoads;
 
         return $this->accessibleContactGroupIds;
+    }
+
+    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
+    {
+        if (! $among instanceof Collection) {
+            return $this->accessibleHostIds;
+        }
+
+        $amongIds = array_map(static fn (HostId $id): int => $id->value, $among->toArray());
+
+        return new Collection(
+            array_values(array_filter(
+                $this->accessibleHostIds->toArray(),
+                static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
+            )),
+            HostId::class,
+        );
     }
 
     public function findAccessibleImageFolderIds(UserId $userId): ?Collection

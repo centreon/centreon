@@ -179,9 +179,26 @@ final readonly class UpdateHostCommandHandler
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds);
+        // Only the hosts involved are looked up: those submitted, and those already linked that
+        // may have to be preserved.
+        $accessibleHostIds = $command->viewerId instanceof UserId
+            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId, new Collection([
+                ...$command->parentHostIds->toArray(),
+                ...$command->childHostIds->toArray(),
+                ...$existingHost->parentHostIds->toArray(),
+                ...$existingHost->childHostIds->toArray(),
+            ], HostId::class))
+            : null;
 
-        $this->assertRelationsAreNotCircular($command->id, $command->parentHostIds, $command->childHostIds);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);
+
+        // Out-of-scope parent and child hosts are hidden from a restricted viewer (as by the legacy
+        // host form), who cannot resend them, so they are preserved. The circularity check runs on
+        // the final lists, since a preserved relation is kept in the graph.
+        $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $accessibleHostIds, HostId::class);
+        $childHostIds = $this->preserveInaccessible($command->childHostIds, $existingHost->childHostIds, $accessibleHostIds, HostId::class);
+
+        $this->assertRelationsAreNotCircular($command->id, $parentHostIds, $childHostIds);
 
         $checkCommand = $command->checkOptions->checkCommandId instanceof CommandId
             ? $this->commandRepository->getById($command->checkOptions->checkCommandId)
@@ -192,6 +209,14 @@ final readonly class UpdateHostCommandHandler
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
 
+        // Resolved before any vault write: it rejects an unknown macro id or a missing value, and a
+        // rejected request must leave the vault as the stored host still references it.
+        $resolvedMacros = $this->hostMacroChangesResolver->resolve(
+            $command->macroChanges,
+            $existingHost->checkOptions->macros,
+            $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId),
+        );
+
         // Legacy keeps every secret of a host (SNMP community + password macros) under one vault entry.
         // On an update that entry may already exist, so its UUID is reused rather than minting a second.
         $existingVaultUuid = $this->vault->isEnabled() ? $existingHost->getVaultUuid($this->vault) : null;
@@ -201,7 +226,7 @@ final readonly class UpdateHostCommandHandler
             ? $this->extractVaultUuid($snmpCommunity->value)
             : $existingVaultUuid;
 
-        [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $vaultUuid, $vaultWritten);
+        [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $resolvedMacros, $vaultUuid, $vaultWritten);
 
         // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
         // categories and severity are ACL-scoped (asserted above), so a restricted viewer never sees
@@ -246,14 +271,16 @@ final readonly class UpdateHostCommandHandler
             checkOptions: $checkOptions,
             // Absent on Cloud, where notifications follow another model: the stored block is kept.
             notifications: $command->notifications instanceof Notifications
-                ? $this->additiveInheritanceModeApplier->apply($command->notifications)
+                ? $this->additiveInheritanceModeApplier->apply(
+                    $this->preserveInaccessibleContacts($command->notifications, $existingHost->notifications, $command->viewerId),
+                )
                 : new NoValue(),
             activated: $command->activated,
             templateIds: $command->templateIds,
             hostGroupIds: $hostGroupIds,
             categoryIds: $categoryIds,
-            parentHostIds: $command->parentHostIds,
-            childHostIds: $command->childHostIds,
+            parentHostIds: $parentHostIds,
+            childHostIds: $childHostIds,
         );
 
         // A vault reference only depends on the entry and the key, never on the value: a secret
@@ -368,24 +395,20 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * Resolves the submitted macros by id + parent against the macros the host owns and those it
-     * inherits (from its templates or its check command): a direct macro is changed in place, a
-     * changed inherited macro becomes a new direct macro of the host (the inherited one is left
-     * untouched), and one that merely repeats an inherited macro is dropped. Then moves every
-     * password macro under the host's own vault entry, leaving a `secret::` reference in its place,
-     * and removes the keys no macro references any more, before the host is persisted.
+     * Moves every password macro of the resolved ones (see HostMacroChangesResolver) under the
+     * host's own vault entry, leaving a `secret::` reference in its place, and removes the keys no
+     * macro references any more, before the host is persisted.
      *
+     * @param list<HostMacro> $resolved the direct macros the host must own
      * @param ?string $vaultUuid the host's vault entry (its SNMP community's, or the existing one), or
      *                           null when there is none, or the vault is off
      * @param bool $vaultWritten see writeToVault()
      *
      * @return array{CheckOptions, bool} the check options, and whether a password was written to the vault
      */
-    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, ?string $vaultUuid, bool &$vaultWritten): array
+    private function prepareCheckOptions(UpdateHostCommand $command, Host $existingHost, array $resolved, ?string $vaultUuid, bool &$vaultWritten): array
     {
         $current = $existingHost->checkOptions->macros;
-        $inherited = $this->inheritedHostMacrosResolver->resolve($command->templateIds, $command->checkOptions->checkCommandId);
-        $resolved = $this->hostMacroChangesResolver->resolve($command->macroChanges, $current, $inherited);
         $synchronized = false;
         $macros = $this->writeToVault(
             $existingHost->id(),
@@ -545,6 +568,35 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
+     * {@see self::preserveInaccessible()} applied to the notification contacts and contact groups,
+     * which the legacy host form hides too when out of the viewer's scope.
+     */
+    private function preserveInaccessibleContacts(
+        Notifications $submitted,
+        ?Notifications $existing,
+        ?UserId $viewerId,
+    ): Notifications {
+        if (! $existing instanceof Notifications || ! $viewerId instanceof UserId) {
+            return $submitted;
+        }
+
+        return $submitted->withContacts(
+            $this->preserveInaccessible(
+                $submitted->contactIds,
+                $existing->contactIds,
+                $this->resourceAccessRepository->findAccessibleContactIds($viewerId),
+                NotificationContactId::class,
+            ),
+            $this->preserveInaccessible(
+                $submitted->contactGroupIds,
+                $existing->contactGroupIds,
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId),
+                ContactGroupId::class,
+            ),
+        );
+    }
+
+    /**
      * Single-valued counterpart of {@see self::preserveInaccessible()} for the host severity: the
      * submitted severity wins when present; otherwise an existing severity the viewer cannot access
      * is preserved (a restricted viewer who sends none never meant to clear a severity they cannot
@@ -681,23 +733,31 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
+     * ACL-scoped: a restricted viewer may only link the hosts within their scope, as the legacy
+     * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
+     * are not told apart, so a restricted viewer cannot probe for hosts they cannot see. Host
+     * templates resolve to nothing here, so one cannot be smuggled in.
+     *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
+     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?Collection $accessibleHostIds): void
     {
-        $this->assertHostsExist($parentHostIds, 'parentHostIds');
-        $this->assertHostsExist($childHostIds, 'childHostIds');
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
     }
 
     /**
      * @param Collection<HostId> $hostIds
+     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
     {
         $missingIds = $this->missingIds(
             $hostIds,
             fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
+            $accessibleHostIds,
         );
 
         if ($missingIds !== []) {
