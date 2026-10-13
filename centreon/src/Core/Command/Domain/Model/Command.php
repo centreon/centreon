@@ -34,6 +34,7 @@ class Command
     public const COMMAND_MAX_LENGTH = NewCommand::COMMAND_MAX_LENGTH;
     public const EXAMPLE_MAX_LENGTH = NewCommand::EXAMPLE_MAX_LENGTH;
     public const NAME_MAX_LENGTH = NewCommand::NAME_MAX_LENGTH;
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 500;
 
     /**
      * @param int $id
