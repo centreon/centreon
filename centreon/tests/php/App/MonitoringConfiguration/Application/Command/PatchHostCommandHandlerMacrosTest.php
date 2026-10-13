@@ -588,6 +588,33 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         }
     }
 
+    public function testAnInheritedMacroRenamedOntoTheNameOfAnotherOwnMacroIsRefusedAndNothingIsLost(): void
+    {
+        $this->templateRepository->hostTemplates[1] = new HostTemplate(
+            new HostTemplateId(1),
+            new HostTemplateName('template-1'),
+            new Collection([$this->macro('PORT', '80', false, 500)], HostMacro::class),
+        );
+        $this->repository->seed(new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([new HostTemplateId(1)], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            checkOptions: new CheckOptions(null, macros: [$this->macro('OTHER', 'x', false, 10)]),
+        ), self::HOST_ID);
+
+        try {
+            $this->patch(MacroChanges::upsert([new HostMacroChange(new HostMacroName('OTHER'), '90', false, new HostMacroId(500), HostMacroParentEnum::Template)]));
+            self::fail('The rename onto an existing name should have been refused.');
+        } catch (DuplicateHostMacroNameException) {
+            self::assertSame([], $this->repository->macrosReplacedHosts);
+        }
+    }
+
     #[DataProvider('macrosWithTheSameName')]
     public function testTwoMacrosOfTheSameNameAreRefused(MacroChanges $changes): void
     {

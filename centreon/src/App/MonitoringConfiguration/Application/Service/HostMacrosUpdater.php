@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\InheritedHostMacros;
 use App\MonitoringConfiguration\Domain\Aggregate\StandardMacro\StandardMacro;
 use App\MonitoringConfiguration\Domain\Exception\DuplicateHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
@@ -82,7 +83,7 @@ final readonly class HostMacrosUpdater
             return $this->assertNamesAreUnique($resolved);
         }
 
-        return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $changes->changes, $resolved));
+        return $this->assertNamesAreUnique($this->mergeWithUntouched($current, $changes->changes, $resolved, $inherited));
     }
 
     /**
@@ -171,8 +172,9 @@ final readonly class HostMacrosUpdater
 
     /**
      * The macros a write did not point at are kept as they are; the ones it wrote follow. A write that
-     * points at an inherited macro replaces the macro the host owns under that name. The order carries no
-     * meaning, a host holds its macros as a set.
+     * points at an inherited macro replaces the macro the host owns under the name of that inherited macro,
+     * not under the name it is given: a macro the host already owns under the new name is not replaced,
+     * which the check of the names refuses. The order carries no meaning, a host holds its macros as a set.
      *
      * @param list<HostMacro> $current
      * @param list<HostMacroChange> $changes
@@ -180,7 +182,7 @@ final readonly class HostMacrosUpdater
      *
      * @return list<HostMacro>
      */
-    private function mergeWithUntouched(array $current, array $changes, array $resolved): array
+    private function mergeWithUntouched(array $current, array $changes, array $resolved, InheritedHostMacros $inherited): array
     {
         $ownIds = array_map(static fn (HostMacro $macro): int => (int) $macro->id?->value, $current);
         $pointedAtIds = [];
@@ -190,7 +192,10 @@ final readonly class HostMacrosUpdater
                 continue;
             }
             if ($change->parent instanceof HostMacroParentEnum) {
-                $overriddenNames[] = $change->name->value;
+                $source = $inherited->findBySource($change->parent, $change->id);
+                if ($source instanceof HostMacro) {
+                    $overriddenNames[] = $source->name->value;
+                }
 
                 continue;
             }
