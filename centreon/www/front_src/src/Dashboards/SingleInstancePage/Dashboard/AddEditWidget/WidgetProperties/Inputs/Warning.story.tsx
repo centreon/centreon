@@ -9,6 +9,15 @@ interface Props {
   label?: string;
 }
 
+// Required by WidgetPropertyProps but unused by the warning field.
+const widgetPropertyProps = {
+  forceSingleAutocompleteConditions: { conditions: [], resourceType: '' },
+  isInGroup: false,
+  isSingleAutocomplete: false,
+  propertyName: 'warning',
+  type: 'warning'
+};
+
 export const WithLabel = ({ label = 'Text' }: Props): JSX.Element => {
   const store = useMemo(() => {
     const created = createStore();
@@ -25,7 +34,7 @@ export const WithLabel = ({ label = 'Text' }: Props): JSX.Element => {
         initialValues={{ moduleName: 'widget', options: {} }}
         onSubmit={() => undefined}
       >
-        <WidgetWarningField label={label} />
+        <WidgetWarningField {...widgetPropertyProps} label={label} />
       </Formik>
     </Provider>
   );

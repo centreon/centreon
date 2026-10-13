@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["react"]
+  },
+  "extends": "../../tsconfig.json",
+  "include": [
+    ".",
+    "../../playwright",
+    "../../types",
+    "../../packages/ui/src/@types"
+  ]
+}

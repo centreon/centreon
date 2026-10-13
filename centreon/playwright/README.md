@@ -1,6 +1,6 @@
 # Playwright component testing
 
-Proof of concept of the Playwright 1.62 **story gallery** model, migrating a few
+Proof of concept of the Playwright **story gallery** model (1.62+, on 1.63), migrating a few
 Cypress component tests (`*.cypress.spec.tsx`). It runs alongside the Cypress
 component suite — nothing is removed yet.
 
@@ -10,6 +10,7 @@ component suite — nothing is removed yet.
 node_modules/.bin/playwright test --project=components
 node_modules/.bin/playwright test --project=components --ui
 node_modules/.bin/playwright test --project=components --update-snapshots
+node playwright/generate-stories.mjs && node_modules/.bin/tsc -p tests/components
 ```
 
 The equivalent `pnpm playwright:ct*` scripts exist in `package.json` but `pnpm run`
@@ -41,6 +42,13 @@ Three pieces, per the Playwright model:
 Story ids are the path under `www/front_src/src` without the `.story.tsx`
 extension, plus the export name. Any unique suffix resolves too, so specs use
 short ids like `Inputs/Warning/WithLabel`.
+
+`playwright/generate-stories.mjs` writes `playwright/stories.d.ts`, which
+augments the `Stories` interface of `@playwright/test` (1.63) with every full id
+and unambiguous suffix: `mount('Inputs/Warning/WithLabel', { label })`
+autocompletes the id and type-checks the props without importing the story.
+Rerun it after adding, renaming or moving a story; `tests/components/tsconfig.json`
+type-checks the specs, the stories and the registry together.
 
 ## What the migrated specs demonstrate
 
@@ -74,8 +82,9 @@ short ids like `Inputs/Warning/WithLabel`.
 
 ## Known gaps
 
-- Story ids are strings: renaming a story breaks specs at runtime, not at
-  compile time. `mount<typeof Story>` at least type-checks the props.
+- `mount()` still accepts any string next to the registry ids, so a stale id
+  fails at runtime; regenerating the registry keeps autocompletion and props
+  typing accurate.
 - The gallery surfaces synchronous render errors only; an error thrown in an
   effect shows up as a failed assertion rather than a rejected `mount()`.
 - Not wired into CI yet, which is why the three Cypress specs still exist.
