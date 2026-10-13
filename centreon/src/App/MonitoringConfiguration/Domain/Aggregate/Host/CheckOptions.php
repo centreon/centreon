@@ -91,11 +91,14 @@ final readonly class CheckOptions
 
     public function equals(self $other): bool
     {
-        if (
-            $this->checkCommandId?->value !== $other->checkCommandId?->value
-            || $this->args !== $other->args
-            || count($this->macros) !== count($other->macros)
-        ) {
+        return $this->checkCommandId?->value === $other->checkCommandId?->value
+            && $this->args === $other->args
+            && $this->hasSameMacrosAs($other);
+    }
+
+    public function hasSameMacrosAs(self $other): bool
+    {
+        if (count($this->macros) !== count($other->macros)) {
             return false;
         }
 

@@ -2266,6 +2266,63 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertNull($rows[1]['is_password']);
     }
 
+    public function testReplaceMacrosWritesMacrosInPlaceAndLeavesTheRelationsAlone(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $hostId = $this->createHost('server-01', $pollerId);
+        $groupId = $this->createHostGroup('linux');
+        $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $groupId, 'host_host_id' => $hostId]);
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTKEPT$',
+            'host_macro_value' => 'old-value',
+            'description' => 'set by legacy',
+            'host_host_id' => $hostId,
+        ]);
+        $keptId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTDROPPED$',
+            'host_macro_value' => 'x',
+            'host_host_id' => $hostId,
+        ]);
+
+        $this->repository->replaceMacros($this->host(
+            id: $hostId,
+            name: 'server-01',
+            pollerId: $pollerId,
+            macros: [
+                new HostMacro(new HostMacroName('kept'), 'new-value', isPassword: false, id: new HostMacroId($keptId)),
+                new HostMacro(new HostMacroName('added'), 'added-value', isPassword: false),
+            ],
+        ));
+
+        $rows = $this->macroRows($hostId);
+        self::assertCount(2, $rows);
+        self::assertSame('new-value', $rows[0]['host_macro_value']);
+        self::assertSame('set by legacy', $rows[0]['description']);
+        self::assertSame('$_HOSTADDED$', $rows[1]['host_macro_name']);
+        // The host keeps its group although the host given carries none: only the macros are written.
+        self::assertCount(1, $this->connection->fetchAllAssociative('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :id', ['id' => $hostId]));
+    }
+
+    public function testReplaceMacrosNeverTouchesAHostTemplate(): void
+    {
+        $templateId = $this->createHostTemplate('generic-host');
+        $this->connection->insert('on_demand_macro_host', [
+            'host_macro_name' => '$_HOSTSHARED$',
+            'host_macro_value' => 'tpl-value',
+            'host_host_id' => $templateId,
+        ]);
+
+        $this->repository->replaceMacros($this->host(
+            id: $templateId,
+            name: 'generic-host',
+            pollerId: $this->createPoller('Central'),
+            macros: [],
+        ));
+
+        self::assertCount(1, $this->macroRows($templateId));
+    }
+
     public function testReplaceRelationsAndMacrosNeverWritesToAMacroRowTheHostDoesNotOwn(): void
     {
         // Templates keep their macros in the same table: an id that is not one of the host's own rows
