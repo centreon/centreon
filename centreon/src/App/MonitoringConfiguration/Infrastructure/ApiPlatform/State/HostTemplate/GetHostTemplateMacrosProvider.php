@@ -32,22 +32,22 @@ use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateSkeletonOutput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateMacrosOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\Shared\Domain\Collection;
 use Webmozart\Assert\Assert;
 
 /**
- * Returns a host template's macros for the host form, before the host exists: the template's own
+ * Returns a host template's macros to prefill a host before it is created: the template's own
  * macros (direct, parent null), then those it inherits from its ancestor templates and check
  * commands that it does not override (parent "template" or "command"), resolved like GetHost.
  *
- * Scoped like the host-form choices list (ListHostTemplatesChoicesProvider): no viewer scoping, and
- * locked (paid plugin-pack) templates are not found. An inactive template is not found either.
+ * Scoped like the host template choices list (ListHostTemplatesChoicesProvider): no viewer scoping,
+ * and locked (paid plugin-pack) templates are not found. An inactive template is not found either.
  *
- * @implements ProviderInterface<HostTemplateSkeletonOutput>
+ * @implements ProviderInterface<HostTemplateMacrosOutput>
  */
-final readonly class GetHostTemplateSkeletonProvider implements ProviderInterface
+final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
 {
     public function __construct(
         private HostTemplateRepository $repository,
@@ -56,7 +56,7 @@ final readonly class GetHostTemplateSkeletonProvider implements ProviderInterfac
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): HostTemplateSkeletonOutput
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): HostTemplateMacrosOutput
     {
         Assert::integer($uriVariables['id']);
         $templateId = new HostTemplateId($uriVariables['id']);
@@ -81,7 +81,7 @@ final readonly class GetHostTemplateSkeletonProvider implements ProviderInterfac
         // The template's own check command falls back to the first ancestor's, as for a host.
         $inherited = $this->inheritedHostMacrosResolver->resolveLine($inheritanceLine, null);
 
-        return new HostTemplateSkeletonOutput(
+        return new HostTemplateMacrosOutput(
             id: $templateId->value,
             name: $template->name->value,
             macros: array_map(

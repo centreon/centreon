@@ -28,7 +28,7 @@ use Symfony\Component\Uid\Uuid;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
-final class GetHostTemplateSkeletonProviderTest extends ApiTestCase
+final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/hosts/host_templates';
 
@@ -73,7 +73,7 @@ final class GetHostTemplateSkeletonProviderTest extends ApiTestCase
         $this->grantHostTopologyRole($contactId, self::ACL_ACCESS_READ_ONLY);
         $this->login($username);
 
-        // the skeleton fills a host, so it demands read-write, like the choices list
+        // the macros prefill a host, so it demands read-write, like the choices list
         $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
         self::assertResponseStatusCodeSame(403);
     }
@@ -176,7 +176,7 @@ final class GetHostTemplateSkeletonProviderTest extends ApiTestCase
 
     public function testItReturnsNotFoundForALockedTemplate(): void
     {
-        // excluded from the host-form choices list (CentreonHost::getLimitedList()), so not readable here
+        // excluded from the host template choices list (CentreonHost::getLimitedList()), so not readable here
         $templateId = $this->insertHostTemplate("locked-{$this->tag}", locked: true);
 
         $this->login();

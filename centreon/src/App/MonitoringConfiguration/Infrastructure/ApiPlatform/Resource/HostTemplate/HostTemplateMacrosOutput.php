@@ -27,10 +27,9 @@ use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 
 /**
- * What the host form needs from a host template before the host exists: its macros, own and
- * inherited.
+ * A host template's macros, own and inherited, to prefill a host before it is created.
  */
-final readonly class HostTemplateSkeletonOutput
+final readonly class HostTemplateMacrosOutput
 {
     /**
      * @param list<HostMacroOutput> $macros the template's own macros (parent null), then those it
