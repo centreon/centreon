@@ -22,12 +22,15 @@ const useUpdate = (): UseUpdateProps => {
   const method = configuration?.api?.methods?.update as Method;
 
   const queryClient = useQueryClient();
+  const writeBaseEndpoint = configuration?.api?.writeBaseEndpoint;
 
   const { mutateAsync } = useMutationQuery({
+    baseEndpoint: writeBaseEndpoint,
     getEndpoint,
     method: method || Method.PUT,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listResources'] });
+      queryClient.resetQueries({ queryKey: ['getDetails'] });
     }
   });
   const updateMutation = (id: number) => (payload) => {

@@ -31,6 +31,7 @@ use App\Security\Domain\Aggregate\Provider\OpenId\ConnectionScope;
 use App\Security\Domain\Aggregate\Provider\OpenId\LoginClaim;
 use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 use App\Security\Domain\Aggregate\Provider\OpenId\Url;
+use App\Shared\Domain\Vault\VaultKeyEnum;
 use App\Shared\Domain\VaultInterface;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -82,8 +83,8 @@ final readonly class DbalOpenIdConfigurationTransformer implements TransformerIn
              * } $vaultData
              */
             $vaultData = $this->vault->read($jsonConfiguration['client_secret']);
-            $jsonConfiguration['client_secret'] = $vaultData[VaultInterface::OPENID_CLIENT_SECRET_KEY];
-            $jsonConfiguration['client_id'] = $vaultData[VaultInterface::OPENID_CLIENT_ID_KEY];
+            $jsonConfiguration['client_secret'] = $vaultData[VaultKeyEnum::OpenIdClientSecret->value];
+            $jsonConfiguration['client_id'] = $vaultData[VaultKeyEnum::OpenIdClientId->value];
         }
 
         return new OpenIdConfiguration(

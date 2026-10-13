@@ -26,9 +26,11 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Com
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class ListCommandsProviderTest extends ApiTestCase
 {
+    use ClearsInstalledPlatformRows;
     private const BASE_ENDPOINT = '/api/configuration/commands';
 
     protected function setUp(): void
@@ -37,6 +39,7 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'command');
 
         $commands = [
             ['command_id' => 1, 'command_name' => 'check_host_alive', 'command_line' => '$USER1$/check_icmp -H $HOSTADDRESS$', 'command_type' => 2],

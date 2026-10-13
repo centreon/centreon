@@ -1,0 +1,294 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\TimePeriod;
+
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
+use Doctrine\DBAL\Connection;
+use Symfony\Component\Uid\Uuid;
+use Tests\App\Shared\ApiTestCase;
+use Webmozart\Assert\Assert;
+
+final class ListTimePeriodsCollectionProviderTest extends ApiTestCase
+{
+    private const BASE_ENDPOINT = '/api/configuration/timeperiods';
+
+    // topology pages whose hierarchy builds ROLE_CONFIGURATION_USERS_TIME_PERIODS_R
+    // (Configuration > Users > Time Periods), bridged to TimePeriodPermissionEnum::CanRead
+    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    private const TIME_PERIOD_READ_TOPOLOGY_PAGES = [6, 603, 60304];
+
+    // CentreonACL access rights, see Centreon\Domain\Repository\TopologyRepository
+    private const ACL_ACCESS_READ_WRITE = 1;
+    private const ACL_ACCESS_READ_ONLY = 2;
+
+    private Connection $connection;
+
+    private string $tag;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
+
+        $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    public function testItRequiresAuthentication(): void
+    {
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseStatusCodeSame(401);
+    }
+
+    public function testItIsForbiddenForUserWithoutSufficientAcl(): void
+    {
+        $username = bin2hex(random_bytes(8));
+        $this->createApiUser($this->connection, $username, admin: false);
+        $this->login($username);
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testItAllowsANonAdminUserGrantedTheTimePeriodReadTopologyRole(): void
+    {
+        $name = "acl-{$this->tag}";
+        $this->insertTimePeriod($name);
+
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $this->grantTimePeriodTopologyRole($contactId, self::ACL_ACCESS_READ_ONLY);
+
+        $this->login($username);
+
+        // proves the ROLE_CONFIGURATION_USERS_TIME_PERIODS_R bridge and the voter agree
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $name]]]);
+        self::assertResponseIsSuccessful();
+        self::assertSame([$name], array_column((array) $response->toArray()['member'], 'name'));
+    }
+
+    public function testItAllowsANonAdminUserGrantedTheTimePeriodReadWriteTopologyRole(): void
+    {
+        $name = "aclrw-{$this->tag}";
+        $this->insertTimePeriod($name);
+
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $this->grantTimePeriodTopologyRole($contactId, self::ACL_ACCESS_READ_WRITE);
+
+        $this->login($username);
+
+        // covers the second branch of the operation's security expression: a read-write grant
+        // reaches TimePeriodPermissionEnum::CanReadAndWrite through LEGACY_PERMISSION_MAP.
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $name]]]);
+        self::assertResponseIsSuccessful();
+        self::assertSame([$name], array_column((array) $response->toArray()['member'], 'name'));
+    }
+
+    public function testItReturnsAnEmptyCollectionWhenNoTimePeriodMatches(): void
+    {
+        $this->login();
+
+        // no row can match a freshly generated tag; an empty result is a 200, never a 404
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => "none-{$this->tag}"]]]);
+        self::assertResponseIsSuccessful();
+        self::assertSame([], (array) $response->toArray()['member']);
+        self::assertEquals(0, $response->toArray()['totalItems']);
+    }
+
+    public function testItListsTimePeriodsAsAdminWithOnlyIdAndName(): void
+    {
+        $name = "tp-{$this->tag}";
+        $this->insertTimePeriod($name);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $name]]]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(TimePeriodResource::class);
+        self::assertJsonContains(['member' => [['name' => $name]]]);
+
+        /** @var list<array<string, mixed>> $member */
+        $member = $response->toArray()['member'];
+        // the selector exposes the id and the name only, never the alias/days/exceptions legacy carries
+        self::assertEqualsCanonicalizing(['@id', '@type', 'id', 'name'], array_keys($member[0]));
+    }
+
+    public function testItFiltersTimePeriodsByNameUsingLikeOperator(): void
+    {
+        $this->insertTimePeriod("match-{$this->tag}");
+        $this->insertTimePeriod("other-{$this->tag}");
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => "match-{$this->tag}"]]]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(['member' => [['name' => "match-{$this->tag}"]]]);
+    }
+
+    public function testItFiltersTimePeriodsBySeveralNamesUsingLikeOperator(): void
+    {
+        $this->insertTimePeriod("first-{$this->tag}");
+        $this->insertTimePeriod("second-{$this->tag}");
+        $this->insertTimePeriod("third-{$this->tag}");
+
+        $this->login();
+
+        // "name[lk][]=a&name[lk][]=b" stacks two values under the same operator: they must widen
+        // the result set (OR), not narrow it to nothing (AND).
+        $response = $this->request('GET', self::BASE_ENDPOINT, [
+            'query' => ['name' => ['lk' => ["first-{$this->tag}", "second-{$this->tag}"]]],
+        ]);
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            ["first-{$this->tag}", "second-{$this->tag}"],
+            array_column((array) $response->toArray()['member'], 'name')
+        );
+    }
+
+    public function testItPaginatesTimePeriods(): void
+    {
+        $this->insertTimePeriod("pg-{$this->tag}-A");
+        $this->insertTimePeriod("pg-{$this->tag}-B");
+        $this->insertTimePeriod("pg-{$this->tag}-C");
+
+        $this->login();
+
+        // scope to our own rows via the name filter so pre-seeded time periods cannot skew the total
+        $response = $this->request('GET', self::BASE_ENDPOINT, [
+            'query' => ['name' => ['lk' => "pg-{$this->tag}-"], 'page' => '1', 'itemsPerPage' => '2'],
+        ]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, (array) $response->toArray()['member']);
+        self::assertEquals(3, $response->toArray()['totalItems']);
+    }
+
+    public function testItIgnoresAnEmptyNameFilter(): void
+    {
+        $this->insertTimePeriod("empty-{$this->tag}");
+
+        $this->login();
+
+        // an empty "like" value must be ignored (not applied, not rejected, not a 500 from the VO)
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => '']]]);
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testItFiltersByANameOfLiteralZero(): void
+    {
+        $this->insertTimePeriod('0');
+
+        $this->login();
+
+        // "0" is a legitimate name; the criteria's Assert::stringNotEmpty must not reject it
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => '0']]]);
+        self::assertResponseIsSuccessful();
+        self::assertContains('0', array_column((array) $response->toArray()['member'], 'name'));
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => "tp-{$this->tag}"]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsZeroItemsPerPage(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '0']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    private function insertTimePeriod(string $name): int
+    {
+        $this->connection->insert('timeperiod', ['tp_name' => $name, 'tp_alias' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function createNonAdminContact(string $alias): int
+    {
+        $this->createApiUser($this->connection, $alias, admin: false);
+
+        $contactId = $this->connection->fetchOne(
+            'SELECT contact_id FROM contact WHERE contact_alias = :alias',
+            ['alias' => $alias]
+        );
+        Assert::notFalse($contactId);
+        Assert::scalar($contactId);
+
+        return (int) $contactId;
+    }
+
+    /**
+     * @param int $accessRight CentreonACL::ACL_ACCESS_READ_WRITE (1) or ACL_ACCESS_READ_ONLY (2)
+     */
+    private function grantTimePeriodTopologyRole(int $contactId, int $accessRight): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => "topology-group-{$this->tag}",
+            'acl_group_alias' => "topology-group-{$this->tag}",
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_topology', [
+            'acl_topo_name' => "topology-rule-{$this->tag}",
+            'acl_topo_alias' => "topology-rule-{$this->tag}",
+            'acl_topo_activate' => '1',
+        ]);
+        $aclTopoId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_topology_relations', [
+            'acl_group_id' => $aclGroupId,
+            'acl_topology_id' => $aclTopoId,
+        ]);
+
+        foreach (self::TIME_PERIOD_READ_TOPOLOGY_PAGES as $topologyPage) {
+            $topologyId = $this->connection->fetchOne(
+                'SELECT topology_id FROM topology WHERE topology_page = :page',
+                ['page' => $topologyPage]
+            );
+            Assert::notFalse($topologyId, "topology_page {$topologyPage} not found in fixtures");
+            Assert::scalar($topologyId);
+
+            $this->connection->insert('acl_topology_relations', [
+                'topology_topology_id' => (int) $topologyId,
+                'acl_topo_id' => $aclTopoId,
+                'access_right' => $accessRight,
+            ]);
+        }
+    }
+}

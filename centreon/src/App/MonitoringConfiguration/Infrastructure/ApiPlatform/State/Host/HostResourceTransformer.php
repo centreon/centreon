@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -40,6 +41,8 @@ final readonly class HostResourceTransformer implements TransformerInterface
             alias: $from->alias?->value,
             address: $from->address->value,
             activated: $from->activated,
+            snmpVersion: $from->snmpVersion,
+            isSnmpCommunityDefined: $from->snmpCommunity instanceof SnmpCommunity,
         );
     }
 }

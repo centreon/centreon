@@ -27,6 +27,9 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    $containerConfigurator->parameters()
+        ->set('shared.media_img_folder_path', '/img/media/');
+
     $services = $containerConfigurator->services();
 
     $services->defaults()

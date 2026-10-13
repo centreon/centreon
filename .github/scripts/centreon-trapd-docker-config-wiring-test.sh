@@ -135,8 +135,8 @@ if [ "$spool_ok" != "true" ]; then
 fi
 summary_step_pass
 
-# The image's default --severity=error hides this - the compose file starts
-# centreontrapd with --severity=debug specifically so this trace is visible.
+# The image's default --severity=error hides this - the compose file sets
+# CENTREONTRAPD_LOG_LEVEL=debug specifically so this trace is visible.
 summary_step_start "centreontrapd picked up the trap file (debug log)"
 echo "=== [wiring] Checking centreontrapd's debug log shows it picked up the trap file ==="
 if ! wait_for_log centreontrapd "Processing file:"; then

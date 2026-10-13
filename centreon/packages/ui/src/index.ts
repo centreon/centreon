@@ -1,11 +1,5 @@
 import type { Props as SingleAutocompleteFieldProps } from './InputField/Select/Autocomplete';
 
-export { default as IconButton } from './Button/Icon';
-export { Checkbox, CheckboxGroup } from './Checkbox';
-export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
-export { default as Pagination } from './Pagination';
-export type { SingleAutocompleteFieldProps };
-
 export type { ActionsListActions } from './ActionsList';
 export {
   ActionsListActionDivider,
@@ -46,7 +40,9 @@ export {
 export { WidgetResourceType as ResourceType } from './api/useGraphQuery/models';
 export { default as useMutationQuery, Method } from './api/useMutationQuery';
 export { default as useRequest } from './api/useRequest';
+export { default as IconButton } from './Button/Icon';
 export { default as SaveButton } from './Button/Save';
+export { Checkbox, CheckboxGroup } from './Checkbox';
 export { default as ContentWithCircularLoading } from './ContentWithCircularProgress';
 export * from './Dashboard';
 export { default as Dialog } from './Dialog';
@@ -78,6 +74,7 @@ export { default as PersistentTooltip } from './InputField/Search/PersistentTool
 export { default as RegexpHelpTooltip } from './InputField/Search/RegexpHelpTooltip';
 export type { SelectEntry } from './InputField/Select';
 export { default as SelectField } from './InputField/Select';
+export { default as SingleAutocompleteField } from './InputField/Select/Autocomplete';
 export { default as MultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi/index';
 export { default as PopoverMultiConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Multi/Popover';
 export { default as SingleConnectedAutocompleteField } from './InputField/Select/Autocomplete/Connected/Single';
@@ -112,6 +109,7 @@ export { default as Module } from './Module/index';
 export { default as LicensedModule } from './Module/LicensedModule';
 export { default as MultiSelectEntries } from './MultiSelectEntries';
 export { default as PageSkeleton } from './PageSkeleton';
+export { default as Pagination } from './Pagination';
 export { default as Panel } from './Panel';
 export { default as MemoizedPanel } from './Panel/Memoized';
 export { default as SectionPanel, MemoizedSectionPanel } from './Panel/Section';
@@ -145,3 +143,4 @@ export { default as Subtitle } from './Typography/Subtitle';
 export * from './utils';
 export { default as WallpaperPage } from './WallpaperPage';
 export { default as Wizard } from './Wizard';
+export type { SingleAutocompleteFieldProps };

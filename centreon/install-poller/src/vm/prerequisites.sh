@@ -118,9 +118,9 @@ function _vmCheckRam() {
   ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
   local ram_mb=$(( ram_kb / 1024 ))
   if [ "${ram_mb}" -lt 1536 ]; then
-    consoleError "Insufficient RAM: ${ram_mb} MB. Minimum required: 1536 MB."
-    logError "Insufficient RAM: ${ram_mb} MB."
-    exit 1
+    consoleWarn "Insufficient RAM: ${ram_mb} MB. Minimum recommended: 1536 MB. Continuing."
+    logWarn "Insufficient RAM: ${ram_mb} MB."
+    return 0
   fi
   consoleInfo "RAM: ${ram_mb} MB: OK"
   logInfo "RAM check: ${ram_mb} MB OK"
@@ -133,7 +133,8 @@ function _vmCheckNetwork() {
   [ "${GORGONE_SSL}" = "true" ] && scheme="https"
   local target="${scheme}://${CENTRAL_HOST}:${CENTRAL_PORT}"
 
-  if curl -sf --max-time 10 "${target}" >/dev/null 2>&1; then
+  # -k: reachability check only, a self-signed central cert must not fail it.
+  if curl -ksf --max-time 10 "${target}" >/dev/null 2>&1; then
     consoleInfo "Network connectivity to ${target}: OK"
     logInfo "Network check to ${target}: OK"
   else

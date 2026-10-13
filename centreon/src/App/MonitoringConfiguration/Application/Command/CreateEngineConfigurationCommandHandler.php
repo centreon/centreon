@@ -26,20 +26,26 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Repository\EngineConfigurationRepository;
 use App\Shared\Application\Command\AsCommandHandler;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class CreateEngineConfigurationCommandHandler
 {
     public function __construct(
         private EngineConfigurationRepository $repository,
+        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
+        private bool $isCloudPlatform = false,
     ) {
     }
 
     public function __invoke(CreateEngineConfigurationCommand $command): void
     {
+        // Flap detection and host_down_disable_service_checks default to enabled on Cloud only.
         $engineConfiguration = EngineConfiguration::createDefault(
             $command->pollerId,
             $command->pollerName,
+            enableFlapDetection: $this->isCloudPlatform,
+            hostDownDisableServiceChecks: $this->isCloudPlatform,
         );
 
         $this->repository->add($engineConfiguration);

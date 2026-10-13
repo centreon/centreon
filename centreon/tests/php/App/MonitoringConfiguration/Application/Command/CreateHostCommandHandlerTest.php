@@ -25,14 +25,38 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpCommunity;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -45,24 +69,54 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\Timezone;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
+use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneName;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostServicesDeploymentRequested;
+use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
+use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
+use App\Shared\Domain\Vault\VaultPathEnum;
+use App\Shared\Domain\VaultInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostCategoryRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
+use Tests\App\Shared\Double\FakeVault;
 
 final class CreateHostCommandHandlerTest extends KernelTestCase
 {
@@ -74,9 +128,23 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     private FakeHostGroupRepository $hostGroupRepository;
 
+    private FakeCommandRepository $commandRepository;
+
     private FakeResourceAccessRepository $resourceAccessRepository;
 
+    private FakeOptionRepository $optionRepository;
+
+    private FakeVault $vault;
+
     private EventBusSpy $eventBus;
+
+    private FakeHostCategoryRepository $hostCategoryRepository;
+
+    private FakeHostSeverityRepository $hostSeverityRepository;
+
+    private FakeTimezoneRepository $timezoneRepository;
+
+    private FakeHostTemplateRepository $hostTemplateRepository;
 
     /**
      * Boots the real container and swaps only the repositories and the event bus for fakes, so
@@ -91,14 +159,31 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostRepository = new FakeHostRepository();
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
+        $this->commandRepository = new FakeCommandRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->optionRepository = new FakeOptionRepository();
+        $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
+        $this->hostCategoryRepository = new FakeHostCategoryRepository();
+        $this->hostSeverityRepository = new FakeHostSeverityRepository();
+        $this->timezoneRepository = new FakeTimezoneRepository();
+        $this->hostTemplateRepository = new FakeHostTemplateRepository();
+        $this->vault->vaultEnabled = false;
 
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
+        $container->set(CommandRepository::class, $this->commandRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
+        $container->set(OptionRepository::class, $this->optionRepository);
+        $container->set(VaultInterface::class, $this->vault);
+        // Rebuild the writer on the fake vault so vaulting is driven by the test's FakeVault.
+        $container->set(VaultCredentialWriter::class, new VaultCredentialWriter($this->vault));
         $container->set(EventBus::class, $this->eventBus);
+        $container->set(HostCategoryRepository::class, $this->hostCategoryRepository);
+        $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
+        $container->set(TimezoneRepository::class, $this->timezoneRepository);
+        $container->set(HostTemplateRepository::class, $this->hostTemplateRepository);
 
         /** @var CreateHostCommandHandler $handler */
         $handler = $container->get(CreateHostCommandHandler::class);
@@ -118,6 +203,414 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ));
 
         self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
+    }
+
+    public function testItCreatesAHostWithACheckCommand(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkCommandId: new CommandId(9),
+            checkCommandArgs: ['-w', '5'],
+        ));
+
+        self::assertSame(9, $host->checkOptions->checkCommandId?->value);
+        self::assertSame(['-w', '5'], $host->checkOptions->args);
+    }
+
+    public function testItRejectsAnUnknownCheckCommand(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(CommandNotFoundException::class);
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkCommandId: new CommandId(404),
+        ));
+    }
+
+    public function testItPersistsCustomMacros(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('community'), 'public', isPassword: false),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('COMMUNITY', $host->checkOptions->macros[0]->name->value);
+        self::assertSame('public', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testItRejectsAMacroReferringToAMacroTheHostDoesNotOwn(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        // A host being created owns no macro yet: any direct id is unknown.
+        $this->expectException(HostMacroNotFoundException::class);
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
+            ], HostMacroChange::class),
+        ));
+    }
+
+    public function testARejectedMacroLeavesNoSecretInTheVault(): void
+    {
+        // The macros are validated before the SNMP community is vaulted: otherwise the request
+        // fails after the write and leaves an orphan secret behind.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+
+        try {
+            ($this->handler)(new CreateHostCommand(
+                name: new HostName('server-01'),
+                address: new HostAddress('127.0.0.1'),
+                pollerId: $poller->id(),
+                hostGroupIds: new Collection([], HostGroupId::class),
+                creatorId: 1,
+                snmpCommunity: 'public',
+                macroChanges: new Collection([
+                    new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
+                ], HostMacroChange::class),
+            ));
+            self::fail('An unknown macro id should be rejected.');
+        } catch (HostMacroNotFoundException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItPromotesAnInheritedPasswordReferredToByIdOnCreate(): void
+    {
+        // R4: renamed with its value kept, a template password becomes a direct macro of the host.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), 'tpl-secret', isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('MYPWD', $host->checkOptions->macros[0]->name->value);
+        self::assertSame('tpl-secret', $host->checkOptions->macros[0]->value);
+        self::assertTrue($host->checkOptions->macros[0]->isDirect());
+    }
+
+    public function testItRejectsKeepingTheValueOfAnInheritedMacroThatIsNotAPassword(): void
+    {
+        // R4 only applies to a stored password: a plain template macro is echoed back, so keeping
+        // its value (null) is refused rather than silently copied.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('plain'), 'tpl-value', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $this->expectException(HostMacroValueRequiredException::class);
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('renamed'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ], HostMacroChange::class),
+        ));
+    }
+
+    public function testAPromotedTemplatePasswordIsCopiedUnderTheHostOwnVaultEntry(): void
+    {
+        // R4 with a vault: the template's secret is read and written again under the host's entry
+        // (the one shared with its SNMP community), never shared through the template's path.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY]
+            = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
+        $templateSecret = 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTTPLPWD';
+        $this->vault->resolved[$templateSecret] = 'tpl-secret';
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            snmpCommunity: 'public',
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ], HostMacroChange::class),
+        ));
+
+        $macroWrite = null;
+        foreach ($this->vault->writeManyCalls as $call) {
+            if (array_key_exists('_HOSTMYPWD', $call['secrets'])) {
+                $macroWrite = $call;
+            }
+        }
+        self::assertNotNull($macroWrite, 'The promoted password should have been written to the vault.');
+        self::assertSame('tpl-secret', $macroWrite['secrets']['_HOSTMYPWD']);
+        self::assertSame('host-uuid', $macroWrite['uuid']);
+        self::assertStringNotContainsString('tpl-uuid', $host->checkOptions->macros[0]->value);
+        self::assertStringContainsString('_HOSTMYPWD', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testAnUntouchedTemplatePasswordEchoedBackStaysInherited(): void
+    {
+        // Same name, value kept (null): nothing differs from the template's macro, so no direct macro
+        // is created and the template's secret is neither read nor copied.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $templateSecret = 'secret::vault::monitoring/hosts/tpl-uuid::_HOSTTPLPWD';
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('tplpwd'), $templateSecret, isPassword: true, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('tplpwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertSame([], $host->checkOptions->macros);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItAcceptsACheckCommandMacroOnCreate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9, commandLine: '$USER1$/check -a $_HOSTFROMCOMMAND$');
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            checkCommandId: new CommandId(9),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('fromcommand'), 'set', isPassword: false, id: new HostMacroId(999), parent: HostMacroParentEnum::Command),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('set', $host->checkOptions->macros[0]->value);
+    }
+
+    public function testItStripsMacrosIdenticalToAnInheritedOne(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('inherited'), 'shared', isPassword: false),
+                new HostMacroChange(new HostMacroName('own'), 'value', isPassword: false),
+            ], HostMacroChange::class),
+        ));
+
+        // The macro identical to the inherited one is dropped; only the host's own macro remains.
+        self::assertCount(1, $host->checkOptions->macros);
+        self::assertSame('OWN', $host->checkOptions->macros[0]->name->value);
+    }
+
+    public function testItResolvesInheritedMacrosFromTemplatesAndTheCheckCommand(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9, commandLine: '$USER1$/check -a $_HOSTFROMCOMMAND$');
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(
+            new HostTemplateId(8),
+            new HostTemplateName('linux-host'),
+            new Collection([new HostMacro(new HostMacroName('fromtemplate'), 'tpl', isPassword: false, id: new HostMacroId(80))], HostMacro::class),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(8), new HostTemplateId(7)], HostTemplateId::class),
+            checkCommandId: new CommandId(9),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('fromtemplate'), 'tpl', isPassword: false),
+                new HostMacroChange(new HostMacroName('fromcommand'), '', isPassword: false),
+            ], HostMacroChange::class),
+        ));
+
+        // The inheritance line is read for the requested templates, in order, and both the template
+        // macro and the check-command macro are recognised as inherited.
+        self::assertSame([8, 7], $this->hostTemplateRepository->receivedLineTemplateIds);
+        self::assertSame([], $host->checkOptions->macros);
+    }
+
+    public function testWithoutACheckCommandItInheritsTheMacrosOfTheTemplateCheckCommand(): void
+    {
+        // Legacy getMacros(): no check command on the host → the first template of the line having
+        // one provides the command macros.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9, commandLine: '$USER1$/check -a $_HOSTFROMTEMPLATECOMMAND$');
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            checkCommandId: new CommandId(9),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('fromtemplatecommand'), '', isPassword: false),
+                new HostMacroChange(new HostMacroName('own'), 'value', isPassword: false),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertSame(['OWN'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $host->checkOptions->macros));
+    }
+
+    public function testItMovesPasswordMacrosToTheVault(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertStringStartsWith('secret::', $host->checkOptions->macros[0]->value);
+        self::assertStringContainsString('_HOSTSECRET', $host->checkOptions->macros[0]->value);
+        // The credential writer batches all password macros into a single writeMany() call.
+        self::assertSame(VaultPathEnum::MonitoringHosts->value, $this->vault->writeManyCalls[0]['customPath']);
+    }
+
+    public function testItStoresTheSnmpCommunityAndPasswordMacrosUnderTheSameVaultUuid(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        // Pin the SNMP community's vault path so its UUID is known; the macros must reuse it.
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY]
+            = 'secret::vault::monitoring/hosts/shared-uuid::_HOSTSNMPCOMMUNITY';
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            snmpCommunity: 'public',
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
+            ], HostMacroChange::class),
+        ));
+
+        // Legacy keeps every host secret under one vault entry: the password macros must be written
+        // with the UUID minted for the SNMP community, not a fresh one.
+        $macroWrite = null;
+        foreach ($this->vault->writeManyCalls as $call) {
+            if (array_key_exists('_HOSTSECRET', $call['secrets'])) {
+                $macroWrite = $call;
+                break;
+            }
+        }
+
+        self::assertNotNull($macroWrite, 'The password macro should have been written to the vault.');
+        self::assertSame('shared-uuid', $macroWrite['uuid']);
+    }
+
+    public function testItKeepsPasswordMacroPlaintextWhenVaultIsDisabled(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = false;
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            macroChanges: new Collection([
+                new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
+            ], HostMacroChange::class),
+        ));
+
+        self::assertSame('s3cr3t', $host->checkOptions->macros[0]->value);
+        self::assertSame([], $this->vault->writeManyCalls);
     }
 
     public function testItRejectsADuplicateName(): void
@@ -290,6 +783,485 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
             viewerId: new UserId(7),
         ));
+    }
+
+    public function testItKeepsTheSnmpCommunityInPlaintextWhenNoVaultIsConfigured(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = false;
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), 'public'));
+
+        self::assertSame('public', $host->snmpCommunity?->value);
+        self::assertSame([], $this->vault->writeManyCalls);
+    }
+
+    public function testItStoresTheSnmpCommunityInTheVaultWhenOneIsConfigured(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY] = 'secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY';
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), 'public'));
+
+        self::assertSame('secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY', $host->snmpCommunity?->value);
+    }
+
+    public function testItDoesNotTouchTheVaultWhenNoSnmpCommunityIsGiven(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), null));
+
+        self::assertNull($host->snmpCommunity);
+        self::assertSame(0, $this->vault->isEnabledCalls);
+    }
+
+    /**
+     * With a vault the column receives the `secret::` reference, so the plaintext is never
+     * measured against the column width — as in legacy, which substitutes before asserting.
+     */
+    public function testItVaultsACommunityTooLongForTheColumn(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writtenPaths[CreateHostCommandHandler::HOST_SNMP_COMMUNITY_KEY] = 'secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY';
+
+        $host = ($this->handler)($this->snmpCommand($poller->id(), str_repeat('a', SnmpCommunity::MAX_LENGTH + 1)));
+
+        self::assertSame('secret::vault::monitoring/hosts/abc::_HOSTSNMPCOMMUNITY', $host->snmpCommunity?->value);
+    }
+
+    public function testItRefusesACommunityTooLongForTheColumnWithoutAVault(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = false;
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        ($this->handler)($this->snmpCommand($poller->id(), str_repeat('a', SnmpCommunity::MAX_LENGTH + 1)));
+    }
+
+    /**
+     * The vault write happens before the host is persisted, so a failure must leave no host at all
+     * rather than one whose SNMP community was silently dropped.
+     */
+    public function testAVaultFailureLeavesNoHostBehind(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->vault->vaultEnabled = true;
+        $this->vault->writeThrows = true;
+
+        try {
+            ($this->handler)($this->snmpCommand($poller->id(), 'public'));
+            self::fail('The vault failure should have propagated.');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertFalse($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('snmp-host')));
+    }
+
+    public function testItStoresTheAlias(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            alias: new HostAlias('Web server'),
+        ));
+
+        self::assertSame('Web server', $host->alias?->value);
+    }
+
+    public function testItRejectsAnUnknownCategory(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostCategoryNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [404]));
+    }
+
+    public function testItRejectsACategoryOutsideTheViewerScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
+        $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([], HostCategoryId::class);
+
+        $this->expectException(HostCategoryNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [7], viewerId: new UserId(9)));
+    }
+
+    public function testItRejectsAnUnknownSeverity(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostSeverityNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), severityId: 404));
+    }
+
+    public function testItRejectsASeverityOutsideTheViewerScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostSeverityRepository->hostSeverities[7] = new HostSeverityName('Critical');
+        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([], HostSeverityId::class);
+
+        $this->expectException(HostSeverityNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), severityId: 7, viewerId: new UserId(9)));
+    }
+
+    public function testItRejectsAnUnknownTimezone(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(TimezoneNotFoundException::class);
+
+        ($this->handler)($this->referenceCommand($poller->id(), timezoneId: 404));
+    }
+
+    public function testItKeepsTheAcceptedReferencesOnTheAggregate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
+        $this->hostSeverityRepository->hostSeverities[8] = new HostSeverityName('Critical');
+        $this->timezoneRepository->timezones[9] = new Timezone(new TimezoneId(9), new TimezoneName('Europe/Paris'));
+
+        $host = ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [7], severityId: 8, timezoneId: 9));
+
+        self::assertSame([7], array_map(static fn (HostCategoryId $id): int => $id->value, $host->categoryIds->toArray()));
+        self::assertSame(8, $host->severityId?->value);
+        self::assertSame(9, $host->timezoneId?->value);
+    }
+
+    public function testItRejectsAnUnknownTemplate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostTemplateNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), templateIds: [404]));
+    }
+
+    public function testItRejectsAnUnknownParentHost(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [404]));
+    }
+
+    public function testItRejectsAnUnknownChildHost(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), childHostIds: [404]));
+    }
+
+    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $parentId = $this->addRelatedHost($poller->id(), 'hidden-parent');
+        // The host exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([], HostId::class);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], viewerId: new UserId(7)));
+    }
+
+    public function testARestrictedViewerCanLinkAChildHostWithinTheirScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $childId = $this->addRelatedHost($poller->id(), 'visible-child');
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId($childId)], HostId::class);
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), childHostIds: [$childId], viewerId: new UserId(7)));
+
+        self::assertSame([$childId], array_map(static fn (HostId $id): int => $id->value, $host->childHostIds->toArray()));
+    }
+
+    public function testItRejectsAChildThatIsAnAncestorOfAParent(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $ancestorId = $this->addRelatedHost($poller->id(), 'core-router');
+        $parentId = $this->addRelatedHost($poller->id(), 'edge-router', parentHostIds: [$ancestorId]);
+
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], childHostIds: [$ancestorId]));
+    }
+
+    /**
+     * The edge is declared from the child side, so `edge-router` names no parent of its own while
+     * `host_hostparent_relation` still records the link.
+     */
+    public function testItRejectsACycleClosedThroughAnEdgeCreatedFromTheChildSide(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $descendantId = $this->addRelatedHost($poller->id(), 'edge-router');
+        $ancestorId = $this->addRelatedHost($poller->id(), 'core-router', childHostIds: [$descendantId]);
+
+        $this->expectException(CircularHostRelationException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$descendantId], childHostIds: [$ancestorId]));
+    }
+
+    public function testItKeepsTheTemplateOrderOnTheAggregate(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [8, 7]));
+
+        self::assertSame([8, 7], array_map(static fn (HostTemplateId $id): int => $id->value, $host->templateIds->toArray()));
+    }
+
+    public function testItRequestsServiceDeploymentForAHostWithTemplates(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[3] = new HostTemplate(new HostTemplateId(3), new HostTemplateName('generic-active-host'));
+
+        ($this->handler)($this->relationCommand($poller->id(), templateIds: [3]));
+
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    public function testItDoesNotRequestServiceDeploymentWhenTheToggleIsOff(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[3] = new HostTemplate(new HostTemplateId(3), new HostTemplateName('generic-active-host'));
+
+        ($this->handler)($this->relationCommand($poller->id(), templateIds: [3], deployServicesFromTemplates: false));
+
+        self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    /**
+     * Legacy resolves what to deploy by walking host_template_relation, so without templates there
+     * is nothing to do — and reaching it would boot a second Symfony kernel for nothing.
+     */
+    public function testItDoesNotRequestServiceDeploymentWithoutTemplates(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        ($this->handler)($this->relationCommand($poller->id()));
+
+        self::assertFalse($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    /**
+     * Legacy drops the additive-inheritance flags whenever the platform option is off, which is
+     * the shipped default: honouring them regardless would change the generated configuration of
+     * every host created through the API on such a platform.
+     */
+    public function testItForcesTheAdditiveInheritanceFlagsOffWhenTheOptionIsDisabled(): void
+    {
+        // '3' is what a fresh install ships: anything but '1' means additive inheritance is off
+        $this->optionRepository->options['inheritance_mode'] = '3';
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertFalse($host->notifications->contactAdditiveInheritance);
+        self::assertFalse($host->notifications->contactGroupAdditiveInheritance);
+        // everything else must survive the rebuild
+        self::assertSame(TriStateEnum::True, $host->notifications->enabled);
+        self::assertCount(1, $host->notifications->contactIds);
+    }
+
+    public function testItKeepsTheAdditiveInheritanceFlagsWhenTheOptionIsEnabled(): void
+    {
+        $this->optionRepository->options['inheritance_mode'] = '1';
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertTrue($host->notifications->contactAdditiveInheritance);
+        self::assertTrue($host->notifications->contactGroupAdditiveInheritance);
+    }
+
+    /**
+     * A platform without the `inheritance_mode` row reads as disabled, like legacy's own fallback.
+     */
+    public function testItForcesTheAdditiveInheritanceFlagsOffWhenTheOptionIsMissing(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-notif'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
+        ));
+
+        self::assertInstanceOf(Notifications::class, $host->notifications);
+        self::assertFalse($host->notifications->contactAdditiveInheritance);
+        self::assertFalse($host->notifications->contactGroupAdditiveInheritance);
+    }
+
+    private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand
+    {
+        return new CreateHostCommand(
+            name: new HostName('snmp-host'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $pollerId,
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            snmpVersion: SnmpVersionEnum::TwoC,
+            snmpCommunity: $snmpCommunity,
+        );
+    }
+
+    /**
+     * @param list<int> $categoryIds
+     */
+    private function referenceCommand(
+        PollerId $pollerId,
+        array $categoryIds = [],
+        ?int $severityId = null,
+        ?int $timezoneId = null,
+        ?UserId $viewerId = null,
+    ): CreateHostCommand {
+        return new CreateHostCommand(
+            name: new HostName('reference-host'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $pollerId,
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            viewerId: $viewerId,
+            categoryIds: new Collection(
+                array_map(static fn (int $id): HostCategoryId => new HostCategoryId($id), $categoryIds),
+                HostCategoryId::class,
+            ),
+            timezoneId: $timezoneId !== null ? new TimezoneId($timezoneId) : null,
+            severityId: $severityId !== null ? new HostSeverityId($severityId) : null,
+        );
+    }
+
+    /**
+     * @param list<int> $templateIds
+     * @param list<int> $parentHostIds
+     * @param list<int> $childHostIds
+     */
+    private function relationCommand(
+        PollerId $pollerId,
+        array $templateIds = [],
+        array $parentHostIds = [],
+        array $childHostIds = [],
+        bool $deployServicesFromTemplates = true,
+        ?UserId $viewerId = null,
+    ): CreateHostCommand {
+        return new CreateHostCommand(
+            name: new HostName('relation-host'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $pollerId,
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection(
+                array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
+                HostTemplateId::class,
+            ),
+            parentHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $parentHostIds),
+                HostId::class,
+            ),
+            childHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $childHostIds),
+                HostId::class,
+            ),
+            deployServicesFromTemplates: $deployServicesFromTemplates,
+            viewerId: $viewerId,
+        );
+    }
+
+    /**
+     * @param list<int> $parentHostIds
+     * @param list<int> $childHostIds
+     */
+    private function addRelatedHost(PollerId $pollerId, string $name, array $parentHostIds = [], array $childHostIds = []): int
+    {
+        $host = new Host(
+            id: null,
+            name: new HostName($name),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: $pollerId,
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            parentHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $parentHostIds),
+                HostId::class,
+            ),
+            childHostIds: new Collection(
+                array_map(static fn (int $id): HostId => new HostId($id), $childHostIds),
+                HostId::class,
+            ),
+        );
+        $this->hostRepository->add($host);
+
+        return $host->id()->value;
+    }
+
+    private function addCheckCommand(
+        int $id,
+        CommandTypeEnum $type = CommandTypeEnum::Check,
+        string $commandLine = '$USER1$/check_ping -H $HOSTADDRESS$',
+    ): void {
+        $this->commandRepository->commands[$id] = new Command(
+            new CommandId($id),
+            new CommandName('check_ping'),
+            $type,
+            new CommandLine($commandLine),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
+    }
+
+    private function notifications(
+        bool $contactAdditiveInheritance = false,
+        bool $contactGroupAdditiveInheritance = false,
+    ): Notifications {
+        return new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([new NotificationContactId(7)], NotificationContactId::class),
+            contactGroupIds: new Collection([new ContactGroupId(9)], ContactGroupId::class),
+            contactAdditiveInheritance: $contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $contactGroupAdditiveInheritance,
+        );
     }
 
     private function addPoller(FakePollerRepository $repository, int $id): Poller

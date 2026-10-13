@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
@@ -31,9 +32,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -61,12 +65,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
 
-        $this->repository = new DbalResourceAccessRepository($this->connection, $realTimeConnection);
+        $this->repository = new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection));
 
         $this->connection->insert('nagios_server', ['id' => 101, 'name' => 'Poller-101', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.101', 'uid' => 200000000000101]);
         $this->connection->insert('nagios_server', ['id' => 102, 'name' => 'Poller-102', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.102', 'uid' => 200000000000102]);
         $this->connection->insert('hostgroup', ['hg_id' => 201, 'hg_name' => 'HostGroup-201']);
         $this->connection->insert('hostgroup', ['hg_id' => 202, 'hg_name' => 'HostGroup-202']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 301, 'dir_name' => 'ImageFolder-301']);
+        $this->connection->insert('view_img_dir', ['dir_id' => 302, 'dir_name' => 'ImageFolder-302']);
     }
 
     public function testGrantResourceAccessSeedsCentreonAclForEachGivenGroup(): void
@@ -369,6 +375,383 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->findAccessibleHostGroupIds($userId));
     }
 
+    public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
+    {
+        // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
+        // ACL resource is fully restricted (fails closed), returning an empty Collection rather
+        // than the null "see all".
+        $userId = new UserId($this->createContact('user-no-acl-media'));
+
+        $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
+
+        self::assertNotNull($accessibleFolderIds);
+        self::assertCount(0, $accessibleFolderIds);
+    }
+
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
+    {
+        $contactId = $this->createContact('user-empty-resource-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: false);
+
+        $userId = new UserId($contactId);
+
+        $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
+
+        self::assertNotNull($accessibleFolderIds);
+        self::assertCount(0, $accessibleFolderIds);
+    }
+
+    public function testUserWithAclResourceFlaggedAllImageFoldersHasAccessToAllImageFolders(): void
+    {
+        $contactId = $this->createContact('user-all-folders-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: true);
+
+        $userId = new UserId($contactId);
+
+        self::assertNull($this->repository->findAccessibleImageFolderIds($userId));
+    }
+
+    public function testUserWithAclResourceRestrictedToASingleImageFolderSeesOnlyThatImageFolder(): void
+    {
+        $contactId = $this->createContact('user-single-folder-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301], allImageFolders: false);
+
+        $userId = new UserId($contactId);
+
+        $accessibleFolderIds = $this->repository->findAccessibleImageFolderIds($userId);
+        self::assertNotNull($accessibleFolderIds);
+        self::assertEquals([301], array_map(static fn (MediaDirectoryId $id): int => $id->value, iterator_to_array($accessibleFolderIds)));
+    }
+
+    /**
+     * Mirrors legacy's OR-across-resources semantics for the "all image folders" flag: a single
+     * accessible resource with the flag set grants everything, even when another accessible
+     * resource restricts to a specific folder.
+     */
+    public function testUserWithOneRestrictedAndOneAllFlagResourceHasAccessToAllImageFolders(): void
+    {
+        $contactId = $this->createContact('user-mixed-resources-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301], allImageFolders: false);
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [], allImageFolders: true);
+
+        $userId = new UserId($contactId);
+
+        self::assertNull($this->repository->findAccessibleImageFolderIds($userId));
+    }
+
+    public function testDuplicateHostAccessCopiesTheSourceScopeOntoTheNewHost(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9101, 'host_name' => 'dup-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9102, 'host_name' => 'dup-copy', 'host_register' => '1']);
+
+        $this->connection->insert('acl_resources', ['acl_res_name' => 'res-dup', 'acl_res_alias' => 'res-dup', 'acl_res_activate' => '1']);
+
+        $aclResId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_resources_host_relations', ['host_host_id' => 9101, 'acl_res_id' => $aclResId]);
+        $this->connection->insert('acl_resources_hostex_relations', ['host_host_id' => 9101, 'acl_res_id' => $aclResId]);
+
+        // Real-time cache: two host-level rows, plus one service-level row that must NOT be copied.
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9101, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9101, 'service_id' => 555]);
+
+        $this->repository->duplicateHostAccess(sourceHostId: new HostId(9101), newHostId: new HostId(9102));
+
+        foreach (['acl_resources_host_relations', 'acl_resources_hostex_relations'] as $table) {
+            self::assertSame(
+                1,
+                $this->countRows($this->connection, "SELECT COUNT(*) FROM {$table} WHERE host_host_id = ? AND acl_res_id = ?", [9102, $aclResId]),
+                "the copy inherits the source {$table} row",
+            );
+        }
+
+        /** @var list<array{group_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, service_id FROM centreon_acl WHERE host_id = ? ORDER BY group_id',
+            [9102],
+        );
+        self::assertCount(2, $rows, 'only the host-level rows are copied, never the service-level one');
+        self::assertSame(10, (int) $rows[0]['group_id']);
+        self::assertNull($rows[0]['service_id']);
+        self::assertSame(20, (int) $rows[1]['group_id']);
+        self::assertNull($rows[1]['service_id']);
+    }
+
+    public function testDuplicateHostAccessWritesNothingWhenTheSourceHasNoAcl(): void
+    {
+        $this->repository->duplicateHostAccess(sourceHostId: new HostId(9201), newHostId: new HostId(9202));
+
+        self::assertSame(0, $this->countRows($this->connection, 'SELECT COUNT(*) FROM acl_resources_host_relations WHERE host_host_id = ?', [9202]));
+        self::assertSame(0, $this->countRows($this->connection, 'SELECT COUNT(*) FROM acl_resources_hostex_relations WHERE host_host_id = ?', [9202]));
+        self::assertSame(0, $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ?', [9202]));
+    }
+
+    public function testDuplicateHostServiceAccessScopesTheCopysServicesForTheSourcesGroups(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9301, 'host_name' => 'dup-svc-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9302, 'host_name' => 'dup-svc-copy', 'host_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7701, 'service_description' => 'svc-7701', 'service_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7702, 'service_description' => 'svc-7702', 'service_register' => '1']);
+        // The copy already carries its services (cloned/re-linked) before the ACL step runs.
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9302, 'service_service_id' => 7701]);
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9302, 'service_service_id' => 7702]);
+        // The source host is visible to two groups at host level.
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9301, 'service_id' => null]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 20, 'host_id' => 9301, 'service_id' => null]);
+
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9301), newHostId: new HostId(9302));
+
+        /** @var list<array{group_id: int|string, service_id: int|string}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, service_id FROM centreon_acl WHERE host_id = ? AND service_id IS NOT NULL ORDER BY group_id, service_id',
+            [9302],
+        );
+
+        // Every (source group × copy service) pair is scoped.
+        self::assertSame(
+            [
+                ['group_id' => 10, 'service_id' => 7701],
+                ['group_id' => 10, 'service_id' => 7702],
+                ['group_id' => 20, 'service_id' => 7701],
+                ['group_id' => 20, 'service_id' => 7702],
+            ],
+            array_map(
+                static fn (array $row): array => ['group_id' => (int) $row['group_id'], 'service_id' => (int) $row['service_id']],
+                $rows,
+            ),
+        );
+    }
+
+    public function testDuplicateHostServiceAccessWritesNothingWhenTheCopyHasNoService(): void
+    {
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9401, 'service_id' => null]);
+
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9401), newHostId: new HostId(9402));
+
+        self::assertSame(
+            0,
+            $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id IS NOT NULL', [9402]),
+        );
+    }
+
+    public function testDuplicateHostServiceAccessWritesNothingWhenNoGroupSeesTheSource(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9501, 'host_name' => 'dup-svc-nogroup-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9502, 'host_name' => 'dup-svc-nogroup-copy', 'host_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7801, 'service_description' => 'svc-7801', 'service_register' => '1']);
+        // The copy has a service, but no group sees the source (no host-level centreon_acl row).
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9502, 'service_service_id' => 7801]);
+
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9501), newHostId: new HostId(9502));
+
+        self::assertSame(
+            0,
+            $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id IS NOT NULL', [9502]),
+        );
+    }
+
+    public function testDuplicateHostServiceAccessIsIdempotent(): void
+    {
+        $this->connection->insert('host', ['host_id' => 9601, 'host_name' => 'dup-svc-idem-source', 'host_register' => '1']);
+        $this->connection->insert('host', ['host_id' => 9602, 'host_name' => 'dup-svc-idem-copy', 'host_register' => '1']);
+        $this->connection->insert('service', ['service_id' => 7901, 'service_description' => 'svc-7901', 'service_register' => '1']);
+        $this->connection->insert('host_service_relation', ['host_host_id' => 9602, 'service_service_id' => 7901]);
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => 10, 'host_id' => 9601, 'service_id' => null]);
+
+        // Called twice (e.g. the legacy updateACL('DUP') already wrote the same row): ON DUPLICATE KEY
+        // UPDATE makes the second call a no-op rather than a duplicate-key failure.
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9601), newHostId: new HostId(9602));
+        $this->repository->duplicateHostServiceAccess(sourceHostId: new HostId(9601), newHostId: new HostId(9602));
+
+        self::assertSame(
+            1,
+            $this->countRows($this->realTimeConnection, 'SELECT COUNT(*) FROM centreon_acl WHERE host_id = ? AND service_id = ?', [9602, 7901]),
+            'the service ACL row is written once and the second call neither throws nor duplicates it',
+        );
+    }
+
+    public function testUserWithNoAclGroupHasAccessToNoContact(): void
+    {
+        $contactId = $this->createContact('no-group-contacts-' . uniqid());
+
+        $accessible = $this->repository->findAccessibleContactIds(new UserId($contactId));
+
+        // contacts are not ACL resources: there is no "all contacts" flag to fall back on, so a
+        // user belonging to no Access Group reaches nothing rather than everything
+        self::assertCount(0, $accessible);
+    }
+
+    public function testUserSeesTheContactsAttachedToItsAccessGroupDirectlyOrThroughAContactGroup(): void
+    {
+        $viewerId = $this->createContact('viewer-contacts-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+
+        $directContactId = $this->createContact('direct-' . uniqid());
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $directContactId,
+        ]);
+
+        $indirectContactId = $this->createContact('indirect-' . uniqid());
+        $contactGroupId = $this->createContactGroup('cg-' . uniqid());
+        $this->connection->insert('contactgroup_contact_relation', [
+            'contactgroup_cg_id' => $contactGroupId,
+            'contact_contact_id' => $indirectContactId,
+        ]);
+        $this->connection->insert('acl_group_contactgroups_relations', [
+            'acl_group_id' => $aclGroupId,
+            'cg_cg_id' => $contactGroupId,
+        ]);
+
+        $unrelatedContactId = $this->createContact('unrelated-' . uniqid());
+
+        // a template contact (contact_register = '0') is not a notification target, even when linked
+        $templateContactId = $this->createContact('template-' . uniqid());
+        $this->connection->update('contact', ['contact_register' => '0'], ['contact_id' => $templateContactId]);
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $templateContactId,
+        ]);
+
+        $accessibleIds = array_map(
+            static fn (NotificationContactId $id): int => $id->value,
+            $this->repository->findAccessibleContactIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertContains($directContactId, $accessibleIds);
+        self::assertContains($indirectContactId, $accessibleIds, 'A contact reached through a contact group of the Access Group counts as accessible.');
+        self::assertNotContains($unrelatedContactId, $accessibleIds);
+        self::assertNotContains($templateContactId, $accessibleIds);
+    }
+
+    public function testUserAlwaysSeesTheContactGroupsItBelongsTo(): void
+    {
+        $viewerId = $this->createContact('viewer-cg-' . uniqid());
+        $ownContactGroupId = $this->createContactGroup('own-cg-' . uniqid());
+        $this->connection->insert('contactgroup_contact_relation', [
+            'contactgroup_cg_id' => $ownContactGroupId,
+            'contact_contact_id' => $viewerId,
+        ]);
+
+        // no Access Group at all: own membership is the only path, and it must still apply
+        $accessibleIds = array_map(
+            static fn (ContactGroupId $id): int => $id->value,
+            $this->repository->findAccessibleContactGroupIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertSame([$ownContactGroupId], $accessibleIds);
+    }
+
+    public function testUserSeesTheContactGroupsGrantedByItsAccessGroup(): void
+    {
+        $viewerId = $this->createContact('viewer-granted-cg-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+
+        $grantedContactGroupId = $this->createContactGroup('granted-cg-' . uniqid());
+        $this->connection->insert('acl_group_contactgroups_relations', [
+            'acl_group_id' => $aclGroupId,
+            'cg_cg_id' => $grantedContactGroupId,
+        ]);
+        $this->createContactGroup('unrelated-cg-' . uniqid());
+
+        $accessibleIds = array_map(
+            static fn (ContactGroupId $id): int => $id->value,
+            $this->repository->findAccessibleContactGroupIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertSame([$grantedContactGroupId], $accessibleIds);
+    }
+
+    public function testUserWithNoAclGroupHasAccessToNoHost(): void
+    {
+        $contactId = $this->createContact('no-group-hosts-' . uniqid());
+
+        // Like contacts, hosts carry no "all hosts" fallback: centreon_acl already resolves every
+        // resource rule, so a user belonging to no Access Group reaches nothing.
+        self::assertCount(0, $this->repository->findAccessibleHostIds(new UserId($contactId)));
+    }
+
+    public function testUserSeesTheHostsTheRealTimeAclGrantsToItsAccessGroups(): void
+    {
+        $viewerId = $this->createContact('viewer-hosts-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+        $otherAclGroupId = $this->createAccessGroupForContact($this->createContact('other-hosts-' . uniqid()));
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9101]);
+        // A service-level row does not grant the host on its own.
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9102, 'service_id' => 1]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $otherAclGroupId, 'host_id' => 9103]);
+
+        $accessibleIds = array_map(
+            static fn (HostId $id): int => $id->value,
+            $this->repository->findAccessibleHostIds(new UserId($viewerId))->toArray(),
+        );
+
+        self::assertSame([9101], $accessibleIds);
+    }
+
+    public function testOnlyTheHostsAmongTheGivenOnesAreLookedUp(): void
+    {
+        $viewerId = $this->createContact('viewer-among-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9201]);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9202]);
+
+        $accessibleIds = array_map(
+            static fn (HostId $id): int => $id->value,
+            $this->repository->findAccessibleHostIds(
+                new UserId($viewerId),
+                new Collection([new HostId(9202), new HostId(9203)], HostId::class),
+            )->toArray(),
+        );
+
+        self::assertSame([9202], $accessibleIds);
+        self::assertCount(0, $this->repository->findAccessibleHostIds(new UserId($viewerId), new Collection([], HostId::class)));
+    }
+
+    /**
+     * @param list<int|string> $params
+     */
+    private function countRows(Connection $connection, string $sql, array $params): int
+    {
+        $count = $connection->fetchOne($sql, $params);
+        self::assertIsScalar($count);
+
+        return (int) $count;
+    }
+
+    private function createAccessGroupForContact(int $contactId): int
+    {
+        $name = 'contact-acl-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX);
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => $name,
+            'acl_group_alias' => $name,
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        return $aclGroupId;
+    }
+
+    private function createContactGroup(string $name): int
+    {
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     private function buildHost(int $id): Host
     {
         $host = new Host(
@@ -531,6 +914,45 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             $this->connection->insert('acl_resources_hg_relations', [
                 'acl_res_id' => $aclResId,
                 'hg_hg_id' => $hostGroupId,
+            ]);
+        }
+    }
+
+    /**
+     * @param list<int> $restrictToImageFolderIds image folders explicitly granted through this
+     *                                            resource's relations; irrelevant once $allImageFolders is true
+     */
+    private function linkContactToAclResourceForImageFolders(int $contactId, array $restrictToImageFolderIds, bool $allImageFolders): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_alias' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'resource-' . $aclGroupId,
+            'acl_res_alias' => 'resource-' . $aclGroupId,
+            'acl_res_activate' => '1',
+            'all_image_folders' => $allImageFolders ? '1' : '0',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToImageFolderIds as $imageFolderId) {
+            $this->connection->insert('acl_resources_image_folder_relations', [
+                'acl_res_id' => $aclResId,
+                'dir_id' => $imageFolderId,
             ]);
         }
     }

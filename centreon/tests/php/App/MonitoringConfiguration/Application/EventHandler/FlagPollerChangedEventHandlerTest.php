@@ -24,6 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
@@ -43,7 +48,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
+use App\MonitoringConfiguration\Domain\Event\HostDeleted;
+use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
+use App\MonitoringConfiguration\Domain\Event\HostMassChanged;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
@@ -63,6 +73,42 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         self::assertSame([$host], $pollerRepository->flaggedResources);
     }
 
+    public function testItAlsoFlagsThePollerAHostWasMovedAwayFrom(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostMassChanged($host, 1, previousPollerId: new PollerId(2)));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+        self::assertSame([2], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsOnlyTheCurrentPollerWhenTheHostDidNotMove(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostMassChanged($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+        self::assertSame([], $pollerRepository->flaggedPollerIds);
+    }
+
+    public function testItFlagsTheHostsPollerOnActivationChange(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // HostDisabled is an AggregateUpdated: the handler was broadened to flag the poller on it too.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDisabled($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
     public function testItDoesNothingForAnAggregateThatIsNotPollerScoped(): void
     {
         $pollerRepository = new FakePollerRepository();
@@ -71,6 +117,58 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $handler(new PollerCreated($this->createPoller(), 1));
 
         self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    public function testItDoesNothingForANonPollerScopedUpdate(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // CommandUpdated is an AggregateUpdated too, but Command is not poller-scoped: ignore it.
+        $handler(new CommandUpdated($this->createCommand(), 1));
+
+        self::assertSame([], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerAsChangedOnDelete(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // The host is still carried in memory by the event even though its row is already gone,
+        // so the poller it belonged to can still be resolved and flagged.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDeleted($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    public function testItFlagsTheHostsPollerAsChangedOnDuplicate(): void
+    {
+        $pollerRepository = new FakePollerRepository();
+        $handler = new FlagPollerChangedEventHandler($pollerRepository);
+
+        // Guards the AggregateDuplicated branch of the handled union: narrowing it back would leave
+        // this fast test as the only tripwire before the slow end-to-end duplication test.
+        $host = $this->createHost(pollerId: 5);
+        $handler(new HostDuplicated($host, 1));
+
+        self::assertSame([$host], $pollerRepository->flaggedResources);
+    }
+
+    private function createCommand(): Command
+    {
+        return new Command(
+            id: new CommandId(1),
+            name: new CommandName('check-something'),
+            type: CommandTypeEnum::Check,
+            commandLine: new CommandLine('/bin/true'),
+            isShellEnabled: false,
+            isActivated: true,
+            isFromMonitoringConnector: false,
+            connector: null,
+            comment: null,
+        );
     }
 
     private function createHost(int $pollerId): Host

@@ -25,21 +25,31 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\UpdateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DeleteHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\DuplicateHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 
 #[ApiResource(
     shortName: 'Host',
     operations: [
         new Post(
             uriTemplate: '/configuration/hosts',
-            processor: CreateHostProcessor::class,
-            input: CreateHostInput::class,
             openapi: new Model\Operation(
                 responses: [
                     404 => new Model\Response('Poller or host group not found'),
@@ -49,11 +59,99 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
             ),
             security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
             securityMessage: 'You are not allowed to create hosts',
+            input: CreateHostInput::class,
+            processor: CreateHostProcessor::class,
+        ),
+        new Get(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Without this, `{id}` also captures the sibling host-form selector routes
+            // (/configuration/hosts/pollers, /host-categories, /medias, ...): the literal segment is
+            // cast to int 0 and routed here, 500ing on HostId(0). Constrain it to positive integers so
+            // those GET routes keep matching their own providers, and `/0` is a 404 too.
+            requirements: ['id' => '[1-9]\d*'],
+            provider: GetHostProvider::class,
+            openapi: new Model\Operation(
+                responses: [
+                    403 => new Model\Response('You are not allowed to view hosts'),
+                    404 => new Model\Response('Host not found'),
+                ],
+            ),
+            security: '
+                is_granted("' . HostPermissionEnum::CanRead->value . '") or
+                is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to view hosts',
+        ),
+        new Patch(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
+            status: 204,
+            // Write-only action: no item provider, the handler loads the host itself and answers 404
+            // when it is missing or outside the viewer's scope.
+            read: false,
+            processor: PatchHostProcessor::class,
+            input: PatchHostInput::class,
+            output: false,
+            openapi: new Model\Operation(
+                description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts, contact groups and notification options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"). The macros are not handled yet.',
+                responses: [
+                    204 => new Model\Response('Host updated (or left as it was when nothing changed)'),
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host or host template already uses this name'),
+                    422 => new Model\Response('Invalid input'),
+                    502 => new Model\Response('The vault could not be reached'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update hosts',
+        ),
+        new Post(
+            uriTemplate: '/configuration/hosts/{id}/_duplicate',
+            // No body, no item to read, no output: a 204 action that duplicates one host by id.
+            read: false,
+            deserialize: false,
+            validate: false,
+            output: false,
+            status: 204,
+            processor: DuplicateHostProcessor::class,
+            openapi: new Model\Operation(
+                summary: 'Duplicate a host',
+                description: 'Duplicates a single host. The copy takes the source name with the first '
+                    . 'free "_<n>" suffix. Unitary, not a bulk operation.',
+                responses: [
+                    204 => new Model\Response('Host duplicated'),
+                    403 => new Model\Response('You are not allowed to duplicate hosts'),
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('A host with the generated name already exists'),
+                    422 => new Model\Response('The generated host name would exceed the maximum length'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to duplicate hosts',
+        ),
+        new Put(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
+            // Write-only replace: the processor loads the host itself (404 via the handler when it is
+            // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
+            // full updated resource.
+            read: false,
+            processor: PutHostProcessor::class,
+            input: UpdateHostInput::class,
+            openapi: new Model\Operation(
+                description: 'Fully update a single host (replace semantics).',
+                responses: [
+                    404 => new Model\Response('Host not found'),
+                    409 => new Model\Response('Host name already used by another host or template'),
+                    422 => new Model\Response('Invalid input, or a referenced resource that does not exist or is not accessible'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to update hosts',
         ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',
-            provider: ListHostsProvider::class,
-            output: HostCollectionOutput::class,
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
@@ -97,6 +195,17 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
                 is_granted("' . HostPermissionEnum::CanRead->value . '") or
                 is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list hosts',
+            output: HostCollectionOutput::class,
+            provider: ListHostsProvider::class,
+        ),
+        new Delete(
+            uriTemplate: '/configuration/hosts/{id}',
+            // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
+            requirements: ['id' => '[1-9]\d*'],
+            processor: DeleteHostProcessor::class,
+            read: false,
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to delete hosts',
         ),
     ],
 )]
@@ -110,6 +219,29 @@ final class HostResource
     /** @var list<HostGroupOutput> */
     public array $groups;
 
+    public DataProcessingOutput $dataProcessing;
+
+    /** @var list<HostCategoryOutput> */
+    public array $categories = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $parentHosts = [];
+
+    /** @var list<RelatedHostOutput> */
+    public array $childHosts = [];
+
+    public ?HostTimezoneOutput $timezone = null;
+
+    public ?HostSeverityOutput $severity = null;
+
+    public ?HostExtendedInformationsOutput $extendedInformations = null;
+
+    public HostSchedulingOptionsOutput $schedulingOptions;
+
+    public HostCheckOptionsOutput $checkOptions;
+
+    public ?HostNotificationsOutput $notifications = null;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
@@ -121,6 +253,13 @@ final class HostResource
         public string $address,
 
         public bool $activated,
+
+        public ?SnmpVersionEnum $snmpVersion = null,
+
+        // The community itself is write-only (a secret, possibly in the vault): this only tells
+        // whether one is set, which a client cannot otherwise know.
+        #[ApiProperty(description: 'Whether an SNMP community is set. The community itself is never returned.', writable: false)]
+        public bool $isSnmpCommunityDefined = false,
     ) {
     }
 }

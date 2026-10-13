@@ -95,7 +95,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Package
         uses: ./.github/actions/package-nfpm
@@ -117,32 +117,6 @@ jobs:
           php_version: ${{ needs.get-environment.outputs.php_version }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
-  deliver-sources:
-    runs-on: centreon-common
-    needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability == 'stable' &&
-      github.event_name != 'workflow_dispatch' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Deliver sources
-        uses: ./.github/actions/release-sources
-        with:
-          bucket_directory: centreon-ha
-          module_directory: centreon-ha
-          module_name: centreon-ha
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
-
   deliver:
     needs: [get-environment, changes, package]
     if: |
@@ -162,7 +136,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Deliver RPM package on Artifactory
         if: matrix.package_extension == 'rpm'
@@ -210,7 +184,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Promote ${{ matrix.distrib }} to stable on Artifactory
         uses: ./.github/actions/promote-to-stable
@@ -233,7 +207,7 @@ jobs:
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
 
     strategy:
       matrix:
@@ -245,7 +219,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout sources
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Deliver packages on Pulp
         id: deliver_pulp
@@ -271,7 +245,7 @@ jobs:
       github.event_name != 'workflow_dispatch' &&
       needs.get-environment.outputs.is_cloud == 'false' &&
       github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
     strategy:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
@@ -282,7 +256,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout sources
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
