@@ -1,7 +1,6 @@
 import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, includes, isEmpty, isNil, not, or } from 'ramda';
 import { useEffect } from 'react';
@@ -12,7 +11,7 @@ import { platformInstallationStatusEndpoint } from '../api/endpoint';
 import { PlatformInstallationStatus } from '../api/models';
 import useFederatedModules from '../federatedModules/useFederatedModules';
 import useFederatedWidgets from '../federatedModules/useFederatedWidgets';
-import { prefetchProvidersConfiguration } from '../Login/api/providersConfiguration';
+import { usePrefetchProvidersConfiguration } from '../Login/api/providersConfiguration';
 import reactRoutes from '../reactRoutes/routeMap';
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import useInitializeTranslation from './useInitializeTranslation';
@@ -51,7 +50,6 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
   );
 
   const loadUser = useUser();
-  const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = router.useNavigate();
   const [searchParameter] = useSearchParams();
@@ -59,6 +57,7 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
   const { getPlatformFeatures } = usePlatformFeatures();
   useFederatedModules();
   useFederatedWidgets();
+  usePrefetchProvidersConfiguration();
 
   const displayAuthenticationError = (): void => {
     const authenticationError = searchParameter.get('authenticationError');
@@ -94,7 +93,6 @@ const useMain = (hasReachedAPublicPage: boolean): void => {
 
         return;
       }
-      prefetchProvidersConfiguration(queryClient);
       loadUser();
 
       getPlatformFeatures();

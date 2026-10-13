@@ -52,12 +52,15 @@ interface UseLoginState {
   ) => void;
 }
 
+const hasAuthenticationUri = (provider: ProviderConfiguration): boolean =>
+  not(isEmpty(provider.authenticationUri));
+
 const getForcedProviders = filter<ProviderConfiguration>(
   (provider): boolean =>
     not(isNil(provider.isForced)) &&
     (provider.isForced as boolean) &&
     not(equals(provider.name, 'local')) &&
-    not(isEmpty(provider.authenticationUri))
+    hasAuthenticationUri(provider)
 );
 
 const getExternalProviders = reject<ProviderConfiguration>(
@@ -65,7 +68,8 @@ const getExternalProviders = reject<ProviderConfiguration>(
 );
 
 const getActiveProviders = filter<ProviderConfiguration>(
-  propEq(true, 'isActive')
+  (provider): boolean =>
+    propEq(true, 'isActive', provider) && hasAuthenticationUri(provider)
 );
 
 export const router = {
