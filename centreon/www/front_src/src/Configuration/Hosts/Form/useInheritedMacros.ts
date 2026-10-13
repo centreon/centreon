@@ -55,14 +55,13 @@ const useInheritedMacros = (fieldName: string): void => {
           return response as Array<MacroRow>;
         }
 
-        // A template the endpoint does not know (or a server without the
-        // endpoint yet) lends nothing.
-        if ((response as ResponseError).statusCode === 404) {
-          return [];
+        // A failure leaves the rows as they are. A 404 does so silently: it is
+        // a template the endpoint does not know, or a server without the
+        // endpoint yet, not a template without macros.
+        if ((response as ResponseError).statusCode !== 404) {
+          showErrorMessage((response as ResponseError).message);
         }
 
-        // Any other failure leaves the rows as they are.
-        showErrorMessage((response as ResponseError).message);
         throw new Error((response as ResponseError).message);
       },
       queryKey: ['host-form-template-macros', id],

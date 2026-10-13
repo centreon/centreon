@@ -2645,6 +2645,25 @@ export default () => {
         macroInput(3, 'name').should('have.value', 'WARNING');
       });
 
+      it('keeps the rows as they are, silently, when a template is not found', () => {
+        initialize({});
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.contains('host 0').click();
+
+        cy.waitForRequest('@getHost');
+
+        // Host 0 has templates 6 and 5; template 7 answers 404.
+        addTemplate(2, 'linux-server-standard');
+        cy.waitForRequest('@getTemplateMacros7');
+
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(3, 'name').should('have.value', 'WARNING');
+        macroRow(2).should('have.css', 'background-color', templateBackground);
+        cy.contains('Host template not found').should('not.exist');
+      });
+
       it('follows the templates changed on an existing host', () => {
         initialize({});
 
