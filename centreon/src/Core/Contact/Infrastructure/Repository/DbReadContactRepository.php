@@ -181,8 +181,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function exist(array $userIds): array
     {
         $bind = [];
-        foreach ($userIds as $key => $userId) {
+        $key = 0;
+        foreach ($userIds as $userId) {
             $bind[":user_{$key}"] = $userId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -210,8 +212,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByContactGroups(array $contactGroupIds): array
     {
         $bind = [];
-        foreach ($contactGroupIds as $key => $contactGroupId) {
+        $key = 0;
+        foreach ($contactGroupIds as $contactGroupId) {
             $bind[":contactGroup_{$key}"] = $contactGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -241,8 +245,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function existInAccessGroups(int $contactId, array $accessGroupIds): bool
     {
         $bind = [];
-        foreach ($accessGroupIds as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return false;
@@ -407,8 +413,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findContactIdsByAccessGroups(array $accessGroupIds): array
     {
         $bind = [];
-        foreach ($accessGroupIds as $key => $accessGroupId) {
+        $key = 0;
+        foreach ($accessGroupIds as $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
+            $key++;
         }
         if ($bind === []) {
             return [];
@@ -445,8 +453,10 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findAdminsByIds(array $contactIds): array
     {
         $bind = [];
-        foreach ($contactIds as $key => $contactId) {
+        $key = 0;
+        foreach ($contactIds as $contactId) {
             $bind[':contact' . $key] = $contactId;
+            $key++;
         }
         if ($bind === []) {
             return [];
