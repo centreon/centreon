@@ -38,6 +38,14 @@ export const labelRemoteServers =
 export const labelOpenBrokerFlow =
   'Advanced: reverse Centreon Broker communication flow';
 
+export const labelGorgonePullWss =
+  'Advanced: gorgone - poller connects to the central';
+
+export const labelGorgonePullWssPrerequisite =
+  'Prerequisite: configure the central to accept PullWSS connections';
+
+export const labelDocumentation = 'documentation';
+
 export const labelDoNotUseConfiguredProxy =
   'Do not use configured proxy to connect to this server';
 

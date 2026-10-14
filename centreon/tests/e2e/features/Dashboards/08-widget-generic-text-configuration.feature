@@ -4,7 +4,7 @@ Feature: Configuring a single text widget
   I need to configure a widget containing simple text on a dashboard
   So that this dashboard can feature information users can read and links they can click
 
-  @TEST_MON-22662
+  @MON-22662
   Scenario: Creating and configuring a new Generic text widget on a dashboard
     Given a dashboard in the dashboard administrator user's dashboard library
     When the dashboard administrator user selects the option to add a new widget
@@ -16,31 +16,31 @@ Feature: Configuring a single text widget
     Then the Generic text widget is added in the dashboard's layout
     And its title and description are displayed
 
-  @TEST_MON-22661
+  @MON-22661
   Scenario: Duplicating a Generic text widget
     Given a dashboard featuring a single Generic text widget
     When the dashboard administrator user duplicates the widget
     Then a second widget with identical content is displayed on the dashboard
 
-  @TEST_MON-22664
+  @MON-22664
   Scenario: Editing a Generic text widget
     Given a dashboard featuring two Generic text widgets
     When the dashboard administrator user updates the contents of one of these widgets
     Then the updated contents of the widget are displayed instead of the original ones
 
-  @TEST_MON-22665
+  @MON-22665
   Scenario: Deleting a Generic text widget
     Given a dashboard featuring two Generic text widgets
     When the dashboard administrator user deletes one of the widgets
     Then only the contents of the other widget are displayed
 
-  @TEST_MON-22663
+  @MON-22663
   Scenario: Hiding the description of a Generic text widget
     Given a dashboard featuring a single Generic text widget
     When the dashboard administrator user hides the description of the widget
     Then the description is hidden and only the title is displayed
 
-  @TEST_MON-22660
+  @MON-22660
   Scenario: Adding a clickable link in the description of a Generic text widget
     Given a dashboard featuring a single Generic text widget
     When the dashboard administrator user adds a clickable link in the contents of the widget

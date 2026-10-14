@@ -31,8 +31,22 @@ on:
         required: true
         type: string
       xray_keys_and_ids:
-        description: "The test execution and the test plan keys and ids"
-        required: true
+        description: "The test execution and the test plan keys and ids (legacy flow)"
+        required: false
+        type: string
+      jira_test_plan_key:
+        description: "Jira Test Plan key; when set, results are imported and linked to it"
+        required: false
+        type: string
+      minor_version:
+        required: false
+        type: string
+      database_name:
+        required: false
+        type: string
+      module_name:
+        description: "Jira component (e.g. centreon-web, centreon-awie)"
+        required: false
         type: string
       upload_artifacts:
         description: "Whether to upload deprecation logs artifacts"
@@ -63,9 +77,9 @@ jobs:
     steps:
       # Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
 
@@ -93,9 +107,10 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
     env:
       WORKING_DIRECTORY: ${{ inputs.working_directory }}
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       IMAGE_NAME: ${{ inputs.image_name }}-${{ inputs.operating_system }}
-      WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-${{ inputs.operating_system }}:${{ github.head_ref || github.ref_name }}
+      # WEB_IMAGE is set on the container-startup step below, from the sanitized
+      # tag produced by the "Compute image tag" step (a Docker tag cannot contain
+      # '/', so the raw branch ref must be sanitized like the dockerize job does).
       FEATURE: ${{ matrix.feature }}
       BRUNO_GITHUB_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts/bruno-test-api
       # Disable system proxy detection in Bruno CLI on Linux runners (no proxy configured).
@@ -107,14 +122,35 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      # Same tag computation as the dockerize job and cypress-e2e-parallelization:
+      # a Docker tag cannot contain '/', so the raw branch ref (feature/foo) must
+      # be sanitized to match the tag dockerize pushed (feature-foo). Using the
+      # raw ref referenced a non-existent tag and failed `docker compose up --wait`.
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 10
           run_install: false
 
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
 
@@ -139,15 +175,38 @@ jobs:
 
       # Login to docker registry
       - name: Login to registry
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
+      # Image saved by the dockerize job: avoids a registry pull per collection; on a miss, compose pulls it.
+      - name: Restore slim image from cache
+        id: cache-docker-slim
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: ./docker-image
+          key: docker-image-${{ env.IMAGE_NAME }}-${{ steps.image_tag.outputs.tag }}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load slim image
+        if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        env:
+          IMAGE_TAG: ${{ steps.image_tag.outputs.tag }}
+          REGISTRY_URL: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+        run: |
+          docker load --input "$GITHUB_WORKSPACE/docker-image/$IMAGE_NAME.tar"
+          docker tag "$IMAGE_NAME:$IMAGE_TAG" "$REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG"
+          rm -rf "$GITHUB_WORKSPACE/docker-image"
+
       # Start Centreon web and database containers and adding custom setup environment if exists
       - name: Start Centreon Web and database containers with specific setup if exists
         env:
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-${{ inputs.operating_system }}:${{ steps.image_tag.outputs.tag }}
           MYSQL_IMAGE: ${{ inputs.database_image }}
           UPLOAD_ARTIFACTS: ${{ inputs.upload_artifacts }}
           OS_INPUT: ${{ inputs.operating_system }}
@@ -242,32 +301,20 @@ jobs:
 
       - name: Upload Bruno reports (JSON + HTML)
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bruno-report-${{ env.FEATURE }}
           path: |
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.json
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.html
             ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*-junit.xml
 
       - name: Generate GitHub Summary
         if: always()
         run: |
           node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-github-summary.js" "$FEATURE" \
             >> "$GITHUB_STEP_SUMMARY"
-
-      # Generate Xray Token
-      - name: Generate Xray Token
-        id: generate-xray-token
-        env:
-          XRAY_CLIENT_ID: ${{ secrets.client_id }}
-          XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
-        run: |
-          payload=$(jq -nc --arg id "$XRAY_CLIENT_ID" --arg secret "$XRAY_CLIENT_SECRET" '{client_id: $id, client_secret: $secret}')
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "$payload" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
-          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
-        shell: bash
 
       - name: Display container logs
         if: failure()
@@ -276,12 +323,12 @@ jobs:
           docker compose -f ../../../../.github/docker/docker-compose.yml logs
           echo "::endgroup::"
 
-          echo "::group::centreon-web.log"
-          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/centreon-web.log 2>/dev/null || echo 'centreon-web.log does not exist'"
+          echo "::group::prod.web.log"
+          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/prod.web.log 2>/dev/null || echo 'prod.web.log does not exist'"
           echo "::endgroup::"
 
-          echo "::group::sql-error.log"
-          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/sql-error.log 2>/dev/null || echo 'sql-error.log does not exist'"
+          echo "::group::prod.access.log"
+          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/prod.access.log 2>/dev/null || echo 'prod.access.log does not exist'"
           echo "::endgroup::"
         shell: bash
 
@@ -305,7 +352,7 @@ jobs:
 
       - name: Upload deprecation logs
         if: ${{ steps.deprecation-logs.conclusion != 'skipped' }}
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bruno-${{ inputs.operating_system }}-${{ matrix.feature }}-deprecation-logs
           path: "${{ env.WORKING_DIRECTORY }}/*-deprecation.log"
@@ -318,7 +365,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Merge deprecation logs
-        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ inputs.upload_artifacts == 'true' }}
         continue-on-error: true
         with:
@@ -326,3 +373,28 @@ jobs:
           pattern: bruno-${{ inputs.operating_system }}-*-deprecation-logs
           retention-days: 1
           delete-merged: true
+
+  # Import the JUnit results into Xray and link them to the Test Plan. Skipped for
+  # callers still on the legacy flow (those that do not pass jira_test_plan_key).
+  xray-api-import-results:
+    needs: [bruno-run-collection]
+    if: ${{ ! cancelled() && inputs.jira_test_plan_key != '' }}
+    uses: ./.github/workflows/xray-api-import-results.yml
+    with:
+      jira_test_plan_key: ${{ inputs.jira_test_plan_key }}
+      report_path: bruno-junit-results
+      environment: ${{ inputs.operating_system }}
+      operating_system: ${{ inputs.operating_system }}
+      database_name: ${{ inputs.database_name }}
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      module_name: ${{ inputs.module_name }}
+      type_test_execution: api
+      result_format: junit
+      enrich_tests: true
+      artifact_pattern: "bruno-report-*"
+    secrets:
+      XRAY_CLIENT_ID: ${{ secrets.client_id }}
+      XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
+      XRAY_JIRA_USER_EMAIL: ${{ secrets.jira_user }}
+      XRAY_JIRA_TOKEN: ${{ secrets.jira_token_test }}

@@ -137,13 +137,13 @@ jobs:
             return hasSkipLabel;
 
       - name: Checkout sources (current branch)
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: develop
           path: centreon-develop
@@ -492,8 +492,8 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
-          LATEST_MAJOR_VERSION: ${{ steps.latest_major_version.outputs.latest_major_version }}
-          MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
+          CURRENT_MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
+          EVENT_NAME: ${{ github.event_name }}
           PR_PATH: ${{ steps.pr_path.outputs.result || '[]' }}
         with:
           script: |
@@ -504,15 +504,11 @@ jobs:
             const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
             const isNightly = process.env.IS_NIGHTLY;
 
-            const developMajorVersion = process.env.LATEST_MAJOR_VERSION;
-            const currentMajorVersion = process.env.MAJOR_VERSION;
-            // if major version is higher than develop major version => it is a cloud version
+            const currentMajorVersion = process.env.CURRENT_MAJOR_VERSION;
             // if month number is not 10 => it is a cloud version
             // anything else => onprem
             const isCloudCandidate =
-              Number(currentMajorVersion) >= Number(developMajorVersion) ||
               !currentMajorVersion.match(/\.10$/);
-
             let releaseScope = "unknown";
 
             // in a nightly context, whatever the event_name is, the release context does not matter
@@ -725,6 +721,49 @@ jobs:
 
             core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
 
+      - name: Get operating systems matrix for package and dockerize jobs
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        id: get_package_matrix
+        env:
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
+          HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
+          HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
+          HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
+          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
+        with:
+          script: |
+            const stability = process.env.STABILITY;
+            const isCloud = process.env.IS_CLOUD === 'true';
+            const isFullRun = ['unstable', 'testing', 'stable'].includes(stability)
+              || process.env.IS_NIGHTLY === 'true'
+              || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
+              || process.env.HAS_SYSTEM === 'true'
+              || process.env.HAS_DATABASE === 'true';
+
+            const distribMap = {
+              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
+              alma10:   { distrib: 'el10',     package_extension: 'rpm' },
+              trixie:   { distrib: 'trixie',   package_extension: 'deb' },
+            };
+
+            const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
+              operating_system: os,
+              ...info,
+            }));
+
+            // Need to be defined separately as their values used to diverge in the past and
+            // may diverge again in the future
+            const cloudMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
+            const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
+
+            const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
+            const result = isCloudTestingOrStable ? cloudMainDistrib : isFullRun ? allDistribs : isCloud ? cloudMainDistrib : onPremMainDistrib;
+
+            console.log('package_matrix', result);
+
+            return result;
+
       - name: Detect operating systems and databases to test
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: get_os_database_matrix
@@ -732,65 +771,46 @@ jobs:
           IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
           LABELS: ${{ steps.has_skip_label.outputs.labels }}
+          PACKAGE_MATRIX: ${{ steps.get_package_matrix.outputs.result }}
         with:
           script: |
-            const alma10_mariadb_11_8 = {
-              "operating_system": "alma10",
-              "database": "mariadb:11.8",
-              "db_id": "mariadb-11.8",
-              "test_tags": "not @ignore"
-            };
-            const alma9_mysql_8_0 = {
-              "operating_system": "alma9",
-              "database": "mysql:8.0",
-              "db_id": "mysql-8.0",
-              "test_tags": "not @ignore"
-            };
-            const trixie_mysql_8_4 = {
-              "operating_system": "trixie",
-              "database": "mysql:8.4",
-              "db_id": "mysql-8.4",
-              "test_tags": "not @ignore"
+            const cfg = (operating_system, database, db_id, test_tags) => ({ operating_system, database, db_id, test_tags });
+
+            const alma10_mysql_8_4       = cfg('alma10', 'mysql:8.4', 'mysql-8.4', 'not @ignore');
+            const alma10_mariadb_11_8    = cfg('alma10', 'mariadb:11.8', 'mariadb-11.8', 'not @ignore');
+            const alma9_mariadb_11_8     = cfg('alma9',  'mariadb:11.8', 'mariadb-11.8', 'not @ignore');
+            const trixie_mariadb_11_8    = cfg('trixie', 'mariadb:11.8', 'mariadb-11.8', 'not @ignore');
+
+            // Fixed weekday -> preferred configuration (0=sunday, 1=monday, ..., 6=saturday)
+            const dailyConfigByDayOfWeek = {
+              1: alma10_mysql_8_4,    // Monday
+              2: trixie_mariadb_11_8, // Tuesday
+              3: alma10_mysql_8_4,    // Wednesday
+              4: alma9_mariadb_11_8,  // Thursday
+              5: alma10_mysql_8_4,    // Friday
             };
 
             const getDailyConfig = (configs) => {
-              const today = new Date();
-              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+              const dayOfWeek = new Date().getDay();
+              const preferred = dailyConfigByDayOfWeek[dayOfWeek];
 
-              // If it's weekend, use the default configuration
-              if (dayOfWeek === 0 || dayOfWeek === 6) {
-                return configs[0];
-              }
-
-              // Reference date: January 1, 2025
-              const referenceDate = new Date('2025-01-01');
-
-              // Calculate the number of working days since January 1
-              let workingDays = 0;
-              const currentDate = new Date(referenceDate);
-
-              while (currentDate < today) {
-                const dayOfWeek = currentDate.getDay();
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
-                  workingDays++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-              }
-
-              // Alternating balanced on 3 configurations
-              const configIndex = workingDays % configs.length;
-
-              return configs[configIndex];
+              // Fall back to the first available configuration on weekends,
+              // or if the preferred one isn't part of the package matrix
+              return preferred && configs.includes(preferred) ? preferred : configs[0];
             };
 
-            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4];
+            const packagedOperatingSystems = JSON.parse(process.env.PACKAGE_MATRIX).map(d => d.operating_system);
 
-            const cloud = alma9_mysql_8_0;
+            const configs = [alma10_mysql_8_4, alma9_mariadb_11_8, trixie_mariadb_11_8]
+              .filter(c => packagedOperatingSystems.includes(c.operating_system));
 
-            let main = alma10_mariadb_11_8;
-            if (process.env.IS_CLOUD === 'true') {
-              main = cloud;
+            if (configs.length === 0) {
+              core.setFailed(`No test configuration matches the packaged operating systems: ${packagedOperatingSystems.join(', ')}`);
+              return {};
             }
+
+            const cloud = alma10_mysql_8_4;
+            let main = process.env.IS_CLOUD === 'true' ? cloud : alma10_mariadb_11_8;
 
             let matrix = {
               "cloud": [cloud],
@@ -823,46 +843,6 @@ jobs:
 
             return matrix;
 
-      - name: Get operating systems matrix for package and dockerize jobs
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        id: get_package_matrix
-        env:
-          STABILITY: ${{ steps.get_stability.outputs.stability }}
-          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
-          HAS_UPLOAD_ARTIFACTS: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'upload-artifacts') }}
-          HAS_SYSTEM: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'system') }}
-          HAS_DATABASE: ${{ contains(fromJSON(steps.has_skip_label.outputs.labels), 'database') }}
-          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
-        with:
-          script: |
-            const stability = process.env.STABILITY;
-            const isCloud = process.env.IS_CLOUD === 'true';
-            const isFullRun = ['unstable', 'testing', 'stable'].includes(stability)
-              || process.env.IS_NIGHTLY === 'true'
-              || process.env.HAS_UPLOAD_ARTIFACTS === 'true'
-              || process.env.HAS_SYSTEM === 'true'
-              || process.env.HAS_DATABASE === 'true';
-
-            const distribMap = {
-              alma9:    { distrib: 'el9',      package_extension: 'rpm' },
-              alma10:   { distrib: 'el10',     package_extension: 'rpm' },
-              trixie:   { distrib: 'trixie',   package_extension: 'deb' },
-            };
-
-            const allDistribs = Object.entries(distribMap).map(([os, info]) => ({
-              operating_system: os,
-              ...info,
-            }));
-
-            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma9');
-            const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
-            const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
-
-            console.log('package_matrix', result);
-
-            return result;
-
       - name: Display info in job summary
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
@@ -884,6 +864,8 @@ jobs:
           PHP_VERSION: ${{ steps.get_php_version.outputs.php_version }}
           TARGET_STABILITY: ${{ steps.get_stability.outputs.target_stability }}
           PR_PATH: ${{ steps.pr_path.outputs.result || '[]' }}
+          PACKAGE_MATRIX: ${{ steps.get_package_matrix.outputs.result }}
+          OS_DATABASE_MATRIX: ${{ steps.get_os_database_matrix.outputs.result }}
         with:
           script: |
             const notFound = '<em>not found</em>';
@@ -894,9 +876,9 @@ jobs:
               ['latest_major_version', process.env.LATEST_MAJOR_VERSION],
               ['is_cloud', process.env.IS_CLOUD],
               ['previous_release_bundle_tag', process.env.PREVIOUS_RELEASE_BUNDLE_TAG || notFound],
-              ['delivery_type', process.env.DELIVERY_TYPE],
-              ['linked_dev_branch', process.env.LINKED_DEV_BRANCH],
-              ['linked_stable_branch', process.env.LINKED_STABLE_BRANCH],
+              ['delivery_type', process.env.DELIVERY_TYPE || notFound],
+              ['linked_dev_branch', process.env.LINKED_DEV_BRANCH || notFound],
+              ['linked_stable_branch', process.env.LINKED_STABLE_BRANCH || notFound],
               ['major_version', process.env.MAJOR_VERSION],
               ['minor_version', process.env.MINOR_VERSION],
               ['release', process.env.RELEASE],
@@ -906,35 +888,54 @@ jobs:
               ['is_nightly', process.env.IS_NIGHTLY],
               ['skip_workflow', process.env.SKIP_WORKFLOW],
               ['labels', process.env.LABELS],
-              ['php_version', process.env.PHP_VERSION],
+              ['php_version', process.env.PHP_VERSION || notFound],
+              ['target_stability', process.env.TARGET_STABILITY || notPr],
             ];
 
-            outputTable.push(['target_stability', process.env.TARGET_STABILITY || notPr]);
+            const packageMatrix = JSON.parse(process.env.PACKAGE_MATRIX);
+            const packageTable = [
+              [{data: 'Operating system', header: true}, {data: 'Distrib', header: true}, {data: 'Package extension', header: true}],
+              ...packageMatrix.map(d => [d.operating_system, d.distrib, d.package_extension]),
+            ];
+
+            const osDatabaseMatrix = JSON.parse(process.env.OS_DATABASE_MATRIX);
+            const osDatabaseTable = [
+              [{data: 'Matrix', header: true}, {data: 'Operating system', header: true}, {data: 'Database', header: true}, {data: 'Test tags', header: true}],
+              ...Object.entries(osDatabaseMatrix).flatMap(([matrixName, entries]) =>
+                entries.map(e => [matrixName, e.operating_system, e.database, e.test_tags])
+              ),
+            ];
 
             core.summary
               .addHeading(`${context.workflow} environment outputs`)
-              .addTable(outputTable);
+              .addTable(outputTable)
+              .addHeading('Package matrix', 2)
+              .addTable(packageTable)
+              .addHeading('Operating systems and databases matrix', 2)
+              .addTable(osDatabaseTable);
 
             if (process.env.GITHUB_EVENT_NAME === "pull_request") {
               const prPath = JSON.parse(process.env.PR_PATH);
-              const mainBranchName = prPath.pop();
-              let codeBlock = `
-                %%{ init: { 'gitGraph': { 'mainBranchName': '${mainBranchName}', 'showCommitLabel': false } } }%%
-                gitGraph
-                  commit`;
-              prPath.reverse().forEach((branchName) => {
-                codeBlock = `${codeBlock}
-                  branch ${branchName}
-                  checkout ${branchName}
-                  commit`;
-              });
+              if (prPath.length >= 2) {
+                const mainBranchName = prPath.pop();
+                let codeBlock = `
+                  %%{ init: { 'gitGraph': { 'mainBranchName': '${mainBranchName}', 'showCommitLabel': false } } }%%
+                  gitGraph
+                    commit`;
+                prPath.reverse().forEach((branchName) => {
+                  codeBlock = `${codeBlock}
+                    branch ${branchName}
+                    checkout ${branchName}
+                    commit`;
+                });
 
-              core.summary
-                .addHeading('Git workflow')
-                .addCodeBlock(
-                  codeBlock,
-                  "mermaid"
-                );
+                core.summary
+                  .addHeading('Git workflow')
+                  .addCodeBlock(
+                    codeBlock,
+                    "mermaid"
+                  );
+              }
             }
 
-            core.summary.write();
+            await core.summary.write();

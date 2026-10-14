@@ -1,5 +1,6 @@
 includes:
     - ../php-tools/phpstan/config/common.neon
+    - phpstan.core.test.baseline.neon
 
 parameters:
 
@@ -26,3 +27,7 @@ parameters:
                 - '#^Undefined variable: \$this$#'
                 - '#^Call to an undefined method Pest#'
                 - '#^Access to an undefined property PHPUnit#'
+                - '#^Call to protected method .+\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+                - '#^Access to private property PHPUnit\\Framework\\TestCase::\$\w+\.$#'
+                - '#^Call to an undefined method PHPUnit\\Framework\\TestCase::\w+\(\)\.$#'
+                - '#^Method PHPUnit\\Framework\\TestCase::\w+\(\) invoked with \d+ parameters?, \d+ required\.$#'

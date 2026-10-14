@@ -107,7 +107,14 @@ Cypress.Commands.add('checkValuesOfCommands', (name: string, body: Cmd) => {
 Cypress.Commands.add(
   'addCommandToResource',
   (index: number, command: string) => {
-    cy.getIframeBody().find('span[title="Clear field"]').eq(index).click();
+    // The eraser is only shown when the single select actually holds a value, and
+    // a freshly created host has no check command to clear.
+    cy.getIframeBody().then(($body) => {
+      const clears = $body.find('span[title="Clear field"]');
+      if (clears.length > index && clears.eq(index).is(':visible')) {
+        cy.getIframeBody().find('span[title="Clear field"]').eq(index).click();
+      }
+    });
     // Click on the check command field in the form
     cy.getIframeBody().find('span[title="Check Command"]').click();
     // Chose a check command

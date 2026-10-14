@@ -30,11 +30,16 @@ abstract readonly class AggregateUpdated implements EventInterface
 {
     /**
      * @param AggregateRoot<AggregateRootId> $aggregate
+     * @param bool $loggable whether this update should produce an activity-log entry. Its side
+     *                       effects (engine flag, ACL reload) run regardless — set it to false to
+     *                       signal a change that must trigger those effects without being logged
+     *                       (e.g. a change to a property legacy never logged).
      */
     public function __construct(
         public AggregateRoot $aggregate,
         public int $creatorId,
         public \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
+        public bool $loggable = true,
     ) {
     }
 

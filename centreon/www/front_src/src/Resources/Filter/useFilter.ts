@@ -16,6 +16,7 @@ import { listCustomFiltersDecoder } from './api/decoders';
 import { CriteriaValue } from './Criterias/models';
 import { build } from './Criterias/searchQueryLanguage';
 import {
+  appliedFilterAtom,
   applyFilterDerivedAtom,
   currentFilterAtom,
   customFiltersAtom,
@@ -46,6 +47,7 @@ const useFilter = (): void => {
   });
 
   const currentFilter = useAtomValue(currentFilterAtom);
+  const appliedFilter = useAtomValue(appliedFilterAtom);
   const filterWithParsedSearch = useAtomValue(
     filterWithParsedSearchDerivedAtom
   );
@@ -104,7 +106,9 @@ const useFilter = (): void => {
     ]);
 
     applyFilter(getDefaultFilter());
-  }, [getUrlQueryParameters().fromTopCounter]);
+    // A top counter click applies its filter: re-run on each applied filter,
+    // as React Compiler caches URL values read during render.
+  }, [appliedFilter]);
 
   useEffect(() => {
     if (

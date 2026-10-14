@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\Core\Common\Infrastructure\Api;
 
 use Core\Common\Infrastructure\Api\InternalApiClient;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,8 +40,6 @@ class InternalApiClientTest extends TestCase
     private const TEST_SESSION_COOKIE = 'PHPSESSID=test-session-id-12345';
 
     /**
-     * @dataProvider provideUrlsToConvert
-     *
      * @param string $inputUrl The original URL
      * @param string $expectedUrl The expected localhost URL
      * @param array{
@@ -50,6 +49,7 @@ class InternalApiClientTest extends TestCase
      *     'serverPort': ?int,
      * } $env
      */
+    #[DataProvider('provideUrlsToConvert')]
     public function testConvertToLocalUrl(string $inputUrl, string $expectedUrl, array $env): void
     {
         $result = InternalApiClient::convertToLocalUrl(
@@ -164,7 +164,7 @@ class InternalApiClientTest extends TestCase
             'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
-        yield 'Relative URL without / at start' => [
+        yield 'Relative URL without leading slash at start' => [
             'inputUrl' => 'api/hosts',
             'expectedUrl' => 'https://127.0.0.1:8080/api/hosts',
             'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1', 'requestScheme' => 'https', 'serverPort' => 8080],
@@ -188,10 +188,16 @@ class InternalApiClientTest extends TestCase
             'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1:9000', 'serverPort' => 8080],
         ];
 
-        yield 'CENTREON_INTERNAL_API_BASE_URL with full scheme has its scheme stripped' => [
+        yield 'CENTREON_INTERNAL_API_BASE_URL https scheme is honored (matches request scheme)' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
             'env' => ['CENTREON_INTERNAL_API_BASE_URL' => 'https://127.0.0.1'],
+        ];
+
+        yield 'CENTREON_INTERNAL_API_BASE_URL http scheme is honored over an https request' => [
+            'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
+            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => 'http://127.0.0.1', 'requestScheme' => 'https'],
         ];
 
         yield 'Relative URL with leading slash and base URL with port ignores serverPort' => [
@@ -204,6 +210,39 @@ class InternalApiClientTest extends TestCase
             'inputUrl' => '/api/hosts',
             'expectedUrl' => 'http://localhost:8080/api/hosts',
             'env' => ['requestScheme' => 'http', 'serverAddress' => 'localhost', 'serverPort' => 8080],
+        ];
+
+        yield 'Absolute URL using scheme and port of CENTREON_INTERNAL_API_BASE_URL' => [
+            'inputUrl' => 'http://localhost/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:9000/api/hosts',
+            'env' => [
+                'CENTREON_INTERNAL_API_BASE_URL' => 'https://127.0.0.1:9000',
+                'requestScheme' => 'http',
+                'serverAddress' => 'localhost',
+                'serverPort' => 8080,
+            ],
+        ];
+
+        yield 'Absolute URL using scheme of CENTREON_INTERNAL_API_BASE_URL' => [
+            'inputUrl' => 'http://localhost/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:8080/api/hosts',
+            'env' => [
+                'CENTREON_INTERNAL_API_BASE_URL' => 'https://127.0.0.1',
+                'requestScheme' => 'http',
+                'serverAddress' => 'localhost',
+                'serverPort' => 8080,
+            ],
+        ];
+
+        yield 'Schemeless CENTREON_INTERNAL_API_BASE_URL falls back to the request scheme' => [
+            'inputUrl' => '/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:8080/api/hosts',
+            'env' => [
+                'CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1',
+                'requestScheme' => 'https',
+                'serverAddress' => 'localhost',
+                'serverPort' => 8080,
+            ],
         ];
     }
 

@@ -33,6 +33,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -115,7 +116,8 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             $this->filterByCriteria($qb, $criteria);
         }
         // if no pagination
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -131,8 +133,8 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
         return new InMemoryPaginator(
             items: new Collection(array_map(fn (array $row): Connector => $this->createConnector($row), $rows), Connector::class),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -177,7 +179,10 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             foreach ($nameCriteria as $operator => $names) {
                 if ($operator === ConnectorCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (string $name): string => $qb->expr()->like('c.name', '"%' . $name . '%"'),
+                        static fn (string $name): string => $qb->expr()->like(
+                            'c.name',
+                            $qb->createNamedParameter('%' . $name . '%')
+                        ),
                         $names
                     )));
 
@@ -185,7 +190,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
                 }
                 $qb->andWhere($qb->expr()->in(
                     'c.name',
-                    array_map(static fn (string $name): string => '"' . $name . '"', $names)
+                    $qb->createNamedParameter($names, ArrayParameterType::STRING)
                 ));
             }
         }
@@ -193,7 +198,10 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
             foreach ($idCriteria as $operator => $ids) {
                 if ($operator === ConnectorCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (int $id): string => $qb->expr()->like('c.id', '"%' . $id . '%"'),
+                        static fn (int $id): string => $qb->expr()->like(
+                            'c.id',
+                            $qb->createNamedParameter('%' . $id . '%')
+                        ),
                         $ids
                     )));
 
@@ -201,7 +209,7 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
                 }
                 $qb->andWhere($qb->expr()->in(
                     'c.id',
-                    array_map(static fn (int $id): string => '"' . $id . '"', $ids)
+                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
                 ));
             }
         }
@@ -217,12 +225,13 @@ final readonly class DbalConnectorRepository extends DbalRepository implements C
 
     private function paginate(QueryBuilder $qb, ConnectorCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return;
         }
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int

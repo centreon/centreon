@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($oreon)) {
     exit();
 }
@@ -82,11 +85,9 @@ function getListServiceForPool($poolId)
 
         return $listServices;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error fetching list of services for pool ID: {$poolId}",
-            customContext: ['poolId' => $poolId],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error fetching list of services for pool ID: {$poolId}",
+            ['poolId' => $poolId, 'exception' => $e]
         );
 
         throw $e;
@@ -132,11 +133,9 @@ function hostPoolPrefixUsed($hostId, $poolPrefix, $poolId = null)
 
         return $row['nb'] > 0;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error checking if host {$hostId} is already used with prefix '{$poolPrefix}'",
-            customContext: ['hostId' => $hostId, 'poolPrefix' => $poolPrefix, 'poolId' => $poolId],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error checking if host {$hostId} is already used with prefix '{$poolPrefix}'",
+            ['hostId' => $hostId, 'poolPrefix' => $poolPrefix, 'poolId' => $poolId, 'exception' => $e]
         );
 
         throw $e;
@@ -200,11 +199,9 @@ function enablePoolInDB($pool_id = null, $pool_arr = [])
             }
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error enabling pool(s) in DB',
-            customContext: ['pool_id' => $pool_id, 'pool_arr' => $pool_arr],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error enabling pool(s) in DB',
+            ['pool_id' => $pool_id, 'pool_arr' => $pool_arr, 'exception' => $e]
         );
 
         throw $e;
@@ -268,11 +265,9 @@ function disablePoolInDB($pool_id = null, $pool_arr = [])
             }
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error disabling pool(s) in DB',
-            customContext: ['pool_id' => $pool_id, 'pool_arr' => $pool_arr],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error disabling pool(s) in DB',
+            ['pool_id' => $pool_id, 'pool_arr' => $pool_arr, 'exception' => $e]
         );
 
         throw $e;
@@ -320,11 +315,9 @@ function deletePoolInDB($pools = [])
             $pearDB->closeQuery($statement);
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error deleting pool(s) in DB',
-            customContext: ['pools' => $pools],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error deleting pool(s) in DB',
+            ['pools' => $pools, 'exception' => $e]
         );
 
         throw $e;
@@ -389,11 +382,9 @@ function testPoolExistence($pool_name)
 
         return ($row['nb'] > 0) ? 1 : 0;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error checking pool existence for pool name: {$pool_name}",
-            customContext: ['pool_name' => $pool_name],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error checking pool existence for pool name: {$pool_name}",
+            ['pool_name' => $pool_name, 'exception' => $e]
         );
 
         throw $e;
@@ -482,11 +473,9 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
             }
         }
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error duplicating pools with pool IDs: ' . implode(', ', array_keys($pool)),
-            customContext: ['pool' => $pool, 'nbrDup' => $nbrDup],
-            exception: $e
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error duplicating pools with pool IDs: ' . implode(', ', array_keys($pool)),
+            ['pool' => $pool, 'nbrDup' => $nbrDup, 'exception' => $e]
         );
 
         throw $e;
@@ -703,10 +692,9 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
 
         $pearDB->closeQuery($statement);
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error generating services for pool with prefix: {$prefix}",
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            "Error generating services for pool with prefix: {$prefix}",
+            [
                 'prefix' => $prefix,
                 'number' => $number,
                 'host_id' => $host_id,
@@ -714,8 +702,8 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                 'cmd' => $cmd,
                 'args' => $args,
                 'oldPrefix' => $oldPrefix,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -814,15 +802,14 @@ function insertPool($ret = [])
 
         return $pool_id;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error inserting pool with name: ' . ($ret['pool_name'] ?? 'N/A'),
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error inserting pool with name: ' . ($ret['pool_name'] ?? 'N/A'),
+            [
                 'pool_name' => $ret['pool_name'] ?? null,
                 'pool_host_id' => $ret['pool_host_id'] ?? null,
                 'pool_prefix' => $ret['pool_prefix'] ?? null,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -916,16 +903,15 @@ function updatePool($pool_id = null)
 
         return true;
     } catch (CentreonDbException $e) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error updating pool with ID: ' . ($pool_id ?? 'N/A'),
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error updating pool with ID: ' . ($pool_id ?? 'N/A'),
+            [
                 'pool_id' => $pool_id,
                 'pool_name' => $ret['pool_name'] ?? null,
                 'pool_prefix' => $ret['pool_prefix'] ?? null,
                 'pool_activate' => $ret['pool_activate'] ?? null,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -972,14 +958,13 @@ function updatePoolContactGroup($pool_id = null, $ret = [])
             $pearDB->rollBack();
         }
 
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error updating contact groups for pool with ID: ' . ($pool_id ?? 'N/A'),
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error updating contact groups for pool with ID: ' . ($pool_id ?? 'N/A'),
+            [
                 'pool_id' => $pool_id,
                 'contact_groups' => $ret,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;
@@ -1026,14 +1011,13 @@ function updatePoolContact($pool_id = null, $ret = [])
             $pearDB->rollBack();
         }
 
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'Error updating contacts for pool with ID: ' . ($pool_id ?? 'N/A'),
-            customContext: [
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error updating contacts for pool with ID: ' . ($pool_id ?? 'N/A'),
+            [
                 'pool_id' => $pool_id,
                 'contacts' => $ret,
-            ],
-            exception: $e
+                'exception' => $e,
+            ]
         );
 
         throw $e;

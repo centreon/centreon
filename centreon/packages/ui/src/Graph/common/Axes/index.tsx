@@ -73,6 +73,10 @@ const Axes = ({
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
   const AxisRight = isHorizontal ? Axis.AxisRight : Axis.AxisBottom;
 
+  const axisBottomProps = isHorizontal
+    ? {}
+    : ({ angle: 90, textAnchor: 'middle' } as const);
+
   return (
     <g>
       <AxisBottom
@@ -82,7 +86,8 @@ const Axes = ({
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
           ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
-          dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
+          dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -12),
+          ...axisBottomProps
         })}
         top={isHorizontal ? height - margin.bottom : 0}
       />

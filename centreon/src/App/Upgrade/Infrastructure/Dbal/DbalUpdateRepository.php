@@ -23,9 +23,8 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
-use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\UpdateRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -41,7 +40,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         private Connection $configConnection,
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
         private Connection $realtimeConnection,
-        private ConnectionConfig $connectionConfig,
+        private LegacyConnectionFactory $legacyConnectionFactory,
         #[Autowire(param: 'upgrade.lib_dir')]
         private string $libDir,
         #[Autowire(param: 'upgrade.install_dir')]
@@ -70,15 +69,18 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runScript(string $version): void
     {
-        // $pearDB and $pearDBO are exposed as local variables to the included update script.
-        // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
-        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
-        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
-
         $filePath = $this->installDir . '/php/Update-' . $version . '.php';
-        if (is_readable($filePath)) {
-            include_once $filePath;
+        if (! is_readable($filePath)) {
+            return;
         }
+
+        // $pearDB and $pearDBO are exposed as local variables to the included update script.
+        // See LegacyConnectionFactory: scripts still call legacy CentreonDB/PDO methods.
+        // Built only once the script exists: each connection opens a real PDO socket.
+        $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
+        $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
+
+        include_once $filePath;
     }
 
     public function runConfigurationSql(string $version): void
@@ -92,15 +94,18 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runPostScript(string $version): void
     {
-        // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
-        // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
-        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
-        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
-
         $filePath = $this->installDir . '/php/Update-' . $version . '.post.php';
-        if (is_readable($filePath)) {
-            include_once $filePath;
+        if (! is_readable($filePath)) {
+            return;
         }
+
+        // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
+        // See LegacyConnectionFactory: scripts still call legacy CentreonDB/PDO methods.
+        // Built only once the script exists: each connection opens a real PDO socket.
+        $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
+        $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
+
+        include_once $filePath;
     }
 
     public function updateVersionInformation(string $version): void
@@ -192,10 +197,21 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         if (file_exists($tmpFile) && ! is_writable($tmpFile)) {
             throw new \RuntimeException(sprintf('Cannot write in temporary file: %s', $tmpFile));
         }
-        // A failed write (missing parent dir on a fresh run, full disk, partial write) must not
-        // be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
-        if (file_put_contents($tmpFile, $count) === false) {
-            throw new \RuntimeException(sprintf('Cannot write in temporary file: %s', $tmpFile));
+        // A failed or partial write (missing parent dir on a fresh run, full disk, interrupted write) must
+        // not be silent: the count is the SQL resume cursor, and a stale one re-runs applied statements.
+        // Compare the bytes written against the payload byte length to catch a truncated write.
+        // file_put_contents() collapses most failures to false; the short-count branch below is
+        // defence-in-depth for a genuine partial write (e.g. a full disk) and is hard to trigger in tests.
+        $payload = (string) $count;
+        $expectedBytes = mb_strlen($payload, '8bit');
+        $bytesWritten = file_put_contents($tmpFile, $payload);
+        if ($bytesWritten === false || $bytesWritten !== $expectedBytes) {
+            throw new \RuntimeException(sprintf(
+                'Partial or failed write of the resume cursor (%s of %d bytes) in temporary file: %s',
+                $bytesWritten === false ? 'none' : (string) $bytesWritten,
+                $expectedBytes,
+                $tmpFile
+            ));
         }
     }
 }

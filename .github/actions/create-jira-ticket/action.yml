@@ -215,11 +215,11 @@ runs:
               data = data.replace(/@GITHUB_RUN_ID@/g, GITHUB_RUN_ID);
               data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, GITHUB_RUN_ATTEMPT);
 
-              if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources", "create-xray-test-plan-and-test-execution"].includes(failed_job)) {
+              if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources", "xray-prepare-test-plan"].includes(failed_job)) {
                 ticket_squad_id = 10524
                 ticket_board_id = 184
                 squad_name = "DEVSECOPS"
-              } else if (["gherkin-lint", "frontend-web-build", "backend-dependencies", "frontend-web-lint", "frontend-unit-test", "frontend-component-test", "backend-unit-test", "backend-lint", "e2e-test", "bruno-test", "performances-test"].includes(failed_job)) {
+              } else if (["gherkin-lint", "frontend-web-build", "backend-dependencies", "frontend-web-lint", "frontend-unit-test", "frontend-component-test", "backend-unit-test", "backend-lint", "e2e-test", "api-test", "performances-test"].includes(failed_job)) {
                 if (isoWeekNumber % 4 >= 2) {
                   ticket_squad_id = 10625
                   ticket_board_id = 213

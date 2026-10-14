@@ -73,9 +73,9 @@ try {
     );
 } catch (Throwable $e) {
     LoggerUpgrade::create()->stepFailure(
-        "Post-update phase failed: {$e->getMessage()}",
         $currentVersion,
         'post_update',
+        "Post-update phase failed: {$e->getMessage()}",
         $e
     );
     exitUpgradeProcess(

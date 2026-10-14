@@ -66,6 +66,7 @@ lighthouse/report
 lighthouse/build
 manifest.json
 cypress/results
+playwright/results
 
 !config/packages/serializer/Centreon/
 config/packages/serializer/Centreon*

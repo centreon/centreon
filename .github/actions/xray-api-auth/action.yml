@@ -1,0 +1,40 @@
+name: "Xray API Authentication"
+description: "Authenticate to Xray Cloud API and return a bearer token"
+
+inputs:
+  client_id:
+    description: "Xray client ID"
+    required: true
+  client_secret:
+    description: "Xray client secret"
+    required: true
+
+outputs:
+  xray_token:
+    description: "Xray Bearer token"
+    value: ${{ steps.authenticate.outputs.xray_token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Authenticate to Xray API
+      id: authenticate
+      shell: bash
+      run: |
+        token=$(bash "${{ github.action_path }}/auth.sh" "${{ inputs.client_id }}" "${{ inputs.client_secret }}")
+
+        if [[ -z "$token" ]]; then
+          echo "::error::Xray authentication failed: empty token"
+          exit 1
+        fi
+
+        # Reject a non-empty but non-JWT response (usually an API error payload).
+        if [[ ! "$token" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
+          echo "::error::Xray authentication failed: response is not a valid token (likely an API error payload)"
+          exit 1
+        fi
+
+        # Register the token as a secret so it is redacted from all subsequent logs
+        echo "::add-mask::$token"
+
+        echo "xray_token=$token" >> "$GITHUB_OUTPUT"

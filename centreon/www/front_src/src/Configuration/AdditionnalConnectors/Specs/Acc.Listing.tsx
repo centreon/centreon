@@ -35,7 +35,7 @@ export default (): void => {
       cy.contains('Description for VMWare1');
 
       cy.get('#Rows\\ per\\ page').click();
-      cy.contains(/^20$/).click();
+      cy.get('ul[role="listbox"]').contains(/^20$/).click();
 
       cy.waitForRequest('@getConnectors').then(({ request }) => {
         expect(JSON.parse(request.url.searchParams.get('limit'))).to.equal(20);

@@ -25,7 +25,7 @@ namespace Core\Media\Application\UseCase\GetMedia;
 
 use Core\Application\Common\UseCase\StandardResponseInterface;
 use Core\Media\Domain\Model\Media;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 final class GetMediaResponse implements StandardResponseInterface
 {

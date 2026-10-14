@@ -10,26 +10,26 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
-import dockerLogo from '../../../../../../assets/docker.svg';
 import linuxLogo from '../../../../../../assets/linux.svg';
 import {
-  labelDockerCompose,
+  labelContainer,
   labelSelectPollerEnvironment,
   labelVMOrPhysical
 } from '../../../../translatedLabels';
 import { isGeneratedAtom } from '../../atoms';
 import { CloudInstallCommandFormValues, PollerEnvironment } from '../../models';
+import ContainerIcon from './ContainerIcon';
 
 const environments = [
   {
     env: PollerEnvironment.VM,
-    icon: <img alt="Centreon" className="w-12 h-12" src={linuxLogo} />,
+    icon: <img alt="" className="w-12 h-12" src={linuxLogo} />,
     label: labelVMOrPhysical
   },
   {
-    env: PollerEnvironment.Docker,
-    icon: <img alt="Centreon" className="w-12 h-12" src={dockerLogo} />,
-    label: labelDockerCompose
+    env: PollerEnvironment.Container,
+    icon: <ContainerIcon color="primary" sx={{ fontSize: 48 }} />,
+    label: labelContainer
   }
 ];
 

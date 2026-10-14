@@ -35,10 +35,12 @@ const useGetAll = ({
   const endpoint = configuration?.api?.endpoints?.getAll;
   const decoder = configuration?.api?.decoders?.getAll;
   const apiFormat = configuration?.api?.apiFormat;
+  const baseEndpoint = configuration?.api?.baseEndpoint;
 
   const sort = { [sortField]: sortOrder };
 
   const { data, isFetching } = useFetchQuery({
+    baseEndpoint,
     decoder,
     getEndpoint: () =>
       buildListingEndpoint({

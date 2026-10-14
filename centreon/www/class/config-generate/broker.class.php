@@ -36,6 +36,7 @@ class Broker extends AbstractObjectJSON
     use VaultTrait;
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
+    private const EVENT_SCRIPT_LOGGER_MINIMUM_VERSION = '25.10.3';
 
     /** @var array|null */
     protected $engine = null;
@@ -110,6 +111,12 @@ class Broker extends AbstractObjectJSON
 
     /** @var CentreonDBStatement|null */
     protected $stmt_engine_parameters = null;
+
+    /** @var CentreonDBStatement|null */
+    protected $stmt_poller_version = null;
+
+    /** @var array<int, string|null> */
+    protected $cachePollerVersion = [];
 
     /** @var array|null */
     protected $cacheExternalValue = null;
@@ -206,6 +213,34 @@ class Broker extends AbstractObjectJSON
     }
 
     /**
+     * @param int $pollerId
+     * @param int|null $pollerUid
+     *
+     * @throws PDOException
+     * @return string|null
+     */
+    private function getPollerVersion(int $pollerId, ?int $pollerUid): ?string
+    {
+        if (! array_key_exists($pollerId, $this->cachePollerVersion)) {
+            if (is_null($this->stmt_poller_version)) {
+                $this->stmt_poller_version = $this->backend_instance->db_cs->prepare(
+                    "SELECT `version` FROM instances
+                    WHERE instance_id IN (:poller_id, :poller_uid)
+                    AND `version` IS NOT NULL AND `version` <> ''
+                    ORDER BY last_alive DESC LIMIT 1"
+                );
+            }
+            $this->stmt_poller_version->bindValue(':poller_id', $pollerId, PDO::PARAM_INT);
+            $this->stmt_poller_version->bindValue(':poller_uid', $pollerUid ?? $pollerId, PDO::PARAM_INT);
+            $this->stmt_poller_version->execute();
+            $version = $this->stmt_poller_version->fetchColumn();
+            $this->cachePollerVersion[$pollerId] = is_string($version) && $version !== '' ? $version : null;
+        }
+
+        return $this->cachePollerVersion[$pollerId];
+    }
+
+    /**
      * @param $poller_id
      * @param $localhost
      * @param mixed $pollerId
@@ -293,6 +328,21 @@ class Broker extends AbstractObjectJSON
             $object['log']['max_size'] = filter_var($row['log_max_size'], FILTER_VALIDATE_INT);
             $this->getLogsValues();
             $logs = $this->cacheLogValue[$object['broker_id']];
+
+            // brokers < 25.10.3 reject unknown loggers
+            if (isset($logs['event_script'])) {
+                $pollerVersion = $this->getPollerVersion(
+                    (int) $pollerId,
+                    $this->engine['uid'] !== null ? (int) $this->engine['uid'] : null
+                );
+                if (
+                    $pollerVersion === null
+                    || version_compare($pollerVersion, self::EVENT_SCRIPT_LOGGER_MINIMUM_VERSION, '<')
+                ) {
+                    unset($logs['event_script']);
+                }
+            }
+
             $object['log']['loggers'] = $logs;
 
             $reindexedObjectKeys = [];
@@ -616,22 +666,19 @@ class Broker extends AbstractObjectJSON
             [$key, $value] = explode('=', $config);
             switch ($key) {
                 case 'D':
-                    $s_db = $value;
+                    $s_db = (string) $value;
                     break;
                 case 'T':
-                    $s_table = $value;
+                    $s_table = (string) $value;
                     break;
                 case 'C':
-                    $s_column = $value;
-                    break;
-                case 'F':
-                    $s_filter = $value;
+                    $s_column = (string) $value;
                     break;
                 case 'K':
-                    $s_key = $value;
+                    $s_key = (string) $value;
                     break;
                 case 'CK':
-                    $s_column_key = $value;
+                    $s_column_key = (string) $value;
                     break;
                 case 'RPN':
                     $s_rpn = $value;
@@ -642,9 +689,16 @@ class Broker extends AbstractObjectJSON
         if (! isset($s_table) || ! isset($s_column)) {
             return false;
         }
+        // Table/column names cannot be bound as parameters: validate them as
+        // strict SQL identifiers to prevent injection through the config string.
+        $s_table = $this->validateSqlIdentifier($s_table);
+        $s_column = $this->validateSqlIdentifier($s_column);
+
+        $hasKeyFilter = isset($s_column_key, $s_key);
         $query = 'SELECT `' . $s_column . '` FROM `' . $s_table . '`';
-        if (isset($s_column_key, $s_key)) {
-            $query .= ' WHERE `' . $s_column_key . "` = '" . $s_key . "'";
+        if ($hasKeyFilter) {
+            $s_column_key = $this->validateSqlIdentifier($s_column_key);
+            $query .= ' WHERE `' . $s_column_key . '` = :key';
         }
 
         // Execute the query
@@ -655,9 +709,16 @@ class Broker extends AbstractObjectJSON
             case 'centreon_storage':
                 $db = $this->backend_instance->db_cs;
                 break;
+            default:
+                throw new InvalidArgumentException(
+                    sprintf('Unknown database "%s"', $s_db)
+                );
         }
 
         $stmt = $db->prepare($query);
+        if ($hasKeyFilter) {
+            $stmt->bindValue(':key', $s_key, PDO::PARAM_STR);
+        }
         $stmt->execute();
 
         $infos = [];
@@ -676,6 +737,28 @@ class Broker extends AbstractObjectJSON
         }
 
         return $infos;
+    }
+
+    /**
+     * Validate a string used as a SQL identifier (table or column name).
+     *
+     * Identifiers cannot be passed as bound parameters, so they must be
+     * restricted to a safe character set before being concatenated into a query.
+     *
+     * @param string $identifier
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    private function validateSqlIdentifier(string $identifier): string
+    {
+        if (preg_match('/^[A-Za-z0-9_]+$/', $identifier) !== 1) {
+            throw new InvalidArgumentException(
+                sprintf('Invalid SQL identifier "%s"', $identifier)
+            );
+        }
+
+        return $identifier;
     }
 
     /**

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Application\Command;
 
+use Adaptation\Log\LoggerUpgrade;
 use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
@@ -32,6 +33,7 @@ use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\WidgetRepository;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
@@ -56,6 +58,9 @@ final class UpdateCommandHandlerTest extends TestCase
 
     private UpdateCommandHandler $handler;
 
+    /** @var AbstractLogger&object{records: list<array{level: string, message: string, context: array<string, mixed>}>} */
+    private AbstractLogger $loggerSpy;
+
     protected function setUp(): void
     {
         $this->updateRepository = new FakeUpdateRepository();
@@ -77,6 +82,38 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->engineContextWriter,
             $this->cacheClearer,
         );
+
+        // Record the emitted upgrade events so the start/failure lifecycle can be asserted without
+        // writing to the real upgrade channel. The facade is a singleton with a private constructor,
+        // so the spy is wired through reflection.
+        $this->loggerSpy = new class () extends AbstractLogger {
+            /** @var list<array{level: string, message: string, context: array<string, mixed>}> */
+            public array $records = [];
+
+            /**
+             * @param array<string, mixed> $context
+             * @param mixed $level
+             */
+            public function log($level, string|\Stringable $message, array $context = []): void
+            {
+                $this->records[] = [
+                    'level' => is_scalar($level) ? (string) $level : '',
+                    'message' => (string) $message,
+                    'context' => $context,
+                ];
+            }
+        };
+
+        $reflection = new \ReflectionClass(LoggerUpgrade::class);
+        $facade = $reflection->newInstanceWithoutConstructor();
+        $reflection->getProperty('logger')->setValue($facade, $this->loggerSpy);
+        $reflection->getProperty('instance')->setValue(null, $facade);
+    }
+
+    protected function tearDown(): void
+    {
+        // Drop the spy-backed singleton so it cannot leak into other test files sharing the process.
+        (new \ReflectionClass(LoggerUpgrade::class))->getProperty('instance')->setValue(null, null);
     }
 
     public function testHappyPathNoUpdatesAvailable(): void
@@ -106,20 +143,37 @@ final class UpdateCommandHandlerTest extends TestCase
     {
         $this->locker->lockAvailable = false;
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/already in progress/');
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the lock failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertMatchesRegularExpression('/already in progress/', $exception->getMessage());
+        }
 
-        ($this->handler)(new UpdateCommand());
+        // A lock failure happens before start(): it is surfaced as a standalone upgrade.error,
+        // never a dangling upgrade.failure.
+        $events = $this->emittedEvents();
+        self::assertNotContains('upgrade.start', $events);
+        self::assertNotContains('upgrade.failure', $events);
+        self::assertContains('upgrade.error', $events);
     }
 
     public function testThrowsWhenCurrentVersionCannotBeRetrieved(): void
     {
         $this->updateRepository->currentVersion = null;
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/current platform version/');
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the unreadable version to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertMatchesRegularExpression('/current platform version/', $exception->getMessage());
+        }
 
-        ($this->handler)(new UpdateCommand());
+        // The version is read before start(): a failure here is surfaced as a standalone upgrade.error.
+        $events = $this->emittedEvents();
+        self::assertNotContains('upgrade.start', $events);
+        self::assertNotContains('upgrade.failure', $events);
+        self::assertContains('upgrade.error', $events);
     }
 
     public function testThrowsWhenCurrentVersionIsBlank(): void
@@ -221,5 +275,94 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->cacheClearer->expects(self::once())->method('clear');
 
         ($this->handler)(new UpdateCommand());
+    }
+
+    public function testEmitsAnErrorButNoFailureWhenItFailsBeforeStart(): void
+    {
+        // A failure raised before start() (here DBMS validation) must not emit a dangling
+        // upgrade.failure with no matching upgrade.start; instead a standalone upgrade.error keeps
+        // the aborted attempt visible in the upgrade channel (and it is still re-thrown).
+        $this->dbmsValidator
+            ->method('validateOrFail')
+            ->willThrowException(new \RuntimeException('MariaDB version 10.5 required'));
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the validation failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('MariaDB version 10.5 required', $exception->getMessage());
+        }
+
+        $events = $this->emittedEvents();
+        self::assertNotContains('upgrade.start', $events);
+        self::assertNotContains('upgrade.failure', $events);
+        self::assertContains('upgrade.error', $events);
+
+        // The error carries the current version (unknown here, as it failed before the version was read)
+        // and the original message, pinning the handler call-site argument order.
+        $error = $this->recordFor('upgrade.error');
+        self::assertSame('unknown', $error['context']['version']);
+        self::assertSame('MariaDB version 10.5 required', $error['message']);
+    }
+
+    public function testEmitsFailureAfterStartWhenAStepFails(): void
+    {
+        // A failure raised after start() must emit a balanced upgrade.failure, preceded by upgrade.start.
+        $this->cacheClearer->method('clear')->willThrowException(new \RuntimeException('cache clear failed'));
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the cache clear failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('cache clear failed', $exception->getMessage());
+        }
+
+        $events = $this->emittedEvents();
+        self::assertContains('upgrade.start', $events);
+        self::assertContains('upgrade.failure', $events);
+        // The post-start branch is exclusive: it must not also emit the pre-start upgrade.error.
+        self::assertNotContains('upgrade.error', $events);
+        self::assertLessThan(
+            array_search('upgrade.failure', $events, true),
+            array_search('upgrade.start', $events, true),
+            'upgrade.start must be emitted before upgrade.failure'
+        );
+
+        // The failure routes the versions into from/to and the original message, pinning the handler
+        // call-site argument order (currentVersion == targetVersion here, no updates available).
+        $failure = $this->recordFor('upgrade.failure');
+        self::assertSame('24.10.0', $failure['context']['from_version']);
+        self::assertSame('24.10.0', $failure['context']['to_version']);
+        self::assertSame('cache clear failed', $failure['message']);
+    }
+
+    /**
+     * @return list<string> the ordered list of emitted upgrade event names
+     */
+    private function emittedEvents(): array
+    {
+        $events = [];
+        foreach ($this->loggerSpy->records as $record) {
+            $event = $record['context']['event'] ?? null;
+            if (is_string($event)) {
+                $events[] = $event;
+            }
+        }
+
+        return $events;
+    }
+
+    /**
+     * @return array{level: string, message: string, context: array<string, mixed>} the first record for the event
+     */
+    private function recordFor(string $event): array
+    {
+        foreach ($this->loggerSpy->records as $record) {
+            if (($record['context']['event'] ?? null) === $event) {
+                return $record;
+            }
+        }
+
+        self::fail(sprintf('No %s event was emitted', $event));
     }
 }

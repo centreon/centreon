@@ -241,11 +241,11 @@ class EntityValidator
             }
         }
         if ($firstCall) {
-            return new Collection([
-                'fields' => $constraints,
-                'allowExtraFields' => $this->allowExtraFields,
-                'allowMissingFields' => $this->allowMissingFields,
-            ]);
+            return new Collection(
+                fields: $constraints,
+                allowExtraFields: $this->allowExtraFields,
+                allowMissingFields: $this->allowMissingFields,
+            );
         }
 
         return new Collection($constraints);

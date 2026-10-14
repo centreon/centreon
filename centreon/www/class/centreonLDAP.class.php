@@ -373,7 +373,9 @@ class CentreonLDAP
             return false;
         }
 
-        return $entries[0]['dn'];
+        $dn = $entries[0]['dn'] ?? null;
+
+        return is_string($dn) && trim($dn) !== '' ? $dn : false;
     }
 
     /**

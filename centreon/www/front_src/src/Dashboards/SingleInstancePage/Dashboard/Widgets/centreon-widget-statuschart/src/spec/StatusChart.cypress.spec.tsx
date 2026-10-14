@@ -185,7 +185,7 @@ describe('Status chart', () => {
     });
     cy.waitForRequest('@getResourcesByHost');
     cy.contains('hosts').should('be.visible');
-    cy.get('path[fill="#FF6666"]').click(10, 10);
+    cy.get('path[fill="#FF6E6E"]').click(10, 10);
 
     cy.get('@windowOpen').should(
       'have.been.calledWith',
@@ -215,7 +215,7 @@ describe('Status chart', () => {
     });
     cy.waitForRequest('@getResourcesByHost');
     cy.contains('hosts').should('be.visible');
-    cy.get('path[fill="#FF6666"]').click(10, 10);
+    cy.get('path[fill="#FF6E6E"]').click(10, 10);
 
     cy.get('@windowOpen').should(
       'have.been.calledWith',

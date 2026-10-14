@@ -7,6 +7,7 @@ if [ -n "${VAULT_HOST:-}" ] && timeout 0.2 getent ahostsv4 "${VAULT_HOST}"; then
   sed -i 's@new CurlHttpClient()@new CurlHttpClient(["verify_peer" => false, "verify_host" => false])@' /usr/share/centreon/config/centreon.config.php
   sed -i 's/default_options:/&\n            verify_host: false/' /usr/share/centreon/config/packages/framework.yaml
   sed -i 's/default_options:/&\n            verify_peer: false/' /usr/share/centreon/config/packages/framework.yaml
+  sed -i 's@class: Symfony\\Component\\HttpClient\\AmpHttpClient@&\n        arguments: [{ verify_peer: false, verify_host: false }]@' /usr/share/centreon/config/packages/Centreon.yaml
   sudo -u apache php /usr/share/centreon/bin/console cache:clear
 
   RESPONSE=$(curl -s -w "%{http_code}" -H 'Content-Type:application/json' -H 'Accept:application/json' -d '{"security":{"credentials":{"login":"admin","password":"Centreon!2021"}}}' -L "http://localhost:80/centreon/api/latest/login")

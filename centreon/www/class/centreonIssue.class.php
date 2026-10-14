@@ -65,7 +65,7 @@ class CentreonIssue
 					AND s.service_id = i.service_id
 					AND s.host_id = h.host_id
 					AND i.issue_id = iip.child_id
-					AND iip.parent_id = ' . $this->dbb->escape($issueId) . '
+					AND iip.parent_id = :issueIdService
 
 					UNION
 
@@ -81,11 +81,14 @@ class CentreonIssue
 					WHERE h2.host_id = i2.host_id
 					AND i2.service_id IS NULL
 					AND i2.issue_id = iip2.child_id
-					AND iip2.parent_id = ' . $this->dbb->escape($issueId) . '
+					AND iip2.parent_id = :issueIdHost
         		  ) tb ';
-        $res = $this->dbb->query($query);
+        $res = $this->dbb->prepare($query);
+        $res->bindValue(':issueIdService', (int) $issueId, PDO::PARAM_INT);
+        $res->bindValue(':issueIdHost', (int) $issueId, PDO::PARAM_INT);
+        $res->execute();
         $childTab = [];
-        while ($row = $res->fetchRow()) {
+        while ($row = $res->fetch()) {
             foreach ($row as $key => $val) {
                 $childTab[$row['issue_id']][$key] = $val;
             }
@@ -106,8 +109,10 @@ class CentreonIssue
     {
         $query = 'SELECT parent_id
             FROM issues_issues_parents
-            WHERE parent_id = ' . $this->dbb->escape($issueId) . ' LIMIT 1';
-        $res = $this->dbb->query($query);
+            WHERE parent_id = :issueId LIMIT 1';
+        $res = $this->dbb->prepare($query);
+        $res->bindValue(':issueId', (int) $issueId, PDO::PARAM_INT);
+        $res->execute();
 
         return (bool) ($res->rowCount());
     }

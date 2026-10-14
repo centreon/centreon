@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($oreon)) {
     exit();
 }
@@ -195,10 +198,9 @@ try {
 } catch (Throwable $e) {
     $valid = false;
     $msgErr = 'Internal Error, contact your administrator for more information';
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "while managing a pool : {$msgErr}",
-        exception: $e
+    Logger::create(LogChannelEnum::WEB)->error(
+        "while managing a pool : {$msgErr}",
+        ['exception' => $e]
     );
 }
 

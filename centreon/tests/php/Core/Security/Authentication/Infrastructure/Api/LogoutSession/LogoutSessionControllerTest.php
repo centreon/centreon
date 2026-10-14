@@ -31,14 +31,11 @@ use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionC
 use Core\Security\Authentication\Infrastructure\Api\LogoutSession\LogoutSessionPresenter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class LogoutSessionControllerTest extends TestCase
 {
-    private Request $request;
-
     private RequestStack&MockObject $requestStack;
 
     private LogoutSession&MockObject $useCase;
@@ -47,9 +44,8 @@ class LogoutSessionControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->request = Request::create('http://localhost/');
         $this->requestStack = $this->createMock(RequestStack::class);
-        $this->requestStack->method('getCurrentRequest')->willReturn($this->request);
+        $this->requestStack->method('getCurrentRequest')->willReturn(Request::create('http://localhost/'));
         $this->useCase = $this->createMock(LogoutSession::class);
         $this->logoutSessionPresenter = new LogoutSessionPresenter(new JsonFormatter());
     }
@@ -62,7 +58,7 @@ class LogoutSessionControllerTest extends TestCase
         $logoutSessionController = new LogoutSessionController();
         $logoutSessionController->setHttpServerBag($this->requestStack);
 
-        $this->request->cookies = new InputBag([session_name() => 'token']);
+        $request = new Request([], [], [], [session_name() => 'token']);
 
         $this->logoutSessionPresenter->setResponseStatus(new NoContentResponse());
 
@@ -70,7 +66,7 @@ class LogoutSessionControllerTest extends TestCase
             ->method('__invoke')
             ->with('token', $this->logoutSessionPresenter);
 
-        $response = $logoutSessionController($this->useCase, $this->request, $this->logoutSessionPresenter);
+        $response = $logoutSessionController($this->useCase, $request, $this->logoutSessionPresenter);
 
         $this->assertEquals('http://localhost/login', $response->headers->get('location'));
     }
@@ -83,7 +79,7 @@ class LogoutSessionControllerTest extends TestCase
         $logoutSessionController = new LogoutSessionController();
         $logoutSessionController->setHttpServerBag($this->requestStack);
 
-        $this->request->cookies = new InputBag([]);
+        $request = new Request();
 
         $this->logoutSessionPresenter->setResponseStatus(new ErrorResponse('No session token provided'));
 
@@ -91,7 +87,7 @@ class LogoutSessionControllerTest extends TestCase
             ->method('__invoke')
             ->with(null, $this->logoutSessionPresenter);
 
-        $response = $logoutSessionController($this->useCase, $this->request, $this->logoutSessionPresenter);
+        $response = $logoutSessionController($this->useCase, $request, $this->logoutSessionPresenter);
 
         $this->assertEquals('http://localhost/login', $response->headers->get('location'));
     }

@@ -27,7 +27,18 @@ it('exposes the file slug for every channel', function (LogChannelEnum $channel,
     'authentication writes to access' => [LogChannelEnum::AUTHENTICATION, 'access'],
     'password writes to password' => [LogChannelEnum::PASSWORD, 'password'],
     'plugin-pack-manager writes to plugin-pack-manager' => [LogChannelEnum::PLUGIN_PACK_MANAGER, 'plugin-pack-manager'],
+    'poller-install writes to poller-install' => [LogChannelEnum::POLLER_INSTALL, 'poller-install'],
     'token writes to token' => [LogChannelEnum::TOKEN, 'token'],
     'upgrade writes to upgrade' => [LogChannelEnum::UPGRADE, 'upgrade'],
     'web writes to web' => [LogChannelEnum::WEB, 'web'],
 ]);
+
+it('exposes its channel name', function (): void {
+    expect(LogChannelEnum::WEB->getChannelName())->toBe('web')
+        ->and(LogChannelEnum::AUTHENTICATION->getChannelName())->toBe('authentication');
+});
+
+it('prefixes the log file name with APP_ENV', function (): void {
+    expect(LogChannelEnum::WEB->getLogFileName('prod'))->toBe('prod.web.log')
+        ->and(LogChannelEnum::AUTHENTICATION->getLogFileName('dev'))->toBe('dev.access.log');
+});

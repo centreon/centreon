@@ -88,8 +88,12 @@ overrides:
       - centreon-engine < ${NEXT_MAJOR_VERSION}
       - centreon-connector >= ${MAJOR_VERSION}
       - centreon-connector < ${NEXT_MAJOR_VERSION}
-      - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
-      - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
+      - centreon-gorgone >= ${MAJOR_VERSION}
+      - centreon-gorgone < ${NEXT_MAJOR_VERSION}
+      - centreon-broker-core >= ${MAJOR_VERSION}
+      - centreon-broker-core < ${NEXT_MAJOR_VERSION}
+      - centreon-engine-opentelemetry >= ${MAJOR_VERSION}
+      - centreon-engine-opentelemetry < ${NEXT_MAJOR_VERSION}
       - perl-DBD-MySQL
       - perl-DBD-SQLite
       - nagios-plugins-dhcp >= 2.0.0
@@ -127,8 +131,12 @@ overrides:
       - "centreon-engine (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-connector (>= ${MAJOR_VERSION}~)"
       - "centreon-connector (<< ${NEXT_MAJOR_VERSION}~)"
-      - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
-      - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-gorgone (>= ${MAJOR_VERSION}~)"
+      - "centreon-gorgone (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-broker-core (>= ${MAJOR_VERSION}~)"
+      - "centreon-broker-core (<< ${NEXT_MAJOR_VERSION}~)"
+      - "centreon-engine-opentelemetry (>= ${MAJOR_VERSION}~)"
+      - "centreon-engine-opentelemetry (<< ${NEXT_MAJOR_VERSION}~)"
       - libdbd-mysql-perl
       - libdbd-sqlite3-perl
       - monitoring-plugins-basic

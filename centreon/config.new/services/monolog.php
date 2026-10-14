@@ -22,6 +22,8 @@
 declare(strict_types=1);
 
 use Adaptation\Log\Adapter\MonologAdapterResetter;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SanitizingProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Processor\UidProcessor;
 use Symfony\Bridge\Monolog\Processor\RouteProcessor;
@@ -34,25 +36,30 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
-    // No channel tag: applies to every logger.
+    // Redaction processor. Registered FIRST on purpose: the MonologBundle
+    // pushes processors in definition order and Monolog's pushProcessor is
+    // LIFO, so the first-registered one runs LAST — after WebProcessor & co.
+    // have filled `extra` (the request URL lives in `extra.url`). The bundle
+    // ignores the tag `priority` for processors, so ordering is controlled by
+    // registration position here.
+    $services->set('monolog.processor.sanitizing', SanitizingProcessor::class)
+        ->arg('$sanitizer', service(PayloadSanitizer::class))
+        ->tag('monolog.processor');
+
+    // Platform processors, registered globally (no channel tag): every logger —
+    // catch-all and dedicated — carries the same enriched record shape.
     $services->set('monolog.processor.uid', UidProcessor::class)
         ->tag('monolog.processor');
 
     $services->set('monolog.processor.web', WebProcessor::class)
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     $services->set('monolog.processor.route', RouteProcessor::class)
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     $services->set('monolog.processor.token', TokenProcessor::class)
         ->arg('$tokenStorage', service('security.token_storage'))
-        ->tag('monolog.processor', ['channel' => 'bus'])
-        ->tag('monolog.processor', ['channel' => 'request'])
-        ->tag('monolog.processor', ['channel' => 'app']);
+        ->tag('monolog.processor');
 
     // Set the line timestamp to RFC3339 at service level: handler-level
     // date_format would instead configure the rotating_file filename suffix.

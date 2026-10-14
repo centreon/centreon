@@ -123,7 +123,7 @@ runs:
           BUMP_MAJOR_RIGHT="01"
         else
           BUMP_MAJOR_LEFT=$MAJOR_LEFT
-          BUMP_MAJOR_RIGHT=$(( $MAJOR_RIGHT + 1 ))
+          BUMP_MAJOR_RIGHT=$(( 10#$MAJOR_RIGHT + 1 ))
         fi
 
         export NEXT_MAJOR_VERSION="$BUMP_MAJOR_LEFT.$BUMP_MAJOR_RIGHT"

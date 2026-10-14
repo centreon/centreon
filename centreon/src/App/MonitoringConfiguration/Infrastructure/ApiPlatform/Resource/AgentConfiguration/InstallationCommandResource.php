@@ -42,7 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConfigurat
             ]
         ),
     )],
-    security: "is_granted('" . AgentConfigurationPermissionEnum::CanReadAndWrite->value . "', request.get('pollerId'))", )
+    security: "is_granted('" . AgentConfigurationPermissionEnum::CanReadAndWrite->value . "', request.attributes.get('pollerId'))", )
 ]
 final class InstallationCommandResource
 {

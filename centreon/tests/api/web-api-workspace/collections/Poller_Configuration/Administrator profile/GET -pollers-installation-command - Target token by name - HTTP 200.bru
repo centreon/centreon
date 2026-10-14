@@ -1,0 +1,28 @@
+meta {
+  name: GET /pollers/installation-command - Target token by name - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/pollers/installation-command/{{CreatedPollerId}}?token-name={{PollerTokenName}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Command targets the requested token", function () {
+    const body = res.getBody();
+    expect(body.installation_command).to.be.a("string");
+    expect(body.installation_command).to.include("--poller_token");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

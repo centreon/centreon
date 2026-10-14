@@ -50,7 +50,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -76,21 +76,46 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         ]);
     }
 
+    public function testUpdateCommandReturnsMacros(): void
+    {
+        $this->login();
+
+        $response = $this->request('PATCH', '/api/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'type' => 'Check',
+                'command_line' => 'check $_HOSTUSER$ $_SERVICEPORT$',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+        /** @var list<array{id: int|null, name: string, type: string}> $macros */
+        $macros = $response->toArray()['macros'];
+        self::assertCount(2, $macros);
+        self::assertSame(['USER', 'host'], [$macros[0]['name'], $macros[0]['type']]);
+        self::assertSame(['PORT', 'service'], [$macros[1]['name'], $macros[1]['type']]);
+        self::assertIsInt($macros[0]['id']);
+        self::assertIsInt($macros[1]['id']);
+    }
+
     public function testUpdateCommandAddConnector(): void
     {
         $this->login();
 
         // first make sure connector is not existing in command
-        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        $response = $this->request('GET', '/api/configuration/commands/1');
         self::assertArrayNotHasKey('connector', $response->toArray());
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
                 'name' => 'Command with Connector',
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
             ],
         ]);
 
@@ -106,19 +131,19 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
             ],
         ]);
 
-        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        $response = $this->request('GET', '/api/configuration/commands/1');
         self::assertArrayHasKey('connector', $response->toArray());
 
-        $response = $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $response = $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -136,13 +161,13 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
                 'name' => 'Command with Invalid Connector',
-                'connector' => '/api/latest/configuration/connectors/9999',
+                'connector' => '/api/configuration/connectors/9999',
             ],
         ]);
 
@@ -157,12 +182,12 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
             'json' => [
-                'connector' => '/api/latest/configuration/connectors/1',
+                'connector' => '/api/configuration/connectors/1',
             ],
         ]);
 
@@ -172,7 +197,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
             'connector' => ['id' => 1, 'name' => 'Perl Connector'],
         ]);
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -193,7 +218,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -202,10 +227,10 @@ final class UpdateCommandProcessorTest extends ApiTestCase
             ],
         ]);
 
-        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        $response = $this->request('GET', '/api/configuration/commands/1');
         self::assertTrue($response->toArray()['is_activated']);
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -225,7 +250,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -234,10 +259,10 @@ final class UpdateCommandProcessorTest extends ApiTestCase
             ],
         ]);
 
-        $response = $this->request('GET', '/api/latest/configuration/commands/1');
+        $response = $this->request('GET', '/api/configuration/commands/1');
         self::assertFalse($response->toArray()['is_activated']);
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -257,7 +282,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/999999', [
+        $this->request('PATCH', '/api/configuration/commands/999999', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -276,7 +301,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -291,7 +316,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -308,7 +333,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
 
     public function testUpdateCommandWithoutAuthentication(): void
     {
-        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+        $this->request('PATCH', '/api/configuration/commands/1', [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],

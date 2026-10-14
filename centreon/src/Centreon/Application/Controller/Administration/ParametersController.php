@@ -47,6 +47,10 @@ class ParametersController extends AbstractController
     private const DEFAULT_DOWNTIME_FIXED = 'monitoring_dwt_fixed';
     private const DEFAULT_DOWNTIME_WITH_SERVICES = 'monitoring_dwt_svc';
     private const RESOURCE_STATUS_SEARCH_MODE = 'resource_status_search_mode';
+    private const INHERITANCE_MODE = 'inheritance_mode';
+    private const ADDITIVE_INHERITANCE_MODE = 1;
+    private const INTERVAL_LENGTH = 'interval_length';
+    private const DEFAULT_INTERVAL_LENGTH = 60;
 
     /**
      * Needed to make response "more readable"
@@ -63,6 +67,8 @@ class ParametersController extends AbstractController
         self::DEFAULT_DOWNTIME_FIXED => 'monitoring_default_downtime_fixed',
         self::DEFAULT_DOWNTIME_WITH_SERVICES => 'monitoring_default_downtime_with_services',
         self::RESOURCE_STATUS_SEARCH_MODE => 'is_resource_status_full_search_enabled',
+        self::INHERITANCE_MODE => 'is_additive_inheritance_enabled',
+        self::INTERVAL_LENGTH => 'monitoring_interval_length',
     ];
 
     public function __construct(
@@ -91,6 +97,8 @@ class ParametersController extends AbstractController
         $isDowntimeFixed = true;
         $isDowntimeWithServices = true;
         $isResourceStatusFullSearchEnabled = true;
+        $isAdditiveInheritanceEnabled = false;
+        $intervalLength = self::DEFAULT_INTERVAL_LENGTH;
 
         $options = $this->optionService->findSelectedOptions([
             self::DEFAULT_REFRESH_INTERVAL,
@@ -105,6 +113,8 @@ class ParametersController extends AbstractController
             self::DEFAULT_DOWNTIME_FIXED,
             self::DEFAULT_DOWNTIME_WITH_SERVICES,
             self::RESOURCE_STATUS_SEARCH_MODE,
+            self::INHERITANCE_MODE,
+            self::INTERVAL_LENGTH,
         ]);
 
         foreach ($options as $option) {
@@ -145,6 +155,16 @@ class ParametersController extends AbstractController
                 case self::RESOURCE_STATUS_SEARCH_MODE:
                     $isResourceStatusFullSearchEnabled = (int) $option->getValue() === 1;
                     break;
+                case self::INHERITANCE_MODE:
+                    $isAdditiveInheritanceEnabled = (int) $option->getValue() === self::ADDITIVE_INHERITANCE_MODE;
+                    break;
+                case self::INTERVAL_LENGTH:
+                    // The legacy form stores the 'NULL' string when the field is left empty
+                    $storedIntervalLength = (int) $option->getValue();
+                    $intervalLength = $storedIntervalLength > 0
+                        ? $storedIntervalLength
+                        : self::DEFAULT_INTERVAL_LENGTH;
+                    break;
                 default:
                     break;
             }
@@ -168,6 +188,8 @@ class ParametersController extends AbstractController
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_FIXED]] = $isDowntimeFixed;
         $parameters[self::KEY_NAME_CONCORDANCE[self::DEFAULT_DOWNTIME_WITH_SERVICES]] = $isDowntimeWithServices;
         $parameters[self::KEY_NAME_CONCORDANCE[self::RESOURCE_STATUS_SEARCH_MODE]] = $isResourceStatusFullSearchEnabled;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::INHERITANCE_MODE]] = $isAdditiveInheritanceEnabled;
+        $parameters[self::KEY_NAME_CONCORDANCE[self::INTERVAL_LENGTH]] = $intervalLength;
 
         return $this->view($parameters);
     }

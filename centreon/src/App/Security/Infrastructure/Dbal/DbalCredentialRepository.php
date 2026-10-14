@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Exception\CredentialNotFoundException;
+use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\CredentialRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -38,6 +40,7 @@ use Webmozart\Assert\Assert;
  *   c_alias: non-empty-string,
  *   c_admin: string,
  *   c_active: string,
+ *   is_cloud_admin: bool,
  *   topology_permissions: array<string>,
  *   action_rules: array<string>
  * }
@@ -45,6 +48,7 @@ use Webmozart\Assert\Assert;
 final readonly class DbalCredentialRepository extends DbalRepository implements CredentialRepository
 {
     public const TABLE_NAME = 'contact';
+    private const CUSTOMER_ADMIN_ACCESS_GROUP_NAME = 'customer_admin_acl';
     private const MENU_ACCESS_NO_ACCESS = 0;
     private const MENU_ACCESS_READ_WRITE = 1;
     private const MENU_ACCESS_READ_ONLY = 2;
@@ -58,6 +62,11 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
 
         #[Autowire(service: DbalCredentialTransformer::class)]
         private TransformerInterface $transformer,
+
+        private AccessGroupRepository $accessGroupRepository,
+
+        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
+        private bool $isCloudPlatform,
     ) {
     }
 
@@ -133,61 +142,25 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
     {
         Assert::notEmpty($row['c_alias']);
 
-        $topologies = $this->fetchTopologyRules($row['c_id'], $row['c_admin'] === '1');
-        $topologyPermissions = $this->buildTopologyPermissions($topologies);
-        $actionRules = $this->fetchActionRules($row['c_id']);
+        $isCloudAdmin = $this->isCloudPlatform && $this->accessGroupRepository->userHasGroup(
+            new UserId($row['c_id']),
+            self::CUSTOMER_ADMIN_ACCESS_GROUP_NAME,
+        );
+
+        // A super admin is granted every permission by Credential::isPermissionGranted()
+        $topologyPermissions = $row['c_admin'] === '1'
+            ? []
+            : $this->buildTopologyPermissions($this->fetchTopologyRulesForNonAdmin($row['c_id']));
 
         /** @var RowTypeAlias $rowWithPermissions */
         $rowWithPermissions = [
             ...$row,
+            'is_cloud_admin' => $isCloudAdmin,
             'topology_permissions' => $topologyPermissions,
-            'action_rules' => $actionRules,
+            'action_rules' => $this->fetchActionRules($row['c_id']),
         ];
 
         return $this->transformer->transform($rowWithPermissions);
-    }
-
-    /**
-     * @return array<int, array{name: string, page: int, parent: int|null, access_right: int|null}>
-     */
-    private function fetchTopologyRules(int $contactId, bool $isAdmin): array
-    {
-        if ($isAdmin) {
-            return $this->fetchTopologyRulesForAdmin();
-        }
-
-        return $this->fetchTopologyRulesForNonAdmin($contactId);
-    }
-
-    /**
-     * @return array<int, array{name: string, page: int, parent: int|null, access_right: int|null}>
-     */
-    private function fetchTopologyRulesForAdmin(): array
-    {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->select('t.topology_name', 't.topology_page', 't.topology_parent')
-            ->from('topology', 't')
-            ->where($qb->expr()->isNotNull('t.topology_page'))
-            ->orderBy('t.topology_page');
-
-        $result = $qb->executeQuery();
-        $topologies = [];
-
-        /** @var array<array{topology_page: int, topology_name: string, topology_parent: ?string}> $rows */
-        $rows = $result->fetchAllAssociative();
-
-        foreach ($rows as $row) {
-            $topologyPage = (int) $row['topology_page'];
-            $topologies[$topologyPage] = [
-                'name' => $row['topology_name'],
-                'page' => $topologyPage,
-                'parent' => $row['topology_parent'] !== null ? (int) $row['topology_parent'] : null,
-                'access_right' => 1,
-            ];
-        }
-
-        return $topologies;
     }
 
     /**

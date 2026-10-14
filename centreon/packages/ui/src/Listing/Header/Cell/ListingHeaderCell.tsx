@@ -76,15 +76,15 @@ const ListingHeaderCell = ({
         height: dataStyle.header.height
       }}
     >
-      <div className="flex items-center h-full justify-between text-white p-0">
+      <div className="flex items-center h-full justify-between text-text-primary p-0">
         {column.sortable ? (
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
             classes={{
-              icon: 'text-white'
+              icon: 'text-text-primary'
             }}
-            className="text-white"
+            className="text-text-primary"
             direction={sortOrder || 'desc'}
             onClick={sort}
           >
@@ -99,7 +99,7 @@ const ListingHeaderCell = ({
         {columnConfiguration?.sortable && areColumnsEditable && (
           <DraggableIconButton
             {...props}
-            className={`p-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} text-white  opacity-0 hover:opacity-100 focus:opacity-100`}
+            className={`p-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} text-text-primary  opacity-0 hover:opacity-100 focus:opacity-100`}
             columnLabel={columnLabel}
           />
         )}

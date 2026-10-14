@@ -6,7 +6,7 @@ Feature: Freeze fields on blocked host templates
   Background:
     Given a user is logged in a Centreon server
 
-  @TEST_MON-159902
+  @MON-159902
   Scenario: Block a host template
     Given a blocked host template
     When the user goes to the host template listing page

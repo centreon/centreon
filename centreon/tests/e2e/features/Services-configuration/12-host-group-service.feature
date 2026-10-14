@@ -6,7 +6,7 @@ Feature: Host Group Service configuration
   Background:
     Given a user is logged in a Centreon server
 
-  @TEST_MON-158047
+  @MON-158047
   Scenario: Create a new host group service
     Given some service groups are configured
     And some service categories are configured
@@ -14,19 +14,19 @@ Feature: Host Group Service configuration
     And the user Add a new host group service
     Then the host group service is added to the listing page
 
-  @TEST_MON-158048
+  @MON-158048
   Scenario: Change the properties of one existing host group service
     Given a host group service is configured
     When the user changes the properties of the host group service
     Then the properties are updated
 
-  @TEST_MON-158049
+  @MON-158049
   Scenario: Duplicate one existing host group server
     Given a host group service is configured
     When the user duplicates the host group service
     Then the new duplicated host group service has the same properties
 
-  @TEST_MON-158050
+  @MON-158050
   Scenario: Delete one existing host group service
     Given a host group service is configured
     When the user deletes the host group service

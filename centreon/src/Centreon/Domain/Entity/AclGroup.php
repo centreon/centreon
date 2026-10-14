@@ -23,7 +23,7 @@ namespace Centreon\Domain\Entity;
 
 use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
 use PDO;
-use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Serializer\Attribute as Serializer;
 
 /**
  * ACL group entity

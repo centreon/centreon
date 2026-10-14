@@ -41,6 +41,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\HostEvent;
@@ -89,7 +90,8 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
-        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class)
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 
     $this->inheritanceModeOption = new Option();

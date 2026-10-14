@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "types": ["react"]
+  },
+  "extends": "../../tsconfig.json",
+  "include": [
+    ".",
+    "../../playwright",
+    "../../types",
+    "../../packages/ui/src/@types"
+  ]
+}

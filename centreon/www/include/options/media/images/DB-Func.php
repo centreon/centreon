@@ -560,7 +560,7 @@ function isCorrectMIMEType(array $file): bool
             break;
         case 'image/jpeg':
             /**
-             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
              */
             $image = @imagecreatefromjpeg($file['tmp_name']);
             if (! $image) {
@@ -581,7 +581,7 @@ function isCorrectMIMEType(array $file): bool
             break;
         case 'image/png':
             /**
-             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
              */
             $image = @imagecreatefrompng($file['tmp_name']);
             if (! $image) {
@@ -602,7 +602,7 @@ function isCorrectMIMEType(array $file): bool
             break;
         case 'image/gif':
             /**
-             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
              */
             $image = @imagecreatefromgif($file['tmp_name']);
             if (! $image) {
@@ -720,7 +720,7 @@ function isValidMIMETypeFromArchive(
                 break;
             case 'image/jpeg':
                 /**
-                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                  */
                 $image = @imagecreatefromjpeg($file['tmp_name']);
                 if (! $image) {
@@ -738,7 +738,7 @@ function isValidMIMETypeFromArchive(
                 break;
             case 'image/png':
                 /**
-                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                  */
                 $image = @imagecreatefrompng($file['tmp_name']);
                 if (! $image) {
@@ -756,7 +756,7 @@ function isValidMIMETypeFromArchive(
                 break;
             case 'image/gif':
                 /**
-                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                  */
                 $image = @imagecreatefromgif($file['tmp_name']);
                 if (! $image) {

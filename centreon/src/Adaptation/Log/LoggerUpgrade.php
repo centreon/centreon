@@ -61,9 +61,9 @@ final class LoggerUpgrade
     }
 
     public function failure(
-        string $message,
         ?string $fromVersion,
         ?string $toVersion,
+        string $message,
         ?\Throwable $exception = null,
     ): void {
         $this->write(
@@ -76,6 +76,11 @@ final class LoggerUpgrade
     public function info(string $version, string $message): void
     {
         $this->write(LogLevel::INFO, $message, $this->versionContext('upgrade.info', 'info', $version));
+    }
+
+    public function warning(string $version, string $message, ?\Throwable $exception = null): void
+    {
+        $this->write(LogLevel::WARNING, $message, $this->versionContext('upgrade.warning', 'warning', $version, $exception));
     }
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void
@@ -99,9 +104,9 @@ final class LoggerUpgrade
     }
 
     public function stepFailure(
-        string $message,
         string $version,
         string $stepName,
+        string $message,
         ?\Throwable $exception = null,
     ): void {
         $context = $this->versionContext('upgrade.step_failure', 'failure', $version, $exception);

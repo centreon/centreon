@@ -1106,9 +1106,12 @@ CREATE TABLE `downtime` (
   `dt_name` varchar(100) NOT NULL COMMENT 'Unique name of the downtime schedule',
   `dt_description` varchar(255) DEFAULT NULL COMMENT 'Description of the downtime schedule',
   `dt_activate` enum('0','1') DEFAULT '1' COMMENT 'Activation flag (1 = active, 0 = inactive)',
+  `dt_timezone_id` int(11) unsigned DEFAULT NULL COMMENT 'Timezone of the period hours (NULL = host timezone)',
   PRIMARY KEY (`dt_id`),
   UNIQUE KEY `downtime_idx02` (`dt_name`),
-  KEY `downtime_idx01` (`dt_id`,`dt_activate`)
+  KEY `downtime_idx01` (`dt_id`,`dt_activate`),
+  KEY `downtime_timezone_id` (`dt_timezone_id`),
+  CONSTRAINT `downtime_ibfk_1` FOREIGN KEY (`dt_timezone_id`) REFERENCES `timezone` (`timezone_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table storing downtime definitions for scheduled maintenance or service interruptions';
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1652,7 +1655,7 @@ CREATE TABLE `nagios_server` (
   `centreonbroker_module_path` varchar(255) DEFAULT NULL,
   `centreonconnector_path` varchar(255) DEFAULT NULL,
   `ssh_port` int(11) DEFAULT NULL,
-  `gorgone_communication_type` enum('1', '2', '3', '4') NOT NULL DEFAULT '1' COMMENT '1: SSH, 2: ZMQ, 3: Pull, 4: PullWSS',
+  `gorgone_communication_type` enum('1', '2', '3', '4') NOT NULL DEFAULT '1' COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS',
   `gorgone_port` int(11) DEFAULT NULL,
   `init_script_centreontrapd` varchar(255) DEFAULT NULL,
   `snmp_trapd_path_conf` varchar(255) DEFAULT NULL,
@@ -2360,6 +2363,7 @@ CREATE TABLE `user_filter` (
 CREATE TABLE `platform_topology` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `address` varchar(255) NOT NULL,
+    `central_address` varchar(255) NULL,
     `hostname` varchar(255) NULL,
     `name` varchar(255) NOT NULL,
     `type` varchar(255) NOT NULL,

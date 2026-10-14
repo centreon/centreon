@@ -59,6 +59,10 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             $connection->rollBack();
 
             throw $e;
+        } finally {
+            // test_setup_default is not a DAMA static connection, so it opens a real socket
+            // that is never reused; close it to avoid exhausting MySQL connections suite-wide.
+            $connection->close();
         }
     }
 
@@ -82,6 +86,8 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             $connection->rollBack();
 
             throw $e;
+        } finally {
+            $connection->close();
         }
 
         parent::tearDownAfterClass();
@@ -91,6 +97,19 @@ abstract class ApiTestCase extends SymfonyApiTestCase
     {
         $this->client = static::createClient();
         $this->token = null;
+    }
+
+    protected function tearDown(): void
+    {
+        // Every authenticated /api/latest request boots a legacy kernel (via LegacyContainer) that
+        // opens a Centreon\Infrastructure\DatabaseConnection (extends \PDO) outside the Doctrine
+        // bundle, so DAMA neither makes it static nor closes it. Across the single-process suite
+        // these leaked sockets pile up until MySQL's max_connections is exhausted.
+        // parent::tearDown() shuts the kernel down (its container reference is nulled), leaving the
+        // service graph that holds the leaked \PDO reachable only through internal cycles; force a
+        // GC pass so it is reclaimed and its socket closed before the next test boots a new kernel.
+        parent::tearDown();
+        gc_collect_cycles();
     }
 
     /**

@@ -1,0 +1,35 @@
+meta {
+  name: GET /configuration/services - Assert the exclusive service is cloned onto the copy - HTTP 200
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services?search={"host.id":{{CopyHostId}}}&limit=100
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The exclusive service is cloned onto the duplicated host, not shared with the source", function () {
+    const body = res.getBody();
+
+    const clones = body.result.filter(
+      (service) => service.name === bru.getEnvVar("Service1Name")
+    );
+    expect(clones, "the copy carries exactly one clone of the exclusive service").to.have.lengthOf(1);
+    expect(
+      clones[0].id,
+      "the clone is a brand-new service, not the source service re-linked"
+    ).to.not.eql(Number(bru.getEnvVar("Service1Id")));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

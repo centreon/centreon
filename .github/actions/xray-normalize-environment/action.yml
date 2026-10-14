@@ -1,0 +1,56 @@
+name: "Xray Normalize Environment"
+description: "Normalize the environment for Xray and Jira integration"
+
+inputs:
+  component_name:
+    description: "The name of component to include in summary (ex: centreon-web, centreon-map)"
+    required: false
+  operating_system:
+    description: "The operating system to include in summary (ex: Debian 12, AlmaLinux 9)"
+    required: false
+  database_name:
+    description: "The database name to include in summary (ex: MySQL, MariaDB)"
+    required: false
+  browser:
+    description: "The browser to include in summary (ex: Chrome, Firefox)"
+    required: false
+  type_environment:
+    description: "The type of environment to include in summary (ex: onprem, cloud, docker)"
+    required: false
+  type_test_execution:
+    description: "The type of test execution to include in summary (ex: API, E2E)"
+    required: false
+
+outputs:
+  xray_normalized_component_name:
+    description: "Normalized component name"
+    value: ${{ steps.normalize.outputs.xray_normalized_component_name }}
+  xray_normalized_operating_system:
+    description: "Normalized operating system"
+    value: ${{ steps.normalize.outputs.xray_normalized_operating_system }}
+  xray_normalized_database_name:
+    description: "Normalized database"
+    value: ${{ steps.normalize.outputs.xray_normalized_database_name }}
+  xray_normalized_browser:
+    description: "Normalized browser"
+    value: ${{ steps.normalize.outputs.xray_normalized_browser }}
+  xray_normalized_type_environment:
+    description: "Normalized type of environment"
+    value: ${{ steps.normalize.outputs.xray_normalized_type_environment }}
+  xray_normalized_type_test_execution:
+    description: "Normalized type of test execution"
+    value: ${{ steps.normalize.outputs.xray_normalized_type_test_execution }}
+runs:
+  using: "composite"
+  steps:
+    - id: normalize
+      name: Normalize inputs
+      shell: bash
+      run: |
+        ${{ github.action_path }}/mapping-normalize.sh \
+        "${{ inputs.component_name }}" \
+        "${{ inputs.operating_system }}" \
+        "${{ inputs.database_name }}" \
+        "${{ inputs.browser }}" \
+        "${{ inputs.type_environment }}" \
+        "${{ inputs.type_test_execution }}"

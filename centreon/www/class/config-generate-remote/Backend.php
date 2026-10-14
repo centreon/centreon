@@ -41,6 +41,12 @@ if ($configFile !== false) {
  */
 class Backend
 {
+    /** Prefix of the temporary generation directory and of its witness file. */
+    public const TMP_DIR_PREFIX = 'tmpdir_';
+
+    /** Suffix appended to the temporary generation directory. */
+    public const TMP_DIR_SUFFIX = '.d';
+
     /** @var string */
     public $generatePath;
 
@@ -69,7 +75,7 @@ class Backend
     private $lineSeparatorInfile = '######';
 
     /** @var string */
-    private $tmpDirPrefix = 'tmpdir_';
+    private $tmpDirPrefix = self::TMP_DIR_PREFIX;
 
     /** @var string|null */
     private $tmpFile = null;
@@ -78,7 +84,7 @@ class Backend
     private $tmpDir = null;
 
     /** @var string */
-    private $tmpDirSuffix = '.d';
+    private $tmpDirSuffix = self::TMP_DIR_SUFFIX;
 
     /** @var string|null */
     private $fullPath = null;
@@ -262,6 +268,49 @@ class Backend
         }
 
         @unlink($subdir . '/' . $this->tmpFile);
+    }
+
+    /**
+     * Remove orphaned temporary generation entries left behind in the export cache.
+     *
+     * During a normal export the temporary directory is either renamed by movePath()
+     * or removed by cleanPath(). When the worker process is killed before either runs
+     * (e.g. gorgone command timeout, OOM), the "tmpdir_*" directory - and the witness
+     * file created by tempnam() - is orphaned forever and eventually saturates /var.
+     *
+     * Only entries whose last modification time is older than $maxAgeSeconds are
+     * removed. This is best-effort: filesystem errors never interrupt the caller.
+     *
+     * @param int $maxAgeSeconds entries strictly older than this (in seconds) are considered orphaned;
+     *                           a non-positive value is a no-op (nothing is removed)
+     * @param string|null $exportPath base export directory (defaults to the runtime cache path)
+     *
+     * @return int number of orphaned entries removed
+     */
+    public static function cleanOrphanedTmpDirs(int $maxAgeSeconds, ?string $exportPath = null): int
+    {
+        $exportPath ??= _CENTREON_CACHEDIR_ . '/config/export';
+
+        if ($maxAgeSeconds <= 0 || ! is_dir($exportPath)) {
+            return 0;
+        }
+
+        $threshold = time() - $maxAgeSeconds;
+        $removed = 0;
+
+        foreach (glob($exportPath . '/' . self::TMP_DIR_PREFIX . '*') ?: [] as $entry) {
+            $mtime = @filemtime($entry);
+            if ($mtime === false || $mtime >= $threshold) {
+                continue;
+            }
+
+            system('rm -rf ' . escapeshellarg($entry), $returnCode);
+            if ($returnCode === 0) {
+                $removed++;
+            }
+        }
+
+        return $removed;
     }
 
     /**

@@ -1,0 +1,52 @@
+name: "Xray Enrich Tests"
+description: "Enrich the Xray Test issues of a Test Execution, Test Plan, or JQL: set component, labels, Xray Test Type and optionally resolve them."
+
+inputs:
+  source_type:
+    description: "Where to find the tests to enrich: test_execution | test_plan | jql"
+    required: true
+  source_value:
+    description: "Test Execution key/id, Test Plan key/id, or a JQL query (matching the source_type)"
+    required: true
+  component:
+    description: "Jira component name to set on each test (empty to skip)"
+    required: false
+    default: ""
+  labels:
+    description: "Comma-separated labels to add to each test (empty to skip)"
+    required: false
+    default: ""
+  test_type:
+    description: "Xray Test Type name to set on each test, e.g. API or Generic (empty to skip)"
+    required: false
+    default: ""
+  resolve:
+    description: "Transition each test to Resolved (true/false)"
+    required: false
+    default: "false"
+  xray_token:
+    description: "Xray API bearer token (for GraphQL: list tests, set test type)"
+    required: true
+  jira_user_email:
+    description: "Jira user email (basic auth for components/labels/transitions)"
+    required: true
+  jira_token:
+    description: "Jira API token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Enrich Xray tests
+      shell: bash
+      env:
+        SOURCE_TYPE: ${{ inputs.source_type }}
+        SOURCE_VALUE: ${{ inputs.source_value }}
+        COMPONENT: ${{ inputs.component }}
+        LABELS: ${{ inputs.labels }}
+        TEST_TYPE: ${{ inputs.test_type }}
+        RESOLVE: ${{ inputs.resolve }}
+        XRAY_TOKEN: ${{ inputs.xray_token }}
+        JIRA_USER_EMAIL: ${{ inputs.jira_user_email }}
+        JIRA_TOKEN: ${{ inputs.jira_token }}
+      run: node "${{ github.action_path }}/enrich-tests.js"

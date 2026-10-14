@@ -1118,18 +1118,58 @@ class CentreonDependency extends CentreonObject
      * @param array $dataField
      *
      * @throws PDOException
+     * @throws \InvalidArgumentException when the table or a column is not allowlisted
      * @return bool
      */
     protected function isExistingDependency(string $table, array $dataField): bool
     {
-        $sql = "SELECT `dependency_dep_id`
-                FROM {$table} WHERE ";
-        foreach ($dataField as $field => $value) {
-            $sql .= " {$field} = {$value} AND";
+        // The table and column names cannot be bound as parameters, so they are
+        // validated against allowlists; the values are bound as integer parameters.
+        $allowedTables = [
+            'dependency_hostgroupParent_relation',
+            'dependency_hostgroupChild_relation',
+            'dependency_servicegroupParent_relation',
+            'dependency_servicegroupChild_relation',
+            'dependency_metaserviceParent_relation',
+            'dependency_metaserviceChild_relation',
+            'dependency_hostParent_relation',
+            'dependency_hostChild_relation',
+            'dependency_serviceParent_relation',
+            'dependency_serviceChild_relation',
+        ];
+        $allowedColumns = [
+            'dependency_dep_id',
+            'hostgroup_hg_id',
+            'servicegroup_sg_id',
+            'meta_service_meta_id',
+            'host_host_id',
+            'service_service_id',
+        ];
+
+        if (! in_array($table, $allowedTables, true)) {
+            throw new \InvalidArgumentException(sprintf('Invalid dependency relation table: %s', $table));
         }
-        $sql = rtrim($sql, 'AND');
-        $res = $this->db->query($sql);
-        $row = $res->fetch();
+
+        $conditions = [];
+        $bindParams = [];
+        $index = 0;
+        foreach ($dataField as $field => $value) {
+            if (! in_array($field, $allowedColumns, true)) {
+                throw new \InvalidArgumentException(sprintf('Invalid dependency relation column: %s', $field));
+            }
+            $placeholder = ':value_' . $index;
+            $conditions[] = "{$field} = {$placeholder}";
+            $bindParams[$placeholder] = (int) $value;
+            $index++;
+        }
+
+        $sql = "SELECT `dependency_dep_id` FROM {$table} WHERE " . implode(' AND ', $conditions);
+        $stmt = $this->db->prepare($sql);
+        foreach ($bindParams as $placeholder => $value) {
+            $stmt->bindValue($placeholder, $value, PDO::PARAM_INT);
+        }
+        $stmt->execute();
+        $row = $stmt->fetch();
 
         return ! empty($row['dependency_dep_id']);
     }

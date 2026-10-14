@@ -2,15 +2,26 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for apache ..."
+
+  # centreon-engine, centreon-broker and centreon-gorgone are no longer guaranteed to be
+  # installed alongside centreon-web (it is now a standalone package), so only add apache
+  # to the groups that actually exist. usermod -a -G fails atomically if any listed group
+  # is missing, which would otherwise leave apache out of the (always present) centreon
+  # group too.
+  local optional_groups=""
+  for grp in centreon-engine centreon-broker centreon-gorgone; do
+    getent group "$grp" >/dev/null 2>&1 && optional_groups="${optional_groups}${grp},"
+  done
+
   if [ "$1" = "rpm" ]; then
-    usermod apache -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod centreon-gorgone -a -G apache
-    usermod centreon-broker -a -G apache
+    usermod apache -a -G "${optional_groups}centreon"
+    getent passwd centreon-gorgone >/dev/null 2>&1 && usermod centreon-gorgone -a -G apache
+    getent passwd centreon-broker >/dev/null 2>&1 && usermod centreon-broker -a -G apache
     usermod centreon -a -G apache
   else
-    usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod centreon-gorgone -a -G www-data
-    usermod centreon-broker -a -G www-data
+    usermod www-data -a -G "${optional_groups}centreon"
+    getent passwd centreon-gorgone >/dev/null 2>&1 && usermod centreon-gorgone -a -G www-data
+    getent passwd centreon-broker >/dev/null 2>&1 && usermod centreon-broker -a -G www-data
     usermod centreon -a -G www-data
   fi
 }
@@ -131,7 +142,7 @@ manageApacheAndPhpFpm() {
     systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php@PHP_MIN_VERSION@ > /dev/null 2>&1 || :
-    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod headers proxy proxy_fcgi proxy_wstunnel setenvif rewrite alias > /dev/null 2>&1 || :
     a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
@@ -172,7 +183,6 @@ fixCentreonCronPermissions() {
 
   # Update log files permissions which have been potentially created by centreon user
   LOG_FILES=(
-    "/var/log/centreon/centreon-web.log"
     "/var/log/centreon/centreon-tokens.log"
   )
   for LOG_FILE in "${LOG_FILES[@]}"; do

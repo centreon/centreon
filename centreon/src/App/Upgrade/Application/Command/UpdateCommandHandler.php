@@ -58,6 +58,7 @@ final readonly class UpdateCommandHandler
         $startedAt = microtime(true);
         $currentVersion = null;
         $targetVersion = null;
+        $startEmitted = false;
 
         try {
             $this->dbmsVersionValidator->validateOrFail();
@@ -76,6 +77,7 @@ final readonly class UpdateCommandHandler
                 $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
 
                 LoggerUpgrade::create()->start($currentVersion, $targetVersion);
+                $startEmitted = true;
 
                 // The handler owns step sequencing and logging; the repository only runs each operation.
                 foreach ($availableUpdates as $version) {
@@ -102,7 +104,15 @@ final readonly class UpdateCommandHandler
                 $this->updateLocker->unlock();
             }
         } catch (\Throwable $exception) {
-            LoggerUpgrade::create()->failure($exception->getMessage(), $currentVersion, $targetVersion, $exception);
+            if ($startEmitted) {
+                // The lifecycle is open: close it with a balanced upgrade.failure.
+                LoggerUpgrade::create()->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
+            } else {
+                // The failure happened before start() (validation / lock / version read), so there is no
+                // start to balance: emit a standalone upgrade.error instead of a dangling failure, keeping
+                // the attempt visible in the upgrade channel.
+                LoggerUpgrade::create()->error($currentVersion ?? 'unknown', $exception->getMessage(), $exception);
+            }
 
             throw $exception;
         }
@@ -115,7 +125,7 @@ final readonly class UpdateCommandHandler
         try {
             $action();
         } catch (\Throwable $exception) {
-            LoggerUpgrade::create()->stepFailure($exception->getMessage(), $version, $step, $exception);
+            LoggerUpgrade::create()->stepFailure($version, $step, $exception->getMessage(), $exception);
 
             throw $exception;
         }

@@ -22,6 +22,7 @@
 namespace CentreonClapi;
 
 use CentreonDB;
+use PDO;
 use PDOException;
 
 /**
@@ -75,12 +76,15 @@ class CentreonUtils
         $query = 'SELECT img.img_id FROM view_img_dir dir, view_img_dir_relation rel, view_img img '
             . 'WHERE dir.dir_id = rel.dir_dir_parent_id '
             . 'AND rel.img_img_id = img.img_id '
-            . "AND img.img_path = '" . $imagename . "' "
-            . "AND dir.dir_name = '" . $dirname . "' "
+            . 'AND img.img_path = :imagename '
+            . 'AND dir.dir_name = :dirname '
             . 'LIMIT 1';
-        $res = $db->query($query);
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(':imagename', $imagename, PDO::PARAM_STR);
+        $stmt->bindValue(':dirname', $dirname, PDO::PARAM_STR);
+        $stmt->execute();
         $img_id = null;
-        $row = $res->fetchRow();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (isset($row['img_id']) && $row['img_id']) {
             $img_id = (int) $row['img_id'];
         }

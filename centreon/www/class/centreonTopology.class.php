@@ -47,6 +47,13 @@ class CentreonTopology
      */
     public function getTopology($key, $value)
     {
+        // The column name fragment cannot be bound as a parameter, so $key is
+        // validated against an allowlist of permitted topology columns.
+        $allowedKeys = ['page', 'id', 'name', 'parent'];
+        if (! in_array($key, $allowedKeys, true)) {
+            throw new Exception(sprintf('Invalid topology column: %s', $key));
+        }
+
         $queryTopologyPage = 'SELECT * FROM topology WHERE topology_' . $key . ' = :keyTopo';
         $stmt = $this->db->prepare($queryTopologyPage);
         $stmt->bindParam(':keyTopo', $value);

@@ -37,7 +37,14 @@ namespace App\Shared\Infrastructure\Logging;
  */
 final class SensitiveKeywordDenylist
 {
-    public const KEYWORDS = ['password', 'token', 'secret', 'api_key', 'authorization', 'credential', 'private_key'];
+    public const KEYWORDS = [
+        'password', 'passwd', 'pwd', 'token', 'secret', 'api_key', 'apikey', 'api-key',
+        'access_key', 'authorization', 'bearer', 'credential', 'private_key', 'signature',
+        'session_id', 'sessionid',
+    ];
+
+    /** @var list<string> Accessor prefixes shared by {@see LogPayloadNormalizer} and {@see Attribute\SensitivityScanner}. */
+    public const ACCESSOR_PREFIXES = ['get', 'is', 'has', 'can'];
 
     /**
      * Memoises the sensitive-or-not verdict per key to skip the keyword

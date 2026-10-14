@@ -12,14 +12,12 @@ const GuidingLines = ({
   graphHeight,
   graphWidth,
   maxLeftAxisCharacters,
-  hasSecondUnit,
   lines,
   leftScale,
   rightScale,
   hasUnit
 }: GuidingLinesModel): ReactElement | null => {
   const { positionX, positionY } = useTickGraph({
-    hasSecondUnit,
     hasUnit,
     leftScale,
     lines,

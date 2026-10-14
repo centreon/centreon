@@ -22,6 +22,9 @@ if (! isset($centreon)) {
     exit();
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 include_once './class/centreonUtils.class.php';
 
 include_once './class/centreonDB.class.php';
@@ -74,13 +77,31 @@ if (isset($_GET['host_name']) && $_GET['host_name']) {
 // ACL
 $haveAccess = 0;
 if (! $is_admin) {
-    $DBRESULT = $pearDBO->query("SELECT host_id 
-                                FROM centreon_acl 
-                                WHERE host_id = '" . getMyHostId($host_name) . "' 
-                                AND group_id 
-                                IN (" . $centreon->user->access->getAccessGroupsString() . ')');
-    if ($DBRESULT->rowCount()) {
-        $haveAccess = 1;
+    $aclHostId = getMyHostId($host_name);
+    $aclAccessGroupIds = array_keys($centreon->user->access->getAccessGroups());
+
+    if ($aclHostId !== null && $aclAccessGroupIds !== []) {
+        $aclBindParameters = [];
+        $aclPlaceholders = [];
+        foreach ($aclAccessGroupIds as $aclIndex => $aclGroupId) {
+            $aclPlaceholderName = 'ag_' . $aclIndex;
+            $aclPlaceholders[] = ':' . $aclPlaceholderName;
+            $aclBindParameters[] = QueryParameter::int($aclPlaceholderName, (int) $aclGroupId);
+        }
+
+        $aclRows = $pearDBO->fetchAllAssociative(
+            'SELECT host_id FROM centreon_acl '
+            . 'WHERE host_id = :host_id '
+            . 'AND group_id IN (' . implode(', ', $aclPlaceholders) . ')',
+            QueryParameters::create([
+                QueryParameter::int('host_id', (int) $aclHostId),
+                ...$aclBindParameters,
+            ])
+        );
+
+        if ($aclRows !== []) {
+            $haveAccess = 1;
+        }
     }
 }
 

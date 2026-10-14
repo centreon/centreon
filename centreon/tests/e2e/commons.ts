@@ -61,6 +61,56 @@ const getStatusTypeNumberFromString = (statusType: string): number => {
   throw new Error(`Status type ${statusType} does not exist`);
 };
 
+// Splits CSV content into records of unquoted field values, header row first.
+// Enclosures have to be honoured: the exporter wraps in double quotes any field
+// holding the delimiter, a double quote (then doubled) or a line break, so a raw
+// split on the delimiter would cut such a field into several cells and shift
+// every column after it:
+//   Critical;"OK: 5% | cpu=5%;80;90";1/1 (H)   ->   3 fields, not 5
+const parseCsv = (content: string, delimiter = ';'): Array<Array<string>> => {
+  const records: Array<Array<string>> = [];
+  let fields: Array<string> = [];
+  let field = '';
+  let isQuoted = false;
+  let index = 0;
+
+  while (index < content.length) {
+    const character = content[index];
+    index += 1;
+
+    if (isQuoted) {
+      if (character !== '"') {
+        field += character;
+      } else if (content[index] === '"') {
+        // an escaped quote inside an enclosed field
+        field += '"';
+        index += 1;
+      } else {
+        isQuoted = false;
+      }
+    } else if (character === '"') {
+      isQuoted = true;
+    } else if (character === delimiter) {
+      fields.push(field);
+      field = '';
+    } else if (character === '\n') {
+      fields.push(field);
+      records.push(fields);
+      fields = [];
+      field = '';
+    } else if (character !== '\r') {
+      field += character;
+    }
+  }
+
+  if (field !== '' || fields.length > 0) {
+    fields.push(field);
+    records.push(fields);
+  }
+
+  return records;
+};
+
 interface MonitoredHost {
   name: string;
   output?: string;
@@ -135,10 +185,10 @@ interface MonitoredService {
 }
 
 const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
-  cy.log('Checking services in database');
+  cy.log('Checking services in resources table database');
 
   let query =
-    'SELECT COUNT(s.service_id) AS count_services from services as s WHERE s.enabled=1 AND (';
+    'SELECT COUNT(r.resource_id) AS count_services from resources as r WHERE r.enabled = 1 AND r.type = 0 AND (';
   const conditions: Array<string> = [];
   services.forEach(
     ({
@@ -149,22 +199,22 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
       inDowntime = null,
       statusType = ''
     }) => {
-      let condition = `(s.description = '${name}'`;
+      let condition = `(r.name = '${name}'`;
       if (output !== '') {
-        condition += ` AND s.output LIKE '%${output}%'`;
+        condition += ` AND r.output LIKE '%${output}%'`;
       }
       if (status !== '') {
-        condition += ` AND s.state = ${getStatusNumberFromString(status)}`;
+        condition += ` AND r.status = ${getStatusNumberFromString(status)}`;
       }
       if (acknowledged !== null) {
-        condition += ` AND s.acknowledged = ${acknowledged === true ? 1 : 0}`;
+        condition += ` AND r.acknowledged = ${acknowledged === true ? 1 : 0}`;
       }
       if (inDowntime !== null) {
-        condition += ` AND s.scheduled_downtime_depth = ${inDowntime === true ? 1 : 0
+        condition += ` AND r.in_downtime = ${inDowntime === true ? 1 : 0
           }`;
       }
       if (statusType !== '') {
-        condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
+        condition += ` AND r.status_confirmed = ${getStatusTypeNumberFromString(
           statusType
         )}`;
       }
@@ -474,6 +524,7 @@ export {
   checkServicesAreMonitored,
   getStatusNumberFromString,
   getStatusTypeNumberFromString,
+  parseCsv,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,

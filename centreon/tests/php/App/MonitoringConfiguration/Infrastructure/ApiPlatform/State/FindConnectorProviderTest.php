@@ -42,7 +42,7 @@ final class FindConnectorProviderTest extends ApiTestCase
     public function testGetConnector(): void
     {
         $this->login();
-        $this->request('GET', '/api/latest/configuration/connectors/1');
+        $this->request('GET', '/api/configuration/connectors/1');
 
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
@@ -63,7 +63,7 @@ final class FindConnectorProviderTest extends ApiTestCase
         $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
-        $this->request('GET', '/api/latest/configuration/connectors/1');
+        $this->request('GET', '/api/configuration/connectors/1');
 
         $this->assertResponseStatusCodeSame(403);
     }

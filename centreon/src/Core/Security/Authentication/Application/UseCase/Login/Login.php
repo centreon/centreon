@@ -98,9 +98,10 @@ final class Login
                 throw LegacyAuthenticationException::notAllowedToReachWebApplication();
             }
 
-            // Record the SSO authentication success on the security access log. Local/LDAP
-            // logins are already logged by the legacy centreonAuth path, so they are excluded
-            // here to avoid a duplicate access-log entry. Provider names that are not part of
+            // Record the SSO authentication success on the security access log. Local logins
+            // (including LDAP, which authenticates through the local provider) are already
+            // logged by the legacy centreonAuth path, so the local provider is excluded here
+            // to avoid a duplicate access-log entry. Provider names that are not part of
             // AuthProviderEnum (e.g. a module-provided provider) are skipped rather than
             // breaking the login flow on a strict enum lookup.
             $authProvider = AuthProviderEnum::tryFrom($loginRequest->providerName);

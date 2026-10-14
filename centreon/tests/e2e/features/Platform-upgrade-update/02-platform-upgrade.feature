@@ -2,7 +2,7 @@
 @REQ_MON-22196 @system @upgrade
 Feature: Upgrade platform from major version A to major version B
 
-  @TEST_MON-22198
+  @MON-22198
   Scenario Outline: Administrator performs a platform update procedure
     Given a running platform in major '<major_from>' with '<version_from>' version
     And the central broker is '<broker_link>' to the cbd daemon

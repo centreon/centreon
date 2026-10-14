@@ -3,7 +3,8 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkMetricsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  parseCsv
 } from '../../../commons';
 
 const serviceOk = 'service_test_ok';
@@ -41,7 +42,9 @@ const AllColumns = [
   'FQDN / Address',
   'Monitoring server',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const UpdatedColumns = [
@@ -57,13 +60,35 @@ const UpdatedColumns = [
   'Action',
   'FQDN / Address',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const downloadsFolder = Cypress.config('downloadsFolder');
 
-const normalize = (text: string) =>
-  text.trim().replace(/^"|"$/g, '').replace(/\\"/g, '').replace(/"/g, '');
+// Host ID / Service ID values are runtime-generated, so instead of comparing
+// them against a static fixture we assert the type-based contract on every row:
+// a host has only Host ID, a service has both identifiers.
+const assertIdentifierContract = (
+  rows: Array<Record<string, string>>
+): void => {
+  rows.forEach((row, index) => {
+    const type = row['Resource Type'] ?? '';
+    const hostId = row['Host ID'] ?? '';
+    const serviceId = row['Service ID'] ?? '';
+
+    if (type === 'Service') {
+      expect(hostId, `Row ${index + 1} (service) Host ID`).to.match(/^\d+$/);
+      expect(serviceId, `Row ${index + 1} (service) Service ID`).to.match(
+        /^\d+$/
+      );
+    } else if (type === 'Host') {
+      expect(hostId, `Row ${index + 1} (host) Host ID`).to.match(/^\d+$/);
+      expect(serviceId, `Row ${index + 1} (host) Service ID`).to.equal('');
+    }
+  });
+};
 
 before(() => {
   cy.intercept({
@@ -265,22 +290,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(AllColumns);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
@@ -289,6 +307,8 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
+        assertIdentifierContract(rowObjects);
+
         const firstTwoRows = rowObjects.slice(0, 2);
 
         cy.fixture('resources/csvFIleWithAllPagesAndColumns.json').then(
@@ -358,22 +378,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(UpdatedColumns);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
@@ -382,6 +395,8 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
+        assertIdentifierContract(rowObjects);
+
         const firstTwoRows = rowObjects.slice(0, 2);
 
         cy.fixture('resources/csvFIleWithOnlyVisiblePagesAndColumns.json').then(
@@ -391,7 +406,11 @@ Then(
               const expectedRow = firstTwoExpected[index];
 
               UpdatedColumns.forEach((key) => {
-                if (key === 'Last Check') return;
+                // Last Check is time-dependent; Host ID / Service ID are
+                // runtime-generated, so their values are not compared against
+                // the static fixture (their presence is asserted via the header).
+                if (['Last Check', 'Host ID', 'Service ID'].includes(key))
+                  return;
                 expect(
                   actualRow[key],
                   `Line ${index + 1} - Key: ${key}`

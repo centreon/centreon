@@ -50,7 +50,7 @@ final class DeleteCommandProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $this->request('DELETE', '/api/latest/configuration/commands/1');
+        $this->request('DELETE', '/api/configuration/commands/1');
 
         self::assertResponseIsSuccessful();
     }
@@ -59,7 +59,7 @@ final class DeleteCommandProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('DELETE', '/api/latest/configuration/commands/999999');
+        $this->request('DELETE', '/api/configuration/commands/999999');
 
         self::assertResponseStatusCodeSame(404);
         self::assertJsonContains([
@@ -89,7 +89,7 @@ final class DeleteCommandProcessorTest extends ApiTestCase
 
         $this->login();
 
-        $this->request('DELETE', '/api/latest/configuration/commands/' . $id);
+        $this->request('DELETE', '/api/configuration/commands/' . $id);
 
         self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
@@ -99,7 +99,7 @@ final class DeleteCommandProcessorTest extends ApiTestCase
 
     public function testDeleteCommandWithoutAuthentication(): void
     {
-        $this->request('DELETE', '/api/latest/configuration/commands/1');
+        $this->request('DELETE', '/api/configuration/commands/1');
 
         self::assertResponseStatusCodeSame(401);
     }

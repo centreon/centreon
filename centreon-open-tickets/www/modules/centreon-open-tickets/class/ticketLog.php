@@ -132,7 +132,7 @@ class Centreon_OpenTickets_Log
                     ) AND
                 SQL;
         }
-        $query .= 'motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id
+        $query .= ' motl.ticket_id = motd.ticket_id AND motd.ticket_id = mot.ticket_id
             ORDER BY `timestamp` DESC ';
 
         // Pagination

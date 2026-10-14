@@ -26,6 +26,7 @@ namespace Tests\App\Shared\Infrastructure\Logging\Attribute;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MethodSecretCommand;
+use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\MultiWordNestedCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedInnerPayload;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\NestedPayloadCommand;
 use Tests\App\Shared\Infrastructure\Logging\Attribute\Fake\PlainCommand;
@@ -50,16 +51,25 @@ final class SensitivityScannerTest extends TestCase
     {
         $scan = SensitivityScanner::scan(SecretsCommand::class);
 
-        self::assertSame(['passcode', 'ssoTicket'], $scan['sensitive']);
+        // Recorded snake_cased to match the payload keys: `ssoTicket` → `sso_ticket`.
+        self::assertSame(['passcode', 'sso_ticket'], $scan['sensitive']);
     }
 
     public function testCollectsAccessorKeyFromSensitiveMethod(): void
     {
         $scan = SensitivityScanner::scan(MethodSecretCommand::class);
 
-        // `#[Sensitive] getApiToken()` masks the `apiToken` key the
-        // normalizer derives from the getter.
-        self::assertSame(['apiToken'], $scan['sensitive']);
+        // Accessors mask the snake_cased key: `getApiToken` → `api_token`, `getSsoTicket` → `sso_ticket`,
+        // `canManageUsers` → `manage_users`. `cancel()` keeps its full name (no uppercase boundary after `can`).
+        self::assertSame(['api_token', 'sso_ticket', 'manage_users', 'cancel'], $scan['sensitive']);
+    }
+
+    public function testRecordsMultiWordSubClassKeyInSnakeCase(): void
+    {
+        $scan = SensitivityScanner::scan(MultiWordNestedCommand::class);
+
+        // The subClasses key must be snake_cased to match the payload: `paymentCard` → `payment_card`.
+        self::assertSame(['payment_card' => SensitiveValueObject::class], $scan['subClasses']);
     }
 
     public function testFlagsClassAnnotatedAsSensitive(): void

@@ -1,0 +1,117 @@
+services:
+  centengine:
+    image: "docker.centreon.com/centreon/centreon-engine-trixie:${ENGINE_TAG:-${TAG}}"
+    container_name: "${NAME}-centengine"
+    hostname: centengine
+    restart: unless-stopped
+    environment:
+      NAME: "${NAME}"
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
+      APP_SECRET: "${APP_SECRET}"
+      SALT: "${SALT}"
+    volumes:
+      - poller-engine:/etc/centreon-engine
+      - poller-broker:/etc/centreon-broker
+      - poller-centcmd:/var/lib/centreon-engine/rw
+      - poller-centlog:/var/log/centreon-engine
+      # Optional: TLS certificates for the Centreon Monitoring Agent (CMA) connecting
+      # via OpenTelemetry gRPC (port 4317). Generate with your PKI or use a self-signed CA.
+      #- ./certs/poller.crt:/etc/pki/poller.crt:ro
+      #- ./certs/poller.key:/etc/pki/poller.key:ro
+      # Optional: mount custom plugin scripts (must be executable)
+      #- ./custom-plugins:/usr/lib/nagios/plugins/custom:ro
+      # Optional: install extra APT packages at startup via {"apt": ["pkg1", "pkg2"]}
+      #- ./custom-deps.json:/etc/centreon-engine/custom-deps.json:ro
+    ports:
+      # Optional: expose only if CMA agents connect to this poller via OpenTelemetry gRPC
+      #- "4317:4317"
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':1625 01' /proc/net/tcp 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5m
+      retries: 3
+    depends_on:
+      gorgone:
+        condition: service_healthy
+
+  gorgone:
+    image: "docker.centreon.com/centreon/centreon-gorgone-trixie:${GORGONE_TAG:-${TAG}}"
+    container_name: "${NAME}-gorgone"
+    hostname: gorgone
+    restart: unless-stopped
+    environment:
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
+      TYPE: poller
+      GORGONE_UID: "${GORGONE_UID}"
+      NAME: "${NAME}"
+      GORGONE_TOKEN: "${GORGONE_TOKEN}"
+      CENTRAL_HOST: "${CENTRAL_HOST}"
+      CENTRAL_PORT: "${CENTRAL_PORT}"
+      GORGONE__GORGONE__MODULES__PULLWSS__SSL: "${GORGONE_SSL}"
+      APP_SECRET: "${APP_SECRET}"
+      SALT: "${SALT}"
+    volumes:
+      - poller-etc:/etc/centreon/
+      - poller-engine:/etc/centreon-engine
+      - poller-broker:/etc/centreon-broker
+      - poller-centcmd:/var/lib/centreon-engine/rw
+      - poller-gorgone-data:/var/lib/centreon-gorgone/
+      - poller-snmp-traps:/etc/snmp/centreon_traps
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q \":$$(printf '%04X' $${CENTRAL_PORT:-443}) 01\" /proc/net/tcp /proc/net/tcp6 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30m
+      retries: 3
+
+  snmptrapd:
+    image: "docker.centreon.com/centreon/centreon-snmptrapd-trixie:${SNMPTRAPD_TAG:-${TAG}}"
+    container_name: "${NAME}-snmptrap"
+    hostname: snmptrapd
+    restart: unless-stopped
+    environment:
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
+    volumes:
+      - poller-snmp-spool:/var/spool/centreontrapd
+    ports:
+      - "162:162/udp"
+    cap_add:
+      - NET_BIND_SERVICE
+    healthcheck:
+      test: ["CMD-SHELL", "grep -q ':00A2' /proc/net/udp /proc/net/udp6 2>/dev/null"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  centreontrapd:
+    image: "docker.centreon.com/centreon/centreon-centreontrapd-trixie:${CENTREONTRAPD_TAG:-${TAG}}"
+    container_name: "${NAME}-centreontrap"
+    hostname: centreontrapd
+    restart: unless-stopped
+    environment:
+      TZ: "${TZ}"
+      DEBUG: "${DEBUG}"
+    volumes:
+      - poller-snmp-spool:/var/spool/centreontrapd
+      - poller-snmp-traps:/etc/snmp/centreon_traps:ro
+      - poller-centcmd:/var/lib/centreon-engine/rw
+    depends_on:
+      snmptrapd:
+        condition: service_healthy
+      gorgone:
+        condition: service_healthy
+
+volumes:
+  poller-etc:
+  poller-engine:
+  poller-broker:
+  poller-centcmd:
+  poller-centlog:
+  poller-gorgone-data:
+  poller-snmp-spool:
+  poller-snmp-traps:

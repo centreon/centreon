@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Xray pipeline — architecture &amp; flows</title>
+<meta name="description" content="Centreon QA: the Xray/Jira test-result pipeline as a staged CI board with the reusable test job and its outcome states." />
+
+<style>
+  :root {
+    --bg: #eaeef3;
+    --panel: #ffffff;
+    --ink: #17202f;
+    --muted: #586372;
+    --faint: #8b96a5;
+    --line: #d6dce4;
+    --line-2: #c3ccd8;
+    --accent: #3b5bdb;
+    --accent-soft: #eaeeff;
+    --zone: rgba(59, 91, 219, 0.045);
+    --zone-line: #c0cae8;
+    --pass: #2f9e5f;
+    --pass-soft: #e4f4ea;
+    --fail: #d94a41;
+    --fail-soft: #fbe8e6;
+    --warn: #c2871a;
+    --warn-soft: #f6eed8;
+    --idle: #9aa4b2;
+    --idle-soft: #eef1f5;
+    --mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --shadow: 0 1px 2px rgba(23, 32, 47, 0.06), 0 3px 8px rgba(23, 32, 47, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(23, 32, 47, 0.05) 1px, transparent 0) 0 0 / 22px 22px,
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 52px 24px 80px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+    margin: 0 0 14px;
+  }
+  .lede { max-width: 64ch; font-size: 17px; color: var(--muted); margin: 0 0 26px; }
+
+  .section-h {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0 0 20px;
+  }
+  .section-h .n {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex: none;
+  }
+  .section-h h2 { font-size: 19px; letter-spacing: -0.01em; margin: 0; }
+  .section-h p { margin: 0; color: var(--faint); font-size: 13.5px; }
+  section { margin-top: 56px; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 8px 20px;
+    padding: 13px 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+  /* ---------- STAGE BOARD (GitLab-CI / Azure Pipelines style) ---------- */
+  .board-scroll { overflow-x: auto; padding: 4px 2px 10px; }
+  .board { display: flex; align-items: stretch; gap: 0; min-width: max-content; }
+  .stage { display: flex; flex-direction: column; gap: 10px; min-width: 176px; }
+  .stage-h {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 2px 10px;
+    border-bottom: 2px solid var(--line-2);
+  }
+  .stage-h .cnt { color: var(--faint); font-variant-numeric: tabular-nums; }
+  .job {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--idle);
+    border-radius: 8px;
+    padding: 10px 12px;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .job .jn { font-weight: 600; font-size: 13.5px; }
+  .job .jt { font-family: var(--mono); font-size: 10.5px; color: var(--faint); letter-spacing: 0.03em; }
+  .job.xray { border-left-color: var(--accent); background: var(--accent-soft); }
+  .job.muted { border-left-color: var(--line-2); color: var(--muted); }
+  .chev { align-self: center; color: var(--line-2); font-size: 26px; padding: 0 6px; flex: none; }
+  .job .zoom { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; color: var(--accent); margin-top: 3px; }
+  .zoomcap { display: flex; align-items: center; gap: 11px; margin: 0 0 18px; padding: 11px 15px; background: var(--accent-soft); border: 1px dashed var(--accent); border-radius: 10px; font-size: 13px; color: #2c3f9e; }
+  .zoomcap .ztag { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; background: var(--accent); color: #fff; padding: 3px 8px; border-radius: 5px; flex: none; }
+  .zoomcap b { color: var(--ink); }
+
+  /* ---------- ZONES (AWS / K8s grouped-container style) ---------- */
+  .zones { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; }
+  @media (max-width: 820px) { .zones { grid-template-columns: 1fr; } }
+
+  .zone {
+    position: relative;
+    border: 1.5px solid var(--zone-line);
+    background: var(--zone);
+    border-radius: 12px;
+    padding: 30px 18px 18px;
+  }
+  .zone > .tab {
+    position: absolute; top: -1px; left: 16px; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent);
+    background: var(--bg);
+    padding: 3px 10px; border: 1px solid var(--zone-line); border-radius: 999px;
+  }
+  .zone.jira > .tab { color: var(--warn); border-color: #e0cfa0; }
+
+  /* segmented phase band — not boxes+arrows, a continuous rail */
+  .band { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .phase { flex: 1; background: var(--panel); padding: 13px 14px; display: flex; flex-direction: column; gap: 3px; position: relative; }
+  .phase + .phase { border-left: 1px solid var(--line); }
+  .phase .pk { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+  .phase .pn { font-weight: 600; font-size: 13.5px; }
+  .phase.accent { background: var(--accent-soft); }
+  .phase .pd { font-size: 11.5px; color: var(--muted); line-height: 1.42; margin-top: 5px; }
+
+  .guards { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .guard { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); }
+  .guard .tag {
+    font-family: var(--mono); font-size: 10.5px; font-weight: 600;
+    padding: 2px 7px; border-radius: 5px; flex: none; margin-top: 1px;
+    background: var(--warn-soft); color: #8a5f12;
+  }
+  .guard .tag.skip { background: var(--accent-soft); color: var(--accent); }
+
+  /* jira zone: test plan container holding a TE + outcome tiles */
+  .tp {
+    border: 1px dashed var(--zone-line); border-radius: 10px; padding: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .tp .tph { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+  .tp .tph b { color: var(--ink); }
+  .te-tile {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; box-shadow: var(--shadow);
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+  .outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .state {
+    border-radius: 9px; padding: 12px; color: #fff; display: flex; flex-direction: column; gap: 6px;
+    box-shadow: var(--shadow);
+  }
+  .state.ok { background: linear-gradient(180deg, #37ad69, var(--pass)); }
+  .state.ko { background: linear-gradient(180deg, #e05a51, var(--fail)); }
+  .state .sh { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; }
+  .state .sc { font-size: 12px; opacity: 0.92; }
+  .state .path { font-family: var(--mono); font-size: 11px; background: rgba(255, 255, 255, 0.2); padding: 3px 7px; border-radius: 5px; align-self: flex-start; }
+
+  /* ---------- routing table ---------- */
+  .tbl-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; background: var(--panel); }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 12px; padding: 3px 9px; border-radius: 999px; font-weight: 600; }
+  .pill.pass { background: var(--pass-soft); color: #147244; }
+  .pill.fail { background: var(--fail-soft); color: #a52a24; }
+  .pill.warn { background: var(--warn-soft); color: #8a5f12; }
+  .pill.idle { background: var(--idle-soft); color: var(--muted); }
+  .pill.abort { background: #efe7fb; color: #6d28d9; }
+  .cov { font-family: var(--mono); font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px; }
+  .cov.ok { background: var(--pass-soft); color: #147244; }
+  .cov.nok { background: var(--fail-soft); color: #a52a24; }
+  .cov.na { background: var(--idle-soft); color: var(--muted); }
+  .by { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 999px; }
+  .by.auto { background: var(--accent-soft); color: var(--accent); }
+  .by.man { background: var(--idle-soft); color: var(--muted); }
+  .tbl-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 22px 0 8px; }
+  .tbl-label:first-child { margin-top: 0; }
+
+  .note { margin-top: 16px; font-size: 13px; color: var(--muted); }
+  .note b { color: var(--ink); }
+
+  .foot {
+    margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 12px; color: var(--faint);
+    display: flex; flex-wrap: wrap; gap: 6px 20px;
+  }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--idle-soft); padding: 1px 5px; border-radius: 4px; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Centreon QA · CI · Xray / Jira</p>
+  <h1>Test-result pipeline — architecture &amp; flows</h1>
+  <p class="lede">
+    The CI pipeline as staged jobs, the reusable test job that talks to Xray, and the two
+    outcome states a Test Execution ends in. Runs on <b>nightly / testing</b> only — never on PRs.
+  </p>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="dot" style="background:var(--accent)"></i> Xray-related job / phase</span>
+    <span><i class="dot" style="background:var(--idle)"></i> standard CI job</span>
+    <span><i class="dot" style="background:var(--pass)"></i> passed → Closed</span>
+    <span><i class="dot" style="background:var(--fail)"></i> failed / aborted → Execution failed</span>
+    <span><i class="dot" style="background:var(--warn)"></i> run-level guard</span>
+  </div>
+
+  <!-- STAGE BOARD -->
+  <section>
+    <div class="section-h">
+      <span class="n">1</span>
+      <div>
+        <h2>Pipeline stages</h2>
+        <p>QA / Xray-relevant jobs by stage — order carries the dependencies (<code>needs</code>).</p>
+      </div>
+    </div>
+    <div class="board-scroll">
+      <div class="board">
+        <div class="stage">
+          <div class="stage-h"><span>Prepare</span><span class="cnt">3</span></div>
+          <div class="job"><span class="jn">get-environment</span><span class="jt">context · version · flags</span></div>
+          <div class="job"><span class="jn">changes</span><span class="jt">path triggers</span></div>
+          <div class="job xray"><span class="jn">xray-prepare-test-plan</span><span class="jt">get-or-create · plan key</span></div>
+        </div>
+        <div class="chev">›</div>
+        <div class="stage">
+          <div class="stage-h"><span>Environment</span><span class="cnt">1</span></div>
+          <div class="job"><span class="jn">dockerize</span><span class="jt">test image · built upstream</span></div>
+        </div>
+        <div class="chev">›</div>
+        <div class="stage">
+          <div class="stage-h"><span>Test</span><span class="cnt">2</span></div>
+          <div class="job xray"><span class="jn">api-test</span><span class="jt">bruno → junit</span><span class="zoom">↓ zoom · §2</span></div>
+          <div class="job xray"><span class="jn">e2e-test</span><span class="jt">cypress → cucumber</span><span class="zoom">↓ zoom · §2</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      <b>QA / Xray view.</b> Build, lint, package and deliver stages are omitted.
+      <code>xray-prepare-test-plan</code> feeds the plan key to the two test jobs, which run once the
+      test image (<code>dockerize</code>, built upstream) is ready. The Xray work happens
+      <em>inside</em> each test job — zoomed in §2.
+    </p>
+  </section>
+
+  <!-- ZONES: inside a test job + Xray result -->
+  <section>
+    <div class="section-h">
+      <span class="n">2</span>
+      <div>
+        <h2>Zoom · inside a Test-stage job</h2>
+        <p>One <code>api-test</code> / <code>e2e-test</code> job from §1, as a reusable workflow producing a single Test Execution.</p>
+      </div>
+    </div>
+    <div class="zoomcap">
+      <span class="ztag">ZOOM</span>
+      Detail of the <b>Test</b> stage above — a single test job, from run to Xray outcome.
+    </div>
+    <div class="zones">
+      <div class="zone">
+        <span class="tab">Reusable workflow · api-test / e2e-test</span>
+        <div class="band">
+          <div class="phase">
+            <span class="pk">phase 1</span><span class="pn">Run tests</span>
+            <span class="pd">Cypress / Bruno execute and emit cucumber / JUnit reports.</span>
+          </div>
+          <div class="phase">
+            <span class="pk">phase 2</span><span class="pn">Import → Xray</span>
+            <span class="pd">Reports uploaded; creates the Test Execution and links it to the Test Plan.</span>
+          </div>
+          <div class="phase accent">
+            <span class="pk">phase 3</span><span class="pn">Enrich</span>
+            <span class="pd">Type + component, resolve tests, abort unfinished runs, set the TE status.</span>
+          </div>
+        </div>
+        <div class="guards">
+          <div class="guard"><span class="tag skip">skip</span><span>Per test: type + component + resolved already set → <b>skipped</b> (repeat runs are near-instant).</span></div>
+          <div class="guard"><span class="tag">abort</span><span>Unfinished runs (<code>To do</code>/<code>Executing</code>) → <b>ABORTED</b> before routing.</span></div>
+        </div>
+      </div>
+
+      <div class="zone jira">
+        <span class="tab">Xray / Jira</span>
+        <div class="tp">
+          <div class="tph"><span>Test Plan</span><b>get-or-create · see §4</b></div>
+          <div class="te-tile">Test Execution · <b style="color:var(--ink)">[API]</b> / <b style="color:var(--ink)">[E2E]</b> · one per run</div>
+          <div class="outcomes">
+            <div class="state ok">
+              <span class="sh">✓ Closed</span>
+              <span class="sc">all tests passed</span>
+              <span class="path">via Close</span>
+            </div>
+            <div class="state ko">
+              <span class="sh">✕ Execution failed</span>
+              <span class="sc">any FAILED / ABORTED</span>
+              <span class="path">via Execution&nbsp;to&nbsp;failed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUTING -->
+  <section>
+    <div class="section-h">
+      <span class="n">3</span>
+      <div>
+        <h2>Outcome routing</h2>
+        <p>Results come from the import; the Test Execution status is set by the enrich.</p>
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>Run outcome</th><th>Transitions followed</th><th>Final status</th></tr></thead>
+        <tbody>
+          <tr><td>All tests <b>PASSED</b></td><td>Ready to execute → Start execution → End execution → Close</td><td><span class="pill pass">Closed</span></td></tr>
+          <tr><td>Any test <b>FAILED</b> or <b>ABORTED</b></td><td>Ready to execute → Start execution → Execution to failed</td><td><span class="pill fail">Execution failed</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      <b>One Test Execution per run</b> (import passes <code>testPlanKey</code>, not <code>testExecKey</code>);
+      the Test Plan aggregates the latest result per test.
+    </p>
+  </section>
+
+  <!-- STATES REFERENCE -->
+  <section>
+    <div class="section-h">
+      <span class="n">4</span>
+      <div>
+        <h2>Reference</h2>
+        <p>Run &amp; Test Execution statuses, and how Test Plans are named.</p>
+      </div>
+    </div>
+
+    <p class="tbl-label">Test run status (per test, in an execution)</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Status</th><th>Coverage</th><th>Final</th><th>Meaning</th><th>In this flow</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="pill pass">PASSED</span></td><td><span class="cov ok">OK</span></td><td>yes</td><td>All assertions passed</td><td>from import</td></tr>
+          <tr><td><span class="pill fail">FAILED</span></td><td><span class="cov nok">NOK</span></td><td>yes</td><td>An assertion failed</td><td>from import</td></tr>
+          <tr><td><span class="pill abort">ABORTED</span></td><td><span class="cov na">NOTRUN</span></td><td>yes</td><td>Started but never finished</td><td>set by enrich</td></tr>
+          <tr><td><span class="pill warn">BLOCKED</span></td><td><span class="cov nok">NOK</span></td><td>no</td><td>Run blocked by a dependency</td><td>manual</td></tr>
+          <tr><td><span class="pill idle">EXECUTING</span></td><td><span class="cov na">NOTRUN</span></td><td>no</td><td>In progress / no result yet</td><td>transient → enrich aborts it</td></tr>
+          <tr><td><span class="pill idle">TO DO</span></td><td><span class="cov na">NOTRUN</span></td><td>no</td><td>Not started</td><td>default before run</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="tbl-label">Test Execution status (Jira workflow)</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Status</th><th>Category</th><th>Set by</th><th>Role in the flow</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Open Request</td><td><span class="pill idle">To Do</span></td><td><span class="by man">initial</span></td><td>Created here by the import</td></tr>
+          <tr><td>Ready to execute</td><td><span class="pill idle">To Do</span></td><td><span class="by auto">enrich</span></td><td>Reached via <b>Ready to execute</b></td></tr>
+          <tr><td>In execution</td><td><span class="pill warn">In Progress</span></td><td><span class="by auto">enrich</span></td><td>Reached via <b>Start execution</b></td></tr>
+          <tr><td>Execution completed</td><td><span class="pill warn">In Progress</span></td><td><span class="by auto">enrich</span></td><td>Pass path · via <b>End execution</b></td></tr>
+          <tr><td><b>Closed</b></td><td><span class="pill pass">Done</span></td><td><span class="by auto">enrich</span></td><td>All passed · via <b>Close</b></td></tr>
+          <tr><td><b>Execution failed</b></td><td><span class="pill warn">In Progress</span></td><td><span class="by auto">enrich</span></td><td>Any FAILED / ABORTED · via <b>Execution to failed</b></td></tr>
+          <tr><td>Blocked · Waiting delivery / decision / fix</td><td><span class="pill warn">In Progress</span></td><td><span class="by man">manual</span></td><td>Trap states — never auto-followed</td></tr>
+          <tr><td>Reopened</td><td><span class="pill idle">To Do</span></td><td><span class="by man">manual</span></td><td>Re-open after Closed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      <b>Two axes.</b> Run status (top) is a <em>result</em> set by the import (or aborted by the enrich);
+      Test Execution status (bottom) is the <em>Jira workflow</em> the enrich walks to Closed / Execution failed.
+    </p>
+
+    <p class="tbl-label">Test Plan title = prefix · project type · version</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>Segment</th><th>Possible values</th><th>Comes from</th></tr></thead>
+        <tbody>
+          <tr><td>Prefix</td><td><b>COMMON</b> (default — PR &amp; develop builds) · <b>NIGHTLY</b> (scheduled run) · <b>RELEASE</b> (release branch) · <b>HOTFIX</b> (hotfix branch)</td><td>trigger / branch</td></tr>
+          <tr><td>Project type</td><td><b>OSS</b> (this repo) · MODULES · COLLECT · …</td><td>pipeline input</td></tr>
+          <tr><td>Version</td><td>major version, e.g. <code>26.07</code></td><td>get-environment</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Examples: <code>COMMON OSS 26.07</code>, <code>NIGHTLY OSS 26.07</code>, <code>RELEASE OSS 26.07</code>.</p>
+  </section>
+
+  <div class="foot">
+    <span>source of truth · .github/docs/xray/README.md</span>
+    <span>runs · nightly / testing</span>
+    <span>MON-201666</span>
+  </div>
+</div>
+
+</body>
+</html>
