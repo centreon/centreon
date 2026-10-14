@@ -281,7 +281,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         }
     }
 
-    public function testItHidesAHostOutsideTheViewerAclScope(): void
+    public function testItHidesAHostOutsideTheActorAclScope(): void
     {
         $this->seedHost(activated: true);
         $this->repository->accessibleHostIds = [];
@@ -507,7 +507,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         yield 'event handler command' => [new PatchHostCommand($id, new UserId(1), dataProcessing: new DataProcessingChanges(eventHandlerCommandId: new CommandId(99))), CommandNotFoundException::class];
     }
 
-    public function testAPollerOutsideTheViewerScopeIsReportedAsNotFound(): void
+    public function testAPollerOutsideTheActorScopeIsReportedAsNotFound(): void
     {
         $this->seedHost(activated: true);
         $this->pollerRepository->seed(2);
@@ -522,7 +522,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         ));
     }
 
-    public function testASeverityOutsideTheViewerScopeIsReportedAsNotFound(): void
+    public function testASeverityOutsideTheActorScopeIsReportedAsNotFound(): void
     {
         $this->seedHost(activated: true);
         $this->hostSeverityRepository->hostSeverities[4] = new HostSeverityName('Critical');

@@ -91,7 +91,7 @@ final class AccessibleHostGroupsValidatorTest extends ConstraintValidatorTestCas
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCannotReferenceAGroupOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceAGroupOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostGroupRepository->method('findNamesByIds')->willReturn(
@@ -107,7 +107,7 @@ final class AccessibleHostGroupsValidatorTest extends ConstraintValidatorTestCas
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCanReferenceAnAccessibleGroup(): void
+    public function testARestrictedActorCanReferenceAnAccessibleGroup(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostGroupRepository->method('findNamesByIds')->willReturn(
@@ -122,7 +122,7 @@ final class AccessibleHostGroupsValidatorTest extends ConstraintValidatorTestCas
         $this->assertNoViolation();
     }
 
-    public function testARestrictedViewerWithNoAclRestrictionCanReferenceAnyExistingGroup(): void
+    public function testARestrictedActorWithNoAclRestrictionCanReferenceAnyExistingGroup(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostGroupRepository->method('findNamesByIds')->willReturn(

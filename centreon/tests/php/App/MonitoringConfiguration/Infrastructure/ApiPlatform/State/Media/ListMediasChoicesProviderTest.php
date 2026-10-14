@@ -112,7 +112,7 @@ final class ListMediasChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's icon picker on the host form (return_image_list(1)) ignores the image-folder ACL:
-     * unlike the generic /configuration/medias endpoint, a viewer restricted to one folder must
+     * unlike the generic /configuration/medias endpoint, an actor restricted to one folder must
      * still see every media through this host-scoped selector.
      */
     public function testItIgnoresImageFolderAclRestrictionsForARestrictedUser(): void

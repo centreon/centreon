@@ -119,7 +119,7 @@ interface HostRepository
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
      */
-    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
      * Never returns a host template, though both share the `host` table. Not scoped by ACL: see

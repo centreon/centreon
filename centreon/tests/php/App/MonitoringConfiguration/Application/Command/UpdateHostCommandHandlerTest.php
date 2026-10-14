@@ -1077,15 +1077,15 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostTemplateServicesCleanupRequested::class));
     }
 
-    public function testItPreservesOutOfScopeHostGroupsForARestrictedViewer(): void
+    public function testItPreservesOutOfScopeHostGroupsForARestrictedActor(): void
     {
         $this->addPoller(1);
-        // Group 1 is visible to the viewer; group 2 belongs to a scope they cannot see.
+        // Group 1 is visible to the actor; group 2 belongs to a scope they cannot see.
         $this->hostGroupRepository->hostGroups[1] = new HostGroup(new HostGroupId(1), new HostGroupName('grp-visible'));
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(1)], HostGroupId::class);
         $this->seedHost(10, hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class));
 
-        // The viewer resends only the group they can see, as a GET -> PUT round trip would.
+        // The actor resends only the group they can see, as a GET -> PUT round trip would.
         ($this->handler)($this->command(
             10,
             hostGroupIds: new Collection([new HostGroupId(1)], HostGroupId::class),
@@ -1101,26 +1101,26 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([1, 2], $groupIds);
     }
 
-    public function testItPreservesAnOutOfScopeSeverityForARestrictedViewer(): void
+    public function testItPreservesAnOutOfScopeSeverityForARestrictedActor(): void
     {
         $this->addPoller(1);
-        // The viewer can access only severity 1; the host carries the out-of-scope severity 2.
+        // The actor can access only severity 1; the host carries the out-of-scope severity 2.
         $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([new HostSeverityId(1)], HostSeverityId::class);
         $this->seedHost(10, severityId: new HostSeverityId(2));
 
-        // The viewer sends no severity: they cannot see the stored one, so it must not be cleared.
+        // The actor sends no severity: they cannot see the stored one, so it must not be cleared.
         $host = ($this->handler)($this->command(10, updatedBy: new UserId(42)));
 
         self::assertSame(2, $host->severityId?->value);
     }
 
-    public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedViewer(): void
+    public function testItPreservesOutOfScopeParentAndChildHostsForARestrictedActor(): void
     {
         $this->addPoller(1);
         foreach ([20, 21, 30, 31] as $relatedId) {
             $this->seedHost($relatedId, name: 'related-' . $relatedId);
         }
-        // Hosts 20 and 30 are visible to the viewer; 21 and 31 belong to a scope they cannot see.
+        // Hosts 20 and 30 are visible to the actor; 21 and 31 belong to a scope they cannot see.
         $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(20), new HostId(30)], HostId::class);
         $this->seedHost(
             10,
@@ -1128,7 +1128,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             childHostIds: new Collection([new HostId(30), new HostId(31)], HostId::class),
         );
 
-        // The viewer resends only the relations they can see, as a GET -> PUT round trip would.
+        // The actor resends only the relations they can see, as a GET -> PUT round trip would.
         $host = ($this->handler)($this->command(
             10,
             updatedBy: new UserId(42),
@@ -1140,15 +1140,15 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([30, 31], $this->sortedIds($host->childHostIds));
     }
 
-    public function testItPreservesOutOfScopeNotificationContactsForARestrictedViewer(): void
+    public function testItPreservesOutOfScopeNotificationContactsForARestrictedActor(): void
     {
         $this->addPoller(1);
-        // Contact 1 and contact group 5 are visible to the viewer; contact 2 and group 6 are not.
+        // Contact 1 and contact group 5 are visible to the actor; contact 2 and group 6 are not.
         $this->resourceAccessRepository->accessibleContactIds = new Collection([new NotificationContactId(1)], NotificationContactId::class);
         $this->resourceAccessRepository->accessibleContactGroupIds = new Collection([new ContactGroupId(5)], ContactGroupId::class);
         $this->seedHost(10, notifications: $this->notifications([NotificationOptionEnum::Down], [1, 2], [5, 6]));
 
-        // The viewer drops every contact they can see: only those are removed.
+        // The actor drops every contact they can see: only those are removed.
         $host = ($this->handler)($this->command(
             10,
             updatedBy: new UserId(42),
@@ -1159,7 +1159,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([6], $this->sortedIds($host->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
     }
 
-    public function testItReplacesTheRelatedHostsAndContactsWholesaleForAnUnrestrictedViewer(): void
+    public function testItReplacesTheRelatedHostsAndContactsWholesaleForAnUnrestrictedActor(): void
     {
         $this->addPoller(1);
         $this->seedHost(20, name: 'related-20');
@@ -1182,11 +1182,11 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([], $this->sortedIds($host->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
     }
 
-    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    public function testARestrictedActorCannotLinkAParentHostOutsideTheirScope(): void
     {
         $this->addPoller(1);
         $this->seedHost(20, name: 'hidden-parent');
-        // Host 20 exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        // Host 20 exists but is out of the actor's scope: it reads as not found, like an unknown one.
         $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(10)], HostId::class);
         $this->seedHost(10);
 
@@ -1202,7 +1202,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     public function testItRejectsACycleClosedThroughAPreservedRelation(): void
     {
         $this->addPoller(1);
-        // 20 is a child of 21, the viewer can see 20 but not 21.
+        // 20 is a child of 21, the actor can see 20 but not 21.
         $this->seedHost(21, name: 'related-21');
         $this->seedHost(20, name: 'related-20', parentHostIds: new Collection([new HostId(21)], HostId::class));
         $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(20)], HostId::class);
@@ -1264,7 +1264,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([], $this->hostRepository->relationsReplacedHosts);
     }
 
-    public function testItDoesNotPreserveWhenTheViewerIsUnrestricted(): void
+    public function testItDoesNotPreserveWhenTheActorIsUnrestricted(): void
     {
         $this->addPoller(1);
         $this->hostGroupRepository->hostGroups[1] = new HostGroup(new HostGroupId(1), new HostGroupName('grp'));

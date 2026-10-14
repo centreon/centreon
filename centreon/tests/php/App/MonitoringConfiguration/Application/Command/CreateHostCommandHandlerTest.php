@@ -700,7 +700,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostCreated::class));
     }
 
-    public function testARestrictedViewerCanCreateAHostOnAnAccessiblePoller(): void
+    public function testARestrictedActorCanCreateAHostOnAnAccessiblePoller(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         // this specific poller is accessible
@@ -736,11 +736,11 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * A restricted viewer referencing a poller outside their own ACL scope gets the same
+     * A restricted actor referencing a poller outside their own ACL scope gets the same
      * not-found error as a truly nonexistent poller — legacy does not distinguish the two,
      * to avoid leaking existence information.
      */
-    public function testARestrictedViewerCannotCreateAHostOnAnInaccessiblePoller(): void
+    public function testARestrictedActorCannotCreateAHostOnAnInaccessiblePoller(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->resourceAccessRepository->unrestrictedPollerAccess = false;
@@ -756,7 +756,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ));
     }
 
-    public function testARestrictedViewerCannotReferenceAHostGroupOutsideTheirAccessibleScope(): void
+    public function testARestrictedActorCannotReferenceAHostGroupOutsideTheirAccessibleScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
@@ -775,13 +775,13 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     }
 
     /**
-     * References are authorized before the name is looked up, so a restricted viewer cannot tell
+     * References are authorized before the name is looked up, so a restricted actor cannot tell
      * a duplicate name apart from an inaccessible poller — both surface as the same
      * PollerNotFoundException, never HostAlreadyExistsException, closing an enumeration channel
-     * (a restricted viewer could otherwise learn a name is already taken by some host or template
+     * (a restricted actor could otherwise learn a name is already taken by some host or template
      * they can't even see, just by observing whether they get a 409 or a 404).
      */
-    public function testARestrictedViewerGetsPollerNotFoundNotDuplicateNameForAnInaccessiblePollerWithADuplicateName(): void
+    public function testARestrictedActorGetsPollerNotFoundNotDuplicateNameForAnInaccessiblePollerWithADuplicateName(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->resourceAccessRepository->unrestrictedPollerAccess = false;
@@ -911,7 +911,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [404]));
     }
 
-    public function testItRejectsACategoryOutsideTheViewerScope(): void
+    public function testItRejectsACategoryOutsideTheActorScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
@@ -931,7 +931,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->referenceCommand($poller->id(), severityId: 404));
     }
 
-    public function testItRejectsASeverityOutsideTheViewerScope(): void
+    public function testItRejectsASeverityOutsideTheActorScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostSeverityRepository->hostSeverities[7] = new HostSeverityName('Critical');
@@ -992,11 +992,11 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->relationCommand($poller->id(), childHostIds: [404]));
     }
 
-    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    public function testARestrictedActorCannotLinkAParentHostOutsideTheirScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $parentId = $this->addRelatedHost($poller->id(), 'hidden-parent');
-        // The host exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        // The host exists but is out of the actor's scope: it reads as not found, like an unknown one.
         $this->resourceAccessRepository->accessibleHostIds = new Collection([], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
@@ -1004,7 +1004,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], creatorId: new UserId(7)));
     }
 
-    public function testARestrictedViewerCanLinkAChildHostWithinTheirScope(): void
+    public function testARestrictedActorCanLinkAChildHostWithinTheirScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $childId = $this->addRelatedHost($poller->id(), 'visible-child');

@@ -63,12 +63,12 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->tag = Uuid::v4()->toRfc4122();
     }
 
-    public function testFindAllReturnsAllRegisteredContactsWithoutAViewer(): void
+    public function testFindAllReturnsAllRegisteredContactsWithoutAActor(): void
     {
         $name = "contact-{$this->tag}";
         $this->insertContact($name);
 
-        $names = $this->names($this->repository->findAll());
+        $names = $this->names($this->repository->findAll(new NotificationContactCriteria()->withoutAccessScope()));
 
         self::assertContains($name, $names);
     }
@@ -82,7 +82,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $keptName = "kept-{$this->tag}";
         $this->insertContact($keptName);
 
-        $names = $this->names($this->repository->findAll());
+        $names = $this->names($this->repository->findAll(new NotificationContactCriteria()->withoutAccessScope()));
 
         self::assertContains($keptName, $names);
     }
@@ -94,7 +94,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $unregisteredName = "unregistered-{$this->tag}";
         $this->insertContact($unregisteredName, registered: false);
 
-        $names = $this->names($this->repository->findAll());
+        $names = $this->names($this->repository->findAll(new NotificationContactCriteria()->withoutAccessScope()));
 
         self::assertContains($registeredName, $names);
         self::assertNotContains($unregisteredName, $names, 'A non-registered contact (contact_register = 0) must never appear.');
@@ -105,7 +105,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->insertContact("match-{$this->tag}");
         $this->insertContact("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withoutAccessScope()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}"], $names);
     }
@@ -116,7 +116,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->insertContact($name, alias: "findme-{$this->tag}");
         $this->insertContact("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withName("findme-{$this->tag}")));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withoutAccessScope()->withName("findme-{$this->tag}")));
 
         self::assertSame([$name], $names, 'The search must also match contact_alias: users often know a contact by their alias rather than their full name.');
     }
@@ -130,7 +130,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded contacts cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new NotificationContactCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            (new NotificationContactCriteria())->withoutAccessScope()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -139,67 +139,67 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
-    public function testFindAllRestrictsToContactsDirectlyLinkedToViewerAccessGroup(): void
+    public function testFindAllRestrictsToContactsDirectlyLinkedToActorAccessGroup(): void
     {
         $accessibleName = "direct-in-{$this->tag}";
         $accessibleId = $this->insertContact($accessibleName);
         $inaccessibleName = "direct-out-{$this->tag}";
         $this->insertContact($inaccessibleName);
 
-        $viewerId = $this->createViewer();
-        $aclGroupId = $this->createAccessGroupForViewer($viewerId);
+        $actorId = $this->createActor();
+        $aclGroupId = $this->createAccessGroupForActor($actorId);
         $this->linkContactToAccessGroup($accessibleId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains($inaccessibleName, $names, 'A contact with no ACL group relation at all is excluded.');
-        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::unrestricted($viewerId)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
-    public function testFindAllRestrictsToContactsBelongingToAContactGroupLinkedToViewerAccessGroup(): void
+    public function testFindAllRestrictsToContactsBelongingToAContactGroupLinkedToActorAccessGroup(): void
     {
         $accessibleName = "viagroup-in-{$this->tag}";
         $accessibleId = $this->insertContact($accessibleName);
         $inaccessibleName = "viagroup-out-{$this->tag}";
         $this->insertContact($inaccessibleName);
 
-        $viewerId = $this->createViewer();
-        $aclGroupId = $this->createAccessGroupForViewer($viewerId);
+        $actorId = $this->createActor();
+        $aclGroupId = $this->createAccessGroupForActor($actorId);
         $contactGroupId = $this->createContactGroup("cg-{$this->tag}");
         $this->addContactToContactGroup($accessibleId, $contactGroupId);
         $this->linkContactGroupToAccessGroup($contactGroupId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains(
             $inaccessibleName,
             $names,
-            'A contact whose contact group is not linked to the viewer ACL group is excluded.'
+            'A contact whose contact group is not linked to the actor ACL group is excluded.'
         );
     }
 
-    public function testFindAllReturnsNoContactForARestrictedViewerWithNoAccessGroup(): void
+    public function testFindAllReturnsNoContactForARestrictedActorWithNoAccessGroup(): void
     {
         $this->insertContact("anycontact-{$this->tag}");
 
-        // a viewer whose own contact record carries no ACL group relation at all
-        $viewerId = $this->createViewer();
+        // an actor whose own contact record carries no ACL group relation at all
+        $actorId = $this->createActor();
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
-        self::assertSame([], $names, 'A viewer with no active Access Group is restricted and sees no contact.');
+        self::assertSame([], $names, 'An actor with no active Access Group is restricted and sees no contact.');
     }
 
-    public function testFindAllReturnsAnEmptyPaginatorForARestrictedViewerWithNoAccessGroup(): void
+    public function testFindAllReturnsAnEmptyPaginatorForARestrictedActorWithNoAccessGroup(): void
     {
         $this->insertContact("anycontact-{$this->tag}");
 
-        $viewerId = $this->createViewer();
+        $actorId = $this->createActor();
 
         $result = $this->repository->findAll(
-            (new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))->withPagination(1, 10)
+            (new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
         );
 
         self::assertInstanceOf(
@@ -218,16 +218,16 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $name = "bothbranches-{$this->tag}";
         $contactId = $this->insertContact($name);
 
-        $viewerId = $this->createViewer();
-        $aclGroupId = $this->createAccessGroupForViewer($viewerId);
-        // branch (a): linked directly to the viewer's Access Group
+        $actorId = $this->createActor();
+        $aclGroupId = $this->createAccessGroupForActor($actorId);
+        // branch (a): linked directly to the actor's Access Group
         $this->linkContactToAccessGroup($contactId, $aclGroupId);
         // branch (b), simultaneously: also a member of a contact group linked to the same Access Group
         $contactGroupId = $this->createContactGroup("cg-{$this->tag}");
         $this->addContactToContactGroup($contactId, $contactGroupId);
         $this->linkContactGroupToAccessGroup($contactGroupId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
         self::assertSame(1, array_count_values($names)[$name] ?? 0, 'A contact matching both ACL branches at once must still appear exactly once.');
     }
@@ -325,12 +325,12 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         return (int) $this->connection->lastInsertId();
     }
 
-    private function createViewer(): int
+    private function createActor(): int
     {
-        return $this->insertContact("viewer-{$this->tag}-" . Uuid::v4()->toRfc4122());
+        return $this->insertContact("actor-{$this->tag}-" . Uuid::v4()->toRfc4122());
     }
 
-    private function createAccessGroupForViewer(int $viewerContactId): int
+    private function createAccessGroupForActor(int $actorContactId): int
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => 'group-' . Uuid::v4()->toRfc4122(),
@@ -341,7 +341,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
 
         $this->connection->insert('acl_group_contacts_relations', [
             'acl_group_id' => $aclGroupId,
-            'contact_contact_id' => $viewerContactId,
+            'contact_contact_id' => $actorContactId,
         ]);
 
         return $aclGroupId;

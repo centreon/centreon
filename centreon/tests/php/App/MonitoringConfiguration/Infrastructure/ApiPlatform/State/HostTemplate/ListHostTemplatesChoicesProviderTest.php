@@ -148,7 +148,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's host-form "extend template" select (CentreonHost::getList()) is not host-category
-     * severity-scoped, unlike the generic /configuration/host_templates endpoint: a viewer
+     * severity-scoped, unlike the generic /configuration/host_templates endpoint: an actor
      * restricted to some severities must still see every template.
      */
     public function testItIgnoresHostCategoryAclRestrictionsForARestrictedUser(): void

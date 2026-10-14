@@ -27,22 +27,45 @@ use App\Security\Domain\Aggregate\ActingUser;
 
 /**
  * ACL scoping shared by the listing criteria that restrict results to what the acting user is allowed
- * to see. Without an actor, the criteria carry no ACL scoping at all.
+ * to see. It fails closed: a criteria must either be scoped to an actor or explicitly opt out, so a
+ * forgotten scoping cannot silently return every resource.
  */
 trait ActorScopedCriteriaTrait
 {
     private ?ActingUser $actor = null;
 
+    private bool $accessScoped = true;
+
     public function withActor(ActingUser $actor): self
     {
         $new = clone $this;
         $new->actor = $actor;
+        $new->accessScoped = true;
 
         return $new;
     }
 
+    /**
+     * For a read that must see every resource whoever asks, as a listing legacy never scoped.
+     */
+    public function withoutAccessScope(): self
+    {
+        $new = clone $this;
+        $new->actor = null;
+        $new->accessScoped = false;
+
+        return $new;
+    }
+
+    /**
+     * @return ?ActingUser null only once {@see withoutAccessScope()} was called
+     */
     public function getActor(): ?ActingUser
     {
+        if ($this->accessScoped && ! $this->actor instanceof ActingUser) {
+            throw new \LogicException(sprintf('"%s" must be scoped with withActor(), or explicitly opt out with withoutAccessScope().', static::class));
+        }
+
         return $this->actor;
     }
 }

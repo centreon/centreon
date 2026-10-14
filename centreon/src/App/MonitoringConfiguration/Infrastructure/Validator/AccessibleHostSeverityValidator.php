@@ -35,8 +35,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Never distinguishes "severity doesn't exist" from "exists but isn't accessible to this viewer", to
- * avoid leaking existence information to a restricted viewer.
+ * Never distinguishes "severity doesn't exist" from "exists but isn't accessible to this actor", to
+ * avoid leaking existence information to a restricted actor.
  *
  * Always declared after Assert\Positive inside an Assert\Sequentially on the property:
  * HostSeverityId asserts a strictly positive int and would throw instead of producing a clean

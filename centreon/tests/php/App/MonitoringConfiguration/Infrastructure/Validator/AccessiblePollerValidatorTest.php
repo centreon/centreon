@@ -92,7 +92,7 @@ final class AccessiblePollerValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCannotReferenceAPollerOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceAPollerOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->pollerRepository->method('get')->willReturn($this->createPoller());
@@ -104,7 +104,7 @@ final class AccessiblePollerValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCanReferenceAnAccessiblePoller(): void
+    public function testARestrictedActorCanReferenceAnAccessiblePoller(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->pollerRepository->method('get')->willReturn($this->createPoller());

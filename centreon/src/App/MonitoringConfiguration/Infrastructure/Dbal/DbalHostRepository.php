@@ -445,10 +445,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         return (bool) $qb->executeQuery()->fetchOne();
     }
 
-    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable
     {
         $accessibleHostIds = null;
-        $actor = $criteria?->getActor();
+        $actor = $criteria->getActor();
         if ($actor instanceof ActingUser) {
             $accessibleHostIds = $this->findAccessibleHostIdValues($actor);
             if ($accessibleHostIds === []) {
@@ -473,14 +473,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ));
         }
 
-        if ($criteria instanceof HostCriteria) {
-            $this->filterByHostCriteria($qb, $criteria);
-            $this->applySort($qb, 'h', $criteria);
-        }
+        $this->filterByHostCriteria($qb, $criteria);
+        $this->applySort($qb, 'h', $criteria);
         // last sort key: alias and address are not unique, and pagination must stay deterministic
         $qb->addOrderBy('h.host_id');
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

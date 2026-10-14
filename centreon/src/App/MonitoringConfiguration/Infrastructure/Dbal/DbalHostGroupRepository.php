@@ -85,18 +85,16 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         return new Collection($names, HostGroupName::class);
     }
 
-    public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'hg')
             ->orderBy('hg.hg_id'); // required for deterministic pagination
 
-        if ($criteria instanceof HostGroupCriteria) {
-            $this->filterByHostGroupCriteria($qb, $criteria);
-        }
+        $this->filterByHostGroupCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

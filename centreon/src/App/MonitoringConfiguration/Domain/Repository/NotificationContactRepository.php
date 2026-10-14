@@ -44,5 +44,5 @@ interface NotificationContactRepository
     /**
      * @return \IteratorAggregate<int, NotificationContact>&\Countable
      */
-    public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable;
 }

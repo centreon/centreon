@@ -41,8 +41,8 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  * cache-stale or racing access-grant change between validation and command execution is still
  * caught there, surfacing as 404).
  *
- * Never distinguishes "poller doesn't exist" from "exists but isn't accessible to this viewer",
- * matching the handler, to avoid leaking existence information to a restricted viewer.
+ * Never distinguishes "poller doesn't exist" from "exists but isn't accessible to this actor",
+ * matching the handler, to avoid leaking existence information to a restricted actor.
  *
  * Always declared after Assert\Positive inside an Assert\Sequentially on the property (see
  * CreateHostInput): PollerId asserts a strictly positive int and would throw instead of producing
