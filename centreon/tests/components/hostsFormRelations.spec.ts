@@ -274,15 +274,17 @@ test.describe('notifications', () => {
     await saveButton(page).click();
 
     await expect.poll(() => api.patch[1].bodies.length).toBe(1);
-    expect(api.patch[1].bodies[0]).toMatchObject({
-      check_options: untouchedCheckOptionsPayload,
-      data_processing: untouchedDataProcessingPayload,
-      notifications: untouchedNotificationsPayload,
-      scheduling_options: untouchedSchedulingOptionsPayload,
-      snmp_version: null,
-      template_ids: [],
-      timezone_id: null
-    });
+    expect(api.patch[1].bodies[0]).toEqual(
+      expect.objectContaining({
+        check_options: untouchedCheckOptionsPayload,
+        data_processing: untouchedDataProcessingPayload,
+        notifications: untouchedNotificationsPayload,
+        scheduling_options: untouchedSchedulingOptionsPayload,
+        snmp_version: null,
+        template_ids: [],
+        timezone_id: null
+      })
+    );
   });
 
   test('creates a host with its notification settings', async ({
@@ -321,18 +323,20 @@ test.describe('notifications', () => {
     // `enabled` as the string the API takes, not a boolean. The options come
     // from the form's own selectors: only those paths are mocked.
     await expect.poll(() => api.creation.bodies.length).toBe(1);
-    expect(api.creation.bodies[0]).toMatchObject({
-      notifications: {
-        contact_groups: [3],
-        contacts: [1],
-        enabled: 'true',
-        first_delay: 0,
-        interval: 5,
-        options: ['down', 'flapping', 'unreachable', 'downtime_scheduled'],
-        recovery_delay: null,
-        timeperiod_id: 2
-      }
-    });
+    expect(api.creation.bodies[0]).toEqual(
+      expect.objectContaining({
+        notifications: {
+          contact_groups: [3],
+          contacts: [1],
+          enabled: 'true',
+          first_delay: 0,
+          interval: 5,
+          options: ['down', 'flapping', 'unreachable', 'downtime_scheduled'],
+          recovery_delay: null,
+          timeperiod_id: 2
+        }
+      })
+    );
   });
 
   test('sends None alone once it is chosen', async ({
@@ -348,9 +352,11 @@ test.describe('notifications', () => {
     await saveButton(page).click();
 
     await expect.poll(() => api.creation.bodies.length).toBe(1);
-    expect(api.creation.bodies[0]).toMatchObject({
-      notifications: { options: ['none'] }
-    });
+    expect(api.creation.bodies[0]).toEqual(
+      expect.objectContaining({
+        notifications: expect.objectContaining({ options: ['none'] })
+      })
+    );
   });
 });
 
@@ -387,13 +393,15 @@ test.describe('additive inheritance', () => {
     await saveButton(page).click();
 
     await expect.poll(() => api.creation.bodies.length).toBe(1);
-    expect(api.creation.bodies[0]).toMatchObject({
-      notifications: {
-        ...untouchedNotificationsPayload,
-        contact_additive_inheritance: true,
-        contact_group_additive_inheritance: false
-      }
-    });
+    expect(api.creation.bodies[0]).toEqual(
+      expect.objectContaining({
+        notifications: {
+          ...untouchedNotificationsPayload,
+          contact_additive_inheritance: true,
+          contact_group_additive_inheritance: false
+        }
+      })
+    );
   });
 
   test('opens and saves back the inheritance a host carries', async ({
@@ -417,11 +425,13 @@ test.describe('additive inheritance', () => {
     await saveButton(page).click();
 
     await expect.poll(() => api.patch[0].bodies.length).toBe(1);
-    expect(api.patch[0].bodies[0]).toMatchObject({
-      notifications: {
-        contact_additive_inheritance: true,
-        contact_group_additive_inheritance: false
-      }
-    });
+    expect(api.patch[0].bodies[0]).toEqual(
+      expect.objectContaining({
+        notifications: expect.objectContaining({
+          contact_additive_inheritance: true,
+          contact_group_additive_inheritance: false
+        })
+      })
+    );
   });
 });

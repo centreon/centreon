@@ -263,7 +263,9 @@ test.describe('existing host', () => {
     await save(page).click();
 
     await expect.poll(() => api.patch[0].bodies.length).toBe(1);
-    expect(api.patch[0].bodies[0]).toMatchObject({ alias: null });
+    expect(api.patch[0].bodies[0]).toEqual(
+      expect.objectContaining({ alias: null })
+    );
   });
 });
 
@@ -541,7 +543,9 @@ test.describe('default monitoring server', () => {
     await save(page).click();
 
     await expect.poll(() => api.creation.bodies.length).toBe(1);
-    expect(api.creation.bodies[0]).toMatchObject({ poller_id: 3 });
+    expect(api.creation.bodies[0]).toEqual(
+      expect.objectContaining({ poller_id: 3 })
+    );
   });
 
   test('keeps what was typed when it arrives late', async ({
@@ -592,5 +596,7 @@ test('creates a host with its alias, trimmed', async ({
   await save(page).click();
 
   await expect.poll(() => api.creation.bodies.length).toBe(1);
-  expect(api.creation.bodies[0]).toMatchObject({ alias: 'Apache front' });
+  expect(api.creation.bodies[0]).toEqual(
+    expect.objectContaining({ alias: 'Apache front' })
+  );
 });

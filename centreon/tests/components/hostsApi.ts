@@ -53,6 +53,8 @@ export interface HostsApi {
   listing: MockedEndpoint;
   patch: Record<0 | 1 | 2, MockedEndpoint>;
   resolution: MockedEndpoint;
+  /** Selector mocks, by endpoint path (e.g. 'configuration/commands'). */
+  selectors: Record<string, MockedEndpoint>;
 }
 
 const host = (id: number | string) => `configuration/hosts/${id}`;
@@ -121,8 +123,9 @@ export const mockHostsApi = async (
     ['configuration/pollers', getPollersResponse()],
     ['configuration/host_templates', getHostTemplatesResponse()]
   ];
+  const selectorMocks: Record<string, MockedEndpoint> = {};
   for (const [endpoint, response] of selectors) {
-    await mockApi({ endpoint, response });
+    selectorMocks[endpoint] = await mockApi({ endpoint, response });
   }
   // Granted by write access only, as the API does.
   await mockApi({
@@ -168,7 +171,8 @@ export const mockHostsApi = async (
       delay: resolveDelay,
       endpoint: 'configuration/hosts/_resolve',
       ...addressResolutions[addressResolution]
-    })
+    }),
+    selectors: selectorMocks
   };
 };
 
@@ -241,3 +245,11 @@ export const fillMandatoryFields = async (page: Page): Promise<void> => {
   await hostField(page, 'host-form-address').fill('10.0.0.42');
   await pickOptions(page, 'host-form-poller', ['Poller EU']);
 };
+
+// Clears an autocomplete through its clear indicator, shown on hover only.
+export const clearAutocomplete = (page: Page, testId: string): Promise<void> =>
+  page
+    .locator('.MuiAutocomplete-root')
+    .filter({ has: hostField(page, testId) })
+    .locator('.MuiAutocomplete-clearIndicator')
+    .click({ force: true });
