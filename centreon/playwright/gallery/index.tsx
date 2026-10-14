@@ -44,7 +44,13 @@ for (const plugin of [
 }
 
 // No resources: labels render as their English keys, like the Cypress suite.
-i18next.use(initReactI18next).init({ lng: 'en', resources: {} });
+// No key separators: labels with a dot or a colon stay whole keys.
+i18next.use(initReactI18next).init({
+  keySeparator: false,
+  lng: 'en',
+  nsSeparator: false,
+  resources: {}
+});
 
 // The theme follows the emulated color scheme, so specs switch it with
 // test.use({ colorScheme }) or page.emulateMedia({ colorScheme }).
