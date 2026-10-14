@@ -24,7 +24,8 @@ export interface WidgetPropertyStoryProps {
   /** Extra top-level form values, next to moduleName and options. */
   extraValues?: Record<string, unknown>;
   isEditing?: boolean;
-  options?: Record<string, unknown>;
+  // null reproduces a form without any option value.
+  options?: Record<string, unknown> | null;
   user?: Partial<User>;
   widgetProperties?: Record<string, unknown>;
 }
