@@ -31,7 +31,7 @@ use Webmozart\Assert\Assert;
 final class HostTemplateCriteria implements PaginableCriteria
 {
     use PaginableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    use ActorScopedCriteriaTrait;
 
     private ?HostTemplateId $id = null;
 

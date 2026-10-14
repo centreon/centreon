@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -93,10 +93,11 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
     public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $accessibleContactIds = null;
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
+        $actor = $criteria?->getActor();
+        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
             $accessibleContactIds = array_map(
                 static fn (NotificationContactId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactIds($viewerId)->toArray(),
+                $this->resourceAccessRepository->findAccessibleContactIds($actor->userId)->toArray(),
             );
             if ($accessibleContactIds === []) {
                 return $this->emptyResult($criteria);
@@ -151,7 +152,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
     }
 
     /**
-     * A restricted viewer with no accessible contact short-circuits before any query runs. When
+     * A restricted actor with no accessible contact short-circuits before any query runs. When
      * pagination was requested, the response must still carry the pagination envelope (page, page
      * size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise tell
      * "zero matches" from "pagination metadata omitted".

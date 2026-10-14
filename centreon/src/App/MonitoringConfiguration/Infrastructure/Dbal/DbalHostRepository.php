@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -229,13 +230,13 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
     }
 
-    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
+    public function findOne(HostId $id, Credential $actor): ?Host
     {
         if (
-            $viewerId instanceof UserId
-            && ! in_array($id->value, $this->findAccessibleHostIdValues($viewerId, [$id->value]), true)
+            ! $actor->hasUnrestrictedResourceAccess()
+            && ! in_array($id->value, $this->findAccessibleHostIdValues($actor->userId, [$id->value]), true)
         ) {
-            // Exists but outside the viewer's ACL scope, or does not exist at all — both read as
+            // Exists but outside the actor's ACL scope, or does not exist at all — both read as
             // "not found" to the caller, so as not to leak existence (see HostRepository::findOne()).
             return null;
         }
@@ -438,8 +439,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $accessibleHostIds = null;
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleHostIds = $this->findAccessibleHostIdValues($viewerId);
+        $actor = $criteria?->getActor();
+        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+            $accessibleHostIds = $this->findAccessibleHostIdValues($actor->userId);
             if ($accessibleHostIds === []) {
                 return new Collection([], Host::class);
             }
@@ -515,12 +517,24 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         ];
     }
 
-    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
+    public function findAccessibleNamesByIds(Collection $ids, Credential $actor): Collection
+    {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return $this->findNamesByIds($ids);
+        }
+
+        $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        $accessibleIdValues = $this->findAccessibleHostIdValues($actor->userId, array_values($idValues));
+
+        return $this->findNamesByIds(new Collection(
+            array_values(array_filter($ids->toArray(), static fn (HostId $id): bool => in_array($id->value, $accessibleIdValues, true))),
+            HostId::class,
+        ));
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
-        if ($viewerId instanceof UserId) {
-            $idValues = array_values(array_intersect($idValues, $this->findAccessibleHostIdValues($viewerId, array_values($idValues))));
-        }
 
         if ($idValues === []) {
             return new Collection([], HostName::class);

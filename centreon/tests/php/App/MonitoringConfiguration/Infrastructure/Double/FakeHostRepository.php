@@ -29,7 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
@@ -105,11 +105,11 @@ final class FakeHostRepository implements HostRepository
     }
 
     /**
-     * Honors {@see $accessibleHostIds} when a viewer is given, returning null (like the real
-     * repository) for a host outside the viewer's scope, so the ACL not-found path is exercised
+     * Honors {@see $accessibleHostIds} for a restricted actor, returning null (like the real
+     * repository) for a host outside their scope, so the ACL not-found path is exercised
      * at the handler layer.
      */
-    public function findOne(HostId $id, ?UserId $viewerId = null): ?Host
+    public function findOne(HostId $id, Credential $actor): ?Host
     {
         $host = $this->hosts[$id->value] ?? null;
         if ($host === null) {
@@ -117,7 +117,7 @@ final class FakeHostRepository implements HostRepository
         }
 
         if (
-            $viewerId instanceof UserId
+            ! $actor->hasUnrestrictedResourceAccess()
             && $this->accessibleHostIds !== null
             && ! in_array($id->value, $this->accessibleHostIds, true)
         ) {
@@ -219,14 +219,22 @@ final class FakeHostRepository implements HostRepository
         return new Collection(array_values($this->hosts), Host::class);
     }
 
-    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
+    public function findAccessibleNamesByIds(Collection $ids, Credential $actor): Collection
+    {
+        if ($actor->hasUnrestrictedResourceAccess() || $this->accessibleHostIds === null) {
+            return $this->findNamesByIds($ids);
+        }
+
+        return $this->findNamesByIds(new Collection(
+            array_values(array_filter($ids->toArray(), fn (HostId $id): bool => in_array($id->value, $this->accessibleHostIds, true))),
+            HostId::class,
+        ));
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
     {
         $names = [];
         foreach ($ids as $id) {
-            if ($viewerId instanceof UserId && $this->accessibleHostIds !== null && ! in_array($id->value, $this->accessibleHostIds, true)) {
-                continue;
-            }
-
             if (isset($this->hosts[$id->value])) {
                 $names[$id->value] = $this->hosts[$id->value]->name;
             }

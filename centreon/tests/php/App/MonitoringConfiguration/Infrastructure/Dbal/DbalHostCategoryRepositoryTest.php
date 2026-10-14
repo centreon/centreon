@@ -36,6 +36,7 @@ use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\Security\Infrastructure\Double\TestCredentials;
 
 final class DbalHostCategoryRepositoryTest extends KernelTestCase
 {
@@ -147,11 +148,12 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
 
         $viewerId = new UserId($this->createContactRestrictedToHostCategories([$accessibleId, $severityId]));
 
-        $names = $this->names($this->repository->findAll((new HostCategoryCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll((new HostCategoryCriteria())->withActor(TestCredentials::restricted($viewerId->value))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains($inaccessibleName, $names, 'A category not in the viewer ACL is excluded.');
         self::assertNotContains($severityName, $names, 'A severity is excluded even when its id is granted in the ACL.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new HostCategoryCriteria())->withActor(TestCredentials::unrestricted($viewerId->value)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllReturnsAllCategoriesForAViewerWithNoCategoryRestriction(): void
@@ -162,7 +164,7 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
         // ACL resource without any host-category relation → no restriction → sees every category
         $viewerId = new UserId($this->createContactRestrictedToHostCategories([]));
 
-        $names = $this->names($this->repository->findAll((new HostCategoryCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll((new HostCategoryCriteria())->withActor(TestCredentials::restricted($viewerId->value))));
 
         self::assertContains($categoryName, $names);
     }
@@ -175,7 +177,7 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
         // the viewer's ACL grants only a severity → restricted, but to zero regular categories
         $viewerId = new UserId($this->createContactRestrictedToHostCategories([$severityId]));
 
-        $names = $this->names($this->repository->findAll((new HostCategoryCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll((new HostCategoryCriteria())->withActor(TestCredentials::restricted($viewerId->value))));
 
         self::assertSame([], $names, 'A viewer granted only severities is restricted and sees no category.');
     }

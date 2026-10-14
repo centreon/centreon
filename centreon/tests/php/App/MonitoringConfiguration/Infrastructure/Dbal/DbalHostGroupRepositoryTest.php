@@ -28,13 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupTransformer;
-use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Security\Infrastructure\Double\TestCredentials;
 
 final class DbalHostGroupRepositoryTest extends KernelTestCase
 {
@@ -138,12 +138,13 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('restricted-user');
         $this->restrictContactToHostGroups($contactId, [302]);
 
-        $criteria = (new HostGroupCriteria())->withViewerId(new UserId($contactId));
+        $criteria = (new HostGroupCriteria())->withActor(TestCredentials::restricted($contactId));
 
         $hostGroups = iterator_to_array($this->repository->findAll($criteria));
 
         self::assertCount(1, $hostGroups);
         self::assertSame(['HostGroup-B'], $this->extractNames($hostGroups));
+        self::assertContains('HostGroup-A', $this->extractNames(iterator_to_array($this->repository->findAll((new HostGroupCriteria())->withActor(TestCredentials::unrestricted($contactId))))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     private function insertHostGroup(int $id, string $name): void

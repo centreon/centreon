@@ -73,7 +73,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTim
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
@@ -82,7 +82,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Builds the HostResource every host endpoint answers with (POST, GET, PUT), resolving the ids the
- * aggregate carries into the named `{id, name}` outputs the contract exposes. A restricted viewer's
+ * aggregate carries into the named `{id, name}` outputs the contract exposes. A restricted actor's
  * view is narrowed to what they may access, so an out-of-scope association is never surfaced,
  * whichever endpoint answers. Secrets (snmpCommunity,
  * password macros) are never part of HostResource and so are never surfaced.
@@ -117,15 +117,12 @@ final readonly class HostResourceBuilder
     ) {
     }
 
-    /**
-     * @param ?UserId $viewerId null when the viewer is unrestricted (admin)
-     */
-    public function build(Host $host, ?UserId $viewerId): HostResource
+    public function build(Host $host, Credential $actor): HostResource
     {
         $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
 
         // The aggregate carries the host's full associations; here, on the read side, a restricted
-        // viewer's view is narrowed to what they may access — the host groups, categories and
+        // actor's view is narrowed to what they may access — the host groups, categories and
         // severity are ACL-scoped, so an out-of-scope one is dropped from the response rather than
         // surfaced (no existence leak).
         // The id list is scoped first; the name lookup then runs on a list already known to be
@@ -133,7 +130,7 @@ final readonly class HostResourceBuilder
         // for the write paths that also load it.
         $groupIds = $this->scopeToAccessible(
             $host->hostGroupIds,
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId),
             HostGroupId::class,
         );
         $groupNames = $this->hostGroupRepository->findNamesByIds($groupIds)->toArray();
@@ -166,12 +163,12 @@ final readonly class HostResourceBuilder
 
         // Out-of-scope parent and child hosts are hidden, as the legacy host form does
         // (CentreonHost::getObjectForSelect2()).
-        $accessibleHostIds = $viewerId instanceof UserId
-            ? $this->resourceAccessRepository->findAccessibleHostIds(
-                $viewerId,
+        $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
+            ? null
+            : $this->resourceAccessRepository->findAccessibleHostIds(
+                $actor->userId,
                 new Collection([...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()], HostId::class),
-            )
-            : null;
+            );
         $parentHostIds = $this->scopeToAccessible($host->parentHostIds, $accessibleHostIds, HostId::class);
         $childHostIds = $this->scopeToAccessible($host->childHostIds, $accessibleHostIds, HostId::class);
         $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
@@ -184,7 +181,7 @@ final readonly class HostResourceBuilder
         // Out-of-scope categories are hidden.
         $categoryIds = $this->scopeToAccessible(
             $host->categoryIds,
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
             HostCategoryId::class,
         );
         $categoryNames = $this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray();
@@ -203,10 +200,10 @@ final readonly class HostResourceBuilder
         }
 
         // Severity is ACL-scoped too: an out-of-scope severity is hidden (left null) from a
-        // restricted viewer rather than surfaced.
+        // restricted actor rather than surfaced.
         if ($host->severityId instanceof HostSeverityId && $this->isAccessible(
             $host->severityId,
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
         )) {
             $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
             $resource->severity = $severityName instanceof HostSeverityName
@@ -265,7 +262,7 @@ final readonly class HostResourceBuilder
         // decision is applied here (not in findOne).
         $resource->notifications = $this->isCloudPlatform
             ? null
-            : $this->notificationsTransformer->transform($this->scopeNotifications($host->notifications, $viewerId));
+            : $this->notificationsTransformer->transform($this->scopeNotifications($host->notifications, $actor));
 
         return $resource;
     }
@@ -275,21 +272,21 @@ final readonly class HostResourceBuilder
      * legacy host form hides the out-of-scope ones (CentreonContact::getObjectForSelect2(),
      * CentreonContactgroup::getObjectForSelect2()).
      */
-    private function scopeNotifications(?Notifications $notifications, ?UserId $viewerId): ?Notifications
+    private function scopeNotifications(?Notifications $notifications, Credential $actor): ?Notifications
     {
-        if (! $notifications instanceof Notifications || ! $viewerId instanceof UserId) {
+        if (! $notifications instanceof Notifications || $actor->hasUnrestrictedResourceAccess()) {
             return $notifications;
         }
 
         return $notifications->withContacts(
             $this->scopeToAccessible(
                 $notifications->contactIds,
-                $this->resourceAccessRepository->findAccessibleContactIds($viewerId),
+                $this->resourceAccessRepository->findAccessibleContactIds($actor->userId),
                 NotificationContactId::class,
             ),
             $this->scopeToAccessible(
                 $notifications->contactGroupIds,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId),
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId),
                 ContactGroupId::class,
             ),
         );
@@ -346,7 +343,7 @@ final readonly class HostResourceBuilder
     }
 
     /**
-     * Keeps only the ids the viewer may access. A null $accessible means no restriction applies
+     * Keeps only the ids the actor may access. A null $accessible means no restriction applies
      * (admin, or an unrestricted dimension), so the ids pass through unchanged. The returned list is
      * known to be in-scope, so the follow-up name lookup needs no further filtering.
      *

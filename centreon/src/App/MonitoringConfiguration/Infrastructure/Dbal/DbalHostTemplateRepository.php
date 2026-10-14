@@ -35,7 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -526,18 +526,18 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->eq('h.host_locked', $qb->createNamedParameter(0, ParameterType::INTEGER)));
         }
 
-        $this->filterByViewer($qb, $criteria);
+        $this->filterByActor($qb, $criteria);
     }
 
-    private function filterByViewer(QueryBuilder $qb, HostTemplateCriteria $criteria): void
+    private function filterByActor(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
-        $viewerId = $criteria->getViewerId();
-        if (! $viewerId instanceof UserId) {
+        $actor = $criteria->getActor();
+        if (! $actor instanceof Credential || $actor->hasUnrestrictedResourceAccess()) {
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId);
-        // null means no host-severity restriction applies — the viewer sees every host template.
+        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId);
+        // null means no host-severity restriction applies — the actor sees every host template.
         if (! $accessibleHostSeverities instanceof Collection) {
             return;
         }
@@ -547,7 +547,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $accessibleHostSeverities->toArray()
         );
 
-        // An empty set means the viewer is restricted but grants no accessible severity: they must see
+        // An empty set means the actor is restricted but grants no accessible severity: they must see
         // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
         // filters out every severity-less template once a category restriction applies. Forcing an
         // always-false predicate avoids emitting an `IN ()` the driver would reject.
@@ -557,7 +557,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return;
         }
 
-        // Restricted viewer: keep only templates linked to an accessible host severity. This mirrors
+        // Restricted actor: keep only templates linked to an accessible host severity. This mirrors
         // legacy findByRequestParametersAndAccessGroups, whose "AND hc.hc_id IN (...)" is applied on a
         // join filtered by "hc.level IS NOT NULL", so a template linked only to a regular (levelless)
         // category — or to none — is excluded. The accessible set is already severity-scoped (see

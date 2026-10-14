@@ -59,17 +59,13 @@ final readonly class GetHostProvider implements ProviderInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
-        // Admin (unrestricted) sees every host; a restricted viewer is scoped in the query, and an
+        // An unrestricted actor sees every host; a restricted one is scoped in the query, and an
         // out-of-scope host comes back null, indistinguishable from a missing one (no existence leak).
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? null
-            : $credentialUser->credential->userId;
-
-        $host = $this->hostRepository->findOne($hostId, $viewerId);
+        $host = $this->hostRepository->findOne($hostId, $credentialUser->credential);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$hostId->value], 'id');
         }
 
-        return $this->resourceBuilder->build($host, $viewerId);
+        return $this->resourceBuilder->build($host, $credentialUser->credential);
     }
 }

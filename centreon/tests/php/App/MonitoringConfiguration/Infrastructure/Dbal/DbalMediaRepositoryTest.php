@@ -28,13 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalMediaRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\MediaTransformer;
-use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\Security\Infrastructure\Double\TestCredentials;
 
 final class DbalMediaRepositoryTest extends KernelTestCase
 {
@@ -146,7 +146,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         // one Access Group flagged all_image_folders='1': matches legacy's "sees everything" shortcut
         $this->linkContactToAclResourceForImageFolders($viewerId, restrictToImageFolderIds: [], allImageFolders: true);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withViewerId(new UserId($viewerId))));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestCredentials::restricted($viewerId))));
 
         self::assertContains("{$accessibleName}.png", $names);
     }
@@ -164,10 +164,11 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $viewerId = $this->createViewer();
         $this->linkContactToAclResourceForImageFolders($viewerId, restrictToImageFolderIds: [$restrictedDirId], allImageFolders: false);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withViewerId(new UserId($viewerId))));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestCredentials::restricted($viewerId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains($inaccessibleName, $names, 'Media in a folder not granted to the viewer must be excluded.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestCredentials::unrestricted($viewerId)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllReturnsNoMediaForARestrictedViewerWithNoAccessGroup(): void
@@ -177,7 +178,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         // a viewer whose own contact record carries no ACL group relation at all
         $viewerId = $this->createViewer();
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withViewerId(new UserId($viewerId))));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestCredentials::restricted($viewerId))));
 
         self::assertSame([], $names, 'A viewer with no active Access Group is restricted and sees no media.');
     }
@@ -189,7 +190,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $viewerId = $this->createViewer();
 
         $result = $this->repository->findAll(
-            (new MediaCriteria())->withViewerId(new UserId($viewerId))->withPagination(1, 10)
+            (new MediaCriteria())->withActor(TestCredentials::restricted($viewerId))->withPagination(1, 10)
         );
 
         self::assertInstanceOf(

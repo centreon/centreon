@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\Security\Domain\Aggregate\UserId;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Security\Infrastructure\Double\TestCredentials;
 
 final class ContactGroupCriteriaTest extends TestCase
 {
@@ -52,14 +52,15 @@ final class ContactGroupCriteriaTest extends TestCase
         self::assertSame(10, $pagination->itemsPerPage);
     }
 
-    public function testWithViewerIdLeavesTheOriginalUnchanged(): void
+    public function testWithActorLeavesTheOriginalUnchanged(): void
     {
         $criteria = new ContactGroupCriteria();
 
-        $new = $criteria->withViewerId(new UserId(7));
+        $actor = TestCredentials::restricted(7);
+        $new = $criteria->withActor($actor);
 
-        self::assertNull($criteria->getViewerId());
-        self::assertSame(7, $new->getViewerId()?->value);
+        self::assertNull($criteria->getActor());
+        self::assertSame($actor, $new->getActor());
     }
 
     public function testWithNameDeduplicates(): void

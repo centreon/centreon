@@ -21,32 +21,28 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
+namespace Tests\App\Security\Infrastructure\Double;
 
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\CredentialIdentifier;
+use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 
 /**
- * ACL scoping shared by the listing criteria that restrict results to what a
- * given viewer is allowed to see (Host, HostCategory, HostGroup, HostTemplate,
- * Poller).
+ * Builds the acting credential of a test: a super admin escapes ACL scoping, any other user is scoped.
  */
-trait ViewerScopedCriteriaTrait
+final class TestCredentials
 {
-    private ?UserId $viewerId = null;
-
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
+    public static function unrestricted(int $id = 1): Credential
     {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
+        $credential = self::restricted($id);
+        $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
 
-        return $new;
+        return $credential;
     }
 
-    public function getViewerId(): ?UserId
+    public static function restricted(int $id): Credential
     {
-        return $this->viewerId;
+        return new Credential(new CredentialIdentifier('user-' . $id), new UserId($id), active: true);
     }
 }

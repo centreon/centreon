@@ -146,8 +146,6 @@ final readonly class PutHostProcessor implements ProcessorInterface
         // block there, so the host simply carries none.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
-
         $command = new UpdateHostCommand(
             id: $hostId,
             name: new HostName($data->name),
@@ -178,14 +176,14 @@ final readonly class PutHostProcessor implements ProcessorInterface
         $host = $this->commandBus->execute($command);
         Assert::isInstanceOf($host, Host::class);
 
-        // A restricted viewer gets back only what they may see: the out-of-scope associations the
+        // A restricted actor gets back only what they may see: the out-of-scope associations the
         // update preserved stay hidden. The own macros are read
         // back as stored, since a macro created by this update only gets its id on insertion.
         return $this->resourceBuilder->build(
             $host->with(checkOptions: $host->checkOptions->with(
                 macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
             )),
-            $viewerId,
+            $credentialUser->credential,
         );
     }
 
