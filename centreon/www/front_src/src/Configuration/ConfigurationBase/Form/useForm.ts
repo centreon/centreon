@@ -2,16 +2,19 @@
 // TODO: re-enable type-check after fixing this file
 import { capitalize } from '@mui/material';
 
-import { ResponseError, useSnackbar } from '@centreon/ui';
+import { ResponseError, useBulkResponse, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
+import pluralize from 'pluralize';
+import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
+import type { MassChangeForm } from '../../models';
 import {
   useCreate as useCreateRequest,
   useGetOne as useGetDetails,
+  useMassUpdate,
   useUpdate as useUpdateRequest
 } from '../api';
 import {
@@ -20,7 +23,12 @@ import {
   isCloseConfirmationDialogOpenAtom,
   isFormDirtyAtom
 } from '../atoms';
+import { selectedRowsAtom } from '../Listing/atoms';
+import type { FormMode } from '../models';
 import {
+  labelFailedToUpdateResources,
+  labelFailedToUpdateSomeResources,
+  labelMassChange,
   labelModalTitle,
   labelResourceCreated,
   labelResourceUpdated
@@ -38,16 +46,28 @@ interface UseFormState {
   ) => void;
   close: () => void;
   isOpen: boolean;
-  mode: 'add' | 'edit';
+  mode: FormMode;
   id: number;
   initialValues;
   isLoading: boolean;
 }
 
-const useForm = ({ defaultValues, hasWriteAccess }): UseFormState => {
+interface Props {
+  defaultValues: object;
+  hasWriteAccess: boolean;
+  massChangeForm?: MassChangeForm;
+}
+
+const useForm = ({
+  defaultValues,
+  hasWriteAccess,
+  massChangeForm
+}: Props): UseFormState => {
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
+  const handleBulkResponse = useBulkResponse();
+  const setSelectedRows = useSetAtom(selectedRowsAtom);
 
   const [, setSearchParams] = useSearchParams(window.location.search);
 
@@ -63,16 +83,27 @@ const useForm = ({ defaultValues, hasWriteAccess }): UseFormState => {
 
   const labelResourceType = capitalize(resourceType as string);
   const isAddMode = equals(formState.mode, 'add');
+  const isMassChangeMode = equals(formState.mode, 'massChange');
+  const selection = formState.selection ?? [];
+  const massChangeIds = selection.map(({ id }) => id);
 
   const { data, isLoading } = useGetDetails({
     id: formState.id
   });
 
-  const initialValues =
-    data && equals(formState.mode, 'edit') ? data : defaultValues;
+  const getInitialValues = () => {
+    if (isMassChangeMode) {
+      return massChangeForm?.defaultValues;
+    }
+
+    return data && equals(formState.mode, 'edit') ? data : defaultValues;
+  };
+
+  const initialValues = getInitialValues();
 
   const { createMutation } = useCreateRequest();
   const { updateMutation } = useUpdateRequest();
+  const { massUpdateMutation } = useMassUpdate();
 
   const reset = (): void => {
     setSearchParams({});
@@ -107,7 +138,60 @@ const useForm = ({ defaultValues, hasWriteAccess }): UseFormState => {
     );
   };
 
+  const submitMassChange = (values, { setSubmitting }): void => {
+    const count = massChangeIds.length;
+
+    massUpdateMutation({
+      ids: massChangeIds,
+      payload: massChangeForm.adapter(values)
+    })
+      .then(({ results }) => {
+        // Names the rows that failed.
+        handleBulkResponse({
+          data: results,
+          items: selection,
+          labelFailed: t(
+            labelFailedToUpdateResources(pluralize(resourceType, count))
+          ),
+          labelSuccess: t(
+            labelResourceUpdated(pluralize(labelResourceType, count))
+          ),
+          labelWarning: t(labelFailedToUpdateSomeResources)
+        });
+
+        const failedIds = massChangeIds.filter(
+          (_id, index) => results[index]?.status !== 204
+        );
+
+        if (isEmpty(failedIds)) {
+          setSelectedRows([]);
+          reset();
+
+          return;
+        }
+
+        // The panel stays open on what was typed, now aimed at the rows that
+        // failed only: applying again leaves the updated ones alone.
+        setFormState((current) => ({
+          ...current,
+          selection: selection.filter(({ id }) => failedIds.includes(id))
+        }));
+        setSelectedRows((rows) =>
+          rows.filter(({ id }) => failedIds.includes(id))
+        );
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
+  };
+
   const submit = (values, { setSubmitting }): void => {
+    if (isMassChangeMode) {
+      submitMassChange(values, { setSubmitting });
+
+      return;
+    }
+
     const payload = adapter(values);
     const mutate = isAddMode
       ? createMutation
@@ -120,12 +204,14 @@ const useForm = ({ defaultValues, hasWriteAccess }): UseFormState => {
       });
   };
 
-  const labelHeader = t(
-    labelModalTitle({
-      action: !hasWriteAccess ? 'View' : isAddMode ? 'Add' : 'Modify',
-      type: resourceType
-    })
-  );
+  const labelHeader = isMassChangeMode
+    ? `${t(labelMassChange)} (${massChangeIds.length})`
+    : t(
+        labelModalTitle({
+          action: !hasWriteAccess ? 'View' : isAddMode ? 'Add' : 'Modify',
+          type: resourceType
+        })
+      );
 
   return {
     close,
