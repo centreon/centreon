@@ -7837,6 +7837,10 @@ msgid "Failed to save shares"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Failed to update"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Failed to update the dashboard"
 msgstr ""
 
@@ -14852,6 +14856,10 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Replacement"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Replacing the templates deletes the services created from the previous templates on every selected host."
 msgstr ""
 
 #: centreon/www/install/menu_translation.php

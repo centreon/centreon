@@ -20,6 +20,7 @@ import {
   labelLinkedContactGroups,
   labelLinkedContacts,
   labelMustBePositiveIntegerOrZero,
+  labelNo,
   labelNone,
   labelNotification,
   labelNotificationEnabled,
@@ -28,7 +29,8 @@ import {
   labelNotificationPeriod,
   labelRecovery,
   labelRecoveryNotificationDelay,
-  labelUnreachable
+  labelUnreachable,
+  labelYes
 } from '../../translatedLabels';
 import { buildSelector, toIds } from '../selector';
 import {
@@ -37,14 +39,18 @@ import {
   triStateDecoder,
   triStateOptions
 } from '../triState';
+import { getUpdateModeInput, withUpdateMode } from '../updateMode';
 import type { FormSection } from './models';
 
 // A number field holds `''` until something is typed.
 type OptionalNumber = number | '';
 
+// A mass change holds `'true'` / `'false'`, or null until one is picked.
+type AdditiveInheritance = boolean | 'true' | 'false' | null;
+
 interface NotificationsValues {
-  contactAdditiveInheritance: boolean;
-  contactGroupAdditiveInheritance: boolean;
+  contactAdditiveInheritance: AdditiveInheritance;
+  contactGroupAdditiveInheritance: AdditiveInheritance;
   contactGroups: Array<NamedEntity>;
   contacts: Array<NamedEntity>;
   enabled: TriState;
@@ -131,6 +137,21 @@ const notificationsDecoder = JsonDecoder.object<NotificationsValues>(
   }
 );
 
+const toApiBoolean = (value: AdditiveInheritance): boolean | null => {
+  if (value === 'true' || value === 'false') {
+    return value === 'true';
+  }
+
+  return value;
+};
+
+// A switch cannot say "leave it": in a mass change, nothing picked is
+// unchanged, as legacy's Yes / No radio.
+const additiveInheritanceOptions = [
+  { label: labelYes, value: 'true' },
+  { label: labelNo, value: 'false' }
+];
+
 const toApiNumber = (value: OptionalNumber | undefined): number | null =>
   value === '' || value === undefined ? null : Number(value);
 
@@ -164,7 +185,7 @@ export const notification: FormSection<NotificationDetail> = {
       JsonDecoder.nullable(notificationsDecoder)
     ).map((value) => value ?? defaultNotifications)
   },
-  getInputs: ({ t, isAdditiveInheritanceEnabled }) => {
+  getInputs: ({ t, isAdditiveInheritanceEnabled, isMassChange }) => {
     const enabled = {
       dataTestId: 'host-form-notifications-enabled',
       fieldName: 'notifications.enabled',
@@ -209,7 +230,16 @@ export const notification: FormSection<NotificationDetail> = {
             grid: {
               alignItems: 'center',
               className: 'grid-cols-[1fr_auto]',
-              columns: [selector, { ...toggle, type: InputType.Switch }]
+              columns: [
+                selector,
+                isMassChange
+                  ? {
+                      ...toggle,
+                      segmentedButtons: { options: additiveInheritanceOptions },
+                      type: InputType.SegmentedButtons
+                    }
+                  : { ...toggle, type: InputType.Switch }
+              ]
             },
             label: `${selector.dataTestId}-row`,
             type: InputType.Grid
@@ -293,7 +323,10 @@ export const notification: FormSection<NotificationDetail> = {
                       'host-form-notifications-contact-group-additive-inheritance',
                     fieldName: 'notifications.contactGroupAdditiveInheritance',
                     label: t(labelContactGroupAdditiveInheritance)
-                  })
+                  }),
+                  // One choice for contacts and contact groups, as legacy's
+                  // `mc_mod_hcg`.
+                  ...(isMassChange ? [getUpdateModeInput('contacts', t)] : [])
                 ]
               },
               label: 'host-form-notifications-recipients',
@@ -303,7 +336,15 @@ export const notification: FormSection<NotificationDetail> = {
               fieldName: 'notifications-when',
               grid: {
                 className: 'grid-cols-1',
-                columns: [options, delays]
+                columns: [
+                  withUpdateMode({
+                    field: 'notificationOptions',
+                    input: options,
+                    isMassChange,
+                    t
+                  }),
+                  delays
+                ]
               },
               label: 'host-form-notifications-when',
               type: InputType.Grid
@@ -333,10 +374,12 @@ export const notification: FormSection<NotificationDetail> = {
       notifications: {
         // Left to their server default where the form does not show them.
         ...(isAdditiveInheritanceEnabled && {
-          contact_additive_inheritance:
-            notifications.contactAdditiveInheritance,
-          contact_group_additive_inheritance:
+          contact_additive_inheritance: toApiBoolean(
+            notifications.contactAdditiveInheritance
+          ),
+          contact_group_additive_inheritance: toApiBoolean(
             notifications.contactGroupAdditiveInheritance
+          )
         }),
         contact_groups: toIds(notifications.contactGroups),
         contacts: toIds(notifications.contacts),
