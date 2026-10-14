@@ -41,8 +41,10 @@ export const Default = ({
           <MemoryRouter>
             <Widget
               dashboardId={1}
+              hasDescription={false}
               globalRefreshInterval={{ interval: 30, type: 'global' }}
               id="1"
+              isInViewport
               panelData={data as unknown as Data}
               panelOptions={
                 {
@@ -61,6 +63,7 @@ export const Default = ({
               }
               playlistHash="hash"
               refreshCount={0}
+              widgetPrefixQuery="widget"
             />
           </MemoryRouter>
         </Provider>
