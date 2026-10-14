@@ -4,8 +4,12 @@ import {
 } from '../../www/front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/WidgetProperties/Inputs/Checboxes/translatedLabels';
 import {
   labelCriticalThreshold,
+  labelCustomize,
+  labelFrom,
   labelShowThresholds,
   labelThresholds,
+  labelTimePeriod,
+  labelTo,
   labelWarningThreshold
 } from '../../www/front_src/src/Dashboards/SingleInstancePage/Dashboard/translatedLabels';
 import { expect, test } from './fixtures';
@@ -414,5 +418,84 @@ test.describe('Threshold', () => {
     await expect(
       component.getByTestId('custom').first().locator('input')
     ).toBeDisabled();
+  });
+});
+
+test.describe('Time period', () => {
+  const storyId = 'TimePeriod/TimePeriod/Default';
+  const options = { timeperiod: { end: null, start: null } };
+  // Hours, as declared in useTimePeriod.ts.
+  const periods = [
+    { hours: 3, name: 'Last 3 hours' },
+    { hours: 6, name: 'Last 6 hours' },
+    { hours: 12, name: 'Last 12 hours' },
+    { hours: 24, name: 'Last 24 hours' },
+    { hours: 168, name: 'Last 7 days' },
+    { hours: 336, name: 'Last 14 days' },
+    { hours: 720, name: 'Last 30 days' },
+    { hours: 1440, name: 'Last 2 months' },
+    { hours: 2160, name: 'Last 3 months' }
+  ];
+
+  test.use({ viewport: { height: 800, width: 1280 } });
+
+  test.beforeEach(async ({ page }) => {
+    await page.clock.setFixedTime(new Date('2023-06-05T08:00:00Z'));
+  });
+
+  test('preselects the last hour', async ({
+    expectThemedScreenshot,
+    mount
+  }) => {
+    const component = await mount(storyId, { options });
+
+    await expect(component.getByText(labelTimePeriod)).toBeVisible();
+    await expect(component.getByTestId(labelTimePeriod)).toHaveValue('1');
+
+    await expectThemedScreenshot(component, 'time-period');
+  });
+
+  for (const { hours, name } of periods) {
+    test(`selects ${name.toLowerCase()}`, async ({ mount, page }) => {
+      const component = await mount(storyId, { options });
+
+      await component.getByRole('combobox').click();
+      await page.getByRole('option', { exact: true, name }).click();
+
+      await expect(component.getByTestId(labelTimePeriod)).toHaveValue(
+        String(hours)
+      );
+    });
+  }
+
+  test('presets the custom range to the last hour', async ({ mount, page }) => {
+    const component = await mount(storyId, { options });
+
+    await component.getByRole('combobox').click();
+    await page.getByRole('option', { name: labelCustomize }).click();
+
+    await expect(component.getByLabel(labelFrom).locator('input')).toHaveValue(
+      '06/05/2023 07:00 AM'
+    );
+    await expect(component.getByLabel(labelTo).locator('input')).toHaveValue(
+      '06/05/2023 08:00 AM'
+    );
+  });
+
+  test('is disabled without edition rights', async ({ mount }) => {
+    const component = await mount(storyId, { canEdit: false, options });
+
+    await expect(component.getByTestId(labelTimePeriod)).toBeDisabled();
+  });
+
+  test('renders its title as a subtitle out of a group', async ({ mount }) => {
+    const outOfGroup = await mount(storyId, { options });
+    await expect(outOfGroup.locator('h6')).toHaveCount(1);
+
+    const inGroup = await mount(storyId, {
+      inputProps: { isInGroup: true },
+      options
+    });
+    await expect(inGroup.locator('h6')).toHaveCount(0);
   });
 });
