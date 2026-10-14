@@ -28,6 +28,8 @@ use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
@@ -67,12 +69,15 @@ use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
+use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
+use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeCommandRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeContactGroupRepository;
@@ -86,11 +91,13 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationCont
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
+use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 
 final class PatchHostCommandHandlerRelationsTest extends TestCase
 {
@@ -130,6 +137,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->eventBus = new EventBusSpy();
         $vault = new FakeVault();
         $commandRepository = new FakeCommandRepository();
+        $logger = new LoggerSpy();
 
         $this->handler = new PatchHostCommandHandler(
             $this->repository,
@@ -153,10 +161,18 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->resourceAccessRepository,
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
+            new HostMacrosUpdater(
+                new InheritedHostMacrosResolver($this->hostTemplateRepository, $commandRepository),
+                new HostMacroChangesResolver(),
+                new FakeStandardMacroRepository(),
+                $vault,
+            ),
+            new HostMacroSecretsSynchronizer($vault, new VaultCredentialWriter($vault)),
             $vault,
             new VaultCredentialWriter($vault),
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
+            $logger,
         );
 
         foreach ([1, 2, 3] as $id) {
@@ -438,6 +454,120 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         ($this->handler)($this->command(contactGroupIds: ListChange::add([new ContactGroupId(99)])));
     }
 
+    /**
+     * @param list<int> $seed what the host links to before
+     * @param list<int> $given what the update gives
+     * @param list<int> $expected what the host links to after
+     */
+    #[DataProvider('listChanges')]
+    public function testEveryListIsReplacedAddedToRemovedFromAndCleared(string $list, string $mode, array $seed, array $given, array $expected, bool $changes): void
+    {
+        $descriptors = $this->listDescriptors();
+        $descriptor = $descriptors[$list];
+        foreach ([1, 2, 3] as $hostId) {
+            $this->seedOtherHost($hostId);
+        }
+        $this->seedHost(...[$descriptor['seed'] => $seed]);
+        $untouchedBefore = [];
+        $host = $this->repository->hosts[self::HOST_ID];
+        foreach ($descriptors as $name => $other) {
+            $untouchedBefore[$name] = $other['read']($host);
+        }
+
+        $ids = array_map(static fn (int $id): object => new ($descriptor['id'])($id), $given);
+        $change = match ($mode) {
+            'replace' => ListChange::replace($ids),
+            'add' => ListChange::add($ids),
+            'remove' => ListChange::remove($ids),
+            default => throw new \InvalidArgumentException('Unknown mode ' . $mode),
+        };
+
+        /** @var PatchHostCommand $command */
+        $command = (new \ReflectionClass(PatchHostCommand::class))->newInstanceArgs(['id' => new HostId(self::HOST_ID), 'updatedBy' => 1, $descriptor['command'] => $change]);
+        $result = ($this->handler)($command);
+
+        self::assertSame($expected, $descriptor['read']($result), $list);
+        foreach ($descriptors as $name => $other) {
+            if ($name !== $list) {
+                self::assertSame($untouchedBefore[$name], $other['read']($result), $name . ' is left alone');
+            }
+        }
+        self::assertCount($changes ? 1 : 0, $this->repository->relationsReplacedHosts, 'the relations are rewritten only when they change');
+        self::assertSame($changes, $this->eventBus->getDispatchedEvents(HostMassChanged::class) !== [], 'the change is notified only when there is one');
+    }
+
+    /**
+     * @return iterable<string, array{string, string, list<int>, list<int>, list<int>, bool}>
+     */
+    public static function listChanges(): iterable
+    {
+        foreach (['host groups', 'templates', 'categories', 'parents', 'children', 'contacts', 'contact groups'] as $list) {
+            yield $list . ': replaced' => [$list, 'replace', [1, 2], [3], [3], true];
+
+            yield $list . ': replaced by the same' => [$list, 'replace', [1, 2], [1, 2], [1, 2], false];
+
+            yield $list . ': cleared' => [$list, 'replace', [1, 2], [], [], true];
+
+            yield $list . ': added to' => [$list, 'add', [1, 2], [3], [1, 2, 3], true];
+
+            yield $list . ': added what is there' => [$list, 'add', [1, 2], [2], [1, 2], false];
+
+            yield $list . ': removed from' => [$list, 'remove', [1, 2], [1], [2], true];
+
+            yield $list . ': removed what is not there' => [$list, 'remove', [1, 2], [3], [1, 2], false];
+        }
+
+        // The templates are in the order of their precedence: the order is part of the list.
+        yield 'templates: reordered' => ['templates', 'replace', [1, 2], [2, 1], [2, 1], true];
+    }
+
+    /**
+     * @param list<NotificationOptionEnum> $seed
+     * @param list<NotificationOptionEnum> $given
+     * @param list<NotificationOptionEnum> $expected
+     */
+    #[DataProvider('optionChanges')]
+    public function testTheNotificationOptionsAreReplacedAddedToRemovedFromAndCleared(string $mode, array $seed, array $given, array $expected): void
+    {
+        $this->seedHost(options: $seed);
+        $change = match ($mode) {
+            'replace' => ListChange::replace($given),
+            'add' => ListChange::add($given),
+            'remove' => ListChange::remove($given),
+            default => throw new \InvalidArgumentException('Unknown mode ' . $mode),
+        };
+
+        $result = ($this->handler)($this->command(notifications: new NotificationsChanges(options: $change)));
+
+        self::assertSame($expected, $this->optionsOf($result));
+    }
+
+    /**
+     * @return iterable<string, array{string, list<NotificationOptionEnum>, list<NotificationOptionEnum>, list<NotificationOptionEnum>}>
+     */
+    public static function optionChanges(): iterable
+    {
+        $down = NotificationOptionEnum::Down;
+        $recovery = NotificationOptionEnum::Recovery;
+        $flapping = NotificationOptionEnum::Flapping;
+
+        yield 'replaced' => ['replace', [$down, $recovery], [NotificationOptionEnum::Unreachable], [NotificationOptionEnum::Unreachable]];
+
+        yield 'cleared' => ['replace', [$down, $recovery], [], []];
+
+        yield 'replaced by none' => ['replace', [$down, $recovery], [NotificationOptionEnum::None], [NotificationOptionEnum::None]];
+
+        yield 'added to' => ['add', [$down, $recovery], [$flapping], [$down, $recovery, $flapping]];
+
+        yield 'added what is there' => ['add', [$down, $recovery], [$down], [$down, $recovery]];
+
+        yield 'removed from' => ['remove', [$down, $recovery], [$down], [$recovery]];
+
+        yield 'removed all' => ['remove', [$down, $recovery], [$down, $recovery], []];
+
+        yield 'removed what is not there' => ['remove', [$down], [$flapping], [$down]];
+    }
+
     public function testNoneCannotJoinTheOptionsTheHostAlreadyHas(): void
     {
         $this->seedHost(options: [NotificationOptionEnum::Down]);
@@ -531,6 +661,28 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         ($this->handler)($this->command(alias: new HostAlias('back'), deployServicesFromTemplates: true));
 
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    /**
+     * What each list of the host holds, and how to put it in the command and in the seeded host.
+     *
+     * @return array<string, array{seed: string, command: string, id: class-string, read: \Closure(Host): list<int>}>
+     */
+    private function listDescriptors(): array
+    {
+        return [
+            'host groups' => ['seed' => 'hostGroupIds', 'command' => 'hostGroupIds', 'id' => HostGroupId::class, 'read' => fn (Host $host): array => $this->ids($host->hostGroupIds)],
+            'templates' => ['seed' => 'templateIds', 'command' => 'templateIds', 'id' => HostTemplateId::class, 'read' => fn (Host $host): array => $this->ids($host->templateIds)],
+            'categories' => ['seed' => 'categoryIds', 'command' => 'categoryIds', 'id' => HostCategoryId::class, 'read' => fn (Host $host): array => $this->ids($host->categoryIds)],
+            'parents' => ['seed' => 'parentIds', 'command' => 'parentHostIds', 'id' => HostId::class, 'read' => fn (Host $host): array => $this->ids($host->parentHostIds)],
+            'children' => ['seed' => 'childIds', 'command' => 'childHostIds', 'id' => HostId::class, 'read' => fn (Host $host): array => $this->ids($host->childHostIds)],
+            'contacts' => ['seed' => 'contactIds', 'command' => 'contactIds', 'id' => NotificationContactId::class, 'read' => fn (Host $host): array => $this->contactIdsOf($host)],
+            'contact groups' => ['seed' => 'contactGroupIds', 'command' => 'contactGroupIds', 'id' => ContactGroupId::class, 'read' => function (Host $host): array {
+                \assert($host->notifications instanceof Notifications);
+
+                return $this->ids($host->notifications->contactGroupIds);
+            }],
+        ];
     }
 
     /**
