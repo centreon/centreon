@@ -39,6 +39,14 @@ interface ComponentFixtures {
    * navigates to the gallery.
    */
   mockApi: (options: MockApiOptions) => Promise<MockedEndpoint>;
+  /**
+   * Mounts a data story and returns what it published on window: test data
+   * whose modules Node cannot load (@centreon/ui, SVG imports).
+   */
+  loadStoryData: <T = unknown>(
+    storyId: string,
+    globalName: string
+  ) => Promise<T>;
   /** Fails the test on React errors raised after mount(). */
   noGalleryErrors: undefined;
 }
@@ -63,6 +71,21 @@ export const test = base.extend<ComponentFixtures>({
         await expect(target).toHaveScreenshot(`${name}-${colorScheme}.png`);
       }
       await page.emulateMedia({ colorScheme: 'light' });
+    });
+  },
+
+  loadStoryData: async ({ mount, page }, use) => {
+    await use(async (storyId, globalName) => {
+      await mount(storyId as never);
+      await page.waitForFunction(
+        (name) => Boolean((window as unknown as Record<string, unknown>)[name]),
+        globalName
+      );
+
+      return page.evaluate(
+        (name) => (window as unknown as Record<string, unknown>)[name],
+        globalName
+      ) as never;
     });
   },
 
