@@ -2407,6 +2407,8 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.is_cloud == 'false'
     runs-on: centreon-ubuntu-26.04-small
+    # setup steps (checkout, Harbor login, crane) must not fail the workflow either
+    continue-on-error: true
     permissions:
       contents: read
       id-token: write
