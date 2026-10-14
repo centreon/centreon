@@ -3,16 +3,21 @@ import { test as base, expect, type Locator } from '@playwright/test';
 type Method = 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
 
 interface MockApiOptions {
+  /** Delay before answering, to observe loading states. */
+  delay?: number;
   /** Centreon endpoint as declared in the app, e.g. './api/latest/...'. */
   endpoint: string;
   method?: Method;
-  response?: unknown;
+  /** JSON body, or a function of the request URL (query-based APIs). */
+  response?: unknown | ((url: URL) => unknown);
   status?: number;
 }
 
 interface MockedEndpoint {
   /** JSON bodies of the requests received so far, in order. */
   bodies: Array<unknown>;
+  /** URLs of the requests received so far, in order. */
+  urls: Array<URL>;
 }
 
 interface ComponentFixtures {
@@ -40,11 +45,17 @@ export const test = base.extend<ComponentFixtures>({
 
   mockApi: async ({ page }, use) => {
     await use(
-      async ({ endpoint, method = 'GET', response = {}, status = 200 }) => {
-        const mocked: MockedEndpoint = { bodies: [] };
+      async ({
+        delay = 0,
+        endpoint,
+        method = 'GET',
+        response = {},
+        status = 200
+      }) => {
+        const mocked: MockedEndpoint = { bodies: [], urls: [] };
         // App endpoints are relative to the page ('./api/...'): drop the dot so
         // the glob matches the resolved URL, whatever the query string.
-        const path = endpoint.replace(/^\.\//, '');
+        const path = endpoint.replace(/^\.\//, '').split('?')[0];
 
         await page.route(
           (url) => url.pathname.endsWith(`/${path}`),
@@ -54,8 +65,15 @@ export const test = base.extend<ComponentFixtures>({
 
               return;
             }
+            const url = new URL(route.request().url());
             mocked.bodies.push(route.request().postDataJSON());
-            await route.fulfill({ json: response, status });
+            mocked.urls.push(url);
+            if (delay > 0) {
+              await new Promise((resolve) => setTimeout(resolve, delay));
+            }
+            const json =
+              typeof response === 'function' ? response(url) : response;
+            await route.fulfill({ json, status });
           }
         );
 
