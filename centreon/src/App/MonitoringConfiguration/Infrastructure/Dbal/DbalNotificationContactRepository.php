@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -94,7 +94,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
     {
         $accessibleContactIds = null;
         $actor = $criteria?->getActor();
-        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
             $accessibleContactIds = array_map(
                 static fn (NotificationContactId $id): int => $id->value,
                 $this->resourceAccessRepository->findAccessibleContactIds($actor->userId)->toArray(),

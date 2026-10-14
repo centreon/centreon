@@ -59,7 +59,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -97,7 +97,7 @@ final readonly class CreateHostCommandHandler
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        $actor = $this->credentialRepository->getById($command->creatorId);
+        $actor = $this->credentialRepository->getById($command->creatorId)->actingUser();
 
         // References are authorized before the name is looked up: otherwise a restricted actor
         // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
@@ -203,7 +203,7 @@ final readonly class CreateHostCommandHandler
     /**
      * @param Collection<HostGroupId> $hostGroupIds
      */
-    private function assertHostGroupsExist(Collection $hostGroupIds, Credential $actor): void
+    private function assertHostGroupsExist(Collection $hostGroupIds, ActingUser $actor): void
     {
         if (count($hostGroupIds) === 0) {
             return;
@@ -296,7 +296,7 @@ final readonly class CreateHostCommandHandler
     /**
      * @param Collection<HostCategoryId> $categoryIds
      */
-    private function assertCategoriesExist(Collection $categoryIds, Credential $actor): void
+    private function assertCategoriesExist(Collection $categoryIds, ActingUser $actor): void
     {
         $missingIds = $this->missingIds(
             $categoryIds,
@@ -309,7 +309,7 @@ final readonly class CreateHostCommandHandler
         }
     }
 
-    private function assertSeverityExists(?HostSeverityId $severityId, Credential $actor): void
+    private function assertSeverityExists(?HostSeverityId $severityId, ActingUser $actor): void
     {
         if (! $severityId instanceof HostSeverityId) {
             return;
@@ -361,7 +361,7 @@ final readonly class CreateHostCommandHandler
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, Credential $actor): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ActingUser $actor): void
     {
         $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
             ? null

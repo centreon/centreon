@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -143,7 +143,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
     private function filterByActor(QueryBuilder $qb, HostCategoryCriteria $criteria): void
     {
         $actor = $criteria->getActor();
-        if (! $actor instanceof Credential || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $actor instanceof ActingUser || $actor->hasUnrestrictedResourceAccess()) {
             return;
         }
 

@@ -42,7 +42,7 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 
@@ -66,7 +66,7 @@ final readonly class HostReferencesChecker
     ) {
     }
 
-    public function assertPollerAccessible(PollerId $pollerId, Credential $actor): void
+    public function assertPollerAccessible(PollerId $pollerId, ActingUser $actor): void
     {
         $this->pollerRepository->get($pollerId);
 
@@ -75,7 +75,7 @@ final readonly class HostReferencesChecker
         }
     }
 
-    public function assertSeverityAccessible(HostSeverityId $severityId, Credential $actor): void
+    public function assertSeverityAccessible(HostSeverityId $severityId, ActingUser $actor): void
     {
         if (! $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName) {
             throw new HostSeverityNotFoundException($severityId->value);

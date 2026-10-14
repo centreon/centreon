@@ -35,7 +35,7 @@ use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
-use Tests\App\Security\Infrastructure\Double\TestCredentials;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class DbalNotificationContactRepositoryTest extends KernelTestCase
 {
@@ -150,11 +150,11 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $aclGroupId = $this->createAccessGroupForViewer($viewerId);
         $this->linkContactToAccessGroup($accessibleId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestCredentials::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains($inaccessibleName, $names, 'A contact with no ACL group relation at all is excluded.');
-        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestCredentials::unrestricted($viewerId)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::unrestricted($viewerId)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllRestrictsToContactsBelongingToAContactGroupLinkedToViewerAccessGroup(): void
@@ -170,7 +170,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->addContactToContactGroup($accessibleId, $contactGroupId);
         $this->linkContactGroupToAccessGroup($contactGroupId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestCredentials::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
 
         self::assertContains($accessibleName, $names);
         self::assertNotContains(
@@ -187,7 +187,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         // a viewer whose own contact record carries no ACL group relation at all
         $viewerId = $this->createViewer();
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestCredentials::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
 
         self::assertSame([], $names, 'A viewer with no active Access Group is restricted and sees no contact.');
     }
@@ -199,7 +199,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $viewerId = $this->createViewer();
 
         $result = $this->repository->findAll(
-            (new NotificationContactCriteria())->withActor(TestCredentials::restricted($viewerId))->withPagination(1, 10)
+            (new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))->withPagination(1, 10)
         );
 
         self::assertInstanceOf(
@@ -227,7 +227,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->addContactToContactGroup($contactId, $contactGroupId);
         $this->linkContactGroupToAccessGroup($contactGroupId, $aclGroupId);
 
-        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestCredentials::restricted($viewerId))));
+        $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withActor(TestActingUsers::restricted($viewerId))));
 
         self::assertSame(1, array_count_values($names)[$name] ?? 0, 'A contact matching both ACL branches at once must still appear exactly once.');
     }

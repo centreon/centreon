@@ -47,7 +47,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
@@ -76,7 +76,7 @@ final readonly class HostRelationsUpdater
     ) {
     }
 
-    public function applyTo(Host $host, PatchHostCommand $command, Credential $actor): Host
+    public function applyTo(Host $host, PatchHostCommand $command, ActingUser $actor): Host
     {
         $reachableHostIds = $this->reachableHostIds($host, $command, $actor);
         $isHostVisible = $actor->hasUnrestrictedResourceAccess()
@@ -137,7 +137,7 @@ final readonly class HostRelationsUpdater
         return $this->withContacts($updated, $command, $actor);
     }
 
-    private function withContacts(Host $host, PatchHostCommand $command, Credential $actor): Host
+    private function withContacts(Host $host, PatchHostCommand $command, ActingUser $actor): Host
     {
         if ($command->contactIds instanceof NoValue && $command->contactGroupIds instanceof NoValue) {
             return $host;
@@ -309,7 +309,7 @@ final readonly class HostRelationsUpdater
      *
      * @return list<int>
      */
-    private function reachableHostIds(Host $host, PatchHostCommand $command, Credential $actor): array
+    private function reachableHostIds(Host $host, PatchHostCommand $command, ActingUser $actor): array
     {
         $changes = array_filter([$command->parentHostIds, $command->childHostIds], static fn (NoValue|ListChange $change): bool => $change instanceof ListChange);
         if ($changes === []) {

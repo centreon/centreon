@@ -29,7 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
@@ -109,7 +109,7 @@ final class FakeHostRepository implements HostRepository
      * repository) for a host outside their scope, so the ACL not-found path is exercised
      * at the handler layer.
      */
-    public function findOne(HostId $id, Credential $actor): ?Host
+    public function findOne(HostId $id, ActingUser $actor): ?Host
     {
         $host = $this->hosts[$id->value] ?? null;
         if ($host === null) {
@@ -219,7 +219,7 @@ final class FakeHostRepository implements HostRepository
         return new Collection(array_values($this->hosts), Host::class);
     }
 
-    public function findAccessibleNamesByIds(Collection $ids, Credential $actor): Collection
+    public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection
     {
         if ($actor->hasUnrestrictedResourceAccess() || $this->accessibleHostIds === null) {
             return $this->findNamesByIds($ids);

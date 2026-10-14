@@ -73,7 +73,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTim
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\RelatedHostOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\TimePeriod\TimePeriodResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
@@ -117,7 +117,7 @@ final readonly class HostResourceBuilder
     ) {
     }
 
-    public function build(Host $host, Credential $actor): HostResource
+    public function build(Host $host, ActingUser $actor): HostResource
     {
         $pollerName = $this->pollerRepository->findNamesByIds(new Collection([$host->pollerId], PollerId::class))->toArray();
 
@@ -272,7 +272,7 @@ final readonly class HostResourceBuilder
      * legacy host form hides the out-of-scope ones (CentreonContact::getObjectForSelect2(),
      * CentreonContactgroup::getObjectForSelect2()).
      */
-    private function scopeNotifications(?Notifications $notifications, Credential $actor): ?Notifications
+    private function scopeNotifications(?Notifications $notifications, ActingUser $actor): ?Notifications
     {
         if (! $notifications instanceof Notifications || $actor->hasUnrestrictedResourceAccess()) {
             return $notifications;

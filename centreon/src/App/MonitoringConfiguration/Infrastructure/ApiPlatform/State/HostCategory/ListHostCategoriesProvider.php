@@ -78,7 +78,7 @@ final readonly class ListHostCategoriesProvider implements ProviderInterface
 
         // Unrestricted users (super admins and Cloud tenant admins, matching legacy
         // FindHostCategories::isUserAdmin) see every host category; others are scoped to their accessible categories.
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostCategories = $this->repository->findAll($criteria);
         $resources = [];

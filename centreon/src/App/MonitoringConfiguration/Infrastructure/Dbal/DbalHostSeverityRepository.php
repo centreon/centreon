@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -133,7 +133,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
     private function filterByActor(QueryBuilder $qb, HostSeverityCriteria $criteria): void
     {
         $actor = $criteria->getActor();
-        if (! $actor instanceof Credential || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $actor instanceof ActingUser || $actor->hasUnrestrictedResourceAccess()) {
             return;
         }
 

@@ -81,7 +81,7 @@ final readonly class ListHostSeveritiesProvider implements ProviderInterface
 
         // Unrestricted users (super admins and Cloud tenant admins, matching legacy
         // FindHostSeverities::isUserAdmin) see every host severity; others are scoped to their accessible severities.
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostSeverities = $this->repository->findAll($criteria);
         $resources = [];

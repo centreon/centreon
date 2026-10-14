@@ -34,7 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -233,7 +233,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         }
     }
 
-    public function findOne(HostId $id, Credential $actor): ?Host
+    public function findOne(HostId $id, ActingUser $actor): ?Host
     {
         if (
             ! $actor->hasUnrestrictedResourceAccess()
@@ -452,7 +452,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         $accessibleHostIds = null;
         $actor = $criteria?->getActor();
-        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
             $accessibleHostIds = $this->findAccessibleHostIdValues($actor->userId);
             if ($accessibleHostIds === []) {
                 return new Collection([], Host::class);
@@ -531,7 +531,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         ];
     }
 
-    public function findAccessibleNamesByIds(Collection $ids, Credential $actor): Collection
+    public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection
     {
         if ($actor->hasUnrestrictedResourceAccess()) {
             return $this->findNamesByIds($ids);

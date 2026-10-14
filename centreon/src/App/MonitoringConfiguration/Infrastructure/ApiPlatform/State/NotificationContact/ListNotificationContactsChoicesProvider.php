@@ -82,7 +82,7 @@ final readonly class ListNotificationContactsChoicesProvider implements Provider
             $criteria = $criteria->withName($name);
         }
 
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $contacts = $this->repository->findAll($criteria);
         $resources = [];

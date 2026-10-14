@@ -78,7 +78,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
 
         // Users with unrestricted resource access see every host template; others are scoped to their
         // accessible host severities.
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];

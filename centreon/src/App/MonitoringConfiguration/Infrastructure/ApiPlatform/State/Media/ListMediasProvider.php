@@ -82,7 +82,7 @@ final readonly class ListMediasProvider implements ProviderInterface
             $criteria = $criteria->withName($name);
         }
 
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $medias = $this->repository->findAll($criteria);
         $resources = [];

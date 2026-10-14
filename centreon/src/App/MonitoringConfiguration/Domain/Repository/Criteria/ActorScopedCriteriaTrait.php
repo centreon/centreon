@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 
 /**
  * ACL scoping shared by the listing criteria that restrict results to what the acting user is allowed
@@ -31,9 +31,9 @@ use App\Security\Domain\Aggregate\Credential;
  */
 trait ActorScopedCriteriaTrait
 {
-    private ?Credential $actor = null;
+    private ?ActingUser $actor = null;
 
-    public function withActor(Credential $actor): self
+    public function withActor(ActingUser $actor): self
     {
         $new = clone $this;
         $new->actor = $actor;
@@ -41,7 +41,7 @@ trait ActorScopedCriteriaTrait
         return $new;
     }
 
-    public function getActor(): ?Credential
+    public function getActor(): ?ActingUser
     {
         return $this->actor;
     }
