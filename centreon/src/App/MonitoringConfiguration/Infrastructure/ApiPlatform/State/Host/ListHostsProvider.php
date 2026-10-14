@@ -118,9 +118,7 @@ final readonly class ListHostsProvider implements ProviderInterface
 
         $criteria = $this->handleSort($filters, $criteria);
 
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $criteria->withActor($credentialUser->credential);
 
         $hosts = $this->repository->findAll($criteria);
         $hostList = array_values(iterator_to_array($hosts));

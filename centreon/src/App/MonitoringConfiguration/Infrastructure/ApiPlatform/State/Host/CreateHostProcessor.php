@@ -143,8 +143,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         // response omits the key rather than advertising a feature that platform lacks.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
-
         $command = new CreateHostCommand(
             name: new HostName($data->name),
             address: new HostAddress($data->address),
@@ -179,7 +177,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             $host->with(checkOptions: $host->checkOptions->with(
                 macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
             )),
-            $viewerId,
+            $credentialUser->credential,
         );
     }
 

@@ -28,10 +28,8 @@ use PHPUnit\Framework\TestCase;
 
 final class NotificationContactCriteriaTest extends TestCase
 {
-    // Pagination immutability is already covered generically by PaginableCriteriaTest, and
-    // viewer-scoping immutability has no dedicated test anywhere ViewerScopedCriteriaTrait is used
-    // (Host, HostCategory, HostGroup, HostTemplate, Poller) since NotificationContactCriteria only
-    // wires both traits in without overriding their behavior.
+    // Pagination and actor-scoping immutability are covered by PaginableCriteriaTest and
+    // ContactGroupCriteriaTest, since this criteria only wires both traits in without overriding them.
 
     public function testWithNameReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
     {

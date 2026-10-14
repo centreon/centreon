@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -100,12 +100,13 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
             ->andWhere("cg.cg_name IS NOT NULL AND cg.cg_name != ''")
             ->orderBy('cg.cg_id'); // required for deterministic pagination
 
-        // ACL data-scoping: a non-admin viewer only sees the contact groups reachable through
-        // their access groups or their own membership. An admin passes a null viewerId (no scoping).
-        if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
+        // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
+        // their access groups or their own membership. An unrestricted actor, or none, means no scoping.
+        $actor = $criteria->getActor();
+        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
             $accessibleIds = array_map(
                 static fn (ContactGroupId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId)->toArray(),
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId)->toArray(),
             );
             if ($accessibleIds === []) {
                 // No accessible contact group: match nothing, but keep the normal (paginator) shape.

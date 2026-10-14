@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -127,18 +127,18 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->like('hc.hc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $this->filterByViewer($qb, $criteria);
+        $this->filterByActor($qb, $criteria);
     }
 
-    private function filterByViewer(QueryBuilder $qb, HostSeverityCriteria $criteria): void
+    private function filterByActor(QueryBuilder $qb, HostSeverityCriteria $criteria): void
     {
-        $viewerId = $criteria->getViewerId();
-        if (! $viewerId instanceof UserId) {
+        $actor = $criteria->getActor();
+        if (! $actor instanceof Credential || $actor->hasUnrestrictedResourceAccess()) {
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId);
-        // null means no host-severity restriction applies — the viewer sees every severity.
+        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId);
+        // null means no host-severity restriction applies — the actor sees every severity.
         if (! $accessibleHostSeverities instanceof Collection) {
             return;
         }
@@ -148,7 +148,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             $accessibleHostSeverities->toArray()
         );
 
-        // A non-null but empty set means the viewer is restricted on host severities yet granted
+        // A non-null but empty set means the actor is restricted on host severities yet granted
         // none (e.g. their ACL points only at levelless categories): they see nothing. Mirrors legacy,
         // where hasRestrictedAccessToHostSeverities is true but findAllByAccessGroups returns no row.
         if ($accessibleHostSeverityIds === []) {
@@ -157,7 +157,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             return;
         }
 
-        // Restrict to severities the viewer can access. findAccessibleHostSeverityIds already scopes
+        // Restrict to severities the actor can access. findAccessibleHostSeverityIds already scopes
         // the set to level-bearing categories, so it never carries a levelless category id.
         $qb->andWhere(
             'hc.hc_id IN (' . $qb->createNamedParameter(

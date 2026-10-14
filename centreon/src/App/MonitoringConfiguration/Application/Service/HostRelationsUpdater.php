@@ -323,7 +323,7 @@ final readonly class HostRelationsUpdater
 
         return array_map(
             intval(...),
-            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class), $actor->hasUnrestrictedResourceAccess() ? null : $actor->userId)->toArray()),
+            array_keys($this->hostRepository->findAccessibleNamesByIds(new Collection($ids, HostId::class), $actor)->toArray()),
         );
     }
 

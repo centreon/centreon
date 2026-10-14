@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -85,8 +85,9 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
     public function findAll(?MediaCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $accessibleFolderIds = null;
-        if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($viewerId);
+        $actor = $criteria?->getActor();
+        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+            $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($actor->userId);
             if ($accessibleFolderIds instanceof Collection && $accessibleFolderIds->count() === 0) {
                 return $this->emptyResult($criteria);
             }
@@ -165,7 +166,7 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
     }
 
     /**
-     * A restricted viewer with no accessible image folder short-circuits before any query runs.
+     * A restricted actor with no accessible image folder short-circuits before any query runs.
      * When pagination was requested, the response must still carry the pagination envelope (page,
      * page size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise
      * tell "zero matches" from "pagination metadata omitted".

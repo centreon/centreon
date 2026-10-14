@@ -40,6 +40,7 @@ use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\Security\Infrastructure\Double\TestCredentials;
 
 final class DbalHostTemplateRepositoryTest extends KernelTestCase
 {
@@ -196,11 +197,12 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // the viewer's ACL grants BOTH the severity and the regular category
         $viewerId = new UserId($this->createContactRestrictedToHostCategories([$severityId, $regularId]));
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withActor(TestCredentials::restricted($viewerId->value))));
 
         self::assertContains("acl-severity-{$this->tag}", $names);
         self::assertNotContains("acl-regular-{$this->tag}", $names, 'A template linked only to a regular (levelless) category is excluded even though that category is in the ACL — legacy scopes by severities.');
         self::assertNotContains($uncategorizedName, $names, 'A template with no category is excluded for a restricted viewer.');
+        self::assertContains($uncategorizedName, $this->names($this->repository->findAll((new HostTemplateCriteria())->withActor(TestCredentials::unrestricted($viewerId->value)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFindAllReturnsAllTemplatesForAViewerWithNoCategoryRestriction(): void
@@ -214,7 +216,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         // ACL resource without any host-category relation → no restriction → sees everything
         $viewerId = new UserId($this->createContactRestrictedToHostCategories([]));
 
-        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId)));
+        $names = $this->names($this->repository->findAll((new HostTemplateCriteria())->withActor(TestCredentials::restricted($viewerId->value))));
 
         self::assertContains("acl-in-{$this->tag}", $names);
         self::assertContains($uncategorizedName, $names);
@@ -234,7 +236,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
 
         $viewerId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
 
-        $result = $this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId));
+        $result = $this->repository->findAll((new HostTemplateCriteria())->withActor(TestCredentials::restricted($viewerId->value)));
 
         self::assertSame([], $this->names($result), 'A viewer granted only regular categories sees no host template.');
     }

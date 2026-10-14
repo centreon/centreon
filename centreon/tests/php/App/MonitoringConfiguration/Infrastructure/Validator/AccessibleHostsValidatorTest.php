@@ -64,7 +64,7 @@ final class AccessibleHostsValidatorTest extends ConstraintValidatorTestCase
     public function testExistingHostsRaiseNoViolationForAnAdmin(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: true));
-        $this->hostRepository->expects(self::once())->method('findNamesByIds')->with(self::anything(), null)->willReturn(new Collection([5 => new HostName('server-01')], HostName::class));
+        $this->hostRepository->expects(self::once())->method('findAccessibleNamesByIds')->with(self::anything(), self::callback(static fn (Credential $actor): bool => $actor->hasUnrestrictedResourceAccess()))->willReturn(new Collection([5 => new HostName('server-01')], HostName::class));
 
         $this->validator->validate([5], new AccessibleHosts());
 
@@ -74,7 +74,7 @@ final class AccessibleHostsValidatorTest extends ConstraintValidatorTestCase
     public function testAnUnknownHostRaisesAViolation(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: true));
-        $this->hostRepository->method('findNamesByIds')->willReturn(new Collection([], HostName::class));
+        $this->hostRepository->method('findAccessibleNamesByIds')->willReturn(new Collection([], HostName::class));
 
         $constraint = new AccessibleHosts();
         $this->validator->validate([404], $constraint);
@@ -82,11 +82,11 @@ final class AccessibleHostsValidatorTest extends ConstraintValidatorTestCase
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerIsPassedToTheLookupSoAHostOutsideTheirScopeIsMissing(): void
+    public function testARestrictedActorIsPassedToTheLookupSoAHostOutsideTheirScopeIsMissing(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
-        $this->hostRepository->expects(self::once())->method('findNamesByIds')
-            ->with(self::anything(), self::callback(static fn (?UserId $viewerId): bool => $viewerId?->value === 7))
+        $this->hostRepository->expects(self::once())->method('findAccessibleNamesByIds')
+            ->with(self::anything(), self::callback(static fn (Credential $actor): bool => ! $actor->hasUnrestrictedResourceAccess() && $actor->userId->value === 7))
             ->willReturn(new Collection([], HostName::class));
 
         $constraint = new AccessibleHosts();

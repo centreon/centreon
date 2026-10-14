@@ -156,7 +156,7 @@ final readonly class UpdateHostCommandHandler
         // Actor-scoped: findOne returns null for a host outside the actor's ACL scope, the same as a
         // nonexistent one, so a restricted actor can never tell them apart.
         $actor = $this->credentialRepository->getById($command->updatedBy);
-        $existingHost = $this->repository->findOne($command->id, $actor->hasUnrestrictedResourceAccess() ? null : $actor->userId);
+        $existingHost = $this->repository->findOne($command->id, $actor);
         if (! $existingHost instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }

@@ -37,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
@@ -519,8 +520,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ));
         }
 
-        if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {
-            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($viewerId);
+        $actor = $criteria->getActor();
+        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($actor->userId);
             if ($accessiblePollerIds instanceof Collection) {
                 $ids = [];
                 foreach ($accessiblePollerIds as $pollerId) {

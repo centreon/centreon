@@ -28,11 +28,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Security\Infrastructure\Double\TestCredentials;
 
 final class DbalContactGroupRepositoryTest extends KernelTestCase
 {
@@ -264,9 +264,10 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
 
         // No access group, no membership: the viewer sees nothing — and the paginated call must
         // still return an (empty) Paginator, not a bare Collection.
-        $criteria = (new ContactGroupCriteria())->withViewerId(new UserId($viewerId));
+        $criteria = (new ContactGroupCriteria())->withActor(TestCredentials::restricted($viewerId));
 
         self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
+        self::assertContains("group_{$suffix}", $this->names($this->repository->findAll((new ContactGroupCriteria())->withActor(TestCredentials::unrestricted($viewerId)))), 'An unrestricted actor is not scoped by ACL.');
 
         $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
         self::assertInstanceOf(Paginator::class, $paginated);
@@ -323,7 +324,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
     private function scopedNames(int $viewerId): array
     {
         return $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withViewerId(new UserId($viewerId))
+            (new ContactGroupCriteria())->withActor(TestCredentials::restricted($viewerId))
         ));
     }
 

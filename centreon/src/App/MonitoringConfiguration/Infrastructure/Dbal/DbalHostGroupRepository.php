@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -136,8 +136,9 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
             $qb->andWhere($qb->expr()->like('hg.hg_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
-            $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
+        $actor = $criteria->getActor();
+        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+            $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId);
             if ($accessibleHostGroupIds instanceof Collection) {
                 $ids = [];
                 foreach ($accessibleHostGroupIds as $hostGroupId) {

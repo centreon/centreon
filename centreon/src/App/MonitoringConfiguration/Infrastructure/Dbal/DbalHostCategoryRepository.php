@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -137,18 +137,18 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->like('hc.hc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $this->filterByViewer($qb, $criteria);
+        $this->filterByActor($qb, $criteria);
     }
 
-    private function filterByViewer(QueryBuilder $qb, HostCategoryCriteria $criteria): void
+    private function filterByActor(QueryBuilder $qb, HostCategoryCriteria $criteria): void
     {
-        $viewerId = $criteria->getViewerId();
-        if (! $viewerId instanceof UserId) {
+        $actor = $criteria->getActor();
+        if (! $actor instanceof Credential || $actor->hasUnrestrictedResourceAccess()) {
             return;
         }
 
-        $accessibleHostCategories = $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId);
-        // null means no host-category restriction applies — the viewer sees every category.
+        $accessibleHostCategories = $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId);
+        // null means no host-category restriction applies — the actor sees every category.
         if (! $accessibleHostCategories instanceof Collection) {
             return;
         }
@@ -158,7 +158,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             $accessibleHostCategories->toArray()
         );
 
-        // A non-null but empty set means the viewer is restricted on host categories yet granted
+        // A non-null but empty set means the actor is restricted on host categories yet granted
         // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
         // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
         if ($accessibleHostCategoryIds === []) {
@@ -167,7 +167,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             return;
         }
 
-        // Restrict to categories the viewer can access. findAccessibleHostCategoryIds already scopes
+        // Restrict to categories the actor can access. findAccessibleHostCategoryIds already scopes
         // the set to levelless categories, so it never carries a severity id.
         $qb->andWhere(
             'hc.hc_id IN (' . $qb->createNamedParameter(
