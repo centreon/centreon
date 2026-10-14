@@ -146,3 +146,5 @@ export const test = base.extend<ComponentFixtures>({
 });
 
 export { expect };
+export type MockApi = ComponentFixtures['mockApi'];
+export type { MockedEndpoint };
