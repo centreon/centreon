@@ -143,11 +143,11 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
     private function filterByActor(QueryBuilder $qb, HostCategoryCriteria $criteria): void
     {
         $actor = $criteria->getActor();
-        if (! $actor instanceof ActingUser || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $actor instanceof ActingUser) {
             return;
         }
 
-        $accessibleHostCategories = $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId);
+        $accessibleHostCategories = $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor);
         // null means no host-category restriction applies — the actor sees every category.
         if (! $accessibleHostCategories instanceof Collection) {
             return;

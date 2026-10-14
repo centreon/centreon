@@ -133,11 +133,11 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
     private function filterByActor(QueryBuilder $qb, HostSeverityCriteria $criteria): void
     {
         $actor = $criteria->getActor();
-        if (! $actor instanceof ActingUser || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $actor instanceof ActingUser) {
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId);
+        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor);
         // null means no host-severity restriction applies — the actor sees every severity.
         if (! $accessibleHostSeverities instanceof Collection) {
             return;

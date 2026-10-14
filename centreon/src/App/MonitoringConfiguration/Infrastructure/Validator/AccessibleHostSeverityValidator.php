@@ -74,11 +74,7 @@ final class AccessibleHostSeverityValidator extends ConstraintValidator
             return;
         }
 
-        if ($credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            return;
-        }
-
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($credentialUser->credential->userId);
+        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($credentialUser->credential->actingUser());
         if (
             $accessibleIds instanceof Collection
             && ! array_any(

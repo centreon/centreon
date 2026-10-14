@@ -184,14 +184,12 @@ final readonly class UpdateHostCommandHandler
 
         // Only the hosts involved are looked up: those submitted, and those already linked that
         // may have to be preserved.
-        $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
-            ? null
-            : $this->resourceAccessRepository->findAccessibleHostIds($actor->userId, new Collection([
-                ...$command->parentHostIds->toArray(),
-                ...$command->childHostIds->toArray(),
-                ...$existingHost->parentHostIds->toArray(),
-                ...$existingHost->childHostIds->toArray(),
-            ], HostId::class));
+        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds($actor, new Collection([
+            ...$command->parentHostIds->toArray(),
+            ...$command->childHostIds->toArray(),
+            ...$existingHost->parentHostIds->toArray(),
+            ...$existingHost->childHostIds->toArray(),
+        ], HostId::class));
 
         $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);
 
@@ -240,19 +238,19 @@ final readonly class UpdateHostCommandHandler
         $hostGroupIds = $this->preserveInaccessible(
             $command->hostGroupIds,
             $existingHost->hostGroupIds,
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostGroupIds($actor),
             HostGroupId::class,
         );
         $categoryIds = $this->preserveInaccessible(
             $command->categoryIds,
             $existingHost->categoryIds,
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
             HostCategoryId::class,
         );
         $severityId = $this->preserveInaccessibleSeverity(
             $command->severityId,
             $existingHost->severityId,
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
         );
 
         $host = $existingHost->with(
@@ -579,7 +577,7 @@ final readonly class UpdateHostCommandHandler
         ?Notifications $existing,
         ActingUser $actor,
     ): Notifications {
-        if (! $existing instanceof Notifications || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $existing instanceof Notifications) {
             return $submitted;
         }
 
@@ -587,13 +585,13 @@ final readonly class UpdateHostCommandHandler
             $this->preserveInaccessible(
                 $submitted->contactIds,
                 $existing->contactIds,
-                $this->resourceAccessRepository->findAccessibleContactIds($actor->userId),
+                $this->resourceAccessRepository->findAccessibleContactIds($actor),
                 NotificationContactId::class,
             ),
             $this->preserveInaccessible(
                 $submitted->contactGroupIds,
                 $existing->contactGroupIds,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId),
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor),
                 ContactGroupId::class,
             ),
         );
@@ -634,12 +632,10 @@ final readonly class UpdateHostCommandHandler
         $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        if (! $actor->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
+        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor);
+        if ($accessibleIds instanceof Collection) {
+            $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
         }
 
         if ($missingIds !== []) {
@@ -684,7 +680,7 @@ final readonly class UpdateHostCommandHandler
         $missingIds = $this->missingIds(
             $categoryIds,
             fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
         );
 
         if ($missingIds !== []) {
@@ -703,7 +699,7 @@ final readonly class UpdateHostCommandHandler
             fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
         );
 
         if ($missingIds !== []) {

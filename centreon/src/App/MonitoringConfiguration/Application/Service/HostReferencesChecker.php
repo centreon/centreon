@@ -81,11 +81,7 @@ final readonly class HostReferencesChecker
             throw new HostSeverityNotFoundException($severityId->value);
         }
 
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return;
-        }
-
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId);
+        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor);
         if (
             $accessibleIds instanceof Collection
             && ! array_any(

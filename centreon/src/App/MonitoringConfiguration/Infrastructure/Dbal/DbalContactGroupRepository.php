@@ -103,11 +103,9 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
         // their access groups or their own membership. An unrestricted actor, or none, means no scoping.
         $actor = $criteria->getActor();
-        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = array_map(
-                static fn (ContactGroupId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId)->toArray(),
-            );
+        $accessibleContactGroupIds = $actor instanceof ActingUser ? $this->resourceAccessRepository->findAccessibleContactGroupIds($actor) : null;
+        if ($accessibleContactGroupIds instanceof Collection) {
+            $accessibleIds = array_map(static fn (ContactGroupId $id): int => $id->value, $accessibleContactGroupIds->toArray());
             if ($accessibleIds === []) {
                 // No accessible contact group: match nothing, but keep the normal (paginator) shape.
                 $qb->andWhere('1 = 0');

@@ -532,11 +532,11 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     private function filterByActor(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
         $actor = $criteria->getActor();
-        if (! $actor instanceof ActingUser || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $actor instanceof ActingUser) {
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId);
+        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor);
         // null means no host-severity restriction applies — the actor sees every host template.
         if (! $accessibleHostSeverities instanceof Collection) {
             return;

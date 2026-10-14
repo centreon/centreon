@@ -76,12 +76,10 @@ final class AccessibleContactsValidator extends ConstraintValidator
         $foundIds = array_keys($this->contactRepository->findNamesByIds($contactIds)->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = array_map(
-                static fn (NotificationContactId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactIds($credentialUser->credential->userId)->toArray(),
-            );
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIds)));
+        $accessibleIds = $this->resourceAccessRepository->findAccessibleContactIds($credentialUser->credential->actingUser());
+        if ($accessibleIds instanceof Collection) {
+            $accessibleIdValues = array_map(static fn (NotificationContactId $id): int => $id->value, $accessibleIds->toArray());
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
         }
 
         if ($missingIds !== []) {

@@ -74,12 +74,10 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
 
         $missingIds = array_diff($requestedIds, array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()));
 
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostCategoryIds($credentialUser->credential->userId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostCategoryId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
+        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostCategoryIds($credentialUser->credential->actingUser());
+        if ($accessibleIds instanceof Collection) {
+            $accessibleIdValues = array_map(static fn (HostCategoryId $id): int => $id->value, $accessibleIds->toArray());
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
         }
 
         if ($missingIds !== []) {
