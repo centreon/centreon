@@ -47,9 +47,13 @@ const useMassUpdate = (): UseMassUpdateState => {
     ids: Array<number>;
     payload: object;
   }) =>
-    fanOut(ids, (id) => mutateAsync({ _meta: { id }, payload })).then(
-      invalidateListing
-    );
+    fanOut(ids, (id) =>
+      mutateAsync({ _meta: { id }, payload }).then(
+        // A refusal whose body is not JSON resolves to null, which `fanOut`
+        // would count as written. The update answers 204, never null.
+        (response) => response ?? { isError: true, statusCode: 0 }
+      )
+    ).then(invalidateListing);
 
   return { massUpdateMutation };
 };

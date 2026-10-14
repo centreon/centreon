@@ -26,7 +26,7 @@ interface Props {
 }
 
 // States the count and names the rows before anything is written: a check-all
-// selects the whole page, the platform's own hosts included.
+// selects the whole page, deactivated rows included.
 const MassChangeDialog = ({ getWarning }: Props): ReactElement => {
   const { t } = useTranslation();
 

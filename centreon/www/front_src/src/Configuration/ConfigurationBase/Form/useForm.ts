@@ -65,7 +65,7 @@ const useForm = ({
 }: Props): UseFormState => {
   const { t } = useTranslation();
 
-  const { showSuccessMessage } = useSnackbar();
+  const { showErrorMessage, showSuccessMessage } = useSnackbar();
   const handleBulkResponse = useBulkResponse();
   const setSelectedRows = useSetAtom(selectedRowsAtom);
 
@@ -141,12 +141,17 @@ const useForm = ({
   const submitMassChange = (values, { setSubmitting }): void => {
     const count = massChangeIds.length;
 
-    massUpdateMutation({
-      ids: massChangeIds,
-      payload: massChangeForm.adapter(values)
-    })
+    // Built inside the chain, so a payload that cannot be built is reported
+    // like a failed request instead of leaving the form submitting.
+    Promise.resolve()
+      .then(() =>
+        massUpdateMutation({
+          ids: massChangeIds,
+          payload: massChangeForm.adapter(values)
+        })
+      )
       .then(({ results }) => {
-        // Names the rows that failed.
+        // One message for the whole selection, naming the rows that failed.
         handleBulkResponse({
           data: results,
           items: selection,
@@ -178,6 +183,11 @@ const useForm = ({
         }));
         setSelectedRows((rows) =>
           rows.filter(({ id }) => failedIds.includes(id))
+        );
+      })
+      .catch(() => {
+        showErrorMessage(
+          t(labelFailedToUpdateResources(pluralize(resourceType, count)))
         );
       })
       .finally(() => {
