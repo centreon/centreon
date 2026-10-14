@@ -43,6 +43,10 @@ beforeEach(() => {
     method: 'DELETE',
     url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('deleteConnector');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.api.monitoring_servers}?page=*`
+  }).as('getPollers');
 });
 
 after(() => {
@@ -150,9 +154,9 @@ Then(
 When('the user modifies the configuration', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.getByTestId({ testId: 'CancelIcon' }).click();
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.wait('@getPollers');
   cy.contains('Poller-1').click();
   cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
   cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2022');
