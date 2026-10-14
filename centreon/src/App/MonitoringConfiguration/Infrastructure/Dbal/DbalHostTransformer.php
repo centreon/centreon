@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SchedulingOptions;
@@ -214,7 +215,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
     }
 
     /**
-     * @param array{name: string, value: string, is_password: string|int, description: string|null} $row
+     * @param array{id: int|string, name: string, value: string, is_password: string|int|null} $row
      */
     private function createMacro(array $row): HostMacro
     {
@@ -226,7 +227,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
             name: new HostMacroName($shortName),
             value: $row['value'],
             isPassword: (bool) $row['is_password'],
-            description: $row['description'],
+            id: new HostMacroId((int) $row['id']),
         );
     }
 }

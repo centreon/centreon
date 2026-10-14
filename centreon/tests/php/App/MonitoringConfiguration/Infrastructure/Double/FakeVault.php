@@ -45,6 +45,9 @@ final class FakeVault implements VaultInterface
     /** @var list<array{customPath: string, uuid: string}> */
     public array $deleteCalls = [];
 
+    /** @var list<array{uuid: ?string, deletes: list<string>}> keys deleted from an entry by writeMany() */
+    public array $deletedKeys = [];
+
     /** @var array<string, ?string> value => UUID returned by extractUuid() */
     public array $extractedUuids = [];
 
@@ -115,6 +118,10 @@ final class FakeVault implements VaultInterface
 
     public function writeMany(string $customPath, array $secrets, ?string $uuid = null, array $deletes = []): array
     {
+        if ($deletes !== []) {
+            $this->deletedKeys[] = ['uuid' => $uuid, 'deletes' => $deletes];
+        }
+
         $paths = [];
         foreach ($secrets as $key => $value) {
             $paths[$key] = $this->write($customPath, $key, $value, $uuid);
