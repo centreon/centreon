@@ -94,6 +94,12 @@ export const test = base.extend<ComponentFixtures>({
             if (delay > 0) {
               await new Promise((resolve) => setTimeout(resolve, delay));
             }
+            if (status === 204) {
+              // No content: a body would break the response.
+              await route.fulfill({ status });
+
+              return;
+            }
             const json =
               typeof response === 'function' ? response(url) : response;
             await route.fulfill({ json, status });
