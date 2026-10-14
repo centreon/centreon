@@ -1,12 +1,4 @@
-import {
-  WidgetPropertyStoryFrame,
-  type WidgetPropertyStoryProps,
-  widgetPropertyProps
-} from '../../WidgetPropertyStoryFrame';
+import { createWidgetPropertyStory } from '../../WidgetPropertyStoryFrame';
 import TimeFormat from './TimeFormat';
 
-export const Default = (props: WidgetPropertyStoryProps): JSX.Element => (
-  <WidgetPropertyStoryFrame {...props}>
-    <TimeFormat {...widgetPropertyProps} propertyName="test" />
-  </WidgetPropertyStoryFrame>
-);
+export const Default = createWidgetPropertyStory(TimeFormat);

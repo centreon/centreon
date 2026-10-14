@@ -1,12 +1,6 @@
-import {
-  WidgetPropertyStoryFrame,
-  type WidgetPropertyStoryProps,
-  widgetPropertyProps
-} from '../../WidgetPropertyStoryFrame';
+import { createWidgetPropertyStory } from '../../WidgetPropertyStoryFrame';
 import WidgetTiles from './Tiles';
 
-export const Default = (props: WidgetPropertyStoryProps): JSX.Element => (
-  <WidgetPropertyStoryFrame {...props}>
-    <WidgetTiles {...widgetPropertyProps} propertyName="tiles" />
-  </WidgetPropertyStoryFrame>
-);
+export const Default = createWidgetPropertyStory(WidgetTiles, {
+  propertyName: 'tiles'
+});
