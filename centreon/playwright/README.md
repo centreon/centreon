@@ -33,8 +33,10 @@ Three pieces, per the Playwright model:
 - **The gallery** — `playwright/gallery/`, a page served by our own rspack dev
   server. It discovers the story files, exposes `window.mount({ story, props })`
   and `window.unmount()`, renders into `#root`, and reuses the React root so
-  `update()` reconciles instead of remounting. The wrapping providers
-  (`ThemeProvider`, `CssBaseline`) live here, mirroring `cy.mount`.
+  `update()` reconciles instead of remounting. App-wide setup lives here, like
+  the app entry and `cy.mount`: `ThemeProvider`, `CssBaseline`, the dayjs
+  plugins of `Main/index.tsx` and an i18next instance without resources (labels
+  render as their English keys). The theme follows the emulated color scheme.
 - **The `mount` fixture** — built into `@playwright/test`, no extra package. It
   navigates to the gallery (`baseURL`), calls `window.mount()` and returns a
   locator scoped to the gallery root.
@@ -50,6 +52,28 @@ autocompletes the id and type-checks the props without importing the story.
 Rerun it after adding, renaming or moving a story; `tests/components/tsconfig.json`
 type-checks the specs, the stories and the registry together.
 
+### Shared fixtures
+
+Specs import `test` and `expect` from `tests/components/fixtures.ts`:
+
+- `mockApi({ endpoint, method, response, status })` replaces
+  `cy.interceptAPIRequest`: it takes the endpoint constant of the app as is and
+  returns the JSON bodies it received.
+- `expectThemedScreenshot(locator, name)` captures `name-light` and `name-dark`,
+  the convention of the Cypress component suite.
+- An automatic fixture fails the test when React reported an error after
+  `mount()`; `mount()` itself rejects with the React error when the story throws
+  while rendering or in an effect.
+
+### Themes, clock and viewport
+
+- `test.use({ colorScheme: 'dark' })` or `page.emulateMedia({ colorScheme })`
+  switches the theme: the gallery sets `userAtom.themeMode` and the Tailwind
+  `dark` class, like `Main/useUser.ts`.
+- Stories that read app-wide atoms hydrate them in the default Jotai store with
+  `useHydrateAtoms`, the one the gallery `ThemeProvider` reads.
+- `page.clock.setFixedTime()` before `mount()` replaces `cy.clock()`.
+
 ## What the migrated specs demonstrate
 
 | Spec | Pattern |
@@ -57,7 +81,11 @@ type-checks the specs, the stories and the registry together.
 | `tests/components/authenticationDenied.spec.ts` | Plain rendering plus `toHaveScreenshot()`, replacing `cy.makeSnapshot()` |
 | `tests/components/dashboardsFilter.spec.ts` | Jotai provider owned by the story; the debounced atom value is recorded into a hidden input and asserted with the retrying `toHaveValue()` |
 | `tests/components/widgetWarningField.spec.ts` | Formik + Jotai providers in the story, per-test props via `mount(id, props)`, and `update()` for a prop transition without remounting |
-| `tests/components/addCommentForm.spec.ts` | `page.route()` replacing `cy.interceptAPIRequest`, request body asserted from the route handler, two callbacks recorded by the story, and a screenshot of a portalled dialog |
+| `tests/components/addCommentForm.spec.ts` | `mockApi()` replacing `cy.interceptAPIRequest`, request body asserted, two callbacks recorded by the story, and a screenshot of a portalled dialog |
+| `tests/components/about.spec.ts` | Frozen clock, app-wide atoms hydrated in the default store, light and dark screenshots, dark-only assertions with `test.use({ colorScheme })` |
+| `tests/components/timeInput.spec.ts` | Story defaults overridden by serializable props, `onChange` recorded by the story, portalled listbox options, data-driven tests |
+| `tests/components/searchHelp.spec.ts` | Platform variant (cloud / on-premise) as a story prop, portalled tooltip asserted and captured |
+| `tests/components/breadcrumbTrail.spec.ts` | `MemoryRouter` replacing a `useLocation` stub, JSON fixtures shared with Cypress, hover, real clipboard instead of a `writeText` stub |
 
 ## Conventions
 
@@ -70,10 +98,9 @@ type-checks the specs, the stories and the registry together.
   `Tooltip` and friends render into `document.body`, so query them from `page`,
   not from the locator `mount()` returns — and screenshot the dialog itself.
   The story's hidden recording inputs stay inside the root.
-- Register `page.route()` mocks **before** `mount()`, since mounting navigates.
-- **Centreon endpoints are relative** (`./api/latest/...`), resolved against the
-  gallery URL. Route globs must drop the leading `./`:
-  `` `**/${endpoint.replace(/^\.\//, '')}` ``.
+- Register `mockApi()` mocks **before** `mount()`, since mounting navigates.
+- Prefer `getByRole(role, { name })`: MUI selects are comboboxes named through
+  `aria-labelledby`, which `getByLabel` does not resolve.
 - Dates are formatted in the browser, so the project pins `timezoneId: 'UTC'`
   — the equivalent of the `TZ=Etc/UTC` the Cypress scripts export.
 - Baselines live in `playwright/visual-testing-snapshots/` and are committed —
@@ -85,6 +112,4 @@ type-checks the specs, the stories and the registry together.
 - `mount()` still accepts any string next to the registry ids, so a stale id
   fails at runtime; regenerating the registry keeps autocompletion and props
   typing accurate.
-- The gallery surfaces synchronous render errors only; an error thrown in an
-  effect shows up as a failed assertion rather than a rejected `mount()`.
-- Not wired into CI yet, which is why the three Cypress specs still exist.
+- Not wired into CI yet, which is why the migrated Cypress specs still exist.
