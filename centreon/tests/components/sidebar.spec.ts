@@ -38,6 +38,8 @@ test('expands the menu when the logo is clicked', async ({
   await expect(items.nth(1)).toContainText('Home');
   await expect(items.nth(2)).toContainText('Configuration');
 
+  // The pointer left on the logo hovers the first item.
+  await page.mouse.move(1000, 400);
   await expectThemedScreenshot(page, 'sidebar-expanded');
 });
 
