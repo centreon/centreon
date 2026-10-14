@@ -30,15 +30,12 @@ final readonly class DuplicateHostCommand
 {
     /**
      * @param HostId $hostId the host to duplicate
-     * @param UserId $duplicatedBy the user performing the duplication (action-log actor)
-     * @param ?UserId $viewerId null when the caller is unrestricted (admin); a non-null value scopes
-     *                          the source lookup to what that user can access via ACL, so an
-     *                          inaccessible host reads as not found (mirrors CreateHostCommand)
+     * @param UserId $duplicatedBy the acting user: the action-log actor, whose ACL scope also bounds the
+     *                             source lookup, so an inaccessible host reads as not found
      */
     public function __construct(
         public HostId $hostId,
         public UserId $duplicatedBy,
-        public ?UserId $viewerId,
     ) {
     }
 }

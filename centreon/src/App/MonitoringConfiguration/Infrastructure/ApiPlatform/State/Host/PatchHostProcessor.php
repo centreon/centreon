@@ -59,8 +59,7 @@ final readonly class PatchHostProcessor implements ProcessorInterface
 
         $this->commandBus->execute($this->commandFactory->create(
             id: new HostId($uriVariables['id']),
-            updatedBy: $credentialUser->credential->userId->value,
-            viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId,
+            updatedBy: $credentialUser->credential->userId,
             input: $data,
             payload: RequestPayload::fromRequest($request),
         ));

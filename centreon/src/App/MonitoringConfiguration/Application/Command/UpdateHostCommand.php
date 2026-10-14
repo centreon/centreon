@@ -59,9 +59,8 @@ final readonly class UpdateHostCommand
      * @param Collection<HostCategoryId> $categoryIds
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
-     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value scopes
-     *                          the target lookup and the poller/host-group/category/severity checks to
-     *                          what that user can access, mirroring the create path
+     * @param UserId $updatedBy the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          target lookup and the poller, host-group, category and severity checks
      * @param CheckOptions $checkOptions the check command and its arguments only: the macros are
      *                                   submitted as $macroChanges and resolved by the handler
      * @param list<HostMacroChange> $macroChanges the submitted macros, in the order to store them
@@ -73,8 +72,7 @@ final readonly class UpdateHostCommand
         public PollerId $pollerId,
         public bool $activated,
         public Collection $hostGroupIds,
-        public int $updatedBy,
-        public ?UserId $viewerId = null,
+        public UserId $updatedBy,
         public DataProcessing $dataProcessing = new DataProcessing(),
         public ?HostAlias $alias = null,
         public Collection $templateIds = new Collection([], HostTemplateId::class),

@@ -56,14 +56,13 @@ final readonly class PatchHostCommand
      * @param NoValue|ListChange<ContactGroupId> $contactGroupIds
      * @param bool $deployServicesFromTemplates whether the services of the templates the host has after the
      *                                          update are created on it, once the update is committed
-     * @param ?UserId $viewerId null means the requester is unrestricted (admin); a non-null value
-     *                          scopes the host lookup to what that user is allowed to see, so a
-     *                          host outside their ACL scope is reported as not found rather than
-     *                          leaking its existence
+     * @param UserId $updatedBy the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          host lookup, so a host outside it is reported as not found rather
+     *                          than leaking its existence
      */
     public function __construct(
         public HostId $id,
-        public int $updatedBy,
+        public UserId $updatedBy,
         public NoValue|bool $activated = new NoValue(),
         public NoValue|HostName $name = new NoValue(),
         public NoValue|HostAddress $address = new NoValue(),
@@ -89,7 +88,6 @@ final readonly class PatchHostCommand
         public NoValue|ListChange $contactGroupIds = new NoValue(),
         public NoValue|MacroChanges $macros = new NoValue(),
         public bool $deployServicesFromTemplates = false,
-        public ?UserId $viewerId = null,
     ) {
     }
 }

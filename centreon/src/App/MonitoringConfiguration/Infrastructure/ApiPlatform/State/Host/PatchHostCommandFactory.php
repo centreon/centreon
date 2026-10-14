@@ -76,8 +76,7 @@ final readonly class PatchHostCommandFactory
 
     public function create(
         HostId $id,
-        int $updatedBy,
-        ?UserId $viewerId,
+        UserId $updatedBy,
         PatchHostInput $input,
         RequestPayload $payload,
     ): PatchHostCommand {
@@ -130,7 +129,6 @@ final readonly class PatchHostCommandFactory
                 : new NoValue(),
             macros: $this->macroChanges($payload->section('check_options'), $input->checkOptions),
             deployServicesFromTemplates: $input->createServicesLinkedToTemplates ?? false,
-            viewerId: $viewerId,
         );
     }
 

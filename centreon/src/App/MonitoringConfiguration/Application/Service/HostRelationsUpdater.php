@@ -47,7 +47,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
@@ -60,8 +60,7 @@ use App\Shared\Domain\NoValue;
  * The resources a change brings are checked here, as the authority, after the same rules ran earlier
  * on the input. A resource the requester cannot access is reported like one that does not exist, and
  * a replacement leaves in place the links the requester cannot see (host groups, categories, hosts,
- * contacts and contact groups are scoped by access rights, templates are not). A null viewer is an
- * unrestricted requester.
+ * contacts and contact groups are scoped by access rights, templates are not).
  */
 final readonly class HostRelationsUpdater
 {
@@ -77,13 +76,12 @@ final readonly class HostRelationsUpdater
     ) {
     }
 
-    public function applyTo(Host $host, PatchHostCommand $command): Host
+    public function applyTo(Host $host, PatchHostCommand $command, Credential $actor): Host
     {
-        $viewerId = $command->viewerId;
-        $reachableHostIds = $this->reachableHostIds($host, $command, $viewerId);
-        $isHostVisible = $viewerId instanceof UserId
-            ? static fn (HostId $id): bool => in_array($id->value, $reachableHostIds, true)
-            : null;
+        $reachableHostIds = $this->reachableHostIds($host, $command, $actor);
+        $isHostVisible = $actor->hasUnrestrictedResourceAccess()
+            ? null
+            : static fn (HostId $id): bool => in_array($id->value, $reachableHostIds, true);
 
         $parentHostIds = $this->resolve(
             $command->parentHostIds,
@@ -122,30 +120,29 @@ final readonly class HostRelationsUpdater
                 $command->hostGroupIds,
                 $host->hostGroupIds,
                 HostGroupId::class,
-                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId) : null,
+                fn (): ?Collection => $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId),
                 fn (array $ids, ?Collection $accessible) => $this->assertHostGroupsAccessible($ids, $accessible),
             ),
             categoryIds: $this->resolveScoped(
                 $command->categoryIds,
                 $host->categoryIds,
                 HostCategoryId::class,
-                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+                fn (): ?Collection => $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
                 fn (array $ids, ?Collection $accessible) => $this->assertCategoriesAccessible($ids, $accessible),
             ),
             parentHostIds: $parentHostIds,
             childHostIds: $childHostIds,
         );
 
-        return $this->withContacts($updated, $command);
+        return $this->withContacts($updated, $command, $actor);
     }
 
-    private function withContacts(Host $host, PatchHostCommand $command): Host
+    private function withContacts(Host $host, PatchHostCommand $command, Credential $actor): Host
     {
         if ($command->contactIds instanceof NoValue && $command->contactGroupIds instanceof NoValue) {
             return $host;
         }
 
-        $viewerId = $command->viewerId;
         $notifications = $host->notifications ?? Notifications::default();
 
         return $host->with(notifications: $notifications->with(
@@ -153,14 +150,14 @@ final readonly class HostRelationsUpdater
                 $command->contactIds,
                 $notifications->contactIds,
                 NotificationContactId::class,
-                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactIds($viewerId) : null,
+                fn (): ?Collection => $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleContactIds($actor->userId),
                 fn (array $ids, ?Collection $accessible) => $this->assertContactsAccessible($ids, $accessible),
             ),
             contactGroupIds: $this->resolveScoped(
                 $command->contactGroupIds,
                 $notifications->contactGroupIds,
                 ContactGroupId::class,
-                fn (): ?Collection => $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId) : null,
+                fn (): ?Collection => $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId),
                 fn (array $ids, ?Collection $accessible) => $this->assertContactGroupsAccessible($ids, $accessible),
             ),
         ));
@@ -312,7 +309,7 @@ final readonly class HostRelationsUpdater
      *
      * @return list<int>
      */
-    private function reachableHostIds(Host $host, PatchHostCommand $command, ?UserId $viewerId): array
+    private function reachableHostIds(Host $host, PatchHostCommand $command, Credential $actor): array
     {
         $changes = array_filter([$command->parentHostIds, $command->childHostIds], static fn (NoValue|ListChange $change): bool => $change instanceof ListChange);
         if ($changes === []) {
@@ -326,7 +323,7 @@ final readonly class HostRelationsUpdater
 
         return array_map(
             intval(...),
-            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class), $viewerId)->toArray()),
+            array_keys($this->hostRepository->findNamesByIds(new Collection($ids, HostId::class), $actor->hasUnrestrictedResourceAccess() ? null : $actor->userId)->toArray()),
         );
     }
 

@@ -68,7 +68,8 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -86,7 +87,7 @@ use Psr\Log\LoggerInterface;
  * Full replace (PUT) of a single host. Deliberately duplicates {@see CreateHostCommandHandler}'s
  * reference validation rather than sharing it, so the create path is never coupled to a change made
  * for the update path; macros go through the same domain services. The update-specific parts are:
- * loading the target (404 when absent or out of the viewer's ACL scope), excluding the host itself
+ * loading the target (404 when absent or out of the actor's ACL scope), excluding the host itself
  * from the name and circular-inheritance checks, resolving the submitted macros against the ones the
  * host already owns, reusing (or releasing) the host's existing vault entry, and firing
  * {@see HostUpdated} carrying the previous poller so both it and the new one are flagged.
@@ -117,6 +118,7 @@ final readonly class UpdateHostCommandHandler
         private EventBus $eventBus,
         private LoggerInterface $logger,
         private HostTemplateLicenseGuard $templateLicenseGuard,
+        private CredentialRepository $credentialRepository,
     ) {
     }
 
@@ -151,9 +153,10 @@ final readonly class UpdateHostCommandHandler
      */
     private function update(UpdateHostCommand $command, bool &$vaultWritten): Host
     {
-        // Viewer-scoped: findOne returns null for a host outside the viewer's ACL scope, the same as a
-        // nonexistent one, so a restricted viewer can never tell them apart.
-        $existingHost = $this->repository->findOne($command->id, $command->viewerId);
+        // Actor-scoped: findOne returns null for a host outside the actor's ACL scope, the same as a
+        // nonexistent one, so a restricted actor can never tell them apart.
+        $actor = $this->credentialRepository->getById($command->updatedBy);
+        $existingHost = $this->repository->findOne($command->id, $actor->hasUnrestrictedResourceAccess() ? null : $actor->userId);
         if (! $existingHost instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
@@ -165,39 +168,39 @@ final readonly class UpdateHostCommandHandler
         $this->pollerRepository->get($command->pollerId);
 
         if (
-            $command->viewerId instanceof UserId
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->viewerId)
+            ! $actor->hasUnrestrictedResourceAccess()
+            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $actor->userId)
         ) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 
-        $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
+        $this->assertHostGroupsExist($command->hostGroupIds, $actor);
 
         $this->assertTemplatesExist($command->templateIds);
 
         // The templates the host already has are kept, even those it could no longer be given.
         $this->templateLicenseGuard->assertLicensed($command->templateIds, $existingHost->templateIds);
 
-        $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
+        $this->assertCategoriesExist($command->categoryIds, $actor);
 
-        $this->assertSeverityExists($command->severityId, $command->viewerId);
+        $this->assertSeverityExists($command->severityId, $actor);
 
         $this->assertTimezoneExists($command->timezoneId);
 
         // Only the hosts involved are looked up: those submitted, and those already linked that
         // may have to be preserved.
-        $accessibleHostIds = $command->viewerId instanceof UserId
-            ? $this->resourceAccessRepository->findAccessibleHostIds($command->viewerId, new Collection([
+        $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
+            ? null
+            : $this->resourceAccessRepository->findAccessibleHostIds($actor->userId, new Collection([
                 ...$command->parentHostIds->toArray(),
                 ...$command->childHostIds->toArray(),
                 ...$existingHost->parentHostIds->toArray(),
                 ...$existingHost->childHostIds->toArray(),
-            ], HostId::class))
-            : null;
+            ], HostId::class));
 
         $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);
 
-        // Out-of-scope parent and child hosts are hidden from a restricted viewer (as by the legacy
+        // Out-of-scope parent and child hosts are hidden from a restricted actor (as by the legacy
         // host form), who cannot resend them, so they are preserved. The circularity check runs on
         // the final lists, since a preserved relation is kept in the graph.
         $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $accessibleHostIds, HostId::class);
@@ -234,7 +237,7 @@ final readonly class UpdateHostCommandHandler
         [$checkOptions, $passwordRewritten] = $this->prepareCheckOptions($command, $existingHost, $resolvedMacros, $vaultUuid, $vaultWritten);
 
         // The update replaces every relation wholesale (DbalHostRepository::update). Host groups,
-        // categories and severity are ACL-scoped (asserted above), so a restricted viewer never sees
+        // categories and severity are ACL-scoped (asserted above), so a restricted actor never sees
         // — and so can never resend — the ones outside their scope. Preserve those from the existing
         // host instead of letting the wholesale replace drop them, even on a GET -> PUT round trip,
         // mirroring legacy (Core PartialUpdateHost, "silently preserved"). Admins and unrestricted
@@ -242,19 +245,19 @@ final readonly class UpdateHostCommandHandler
         $hostGroupIds = $this->preserveInaccessible(
             $command->hostGroupIds,
             $existingHost->hostGroupIds,
-            $command->viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostGroupIds($command->viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId),
             HostGroupId::class,
         );
         $categoryIds = $this->preserveInaccessible(
             $command->categoryIds,
             $existingHost->categoryIds,
-            $command->viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($command->viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
             HostCategoryId::class,
         );
         $severityId = $this->preserveInaccessibleSeverity(
             $command->severityId,
             $existingHost->severityId,
-            $command->viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($command->viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
         );
 
         $host = $existingHost->with(
@@ -277,7 +280,7 @@ final readonly class UpdateHostCommandHandler
             // Absent on Cloud, where notifications follow another model: the stored block is kept.
             notifications: $command->notifications instanceof Notifications
                 ? $this->additiveInheritanceModeApplier->apply(
-                    $this->preserveInaccessibleContacts($command->notifications, $existingHost->notifications, $command->viewerId),
+                    $this->preserveInaccessibleContacts($command->notifications, $existingHost->notifications, $actor),
                 )
                 : new NoValue(),
             activated: $command->activated,
@@ -316,8 +319,8 @@ final readonly class UpdateHostCommandHandler
         if ($activationFlipped) {
             $this->eventBus->fire(
                 $host->activated
-                    ? new HostEnabled($host, $command->updatedBy)
-                    : new HostDisabled($host, $command->updatedBy),
+                    ? new HostEnabled($host, $command->updatedBy->value)
+                    : new HostDisabled($host, $command->updatedBy->value),
             );
         }
 
@@ -326,13 +329,13 @@ final readonly class UpdateHostCommandHandler
         $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
 
         if ($loggedChange) {
-            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId));
+            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy->value, $previousPollerId));
         } elseif ($unloggedChange && ! $activationFlipped) {
             // Only properties legacy never logs changed (host groups, templates, categories, parent/
             // child hosts, macros or notification contacts). The side effects (engine flag, ACL reload)
             // must still run: fire a non-loggable event. (When activation also flipped, the
             // enable/disable event above already runs them.)
-            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy, $previousPollerId, loggable: false));
+            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy->value, $previousPollerId, loggable: false));
         }
 
         // Deferred (post-commit) purge of the vault entry this update left without any secret: the
@@ -354,14 +357,14 @@ final readonly class UpdateHostCommandHandler
                 $host->id(),
                 $existingHost->templateIds,
                 $host->templateIds,
-                new UserId($command->updatedBy),
+                $command->updatedBy,
             ));
         }
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
             $this->eventBus->fire(new HostServicesDeploymentRequested(
                 $host->id(),
-                new UserId($command->updatedBy),
+                $command->updatedBy,
             ));
         }
 
@@ -535,10 +538,10 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * Scopes a full-replace association list to what the viewer may change. Ids outside the viewer's
+     * Scopes a full-replace association list to what the actor may change. Ids outside the actor's
      * ACL scope are invisible to them, so they can never be resent; preserving them from the existing
      * host keeps the wholesale relation replace from silently dropping them (legacy
-     * PartialUpdateHost). A null $accessible means the dimension is unrestricted for this viewer
+     * PartialUpdateHost). A null $accessible means the dimension is unrestricted for this actor
      * (nothing is out of scope), so the submitted list is used as is.
      *
      * @template T of AggregateRootId
@@ -574,14 +577,14 @@ final readonly class UpdateHostCommandHandler
 
     /**
      * {@see self::preserveInaccessible()} applied to the notification contacts and contact groups,
-     * which the legacy host form hides too when out of the viewer's scope.
+     * which the legacy host form hides too when out of the actor's scope.
      */
     private function preserveInaccessibleContacts(
         Notifications $submitted,
         ?Notifications $existing,
-        ?UserId $viewerId,
+        Credential $actor,
     ): Notifications {
-        if (! $existing instanceof Notifications || ! $viewerId instanceof UserId) {
+        if (! $existing instanceof Notifications || $actor->hasUnrestrictedResourceAccess()) {
             return $submitted;
         }
 
@@ -589,13 +592,13 @@ final readonly class UpdateHostCommandHandler
             $this->preserveInaccessible(
                 $submitted->contactIds,
                 $existing->contactIds,
-                $this->resourceAccessRepository->findAccessibleContactIds($viewerId),
+                $this->resourceAccessRepository->findAccessibleContactIds($actor->userId),
                 NotificationContactId::class,
             ),
             $this->preserveInaccessible(
                 $submitted->contactGroupIds,
                 $existing->contactGroupIds,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($viewerId),
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId),
                 ContactGroupId::class,
             ),
         );
@@ -603,8 +606,8 @@ final readonly class UpdateHostCommandHandler
 
     /**
      * Single-valued counterpart of {@see self::preserveInaccessible()} for the host severity: the
-     * submitted severity wins when present; otherwise an existing severity the viewer cannot access
-     * is preserved (a restricted viewer who sends none never meant to clear a severity they cannot
+     * submitted severity wins when present; otherwise an existing severity the actor cannot access
+     * is preserved (a restricted actor who sends none never meant to clear a severity they cannot
      * even see).
      *
      * @param Collection<HostSeverityId>|null $accessible
@@ -626,7 +629,7 @@ final readonly class UpdateHostCommandHandler
     /**
      * @param Collection<HostGroupId> $hostGroupIds
      */
-    private function assertHostGroupsExist(Collection $hostGroupIds, ?UserId $viewerId): void
+    private function assertHostGroupsExist(Collection $hostGroupIds, Credential $actor): void
     {
         if (count($hostGroupIds) === 0) {
             return;
@@ -636,8 +639,8 @@ final readonly class UpdateHostCommandHandler
         $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        if ($viewerId instanceof UserId) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
+        if (! $actor->hasUnrestrictedResourceAccess()) {
+            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId);
             if ($accessibleIds instanceof Collection) {
                 $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
                 $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
@@ -650,7 +653,7 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * Unknown and inaccessible ids are not told apart, so a restricted viewer cannot probe for
+     * Unknown and inaccessible ids are not told apart, so a restricted actor cannot probe for
      * resources they cannot see.
      *
      * @template T of \App\Shared\Domain\Aggregate\AggregateRootId
@@ -681,12 +684,12 @@ final readonly class UpdateHostCommandHandler
     /**
      * @param Collection<HostCategoryId> $categoryIds
      */
-    private function assertCategoriesExist(Collection $categoryIds, ?UserId $viewerId): void
+    private function assertCategoriesExist(Collection $categoryIds, Credential $actor): void
     {
         $missingIds = $this->missingIds(
             $categoryIds,
             fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
         );
 
         if ($missingIds !== []) {
@@ -694,7 +697,7 @@ final readonly class UpdateHostCommandHandler
         }
     }
 
-    private function assertSeverityExists(?HostSeverityId $severityId, ?UserId $viewerId): void
+    private function assertSeverityExists(?HostSeverityId $severityId, Credential $actor): void
     {
         if (! $severityId instanceof HostSeverityId) {
             return;
@@ -705,7 +708,7 @@ final readonly class UpdateHostCommandHandler
             fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
         );
 
         if ($missingIds !== []) {
@@ -738,14 +741,14 @@ final readonly class UpdateHostCommandHandler
     }
 
     /**
-     * ACL-scoped: a restricted viewer may only link the hosts within their scope, as the legacy
+     * ACL-scoped: a restricted actor may only link the hosts within their scope, as the legacy
      * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
-     * are not told apart, so a restricted viewer cannot probe for hosts they cannot see. Host
+     * are not told apart, so a restricted actor cannot probe for hosts they cannot see. Host
      * templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
+     * @param Collection<HostId>|null $accessibleHostIds null when the actor is unrestricted
      */
     private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?Collection $accessibleHostIds): void
     {
@@ -755,7 +758,7 @@ final readonly class UpdateHostCommandHandler
 
     /**
      * @param Collection<HostId> $hostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
+     * @param Collection<HostId>|null $accessibleHostIds null when the actor is unrestricted
      */
     private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
     {
