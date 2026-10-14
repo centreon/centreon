@@ -1,4 +1,7 @@
-# ADR-0001: validate-in-input-and-handler
+# ADR-0001: Validate write requests in both input and handler
+
+- **Status:** Accepted
+- **Date:** 2026-10-09
 
 ## Context
 
