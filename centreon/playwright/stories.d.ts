@@ -101,6 +101,12 @@ declare module '@playwright/test' {
     'Authentication/Authentication/WebSSO': typeof Story7.WebSSO;
     'Authentication/WebSSO': typeof Story7.WebSSO;
     WebSSO: typeof Story7.WebSSO;
+    'Authentication/Authentication/SAML': typeof Story7.SAML;
+    'Authentication/SAML': typeof Story7.SAML;
+    SAML: typeof Story7.SAML;
+    'Authentication/Authentication/OpenId': typeof Story7.OpenId;
+    'Authentication/OpenId': typeof Story7.OpenId;
+    OpenId: typeof Story7.OpenId;
     'Authentication/Local/LocalAuthentication/Default': typeof Story8.Default;
     'Local/LocalAuthentication/Default': typeof Story8.Default;
     'LocalAuthentication/Default': typeof Story8.Default;
