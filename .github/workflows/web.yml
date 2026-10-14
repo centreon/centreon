@@ -2392,11 +2392,6 @@ jobs:
         shell: bash
 
   promote-docker-to-pulp-dev:
-    # Test path toward a registry-agnostic delivery (MON-212212), independent
-    # from the ghcr.io job above: copies the Harbor candidate unchanged, so
-    # the build provenance and the SBOM attested below (both keyed by digest)
-    # verify on Pulp. Fully non-blocking; opt-in through the PULP_DEV_*
-    # variables.
     needs: [get-environment]
     if: |
       vars.PULP_DEV_REGISTRY != '' &&
@@ -2407,7 +2402,6 @@ jobs:
       ! contains(needs.*.result, 'cancelled') &&
       needs.get-environment.outputs.is_cloud == 'false'
     runs-on: centreon-ubuntu-26.04-small
-    # setup steps (checkout, Harbor login, crane) must not fail the workflow either
     continue-on-error: true
     permissions:
       contents: read
