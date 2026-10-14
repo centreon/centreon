@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -192,8 +193,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ]);
     }
 
-    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
+    public function findAccessibleHostCategoryIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
@@ -248,8 +255,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessibleHostSeverityIds(UserId $userId): ?Collection
+    public function findAccessibleHostSeverityIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
@@ -304,8 +317,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessiblePollerIds(UserId $userId): ?Collection
+    public function findAccessiblePollerIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         if ($this->hasAccessToAllPollers($userId)) {
             return null;
         }
@@ -328,8 +347,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessibleHostGroupIds(UserId $userId): ?Collection
+    public function findAccessibleHostGroupIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Unlike pollers, host groups carry an explicit "all host groups" flag on the ACL resource
@@ -369,8 +394,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessibleImageFolderIds(UserId $userId): ?Collection
+    public function findAccessibleImageFolderIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Unlike pollers, image folders carry an explicit "all image folders" flag on the ACL
@@ -411,8 +442,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessibleContactIds(UserId $userId): Collection
+    public function findAccessibleContactIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
         if ($accessGroupIds === []) {
             return new Collection([], NotificationContactId::class);
@@ -432,8 +469,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         );
     }
 
-    public function findAccessibleContactGroupIds(UserId $userId): Collection
+    public function findAccessibleContactGroupIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
 
         $contactGroupIds = [];
@@ -484,8 +527,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
      * the query count stays constant regardless of how many hosts exist or are returned.
      */
-    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
+    public function findAccessibleHostIds(ActingUser $actor, ?Collection $among = null): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
+        $userId = $actor->userId;
+
         if ($among?->count() === 0) {
             return new Collection([], HostId::class);
         }

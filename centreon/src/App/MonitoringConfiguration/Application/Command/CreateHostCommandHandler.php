@@ -213,12 +213,10 @@ final readonly class CreateHostCommandHandler
         $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        if (! $actor->hasUnrestrictedResourceAccess()) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
+        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor);
+        if ($accessibleIds instanceof Collection) {
+            $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
         }
 
         if ($missingIds !== []) {
@@ -301,7 +299,7 @@ final readonly class CreateHostCommandHandler
         $missingIds = $this->missingIds(
             $categoryIds,
             fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
         );
 
         if ($missingIds !== []) {
@@ -320,7 +318,7 @@ final readonly class CreateHostCommandHandler
             fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
         );
 
         if ($missingIds !== []) {
@@ -363,12 +361,10 @@ final readonly class CreateHostCommandHandler
      */
     private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ActingUser $actor): void
     {
-        $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
-            ? null
-            : $this->resourceAccessRepository->findAccessibleHostIds(
-                $actor->userId,
-                new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
-            );
+        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds(
+            $actor,
+            new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
+        );
 
         $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
         $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);

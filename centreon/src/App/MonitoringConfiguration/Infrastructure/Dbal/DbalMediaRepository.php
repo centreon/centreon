@@ -86,8 +86,8 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
     {
         $accessibleFolderIds = null;
         $actor = $criteria?->getActor();
-        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
-            $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($actor->userId);
+        if ($actor instanceof ActingUser) {
+            $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($actor);
             if ($accessibleFolderIds instanceof Collection && $accessibleFolderIds->count() === 0) {
                 return $this->emptyResult($criteria);
             }

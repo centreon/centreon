@@ -521,8 +521,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         $actor = $criteria->getActor();
-        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
-            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($actor->userId);
+        if ($actor instanceof ActingUser) {
+            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($actor);
             if ($accessiblePollerIds instanceof Collection) {
                 $ids = [];
                 foreach ($accessiblePollerIds as $pollerId) {

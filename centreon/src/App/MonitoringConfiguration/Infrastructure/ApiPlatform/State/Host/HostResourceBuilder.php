@@ -130,7 +130,7 @@ final readonly class HostResourceBuilder
         // for the write paths that also load it.
         $groupIds = $this->scopeToAccessible(
             $host->hostGroupIds,
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostGroupIds($actor),
             HostGroupId::class,
         );
         $groupNames = $this->hostGroupRepository->findNamesByIds($groupIds)->toArray();
@@ -163,12 +163,10 @@ final readonly class HostResourceBuilder
 
         // Out-of-scope parent and child hosts are hidden, as the legacy host form does
         // (CentreonHost::getObjectForSelect2()).
-        $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
-            ? null
-            : $this->resourceAccessRepository->findAccessibleHostIds(
-                $actor->userId,
-                new Collection([...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()], HostId::class),
-            );
+        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds(
+            $actor,
+            new Collection([...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()], HostId::class),
+        );
         $parentHostIds = $this->scopeToAccessible($host->parentHostIds, $accessibleHostIds, HostId::class);
         $childHostIds = $this->scopeToAccessible($host->childHostIds, $accessibleHostIds, HostId::class);
         $relatedHostNames = $this->hostRepository->findNamesByIds(new Collection(
@@ -181,7 +179,7 @@ final readonly class HostResourceBuilder
         // Out-of-scope categories are hidden.
         $categoryIds = $this->scopeToAccessible(
             $host->categoryIds,
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
             HostCategoryId::class,
         );
         $categoryNames = $this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray();
@@ -203,7 +201,7 @@ final readonly class HostResourceBuilder
         // restricted actor rather than surfaced.
         if ($host->severityId instanceof HostSeverityId && $this->isAccessible(
             $host->severityId,
-            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
+            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
         )) {
             $severityName = $this->hostSeverityRepository->findNameById($host->severityId);
             $resource->severity = $severityName instanceof HostSeverityName
@@ -274,19 +272,19 @@ final readonly class HostResourceBuilder
      */
     private function scopeNotifications(?Notifications $notifications, ActingUser $actor): ?Notifications
     {
-        if (! $notifications instanceof Notifications || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $notifications instanceof Notifications) {
             return $notifications;
         }
 
         return $notifications->withContacts(
             $this->scopeToAccessible(
                 $notifications->contactIds,
-                $this->resourceAccessRepository->findAccessibleContactIds($actor->userId),
+                $this->resourceAccessRepository->findAccessibleContactIds($actor),
                 NotificationContactId::class,
             ),
             $this->scopeToAccessible(
                 $notifications->contactGroupIds,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor->userId),
+                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor),
                 ContactGroupId::class,
             ),
         );

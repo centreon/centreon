@@ -137,8 +137,8 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         }
 
         $actor = $criteria->getActor();
-        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
-            $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId);
+        if ($actor instanceof ActingUser) {
+            $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor);
             if ($accessibleHostGroupIds instanceof Collection) {
                 $ids = [];
                 foreach ($accessibleHostGroupIds as $hostGroupId) {

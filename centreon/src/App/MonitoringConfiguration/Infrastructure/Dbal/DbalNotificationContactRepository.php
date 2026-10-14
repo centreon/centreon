@@ -94,11 +94,9 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
     {
         $accessibleContactIds = null;
         $actor = $criteria?->getActor();
-        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
-            $accessibleContactIds = array_map(
-                static fn (NotificationContactId $id): int => $id->value,
-                $this->resourceAccessRepository->findAccessibleContactIds($actor->userId)->toArray(),
-            );
+        $accessibleContacts = $actor instanceof ActingUser ? $this->resourceAccessRepository->findAccessibleContactIds($actor) : null;
+        if ($accessibleContacts instanceof Collection) {
+            $accessibleContactIds = array_map(static fn (NotificationContactId $id): int => $id->value, $accessibleContacts->toArray());
             if ($accessibleContactIds === []) {
                 return $this->emptyResult($criteria);
             }

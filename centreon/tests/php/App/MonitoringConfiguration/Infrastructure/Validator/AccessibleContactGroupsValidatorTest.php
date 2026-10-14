@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroupsValidator;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -74,8 +75,10 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
         $this->contactGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new ContactGroupName('supervisors')], ContactGroupName::class),
         );
-        // an admin is never scoped, so the ACL lookup must not even be attempted
-        $this->resourceAccessRepository->expects(self::never())->method('findAccessibleContactGroupIds');
+        // an admin is never scoped: the lookup is asked for the unrestricted actor, and restricts nothing
+        $this->resourceAccessRepository->expects(self::once())->method('findAccessibleContactGroupIds')
+            ->with(self::callback(static fn (ActingUser $actor): bool => $actor->hasUnrestrictedResourceAccess()))
+            ->willReturn(null);
 
         $this->validator->validate([5], new AccessibleContactGroups());
 

@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
@@ -96,46 +97,74 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         return $this->unrestrictedPollerAccess;
     }
 
-    public function findAccessibleHostSeverityIds(UserId $userId): ?Collection
+    public function findAccessibleHostSeverityIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         return $this->accessibleHostSeverityIds;
     }
 
-    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
+    public function findAccessibleHostCategoryIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         ++$this->accessListLoads;
 
         return $this->accessibleHostCategoryIds;
     }
 
-    public function findAccessiblePollerIds(UserId $userId): ?Collection
+    public function findAccessiblePollerIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         return null;
     }
 
-    public function findAccessibleHostGroupIds(UserId $userId): ?Collection
+    public function findAccessibleHostGroupIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         ++$this->accessListLoads;
 
         return $this->accessibleHostGroupIds;
     }
 
-    public function findAccessibleContactIds(UserId $userId): Collection
+    public function findAccessibleContactIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         ++$this->accessListLoads;
 
         return $this->accessibleContactIds;
     }
 
-    public function findAccessibleContactGroupIds(UserId $userId): Collection
+    public function findAccessibleContactGroupIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         ++$this->accessListLoads;
 
         return $this->accessibleContactGroupIds;
     }
 
-    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection
+    public function findAccessibleHostIds(ActingUser $actor, ?Collection $among = null): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         if (! $among instanceof Collection) {
             return $this->accessibleHostIds;
         }
@@ -151,8 +180,12 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         );
     }
 
-    public function findAccessibleImageFolderIds(UserId $userId): ?Collection
+    public function findAccessibleImageFolderIds(ActingUser $actor): ?Collection
     {
+        if ($actor->hasUnrestrictedResourceAccess()) {
+            return null;
+        }
+
         return $this->accessibleImageFolderIds;
     }
 
