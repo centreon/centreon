@@ -1,8 +1,8 @@
 # Playwright component testing
 
-Proof of concept of the Playwright **story gallery** model (1.62+, on 1.63), migrating a few
-Cypress component tests (`*.cypress.spec.tsx`). It runs alongside the Cypress
-component suite — nothing is removed yet.
+Migration of the Cypress component tests (`*.cypress.spec.tsx`) to the
+Playwright **story gallery** model (1.62+, on 1.63). It runs alongside the
+Cypress component suite, nothing is removed yet: see [Migration status](#migration-status).
 
 ## Run
 
@@ -21,7 +21,11 @@ pnpm's pre-run dependency check exits non-zero. That is pre-existing on
 
 `playwright.config.ts` starts the gallery dev server itself
 (`rspack.config.gallery.js`, port 9093) and reuses a running one outside CI.
-Cold start of the dev server is ~2 min; each test then runs in 1-3 s.
+Cold start of the dev server is ~2 min; each test then runs in 1-3 s. While
+writing specs, keep it running with
+`node_modules/.bin/rspack serve -c ./rspack.config.gallery.js`, and **restart it
+after adding a story file**: the watcher does not always pick new files up
+(`Unknown story` errors).
 
 ## How it works
 
@@ -35,8 +39,9 @@ Three pieces, per the Playwright model:
   and `window.unmount()`, renders into `#root`, and reuses the React root so
   `update()` reconciles instead of remounting. App-wide setup lives here, like
   the app entry and `cy.mount`: `ThemeProvider`, `CssBaseline`, the dayjs
-  plugins of `Main/index.tsx` and an i18next instance without resources (labels
-  render as their English keys). The theme follows the emulated color scheme.
+  plugins and locales of `Main/index.tsx`, and an i18next instance without
+  resources nor key separators (labels render as their English keys). The theme
+  follows the emulated color scheme.
 - **The `mount` fixture** — built into `@playwright/test`, no extra package. It
   navigates to the gallery (`baseURL`), calls `window.mount()` and returns a
   locator scoped to the gallery root.
@@ -56,14 +61,33 @@ type-checks the specs, the stories and the registry together.
 
 Specs import `test` and `expect` from `tests/components/fixtures.ts`:
 
-- `mockApi({ endpoint, method, response, status })` replaces
-  `cy.interceptAPIRequest`: it takes the endpoint constant of the app as is and
-  returns the JSON bodies it received.
-- `expectThemedScreenshot(locator, name)` captures `name-light` and `name-dark`,
-  the convention of the Cypress component suite.
+- `mockApi({ endpoint, method, response, status, delay })` replaces
+  `cy.interceptAPIRequest`. It takes the endpoint constant of the app as is
+  (relative `./api/...`, query string ignored), answers with JSON or with a
+  function of the request URL, and returns the `bodies` and `urls` it received.
+  The latest registered mock wins, so a test can override a `beforeEach` one.
+- `expectThemedScreenshot(target, name)` captures `name-light` and `name-dark`,
+  the convention of the Cypress component suite. `target` is the mount locator,
+  a portalled element, or the page for fixed-position components.
 - An automatic fixture fails the test when React reported an error after
   `mount()`; `mount()` itself rejects with the React error when the story throws
   while rendering or in an effect.
+
+### Story helpers
+
+- `WidgetPropertyStoryFrame` / `createWidgetPropertyStory(Input, defaults)` —
+  the Jotai store and Formik form of the dashboard widget edition panel, driven
+  by serializable props (`canEdit`, `isEditing`, `options`, `user`,
+  `inputProps`…), with the form values recorded in `form-values`.
+- `createWidgetStory(Widget)` — a dashboard widget mounted with its usual props,
+  specs pass `panelData` and `panelOptions`.
+- `LocationRecorder` (`playwright/gallery/storyHelpers.tsx`) — records the router
+  location in `location`, so specs assert navigations instead of stubbing
+  `useNavigate`. Stories use a `MemoryRouter` instead of stubbing `useLocation`.
+- Hook and pure function stories expose an API on `window`
+  (`useValidationSchema`, the search query language); specs call it with
+  `page.evaluate()`. Pure modules that reach `@centreon/ui` cannot be imported
+  in Node: it reads `document` at import.
 
 ### Themes, clock and viewport
 
@@ -72,20 +96,8 @@ Specs import `test` and `expect` from `tests/components/fixtures.ts`:
   `dark` class, like `Main/useUser.ts`.
 - Stories that read app-wide atoms hydrate them in the default Jotai store with
   `useHydrateAtoms`, the one the gallery `ThemeProvider` reads.
-- `page.clock.setFixedTime()` before `mount()` replaces `cy.clock()`.
-
-## What the migrated specs demonstrate
-
-| Spec | Pattern |
-| --- | --- |
-| `tests/components/authenticationDenied.spec.ts` | Plain rendering plus `toHaveScreenshot()`, replacing `cy.makeSnapshot()` |
-| `tests/components/dashboardsFilter.spec.ts` | Jotai provider owned by the story; the debounced atom value is recorded into a hidden input and asserted with the retrying `toHaveValue()` |
-| `tests/components/widgetWarningField.spec.ts` | Formik + Jotai providers in the story, per-test props via `mount(id, props)`, and `update()` for a prop transition without remounting |
-| `tests/components/addCommentForm.spec.ts` | `mockApi()` replacing `cy.interceptAPIRequest`, request body asserted, two callbacks recorded by the story, and a screenshot of a portalled dialog |
-| `tests/components/about.spec.ts` | Frozen clock, app-wide atoms hydrated in the default store, light and dark screenshots, dark-only assertions with `test.use({ colorScheme })` |
-| `tests/components/timeInput.spec.ts` | Story defaults overridden by serializable props, `onChange` recorded by the story, portalled listbox options, data-driven tests |
-| `tests/components/searchHelp.spec.ts` | Platform variant (cloud / on-premise) as a story prop, portalled tooltip asserted and captured |
-| `tests/components/breadcrumbTrail.spec.ts` | `MemoryRouter` replacing a `useLocation` stub, JSON fixtures shared with Cypress, hover, real clipboard instead of a `writeText` stub |
+- `page.clock.setFixedTime()` before `mount()` replaces `cy.clock()`; use
+  `page.clock.install()` + `runFor()` to drive timers.
 
 ## Conventions
 
@@ -93,19 +105,51 @@ Specs import `test` and `expect` from `tests/components/fixtures.ts`:
   one, except for plain serializable props.
 - Callbacks never cross the Node/browser boundary: the story provides them and
   records the observable outcome into a hidden `<input data-testid=...>`.
-- Screenshot the locator returned by `mount()`, never the page.
 - **Portalled content escapes the mount root.** MUI `Dialog`, `Popover`,
-  `Tooltip` and friends render into `document.body`, so query them from `page`,
-  not from the locator `mount()` returns — and screenshot the dialog itself.
-  The story's hidden recording inputs stay inside the root.
+  `Tooltip`, listboxes and snackbars render into `document.body`, so query them
+  from `page`, not from the locator `mount()` returns.
 - Register `mockApi()` mocks **before** `mount()`, since mounting navigates.
 - Prefer `getByRole(role, { name })`: MUI selects are comboboxes named through
   `aria-labelledby`, which `getByLabel` does not resolve.
+- One themed screenshot per spec, on its most representative state; skip
+  screenshots of content resized asynchronously (fluid typography) or caught
+  mid-transition, assertions cover them.
 - Dates are formatted in the browser, so the project pins `timezoneId: 'UTC'`
   — the equivalent of the `TZ=Etc/UTC` the Cypress scripts export.
 - Baselines live in `playwright/visual-testing-snapshots/` and are committed —
   not `screenshots/`, which the repository `.gitignore` excludes;
   `playwright/results/` is ignored.
+
+## Migration status
+
+63 of the 97 Cypress component spec files are migrated; their Cypress versions
+stay until the suite runs in CI. The remaining ones are the largest (200 to
+1,300 lines, heavy API mocking): the Header suite, the Resources listing,
+details, filters and actions, the dashboards, the dashboard widgets
+(status grid, resources table, graph, single metric, group monitoring, status
+chart, top/bottom), the notification and resource access rule panels and
+listings, the OpenID and SAML forms, the agent configuration listing, and the
+configuration aggregator suites (`Acc`, `Commands`, `HostGroups`, `Hosts`,
+`ConfigurationBase`).
+
+## Findings
+
+The typed stories and the stricter assertions surfaced issues the Cypress specs
+did not catch:
+
+- **Bug** — `AgentInitiated` passes `ChipProps` to the `@centreon/ui`
+  autocomplete, which reads `chipProps`: the delete icon of a CMA token chip does
+  nothing. The spec marks it with `test.fail()`.
+- `useUpdateVaultConfiguration` resets the form to the saved values; the Cypress
+  spec still expected the previous configuration.
+- Props now required by components were missing from the Cypress mounts
+  (`isInViewport`, `children`, `WidgetPropertyProps`), the web page widget no
+  longer takes a `store`, and `DisplayType` reads options typed as
+  `SelectEntry`.
+- Several Cypress cases clicked around without any assertion; their migrated
+  versions assert the outcome.
+- `Widgets/widgets.ts` registers its test widgets only for Cypress component
+  runs (`window.Cypress.testingType`); the gallery sets that flag for now.
 
 ## Known gaps
 
