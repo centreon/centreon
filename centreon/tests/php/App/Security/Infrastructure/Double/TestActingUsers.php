@@ -23,26 +23,21 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Double;
 
-use App\Security\Domain\Aggregate\Credential;
-use App\Security\Domain\Aggregate\CredentialIdentifier;
-use App\Security\Domain\Aggregate\Role;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 
 /**
- * Builds the acting credential of a test: a super admin escapes ACL scoping, any other user is scoped.
+ * Builds the acting user of a test: an unrestricted one escapes ACL scoping, a restricted one is scoped.
  */
-final class TestCredentials
+final class TestActingUsers
 {
-    public static function unrestricted(int $id = 1): Credential
+    public static function unrestricted(int $id = 1): ActingUser
     {
-        $credential = self::restricted($id);
-        $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
-
-        return $credential;
+        return new ActingUser(new UserId($id), unrestrictedResourceAccess: true);
     }
 
-    public static function restricted(int $id): Credential
+    public static function restricted(int $id): ActingUser
     {
-        return new Credential(new CredentialIdentifier('user-' . $id), new UserId($id), active: true);
+        return new ActingUser(new UserId($id), unrestrictedResourceAccess: false);
     }
 }

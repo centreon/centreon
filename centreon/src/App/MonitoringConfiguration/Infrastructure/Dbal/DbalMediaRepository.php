@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -86,7 +86,7 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
     {
         $accessibleFolderIds = null;
         $actor = $criteria?->getActor();
-        if ($actor instanceof Credential && ! $actor->hasUnrestrictedResourceAccess()) {
+        if ($actor instanceof ActingUser && ! $actor->hasUnrestrictedResourceAccess()) {
             $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($actor->userId);
             if ($accessibleFolderIds instanceof Collection && $accessibleFolderIds->count() === 0) {
                 return $this->emptyResult($criteria);

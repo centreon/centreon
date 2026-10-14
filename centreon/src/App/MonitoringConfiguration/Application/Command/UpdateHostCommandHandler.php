@@ -67,7 +67,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -153,7 +153,7 @@ final readonly class UpdateHostCommandHandler
     {
         // Actor-scoped: findOne returns null for a host outside the actor's ACL scope, the same as a
         // nonexistent one, so a restricted actor can never tell them apart.
-        $actor = $this->credentialRepository->getById($command->updatedBy);
+        $actor = $this->credentialRepository->getById($command->updatedBy)->actingUser();
         $existingHost = $this->repository->findOne($command->id, $actor);
         if (! $existingHost instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
@@ -577,7 +577,7 @@ final readonly class UpdateHostCommandHandler
     private function preserveInaccessibleContacts(
         Notifications $submitted,
         ?Notifications $existing,
-        Credential $actor,
+        ActingUser $actor,
     ): Notifications {
         if (! $existing instanceof Notifications || $actor->hasUnrestrictedResourceAccess()) {
             return $submitted;
@@ -624,7 +624,7 @@ final readonly class UpdateHostCommandHandler
     /**
      * @param Collection<HostGroupId> $hostGroupIds
      */
-    private function assertHostGroupsExist(Collection $hostGroupIds, Credential $actor): void
+    private function assertHostGroupsExist(Collection $hostGroupIds, ActingUser $actor): void
     {
         if (count($hostGroupIds) === 0) {
             return;
@@ -679,7 +679,7 @@ final readonly class UpdateHostCommandHandler
     /**
      * @param Collection<HostCategoryId> $categoryIds
      */
-    private function assertCategoriesExist(Collection $categoryIds, Credential $actor): void
+    private function assertCategoriesExist(Collection $categoryIds, ActingUser $actor): void
     {
         $missingIds = $this->missingIds(
             $categoryIds,
@@ -692,7 +692,7 @@ final readonly class UpdateHostCommandHandler
         }
     }
 
-    private function assertSeverityExists(?HostSeverityId $severityId, Credential $actor): void
+    private function assertSeverityExists(?HostSeverityId $severityId, ActingUser $actor): void
     {
         if (! $severityId instanceof HostSeverityId) {
             return;

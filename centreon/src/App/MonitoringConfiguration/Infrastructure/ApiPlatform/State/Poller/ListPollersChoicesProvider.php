@@ -89,7 +89,7 @@ final readonly class ListPollersChoicesProvider implements ProviderInterface
         // the generic /configuration/pollers endpoint, which returns pollers regardless of status.
         $criteria = $criteria->withActiveOnly(true);
         $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $hasUnrestrictedResourceAccess);
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $pollers = $this->repository->findAll($criteria);
         $resources = [];

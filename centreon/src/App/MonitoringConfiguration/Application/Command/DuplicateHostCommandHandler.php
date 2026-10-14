@@ -71,7 +71,7 @@ final readonly class DuplicateHostCommandHandler
     {
         // ACL-scoped read: a host outside a restricted actor's scope reads as not found, the same as
         // one that does not exist, so as not to leak existence (see HostRepository::findOne()).
-        $actor = $this->credentialRepository->getById($command->duplicatedBy);
+        $actor = $this->credentialRepository->getById($command->duplicatedBy)->actingUser();
         $source = $this->repository->findOne($command->hostId, $actor);
         if (! $source instanceof Host) {
             throw new HostNotFoundException([$command->hostId->value], 'id');

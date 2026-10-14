@@ -48,7 +48,7 @@ final readonly class DeleteHostCommandHandler
 
     public function __invoke(DeleteHostCommand $command): void
     {
-        $actor = $this->credentialRepository->getById($command->deletedBy);
+        $actor = $this->credentialRepository->getById($command->deletedBy)->actingUser();
         $host = $this->hostRepository->findOne($command->id, $actor);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');

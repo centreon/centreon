@@ -35,7 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -532,7 +532,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     private function filterByActor(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
         $actor = $criteria->getActor();
-        if (! $actor instanceof Credential || $actor->hasUnrestrictedResourceAccess()) {
+        if (! $actor instanceof ActingUser || $actor->hasUnrestrictedResourceAccess()) {
             return;
         }
 

@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHosts;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostsValidator;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -64,7 +65,7 @@ final class AccessibleHostsValidatorTest extends ConstraintValidatorTestCase
     public function testExistingHostsRaiseNoViolationForAnAdmin(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: true));
-        $this->hostRepository->expects(self::once())->method('findAccessibleNamesByIds')->with(self::anything(), self::callback(static fn (Credential $actor): bool => $actor->hasUnrestrictedResourceAccess()))->willReturn(new Collection([5 => new HostName('server-01')], HostName::class));
+        $this->hostRepository->expects(self::once())->method('findAccessibleNamesByIds')->with(self::anything(), self::callback(static fn (ActingUser $actor): bool => $actor->hasUnrestrictedResourceAccess()))->willReturn(new Collection([5 => new HostName('server-01')], HostName::class));
 
         $this->validator->validate([5], new AccessibleHosts());
 
@@ -86,7 +87,7 @@ final class AccessibleHostsValidatorTest extends ConstraintValidatorTestCase
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostRepository->expects(self::once())->method('findAccessibleNamesByIds')
-            ->with(self::anything(), self::callback(static fn (Credential $actor): bool => ! $actor->hasUnrestrictedResourceAccess() && $actor->userId->value === 7))
+            ->with(self::anything(), self::callback(static fn (ActingUser $actor): bool => ! $actor->hasUnrestrictedResourceAccess() && $actor->userId->value === 7))
             ->willReturn(new Collection([], HostName::class));
 
         $constraint = new AccessibleHosts();

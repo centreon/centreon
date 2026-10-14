@@ -69,7 +69,7 @@ final class AccessibleHostsValidator extends ConstraintValidator
             array_map(static fn (int $id): HostId => new HostId($id), $requestedIds),
             HostId::class,
         );
-        if (array_diff($requestedIds, array_keys($this->hostRepository->findAccessibleNamesByIds($hostIds, $credentialUser->credential)->toArray())) !== []) {
+        if (array_diff($requestedIds, array_keys($this->hostRepository->findAccessibleNamesByIds($hostIds, $credentialUser->credential->actingUser())->toArray())) !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

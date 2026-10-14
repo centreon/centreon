@@ -111,7 +111,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeCredentialRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
-use Tests\App\Security\Infrastructure\Double\TestCredentials;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
@@ -193,7 +193,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         self::assertSame(10, $host->id()->value);
         self::assertSame('server-new', $host->name->value);
-        self::assertSame('server-new', $this->hostRepository->findOne(new HostId(10), TestCredentials::unrestricted())?->name->value);
+        self::assertSame('server-new', $this->hostRepository->findOne(new HostId(10), TestActingUsers::unrestricted())?->name->value);
     }
 
     public function testItRejectsAnUnknownHost(): void
@@ -1093,7 +1093,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         $groupIds = array_map(
             static fn (HostGroupId $id): int => $id->value,
-            $this->hostRepository->findOne(new HostId(10), TestCredentials::unrestricted())?->hostGroupIds->toArray() ?? [],
+            $this->hostRepository->findOne(new HostId(10), TestActingUsers::unrestricted())?->hostGroupIds->toArray() ?? [],
         );
         sort($groupIds);
         // The out-of-scope group 2 is preserved rather than wiped.
@@ -1277,7 +1277,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         $groupIds = array_map(
             static fn (HostGroupId $id): int => $id->value,
-            $this->hostRepository->findOne(new HostId(10), TestCredentials::unrestricted())?->hostGroupIds->toArray() ?? [],
+            $this->hostRepository->findOne(new HostId(10), TestActingUsers::unrestricted())?->hostGroupIds->toArray() ?? [],
         );
         self::assertSame([1], $groupIds);
     }

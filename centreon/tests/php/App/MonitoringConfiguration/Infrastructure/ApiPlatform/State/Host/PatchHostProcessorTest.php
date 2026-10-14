@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tests\App\Security\Infrastructure\Double\TestCredentials;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\ApiTestCase;
 
 final class PatchHostProcessorTest extends ApiTestCase
@@ -953,7 +953,7 @@ final class PatchHostProcessorTest extends ApiTestCase
             self::assertResponseStatusCodeSame(204, sprintf('request %d: %s', $position + 1, json_encode($body)));
             /** @var HostRepository $repository */
             $repository = self::getContainer()->get(HostRepository::class);
-            $host = $repository->findOne(new HostId($hostId), TestCredentials::unrestricted());
+            $host = $repository->findOne(new HostId($hostId), TestActingUsers::unrestricted());
             self::assertInstanceOf(Host::class, $host);
             self::assertSame($expected, $read($host), sprintf('what the host holds after request %d', $position + 1));
         }

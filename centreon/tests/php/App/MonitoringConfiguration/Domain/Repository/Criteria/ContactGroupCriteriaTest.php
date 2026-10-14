@@ -25,7 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
 use PHPUnit\Framework\TestCase;
-use Tests\App\Security\Infrastructure\Double\TestCredentials;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class ContactGroupCriteriaTest extends TestCase
 {
@@ -56,7 +56,7 @@ final class ContactGroupCriteriaTest extends TestCase
     {
         $criteria = new ContactGroupCriteria();
 
-        $actor = TestCredentials::restricted(7);
+        $actor = TestActingUsers::restricted(7);
         $new = $criteria->withActor($actor);
 
         self::assertNull($criteria->getActor());

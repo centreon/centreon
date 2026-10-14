@@ -82,7 +82,7 @@ final readonly class ListHostCategoriesChoicesProvider implements ProviderInterf
         }
 
         // Unrestricted users see every host category; others are scoped to their accessible categories.
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostCategories = $this->repository->findAll($criteria);
         $resources = [];

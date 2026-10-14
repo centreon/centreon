@@ -48,7 +48,7 @@ use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepository;
 use Tests\App\Security\Infrastructure\Double\FakeCredentialRepository;
-use Tests\App\Security\Infrastructure\Double\TestCredentials;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 
 final class DeleteHostCommandHandlerTest extends TestCase
@@ -95,7 +95,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: new UserId(7)));
         } finally {
-            self::assertNotNull($this->hostRepository->findOne($host->id(), TestCredentials::unrestricted()));
+            self::assertNotNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
         }
     }
 
@@ -107,7 +107,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: new UserId(1)));
 
-        self::assertNull($this->hostRepository->findOne($host->id(), TestCredentials::unrestricted()));
+        self::assertNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
     }
 
     public function testItRejectsAnUnknownDeleterWithoutDeleting(): void
@@ -120,7 +120,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
         try {
             ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: new UserId(999)));
         } finally {
-            self::assertNotNull($this->hostRepository->findOne($host->id(), TestCredentials::unrestricted()));
+            self::assertNotNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
             self::assertFalse($this->eventBus->shouldHaveDispatched(HostDeleted::class));
         }
     }
@@ -132,7 +132,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
 
         ($this->handler)(new DeleteHostCommand($host->id(), deletedBy: new UserId(1)));
 
-        self::assertNull($this->hostRepository->findOne($host->id(), TestCredentials::unrestricted()));
+        self::assertNull($this->hostRepository->findOne($host->id(), TestActingUsers::unrestricted()));
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostDeleted::class));
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostVaultPurgeRequested::class));
         self::assertFalse($this->eventBus->shouldHaveDispatched(ServiceVaultPurgeRequested::class));

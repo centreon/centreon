@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
-use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 
 interface HostRepository
@@ -44,7 +44,7 @@ interface HostRepository
      * Scoped to what the actor can access via ACL: a host that exists but is outside their scope
      * returns null, the same as a host that does not exist at all, so as not to leak existence.
      */
-    public function findOne(HostId $id, Credential $actor): ?Host;
+    public function findOne(HostId $id, ActingUser $actor): ?Host;
 
     /**
      * The host's own (direct) macros as stored, with their ids, in storage order — the narrow read
@@ -139,7 +139,7 @@ interface HostRepository
      *
      * @return Collection<HostName> indexed by id
      */
-    public function findAccessibleNamesByIds(Collection $ids, Credential $actor): Collection;
+    public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.

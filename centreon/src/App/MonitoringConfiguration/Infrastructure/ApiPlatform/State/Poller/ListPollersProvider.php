@@ -85,7 +85,7 @@ final readonly class ListPollersProvider implements ProviderInterface
             $criteria = $criteria->withName($name);
         }
         $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $hasUnrestrictedResourceAccess);
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $pollers = $this->repository->findAll($criteria);
         $resources = [];

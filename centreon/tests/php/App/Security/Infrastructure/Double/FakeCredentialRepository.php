@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Double;
 
 use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Aggregate\CredentialIdentifier;
+use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Exception\CredentialNotFoundException;
 use App\Security\Domain\Repository\CredentialRepository;
@@ -42,7 +44,12 @@ final class FakeCredentialRepository implements CredentialRepository
      */
     public function addUser(UserId $id, bool $unrestricted): void
     {
-        $this->credentials[$id->value] = $unrestricted ? TestCredentials::unrestricted($id->value) : TestCredentials::restricted($id->value);
+        $credential = new Credential(new CredentialIdentifier('user-' . $id->value), $id, active: true);
+        if ($unrestricted) {
+            $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
+        }
+
+        $this->credentials[$id->value] = $credential;
     }
 
     public function getByToken(string $token): Credential

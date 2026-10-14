@@ -177,7 +177,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             $host->with(checkOptions: $host->checkOptions->with(
                 macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
             )),
-            $credentialUser->credential,
+            $credentialUser->credential->actingUser(),
         );
     }
 

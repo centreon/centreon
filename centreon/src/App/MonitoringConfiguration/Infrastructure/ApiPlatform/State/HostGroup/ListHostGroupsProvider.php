@@ -81,7 +81,7 @@ final readonly class ListHostGroupsProvider implements ProviderInterface
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withActor($credentialUser->credential);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostGroups = $this->repository->findAll($criteria);
         $resources = [];

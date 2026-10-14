@@ -55,7 +55,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Tests\App\Security\Infrastructure\Double\TestCredentials;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class DbalPollerRepositoryTest extends KernelTestCase
@@ -284,11 +284,11 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         $this->insertPoller(3, 'Poller-B');
         $viewerId = new UserId($this->createRestrictedContact(accessiblePollerIds: [2]));
 
-        $pollers = $this->repository->findAll((new PollerCriteria())->withActor(TestCredentials::restricted($viewerId->value)));
+        $pollers = $this->repository->findAll((new PollerCriteria())->withActor(TestActingUsers::restricted($viewerId->value)));
 
         self::assertCount(1, $pollers);
         self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
-        self::assertContains('Poller-B', array_map(static fn (Poller $poller): string => $poller->name->value, iterator_to_array($this->repository->findAll((new PollerCriteria())->withActor(TestCredentials::unrestricted($viewerId->value))))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains('Poller-B', array_map(static fn (Poller $poller): string => $poller->name->value, iterator_to_array($this->repository->findAll((new PollerCriteria())->withActor(TestActingUsers::unrestricted($viewerId->value))))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     public function testFlagAsChangedSetsTheUpdatedColumn(): void
