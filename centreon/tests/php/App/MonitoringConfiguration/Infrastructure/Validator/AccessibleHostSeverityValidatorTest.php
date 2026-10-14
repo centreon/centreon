@@ -80,7 +80,7 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCannotReferenceASeverityOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceASeverityOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostSeverityRepository->method('findNameById')->willReturn(new HostSeverityName('critical'));
@@ -93,7 +93,7 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCanReferenceAnAccessibleSeverity(): void
+    public function testARestrictedActorCanReferenceAnAccessibleSeverity(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostSeverityRepository->method('findNameById')->willReturn(new HostSeverityName('critical'));
@@ -105,7 +105,7 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
         $this->assertNoViolation();
     }
 
-    public function testAViewerWithoutSeverityRestrictionCanReferenceAnyExistingSeverity(): void
+    public function testAActorWithoutSeverityRestrictionCanReferenceAnyExistingSeverity(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostSeverityRepository->method('findNameById')->willReturn(new HostSeverityName('critical'));

@@ -585,8 +585,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
     public function testUserSeesTheContactsAttachedToItsAccessGroupDirectlyOrThroughAContactGroup(): void
     {
-        $viewerId = $this->createContact('viewer-contacts-' . uniqid());
-        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+        $actorId = $this->createContact('actor-contacts-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($actorId);
 
         $directContactId = $this->createContact('direct-' . uniqid());
         $this->connection->insert('acl_group_contacts_relations', [
@@ -617,7 +617,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $accessibleIds = array_map(
             static fn (NotificationContactId $id): int => $id->value,
-            $this->nonNull($this->repository->findAccessibleContactIds(TestActingUsers::restricted($viewerId)))->toArray(),
+            $this->nonNull($this->repository->findAccessibleContactIds(TestActingUsers::restricted($actorId)))->toArray(),
         );
 
         self::assertContains($directContactId, $accessibleIds);
@@ -628,17 +628,17 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
     public function testUserAlwaysSeesTheContactGroupsItBelongsTo(): void
     {
-        $viewerId = $this->createContact('viewer-cg-' . uniqid());
+        $actorId = $this->createContact('actor-cg-' . uniqid());
         $ownContactGroupId = $this->createContactGroup('own-cg-' . uniqid());
         $this->connection->insert('contactgroup_contact_relation', [
             'contactgroup_cg_id' => $ownContactGroupId,
-            'contact_contact_id' => $viewerId,
+            'contact_contact_id' => $actorId,
         ]);
 
         // no Access Group at all: own membership is the only path, and it must still apply
         $accessibleIds = array_map(
             static fn (ContactGroupId $id): int => $id->value,
-            $this->nonNull($this->repository->findAccessibleContactGroupIds(TestActingUsers::restricted($viewerId)))->toArray(),
+            $this->nonNull($this->repository->findAccessibleContactGroupIds(TestActingUsers::restricted($actorId)))->toArray(),
         );
 
         self::assertSame([$ownContactGroupId], $accessibleIds);
@@ -646,8 +646,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
     public function testUserSeesTheContactGroupsGrantedByItsAccessGroup(): void
     {
-        $viewerId = $this->createContact('viewer-granted-cg-' . uniqid());
-        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+        $actorId = $this->createContact('actor-granted-cg-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($actorId);
 
         $grantedContactGroupId = $this->createContactGroup('granted-cg-' . uniqid());
         $this->connection->insert('acl_group_contactgroups_relations', [
@@ -658,7 +658,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $accessibleIds = array_map(
             static fn (ContactGroupId $id): int => $id->value,
-            $this->nonNull($this->repository->findAccessibleContactGroupIds(TestActingUsers::restricted($viewerId)))->toArray(),
+            $this->nonNull($this->repository->findAccessibleContactGroupIds(TestActingUsers::restricted($actorId)))->toArray(),
         );
 
         self::assertSame([$grantedContactGroupId], $accessibleIds);
@@ -675,8 +675,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
     public function testUserSeesTheHostsTheRealTimeAclGrantsToItsAccessGroups(): void
     {
-        $viewerId = $this->createContact('viewer-hosts-' . uniqid());
-        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+        $actorId = $this->createContact('actor-hosts-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($actorId);
         $otherAclGroupId = $this->createAccessGroupForContact($this->createContact('other-hosts-' . uniqid()));
 
         $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9101]);
@@ -686,7 +686,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $accessibleIds = array_map(
             static fn (HostId $id): int => $id->value,
-            $this->nonNull($this->repository->findAccessibleHostIds(TestActingUsers::restricted($viewerId)))->toArray(),
+            $this->nonNull($this->repository->findAccessibleHostIds(TestActingUsers::restricted($actorId)))->toArray(),
         );
 
         self::assertSame([9101], $accessibleIds);
@@ -694,8 +694,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
     public function testOnlyTheHostsAmongTheGivenOnesAreLookedUp(): void
     {
-        $viewerId = $this->createContact('viewer-among-' . uniqid());
-        $aclGroupId = $this->createAccessGroupForContact($viewerId);
+        $actorId = $this->createContact('actor-among-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($actorId);
 
         $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9201]);
         $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9202]);
@@ -703,13 +703,13 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $accessibleIds = array_map(
             static fn (HostId $id): int => $id->value,
             $this->nonNull($this->repository->findAccessibleHostIds(
-                TestActingUsers::restricted($viewerId),
+                TestActingUsers::restricted($actorId),
                 new Collection([new HostId(9202), new HostId(9203)], HostId::class),
             ))->toArray(),
         );
 
         self::assertSame([9202], $accessibleIds);
-        self::assertCount(0, $this->nonNull($this->repository->findAccessibleHostIds(TestActingUsers::restricted($viewerId), new Collection([], HostId::class))));
+        self::assertCount(0, $this->nonNull($this->repository->findAccessibleHostIds(TestActingUsers::restricted($actorId), new Collection([], HostId::class))));
     }
 
     public function testAnUnrestrictedActorIsNotRestrictedToAnyResource(): void

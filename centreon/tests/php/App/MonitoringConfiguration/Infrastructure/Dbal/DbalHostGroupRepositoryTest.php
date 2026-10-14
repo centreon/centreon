@@ -94,7 +94,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(301, 'HostGroup-A');
         $this->insertHostGroup(302, 'HostGroup-B');
 
-        $hostGroups = iterator_to_array($this->repository->findAll());
+        $hostGroups = iterator_to_array($this->repository->findAll(new HostGroupCriteria()->withoutAccessScope()));
 
         self::assertCount(2, $hostGroups);
         self::assertContainsOnlyInstancesOf(HostGroup::class, $hostGroups);
@@ -105,7 +105,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(301, 'Linux-Servers');
         $this->insertHostGroup(302, 'Windows-Servers');
 
-        $criteria = (new HostGroupCriteria())->withName('Linux');
+        $criteria = (new HostGroupCriteria())->withoutAccessScope()->withName('Linux');
 
         $hostGroups = iterator_to_array($this->repository->findAll($criteria));
 
@@ -119,7 +119,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(302, 'HostGroup-B');
         $this->insertHostGroup(303, 'HostGroup-C');
 
-        $criteria = (new HostGroupCriteria())->withPagination(page: 2, itemsPerPage: 1);
+        $criteria = (new HostGroupCriteria())->withoutAccessScope()->withPagination(page: 2, itemsPerPage: 1);
 
         $paginator = $this->repository->findAll($criteria);
 
@@ -130,7 +130,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         self::assertSame(['HostGroup-B'], $this->extractNames(iterator_to_array($paginator)));
     }
 
-    public function testFindAllRestrictsToAccessibleHostGroupsForARestrictedViewer(): void
+    public function testFindAllRestrictsToAccessibleHostGroupsForARestrictedActor(): void
     {
         $this->insertHostGroup(301, 'HostGroup-A');
         $this->insertHostGroup(302, 'HostGroup-B');

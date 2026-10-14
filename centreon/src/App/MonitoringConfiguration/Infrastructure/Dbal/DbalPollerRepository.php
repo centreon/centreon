@@ -363,7 +363,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return new Collection($names, PollerName::class);
     }
 
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
@@ -373,11 +373,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->from(self::TABLE_NAME, 'p')
             ->orderBy('p.id'); // required for deterministic pagination
 
-        if ($criteria instanceof PollerCriteria) {
-            $this->filterByPollerCriteria($qb, $criteria);
-        }
+        $this->filterByPollerCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

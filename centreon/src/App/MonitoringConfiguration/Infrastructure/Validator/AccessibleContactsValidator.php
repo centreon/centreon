@@ -34,7 +34,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Rejects contacts the viewer cannot reach as if they did not exist, so a restricted user cannot
+ * Rejects contacts the actor cannot reach as if they did not exist, so a restricted user cannot
  * tell an inaccessible contact apart from a missing one — and cannot link a contact absent from
  * the very selector the UI offers them (ListNotificationContactsProvider scopes it identically).
  *

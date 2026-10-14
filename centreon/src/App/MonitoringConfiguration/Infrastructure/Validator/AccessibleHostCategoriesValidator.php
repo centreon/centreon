@@ -34,7 +34,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * Rejects categories the viewer cannot reach as if they did not exist, so a restricted user cannot tell
+ * Rejects categories the actor cannot reach as if they did not exist, so a restricted user cannot tell
  * an inaccessible category apart from a missing one.
  *
  * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially on the property

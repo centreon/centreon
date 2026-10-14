@@ -73,7 +73,7 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testItReturns404WhenTheHostIsOutsideTheViewerAclScope(): void
+    public function testItReturns404WhenTheHostIsOutsideTheActorAclScope(): void
     {
         $pollerId = $this->insertPoller('Central');
         $hostId = $this->insertHost($this->uniqueName('web'), $pollerId);

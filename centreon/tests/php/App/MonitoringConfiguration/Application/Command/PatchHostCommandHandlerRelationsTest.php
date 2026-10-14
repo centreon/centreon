@@ -103,7 +103,7 @@ use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
 final class PatchHostCommandHandlerRelationsTest extends TestCase
 {
     private const HOST_ID = 5;
-    private const VIEWER_ID = 7;
+    private const ACTOR_ID = 7;
 
     private FakeHostRepository $repository;
 
@@ -245,34 +245,34 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertSame([], $this->repository->relationsReplacedHosts);
     }
 
-    public function testAReplacementKeepsTheHostGroupsTheViewerCannotSee(): void
+    public function testAReplacementKeepsTheHostGroupsTheActorCannotSee(): void
     {
         $this->seedHost(hostGroupIds: [1, 2]);
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
 
-        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), updatedBy: new UserId(self::VIEWER_ID)));
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), updatedBy: new UserId(self::ACTOR_ID)));
 
         self::assertSame([3, 1], $this->ids($result->hostGroupIds));
     }
 
-    public function testARemovalLeavesTheHostGroupsTheViewerCannotSee(): void
+    public function testARemovalLeavesTheHostGroupsTheActorCannotSee(): void
     {
         $this->seedHost(hostGroupIds: [1, 2]);
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2)], HostGroupId::class);
 
-        $result = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1), new HostGroupId(2)]), updatedBy: new UserId(self::VIEWER_ID)));
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1), new HostGroupId(2)]), updatedBy: new UserId(self::ACTOR_ID)));
 
         self::assertSame([1], $this->ids($result->hostGroupIds));
     }
 
-    public function testAHostGroupTheViewerCannotSeeCannotBeAdded(): void
+    public function testAHostGroupTheActorCannotSeeCannotBeAdded(): void
     {
         $this->seedHost();
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2)], HostGroupId::class);
 
         $this->expectException(HostGroupNotFoundException::class);
 
-        ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(1)]), updatedBy: new UserId(self::VIEWER_ID)));
+        ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(1)]), updatedBy: new UserId(self::ACTOR_ID)));
     }
 
     public function testAnUnknownHostGroupIsRejected(): void
@@ -306,7 +306,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     {
         $this->seedHost();
 
-        ($this->handler)($this->command(updatedBy: new UserId(self::VIEWER_ID)));
+        ($this->handler)($this->command(updatedBy: new UserId(self::ACTOR_ID)));
 
         self::assertSame(0, $this->resourceAccessRepository->accessListLoads);
     }
@@ -316,7 +316,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->seedHost();
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
 
-        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), updatedBy: new UserId(self::VIEWER_ID)));
+        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), updatedBy: new UserId(self::ACTOR_ID)));
 
         self::assertSame(1, $this->resourceAccessRepository->accessListLoads);
     }
@@ -331,7 +331,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([new HostCategoryId(3)], HostCategoryId::class);
         $this->expectException(HostCategoryNotFoundException::class);
 
-        ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(1)]), updatedBy: new UserId(self::VIEWER_ID)));
+        ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(1)]), updatedBy: new UserId(self::ACTOR_ID)));
     }
 
     public function testParentsAndChildrenAreChanged(): void
@@ -349,7 +349,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertSame([7], $this->ids($result->childHostIds));
     }
 
-    public function testAHostTheViewerCannotSeeCannotBeLinked(): void
+    public function testAHostTheActorCannotSeeCannotBeLinked(): void
     {
         $this->seedHost();
         $this->seedOtherHost(6);
@@ -357,10 +357,10 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         $this->expectException(HostNotFoundException::class);
 
-        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(6)]), updatedBy: new UserId(self::VIEWER_ID)));
+        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(6)]), updatedBy: new UserId(self::ACTOR_ID)));
     }
 
-    public function testAReplacementKeepsTheLinksToHostsTheViewerCannotSee(): void
+    public function testAReplacementKeepsTheLinksToHostsTheActorCannotSee(): void
     {
         $this->seedHost(parentIds: [6], childIds: [8]);
         $this->seedOtherHost(6);
@@ -371,7 +371,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $result = ($this->handler)($this->command(
             parentHostIds: ListChange::replace([new HostId(7)]),
             childHostIds: ListChange::remove([new HostId(8)]),
-            updatedBy: new UserId(self::VIEWER_ID),
+            updatedBy: new UserId(self::ACTOR_ID),
         ));
 
         self::assertSame([7, 6], $this->ids($result->parentHostIds));
@@ -438,12 +438,12 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         self::assertCount(1, $this->repository->relationsReplacedHosts);
     }
 
-    public function testAReplacementKeepsTheContactsTheViewerCannotSee(): void
+    public function testAReplacementKeepsTheContactsTheActorCannotSee(): void
     {
         $this->seedHost(contactIds: [1, 2]);
         $this->resourceAccessRepository->accessibleContactIds = new Collection([new NotificationContactId(2), new NotificationContactId(3)], NotificationContactId::class);
 
-        $result = ($this->handler)($this->command(contactIds: ListChange::replace([new NotificationContactId(3)]), updatedBy: new UserId(self::VIEWER_ID)));
+        $result = ($this->handler)($this->command(contactIds: ListChange::replace([new NotificationContactId(3)]), updatedBy: new UserId(self::ACTOR_ID)));
 
         self::assertSame([3, 1], $this->contactIdsOf($result));
     }

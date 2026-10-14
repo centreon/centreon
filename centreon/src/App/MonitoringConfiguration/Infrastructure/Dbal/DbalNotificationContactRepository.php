@@ -90,10 +90,10 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         return new Collection($names, NotificationContactName::class);
     }
 
-    public function findAll(?NotificationContactCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
         $accessibleContactIds = null;
-        $actor = $criteria?->getActor();
+        $actor = $criteria->getActor();
         $accessibleContacts = $actor instanceof ActingUser ? $this->resourceAccessRepository->findAccessibleContactIds($actor) : null;
         if ($accessibleContacts instanceof Collection) {
             $accessibleContactIds = array_map(static fn (NotificationContactId $id): int => $id->value, $accessibleContacts->toArray());
@@ -120,11 +120,9 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
             ));
         }
 
-        if ($criteria instanceof NotificationContactCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -155,9 +153,9 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
      * size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise tell
      * "zero matches" from "pagination metadata omitted".
      */
-    private function emptyResult(?NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
+    private function emptyResult(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return new Collection([], NotificationContact::class);
         }

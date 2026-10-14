@@ -73,7 +73,7 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         $this->insertHostSeverity($severityName);
         $this->insertHostSeverity($categoryName, level: null);
 
-        $names = $this->names($this->repository->findAll());
+        $names = $this->names($this->repository->findAll(new HostSeverityCriteria()->withoutAccessScope()));
 
         self::assertContains($severityName, $names);
         self::assertNotContains($categoryName, $names, 'A host category (level IS NULL) must not appear among host severities.');
@@ -84,7 +84,7 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         $this->insertHostSeverity("match-{$this->tag}");
         $this->insertHostSeverity("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withoutAccessScope()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}"], $names);
     }
@@ -98,7 +98,7 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded severities cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new HostSeverityCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            (new HostSeverityCriteria())->withoutAccessScope()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -107,51 +107,51 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
     }
 
-    public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedViewer(): void
+    public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedActor(): void
     {
         $accessibleName = "acl-in-{$this->tag}";
         $accessibleId = $this->insertHostSeverity($accessibleName);
         $inaccessibleName = "acl-out-{$this->tag}";
         $this->insertHostSeverity($inaccessibleName);
-        // a category whose id is granted to the viewer: it must stay excluded because it is a
+        // a category whose id is granted to the actor: it must stay excluded because it is a
         // category, proving a category id in the ACL set is inert against the level IS NOT NULL filter.
         $categoryName = "acl-cat-{$this->tag}";
         $categoryId = $this->insertHostSeverity($categoryName, level: null);
 
-        $viewerId = new UserId($this->createContactRestrictedToHostCategories([$accessibleId, $categoryId]));
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([$accessibleId, $categoryId]));
 
-        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($viewerId->value))));
+        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertContains($accessibleName, $names);
-        self::assertNotContains($inaccessibleName, $names, 'A severity not in the viewer ACL is excluded.');
+        self::assertNotContains($inaccessibleName, $names, 'A severity not in the actor ACL is excluded.');
         self::assertNotContains($categoryName, $names, 'A category is excluded even when its id is granted in the ACL.');
-        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::unrestricted($viewerId->value)))), 'An unrestricted actor is not scoped by ACL.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::unrestricted($actorId->value)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
-    public function testFindAllReturnsAllSeveritiesForAViewerWithNoCategoryRestriction(): void
+    public function testFindAllReturnsAllSeveritiesForAActorWithNoCategoryRestriction(): void
     {
         $severityName = "acl-any-{$this->tag}";
         $this->insertHostSeverity($severityName);
 
         // ACL resource without any host-category relation → no restriction → sees every severity
-        $viewerId = new UserId($this->createContactRestrictedToHostCategories([]));
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([]));
 
-        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($viewerId->value))));
+        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
 
         self::assertContains($severityName, $names);
     }
 
-    public function testFindAllReturnsNoSeverityForAViewerGrantedOnlyCategories(): void
+    public function testFindAllReturnsNoSeverityForAActorGrantedOnlyCategories(): void
     {
         $categoryId = $this->insertHostSeverity("cat-only-{$this->tag}", level: null);
-        $this->insertHostSeverity("sev-{$this->tag}"); // a real severity, but not granted to the viewer
+        $this->insertHostSeverity("sev-{$this->tag}"); // a real severity, but not granted to the actor
 
-        // the viewer's ACL grants only a levelless category → restricted, but to zero severities
-        $viewerId = new UserId($this->createContactRestrictedToHostCategories([$categoryId]));
+        // the actor's ACL grants only a levelless category → restricted, but to zero severities
+        $actorId = new UserId($this->createContactRestrictedToHostCategories([$categoryId]));
 
-        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($viewerId->value))));
+        $names = $this->names($this->repository->findAll((new HostSeverityCriteria())->withActor(TestActingUsers::restricted($actorId->value))));
 
-        self::assertSame([], $names, 'A viewer granted only categories is restricted and sees no severity.');
+        self::assertSame([], $names, 'An actor granted only categories is restricted and sees no severity.');
     }
 
     public function testItFindsASeverityByItsId(): void
@@ -214,7 +214,7 @@ final class DbalHostSeverityRepositoryTest extends KernelTestCase
      */
     private function createContactRestrictedToHostCategories(array $accessibleHostCategoryIds): int
     {
-        $alias = "viewer-{$this->tag}";
+        $alias = "actor-{$this->tag}";
         $this->connection->insert('contact', [
             'contact_name' => $alias,
             'contact_alias' => $alias,

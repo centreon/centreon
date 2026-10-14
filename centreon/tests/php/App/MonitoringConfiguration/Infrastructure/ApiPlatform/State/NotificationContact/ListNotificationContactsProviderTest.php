@@ -186,7 +186,7 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
         self::assertSame(
             [$accessibleName],
             array_column((array) $response->toArray()['member'], 'name'),
-            'Only the contact directly linked to the viewer Access Group is returned.'
+            'Only the contact directly linked to the actor Access Group is returned.'
         );
     }
 
@@ -211,7 +211,7 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
         self::assertSame(
             [$accessibleName],
             array_column((array) $response->toArray()['member'], 'name'),
-            'Only the contact whose contact group is linked to the viewer Access Group is returned.'
+            'Only the contact whose contact group is linked to the actor Access Group is returned.'
         );
     }
 

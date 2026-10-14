@@ -82,10 +82,10 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
         return (bool) $qb->executeQuery()->fetchOne();
     }
 
-    public function findAll(?MediaCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(MediaCriteria $criteria): \IteratorAggregate&\Countable
     {
         $accessibleFolderIds = null;
-        $actor = $criteria?->getActor();
+        $actor = $criteria->getActor();
         if ($actor instanceof ActingUser) {
             $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($actor);
             if ($accessibleFolderIds instanceof Collection && $accessibleFolderIds->count() === 0) {
@@ -111,11 +111,9 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
             ));
         }
 
-        if ($criteria instanceof MediaCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -171,9 +169,9 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
      * page size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise
      * tell "zero matches" from "pagination metadata omitted".
      */
-    private function emptyResult(?MediaCriteria $criteria): \IteratorAggregate&\Countable
+    private function emptyResult(MediaCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return new Collection([], Media::class);
         }

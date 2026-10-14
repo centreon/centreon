@@ -59,8 +59,22 @@ final class ContactGroupCriteriaTest extends TestCase
         $actor = TestActingUsers::restricted(7);
         $new = $criteria->withActor($actor);
 
-        self::assertNull($criteria->getActor());
         self::assertSame($actor, $new->getActor());
+
+        $this->expectException(\LogicException::class);
+        $criteria->getActor();
+    }
+
+    public function testACriteriaWithoutAccessScopeHasNoActor(): void
+    {
+        self::assertNull(new ContactGroupCriteria()->withoutAccessScope()->getActor());
+    }
+
+    public function testWithActorScopesAnOptedOutCriteriaAgain(): void
+    {
+        $actor = TestActingUsers::restricted(7);
+
+        self::assertSame($actor, new ContactGroupCriteria()->withoutAccessScope()->withActor($actor)->getActor());
     }
 
     public function testWithNameDeduplicates(): void

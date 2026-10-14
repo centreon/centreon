@@ -45,8 +45,8 @@ final class FakeHostRepository implements HostRepository
     public bool $forceNameUsed = false;
 
     /**
-     * When set, {@see findOne()} with a non-null viewer only returns ids listed here; any other
-     * reads as not found. Null means the viewer sees everything — used to simulate ACL scoping.
+     * When set, {@see findOne()} with a non-null actor only returns ids listed here; any other
+     * reads as not found. Null means the actor sees everything — used to simulate ACL scoping.
      *
      * @var list<int>|null
      */
@@ -214,7 +214,7 @@ final class FakeHostRepository implements HostRepository
         return false;
     }
 
-    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hosts), Host::class);
     }

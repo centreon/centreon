@@ -42,7 +42,7 @@ use Webmozart\Assert\Assert;
  * macros (direct, parent null), then those it inherits from its ancestor templates and check
  * commands that it does not override (parent "template" or "command"), resolved like GetHost.
  *
- * Scoped like the host template choices list (ListHostTemplatesChoicesProvider): no viewer scoping,
+ * Scoped like the host template choices list (ListHostTemplatesChoicesProvider): no actor scoping,
  * and locked (paid plugin-pack) templates are not found. An inactive template is not found either.
  *
  * @implements ProviderInterface<HostTemplateMacrosOutput>
@@ -61,7 +61,7 @@ final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
         Assert::integer($uriVariables['id']);
         $templateId = new HostTemplateId($uriVariables['id']);
 
-        $criteria = (new HostTemplateCriteria())->withId($templateId)->withExcludeLocked(true);
+        $criteria = new HostTemplateCriteria()->withoutAccessScope()->withId($templateId)->withExcludeLocked(true);
         if (count($this->repository->findAll($criteria)) === 0) {
             throw new HostTemplateNotFoundException([$templateId->value], 'id');
         }

@@ -92,7 +92,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         return new Collection($names, HostCategoryName::class);
     }
 
-    public function findAll(?HostCategoryCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostCategoryCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('hc.hc_id', 'hc.hc_name')
@@ -102,11 +102,9 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             ->where('hc.level IS NULL')
             ->orderBy('hc.hc_id'); // required for deterministic pagination
 
-        if ($criteria instanceof HostCategoryCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

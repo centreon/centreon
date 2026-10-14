@@ -60,11 +60,11 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
-        // No viewer scoping: the legacy host form's "extend template" select (CentreonHost::getList())
+        // No actor scoping: the legacy host form's "extend template" select (CentreonHost::getList())
         // is not host-category severity-scoped, unlike the generic /configuration/host_templates
         // endpoint. Locked (paid plugin-pack) templates are excluded instead, matching
         // CentreonHost::getLimitedList().
-        $criteria = new HostTemplateCriteria();
+        $criteria = new HostTemplateCriteria()->withoutAccessScope();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {

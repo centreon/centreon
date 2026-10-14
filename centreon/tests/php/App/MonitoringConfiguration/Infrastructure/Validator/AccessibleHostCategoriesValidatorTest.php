@@ -87,7 +87,7 @@ final class AccessibleHostCategoriesValidatorTest extends ConstraintValidatorTes
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerCannotReferenceACategoryOutsideTheirScope(): void
+    public function testARestrictedActorCannotReferenceACategoryOutsideTheirScope(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostCategoryRepository->method('findNamesByIds')->willReturn(new Collection([5 => new HostCategoryName('Production')], HostCategoryName::class));
@@ -99,7 +99,7 @@ final class AccessibleHostCategoriesValidatorTest extends ConstraintValidatorTes
         $this->buildViolation($constraint->message)->assertRaised();
     }
 
-    public function testARestrictedViewerWithNoAclRestrictionCanReferenceAnyExistingCategory(): void
+    public function testARestrictedActorWithNoAclRestrictionCanReferenceAnyExistingCategory(): void
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostCategoryRepository->method('findNamesByIds')->willReturn(new Collection([5 => new HostCategoryName('Production')], HostCategoryName::class));

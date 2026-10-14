@@ -87,7 +87,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             requirements: ['id' => '[1-9]\d*'],
             status: 204,
             // Write-only action: no item provider, the handler loads the host itself and answers 404
-            // when it is missing or outside the viewer's scope.
+            // when it is missing or outside the actor's scope.
             read: false,
             processor: PatchHostProcessor::class,
             input: PatchHostInput::class,
@@ -134,7 +134,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
             // Positive integers only, as on GET: a non-numeric or zero id is a 404, not a 500.
             requirements: ['id' => '[1-9]\d*'],
             // Write-only replace: the processor loads the host itself (404 via the handler when it is
-            // missing or out of the viewer's ACL scope), so no item provider is read; it returns the
+            // missing or out of the actor's ACL scope), so no item provider is read; it returns the
             // full updated resource.
             read: false,
             processor: PutHostProcessor::class,

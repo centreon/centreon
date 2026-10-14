@@ -76,7 +76,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     ) {
     }
 
-    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('h.host_id', 'h.host_name')
@@ -84,11 +84,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
             ->orderBy('h.host_id'); // required for deterministic pagination
 
-        if ($criteria instanceof HostTemplateCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();

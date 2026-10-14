@@ -343,7 +343,7 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
-     * As the legacy host form, a restricted viewer only sees the parent/child hosts, notification
+     * As the legacy host form, a restricted actor only sees the parent/child hosts, notification
      * contacts and contact groups within their ACL scope; the out-of-scope ones are left out rather
      * than surfaced (no existence leak).
      */
@@ -374,8 +374,8 @@ final class GetHostProviderTest extends ApiTestCase
         }
 
         $username = bin2hex(random_bytes(8));
-        $viewerId = $this->createNonAdminContact($username);
-        $aclGroupId = $this->grantHostReadTopologyRole($viewerId);
+        $actorId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadTopologyRole($actorId);
         foreach ([$hostId, $visibleParentId, $visibleChildId] as $accessibleHostId) {
             $this->linkHostToAcl($accessibleHostId, $aclGroupId);
         }
