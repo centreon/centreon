@@ -1,9 +1,8 @@
-import { expect, test } from '@playwright/test';
-
 import {
   labelClearFilter,
   labelSearch
 } from '../../www/front_src/src/Dashboards/components/DashboardLibrary/DashboardListing/translatedLabels';
+import { expect, test } from './fixtures';
 
 const storyId = 'DashboardListing/Actions/Filter/Default';
 

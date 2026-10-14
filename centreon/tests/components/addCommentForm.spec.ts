@@ -1,11 +1,10 @@
-import { expect, test } from '@playwright/test';
-
 import { commentEndpoint } from '../../www/front_src/src/Resources/Actions/api/endpoint';
 import {
   labelAdd,
   labelCancel,
   labelComment
 } from '../../www/front_src/src/Resources/translatedLabels';
+import { expect, test } from './fixtures';
 
 const storyId = 'AddCommentForm/Default';
 
@@ -22,20 +21,14 @@ const expectedRequestBody = {
 };
 
 test('sends a comment request with the given date and the typed comment', async ({
+  expectThemedScreenshot,
+  mockApi,
   mount,
   page
 }) => {
-  const sentBodies: Array<unknown> = [];
-
-  // Routes must be registered before mount(), which navigates. Centreon
-  // endpoints are relative ("./api/latest/..."), so the glob matches the
-  // resolved path, without the leading dot.
-  const endpointGlob = `**/${commentEndpoint.replace(/^\.\//, '')}`;
-
-  await page.route(endpointGlob, async (route) => {
-    sentBodies.push(route.request().postDataJSON());
-
-    await route.fulfill({ body: '{}', status: 200 });
+  const commentRequests = await mockApi({
+    endpoint: commentEndpoint,
+    method: 'POST'
   });
 
   const component = await mount(storyId);
@@ -47,15 +40,13 @@ test('sends a comment request with the given date and the typed comment', async 
   await expect(dialog.getByLabel(labelAdd)).toBeDisabled();
 
   await dialog.getByLabel(labelComment).fill('My Comment');
+  await expectThemedScreenshot(dialog, 'add-comment-form');
   await dialog.getByLabel(labelAdd).click();
 
   await expect(component.getByTestId('success-payload')).toHaveValue(
     JSON.stringify({ comment: 'My Comment', date: '2020-11-26T15:49:39Z' })
   );
-
-  expect(sentBodies).toEqual([expectedRequestBody]);
-
-  await expect(dialog).toHaveScreenshot('add-comment-form.png');
+  expect(commentRequests.bodies).toEqual([expectedRequestBody]);
 });
 
 test('calls onClose when the form is cancelled', async ({ mount, page }) => {
