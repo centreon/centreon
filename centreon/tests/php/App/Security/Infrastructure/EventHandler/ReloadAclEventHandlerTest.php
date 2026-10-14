@@ -39,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
 use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Event\HostDeleted;
 use App\MonitoringConfiguration\Domain\Event\HostDisabled;
+use App\MonitoringConfiguration\Domain\Event\HostDuplicated;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
@@ -182,6 +183,54 @@ final class ReloadAclEventHandlerTest extends TestCase
         self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
         self::assertSame([], $resourceAccessRepository->grantedAccess);
         self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItFlagsOnlyTheDuplicatorsGroupsWithoutSeedingOnADuplicationForANonAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $accessGroupRepository->groupIdsByUserId[7] = [10, 20];
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 7, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-06-copy');
+        // A duplication is not a creation: the flag must be raised, but centreon_acl must not be seeded
+        // for the duplicator — the copy's scope is seeded from the source by the duplication handler.
+        $handler(new HostDuplicated($host, 7));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([10, 20], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
+    }
+
+    public function testItFlagsAllResourcesOnADuplicationForAnAdmin(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 1, isAdmin: true);
+
+        $host = $this->createHost(name: 'server-07-copy');
+        $handler(new HostDuplicated($host, 1));
+
+        self::assertTrue($resourceAccessRepository->allResourcesFlaggedAsChanged);
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+    }
+
+    public function testItDoesNothingOnADuplicationForANonAdminWithNoAccessGroup(): void
+    {
+        $accessGroupRepository = new FakeAccessGroupRepository();
+        $resourceAccessRepository = new FakeResourceAccessRepository();
+
+        $handler = $this->createHandler($accessGroupRepository, $resourceAccessRepository, userId: 9, isAdmin: false);
+
+        $host = $this->createHost(name: 'server-08-copy');
+        $handler(new HostDuplicated($host, 9));
+
+        self::assertSame([], $resourceAccessRepository->grantedAccess);
+        self::assertSame([], $accessGroupRepository->flaggedGroupIds);
+        self::assertFalse($resourceAccessRepository->allResourcesFlaggedAsChanged);
     }
 
     private function createHandler(
