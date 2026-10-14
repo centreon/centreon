@@ -18,6 +18,7 @@ Validate every write request in both layers. Put in the Input DTO every rule tha
 ## Consequences
 
 - The Input validator is early and best effort: it returns a field-level violation (HTTP 422) and saves a round trip. The handler check is authoritative: what changed since validation surfaces there as a domain exception, mapped to an HTTP status by the existing exception mapping. The handler contains no HTTP vocabulary.
+- What the Input adds depends on the rule. For shape and bounds, it prevents a value object from throwing an unmapped exception (HTTP 500). For references and uniqueness, the handler already reports a field-level violation, so the Input only fails earlier, before the transaction opens, and points to the exact field.
 - Both layers give the same answer for the same case: the same status and, when the payload is at fault, the same field path. A missing resource and an inaccessible one are never told apart, so a restricted viewer cannot probe for what they cannot see.
 - A custom validator that builds a domain value object is declared after the shape constraints, inside `Assert\Sequentially`. It must never run on a value the shape constraints would reject, since the value object would throw instead of producing a violation.
 - In the handler, references are authorized before any check that could reveal another resource (a uniqueness check, for example). Every validation runs before the first irreversible external write, such as a write to the vault.
@@ -25,7 +26,7 @@ Validate every write request in both layers. Put in the Input DTO every rule tha
 - The cost is that a rule exists twice. Changing it means changing both copies and keeping their messages aligned.
 - Exception: a rule that needs the identity or the stored state of the targeted resource cannot be an Input constraint, because the Input does not know them. It lives in the handler only.
 
-## When to Revise
+## When to Amend
 
-- Another entry point (a CLI command, an asynchronous message, another service) dispatches commands, so the Input is no longer the front door.
+- Another entry point (a CLI command, an asynchronous message, another service) dispatches commands. The handler checks keep protecting it. This ADR is then amended to say which early validation that entry point gets, the equivalent of the Input.
 - A validator and its handler check give different answers in production.
