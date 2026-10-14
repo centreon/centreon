@@ -1,4 +1,9 @@
-import { test as base, expect, type Locator } from '@playwright/test';
+import {
+  test as base,
+  expect,
+  type Locator,
+  type Page
+} from '@playwright/test';
 
 type Method = 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
 
@@ -21,8 +26,14 @@ interface MockedEndpoint {
 }
 
 interface ComponentFixtures {
-  /** Captures `target` in the light then the dark theme. */
-  expectThemedScreenshot: (target: Locator, name: string) => Promise<void>;
+  /**
+   * Captures `target` in the light then the dark theme. Pass the page only for
+   * fixed-position components, whose mount root has no stable box.
+   */
+  expectThemedScreenshot: (
+    target: Locator | Page,
+    name: string
+  ) => Promise<void>;
   /**
    * Replaces cy.interceptAPIRequest. Register mocks before mount(), which
    * navigates to the gallery.
