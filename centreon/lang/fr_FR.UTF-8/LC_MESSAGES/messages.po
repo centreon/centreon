@@ -1172,10 +1172,6 @@ msgstr "Avancé : gorgone - le collecteur se connecte au central"
 msgid "Editions & Cloud licenses"
 msgstr "Licences Edition et Cloud"
 
-#: centreon/www/install/front_translate.php
-msgid "Failed to update"
-msgstr "Échec de la mise à jour"
-
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
 msgstr "Profiter davantage de Centreon"
@@ -1215,7 +1211,7 @@ msgstr "Projet et contributeurs"
 
 #: centreon/www/install/front_translate.php
 msgid "Replacing the templates deletes the services created from the previous templates on every selected host."
-msgstr "Remplacer les modèles supprime, sur chaque hôte sélectionné, les services créés à partir des modèles précédents."
+msgstr "Replacing the templates deletes the services created from the previous templates on every selected host."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"

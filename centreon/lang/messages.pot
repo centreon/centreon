@@ -7837,10 +7837,6 @@ msgid "Failed to save shares"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Failed to update"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Failed to update the dashboard"
 msgstr ""
 

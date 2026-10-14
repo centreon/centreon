@@ -88,4 +88,5 @@ export const labelApplyChangesTo = (type: string) =>
   `The changes will be applied to {{count}} ${type}.`;
 export const labelFailedToUpdateResources = (type: string) =>
   `Failed to update the ${type}`;
-export const labelFailedToUpdateSomeResources = 'Failed to update';
+// Followed by the names of the rows that failed.
+export const labelFailedToUpdateSomeResources = 'An error occurred';
