@@ -76,6 +76,31 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         ]);
     }
 
+    public function testUpdateCommandReturnsMacros(): void
+    {
+        $this->login();
+
+        $response = $this->request('PATCH', '/api/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'type' => 'Check',
+                'command_line' => 'check $_HOSTUSER$ $_SERVICEPORT$',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceItemJsonSchema(CommandResource::class);
+        /** @var list<array{id: int|null, name: string, type: string}> $macros */
+        $macros = $response->toArray()['macros'];
+        self::assertCount(2, $macros);
+        self::assertSame(['USER', 'host'], [$macros[0]['name'], $macros[0]['type']]);
+        self::assertSame(['PORT', 'service'], [$macros[1]['name'], $macros[1]['type']]);
+        self::assertIsInt($macros[0]['id']);
+        self::assertIsInt($macros[1]['id']);
+    }
+
     public function testUpdateCommandAddConnector(): void
     {
         $this->login();

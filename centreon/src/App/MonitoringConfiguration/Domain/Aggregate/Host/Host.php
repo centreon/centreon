@@ -34,6 +34,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Aggregate\VaultScopedInterface;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\NoValue;
 use App\Shared\Domain\VaultInterface;
 use Webmozart\Assert\Assert;
 
@@ -95,6 +96,72 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
     }
 
     /**
+     * A copy of this host with the provided properties replaced: NoValue keeps the current one, null
+     * clears an optional one. Relations are left as they are.
+     */
+    public function with(
+        NoValue|HostName $name = new NoValue(),
+        NoValue|HostAddress $address = new NoValue(),
+        NoValue|PollerId $pollerId = new NoValue(),
+        NoValue|HostAlias|null $alias = new NoValue(),
+        NoValue|SnmpVersionEnum|null $snmpVersion = new NoValue(),
+        NoValue|SnmpCommunity|null $snmpCommunity = new NoValue(),
+        NoValue|TimezoneId|null $timezoneId = new NoValue(),
+        NoValue|HostSeverityId|null $severityId = new NoValue(),
+        NoValue|ExtendedInformations|null $extendedInformations = new NoValue(),
+        NoValue|SchedulingOptions $schedulingOptions = new NoValue(),
+        NoValue|DataProcessing $dataProcessing = new NoValue(),
+        NoValue|CheckOptions $checkOptions = new NoValue(),
+        NoValue|Notifications|null $notifications = new NoValue(),
+        NoValue|bool $activated = new NoValue(),
+    ): self {
+        return new self(
+            id: $this->id(),
+            name: NoValue::resolve($name, $this->name),
+            alias: NoValue::resolve($alias, $this->alias),
+            address: NoValue::resolve($address, $this->address),
+            activated: NoValue::resolve($activated, $this->activated),
+            pollerId: NoValue::resolve($pollerId, $this->pollerId),
+            templateIds: $this->templateIds,
+            hostGroupIds: $this->hostGroupIds,
+            categoryIds: $this->categoryIds,
+            parentHostIds: $this->parentHostIds,
+            childHostIds: $this->childHostIds,
+            snmpVersion: NoValue::resolve($snmpVersion, $this->snmpVersion),
+            snmpCommunity: NoValue::resolve($snmpCommunity, $this->snmpCommunity),
+            timezoneId: NoValue::resolve($timezoneId, $this->timezoneId),
+            severityId: NoValue::resolve($severityId, $this->severityId),
+            extendedInformations: NoValue::resolve($extendedInformations, $this->extendedInformations),
+            schedulingOptions: NoValue::resolve($schedulingOptions, $this->schedulingOptions),
+            dataProcessing: NoValue::resolve($dataProcessing, $this->dataProcessing),
+            checkOptions: NoValue::resolve($checkOptions, $this->checkOptions),
+            notifications: NoValue::resolve($notifications, $this->notifications),
+        );
+    }
+
+    /**
+     * Everything but the activation and the relations (templates, groups, categories, parents,
+     * children), which are tracked on their own. Contacts and contact groups are still compared,
+     * through Notifications::equals().
+     */
+    public function hasSameConfigurationAs(self $other): bool
+    {
+        return $this->name->value === $other->name->value
+            && $this->alias?->value === $other->alias?->value
+            && $this->address->value === $other->address->value
+            && $this->pollerId->value === $other->pollerId->value
+            && $this->snmpVersion === $other->snmpVersion
+            && $this->snmpCommunity?->value === $other->snmpCommunity?->value
+            && $this->timezoneId?->value === $other->timezoneId?->value
+            && $this->severityId?->value === $other->severityId?->value
+            && $this->schedulingOptions->equals($other->schedulingOptions)
+            && $this->dataProcessing->equals($other->dataProcessing)
+            && $this->checkOptions->equals($other->checkOptions)
+            && $this->hasSameExtendedInformationsAs($other->extendedInformations)
+            && $this->hasSameNotificationsAs($other->notifications);
+    }
+
+    /**
      * The UUID of this host's vault entry, if it has one, or null when none of its vault-eligible
      * fields currently hold a `secret::` reference (vault disabled, or nothing vaulted yet).
      *
@@ -115,6 +182,47 @@ final class Host extends AggregateRoot implements AclScopedInterface, PollerScop
         }
 
         return null;
+    }
+
+    /**
+     * Whether saving this host left the vault entry $before kept its secrets in without any secret:
+     * $before referenced an entry and none of this host's vault-eligible fields (SNMP community,
+     * password macros) references it any more. The entry is then empty — or only holds keys no host
+     * field points to — and can be deleted once the save is committed.
+     */
+    public function releasesVaultEntryOf(self $before, VaultInterface $vault): bool
+    {
+        $uuid = $before->getVaultUuid($vault);
+
+        return $uuid !== null && ! $this->referencesVaultEntry($uuid, $vault);
+    }
+
+    private function hasSameExtendedInformationsAs(?ExtendedInformations $other): bool
+    {
+        return $this->extendedInformations instanceof ExtendedInformations && $other instanceof ExtendedInformations
+            ? $this->extendedInformations->equals($other)
+            : $this->extendedInformations === $other;
+    }
+
+    private function hasSameNotificationsAs(?Notifications $other): bool
+    {
+        return ($this->notifications ?? Notifications::default())->equals($other ?? Notifications::default());
+    }
+
+    private function referencesVaultEntry(string $uuid, VaultInterface $vault): bool
+    {
+        $values = array_map(
+            static fn (HostMacro $macro): string => $macro->value,
+            array_filter($this->checkOptions->macros, static fn (HostMacro $macro): bool => $macro->isPassword),
+        );
+        if ($this->snmpCommunity instanceof SnmpCommunity) {
+            $values[] = $this->snmpCommunity->value;
+        }
+
+        return array_any(
+            $values,
+            static fn (string $value): bool => $vault->isVaultPath($value) && $vault->extractUuid($value) === $uuid,
+        );
     }
 
     /**

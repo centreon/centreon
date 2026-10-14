@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 final readonly class SchedulingOptions
@@ -46,5 +47,33 @@ final readonly class SchedulingOptions
         if ($retryCheckInterval !== null) {
             Assert::greaterThanEq($retryCheckInterval, 1, 'SchedulingOptions::retryCheckInterval expected to be >= 1, got %s.');
         }
+    }
+
+    public function with(
+        NoValue|TimePeriodId|null $checkTimeperiodId = new NoValue(),
+        NoValue|int|null $maxCheckAttempts = new NoValue(),
+        NoValue|int|null $normalCheckInterval = new NoValue(),
+        NoValue|int|null $retryCheckInterval = new NoValue(),
+        NoValue|TriStateEnum $activeCheckEnabled = new NoValue(),
+        NoValue|TriStateEnum $passiveCheckEnabled = new NoValue(),
+    ): self {
+        return new self(
+            checkTimeperiodId: NoValue::resolve($checkTimeperiodId, $this->checkTimeperiodId),
+            maxCheckAttempts: NoValue::resolve($maxCheckAttempts, $this->maxCheckAttempts),
+            normalCheckInterval: NoValue::resolve($normalCheckInterval, $this->normalCheckInterval),
+            retryCheckInterval: NoValue::resolve($retryCheckInterval, $this->retryCheckInterval),
+            activeCheckEnabled: NoValue::resolve($activeCheckEnabled, $this->activeCheckEnabled),
+            passiveCheckEnabled: NoValue::resolve($passiveCheckEnabled, $this->passiveCheckEnabled),
+        );
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkTimeperiodId?->value === $other->checkTimeperiodId?->value
+            && $this->maxCheckAttempts === $other->maxCheckAttempts
+            && $this->normalCheckInterval === $other->normalCheckInterval
+            && $this->retryCheckInterval === $other->retryCheckInterval
+            && $this->activeCheckEnabled === $other->activeCheckEnabled
+            && $this->passiveCheckEnabled === $other->passiveCheckEnabled;
     }
 }

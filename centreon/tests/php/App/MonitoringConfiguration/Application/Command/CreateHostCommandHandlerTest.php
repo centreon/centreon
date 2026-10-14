@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Notifications;
@@ -88,7 +89,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Domain\Repository\InheritedHostMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
@@ -108,7 +108,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeInheritedHostMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
@@ -127,8 +126,6 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     private FakeHostGroupRepository $hostGroupRepository;
 
     private FakeCommandRepository $commandRepository;
-
-    private FakeInheritedHostMacroRepository $inheritedHostMacroRepository;
 
     private FakeResourceAccessRepository $resourceAccessRepository;
 
@@ -160,7 +157,6 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->commandRepository = new FakeCommandRepository();
-        $this->inheritedHostMacroRepository = new FakeInheritedHostMacroRepository();
         $this->resourceAccessRepository = new FakeResourceAccessRepository();
         $this->optionRepository = new FakeOptionRepository();
         $this->vault = new FakeVault();
@@ -175,7 +171,6 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $container->set(PollerRepository::class, $this->pollerRepository);
         $container->set(HostGroupRepository::class, $this->hostGroupRepository);
         $container->set(CommandRepository::class, $this->commandRepository);
-        $container->set(InheritedHostMacroRepository::class, $this->inheritedHostMacroRepository);
         $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
         $container->set(OptionRepository::class, $this->optionRepository);
         $container->set(VaultInterface::class, $this->vault);
@@ -264,10 +259,11 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     public function testItStripsMacrosIdenticalToAnInheritedOne(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->addCheckCommand(9);
-        $this->inheritedHostMacroRepository->inheritedMacros = [
-            new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false),
-        ];
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            new Collection([new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false, id: new HostMacroId(70))], HostMacro::class),
+        );
 
         $host = ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
@@ -275,7 +271,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
-            checkOptions: new CheckOptions(new CommandId(9), macros: [
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            checkOptions: new CheckOptions(null, macros: [
                 new HostMacro(new HostMacroName('inherited'), 'shared', isPassword: false),
                 new HostMacro(new HostMacroName('own'), 'value', isPassword: false),
             ]),
@@ -289,23 +286,59 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     public function testItResolvesInheritedMacrosFromTemplatesAndTheCheckCommand(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->addCheckCommand(9);
+        $this->addCheckCommand(9, commandLine: '$USER1$/check -a $_HOSTFROMCOMMAND$');
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('generic-host'));
-        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(new HostTemplateId(8), new HostTemplateName('linux-host'));
+        $this->hostTemplateRepository->hostTemplates[8] = new HostTemplate(
+            new HostTemplateId(8),
+            new HostTemplateName('linux-host'),
+            new Collection([new HostMacro(new HostMacroName('fromtemplate'), 'tpl', isPassword: false, id: new HostMacroId(80))], HostMacro::class),
+        );
 
-        ($this->handler)(new CreateHostCommand(
+        $host = ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             templateIds: new Collection([new HostTemplateId(8), new HostTemplateId(7)], HostTemplateId::class),
-            checkOptions: new CheckOptions(new CommandId(9)),
+            checkOptions: new CheckOptions(new CommandId(9), macros: [
+                new HostMacro(new HostMacroName('fromtemplate'), 'tpl', isPassword: false),
+                new HostMacro(new HostMacroName('fromcommand'), '', isPassword: false),
+            ]),
         ));
 
-        // Inherited macros are resolved from the requested templates and the check command together.
-        self::assertSame([8, 7], $this->inheritedHostMacroRepository->receivedTemplateIds);
-        self::assertSame(9, $this->inheritedHostMacroRepository->receivedCheckCommandId?->value);
+        // The inheritance line is read for the requested templates, in order, and both the template
+        // macro and the check-command macro are recognised as inherited.
+        self::assertSame([8, 7], $this->hostTemplateRepository->receivedLineTemplateIds);
+        self::assertSame([], $host->checkOptions->macros);
+    }
+
+    public function testWithoutACheckCommandItInheritsTheMacrosOfTheTemplateCheckCommand(): void
+    {
+        // Legacy getMacros(): no check command on the host → the first template of the line having
+        // one provides the command macros.
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->addCheckCommand(9, commandLine: '$USER1$/check -a $_HOSTFROMTEMPLATECOMMAND$');
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(
+            new HostTemplateId(7),
+            new HostTemplateName('generic-host'),
+            checkCommandId: new CommandId(9),
+        );
+
+        $host = ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
+            creatorId: 1,
+            templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
+            checkOptions: new CheckOptions(null, macros: [
+                new HostMacro(new HostMacroName('fromtemplatecommand'), '', isPassword: false),
+                new HostMacro(new HostMacroName('own'), 'value', isPassword: false),
+            ]),
+        ));
+
+        self::assertSame(['OWN'], array_map(static fn (HostMacro $macro): string => $macro->name->value, $host->checkOptions->macros));
     }
 
     public function testItMovesPasswordMacrosToTheVault(): void
@@ -979,13 +1012,16 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         return $host->id()->value;
     }
 
-    private function addCheckCommand(int $id, CommandTypeEnum $type = CommandTypeEnum::Check): void
-    {
+    private function addCheckCommand(
+        int $id,
+        CommandTypeEnum $type = CommandTypeEnum::Check,
+        string $commandLine = '$USER1$/check_ping -H $HOSTADDRESS$',
+    ): void {
         $this->commandRepository->commands[$id] = new Command(
             new CommandId($id),
             new CommandName('check_ping'),
             $type,
-            new CommandLine('$USER1$/check_ping -H $HOSTADDRESS$'),
+            new CommandLine($commandLine),
             isShellEnabled: false,
             isActivated: true,
             isFromMonitoringConnector: false,
