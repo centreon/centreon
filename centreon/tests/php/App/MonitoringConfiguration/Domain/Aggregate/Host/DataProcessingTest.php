@@ -159,6 +159,17 @@ final class DataProcessingTest extends TestCase
         (new DataProcessing())->with(lowFlapThreshold: 101);
     }
 
+    public function testACentreonMonitoringAgentHostAlwaysChecksFreshnessWithAFixedThreshold(): void
+    {
+        $original = new DataProcessing(checkFreshness: TriStateEnum::False, freshnessThreshold: 30, lowFlapThreshold: 10);
+
+        $changed = $original->withCentreonMonitoringAgentFreshness();
+
+        self::assertSame(TriStateEnum::True, $changed->checkFreshness);
+        self::assertSame(120, $changed->freshnessThreshold);
+        self::assertSame(10, $changed->lowFlapThreshold);
+    }
+
     public function testEqualsDistinguishesNullFromZero(): void
     {
         self::assertFalse((new DataProcessing(freshnessThreshold: 0))->equals(new DataProcessing()));
