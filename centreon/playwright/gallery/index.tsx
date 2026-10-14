@@ -88,6 +88,12 @@ declare global {
   }
 }
 
+// Dashboards/.../Widgets/widgets.ts registers its test widgets only for Cypress
+// component runs; replace with a runner-neutral flag once Cypress is gone.
+(window as unknown as { Cypress: unknown }).Cypress = {
+  testingType: 'component'
+};
+
 const storyModules = require.context(
   '../../www/front_src/src',
   true,
