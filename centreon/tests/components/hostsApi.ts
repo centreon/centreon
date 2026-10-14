@@ -1,3 +1,5 @@
+import type { Locator, Page } from '@playwright/test';
+
 import {
   emptyListingResponse,
   getCommandsResponse,
@@ -45,6 +47,7 @@ export interface HostsApi {
   creation: MockedEndpoint;
   deletion: Record<0 | 2, MockedEndpoint>;
   deployment: MockedEndpoint;
+  details: Record<0 | 1 | 2, MockedEndpoint>;
   duplication: MockedEndpoint;
   listing: MockedEndpoint;
   patch: Record<0 | 1 | 2, MockedEndpoint>;
@@ -65,10 +68,13 @@ export const mockHostsApi = async (
     resolveDelay = 0
   }: HostsApiOptions = {}
 ): Promise<HostsApi> => {
-  await mockApi({ endpoint: host(0), response: getHostResponse() });
+  const details0 = await mockApi({
+    endpoint: host(0),
+    response: getHostResponse()
+  });
   // Any row opens the form, so a row the tests open needs a detail response
   // of its own; host 1 is the one carrying no icon.
-  await mockApi({
+  const details1 = await mockApi({
     endpoint: host(1),
     response: {
       address: 'host-1.example.com',
@@ -81,7 +87,7 @@ export const mockHostsApi = async (
     }
   });
   // As a cloud platform answers: unset values and onPrem-only keys left out.
-  await mockApi({
+  const details2 = await mockApi({
     endpoint: host(2),
     response: {
       address: '10.0.0.2',
@@ -143,6 +149,7 @@ export const mockHostsApi = async (
       response: deployFails ? { message: 'Host not found' } : {},
       status: deployFails ? 404 : 200
     }),
+    details: { 0: details0, 1: details1, 2: details2 },
     duplication: await mockApi({
       endpoint: `${host(0)}/_duplicate`,
       method: 'POST'
@@ -163,3 +170,9 @@ export const mockHostsApi = async (
     })
   };
 };
+
+// Form fields carry their test id on both the wrapper and the input.
+export const hostField = (page: Page, testId: string): Locator =>
+  page.locator(
+    `:is(input, textarea)[data-testid="${testId}"]:not([type="hidden"])`
+  );
