@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongExcept
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -62,14 +63,16 @@ final readonly class DuplicateHostCommandHandler
         private VaultCredentialWriter $vaultWriter,
         private EventBus $eventBus,
         private LoggerInterface $logger,
+        private CredentialRepository $credentialRepository,
     ) {
     }
 
     public function __invoke(DuplicateHostCommand $command): void
     {
-        // ACL-scoped read: a host outside a restricted viewer's scope reads as not found, the same as
+        // ACL-scoped read: a host outside a restricted actor's scope reads as not found, the same as
         // one that does not exist, so as not to leak existence (see HostRepository::findOne()).
-        $source = $this->repository->findOne($command->hostId, $command->viewerId);
+        $actor = $this->credentialRepository->getById($command->duplicatedBy);
+        $source = $this->repository->findOne($command->hostId, $actor->hasUnrestrictedResourceAccess() ? null : $actor->userId);
         if (! $source instanceof Host) {
             throw new HostNotFoundException([$command->hostId->value], 'id');
         }

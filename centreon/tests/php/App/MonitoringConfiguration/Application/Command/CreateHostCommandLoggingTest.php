@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
@@ -55,7 +56,7 @@ final class CreateHostCommandLoggingTest extends TestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId(1),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            creatorId: new UserId(1),
             snmpCommunity: 'top-secret',
         );
 
@@ -79,7 +80,7 @@ final class CreateHostCommandLoggingTest extends TestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId(1),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            creatorId: new UserId(1),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('token'), 'top-secret', isPassword: true),
             ], HostMacroChange::class),

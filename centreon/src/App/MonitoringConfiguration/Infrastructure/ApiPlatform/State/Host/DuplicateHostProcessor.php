@@ -64,9 +64,6 @@ final readonly class DuplicateHostProcessor implements ProcessorInterface
             new DuplicateHostCommand(
                 hostId: new HostId($uriVariables['id']),
                 duplicatedBy: $credentialUser->credential->userId,
-                viewerId: $credentialUser->credential->hasUnrestrictedResourceAccess()
-                    ? null
-                    : $credentialUser->credential->userId,
             )
         );
 

@@ -135,6 +135,26 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
         return $this->createCredential($row);
     }
 
+    public function getById(UserId $id): Credential
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('c.contact_id AS c_id', 'c.contact_alias AS c_alias', 'c.contact_admin AS c_admin', 'c.contact_activate AS c_active')
+            ->from(self::TABLE_NAME, 'c')
+            ->where('c.contact_id = :id')
+            ->setParameter('id', $id->value)
+            ->setMaxResults(1);
+
+        /** @var array{c_id: int, c_alias: string, c_admin: string, c_active: string}|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if ($row === false) {
+            throw new CredentialNotFoundException(['id' => $id->value]);
+        }
+
+        return $this->createCredential($row);
+    }
+
     /**
      * @param array{c_id: int, c_alias: string, c_admin: string, c_active: string} $row
      */

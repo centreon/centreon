@@ -29,14 +29,12 @@ use App\Security\Domain\Aggregate\UserId;
 final readonly class DeleteHostCommand
 {
     /**
-     * @param ?UserId $viewerId null means the caller is unrestricted (admin); a non-null value
-     *                          scopes the lookup to what that user can access via ACL, mirroring
-     *                          `CreateHostCommand::$viewerId`
+     * @param UserId $deletedBy the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          host lookup
      */
     public function __construct(
         public HostId $id,
-        public int $deletedBy,
-        public ?UserId $viewerId = null,
+        public UserId $deletedBy,
     ) {
     }
 }

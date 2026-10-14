@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
@@ -46,7 +47,7 @@ final class PatchHostCommandLoggingTest extends TestCase
 
         $command = new PatchHostCommand(
             id: new HostId(1),
-            updatedBy: 1,
+            updatedBy: new UserId(1),
             snmpCommunity: 'top-secret',
         );
 

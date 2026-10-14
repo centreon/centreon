@@ -58,7 +58,8 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
@@ -88,12 +89,15 @@ final readonly class CreateHostCommandHandler
         private ResourceAccessRepository $resourceAccessRepository,
         private VaultInterface $vault,
         private EventBus $eventBus,
+        private CredentialRepository $credentialRepository,
     ) {
     }
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        // References are authorized before the name is looked up: otherwise a restricted viewer
+        $actor = $this->credentialRepository->getById($command->creatorId);
+
+        // References are authorized before the name is looked up: otherwise a restricted actor
         // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
         // for a request they aren't even authorized to make, and enumerate host/template names
         // that way.
@@ -101,27 +105,27 @@ final readonly class CreateHostCommandHandler
         // Throws PollerNotFoundException if it doesn't exist at all.
         $this->pollerRepository->get($command->pollerId);
 
-        // A restricted (non-admin) viewer referencing a poller outside their own ACL scope gets
+        // A restricted (non-admin) actor referencing a poller outside their own ACL scope gets
         // the same not-found error as a truly nonexistent poller — legacy does not distinguish
         // "doesn't exist" from "exists but you can't see it", to avoid leaking existence.
         if (
-            $command->viewerId instanceof UserId
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->viewerId)
+            ! $actor->hasUnrestrictedResourceAccess()
+            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $actor->userId)
         ) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 
-        $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
+        $this->assertHostGroupsExist($command->hostGroupIds, $actor);
 
         $this->assertTemplatesExist($command->templateIds);
 
-        $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
+        $this->assertCategoriesExist($command->categoryIds, $actor);
 
-        $this->assertSeverityExists($command->severityId, $command->viewerId);
+        $this->assertSeverityExists($command->severityId, $actor);
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $command->viewerId);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $actor);
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
@@ -183,16 +187,10 @@ final readonly class CreateHostCommandHandler
 
         $this->repository->add($host);
 
-        $this->eventBus->fire(new HostCreated($host, $command->creatorId));
+        $this->eventBus->fire(new HostCreated($host, $command->creatorId->value));
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
-
-            $this->eventBus->fire(new HostServicesDeploymentRequested(
-                $host->id(),
-
-                new UserId($command->creatorId),
-            ));
-
+            $this->eventBus->fire(new HostServicesDeploymentRequested($host->id(), $command->creatorId));
         }
 
         return $host;
@@ -201,7 +199,7 @@ final readonly class CreateHostCommandHandler
     /**
      * @param Collection<HostGroupId> $hostGroupIds
      */
-    private function assertHostGroupsExist(Collection $hostGroupIds, ?UserId $viewerId): void
+    private function assertHostGroupsExist(Collection $hostGroupIds, Credential $actor): void
     {
         if (count($hostGroupIds) === 0) {
             return;
@@ -211,8 +209,8 @@ final readonly class CreateHostCommandHandler
         $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        if ($viewerId instanceof UserId) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
+        if (! $actor->hasUnrestrictedResourceAccess()) {
+            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor->userId);
             if ($accessibleIds instanceof Collection) {
                 $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
                 $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
@@ -263,7 +261,7 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Unknown and inaccessible ids are not told apart, so a restricted viewer cannot probe for
+     * Unknown and inaccessible ids are not told apart, so a restricted actor cannot probe for
      * resources they cannot see.
      *
      * @template T of \App\Shared\Domain\Aggregate\AggregateRootId
@@ -294,12 +292,12 @@ final readonly class CreateHostCommandHandler
     /**
      * @param Collection<HostCategoryId> $categoryIds
      */
-    private function assertCategoriesExist(Collection $categoryIds, ?UserId $viewerId): void
+    private function assertCategoriesExist(Collection $categoryIds, Credential $actor): void
     {
         $missingIds = $this->missingIds(
             $categoryIds,
             fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor->userId),
         );
 
         if ($missingIds !== []) {
@@ -307,7 +305,7 @@ final readonly class CreateHostCommandHandler
         }
     }
 
-    private function assertSeverityExists(?HostSeverityId $severityId, ?UserId $viewerId): void
+    private function assertSeverityExists(?HostSeverityId $severityId, Credential $actor): void
     {
         if (! $severityId instanceof HostSeverityId) {
             return;
@@ -318,7 +316,7 @@ final readonly class CreateHostCommandHandler
             fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+            $actor->hasUnrestrictedResourceAccess() ? null : $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor->userId),
         );
 
         if ($missingIds !== []) {
@@ -351,22 +349,22 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * ACL-scoped: a restricted viewer may only link the hosts within their scope, as the legacy
+     * ACL-scoped: a restricted actor may only link the hosts within their scope, as the legacy
      * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
-     * are not told apart, so a restricted viewer cannot probe for hosts they cannot see. Host
+     * are not told apart, so a restricted actor cannot probe for hosts they cannot see. Host
      * templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?UserId $viewerId): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, Credential $actor): void
     {
-        $accessibleHostIds = $viewerId instanceof UserId
-            ? $this->resourceAccessRepository->findAccessibleHostIds(
-                $viewerId,
+        $accessibleHostIds = $actor->hasUnrestrictedResourceAccess()
+            ? null
+            : $this->resourceAccessRepository->findAccessibleHostIds(
+                $actor->userId,
                 new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
-            )
-            : null;
+            );
 
         $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
         $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
@@ -374,7 +372,7 @@ final readonly class CreateHostCommandHandler
 
     /**
      * @param Collection<HostId> $hostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
+     * @param Collection<HostId>|null $accessibleHostIds null when the actor is unrestricted
      */
     private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
     {

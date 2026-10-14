@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Event\ServiceVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\ServiceRepository;
+use App\Security\Domain\Repository\CredentialRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Event\EventBus;
 
@@ -41,25 +42,27 @@ final readonly class DeleteHostCommandHandler
         private HostRepository $hostRepository,
         private ServiceRepository $serviceRepository,
         private EventBus $eventBus,
+        private CredentialRepository $credentialRepository,
     ) {
     }
 
     public function __invoke(DeleteHostCommand $command): void
     {
-        $host = $this->hostRepository->findOne($command->id, $command->viewerId);
+        $actor = $this->credentialRepository->getById($command->deletedBy);
+        $host = $this->hostRepository->findOne($command->id, $actor->hasUnrestrictedResourceAccess() ? null : $actor->userId);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
 
         foreach ($this->serviceRepository->findExclusivelyLinkedToHostId($command->id) as $service) {
             $this->serviceRepository->remove($service);
-            $this->eventBus->fire(new ServiceDeleted($service, $command->deletedBy));
+            $this->eventBus->fire(new ServiceDeleted($service, $command->deletedBy->value));
             $this->eventBus->fire(new ServiceVaultPurgeRequested($service));
         }
 
         $this->hostRepository->remove($host);
 
-        $this->eventBus->fire(new HostDeleted($host, $command->deletedBy));
+        $this->eventBus->fire(new HostDeleted($host, $command->deletedBy->value));
         $this->eventBus->fire(new HostVaultPurgeRequested($host));
     }
 }
