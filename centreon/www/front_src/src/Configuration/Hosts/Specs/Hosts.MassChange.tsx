@@ -1,5 +1,6 @@
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
 import {
+  labelClose,
   labelFailedToUpdateSomeResources,
   labelMassChange,
   labelMoreActions
@@ -268,6 +269,82 @@ export default () => {
 
       // Host 0 is not written to again.
       expectPatchedHosts([0, 2, 2]);
+    });
+
+    it('keeps the panel open on every host when they all fail', () => {
+      initialize({ patchFails: [0, 2] });
+
+      cy.waitForRequest('@getAllHosts');
+
+      tickRow(0);
+      tickRow(2);
+      openMassChange();
+
+      typeMaxCheckAttempts('3');
+      save();
+      cy.findByTestId('confirm').click();
+
+      expectPatchedHosts([0, 2]);
+
+      cy.contains('Failed to update the hosts').should('be.visible');
+      cy.contains('Hosts updated').should('not.exist');
+      cy.findByTestId(panelDataTestIds.header).should(
+        'contain.text',
+        `${labelMassChange} (2)`
+      );
+      cy.findAllByTestId('host-form-scheduling-options-maxCheckAttempts')
+        .eq(1)
+        .should('have.value', '3');
+    });
+
+    it('asks for the confirmation when the changes are saved on closing', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      tickRow(0);
+      tickRow(2);
+      openMassChange();
+
+      cy.findByTestId('host-form-update-mode-templates-replacement').click();
+
+      cy.findByLabelText(labelClose).click();
+      // The unsaved changes dialog's own Save.
+      cy.findByTestId('confirm').click();
+
+      // Not written yet: the count, the hosts and the warning come first.
+      cy.findByTestId('mass-change-confirmation').should(
+        'have.text',
+        'The changes will be applied to 2 hosts.'
+      );
+      cy.findByTestId('mass-change-warning').should('be.visible');
+      expectPatchedHosts([]);
+
+      cy.findByTestId('confirm').click();
+
+      expectPatchedHosts([0, 2], { template_ids: [] });
+    });
+
+    it('requires no host group on a cloud platform', () => {
+      initialize({ isCloudPlatform: true });
+
+      cy.waitForRequest('@getAllHosts');
+
+      tickRow(0);
+      tickRow(2);
+      openMassChange();
+
+      typeMaxCheckAttempts('3');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
+        'be.enabled'
+      );
+      save();
+      cy.findByTestId('confirm').click();
+
+      expectPatchedHosts([0, 2], {
+        scheduling_options: { max_check_attempts: 3 }
+      });
     });
   });
 };

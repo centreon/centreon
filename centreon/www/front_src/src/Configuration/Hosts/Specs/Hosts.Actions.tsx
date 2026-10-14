@@ -191,8 +191,8 @@ export default () => {
 
       cy.waitForRequest('@getAllHosts');
 
-      // Select-all takes every selectable row — hosts 0 and 2; host 1 is
-      // deactivated and cannot be selected.
+      // Select-all takes every row, the deactivated host 1 included although
+      // its own checkbox is greyed.
       cy.get('input[type="checkbox"]').eq(0).click();
 
       cy.findByTestId(labelMoreActions).click();

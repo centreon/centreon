@@ -79,8 +79,8 @@ const hasPath = (path: ReadonlyArray<string>, payload: object): boolean =>
   getPath([...path], payload) !== undefined;
 
 /**
- * The body sent to every selected host: only what the user changed, each
- * list in its update mode — `x` replaces, `x_to_add` adds.
+ * The body sent to every selected host: what the user changed, plus every
+ * list set to Replacement — `x` replaces, `x_to_add` adds.
  */
 export const getMassChangeAdapter = (context: PlatformContext) => {
   const toPayload = (values: Record<string, unknown>) =>

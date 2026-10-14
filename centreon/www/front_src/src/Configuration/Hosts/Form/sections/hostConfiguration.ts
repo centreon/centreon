@@ -295,7 +295,8 @@ const getSchedulingTriStateInput = ({
   type: InputType.SegmentedButtons
 });
 
-// The rules on what identifies one host, which a mass change does not show.
+// The rules on one host's own fields, and the required poller. A mass change
+// shows none of the former and leaves the poller optional.
 const getHostOwnSchema = (t: TFunction) => ({
   address: string()
     .trim()
