@@ -3,6 +3,12 @@ import { Box, CssBaseline } from '@mui/material';
 import { ThemeProvider } from '@centreon/ui';
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
+import 'dayjs/locale/en';
+import 'dayjs/locale/pt';
+import 'dayjs/locale/fr';
+import 'dayjs/locale/es';
+import 'dayjs/locale/de';
+
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
