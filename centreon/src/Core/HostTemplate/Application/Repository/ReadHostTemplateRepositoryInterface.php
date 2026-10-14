@@ -155,6 +155,16 @@ interface ReadHostTemplateRepositoryInterface
     public function isLocked(int $hostTemplateId): bool;
 
     /**
+     * Find the host templates coming from the Monitoring Connectors that are not free of license, and every
+     * host template inheriting from them. Empty without the plugin pack manager module.
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsFromPaidConnectors(): array;
+
+    /**
      * Retrieve the name of a list of template ids.
      * Return an array with ids as keys.
      *

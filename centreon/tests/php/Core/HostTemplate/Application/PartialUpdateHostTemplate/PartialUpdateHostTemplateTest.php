@@ -595,6 +595,45 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         );
 });
 
+it('should write nothing and present an InvalidArgumentResponse when a parent template is not licensed', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findByHostId')
+        ->with($this->hostTemplateId)
+        ->willReturn([4]);
+    $this->vaultEligibilityService
+        ->method('shouldUseVault')
+        ->willReturn(true);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreLicensedTemplates')
+        ->with($this->request->templates, [4])
+        ->willThrowException(HostTemplateException::templatesNotLicensed($this->request->templates));
+
+    $this->writeVaultRepository->expects($this->never())->method('upsert');
+    $this->writeHostTemplateRepository->expects($this->never())->method('update');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostTemplateException::templatesNotLicensed($this->request->templates)->getMessage());
+});
+
 it('should present a ConflictResponse when a parent template create a circular inheritance', function (): void {
     $this->request->checkCommandId = null;
     $this->user
