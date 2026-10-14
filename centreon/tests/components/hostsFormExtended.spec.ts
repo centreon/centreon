@@ -362,10 +362,13 @@ test.describe('templates', () => {
     await expect(handles).toHaveCount(2);
 
     // dnd-kit's keyboard sensor: pick up, move, drop.
-    await handles.first().focus();
-    for (const key of ['Space', 'ArrowDown', 'Space']) {
-      await page.keyboard.press(key);
-    }
+    const handle = handles.first();
+    await handle.focus();
+    await page.keyboard.press('Space');
+    await expect(handle).toHaveAttribute('aria-pressed', 'true');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Space');
+    await expect(handle).not.toHaveAttribute('aria-pressed', 'true');
     await expect(hostField(page, 'host-form-templates-0')).toHaveValue(
       'generic-active-host'
     );
