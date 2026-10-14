@@ -43,6 +43,18 @@ interface ComponentFixtures {
   noGalleryErrors: undefined;
 }
 
+// JSON whatever the content type (some calls send JSON as a form body).
+const parseBody = (body: string | null): unknown => {
+  if (body === null) {
+    return null;
+  }
+  try {
+    return JSON.parse(body);
+  } catch {
+    return body;
+  }
+};
+
 export const test = base.extend<ComponentFixtures>({
   expectThemedScreenshot: async ({ page }, use) => {
     await use(async (target, name) => {
@@ -77,7 +89,7 @@ export const test = base.extend<ComponentFixtures>({
               return;
             }
             const url = new URL(route.request().url());
-            mocked.bodies.push(route.request().postDataJSON());
+            mocked.bodies.push(parseBody(route.request().postData()));
             mocked.urls.push(url);
             if (delay > 0) {
               await new Promise((resolve) => setTimeout(resolve, delay));
