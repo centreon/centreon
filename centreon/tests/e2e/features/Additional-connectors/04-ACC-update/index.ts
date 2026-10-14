@@ -36,6 +36,10 @@ beforeEach(() => {
     method: 'PUT',
     url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('updateConnectorDetail');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.api.monitoring_servers}?page=*`
+  }).as('getPollers');
 });
 
 after(() => {
@@ -109,9 +113,9 @@ Then(
 When('the user updates some information', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
   cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.getByTestId({ testId: 'CancelIcon' }).click();
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
+  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
+  cy.wait('@getPollers');
   cy.contains('Poller-1').click();
   cy.get('#Usernamevalue').type('admin');
   cy.get('#Passwordvalue').type('Abcde!2022');
