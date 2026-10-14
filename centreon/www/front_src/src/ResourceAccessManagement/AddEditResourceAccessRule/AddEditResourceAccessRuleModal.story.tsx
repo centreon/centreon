@@ -1,4 +1,8 @@
-import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import {
+  SnackbarProvider,
+  TestQueryProvider,
+  useFetchQuery
+} from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
@@ -11,11 +15,26 @@ import {
 } from '../atom';
 import { ModalMode } from '../models';
 import { AddEditResourceAccessRuleModal } from '.';
+import { resourceAccessRuleDecoder } from './api/decoders';
+import { resourceAccessRuleEndpoint } from './api/endpoints';
 import { platformVersions } from './specs/testUtils';
 
 interface Props {
   isBamModuleInstalled?: boolean;
 }
+
+// The listing loads the edited rule in the app: do the same so the modal
+// reads it from the query cache.
+const EditedRuleLoader = (): null => {
+  useFetchQuery({
+    decoder: resourceAccessRuleDecoder,
+    getEndpoint: () => resourceAccessRuleEndpoint({ id: 1 }),
+    getQueryKey: () => ['resource-access-rule', 1],
+    queryOptions: { suspense: false }
+  });
+
+  return null;
+};
 
 const Modal = ({
   isBamModuleInstalled = false,
@@ -43,7 +62,10 @@ const Modal = ({
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <AddEditResourceAccessRuleModal />
+            <>
+              {mode === ModalMode.Edit && <EditedRuleLoader />}
+              <AddEditResourceAccessRuleModal />
+            </>
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
