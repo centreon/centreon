@@ -72,8 +72,7 @@ const MassChangeDialog = ({ getWarning }: Props): ReactElement => {
           </ul>
           {warning && (
             <Typography
-              className="font-bold"
-              color="error"
+              className="rounded-sm bg-warning-light/50 p-2 font-bold text-warning-dark"
               data-testid="mass-change-warning"
             >
               {warning}

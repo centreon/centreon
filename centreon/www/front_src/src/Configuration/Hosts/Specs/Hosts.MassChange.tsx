@@ -189,10 +189,16 @@ export default () => {
       cy.findByTestId('host-form-update-mode-templates-replacement').click();
       save();
 
-      cy.findByTestId('mass-change-warning').should(
-        'have.text',
-        labelTemplateReplacementDeletesServices
-      );
+      cy.findByTestId('mass-change-warning')
+        .should('have.text', labelTemplateReplacementDeletesServices)
+        // The Tailwind warning tokens win over MUI's typography.
+        .and('have.css', 'color', 'rgb(177, 108, 27)')
+        // `warning-light` at 50%, which Tailwind mixes in oklab.
+        .and(
+          'have.css',
+          'background-color',
+          'oklab(0.856093 0.0350919 0.0997632 / 0.5)'
+        );
 
       cy.makeSnapshot();
 
