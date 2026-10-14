@@ -21,11 +21,14 @@ import {
 import { expect, test } from './fixtures';
 import {
   type HostsApi,
-  type HostsApiOptions,
+  type HostsSetup,
   hostField,
-  hostsStoryId,
-  mockHostsApi,
-  pollersForbiddenMessage
+  openCreation,
+  openHost,
+  panelHeader,
+  pollersForbiddenMessage,
+  saveButton,
+  setUpHosts
 } from './hostsApi';
 
 // Migrated from Configuration/Hosts/Specs/Hosts.Form (panel, general
@@ -34,38 +37,19 @@ let api: HostsApi;
 
 test.use({ viewport: { height: 900, width: 1440 } });
 
-type Mount = (id: string, props?: object) => Promise<Locator>;
-interface Setup extends HostsApiOptions {
-  isCloudPlatform?: boolean;
-}
-
 const setUp = async (
-  {
-    mockApi,
-    mount
-  }: { mockApi: Parameters<typeof mockHostsApi>[0]; mount: Mount },
-  { hasWriteAccess = true, isCloudPlatform = false, ...options }: Setup = {}
+  fixtures: Parameters<typeof setUpHosts>[0],
+  options?: HostsSetup
 ) => {
-  api = await mockHostsApi(mockApi, { hasWriteAccess, ...options });
-  const component = await mount(hostsStoryId, {
-    hasWriteAccess,
-    isCloudPlatform
-  });
-  await expect(component.getByText('host 0', { exact: true })).toBeVisible();
+  const result = await setUpHosts(fixtures, options);
+  api = result.api;
 
-  return component;
+  return result.component;
 };
 
-const header = (page: Page) => page.getByTestId(panelDataTestIds.header);
-const save = (page: Page) =>
-  page.locator(`button[data-testid="${panelDataTestIds.save}"]`);
+const header = panelHeader;
+const save = saveButton;
 const resolve = (page: Page) => page.getByTestId('host-form-address-resolve');
-const openCreation = (component: Locator) =>
-  component.getByTestId('add-resource').click();
-const openHost = async (component: Locator, name: string) => {
-  await component.getByText(name, { exact: true }).click();
-  await expect(header(component.page())).toHaveText(name);
-};
 
 test.describe('panel', () => {
   test('opens a host in a side panel rather than a modal', async ({

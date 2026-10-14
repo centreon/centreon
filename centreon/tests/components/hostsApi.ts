@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { panelDataTestIds } from '../../www/front_src/src/Configuration/ConfigurationBase/Panel/dataTestIds';
 import {
   emptyListingResponse,
   getCommandsResponse,
@@ -20,7 +21,7 @@ import {
   resolvedAddressResponse,
   unresolvedAddressResponse
 } from '../../www/front_src/src/Configuration/Hosts/Specs/utils';
-import type { MockApi, MockedEndpoint } from './fixtures';
+import { expect, type MockApi, type MockedEndpoint } from './fixtures';
 
 // The API mocks of the host configuration page, shared by its specs, as
 // Configuration/Hosts/Specs/initialize does for Cypress.
@@ -176,3 +177,67 @@ export const hostField = (page: Page, testId: string): Locator =>
   page.locator(
     `:is(input, textarea)[data-testid="${testId}"]:not([type="hidden"])`
   );
+
+type Mount = (id: string, props?: object) => Promise<Locator>;
+
+export interface HostsSetup extends HostsApiOptions {
+  isAdditiveInheritanceEnabled?: boolean;
+  isCloudPlatform?: boolean;
+}
+
+// Mocks the API, mounts the page and waits for the listing.
+export const setUpHosts = async (
+  { mockApi, mount }: { mockApi: MockApi; mount: Mount },
+  {
+    hasWriteAccess = true,
+    isAdditiveInheritanceEnabled = false,
+    isCloudPlatform = false,
+    ...options
+  }: HostsSetup = {}
+): Promise<{ api: HostsApi; component: Locator }> => {
+  const api = await mockHostsApi(mockApi, { hasWriteAccess, ...options });
+  const component = await mount(hostsStoryId, {
+    hasWriteAccess,
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform
+  });
+  await expect(component.getByText('host 0', { exact: true })).toBeVisible();
+
+  return { api, component };
+};
+
+export const panelHeader = (page: Page): Locator =>
+  page.getByTestId(panelDataTestIds.header);
+export const saveButton = (page: Page): Locator =>
+  page.locator(`button[data-testid="${panelDataTestIds.save}"]`);
+export const openCreation = (component: Locator): Promise<void> =>
+  component.getByTestId('add-resource').click();
+export const openHost = async (
+  component: Locator,
+  name: string
+): Promise<void> => {
+  await component.getByText(name, { exact: true }).click();
+  await expect(panelHeader(component.page())).toHaveText(name);
+};
+
+// Picks options of an autocomplete; a multi-select stays open after a pick.
+export const pickOptions = async (
+  page: Page,
+  testId: string,
+  options: Array<string>
+): Promise<void> => {
+  await hostField(page, testId).click();
+  for (const option of options) {
+    await page
+      .locator('.MuiAutocomplete-popper')
+      .getByText(option, { exact: true })
+      .click();
+  }
+  await page.keyboard.press('Escape');
+};
+
+export const fillMandatoryFields = async (page: Page): Promise<void> => {
+  await hostField(page, 'host-form-name').fill('srv-apache-02');
+  await hostField(page, 'host-form-address').fill('10.0.0.42');
+  await pickOptions(page, 'host-form-poller', ['Poller EU']);
+};
