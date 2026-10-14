@@ -11,8 +11,7 @@
     "ext-zip": "*"
   },
   "require-dev": {
-    "centreon/centreon": "@dev",
-    "psr/container": "2.0.*"
+    "centreon/centreon": "@dev"
   },
   "repositories": [
     {
