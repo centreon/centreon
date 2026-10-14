@@ -64,6 +64,9 @@ final class FakeHostRepository implements HostRepository
     /** @var list<Host> */
     public array $relationsReplacedHosts = [];
 
+    /** @var list<Host> */
+    public array $macrosReplacedHosts = [];
+
     /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
      * writes from both sides: a host created with children becomes their parent in the graph.
@@ -83,14 +86,6 @@ final class FakeHostRepository implements HostRepository
 
         $this->hosts[$id] = $host;
         $this->indexParentEdges($id, $host);
-
-        foreach ($host->parentHostIds as $parentId) {
-            $this->parentIds[$id][] = $parentId->value;
-        }
-
-        foreach ($host->childHostIds as $childId) {
-            $this->parentIds[$childId->value][] = $id;
-        }
 
         return $host;
     }
@@ -191,6 +186,17 @@ final class FakeHostRepository implements HostRepository
         foreach ($host->childHostIds as $childId) {
             $this->parentIds[$childId->value][] = $id;
         }
+    }
+
+    public function replaceMacros(Host $host): void
+    {
+        $id = $host->id()->value;
+        if (! isset($this->hosts[$id])) {
+            return;
+        }
+
+        $this->macrosReplacedHosts[] = $host;
+        $this->hosts[$id] = $host;
     }
 
     public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool

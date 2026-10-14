@@ -968,6 +968,29 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->relationCommand($poller->id(), childHostIds: [404]));
     }
 
+    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $parentId = $this->addRelatedHost($poller->id(), 'hidden-parent');
+        // The host exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([], HostId::class);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], viewerId: new UserId(7)));
+    }
+
+    public function testARestrictedViewerCanLinkAChildHostWithinTheirScope(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $childId = $this->addRelatedHost($poller->id(), 'visible-child');
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId($childId)], HostId::class);
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), childHostIds: [$childId], viewerId: new UserId(7)));
+
+        self::assertSame([$childId], array_map(static fn (HostId $id): int => $id->value, $host->childHostIds->toArray()));
+    }
+
     public function testItRejectsAChildThatIsAnAncestorOfAParent(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
@@ -1156,6 +1179,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         array $parentHostIds = [],
         array $childHostIds = [],
         bool $deployServicesFromTemplates = true,
+        ?UserId $viewerId = null,
     ): CreateHostCommand {
         return new CreateHostCommand(
             name: new HostName('relation-host'),
@@ -1176,6 +1200,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
                 HostId::class,
             ),
             deployServicesFromTemplates: $deployServicesFromTemplates,
+            viewerId: $viewerId,
         );
     }
 

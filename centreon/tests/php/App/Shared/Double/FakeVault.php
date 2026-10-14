@@ -55,6 +55,9 @@ final class FakeVault implements VaultInterface
 
     public bool $writeThrows = false;
 
+    /** When set, the write with this position (1 for the first one) fails, the other ones succeed. */
+    public ?int $writeThrowsOnCall = null;
+
     public bool $resolveThrows = false;
 
     public bool $deleteThrows = false;
@@ -122,7 +125,7 @@ final class FakeVault implements VaultInterface
             'deletes' => $deletes,
         ];
 
-        if ($this->writeThrows) {
+        if ($this->writeThrows || count($this->writeManyCalls) === $this->writeThrowsOnCall) {
             throw new \RuntimeException('Unable to write vault credential');
         }
 
