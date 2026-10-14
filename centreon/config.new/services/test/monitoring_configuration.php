@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 use App\MonitoringConfiguration\Domain\Service\DnsResolver;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
+use App\MonitoringConfiguration\Domain\Service\UnlicensedHostTemplates;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeDnsResolver;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 
 /*
  * Test-env service bindings for the App\MonitoringConfiguration module.
@@ -43,4 +45,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Keeps the API test suite off the runner's DNS: every other hostname is unresolved.
     $services->set(DnsResolver::class, FakeDnsResolver::class)
         ->arg('$records', ['localhost' => '127.0.0.1']);
+
+    // The test database has neither the license manager nor the plugin pack manager: the tests
+    // choose the templates the license restricts (DbalUnlicensedHostTemplatesTest covers the real one).
+    $services->set(UnlicensedHostTemplates::class, FakeUnlicensedHostTemplates::class)
+        ->public();
 };

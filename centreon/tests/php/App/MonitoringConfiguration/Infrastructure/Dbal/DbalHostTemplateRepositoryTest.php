@@ -82,19 +82,19 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertNotContains($hostName, $names, 'A regular host (host_register = 1) must not appear among host templates.');
     }
 
-    public function testFindAllExcludesLockedTemplatesWhenRequested(): void
+    public function testFindAllExcludesTheRequestedIds(): void
     {
-        $unlockedName = "unlocked-{$this->tag}";
-        $this->insertHostTemplate($unlockedName);
-        $lockedName = "locked-{$this->tag}";
-        $this->insertHostTemplate($lockedName, locked: true);
+        $keptName = "kept-{$this->tag}";
+        $this->insertHostTemplate($keptName);
+        $excludedName = "excluded-{$this->tag}";
+        $excludedId = $this->insertHostTemplate($excludedName);
 
         $names = $this->names($this->repository->findAll(
-            (new HostTemplateCriteria())->withName($this->tag)->withExcludeLocked(true)
+            (new HostTemplateCriteria())->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
         ));
 
-        self::assertContains($unlockedName, $names);
-        self::assertNotContains($lockedName, $names);
+        self::assertContains($keptName, $names);
+        self::assertNotContains($excludedName, $names);
     }
 
     public function testFindAllFiltersById(): void
@@ -655,13 +655,12 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         ]);
     }
 
-    private function insertHostTemplate(string $name, bool $locked = false): int
+    private function insertHostTemplate(string $name): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_register' => '0',
             'host_activate' => '1',
-            'host_locked' => $locked ? '1' : '0',
         ]);
 
         return (int) $this->connection->lastInsertId();

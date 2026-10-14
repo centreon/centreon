@@ -78,6 +78,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
@@ -108,6 +109,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -174,6 +176,12 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         /** @var UpdateHostCommandHandler $handler */
         $handler = $container->get(UpdateHostCommandHandler::class);
         $this->handler = $handler;
+    }
+
+    protected function tearDown(): void
+    {
+        FakeUnlicensedHostTemplates::reset();
+        parent::tearDown();
     }
 
     public function testItUpdatesTheHost(): void
@@ -1272,6 +1280,37 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             $this->hostRepository->findOne(new HostId(10))?->hostGroupIds->toArray() ?? [],
         );
         self::assertSame([1], $groupIds);
+    }
+
+    public function testItKeepsATemplateTheLicenseNoLongerAllows(): void
+    {
+        $this->addPoller(1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('connector'), new Collection([], HostMacro::class));
+        $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
+        $this->seedHost(10, templateIds: $templateIds);
+        FakeUnlicensedHostTemplates::restrict(7);
+
+        $host = ($this->handler)($this->command(10, name: 'renamed', templateIds: $templateIds));
+
+        self::assertSame('renamed', $host->name->value);
+        self::assertSame([7], array_map(static fn (HostTemplateId $id): int => $id->value, $host->templateIds->toArray()));
+    }
+
+    public function testItRejectsAddingATemplateTheLicenseNoLongerAllows(): void
+    {
+        $this->addPoller(1);
+        foreach ([7, 8] as $id) {
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('connector-' . $id), new Collection([], HostMacro::class));
+        }
+        $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
+        FakeUnlicensedHostTemplates::restrict(7, 8);
+
+        try {
+            ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7), new HostTemplateId(8)], HostTemplateId::class)));
+            self::fail('A template the license no longer allows must not be added.');
+        } catch (UnlicensedHostTemplatesException $exception) {
+            self::assertSame(['templateIds' => [8]], $exception->criteria);
+        }
     }
 
     /**

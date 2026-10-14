@@ -519,11 +519,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        if ($criteria->excludeLocked()) {
-            // A locked host template is a paid plugin-pack template the platform's license doesn't
-            // cover, matching legacy's CentreonHost::getLimitedList() exclusion for the host form's
-            // "extend template" select.
-            $qb->andWhere($qb->expr()->eq('h.host_locked', $qb->createNamedParameter(0, ParameterType::INTEGER)));
+        if (($excludedIds = $criteria->getExcludedIds()) !== []) {
+            $qb->andWhere($qb->expr()->notIn('h.host_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
 
         $this->filterByViewer($qb, $criteria);

@@ -86,6 +86,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
@@ -114,6 +115,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -188,6 +190,12 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         /** @var CreateHostCommandHandler $handler */
         $handler = $container->get(CreateHostCommandHandler::class);
         $this->handler = $handler;
+    }
+
+    protected function tearDown(): void
+    {
+        FakeUnlicensedHostTemplates::reset();
+        parent::tearDown();
     }
 
     public function testItCreatesTheHost(): void
@@ -1127,6 +1135,35 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         self::assertInstanceOf(Notifications::class, $host->notifications);
         self::assertFalse($host->notifications->contactAdditiveInheritance);
         self::assertFalse($host->notifications->contactGroupAdditiveInheritance);
+    }
+
+    public function testItRejectsATemplateTheLicenseNoLongerAllows(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        foreach ([7, 8] as $id) {
+            $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id), new Collection([], HostMacro::class));
+        }
+        FakeUnlicensedHostTemplates::restrict(8);
+
+        try {
+            ($this->handler)($this->relationCommand($poller->id(), templateIds: [7, 8]));
+            self::fail('A template the license no longer allows must be rejected.');
+        } catch (UnlicensedHostTemplatesException $exception) {
+            self::assertSame(['templateIds' => [8]], $exception->criteria);
+        }
+
+        self::assertSame([], $this->hostRepository->hosts);
+    }
+
+    public function testItAcceptsATemplateTheLicenseStillAllows(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('template-7'), new Collection([], HostMacro::class));
+        FakeUnlicensedHostTemplates::restrict(8);
+
+        $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [7]));
+
+        self::assertSame([7], array_map(static fn (HostTemplateId $id): int => $id->value, $host->templateIds->toArray()));
     }
 
     private function snmpCommand(PollerId $pollerId, ?string $snmpCommunity): CreateHostCommand

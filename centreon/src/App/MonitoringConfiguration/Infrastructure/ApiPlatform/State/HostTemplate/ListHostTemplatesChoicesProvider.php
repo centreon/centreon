@@ -30,6 +30,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateChoicesOutput;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
@@ -52,6 +53,7 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         private TransformerInterface $transformer,
         private HostTemplateRepository $repository,
         private Pagination $pagination,
+        private UnlicensedHostTemplates $unlicensedHostTemplates,
     ) {
     }
 
@@ -62,8 +64,8 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
     {
         // No viewer scoping: the legacy host form's "extend template" select (CentreonHost::getList())
         // is not host-category severity-scoped, unlike the generic /configuration/host_templates
-        // endpoint. Locked (paid plugin-pack) templates are excluded instead, matching
-        // CentreonHost::getLimitedList().
+        // endpoint. Once the license host limit is reached, the templates coming from Monitoring
+        // Connectors are excluded instead, matching CentreonHost::getLimitedList().
         $criteria = new HostTemplateCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
@@ -78,7 +80,7 @@ final readonly class ListHostTemplatesChoicesProvider implements ProviderInterfa
         if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
             $criteria = $criteria->withName($name);
         }
-        $criteria = $criteria->withExcludeLocked(true);
+        $criteria = $criteria->withExcludedIds($this->unlicensedHostTemplates->findIds());
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];

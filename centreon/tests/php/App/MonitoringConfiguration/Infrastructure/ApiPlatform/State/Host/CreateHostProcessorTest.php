@@ -50,6 +50,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
@@ -71,6 +72,12 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var Connection $realTimeConnection */
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
+    }
+
+    protected function tearDown(): void
+    {
+        FakeUnlicensedHostTemplates::reset();
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -1444,6 +1451,16 @@ final class CreateHostProcessorTest extends ApiTestCase
     public function testItRejectsAnUnknownTemplate(): void
     {
         $this->assertReferenceIsRejected('template_ids', [999999]);
+    }
+
+    public function testItRejectsATemplateTheLicenseNoLongerAllows(): void
+    {
+        $templateId = $this->insertHostTemplate($this->uniqueName('connector'));
+        FakeUnlicensedHostTemplates::restrict($templateId);
+
+        $this->assertReferenceIsRejected('template_ids', [$templateId]);
+        // One line per violation, each prefixed with its field.
+        self::assertJsonContains(['message' => "[template_ids] The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.\n"]);
     }
 
     public function testItRejectsAnUnknownParentHost(): void

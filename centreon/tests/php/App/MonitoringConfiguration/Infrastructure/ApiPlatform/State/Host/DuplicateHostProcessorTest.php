@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use Doctrine\DBAL\Connection;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class DuplicateHostProcessorTest extends ApiTestCase
@@ -44,6 +45,12 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         /** @var Connection $realTimeConnection */
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
+    }
+
+    protected function tearDown(): void
+    {
+        FakeUnlicensedHostTemplates::reset();
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -255,6 +262,23 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         );
         self::assertIsScalar($exclusiveCount);
         self::assertSame(0, (int) $exclusiveCount, 'the exclusive service is cloned by the legacy runtime (absent in integration), never re-linked; the clone is validated on the CDE');
+    }
+
+    public function testItRejectsAHostWhoseTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $name = $this->uniqueName('web');
+        $hostId = $this->insertHost($name, $pollerId);
+        $templateId = $this->insertHostTemplate($this->uniqueName('connector'));
+        $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $templateId, '`order`' => 1]);
+        FakeUnlicensedHostTemplates::restrict($templateId);
+
+        $this->login();
+        $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");
+
+        self::assertResponseStatusCodeSame(403);
+        self::assertJsonContains(['message' => 'The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.']);
+        self::assertFalse($this->connection->fetchOne('SELECT 1 FROM host WHERE host_name = ?', ["{$name}_1"]));
     }
 
     public function testItSkipsASuffixAlreadyTakenByAHostTemplate(): void

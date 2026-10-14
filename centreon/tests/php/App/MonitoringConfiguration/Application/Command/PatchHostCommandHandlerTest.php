@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
@@ -106,6 +107,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -179,6 +181,7 @@ final class PatchHostCommandHandlerTest extends TestCase
                 new FakeNotificationContactRepository(),
                 new FakeContactGroupRepository(),
                 $this->resourceAccessRepository,
+                new HostTemplateLicenseGuard(new FakeUnlicensedHostTemplates()),
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, new FakeServiceRepository(), $this->eventBus),
             new HostMacrosUpdater(

@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
@@ -69,6 +70,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\UserId;
@@ -94,6 +96,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -159,6 +162,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->contactRepository,
                 $this->contactGroupRepository,
                 $this->resourceAccessRepository,
+                new HostTemplateLicenseGuard(new FakeUnlicensedHostTemplates()),
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
             new HostMacrosUpdater(
@@ -182,6 +186,12 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             $this->contactRepository->names[$id] = new NotificationContactName('contact-' . $id);
             $this->contactGroupRepository->names[$id] = new ContactGroupName('contact-group-' . $id);
         }
+    }
+
+    protected function tearDown(): void
+    {
+        FakeUnlicensedHostTemplates::reset();
+        parent::tearDown();
     }
 
     public function testItReplacesTheHostGroups(): void
@@ -661,6 +671,47 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         ($this->handler)($this->command(alias: new HostAlias('back'), deployServicesFromTemplates: true));
 
         self::assertTrue($this->eventBus->shouldNotHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    public function testItKeepsTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $this->seedHost(templateIds: [1, 2]);
+        FakeUnlicensedHostTemplates::restrict(1, 2);
+
+        $replaced = ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2), new HostTemplateId(1)])));
+        self::assertSame([2, 1], $this->ids($replaced->templateIds));
+
+        $removed = ($this->handler)($this->command(templateIds: ListChange::remove([new HostTemplateId(1)])));
+        self::assertSame([2], $this->ids($removed->templateIds));
+    }
+
+    /**
+     * @return iterable<string, array{ListChange<HostTemplateId>}>
+     */
+    public static function unlicensedTemplateAdditions(): iterable
+    {
+        yield 'replace' => [ListChange::replace([new HostTemplateId(1), new HostTemplateId(3)])];
+
+        yield 'add' => [ListChange::add([new HostTemplateId(3)])];
+    }
+
+    /**
+     * @param ListChange<HostTemplateId> $change
+     */
+    #[DataProvider('unlicensedTemplateAdditions')]
+    public function testItRejectsAddingATemplateTheLicenseNoLongerAllows(ListChange $change): void
+    {
+        $this->seedHost(templateIds: [1]);
+        FakeUnlicensedHostTemplates::restrict(1, 3);
+
+        try {
+            ($this->handler)($this->command(templateIds: $change));
+            self::fail('A template the license no longer allows must not be added.');
+        } catch (UnlicensedHostTemplatesException $exception) {
+            self::assertSame(['templateIds' => [3]], $exception->criteria);
+        }
+
+        self::assertSame([], $this->repository->relationsReplacedHosts);
     }
 
     /**
