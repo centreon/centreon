@@ -34,6 +34,7 @@ require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
 require_once __DIR__ . '/../../class/centreonStatistics.class.php';
 require_once __DIR__ . '/../../include/common/common-Func.php';
+require_once __DIR__ . '/../../class/centreonCeipLicenseType.class.php';
 require_once __DIR__ . '/webService.class.php';
 
 /**
@@ -43,23 +44,6 @@ require_once __DIR__ . '/webService.class.php';
  */
 class CentreonCeip extends CentreonWebService
 {
-    /**
-     * CIM editions allowed in the licensing.edition property of the license file,
-     * with the license type label historically sent to Pendo.
-     * CUSTOM is used for standalone module subscriptions (BAM, MAP, MBI without EPP).
-     */
-    private const LICENSE_EDITION_LABELS = [
-        'IT-100' => 'IT-100 Edition',
-        'IT' => 'IT Edition',
-        'BE' => 'Business Edition',
-        'MSP' => 'MSP Edition',
-        'PRO' => 'PRO Edition',
-        'CUSTOM' => 'Custom Edition',
-    ];
-
-    /** CIM editions for which the platform fingerprint is sent. */
-    private const FINGERPRINTED_LICENSE_EDITIONS = ['BE', 'MSP', 'CUSTOM'];
-
     /** @var string */
     private $uuid;
 
@@ -349,62 +333,37 @@ class CentreonCeip extends CentreonWebService
             /** @var LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
 
-            /** @var array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
-            $licenseInformation = [];
+            /** @var array<string, array<array-key, mixed>> $validLicenses */
+            $validLicenses = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
                 $isLicenseValid = $licenseObject->validate();
                 if ($isLicenseValid && ! empty($licenseObject->getData())) {
-                    /**
-                     * @var array<
-                     *  array-key,
-                     *  array<array-key, array<array-key, string|array<array-key, string>>>> $licenseInformation
-                     */
-                    $licenseInformation[$module] = $licenseObject->getData();
+                    /** @var array<array-key, array<array-key, mixed>> $licenseData */
+                    $licenseData = $licenseObject->getData();
+                    $validLicenses[$module] = $licenseData;
                     /** @var string $licenseClientName */
-                    $licenseClientName = $licenseInformation[$module]['client']['name'];
-                    $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
-                    $licenseMode = $licenseInformation[$module]['platform']['mode'] ?? null;
-                    $licenseStart = DateTime::createFromFormat(
-                        'Y-m-d',
-                        $licenseInformation[$module]['licensing']['start']
-                    ) ?: throw new Exception('Invalid date format');
-                    $licenseEnd = DateTime::createFromFormat(
-                        'Y-m-d',
-                        $licenseInformation[$module]['licensing']['end']
-                    ) ?: throw new Exception('Invalid date format');
-                    $licenseDurationInDays = (int) ($licenseEnd->diff($licenseStart)->days ?? 0);
-                    if ($module === 'epp') {
-                        $productLicense = 'IT Edition';
-                        if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
-                            $productLicense = 'IT-100 Edition';
-                        } elseif ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
-                            $productLicense = 'MSP Edition';
-                            $fingerprint = $fingerprintService->calculateFingerprint();
-                        }
-                    }
-                    if (in_array($module, ['mbi', 'bam', 'map'], true)) {
-                        $productLicense = 'Business Edition';
-                        $fingerprint = $fingerprintService->calculateFingerprint();
-                        if ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
-                            $productLicense = 'MSP Edition';
-                        }
-                    }
-                    $edition = $licenseInformation[$module]['licensing']['edition'] ?? null;
-                    if (! isset($licenseEdition) && is_string($edition) && trim($edition) !== '') {
-                        $licenseEdition = trim($edition);
-                    }
-                    if (in_array($module, ['mbi', 'bam', 'map'], true)) {
+                    $licenseClientName = $licenseData['client']['name'];
+                    $hostsLimitation = $licenseData['licensing']['hosts'];
+                    $licenseMode = $licenseData['platform']['mode'] ?? null;
+                    if ($module !== 'epp') {
                         break;
                     }
-                    $environment = $licenseInformation[$module]['platform']['environment'];
+                    $environment = $licenseData['platform']['environment'];
                 }
             }
 
-            // Newer licenses carry the edition explicitly: it takes precedence over the computed one
-            if (isset($licenseEdition, self::LICENSE_EDITION_LABELS[$licenseEdition])) {
-                $productLicense = self::LICENSE_EDITION_LABELS[$licenseEdition];
-                if (! isset($fingerprint) && in_array($licenseEdition, self::FINGERPRINTED_LICENSE_EDITIONS, true)) {
+            if ($validLicenses !== []) {
+                $licenseType = CentreonCeipLicenseType::resolve($validLicenses);
+                $productLicense = $licenseType['licenseType'];
+                if ($licenseType['ignoredEdition'] !== null) {
+                    CentreonLog::create()->warning(
+                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                        message: 'Unknown license edition ignored, falling back to the computed license type',
+                        customContext: ['edition' => $licenseType['ignoredEdition']]
+                    );
+                }
+                if ($licenseType['withFingerprint']) {
                     $fingerprint = $fingerprintService->calculateFingerprint();
                 }
             }
