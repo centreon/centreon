@@ -611,6 +611,16 @@ EOF
   snmptrapd:
 EOF
     printf '    image: "%s:${SNMPTRAPD_TAG:?set SNMPTRAPD_TAG in .env}"\n' "$(_pollerImageRepo snmptrapd)" >> "${out}"
+    # Rootless Podman's bridge port forwarder replaces the trap sender's IP
+    # with the container's, so centreontrapd can't match the host: publish
+    # 162/udp through pasta (or slirp4netns' own forwarder) instead.
+    if [ "${ENGINE_ROOTLESS}" = "1" ]; then
+      local trap_network="slirp4netns:port_handler=slirp4netns"
+      if [ -n "$(podman info --format '{{.Host.Pasta.Executable}}' 2>/dev/null)" ]; then
+        trap_network="pasta"
+      fi
+      echo "    network_mode: ${trap_network}" >> "${out}"
+    fi
     cat >> "${out}" <<'EOF'
     container_name: "${NAME}-snmptrap"
     hostname: snmptrapd
