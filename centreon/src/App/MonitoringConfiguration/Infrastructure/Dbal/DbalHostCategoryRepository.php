@@ -144,12 +144,10 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             return;
         }
 
-        $accessibleHostCategoryIds = $scope->allowedIdValues();
-
         // An empty scope means the actor is restricted on host categories yet granted
         // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
         // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
-        if ($accessibleHostCategoryIds === []) {
+        if ($scope->allowsNothing()) {
             $qb->andWhere('1 = 0');
 
             return;
@@ -159,7 +157,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         // the set to levelless categories, so it never carries a severity id.
         $qb->andWhere(
             'hc.hc_id IN (' . $qb->createNamedParameter(
-                $accessibleHostCategoryIds,
+                $scope->allowedIdValues(),
                 ArrayParameterType::INTEGER
             ) . ')'
         );

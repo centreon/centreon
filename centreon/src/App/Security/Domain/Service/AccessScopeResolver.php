@@ -33,7 +33,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 
 /**
@@ -52,9 +54,7 @@ final readonly class AccessScopeResolver
      */
     public function hostCategories(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(HostCategoryId::class)
-            : $this->resourceAccessRepository->findHostCategoryAccessScope($actor->userId);
+        return $this->resolve($actor, HostCategoryId::class, $this->resourceAccessRepository->findHostCategoryAccessScope(...));
     }
 
     /**
@@ -62,9 +62,7 @@ final readonly class AccessScopeResolver
      */
     public function hostSeverities(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(HostSeverityId::class)
-            : $this->resourceAccessRepository->findHostSeverityAccessScope($actor->userId);
+        return $this->resolve($actor, HostSeverityId::class, $this->resourceAccessRepository->findHostSeverityAccessScope(...));
     }
 
     /**
@@ -72,9 +70,7 @@ final readonly class AccessScopeResolver
      */
     public function pollers(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(PollerId::class)
-            : $this->resourceAccessRepository->findPollerAccessScope($actor->userId);
+        return $this->resolve($actor, PollerId::class, $this->resourceAccessRepository->findPollerAccessScope(...));
     }
 
     /**
@@ -82,9 +78,7 @@ final readonly class AccessScopeResolver
      */
     public function hostGroups(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(HostGroupId::class)
-            : $this->resourceAccessRepository->findHostGroupAccessScope($actor->userId);
+        return $this->resolve($actor, HostGroupId::class, $this->resourceAccessRepository->findHostGroupAccessScope(...));
     }
 
     /**
@@ -92,9 +86,7 @@ final readonly class AccessScopeResolver
      */
     public function imageFolders(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(MediaDirectoryId::class)
-            : $this->resourceAccessRepository->findImageFolderAccessScope($actor->userId);
+        return $this->resolve($actor, MediaDirectoryId::class, $this->resourceAccessRepository->findImageFolderAccessScope(...));
     }
 
     /**
@@ -102,9 +94,7 @@ final readonly class AccessScopeResolver
      */
     public function contacts(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(NotificationContactId::class)
-            : $this->resourceAccessRepository->findContactAccessScope($actor->userId);
+        return $this->resolve($actor, NotificationContactId::class, $this->resourceAccessRepository->findContactAccessScope(...));
     }
 
     /**
@@ -112,9 +102,7 @@ final readonly class AccessScopeResolver
      */
     public function contactGroups(ActingUser $actor): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(ContactGroupId::class)
-            : $this->resourceAccessRepository->findContactGroupAccessScope($actor->userId);
+        return $this->resolve($actor, ContactGroupId::class, $this->resourceAccessRepository->findContactGroupAccessScope(...));
     }
 
     /**
@@ -124,8 +112,23 @@ final readonly class AccessScopeResolver
      */
     public function hosts(ActingUser $actor, ?Collection $among = null): AccessScope
     {
-        return $actor->hasUnrestrictedResourceAccess()
-            ? AccessScope::unrestricted(HostId::class)
-            : $this->resourceAccessRepository->findHostAccessScope($actor->userId, $among);
+        return $this->resolve(
+            $actor,
+            HostId::class,
+            fn (UserId $userId): AccessScope => $this->resourceAccessRepository->findHostAccessScope($userId, $among),
+        );
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param class-string<T> $idClass
+     * @param \Closure(UserId): AccessScope<T> $find
+     *
+     * @return AccessScope<T>
+     */
+    private function resolve(ActingUser $actor, string $idClass, \Closure $find): AccessScope
+    {
+        return $actor->hasUnrestrictedResourceAccess() ? AccessScope::unrestricted($idClass) : $find($actor->userId);
     }
 }
