@@ -25,11 +25,13 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTe
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\GetHostTemplateMacrosProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\ListHostTemplatesProvider;
 
@@ -44,6 +46,24 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate\Li
             itemUriTemplate: '/configuration/host_templates/{id}',
             output: HostTemplateChoicesOutput::class,
             provider: ListHostTemplatesChoicesProvider::class,
+        ),
+        // A host template's own and inherited macros, read to prefill a host before it is created.
+        // Same family as the host template choices list above, so it takes the same right, not a
+        // host template one.
+        new Get(
+            uriTemplate: '/configuration/hosts/host_templates/{id}',
+            requirements: ['id' => '\d+'],
+            output: HostTemplateMacrosOutput::class,
+            provider: GetHostTemplateMacrosProvider::class,
+            openapi: new Model\Operation(
+                summary: "Get a host template's own and inherited macros, to prefill a new host",
+                responses: [
+                    403 => new Model\Response('You are not allowed to access host templates'),
+                    404 => new Model\Response('Host template not found'),
+                ],
+            ),
+            security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to access host templates',
         ),
         new GetCollection(
             uriTemplate: '/configuration/host_templates',
