@@ -61,7 +61,7 @@ final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
         Assert::integer($uriVariables['id']);
         $templateId = new HostTemplateId($uriVariables['id']);
 
-        $criteria = new HostTemplateCriteria()->withoutAccessScope()->withId($templateId)->withExcludeLocked(true);
+        $criteria = (new HostTemplateCriteria())->withoutAccessScope()->withId($templateId)->withExcludeLocked(true);
         if (count($this->repository->findAll($criteria)) === 0) {
             throw new HostTemplateNotFoundException([$templateId->value], 'id');
         }

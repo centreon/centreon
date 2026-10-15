@@ -62,7 +62,7 @@ final readonly class ListHostSeveritiesChoicesProvider implements ProviderInterf
     {
         // No actor scoping: the legacy host form's severity picker (CentreonCriticality::getList())
         // ignores ACL visibility, unlike the generic /configuration/host_severities endpoint.
-        $criteria = new HostSeverityCriteria()->withoutAccessScope();
+        $criteria = (new HostSeverityCriteria())->withoutAccessScope();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
