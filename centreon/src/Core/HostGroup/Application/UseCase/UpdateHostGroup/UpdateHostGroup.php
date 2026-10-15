@@ -220,7 +220,8 @@ final class UpdateHostGroup
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
         $this->writeHostGroupRepository->addHostLinks($request->id, $hostsToAdd);
         $linkedAfter = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
-        $this->notifyConfigurationChange($hosts);
+        // The pollers of the removed hosts must also be notified, their configuration changed too.
+        $this->notifyConfigurationChange(array_values(array_unique([...$hosts, ...$hostsToRemove])));
 
         sort($linkedBefore);
         sort($linkedAfter);

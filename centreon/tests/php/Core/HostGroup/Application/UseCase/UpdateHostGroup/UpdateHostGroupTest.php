@@ -554,6 +554,48 @@ it(
 );
 
 it(
+    'should notify the pollers of the requested and removed hosts',
+    function (): void {
+        $this->updateHostGroupRequest->hosts = [1];
+
+        $this->adminResolver
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(false);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOneByAccessGroups')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroupAndAccessGroups')
+            ->willReturn([
+                new SimpleEntity(id: 1, name: new TrimmedString('host_1'), objectName: 'Host'),
+                new SimpleEntity(id: 15, name: new TrimmedString('host_15'), objectName: 'Host'),
+            ]);
+        $this->readMonitoringServerRepository
+            ->expects($this->once())
+            ->method('findByHostsIds')
+            ->with([1, 15])
+            ->willReturn([3]);
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyConfigurationChanges')
+            ->with([3]);
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
     'should neither duplicate the kept hosts nor remove the hidden ones for a non-admin user',
     function (): void {
         $this->updateHostGroupRequest->hosts = [1];
