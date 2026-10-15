@@ -366,6 +366,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
+        // Updating a host writes rows that reference its poller (foreign key, shared lock) and clears then
+        // rewrites its relations (gap locks), and the poller is flagged later in the same transaction, which
+        // needs it exclusively. Concurrent updates would each hold their share while waiting for the other's:
+        // a deadlock. Taking the exclusive lock first makes the second update wait instead.
+        $this->lockPoller($host->pollerId->value);
+
         $qb = $this->connection->createQueryBuilder();
         $qb->update(self::TABLE_NAME);
         foreach (self::HOST_COLUMN_PARAMETERS as $column => $parameter) {
@@ -396,6 +402,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         if (! $this->isRegisteredHost($hostId)) {
             return;
         }
+
+        // See update(): the poller lock comes before any row of this host is touched.
+        $this->lockPoller($host->pollerId->value);
 
         // Every relation is replaced wholesale: clear this host's rows, then re-insert them from
         // $host, exactly as add() writes them for a new host. Macros are written in place instead
@@ -608,8 +617,20 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
+        // See update(): the poller lock comes before any row of this host is touched.
+        $this->lockPoller($host->pollerId->value);
+
         $this->clearRelations($hostId);
         $this->insertRelations($hostId, $host);
+    }
+
+    private function lockPoller(int $pollerId): void
+    {
+        $this->connection->executeQuery(
+            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
+            ['poller_id' => $pollerId],
+            ['poller_id' => ParameterType::INTEGER],
+        );
     }
 
     /**
