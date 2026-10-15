@@ -46,7 +46,7 @@ final class AccessibleHostSeverityValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostSeverityRepository $hostSeverityRepository,
-        private AccessScopeResolver $accessScopes,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 

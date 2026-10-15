@@ -46,7 +46,7 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostCategoryRepository $hostCategoryRepository,
-        private AccessScopeResolver $accessScopes,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
