@@ -175,6 +175,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $credentialRepository = new FakeCredentialRepository();
         $credentialRepository->addUser(new UserId(1), unrestricted: true);
         $credentialRepository->addUser(new UserId(42), unrestricted: false);
+
         $container->set(CredentialRepository::class, $credentialRepository);
 
         $this->logger = new LoggerSpy();
