@@ -24,18 +24,18 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 
 final readonly class DuplicateHostCommand
 {
     /**
      * @param HostId $hostId the host to duplicate
-     * @param UserId $duplicatedBy the acting user: the action-log actor, whose ACL scope also bounds the
-     *                             source lookup, so an inaccessible host reads as not found
+     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
+     *                          source lookup, so an inaccessible host reads as not found
      */
     public function __construct(
         public HostId $hostId,
-        public UserId $duplicatedBy,
+        public ActingUser $actor,
     ) {
     }
 }

@@ -68,7 +68,6 @@ use App\MonitoringConfiguration\Domain\Exception\ReservedHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
@@ -90,8 +89,8 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\Security\Infrastructure\Double\FakeCredentialRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
@@ -112,16 +111,10 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
     private EventBusSpy $eventBus;
 
-    private FakeCredentialRepository $credentialRepository;
-
     private PatchHostCommandHandler $handler;
 
     protected function setUp(): void
     {
-        $this->credentialRepository = new FakeCredentialRepository();
-        $this->credentialRepository->addUser(new UserId(1), unrestricted: true);
-        $this->credentialRepository->addUser(new UserId(7), unrestricted: false);
-        $this->credentialRepository->addUser(new UserId(42), unrestricted: false);
 
         $this->repository = new FakeHostRepository();
         $this->vault = new FakeVault();
@@ -174,7 +167,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $this->logger,
-            $this->credentialRepository,
         );
     }
 
@@ -272,7 +264,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: new UserId(1),
+                actor: TestActingUsers::unrestricted(1),
                 snmpCommunity: 'a-new-community',
                 macros: MacroChanges::upsert([
                     new HostMacroChange(new HostMacroName('TOKEN'), 'secret::vault::monitoring/hosts/other-uuid::_HOSTTOKEN', true),
@@ -749,7 +741,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
         $result = ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: new UserId(1),
+            actor: TestActingUsers::unrestricted(1),
             templateIds: $scenario['templateChange'] ?? new NoValue(),
             macros: $scenario['changes'],
         ));
@@ -921,7 +913,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         try {
             ($this->handler)(new PatchHostCommand(
                 id: new HostId(self::HOST_ID),
-                updatedBy: new UserId(1),
+                actor: TestActingUsers::unrestricted(1),
                 snmpCommunity: 'a-community',
                 macros: MacroChanges::upsert([new HostMacroChange(new HostMacroName('TOKEN'), 'secret', true)]),
             ));
@@ -990,7 +982,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
     {
         return ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: new UserId(1),
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: $community ?? new NoValue(),
             macros: $macros,
         ));

@@ -25,13 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Infrastructure\Logging\Attribute\SensitivityScanner;
 use App\Shared\Infrastructure\Logging\LogPayloadNormalizer;
 use App\Shared\Infrastructure\Logging\PayloadSanitizer;
 use App\Shared\Infrastructure\Logging\SensitiveKeywordDenylist;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 /**
  * `LoggingMiddleware` logs the command payload on every dispatch, and the plaintext community
@@ -47,7 +47,7 @@ final class PatchHostCommandLoggingTest extends TestCase
 
         $command = new PatchHostCommand(
             id: new HostId(1),
-            updatedBy: new UserId(1),
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: 'top-secret',
         );
 
@@ -56,6 +56,6 @@ final class PatchHostCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['snmp_community']);
-        self::assertArrayHasKey('updated_by', $sanitised);
+        self::assertArrayHasKey('actor', $sanitised);
     }
 }

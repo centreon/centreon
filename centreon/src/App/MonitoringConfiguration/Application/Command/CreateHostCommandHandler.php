@@ -60,7 +60,6 @@ use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
@@ -91,13 +90,11 @@ final readonly class CreateHostCommandHandler
         private VaultInterface $vault,
         private EventBus $eventBus,
         private HostTemplateLicenseGuard $templateLicenseGuard,
-        private CredentialRepository $credentialRepository,
     ) {
     }
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        $actor = $this->credentialRepository->getById($command->creatorId)->actingUser();
 
         // References are authorized before the name is looked up: otherwise a restricted actor
         // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
@@ -111,25 +108,25 @@ final readonly class CreateHostCommandHandler
         // the same not-found error as a truly nonexistent poller — legacy does not distinguish
         // "doesn't exist" from "exists but you can't see it", to avoid leaking existence.
         if (
-            ! $actor->hasUnrestrictedResourceAccess()
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $actor->userId)
+            ! $command->actor->hasUnrestrictedResourceAccess()
+            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->actor->userId)
         ) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 
-        $this->assertHostGroupsExist($command->hostGroupIds, $actor);
+        $this->assertHostGroupsExist($command->hostGroupIds, $command->actor);
 
         $this->assertTemplatesExist($command->templateIds);
 
         $this->templateLicenseGuard->assertLicensed($command->templateIds);
 
-        $this->assertCategoriesExist($command->categoryIds, $actor);
+        $this->assertCategoriesExist($command->categoryIds, $command->actor);
 
-        $this->assertSeverityExists($command->severityId, $actor);
+        $this->assertSeverityExists($command->severityId, $command->actor);
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $actor);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $command->actor);
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
@@ -191,10 +188,10 @@ final readonly class CreateHostCommandHandler
 
         $this->repository->add($host);
 
-        $this->eventBus->fire(new HostCreated($host, $command->creatorId->value));
+        $this->eventBus->fire(new HostCreated($host, $command->actor->userId->value));
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested($host->id(), $command->creatorId));
+            $this->eventBus->fire(new HostServicesDeploymentRequested($host->id(), $command->actor->userId));
         }
 
         return $host;

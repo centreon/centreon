@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\Security\Domain\Aggregate\Credential;
-use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Exception\CredentialNotFoundException;
 
 interface CredentialRepository
@@ -43,9 +42,4 @@ interface CredentialRepository
      * @throws CredentialNotFoundException
      */
     public function getByUsername(string $username): Credential;
-
-    /**
-     * @throws CredentialNotFoundException
-     */
-    public function getById(UserId $id): Credential;
 }

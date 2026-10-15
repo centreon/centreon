@@ -56,7 +56,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostCheckOpt
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\EnumResolver\NotificationOptionEnumResolver;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
@@ -76,13 +76,13 @@ final readonly class PatchHostCommandFactory
 
     public function create(
         HostId $id,
-        UserId $updatedBy,
+        ActingUser $actor,
         PatchHostInput $input,
         RequestPayload $payload,
     ): PatchHostCommand {
         return new PatchHostCommand(
             id: $id,
-            updatedBy: $updatedBy,
+            actor: $actor,
             activated: $this->provided($payload, 'activated', fn (): bool => $this->required($input->activated)),
             name: $this->provided($payload, 'name', fn (): HostName => new HostName($this->required($input->name))),
             address: $this->provided($payload, 'address', fn (): HostAddress => new HostAddress($this->required($input->address))),

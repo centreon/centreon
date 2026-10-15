@@ -35,7 +35,6 @@ use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongExcept
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialReader;
@@ -65,7 +64,6 @@ final readonly class DuplicateHostCommandHandler
         private EventBus $eventBus,
         private LoggerInterface $logger,
         private HostTemplateLicenseGuard $templateLicenseGuard,
-        private CredentialRepository $credentialRepository,
     ) {
     }
 
@@ -73,8 +71,7 @@ final readonly class DuplicateHostCommandHandler
     {
         // ACL-scoped read: a host outside a restricted actor's scope reads as not found, the same as
         // one that does not exist, so as not to leak existence (see HostRepository::findOne()).
-        $actor = $this->credentialRepository->getById($command->duplicatedBy)->actingUser();
-        $source = $this->repository->findOne($command->hostId, $actor);
+        $source = $this->repository->findOne($command->hostId, $command->actor);
         if (! $source instanceof Host) {
             throw new HostNotFoundException([$command->hostId->value], 'id');
         }
@@ -113,7 +110,7 @@ final readonly class DuplicateHostCommandHandler
             // The shared handlers reacting to AggregateDuplicated do the rest: the action log (with field
             // detail), the poller's `nagios_server.updated` flag, and the centAcl reload flag
             // (ReloadAclEventHandler flags only here — the copy's scope was already seeded above).
-            $this->eventBus->fire(new HostDuplicated($copy, $command->duplicatedBy->value));
+            $this->eventBus->fire(new HostDuplicated($copy, $command->actor->userId->value));
         } catch (\Throwable $exception) {
             // The DB writes roll back with the command-bus transaction, but the vault entry minted for
             // the copy does not: purge it so a failed duplication leaves nothing dangling. The purge
@@ -143,7 +140,7 @@ final readonly class DuplicateHostCommandHandler
         $this->eventBus->fire(new HostServicesDuplicationRequested(
             sourceHostId: $command->hostId,
             newHostId: $copy->id(),
-            duplicatedBy: $command->duplicatedBy,
+            duplicatedBy: $command->actor->userId,
         ));
     }
 

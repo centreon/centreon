@@ -153,7 +153,7 @@ final readonly class PutHostProcessor implements ProcessorInterface
             pollerId: new PollerId($data->pollerId),
             activated: $data->activated,
             hostGroupIds: $hostGroupIds,
-            updatedBy: $credentialUser->credential->userId,
+            actor: $credentialUser->credential->actingUser(),
             dataProcessing: $dataProcessing,
             alias: $alias !== null ? new HostAlias($alias) : null,
             templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),

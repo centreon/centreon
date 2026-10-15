@@ -59,7 +59,7 @@ final readonly class PatchHostProcessor implements ProcessorInterface
 
         $this->commandBus->execute($this->commandFactory->create(
             id: new HostId($uriVariables['id']),
-            updatedBy: $credentialUser->credential->userId,
+            actor: $credentialUser->credential->actingUser(),
             input: $data,
             payload: RequestPayload::fromRequest($request),
         ));

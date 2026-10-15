@@ -24,17 +24,17 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 
 final readonly class DeleteHostCommand
 {
     /**
-     * @param UserId $deletedBy the acting user: the action-log actor, whose ACL scope also bounds the
+     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
      *                          host lookup
      */
     public function __construct(
         public HostId $id,
-        public UserId $deletedBy,
+        public ActingUser $actor,
     ) {
     }
 }

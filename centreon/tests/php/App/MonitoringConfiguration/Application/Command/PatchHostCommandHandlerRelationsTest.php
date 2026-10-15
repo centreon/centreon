@@ -75,6 +75,7 @@ use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundExce
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
@@ -99,8 +100,8 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\Security\Infrastructure\Double\FakeCredentialRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 use Tests\App\Shared\Infrastructure\Messenger\Double\LoggerSpy;
@@ -128,16 +129,10 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     private EventBusSpy $eventBus;
 
-    private FakeCredentialRepository $credentialRepository;
-
     private PatchHostCommandHandler $handler;
 
     protected function setUp(): void
     {
-        $this->credentialRepository = new FakeCredentialRepository();
-        $this->credentialRepository->addUser(new UserId(1), unrestricted: true);
-        $this->credentialRepository->addUser(new UserId(7), unrestricted: false);
-        $this->credentialRepository->addUser(new UserId(42), unrestricted: false);
 
         $this->repository = new FakeHostRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
@@ -190,7 +185,6 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             new AdditiveInheritanceModeApplier(new FakeOptionRepository()),
             $this->eventBus,
             $logger,
-            $this->credentialRepository,
         );
 
         foreach ([1, 2, 3] as $id) {
@@ -259,7 +253,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->seedHost(hostGroupIds: [1, 2]);
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
 
-        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), updatedBy: new UserId(self::ACTOR_ID)));
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
         self::assertSame([3, 1], $this->ids($result->hostGroupIds));
     }
@@ -269,7 +263,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->seedHost(hostGroupIds: [1, 2]);
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2)], HostGroupId::class);
 
-        $result = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1), new HostGroupId(2)]), updatedBy: new UserId(self::ACTOR_ID)));
+        $result = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1), new HostGroupId(2)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
         self::assertSame([1], $this->ids($result->hostGroupIds));
     }
@@ -281,7 +275,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         $this->expectException(HostGroupNotFoundException::class);
 
-        ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(1)]), updatedBy: new UserId(self::ACTOR_ID)));
+        ($this->handler)($this->command(hostGroupIds: ListChange::add([new HostGroupId(1)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
     }
 
     public function testAnUnknownHostGroupIsRejected(): void
@@ -315,7 +309,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     {
         $this->seedHost();
 
-        ($this->handler)($this->command(updatedBy: new UserId(self::ACTOR_ID)));
+        ($this->handler)($this->command(actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
         self::assertSame(0, $this->resourceAccessRepository->accessListLoads);
     }
@@ -325,7 +319,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->seedHost();
         $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
 
-        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), updatedBy: new UserId(self::ACTOR_ID)));
+        ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
         self::assertSame(1, $this->resourceAccessRepository->accessListLoads);
     }
@@ -340,7 +334,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([new HostCategoryId(3)], HostCategoryId::class);
         $this->expectException(HostCategoryNotFoundException::class);
 
-        ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(1)]), updatedBy: new UserId(self::ACTOR_ID)));
+        ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(1)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
     }
 
     public function testParentsAndChildrenAreChanged(): void
@@ -366,7 +360,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         $this->expectException(HostNotFoundException::class);
 
-        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(6)]), updatedBy: new UserId(self::ACTOR_ID)));
+        ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(6)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
     }
 
     public function testAReplacementKeepsTheLinksToHostsTheActorCannotSee(): void
@@ -380,7 +374,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $result = ($this->handler)($this->command(
             parentHostIds: ListChange::replace([new HostId(7)]),
             childHostIds: ListChange::remove([new HostId(8)]),
-            updatedBy: new UserId(self::ACTOR_ID),
+            actor: TestActingUsers::restricted(self::ACTOR_ID),
         ));
 
         self::assertSame([7, 6], $this->ids($result->parentHostIds));
@@ -452,7 +446,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->seedHost(contactIds: [1, 2]);
         $this->resourceAccessRepository->accessibleContactIds = new Collection([new NotificationContactId(2), new NotificationContactId(3)], NotificationContactId::class);
 
-        $result = ($this->handler)($this->command(contactIds: ListChange::replace([new NotificationContactId(3)]), updatedBy: new UserId(self::ACTOR_ID)));
+        $result = ($this->handler)($this->command(contactIds: ListChange::replace([new NotificationContactId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
         self::assertSame([3, 1], $this->contactIdsOf($result));
     }
@@ -501,7 +495,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         };
 
         /** @var PatchHostCommand $command */
-        $command = (new \ReflectionClass(PatchHostCommand::class))->newInstanceArgs(['id' => new HostId(self::HOST_ID), 'updatedBy' => new UserId(1), $descriptor['command'] => $change]);
+        $command = (new \ReflectionClass(PatchHostCommand::class))->newInstanceArgs(['id' => new HostId(self::HOST_ID), 'actor' => TestActingUsers::unrestricted(), $descriptor['command'] => $change]);
         $result = ($this->handler)($command);
 
         self::assertSame($expected, $descriptor['read']($result), $list);
@@ -776,11 +770,11 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         NoValue|NotificationsChanges $notifications = new NoValue(),
         NoValue|HostAlias $alias = new NoValue(),
         bool $deployServicesFromTemplates = false,
-        UserId $updatedBy = new UserId(1),
+        ActingUser $actor = new ActingUser(new UserId(1), unrestrictedResourceAccess: true),
     ): PatchHostCommand {
         return new PatchHostCommand(
             id: new HostId(self::HOST_ID),
-            updatedBy: $updatedBy,
+            actor: $actor,
             alias: $alias,
             notifications: $notifications,
             templateIds: $templateIds,
