@@ -126,4 +126,4 @@ export const labelUpdateMode = 'Update mode';
 export const labelIncremental = 'Incremental';
 export const labelReplacement = 'Replacement';
 export const labelTemplateReplacementDeletesServices =
-  'Replacing the templates deletes the services created from the previous templates on every selected host.';
+  'Replacing the templates will delete all the services created by the previous templates on every selected host.';

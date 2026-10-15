@@ -14855,7 +14855,7 @@ msgid "Replacement"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Replacing the templates deletes the services created from the previous templates on every selected host."
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
 msgstr ""
 
 #: centreon/www/install/menu_translation.php

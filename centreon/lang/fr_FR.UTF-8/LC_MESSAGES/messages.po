@@ -1210,8 +1210,8 @@ msgid "Project & contributors"
 msgstr "Projet et contributeurs"
 
 #: centreon/www/install/front_translate.php
-msgid "Replacing the templates deletes the services created from the previous templates on every selected host."
-msgstr "Replacing the templates deletes the services created from the previous templates on every selected host."
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr "Remplacer les modèles supprimera tous les services créés par les modèles précédents pour chaque hôte sélectionné."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"
