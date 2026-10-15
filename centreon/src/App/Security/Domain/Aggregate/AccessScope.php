@@ -25,6 +25,7 @@ namespace App\Security\Domain\Aggregate;
 
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
 /**
  * The resources of one kind a user may access: every one of them, or only some, by id.
@@ -35,7 +36,7 @@ final readonly class AccessScope
 {
     /**
      * @param class-string<T> $idClass
-     * @param list<int> $allowedIdValues
+     * @param array<int, true> $allowedIdValues the allowed id values, as keys for constant-time lookups
      */
     private function __construct(
         private string $idClass,
@@ -66,12 +67,13 @@ final readonly class AccessScope
      */
     public static function restrictedTo(string $idClass, iterable $ids): self
     {
-        $idValues = [];
+        $allowedIdValues = [];
         foreach ($ids as $id) {
-            $idValues[] = $id->value;
+            Assert::isInstanceOf($id, $idClass);
+            $allowedIdValues[$id->value] = true;
         }
 
-        return new self($idClass, unrestricted: false, allowedIdValues: array_values(array_unique($idValues)));
+        return new self($idClass, unrestricted: false, allowedIdValues: $allowedIdValues);
     }
 
     public function isUnrestricted(): bool
@@ -84,7 +86,7 @@ final readonly class AccessScope
      */
     public function allows(AggregateRootId $id): bool
     {
-        return $this->unrestricted || in_array($id->value, $this->allowedIdValues, true);
+        return $this->unrestricted || isset($this->allowedIdValues[$id->value]);
     }
 
     /**
@@ -114,6 +116,6 @@ final readonly class AccessScope
             throw new \LogicException('An unrestricted scope allows every id: check isUnrestricted() first.');
         }
 
-        return $this->allowedIdValues;
+        return array_keys($this->allowedIdValues);
     }
 }

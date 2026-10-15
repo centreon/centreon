@@ -43,7 +43,6 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
 
 /**
@@ -62,7 +61,6 @@ final readonly class HostReferencesChecker
         private TimePeriodRepository $timePeriodRepository,
         private MediaRepository $mediaRepository,
         private CommandRepository $commandRepository,
-        private ResourceAccessRepository $resourceAccessRepository,
         private AccessScopeResolver $accessScopes,
     ) {
     }
@@ -71,7 +69,7 @@ final readonly class HostReferencesChecker
     {
         $this->pollerRepository->get($pollerId);
 
-        if (! $actor->hasUnrestrictedResourceAccess() && ! $this->resourceAccessRepository->hasAccessToPoller($pollerId, $actor->userId)) {
+        if (! $this->accessScopes->pollers($actor)->allows($pollerId)) {
             throw new PollerNotFoundException(['id' => $pollerId->value]);
         }
     }

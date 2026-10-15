@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\Constraint;
@@ -53,7 +53,7 @@ final class AccessiblePollerValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly PollerRepository $pollerRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -82,10 +82,7 @@ final class AccessiblePollerValidator extends ConstraintValidator
             return;
         }
 
-        if (
-            ! $credentialUser->credential->hasUnrestrictedResourceAccess()
-            && ! $this->resourceAccessRepository->hasAccessToPoller($pollerId, $credentialUser->credential->userId)
-        ) {
+        if (! $this->accessScopes->pollers($credentialUser->credential->actingUser())->allows($pollerId)) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

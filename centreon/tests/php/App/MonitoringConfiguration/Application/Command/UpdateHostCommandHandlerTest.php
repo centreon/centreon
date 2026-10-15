@@ -88,6 +88,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -1075,7 +1076,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->addPoller(1);
         // Group 1 is visible to the actor; group 2 belongs to a scope they cannot see.
         $this->hostGroupRepository->hostGroups[1] = new HostGroup(new HostGroupId(1), new HostGroupName('grp-visible'));
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(1)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(1)]);
         $this->seedHost(10, hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class));
 
         // The actor resends only the group they can see, as a GET -> PUT round trip would.
@@ -1098,7 +1099,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
     {
         $this->addPoller(1);
         // The actor can access only severity 1; the host carries the out-of-scope severity 2.
-        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([new HostSeverityId(1)], HostSeverityId::class);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(1)]);
         $this->seedHost(10, severityId: new HostSeverityId(2));
 
         // The actor sends no severity: they cannot see the stored one, so it must not be cleared.

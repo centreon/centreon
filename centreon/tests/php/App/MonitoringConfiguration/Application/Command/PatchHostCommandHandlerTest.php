@@ -85,6 +85,7 @@ use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -147,7 +148,6 @@ final class PatchHostCommandHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-
         $this->repository = new FakeHostRepository();
         $this->commandRepository = new FakeCommandRepository();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
@@ -171,7 +171,6 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->timePeriodRepository,
                 $this->mediaRepository,
                 $this->commandRepository,
-                $this->resourceAccessRepository,
                 new AccessScopeResolver($this->resourceAccessRepository),
             ),
             new HostRelationsUpdater(
@@ -479,7 +478,7 @@ final class PatchHostCommandHandlerTest extends TestCase
     {
         $this->seedHost(activated: true);
         $this->pollerRepository->seed(2);
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
 
         $this->expectException(PollerNotFoundException::class);
 
@@ -494,7 +493,7 @@ final class PatchHostCommandHandlerTest extends TestCase
     {
         $this->seedHost(activated: true);
         $this->hostSeverityRepository->hostSeverities[4] = new HostSeverityName('Critical');
-        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([new HostSeverityId(5)], HostSeverityId::class);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(5)]);
 
         $this->expectException(HostSeverityNotFoundException::class);
 

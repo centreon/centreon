@@ -198,8 +198,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
-        // is fully restricted (fails closed), not unrestricted. Returning an empty Collection keeps the
-        // "sees nothing" contract distinct from the "sees everything" null below.
+        // is fully restricted (fails closed), not unrestricted. Restricting the scope to nothing keeps the
+        // "sees nothing" contract distinct from the "sees everything" unrestricted scope below.
         $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
         $hasAccessibleResourceQb
             ->select('1')
@@ -254,8 +254,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
-        // is fully restricted (fails closed), not unrestricted. Returning an empty Collection keeps the
-        // "sees nothing" contract distinct from the "sees everything" null below.
+        // is fully restricted (fails closed), not unrestricted. Restricting the scope to nothing keeps the
+        // "sees nothing" contract distinct from the "sees everything" unrestricted scope below.
         $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
         $hasAccessibleResourceQb
             ->select('1')

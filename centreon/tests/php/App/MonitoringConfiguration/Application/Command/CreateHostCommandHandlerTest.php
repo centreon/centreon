@@ -95,6 +95,7 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -697,7 +698,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         // this specific poller is accessible
-        $this->resourceAccessRepository->unrestrictedPollerAccess = true;
+        $this->resourceAccessRepository->pollerScope = AccessScope::unrestricted(PollerId::class);
 
         ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
@@ -714,8 +715,8 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([], HostGroupId::class);
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, []);
 
         ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
@@ -736,7 +737,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     public function testARestrictedActorCannotCreateAHostOnAnInaccessiblePoller(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
 
         $this->expectException(PollerNotFoundException::class);
 
@@ -754,7 +755,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
         // Restricted to a different set of host groups than the one being requested (5).
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(9)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(9)]);
 
         $this->expectException(HostGroupNotFoundException::class);
 
@@ -777,7 +778,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     public function testARestrictedActorGetsPollerNotFoundNotDuplicateNameForAnInaccessiblePollerWithADuplicateName(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
 
         $existingName = new HostName('server-01');
         $this->hostRepository->add(new Host(
@@ -908,7 +909,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
-        $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([], HostCategoryId::class);
+        $this->resourceAccessRepository->hostCategoryScope = AccessScope::restrictedTo(HostCategoryId::class, []);
 
         $this->expectException(HostCategoryNotFoundException::class);
 
@@ -928,7 +929,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostSeverityRepository->hostSeverities[7] = new HostSeverityName('Critical');
-        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([], HostSeverityId::class);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, []);
 
         $this->expectException(HostSeverityNotFoundException::class);
 

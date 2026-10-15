@@ -69,7 +69,6 @@ use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -112,7 +111,6 @@ final readonly class UpdateHostCommandHandler
         private HostMacroChangesResolver $hostMacroChangesResolver,
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
-        private ResourceAccessRepository $resourceAccessRepository,
         private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
@@ -165,10 +163,7 @@ final readonly class UpdateHostCommandHandler
         // Throws PollerNotFoundException if it doesn't exist at all.
         $this->pollerRepository->get($command->pollerId);
 
-        if (
-            ! $command->actor->hasUnrestrictedResourceAccess()
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->actor->userId)
-        ) {
+        if (! $this->accessScopes->pollers($command->actor)->allows($command->pollerId)) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 

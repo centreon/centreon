@@ -23,40 +23,84 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Domain\Service;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class AccessScopeResolverTest extends TestCase
 {
-    private FakeResourceAccessRepository $resourceAccessRepository;
-
-    private AccessScopeResolver $resolver;
-
-    protected function setUp(): void
+    /**
+     * @return iterable<string, array{string, string, class-string<AggregateRootId>}>
+     */
+    public static function provideScopes(): iterable
     {
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2)], HostGroupId::class);
+        yield 'host categories' => ['hostCategories', 'findHostCategoryAccessScope', HostCategoryId::class];
 
-        $this->resolver = new AccessScopeResolver($this->resourceAccessRepository);
+        yield 'host severities' => ['hostSeverities', 'findHostSeverityAccessScope', HostSeverityId::class];
+
+        yield 'pollers' => ['pollers', 'findPollerAccessScope', PollerId::class];
+
+        yield 'host groups' => ['hostGroups', 'findHostGroupAccessScope', HostGroupId::class];
+
+        yield 'image folders' => ['imageFolders', 'findImageFolderAccessScope', MediaDirectoryId::class];
+
+        yield 'contacts' => ['contacts', 'findContactAccessScope', NotificationContactId::class];
+
+        yield 'contact groups' => ['contactGroups', 'findContactGroupAccessScope', ContactGroupId::class];
+
+        yield 'hosts' => ['hosts', 'findHostAccessScope', HostId::class];
     }
 
-    public function testAnUnrestrictedActorGetsAnUnrestrictedScopeWithoutAnyLookup(): void
+    /**
+     * @param class-string<AggregateRootId> $idClass
+     */
+    #[DataProvider('provideScopes')]
+    public function testAnUnrestrictedActorGetsAnUnrestrictedScopeWithoutAnyLookup(string $method, string $lookup, string $idClass): void
     {
-        $scope = $this->resolver->hostGroups(TestActingUsers::unrestricted());
+        $repository = $this->createMock(ResourceAccessRepository::class);
+        $repository->expects(self::never())->method($lookup);
+
+        $scope = new AccessScopeResolver($repository)->{$method}(TestActingUsers::unrestricted());
+        self::assertInstanceOf(AccessScope::class, $scope);
 
         self::assertTrue($scope->isUnrestricted());
-        self::assertSame(0, $this->resourceAccessRepository->accessListLoads);
+        self::assertTrue($scope->allows(new $idClass(42)));
     }
 
-    public function testARestrictedActorGetsTheScopeOfTheirAccessGroups(): void
+    /**
+     * @param class-string<AggregateRootId> $idClass
+     */
+    #[DataProvider('provideScopes')]
+    public function testARestrictedActorGetsTheScopeOfTheirAccessGroups(string $method, string $lookup, string $idClass): void
     {
-        $scope = $this->resolver->hostGroups(TestActingUsers::restricted(7));
+        $expected = AccessScope::restrictedTo($idClass, [new $idClass(2)]);
+        $repository = $this->createMock(ResourceAccessRepository::class);
+        $repository->expects(self::once())->method($lookup)->with(new UserId(7))->willReturn($expected);
 
-        self::assertSame([2], $scope->allowedIdValues());
-        self::assertSame(1, $this->resourceAccessRepository->accessListLoads);
+        self::assertSame($expected, new AccessScopeResolver($repository)->{$method}(TestActingUsers::restricted(7)));
+    }
+
+    public function testTheHostLookupIsNarrowedToTheGivenHosts(): void
+    {
+        $among = new Collection([new HostId(2), new HostId(3)], HostId::class);
+        $expected = AccessScope::restrictedTo(HostId::class, [new HostId(2)]);
+        $repository = $this->createMock(ResourceAccessRepository::class);
+        $repository->expects(self::once())->method('findHostAccessScope')->with(new UserId(7), $among)->willReturn($expected);
+
+        self::assertSame($expected, new AccessScopeResolver($repository)->hosts(TestActingUsers::restricted(7), $among));
     }
 }
