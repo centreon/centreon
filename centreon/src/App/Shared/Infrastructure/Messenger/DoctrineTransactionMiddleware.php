@@ -52,9 +52,23 @@ final readonly class DoctrineTransactionMiddleware implements MiddlewareInterfac
 
             return $envelope;
         } catch (\Throwable $th) {
-            $this->connection->rollBack();
+            $this->rollBackKeepingCause();
 
             throw $th;
+        }
+    }
+
+    /**
+     * The server may already have ended the transaction (deadlock victim, lost connection): the driver
+     * then refuses the rollback with "There is no active transaction". That failure must not replace
+     * the exception that caused it, which is the one worth reporting.
+     */
+    private function rollBackKeepingCause(): void
+    {
+        try {
+            $this->connection->rollBack();
+        } catch (\Throwable) {
+            // Nothing left to roll back, and nothing to add to the original exception.
         }
     }
 }
