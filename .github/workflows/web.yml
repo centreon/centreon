@@ -1155,11 +1155,14 @@ jobs:
           OPERATING_SYSTEM: ${{ matrix.operating_system }}
           IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          curl \
-            -X DELETE \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/caches?key=docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
+          # Delete by id: the delete-by-key endpoint also removes the keys of the branches whose name starts with this one.
+          CACHE_KEY="docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
+          gh api --method GET "repos/$GITHUB_REPOSITORY/actions/caches" -f key="$CACHE_KEY" -f ref="$GITHUB_REF" \
+            --jq ".actions_caches[] | select(.key == \"$CACHE_KEY\") | .id" |
+            while read -r CACHE_ID; do
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/caches/$CACHE_ID"
+              echo "Deleted cache $CACHE_ID ($CACHE_KEY on $GITHUB_REF)."
+            done
         shell: bash
 
       - name: Store slim image in cache
