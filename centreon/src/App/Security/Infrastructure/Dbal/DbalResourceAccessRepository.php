@@ -401,6 +401,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->select('DISTINCT arifr.dir_id')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
             ->innerJoin('accessible_res', 'acl_resources_image_folder_relations', 'arifr', 'arifr.acl_res_id = accessible_res.acl_res_id')
+            // dir_id is nullable: a relation left without folder grants nothing.
+            ->where('arifr.dir_id IS NOT NULL')
             ->setParameter('contactId', $userId->value);
 
         /** @var list<array{dir_id: numeric-string}> $rows */

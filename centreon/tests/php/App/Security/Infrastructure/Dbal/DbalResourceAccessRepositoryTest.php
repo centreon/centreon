@@ -412,6 +412,15 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertEquals([301], $accessibleFolderIds->allowedIdValues());
     }
 
+    public function testAnImageFolderRelationWithoutFolderIsIgnored(): void
+    {
+        // `dir_id` is nullable: a relation left without folder grants nothing, and must not break the lookup.
+        $contactId = $this->createContact('user-null-folder-media');
+        $this->linkContactToAclResourceForImageFolders($contactId, restrictToImageFolderIds: [301, null], allImageFolders: false);
+
+        self::assertSame([301], $this->repository->findImageFolderAccessScope(new UserId($contactId))->allowedIdValues());
+    }
+
     /**
      * Mirrors legacy's OR-across-resources semantics for the "all image folders" flag: a single
      * accessible resource with the flag set grants everything, even when another accessible
@@ -893,8 +902,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
-     * @param list<int> $restrictToImageFolderIds image folders explicitly granted through this
-     *                                            resource's relations; irrelevant once $allImageFolders is true
+     * @param list<int|null> $restrictToImageFolderIds image folders explicitly granted through this
+     *                                                 resource's relations; irrelevant once $allImageFolders is true
      */
     private function linkContactToAclResourceForImageFolders(int $contactId, array $restrictToImageFolderIds, bool $allImageFolders): void
     {
