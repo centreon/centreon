@@ -196,7 +196,11 @@ test('hides the logout URL for a Centreon UI only logout', async ({
   await loaded(component);
 
   await openSection(component, labelIdentityProvider);
-  await component.getByLabel(labelCentreonUIOnly).click();
+  // A click while the section expands can be lost on a slow runner (CI):
+  // retry until the choice is taken.
+  await expect(async () => {
+    await component.getByLabel(labelCentreonUIOnly).check({ timeout: 2_000 });
+  }).toPass();
 
   await expect(component.getByLabel(labelLogoutUrl)).toHaveCount(0);
 });
@@ -250,9 +254,18 @@ test('removes a roles relation', async ({ mount }) => {
   await loaded(component);
 
   await openSection(component, labelRolesMapping);
-  await all(component, labelDeleteRelation).nth(1).click();
-
-  await expect(all(component, labelRoleValue)).toHaveCount(1);
+  await expect(all(component, labelRoleValue).first()).toHaveValue('scope');
+  // Hidden rows carry the label too, so an index depends on render timing:
+  // the only visible button is the one of the "scope" relation. A click while
+  // the section expands can be lost on a slow runner (CI): retry until done.
+  await expect(async () => {
+    await all(component, labelDeleteRelation)
+      .locator('visible=true')
+      .click({ timeout: 2_000 });
+    await expect(all(component, labelRoleValue)).toHaveCount(1, {
+      timeout: 2_000
+    });
+  }).toPass();
   await expect(all(component, labelRoleValue).first()).toHaveValue('');
 });
 
