@@ -59,21 +59,29 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
+ * @phpstan-import-type ExtraDataTypeAlias from HostResourceTransformer as HostResourceExtraDataTypeAlias
+ *
  * @implements ProcessorInterface<UpdateHostInput, HostResource>
  */
 final readonly class PutHostProcessor implements ProcessorInterface
 {
+    /**
+     * @param TransformerInterface<Host, HostResource, HostResourceExtraDataTypeAlias> $transformer
+     */
     public function __construct(
         private CommandBus $commandBus,
+        #[Autowire(service: HostResourceTransformer::class)]
+        private TransformerInterface $transformer,
         private Security $security,
         private HostRepository $hostRepository,
+        private HostResourceExtraDataFetcher $extraDataFetcher,
         private HostMacroTransformer $macroTransformer,
-        private HostResourceBuilder $resourceBuilder,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -146,8 +154,8 @@ final readonly class PutHostProcessor implements ProcessorInterface
         // block there, so the host simply carries none.
         $notifications = $this->isCloudPlatform ? null : $this->buildNotifications($data->notifications);
         $alias = $this->trimmedOrNull($data->alias);
-        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
 
+        $viewerId = $credentialUser->credential->hasUnrestrictedResourceAccess() ? null : $credentialUser->credential->userId;
         $command = new UpdateHostCommand(
             id: $hostId,
             name: new HostName($data->name),
@@ -179,15 +187,12 @@ final readonly class PutHostProcessor implements ProcessorInterface
         $host = $this->commandBus->execute($command);
         Assert::isInstanceOf($host, Host::class);
 
-        // A restricted viewer gets back only what they may see: the out-of-scope associations the
-        // update preserved stay hidden. The own macros are read
-        // back as stored, since a macro created by this update only gets its id on insertion.
-        return $this->resourceBuilder->build(
-            $host->with(checkOptions: $host->checkOptions->with(
-                macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
-            )),
-            $viewerId,
-        );
+        // The own macros are read back as stored, since their ids are only assigned on insertion.
+        $host = $host->with(checkOptions: $host->checkOptions->with(
+            macros: array_values($this->hostRepository->findMacros($host->id())->toArray()),
+        ));
+
+        return $this->transformer->transform($host, $this->extraDataFetcher->fetch($host, $viewerId));
     }
 
     private function triStateOrDefault(?TriStateEnum $value): TriStateEnum

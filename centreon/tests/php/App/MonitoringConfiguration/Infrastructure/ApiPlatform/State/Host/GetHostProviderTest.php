@@ -23,25 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
-use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
-use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceExtraDataFetcher;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
-use App\Security\Domain\Repository\ResourceAccessRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
@@ -398,6 +385,55 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
+     * Host groups, categories and the severity are ACL-scoped too: a restricted viewer sees only the
+     * ones within their resource access rules.
+     */
+    public function testItHidesTheOutOfScopeGroupsCategoriesAndSeverityFromANonAdmin(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $hostId = $this->insertHost($this->uniqueName('accessible'), $pollerId);
+        $visibleGroupId = $this->insertHostGroup($this->uniqueName('visible-group'));
+        $hiddenGroupId = $this->insertHostGroup($this->uniqueName('hidden-group'));
+        $visibleCategoryId = $this->insertHostCategory($this->uniqueName('visible-category'));
+        $hiddenCategoryId = $this->insertHostCategory($this->uniqueName('hidden-category'));
+        $hiddenSeverityId = $this->insertHostSeverity($this->uniqueName('hidden-severity'));
+        foreach ([$visibleGroupId, $hiddenGroupId] as $groupId) {
+            $this->connection->insert('hostgroup_relation', ['hostgroup_hg_id' => $groupId, 'host_host_id' => $hostId]);
+        }
+        foreach ([$visibleCategoryId, $hiddenCategoryId, $hiddenSeverityId] as $categoryId) {
+            $this->connection->insert('hostcategories_relation', ['hostcategories_hc_id' => $categoryId, 'host_host_id' => $hostId]);
+        }
+
+        $username = bin2hex(random_bytes(8));
+        $viewerId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadTopologyRole($viewerId);
+        $this->linkHostToAcl($hostId, $aclGroupId);
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'get-host-' . $username,
+            'acl_res_alias' => 'get-host-' . $username,
+            'acl_res_activate' => '1',
+            'all_hostgroups' => '0',
+        ]);
+        $aclResourceId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_res_group_relations', ['acl_res_id' => $aclResourceId, 'acl_group_id' => $aclGroupId]);
+        $this->connection->insert('acl_resources_poller_relations', ['acl_res_id' => $aclResourceId, 'poller_id' => $pollerId]);
+        $this->connection->insert('acl_resources_hg_relations', ['acl_res_id' => $aclResourceId, 'hg_hg_id' => $visibleGroupId]);
+        $this->connection->insert('acl_resources_hc_relations', ['acl_res_id' => $aclResourceId, 'hc_id' => $visibleCategoryId]);
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT . '/' . $hostId, [
+            'headers' => ['accept' => 'application/json'],
+        ]);
+        self::assertResponseStatusCodeSame(200);
+        $body = $response->toArray();
+
+        self::assertSame([$visibleGroupId], $this->idsOf($body['groups']));
+        self::assertSame([$visibleCategoryId], $this->idsOf($body['categories']));
+        self::assertArrayNotHasKey('severity', $body);
+    }
+
+    /**
      * The GET body reflects the CreateHost response, Cloud included: on a Cloud platform the three
      * on-premise-only pans of the contract are dropped exactly as CreateHostProcessor drops them
      * (CreateHostProcessorTest::testItOmitsTheOnPremiseOnlyDataProcessingFieldsOnCloud,
@@ -476,72 +512,34 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
-     * GetHostProvider shapes its Cloud-sensitive output from its own $isCloudPlatform (bound from
-     * IS_CLOUD_PLATFORM), which cannot be flipped per test through the env. Force it by replacing
-     * the container's provider with one built with the desired value, reusing its real
-     * dependencies. Must run before the request is made (same technique as the sibling
-     * CreateHostProcessorTest::forcePlatform()).
+     * The Cloud-sensitive transformers read IS_CLOUD_PLATFORM, which cannot be flipped per test
+     * through the env. Force it by replacing the container's provider with one whose transformer is
+     * built with the desired value, reusing its real dependencies. Must run before the request is
+     * made (same technique as the sibling CreateHostProcessorTest::forcePlatform()).
      */
     private function forcePlatform(bool $isCloudPlatform): void
     {
         $container = self::getContainer();
 
-        /** @var HostResourceTransformer $transformer */
-        $transformer = $container->get(HostResourceTransformer::class);
-        /** @var HostNotificationsTransformer $notificationsTransformer */
-        $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
-        /** @var HostRepository $hostRepository */
-        $hostRepository = $container->get(HostRepository::class);
-        /** @var PollerRepository $pollerRepository */
-        $pollerRepository = $container->get(PollerRepository::class);
-        /** @var HostGroupRepository $hostGroupRepository */
-        $hostGroupRepository = $container->get(HostGroupRepository::class);
-        /** @var CommandRepository $commandRepository */
-        $commandRepository = $container->get(CommandRepository::class);
-        /** @var HostTemplateRepository $hostTemplateRepository */
-        $hostTemplateRepository = $container->get(HostTemplateRepository::class);
-        /** @var HostCategoryRepository $hostCategoryRepository */
-        $hostCategoryRepository = $container->get(HostCategoryRepository::class);
-        /** @var HostSeverityRepository $hostSeverityRepository */
-        $hostSeverityRepository = $container->get(HostSeverityRepository::class);
-        /** @var TimezoneRepository $timezoneRepository */
-        $timezoneRepository = $container->get(TimezoneRepository::class);
-        /** @var MediaRepository $mediaRepository */
-        $mediaRepository = $container->get(MediaRepository::class);
-        /** @var MediaUrlGenerator $mediaUrlGenerator */
-        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
-        /** @var TimePeriodRepository $timePeriodRepository */
-        $timePeriodRepository = $container->get(TimePeriodRepository::class);
-        /** @var ResourceAccessRepository $resourceAccessRepository */
-        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
-        /** @var HostMacroTransformer $macroTransformer */
-        $macroTransformer = $container->get(HostMacroTransformer::class);
-        /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
-        $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
         /** @var Security $security */
         $security = $container->get(Security::class);
+        /** @var HostRepository $hostRepository */
+        $hostRepository = $container->get(HostRepository::class);
+        /** @var HostResourceExtraDataFetcher $extraDataFetcher */
+        $extraDataFetcher = $container->get(HostResourceExtraDataFetcher::class);
+        /** @var MediaUrlGenerator $mediaUrlGenerator */
+        $mediaUrlGenerator = $container->get(MediaUrlGenerator::class);
+        $transformer = HostResourceTransformerFactory::create($isCloudPlatform, $mediaUrlGenerator);
 
-        $resourceBuilder = new HostResourceBuilder(
-            $transformer,
-            $notificationsTransformer,
-            $hostRepository,
-            $pollerRepository,
-            $hostGroupRepository,
-            $commandRepository,
-            $hostTemplateRepository,
-            $hostCategoryRepository,
-            $hostSeverityRepository,
-            $timezoneRepository,
-            $mediaRepository,
-            $mediaUrlGenerator,
-            $timePeriodRepository,
-            $resourceAccessRepository,
-            $macroTransformer,
-            $inheritedHostMacrosResolver,
-            $isCloudPlatform,
+        $container->set(
+            GetHostProvider::class,
+            new GetHostProvider(
+                $transformer,
+                $security,
+                $hostRepository,
+                $extraDataFetcher,
+            ),
         );
-
-        $container->set(GetHostProvider::class, new GetHostProvider($security, $hostRepository, $resourceBuilder));
     }
 
     private function insertPoller(string $name): int

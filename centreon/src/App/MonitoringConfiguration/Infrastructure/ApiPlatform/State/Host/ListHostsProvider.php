@@ -41,10 +41,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
@@ -56,6 +52,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 /**
+ * @phpstan-import-type ExtraDataTypeAlias from HostCollectionOutputTransformer as HostCollectionOutputExtraDataTypeAlias
+ *
  * @implements ProviderInterface<HostCollectionOutput>
  */
 final readonly class ListHostsProvider implements ProviderInterface
@@ -63,7 +61,7 @@ final readonly class ListHostsProvider implements ProviderInterface
     use FilterAwareProviderTrait;
 
     /**
-     * @param TransformerInterface<Host, HostCollectionOutput> $transformer
+     * @param TransformerInterface<Host, HostCollectionOutput, HostCollectionOutputExtraDataTypeAlias> $transformer
      */
     public function __construct(
         #[Autowire(service: HostCollectionOutputTransformer::class)]
@@ -72,7 +70,6 @@ final readonly class ListHostsProvider implements ProviderInterface
         private PollerRepository $pollerRepository,
         private HostTemplateRepository $hostTemplateRepository,
         private MediaRepository $mediaRepository,
-        private MediaUrlGenerator $mediaUrlGenerator,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -121,7 +118,8 @@ final readonly class ListHostsProvider implements ProviderInterface
         $hosts = $this->repository->findAll($criteria);
         $hostList = array_values(iterator_to_array($hosts));
 
-        $resources = $this->transformHosts($hostList);
+        $lookups = $this->fetchLookups($hostList);
+        $resources = array_map(fn (Host $host): HostCollectionOutput => $this->transformer->transform($host, $lookups), $hostList);
 
         if (! $hosts instanceof Paginator) {
             return $resources;
@@ -136,11 +134,13 @@ final readonly class ListHostsProvider implements ProviderInterface
     }
 
     /**
+     * Resolves the related names of the whole page at once, one query per relation.
+     *
      * @param list<Host> $hostList
      *
-     * @return list<HostCollectionOutput>
+     * @return HostCollectionOutputExtraDataTypeAlias
      */
-    private function transformHosts(array $hostList): array
+    private function fetchLookups(array $hostList): array
     {
         /** @var array<int, PollerId> $pollerIds */
         $pollerIds = [];
@@ -174,34 +174,15 @@ final readonly class ListHostsProvider implements ProviderInterface
         /** @var array<int, PollerName> $pollerNames */
         $pollerNames = $this->pollerRepository->findNamesByIds(new Collection(array_values($pollerIds), PollerId::class))->toArray();
         /** @var array<int, HostTemplateName> $templateNames */
-        $templateNames = $this->hostTemplateRepository->findNamesByIds(
-            new Collection(array_values($templateIds), HostTemplateId::class)
-        )->toArray();
+        $templateNames = $this->hostTemplateRepository->findNamesByIds(new Collection(array_values($templateIds), HostTemplateId::class))->toArray();
         /** @var array<int, Media> $icons */
         $icons = $this->mediaRepository->findByIds(new Collection(array_values($iconIds), MediaId::class))->toArray();
 
-        $resources = [];
-        foreach ($hostList as $host) {
-            $templates = [];
-            foreach ($host->templateIds as $templateId) {
-                if (isset($templateNames[$templateId->value])) {
-                    $templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]->value);
-                }
-            }
-
-            $resource = $this->transformer->transform($host);
-            $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
-            $resource->templates = $templates;
-
-            $iconId = $host->extendedInformations->iconId ?? $inheritedIconIds[$host->id()->value] ?? null;
-            $icon = $iconId !== null ? $icons[$iconId->value] ?? null : null;
-            $resource->icon = $icon instanceof Media
-                ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
-                : null;
-
-            $resources[] = $resource;
-        }
-
-        return $resources;
+        return [
+            'pollerNames' => $pollerNames,
+            'templateNames' => $templateNames,
+            'icons' => $icons,
+            'inheritedIconIds' => $inheritedIconIds,
+        ];
     }
 }

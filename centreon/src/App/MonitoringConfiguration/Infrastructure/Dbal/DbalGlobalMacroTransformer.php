@@ -42,7 +42,7 @@ final readonly class DbalGlobalMacroTransformer implements TransformerInterface
     /**
      * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): GlobalMacro
+    public function transform(mixed $from, array $extraData = []): GlobalMacro
     {
         return new GlobalMacro(
             id: new GlobalMacroId($from['gm_resource_id']),

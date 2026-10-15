@@ -46,7 +46,7 @@ final readonly class ResourceCommandTransformer implements TransformerInterface
     ) {
     }
 
-    public function transform(mixed $from): CommandResource
+    public function transform(mixed $from, array $extraData = []): CommandResource
     {
         $resource = new CommandResource(
             id: $from->id()->value,

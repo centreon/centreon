@@ -32,7 +32,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class HostTemplateCollectionOutputTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): HostTemplateCollectionOutput
+    public function transform(mixed $from, array $extraData = []): HostTemplateCollectionOutput
     {
         return new HostTemplateCollectionOutput(
             id: $from->id()->value,
