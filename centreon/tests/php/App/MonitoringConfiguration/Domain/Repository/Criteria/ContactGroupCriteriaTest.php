@@ -74,7 +74,7 @@ final class ContactGroupCriteriaTest extends TestCase
     {
         $actor = TestActingUsers::restricted(7);
 
-        self::assertSame($actor, new ContactGroupCriteria()->withoutAccessScope()->withActor($actor)->getActor());
+        self::assertSame($actor, (new ContactGroupCriteria())->withoutAccessScope()->withActor($actor)->getActor());
     }
 
     public function testWithNameDeduplicates(): void
