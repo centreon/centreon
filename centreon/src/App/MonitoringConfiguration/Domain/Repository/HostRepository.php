@@ -122,24 +122,13 @@ interface HostRepository
     public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable;
 
     /**
-     * Never returns a host template, though both share the `host` table. Not scoped by ACL: see
-     * {@see findAccessibleNamesByIds()} for what an actor may see.
+     * Never returns a host template, though both share the `host` table. Not scoped by ACL.
      *
      * @param Collection<HostId> $ids
      *
      * @return Collection<HostName> indexed by id
      */
     public function findNamesByIds(Collection $ids): Collection;
-
-    /**
-     * Like {@see findNamesByIds()}, leaving out the hosts outside the actor's ACL scope, like unknown
-     * ones, as {@see findOne()} does.
-     *
-     * @param Collection<HostId> $ids
-     *
-     * @return Collection<HostName> indexed by id
-     */
-    public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.

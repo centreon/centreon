@@ -1271,21 +1271,6 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ));
     }
 
-    public function testFindAccessibleNamesByIdsLeavesOutTheHostsOutsideTheActorsScope(): void
-    {
-        $pollerId = $this->createPoller('Central');
-        $visibleId = $this->createHost('visible-host', $pollerId);
-        $hiddenId = $this->createHost('hidden-host', $pollerId);
-        $actorId = new UserId(45);
-        $this->accessGroupRepository->groupIdsByUserId[$actorId->value] = [503];
-        $this->linkHostToAcl($visibleId, 503);
-        $ids = new Collection([new HostId($visibleId), new HostId($hiddenId)], HostId::class);
-
-        self::assertSame([$visibleId], array_keys($this->repository->findAccessibleNamesByIds($ids, TestActingUsers::restricted($actorId->value))->toArray()));
-        self::assertCount(2, $this->repository->findAccessibleNamesByIds($ids, TestActingUsers::unrestricted($actorId->value)));
-        self::assertCount(2, $this->repository->findNamesByIds($ids));
-    }
-
     public function testFindNamesByIdsIgnoresHostTemplates(): void
     {
         $pollerId = $this->createPoller('Central');

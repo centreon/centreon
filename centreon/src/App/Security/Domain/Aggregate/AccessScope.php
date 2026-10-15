@@ -98,22 +98,26 @@ final readonly class AccessScope
     }
 
     /**
-     * The values of the given ids the scope does not allow.
+     * The requested ids that cannot be referenced: the unknown ones, missing from `$existingIdValues`, and the
+     * ones out of the scope, together so that a restricted user cannot tell them apart.
      *
-     * @param iterable<T> $ids
+     * @param iterable<T> $requested
+     * @param list<int|string> $existingIdValues
      *
      * @return list<int>
      */
-    public function rejected(iterable $ids): array
+    public function missing(iterable $requested, array $existingIdValues): array
     {
-        $rejected = [];
-        foreach ($ids as $id) {
-            if (! $this->allows($id)) {
-                $rejected[$id->value] = $id->value;
+        $existing = array_flip(array_map(intval(...), $existingIdValues));
+
+        $missing = [];
+        foreach ($requested as $id) {
+            if (! isset($existing[$id->value]) || ! $this->allows($id)) {
+                $missing[$id->value] = $id->value;
             }
         }
 
-        return array_values($rejected);
+        return array_values($missing);
     }
 
     /**

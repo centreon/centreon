@@ -72,8 +72,8 @@ final class FakeHostRepository implements HostRepository
     private array $parentIds = [];
 
     /**
-     * The ACL of {@see findOne()} and {@see findAccessibleNamesByIds()}, as for the real repository: a
-     * restricted actor only reaches the hosts listed in its `accessibleHostIds`.
+     * The ACL of {@see findOne()}, as for the real repository: a restricted actor only reaches the hosts
+     * listed in its `accessibleHostIds`.
      */
     public function __construct(
         public readonly FakeResourceAccessRepository $resourceAccess = new FakeResourceAccessRepository(),
@@ -218,11 +218,6 @@ final class FakeHostRepository implements HostRepository
     public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hosts), Host::class);
-    }
-
-    public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection
-    {
-        return $this->findNamesByIds($this->accessScopes->hosts($actor, $ids)->filter($ids));
     }
 
     public function findNamesByIds(Collection $ids): Collection

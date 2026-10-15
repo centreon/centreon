@@ -64,6 +64,23 @@ final class AccessScopeTest extends TestCase
         self::assertSame([], $scope->allowedIdValues());
     }
 
+    public function testOnlyAScopeRestrictedToNothingAllowsNothing(): void
+    {
+        self::assertTrue(AccessScope::restrictedTo(HostGroupId::class, [])->allowsNothing());
+        self::assertFalse(AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(1)])->allowsNothing());
+        self::assertFalse(AccessScope::unrestricted(HostGroupId::class)->allowsNothing());
+    }
+
+    public function testTheMissingIdsAreTheUnknownAndTheOutOfScopeOnes(): void
+    {
+        $scope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(1), new HostGroupId(2)]);
+        $requested = [new HostGroupId(1), new HostGroupId(2), new HostGroupId(3), new HostGroupId(2)];
+
+        // 1 exists and is in scope; 2 is in scope but unknown; 3 exists but is out of scope.
+        self::assertSame([2, 3], $scope->missing($requested, ['1', 3]));
+        self::assertSame([2], AccessScope::unrestricted(HostGroupId::class)->missing($requested, [1, 3]));
+    }
+
     public function testARestrictedScopeOnlyTakesIdsOfItsClass(): void
     {
         $this->expectException(\InvalidArgumentException::class);
