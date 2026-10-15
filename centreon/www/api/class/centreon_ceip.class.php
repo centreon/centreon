@@ -294,6 +294,10 @@ class CentreonCeip extends CentreonWebService
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
         }
 
+        if (isset($licenseInfo['asset_id'])) {
+            $accountInformation['asset_id'] = $licenseInfo['asset_id'];
+        }
+
         if (! empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
             $accountInformation['LACCESS'] = $laccess;
         }
@@ -356,13 +360,7 @@ class CentreonCeip extends CentreonWebService
             if ($validLicenses !== []) {
                 $licenseType = CentreonCeipLicenseType::resolve($validLicenses);
                 $productLicense = $licenseType['licenseType'];
-                if ($licenseType['ignoredEdition'] !== null) {
-                    CentreonLog::create()->warning(
-                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                        message: 'Unknown license edition ignored, falling back to the computed license type',
-                        customContext: ['edition' => $licenseType['ignoredEdition']]
-                    );
-                }
+                $assetId = $licenseType['assetId'];
                 if ($licenseType['withFingerprint']) {
                     $fingerprint = $fingerprintService->calculateFingerprint();
                 }
@@ -389,6 +387,10 @@ class CentreonCeip extends CentreonWebService
 
         if (isset($fingerprint)) {
             $licenseInformation['fingerprint'] = $fingerprint;
+        }
+
+        if (isset($assetId)) {
+            $licenseInformation['asset_id'] = $assetId;
         }
 
         if (isset($licenseMode)) {

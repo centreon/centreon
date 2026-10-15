@@ -57,7 +57,7 @@ it('computes the license type when no license carries an edition', function (
     expect(CentreonCeipLicenseType::resolve($licenses))->toBe([
         'licenseType' => $expectedLicenseType,
         'withFingerprint' => $expectedFingerprint,
-        'ignoredEdition' => null,
+        'assetId' => null,
     ]);
 })->with([
     'EPP' => [['epp' => ceipLicense()], 'IT Edition', false],
@@ -83,7 +83,7 @@ it('uses the declared edition as license type', function (
     expect(CentreonCeipLicenseType::resolve(['epp' => ceipLicense(['edition' => $edition])]))->toBe([
         'licenseType' => $expectedLicenseType,
         'withFingerprint' => $expectedFingerprint,
-        'ignoredEdition' => null,
+        'assetId' => null,
     ]);
 })->with([
     'IT-100' => ['IT-100', 'IT-100 Edition', false],
@@ -111,11 +111,6 @@ it('makes the fingerprint follow the declared edition rather than the computed t
         'IT Edition',
         false,
     ],
-    'IT edition with a BAM license' => [
-        ['epp' => ceipLicense(['edition' => 'IT']), 'bam' => ceipLicense()],
-        'IT Edition',
-        false,
-    ],
     'BE edition on an EPP computed as IT' => [
         ['epp' => ceipLicense(['edition' => 'BE'])],
         'Business Edition',
@@ -123,43 +118,99 @@ it('makes the fingerprint follow the declared edition rather than the computed t
     ],
 ]);
 
-it('keeps the first declared edition across licenses', function (): void {
-    $result = CentreonCeipLicenseType::resolve([
-        'epp' => ceipLicense(),
-        'bam' => ceipLicense(['edition' => 'CUSTOM']),
-    ]);
-
-    expect($result['licenseType'])->toBe('Custom Edition')
-        ->and($result['withFingerprint'])->toBeTrue();
-});
-
-it('ignores an unknown edition and keeps the computed license type', function (
+it('combines the editions declared by every license', function (
     array $licenses,
     string $expectedLicenseType,
     bool $expectedFingerprint,
-    string $expectedIgnoredEdition,
 ): void {
-    expect(CentreonCeipLicenseType::resolve($licenses))->toBe([
-        'licenseType' => $expectedLicenseType,
-        'withFingerprint' => $expectedFingerprint,
-        'ignoredEdition' => $expectedIgnoredEdition,
-    ]);
+    $result = CentreonCeipLicenseType::resolve($licenses);
+
+    expect($result['licenseType'])->toBe($expectedLicenseType)
+        ->and($result['withFingerprint'])->toBe($expectedFingerprint);
 })->with([
-    'unknown value' => [['epp' => ceipLicense(['edition' => 'ENTERPRISE'])], 'IT Edition', false, 'ENTERPRISE'],
-    'IT100 without hyphen' => [['epp' => ceipLicense(['type' => 'IT100', 'edition' => 'IT100'])], 'IT-100 Edition', false, 'IT100'],
-    'unknown value with a BAM license' => [
-        ['epp' => ceipLicense(['edition' => 'foo']), 'bam' => ceipLicense()],
+    'IT EPP and CUSTOM BAM' => [
+        ['epp' => ceipLicense(['edition' => 'IT']), 'bam' => ceipLicense(['edition' => 'CUSTOM'])],
+        'Custom Edition',
+        true,
+    ],
+    'IT-100 EPP and CUSTOM MAP' => [
+        ['epp' => ceipLicense(['edition' => 'IT-100']), 'map' => ceipLicense(['edition' => 'CUSTOM'])],
+        'Custom Edition',
+        true,
+    ],
+    'BE EPP and BE BAM' => [
+        ['epp' => ceipLicense(['edition' => 'BE']), 'bam' => ceipLicense(['edition' => 'be'])],
         'Business Edition',
         true,
-        'FOO',
     ],
+    'MSP EPP and BE BAM' => [
+        ['epp' => ceipLicense(['edition' => 'MSP']), 'bam' => ceipLicense(['edition' => 'BE'])],
+        'Custom Edition',
+        true,
+    ],
+    'EPP without edition and CUSTOM BAM' => [
+        ['epp' => ceipLicense(), 'bam' => ceipLicense(['edition' => 'CUSTOM'])],
+        'Custom Edition',
+        true,
+    ],
+    'IT EPP and BAM without edition' => [
+        ['epp' => ceipLicense(['edition' => 'IT']), 'bam' => ceipLicense()],
+        'Custom Edition',
+        true,
+    ],
+    'IT-100 EPP and MBI without edition' => [
+        ['epp' => ceipLicense(['edition' => 'IT-100']), 'mbi' => ceipLicense()],
+        'Custom Edition',
+        true,
+    ],
+    'PRO EPP and PRO MAP' => [
+        ['epp' => ceipLicense(['edition' => 'PRO']), 'map' => ceipLicense(['edition' => 'PRO'])],
+        'Custom Edition',
+        true,
+    ],
+    'BE EPP and BAM without edition' => [
+        ['epp' => ceipLicense(['edition' => 'BE']), 'bam' => ceipLicense()],
+        'Business Edition',
+        true,
+    ],
+    'MSP EPP and MAP without edition' => [
+        ['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'MSP']), 'map' => ceipLicense()],
+        'MSP Edition',
+        true,
+    ],
+    'standalone CUSTOM MBI' => [['mbi' => ceipLicense(['edition' => 'CUSTOM'])], 'Custom Edition', true],
+]);
+
+it('reports any non-standard edition as custom', function (array $licenses): void {
+    expect(CentreonCeipLicenseType::resolve($licenses))->toBe([
+        'licenseType' => 'Custom Edition',
+        'withFingerprint' => true,
+        'assetId' => null,
+    ]);
+})->with([
+    'unknown value' => [['epp' => ceipLicense(['edition' => 'ENTERPRISE'])]],
+    'IT100 without hyphen' => [['epp' => ceipLicense(['type' => 'IT100', 'edition' => 'IT100'])]],
+    'unknown value on an EPP computed as MSP' => [['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'foo'])]],
+]);
+
+it('returns the asset ID of MSP platforms only', function (array $licenses, ?string $expectedAssetId): void {
+    expect(CentreonCeipLicenseType::resolve($licenses)['assetId'])->toBe($expectedAssetId);
+})->with([
+    'MSP edition' => [['epp' => ceipLicense(['edition' => 'MSP', 'asset_id' => ' 02i5800000ABCDE '])], '02i5800000ABCDE'],
+    'EPP computed as MSP' => [['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'asset_id' => 'A1'])], 'A1'],
+    'BAM computed as MSP' => [['epp' => ceipLicense(), 'bam' => ceipLicense([...ceipUnlimitedLicensing(), 'asset_id' => 'B1'])], 'B1'],
+    'MSP edition without asset ID' => [['epp' => ceipLicense(['edition' => 'MSP'])], null],
+    'MSP edition with an empty asset ID' => [['epp' => ceipLicense(['edition' => 'MSP', 'asset_id' => ''])], null],
+    'BE edition' => [['epp' => ceipLicense(['edition' => 'BE', 'asset_id' => 'A1'])], null],
+    'IT edition on an EPP computed as MSP' => [['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'IT', 'asset_id' => 'A1'])], null],
+    'custom edition' => [['epp' => ceipLicense(['edition' => 'foo', 'asset_id' => 'A1'])], null],
 ]);
 
 it('ignores an empty or non-string edition', function (mixed $edition): void {
     expect(CentreonCeipLicenseType::resolve(['epp' => ceipLicense(['edition' => $edition])]))->toBe([
         'licenseType' => 'IT Edition',
         'withFingerprint' => false,
-        'ignoredEdition' => null,
+        'assetId' => null,
     ]);
 })->with([
     'empty string' => [''],

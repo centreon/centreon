@@ -29,9 +29,9 @@ declare(strict_types=1);
 final class CentreonCeipLicenseType
 {
     /**
-     * CIM editions allowed in the licensing.edition property of the license file,
-     * with the license type label historically sent to Pendo.
-     * CUSTOM is used for standalone module subscriptions (BAM, MAP, MBI without EPP).
+     * CIM editions that have their own license type label, historically sent to Pendo.
+     * Any other combination (unknown edition, module licenses bought on top of an edition
+     * such as IT + BAM, standalone BAM, MAP or MBI subscriptions...) is reported as CUSTOM.
      */
     private const EDITION_LABELS = [
         'IT-100' => 'IT-100 Edition',
@@ -42,6 +42,11 @@ final class CentreonCeipLicenseType
         'CUSTOM' => 'Custom Edition',
     ];
 
+    private const MSP_EDITION_LABEL = 'MSP Edition';
+
+    /** CIM editions that do not include the BAM, MAP and MBI modules. */
+    private const EDITIONS_WITHOUT_MODULES = ['IT-100', 'IT', 'PRO'];
+
     /** CIM editions for which the platform fingerprint is sent. */
     private const FINGERPRINTED_EDITIONS = ['BE', 'MSP', 'CUSTOM'];
 
@@ -50,23 +55,33 @@ final class CentreonCeipLicenseType
 
     /**
      * The license type is computed from the module, the host limit and the license duration.
-     * When a license carries the CIM edition explicitly (licensing.edition), the first one found
-     * takes precedence over the computed type, and the fingerprint follows the declared edition.
+     * When licenses carry the CIM edition explicitly (licensing.edition), it takes precedence over
+     * the computed type, and the fingerprint follows it: the edition is kept only when all the
+     * declared editions are the same standard one, otherwise the platform is reported as CUSTOM.
+     * An edition that does not include the BAM, MAP and MBI modules is also reported as CUSTOM
+     * as soon as one of these module licenses is present, whether it declares an edition or not.
+     * The CRM asset ID (licensing.asset_id) is returned for MSP platforms only, to bill them.
      *
      * @param array<string, array<array-key, mixed>> $licenses valid licenses indexed by module, in lookup order
      *
      * @throws Exception when a license start or end date is invalid
      *
-     * @return array{licenseType: string, withFingerprint: bool, ignoredEdition: string|null}
+     * @return array{licenseType: string, withFingerprint: bool, assetId: string|null}
      */
     public static function resolve(array $licenses): array
     {
         $licenseType = 'Open Source';
         $withFingerprint = false;
-        $edition = null;
+        $editions = [];
+        $assetId = null;
+        $hasModuleLicense = false;
 
         foreach ($licenses as $module => $license) {
-            $edition ??= self::readEdition($license);
+            $edition = self::readString($license, 'edition');
+            if ($edition !== null) {
+                $editions[strtoupper($edition)] = true;
+            }
+            $assetId ??= self::readString($license, 'asset_id');
             $durationInDays = self::durationInDays($license);
             $isLongUnlimitedLicense = (int) $license['licensing']['hosts'] === -1 && $durationInDays > 90;
 
@@ -75,41 +90,48 @@ final class CentreonCeipLicenseType
                 if (($license['licensing']['type'] ?? null) === 'IT100') {
                     $licenseType = 'IT-100 Edition';
                 } elseif ($isLongUnlimitedLicense) {
-                    $licenseType = 'MSP Edition';
+                    $licenseType = self::MSP_EDITION_LABEL;
                     $withFingerprint = true;
                 }
             } elseif (in_array($module, self::ADDITIONAL_MODULES, true)) {
-                $licenseType = $isLongUnlimitedLicense ? 'MSP Edition' : 'Business Edition';
+                $hasModuleLicense = true;
+                $licenseType = $isLongUnlimitedLicense ? self::MSP_EDITION_LABEL : 'Business Edition';
                 $withFingerprint = true;
             }
         }
 
-        if ($edition !== null && isset(self::EDITION_LABELS[$edition])) {
-            return [
-                'licenseType' => self::EDITION_LABELS[$edition],
-                'withFingerprint' => in_array($edition, self::FINGERPRINTED_EDITIONS, true),
-                'ignoredEdition' => null,
-            ];
+        if ($editions !== []) {
+            $edition = count($editions) === 1 ? array_key_first($editions) : 'CUSTOM';
+            if (
+                ! isset(self::EDITION_LABELS[$edition])
+                || ($hasModuleLicense && in_array($edition, self::EDITIONS_WITHOUT_MODULES, true))
+            ) {
+                $edition = 'CUSTOM';
+            }
+            $licenseType = self::EDITION_LABELS[$edition];
+            $withFingerprint = in_array($edition, self::FINGERPRINTED_EDITIONS, true);
         }
 
         return [
             'licenseType' => $licenseType,
             'withFingerprint' => $withFingerprint,
-            'ignoredEdition' => $edition,
+            'assetId' => $licenseType === self::MSP_EDITION_LABEL ? $assetId : null,
         ];
     }
 
     /**
+     * Read a non-empty string property of the licensing section, trimmed.
+     *
      * @param array<array-key, mixed> $license
      */
-    private static function readEdition(array $license): ?string
+    private static function readString(array $license, string $property): ?string
     {
-        $edition = $license['licensing']['edition'] ?? null;
-        if (! is_string($edition) || trim($edition) === '') {
+        $value = $license['licensing'][$property] ?? null;
+        if (! is_string($value) || trim($value) === '') {
             return null;
         }
 
-        return strtoupper(trim($edition));
+        return trim($value);
     }
 
     /**
