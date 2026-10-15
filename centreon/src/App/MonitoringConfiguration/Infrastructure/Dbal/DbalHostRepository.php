@@ -34,7 +34,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
-use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
@@ -447,11 +446,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function findAll(HostCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $actor = $criteria->getActor();
-        $scope = $actor instanceof ActingUser
-            ? $this->accessScopes->hosts($actor)
-            : AccessScope::unrestricted(HostId::class);
-        if (! $scope->isUnrestricted() && $scope->allowedIdValues() === []) {
+        $scope = $criteria->accessScope($this->accessScopes->hosts(...), HostId::class);
+        if ($scope->allowsNothing()) {
             return new Collection([], Host::class);
         }
 

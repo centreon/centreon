@@ -162,7 +162,10 @@ final class PatchHostCommandHandlerTest extends TestCase
         $this->timezoneRepository = new FakeTimezoneRepository();
         $this->timePeriodRepository = new FakeTimePeriodRepository();
         $this->mediaRepository = new FakeMediaRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->repository->resourceAccess;
+        // A restricted actor sees the host under test, as they must to edit it.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(self::HOST_ID)], HostId::class);
+
         $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
         $this->handler = new PatchHostCommandHandler(
@@ -276,7 +279,7 @@ final class PatchHostCommandHandlerTest extends TestCase
     public function testItHidesAHostOutsideTheActorAclScope(): void
     {
         $this->seedHost(activated: true);
-        $this->repository->accessibleHostIds = [];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
 
@@ -295,7 +298,7 @@ final class PatchHostCommandHandlerTest extends TestCase
     public function testAnUnrestrictedActorIsNotScopedByAcl(): void
     {
         $this->seedHost(activated: true);
-        $this->repository->accessibleHostIds = [];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         ($this->handler)(new PatchHostCommand(
             id: new HostId(self::HOST_ID),

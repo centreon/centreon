@@ -30,8 +30,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
+use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 
 final class FakeHostRepository implements HostRepository
 {
@@ -43,14 +45,6 @@ final class FakeHostRepository implements HostRepository
      * exercise the exhausted-suffix path without seeding hundreds of hosts.
      */
     public bool $forceNameUsed = false;
-
-    /**
-     * When set, {@see findOne()} with a non-null actor only returns ids listed here; any other
-     * reads as not found. Null means the actor sees everything — used to simulate ACL scoping.
-     *
-     * @var list<int>|null
-     */
-    public ?array $accessibleHostIds = null;
 
     /** @var list<array{id: int, activated: bool}> */
     public array $activationUpdates = [];
@@ -67,6 +61,8 @@ final class FakeHostRepository implements HostRepository
     /** @var list<Host> */
     public array $macrosReplacedHosts = [];
 
+    private readonly AccessScopeResolver $accessScopes;
+
     /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
      * writes from both sides: a host created with children becomes their parent in the graph.
@@ -74,6 +70,16 @@ final class FakeHostRepository implements HostRepository
      * @var array<int, list<int>>
      */
     private array $parentIds = [];
+
+    /**
+     * The ACL of {@see findOne()} and {@see findAccessibleNamesByIds()}, as for the real repository: a
+     * restricted actor only reaches the hosts listed in its `accessibleHostIds`.
+     */
+    public function __construct(
+        public readonly FakeResourceAccessRepository $resourceAccess = new FakeResourceAccessRepository(),
+    ) {
+        $this->accessScopes = new AccessScopeResolver($resourceAccess);
+    }
 
     /**
      * Store a host under a fixed id, so a test can target it by a known id.
@@ -105,8 +111,7 @@ final class FakeHostRepository implements HostRepository
     }
 
     /**
-     * Honors {@see $accessibleHostIds} for a restricted actor, returning null (like the real
-     * repository) for a host outside their scope, so the ACL not-found path is exercised
+     * Returns null (like the real repository) for a host outside a restricted actor's scope, so the ACL not-found path is exercised
      * at the handler layer.
      */
     public function findOne(HostId $id, ActingUser $actor): ?Host
@@ -116,11 +121,7 @@ final class FakeHostRepository implements HostRepository
             return null;
         }
 
-        if (
-            ! $actor->hasUnrestrictedResourceAccess()
-            && $this->accessibleHostIds !== null
-            && ! in_array($id->value, $this->accessibleHostIds, true)
-        ) {
+        if (! $this->accessScopes->hosts($actor, new Collection([$id], HostId::class))->allows($id)) {
             return null;
         }
 
@@ -221,14 +222,7 @@ final class FakeHostRepository implements HostRepository
 
     public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection
     {
-        if ($actor->hasUnrestrictedResourceAccess() || $this->accessibleHostIds === null) {
-            return $this->findNamesByIds($ids);
-        }
-
-        return $this->findNamesByIds(new Collection(
-            array_values(array_filter($ids->toArray(), fn (HostId $id): bool => in_array($id->value, $this->accessibleHostIds, true))),
-            HostId::class,
-        ));
+        return $this->findNamesByIds($this->accessScopes->hosts($actor, $ids)->filter($ids));
     }
 
     public function findNamesByIds(Collection $ids): Collection

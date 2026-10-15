@@ -23,7 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
@@ -52,29 +55,38 @@ final class ContactGroupCriteriaTest extends TestCase
         self::assertSame(10, $pagination->itemsPerPage);
     }
 
-    public function testWithActorLeavesTheOriginalUnchanged(): void
+    public function testWithActorScopesToWhatTheActorMayAccess(): void
     {
-        $criteria = new ContactGroupCriteria();
+        $scope = (new ContactGroupCriteria())->withActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ContactGroupId::class);
 
-        $actor = TestActingUsers::restricted(7);
-        $new = $criteria->withActor($actor);
-
-        self::assertSame($actor, $new->getActor());
-
-        $this->expectException(\LogicException::class);
-        $criteria->getActor();
+        self::assertSame([7], $scope->allowedIdValues());
     }
 
-    public function testACriteriaWithoutAccessScopeHasNoActor(): void
+    public function testACriteriaNeitherScopedNorOptedOutFailsClosed(): void
     {
-        self::assertNull(new ContactGroupCriteria()->withoutAccessScope()->getActor());
+        $criteria = new ContactGroupCriteria();
+        $criteria->withActor(TestActingUsers::restricted(7));
+
+        $this->expectException(\LogicException::class);
+
+        $criteria->accessScope($this->scopeOf(...), ContactGroupId::class);
+    }
+
+    public function testACriteriaWithoutAccessScopeIsUnrestricted(): void
+    {
+        $scope = (new ContactGroupCriteria())->withoutAccessScope()->accessScope(
+            static fn (ActingUser $actor): never => self::fail('An opted-out criteria must not resolve any scope.'),
+            ContactGroupId::class,
+        );
+
+        self::assertTrue($scope->isUnrestricted());
     }
 
     public function testWithActorScopesAnOptedOutCriteriaAgain(): void
     {
-        $actor = TestActingUsers::restricted(7);
+        $scope = (new ContactGroupCriteria())->withoutAccessScope()->withActor(TestActingUsers::restricted(7))->accessScope($this->scopeOf(...), ContactGroupId::class);
 
-        self::assertSame($actor, (new ContactGroupCriteria())->withoutAccessScope()->withActor($actor)->getActor());
+        self::assertFalse($scope->isUnrestricted());
     }
 
     public function testWithNameDeduplicates(): void
@@ -111,5 +123,13 @@ final class ContactGroupCriteriaTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         (new ContactGroupCriteria())->withPagination(1, 0);
+    }
+
+    /**
+     * @return AccessScope<ContactGroupId>
+     */
+    private function scopeOf(ActingUser $actor): AccessScope
+    {
+        return AccessScope::restrictedTo(ContactGroupId::class, [new ContactGroupId($actor->userId->value)]);
     }
 }

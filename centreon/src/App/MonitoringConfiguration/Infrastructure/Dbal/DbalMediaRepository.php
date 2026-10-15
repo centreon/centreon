@@ -28,8 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
-use App\Security\Domain\Aggregate\AccessScope;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -85,11 +83,8 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
 
     public function findAll(MediaCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $actor = $criteria->getActor();
-        $scope = $actor instanceof ActingUser
-            ? $this->accessScopes->imageFolders($actor)
-            : AccessScope::unrestricted(MediaDirectoryId::class);
-        if (! $scope->isUnrestricted() && $scope->allowedIdValues() === []) {
+        $scope = $criteria->accessScope($this->accessScopes->imageFolders(...), MediaDirectoryId::class);
+        if ($scope->allowsNothing()) {
             return $this->emptyResult($criteria);
         }
 

@@ -48,7 +48,6 @@ use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\Security\Domain\Aggregate\AccessScope;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
@@ -77,30 +76,9 @@ final readonly class HostRelationsUpdater
     ) {
     }
 
-    public function applyTo(Host $host, PatchHostCommand $command, ActingUser $actor): Host
+    public function applyTo(Host $host, PatchHostCommand $command): Host
     {
-        $reachableHostIds = $this->reachableHostIds($host, $command, $actor);
-        // Not an AccessScope, unlike the other relations: the reachable hosts are the existing ones the actor
-        // can see, so for an unrestricted actor a dangling relation (a deleted host) would read as hidden and
-        // survive a replacement. Everything is visible to them instead, as ListChange assumes by default.
-        $isHostVisible = $actor->hasUnrestrictedResourceAccess()
-            ? static fn (HostId $id): bool => true
-            : static fn (HostId $id): bool => in_array($id->value, $reachableHostIds, true);
-
-        $parentHostIds = $this->resolve(
-            $command->parentHostIds,
-            $host->parentHostIds,
-            HostId::class,
-            fn (array $ids) => $this->assertHostsExist($ids, 'parentHostIds', $reachableHostIds),
-            $isHostVisible,
-        );
-        $childHostIds = $this->resolve(
-            $command->childHostIds,
-            $host->childHostIds,
-            HostId::class,
-            fn (array $ids) => $this->assertHostsExist($ids, 'childHostIds', $reachableHostIds),
-            $isHostVisible,
-        );
+        [$parentHostIds, $childHostIds] = $this->resolveRelatedHosts($host, $command);
         if ($parentHostIds instanceof Collection || $childHostIds instanceof Collection) {
             $this->assertRelationsAreNotCircular(
                 $host->id(),
@@ -124,24 +102,24 @@ final readonly class HostRelationsUpdater
                 $command->hostGroupIds,
                 $host->hostGroupIds,
                 HostGroupId::class,
-                fn (): AccessScope => $this->accessScopes->hostGroups($actor),
+                fn (): AccessScope => $this->accessScopes->hostGroups($command->actor),
                 fn (array $ids, AccessScope $scope) => $this->assertHostGroupsAccessible($ids, $scope),
             ),
             categoryIds: $this->resolveScoped(
                 $command->categoryIds,
                 $host->categoryIds,
                 HostCategoryId::class,
-                fn (): AccessScope => $this->accessScopes->hostCategories($actor),
+                fn (): AccessScope => $this->accessScopes->hostCategories($command->actor),
                 fn (array $ids, AccessScope $scope) => $this->assertCategoriesAccessible($ids, $scope),
             ),
             parentHostIds: $parentHostIds,
             childHostIds: $childHostIds,
         );
 
-        return $this->withContacts($updated, $command, $actor);
+        return $this->withContacts($updated, $command);
     }
 
-    private function withContacts(Host $host, PatchHostCommand $command, ActingUser $actor): Host
+    private function withContacts(Host $host, PatchHostCommand $command): Host
     {
         if ($command->contactIds instanceof NoValue && $command->contactGroupIds instanceof NoValue) {
             return $host;
@@ -154,14 +132,14 @@ final readonly class HostRelationsUpdater
                 $command->contactIds,
                 $notifications->contactIds,
                 NotificationContactId::class,
-                fn (): AccessScope => $this->accessScopes->contacts($actor),
+                fn (): AccessScope => $this->accessScopes->contacts($command->actor),
                 fn (array $ids, AccessScope $scope) => $this->assertContactsAccessible($ids, $scope),
             ),
             contactGroupIds: $this->resolveScoped(
                 $command->contactGroupIds,
                 $notifications->contactGroupIds,
                 ContactGroupId::class,
-                fn (): AccessScope => $this->accessScopes->contactGroups($actor),
+                fn (): AccessScope => $this->accessScopes->contactGroups($command->actor),
                 fn (array $ids, AccessScope $scope) => $this->assertContactGroupsAccessible($ids, $scope),
             ),
         ));
@@ -232,11 +210,10 @@ final readonly class HostRelationsUpdater
      */
     private function assertHostGroupsAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = $this->missingIds(
-            $ids,
-            array_keys($this->hostGroupRepository->findNamesByIds(new Collection($ids, HostGroupId::class))->toArray()),
-            $scope,
-        );
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($ids, array_keys($this->hostGroupRepository->findNamesByIds(new Collection($ids, HostGroupId::class))->toArray())),
+            ...$scope->rejected($ids),
+        ]));
 
         if ($missingIds !== []) {
             throw new HostGroupNotFoundException(['hostGroupIds' => $missingIds]);
@@ -248,12 +225,8 @@ final readonly class HostRelationsUpdater
      */
     private function assertTemplatesExist(array $ids): void
     {
-        $missingIds = $this->missingIds(
-            $ids,
-            array_keys($this->hostTemplateRepository->findNamesByIds(new Collection($ids, HostTemplateId::class))->toArray()),
-            // Templates are not scoped by access rights.
-            AccessScope::unrestricted(HostTemplateId::class),
-        );
+        // Templates are not scoped by access rights: only their existence is checked.
+        $missingIds = $this->unknownIds($ids, array_keys($this->hostTemplateRepository->findNamesByIds(new Collection($ids, HostTemplateId::class))->toArray()));
 
         if ($missingIds !== []) {
             throw new HostTemplateNotFoundException($missingIds);
@@ -266,11 +239,10 @@ final readonly class HostRelationsUpdater
      */
     private function assertCategoriesAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = $this->missingIds(
-            $ids,
-            array_keys($this->hostCategoryRepository->findNamesByIds(new Collection($ids, HostCategoryId::class))->toArray()),
-            $scope,
-        );
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($ids, array_keys($this->hostCategoryRepository->findNamesByIds(new Collection($ids, HostCategoryId::class))->toArray())),
+            ...$scope->rejected($ids),
+        ]));
 
         if ($missingIds !== []) {
             throw new HostCategoryNotFoundException($missingIds);
@@ -283,8 +255,8 @@ final readonly class HostRelationsUpdater
      */
     private function assertHostsExist(array $ids, string $criterion, array $reachableHostIds): void
     {
-        // The reachable hosts are already the ones the requester can see.
-        $missingIds = $this->missingIds($ids, $reachableHostIds, AccessScope::unrestricted(HostId::class));
+        // The reachable hosts are already the ones the actor can see.
+        $missingIds = $this->unknownIds($ids, $reachableHostIds);
 
         if ($missingIds !== []) {
             throw new HostNotFoundException($missingIds, $criterion);
@@ -292,28 +264,47 @@ final readonly class HostRelationsUpdater
     }
 
     /**
-     * Among the hosts this one is linked to and the ones the update brings or removes, the ones that exist
-     * and the requester can see, found in one lookup: the others do not exist for them, and are left in
-     * place by a replacement and left alone by a removal, like the other scoped relations.
+     * The parent and child hosts, both resolved against one lookup of the hosts the update involves: the
+     * ones this host is linked to, and the ones the update brings or removes. Among them, those that do
+     * not exist or the actor cannot see are left in place by a replacement and left alone by a removal,
+     * like the other scoped relations. A dangling relation (a deleted host) stays visible to an
+     * unrestricted actor, so that a replacement drops it.
      *
-     * @return list<int>
+     * @return array{NoValue|Collection<HostId>, NoValue|Collection<HostId>}
      */
-    private function reachableHostIds(Host $host, PatchHostCommand $command, ActingUser $actor): array
+    private function resolveRelatedHosts(Host $host, PatchHostCommand $command): array
     {
         $changes = array_filter([$command->parentHostIds, $command->childHostIds], static fn (NoValue|ListChange $change): bool => $change instanceof ListChange);
         if ($changes === []) {
-            return [];
+            return [new NoValue(), new NoValue()];
         }
 
         $ids = [...$host->parentHostIds->toArray(), ...$host->childHostIds->toArray()];
         foreach ($changes as $change) {
             $ids = [...$ids, ...$change->values];
         }
+        $ids = new Collection($ids, HostId::class);
 
-        return array_map(
-            intval(...),
-            array_keys($this->hostRepository->findAccessibleNamesByIds(new Collection($ids, HostId::class), $actor)->toArray()),
-        );
+        $hostScope = $this->accessScopes->hosts($command->actor, $ids);
+        $reachableHostIds = array_map(intval(...), array_keys($this->hostRepository->findNamesByIds($hostScope->filter($ids))->toArray()));
+        $isVisible = static fn (HostId $id): bool => $hostScope->isUnrestricted() || in_array($id->value, $reachableHostIds, true);
+
+        return [
+            $this->resolve(
+                $command->parentHostIds,
+                $host->parentHostIds,
+                HostId::class,
+                fn (array $ids) => $this->assertHostsExist($ids, 'parentHostIds', $reachableHostIds),
+                $isVisible,
+            ),
+            $this->resolve(
+                $command->childHostIds,
+                $host->childHostIds,
+                HostId::class,
+                fn (array $ids) => $this->assertHostsExist($ids, 'childHostIds', $reachableHostIds),
+                $isVisible,
+            ),
+        ];
     }
 
     /**
@@ -322,11 +313,10 @@ final readonly class HostRelationsUpdater
      */
     private function assertContactsAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = $this->missingIds(
-            $ids,
-            array_keys($this->contactRepository->findNamesByIds(new Collection($ids, NotificationContactId::class))->toArray()),
-            $scope,
-        );
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($ids, array_keys($this->contactRepository->findNamesByIds(new Collection($ids, NotificationContactId::class))->toArray())),
+            ...$scope->rejected($ids),
+        ]));
 
         if ($missingIds !== []) {
             throw new NotificationContactNotFoundException($missingIds);
@@ -339,11 +329,10 @@ final readonly class HostRelationsUpdater
      */
     private function assertContactGroupsAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = $this->missingIds(
-            $ids,
-            array_keys($this->contactGroupRepository->findNamesByIds(new Collection($ids, ContactGroupId::class))->toArray()),
-            $scope,
-        );
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($ids, array_keys($this->contactGroupRepository->findNamesByIds(new Collection($ids, ContactGroupId::class))->toArray())),
+            ...$scope->rejected($ids),
+        ]));
 
         if ($missingIds !== []) {
             throw new ContactGroupNotFoundException($missingIds);
@@ -355,20 +344,14 @@ final readonly class HostRelationsUpdater
      *
      * @param list<T> $ids
      * @param list<int|string> $foundIds the ids that exist
-     * @param AccessScope<T> $scope
      *
      * @return list<int>
      */
-    private function missingIds(array $ids, array $foundIds, AccessScope $scope): array
+    private function unknownIds(array $ids, array $foundIds): array
     {
         $requestedIds = array_map(static fn (AggregateRootId $id): int => $id->value, $ids);
-        $missingIds = array_diff($requestedIds, array_map('intval', $foundIds));
 
-        if (! $scope->isUnrestricted()) {
-            $missingIds = array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues()));
-        }
-
-        return array_values(array_unique($missingIds));
+        return array_values(array_unique(array_diff($requestedIds, array_map('intval', $foundIds))));
     }
 
     /**

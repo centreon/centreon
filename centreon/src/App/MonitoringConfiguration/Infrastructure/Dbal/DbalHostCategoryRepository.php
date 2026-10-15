@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -135,17 +134,12 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->like('hc.hc_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $this->filterByActor($qb, $criteria);
+        $this->filterByAccessScope($qb, $criteria);
     }
 
-    private function filterByActor(QueryBuilder $qb, HostCategoryCriteria $criteria): void
+    private function filterByAccessScope(QueryBuilder $qb, HostCategoryCriteria $criteria): void
     {
-        $actor = $criteria->getActor();
-        if (! $actor instanceof ActingUser) {
-            return;
-        }
-
-        $scope = $this->accessScopes->hostCategories($actor);
+        $scope = $criteria->accessScope($this->accessScopes->hostCategories(...), HostCategoryId::class);
         if ($scope->isUnrestricted()) {
             return;
         }

@@ -28,8 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Aggregate\AccessScope;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -93,11 +91,8 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
 
     public function findAll(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $actor = $criteria->getActor();
-        $scope = $actor instanceof ActingUser
-            ? $this->accessScopes->contacts($actor)
-            : AccessScope::unrestricted(NotificationContactId::class);
-        if (! $scope->isUnrestricted() && $scope->allowedIdValues() === []) {
+        $scope = $criteria->accessScope($this->accessScopes->contacts(...), NotificationContactId::class);
+        if ($scope->allowsNothing()) {
             return $this->emptyResult($criteria);
         }
 

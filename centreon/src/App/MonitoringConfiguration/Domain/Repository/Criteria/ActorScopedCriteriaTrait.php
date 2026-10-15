@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
 /**
  * ACL scoping shared by the listing criteria that restrict results to what the acting user is allowed
@@ -58,14 +60,28 @@ trait ActorScopedCriteriaTrait
     }
 
     /**
-     * @return ?ActingUser null only once {@see withoutAccessScope()} was called
+     * The scope the results are restricted to: what the actor may access, as `$resolve` tells, or every
+     * resource once {@see withoutAccessScope()} was called.
+     *
+     * @template T of AggregateRootId
+     *
+     * @param \Closure(ActingUser): AccessScope<T> $resolve
+     * @param class-string<T> $idClass
+     *
+     * @throws \LogicException when neither withActor() nor withoutAccessScope() was called
+     *
+     * @return AccessScope<T>
      */
-    public function getActor(): ?ActingUser
+    public function accessScope(\Closure $resolve, string $idClass): AccessScope
     {
-        if ($this->accessScoped && ! $this->actor instanceof ActingUser) {
+        if (! $this->accessScoped) {
+            return AccessScope::unrestricted($idClass);
+        }
+
+        if (! $this->actor instanceof ActingUser) {
             throw new \LogicException(sprintf('"%s" must be scoped with withActor(), or explicitly opt out with withoutAccessScope().', static::class));
         }
 
-        return $this->actor;
+        return $resolve($this->actor);
     }
 }

@@ -90,7 +90,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -127,7 +126,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
         $commandRepository = new FakeCommandRepository();
         $this->commandRepository = $commandRepository;
 
-        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $resourceAccessRepository = $this->repository->resourceAccess;
 
         $this->handler = new PatchHostCommandHandler(
             $this->repository,

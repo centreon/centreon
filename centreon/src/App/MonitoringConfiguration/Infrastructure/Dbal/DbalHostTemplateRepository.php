@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -35,7 +36,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -565,17 +565,12 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->notIn('h.host_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
 
-        $this->filterByActor($qb, $criteria);
+        $this->filterByAccessScope($qb, $criteria);
     }
 
-    private function filterByActor(QueryBuilder $qb, HostTemplateCriteria $criteria): void
+    private function filterByAccessScope(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
-        $actor = $criteria->getActor();
-        if (! $actor instanceof ActingUser) {
-            return;
-        }
-
-        $scope = $this->accessScopes->hostSeverities($actor);
+        $scope = $criteria->accessScope($this->accessScopes->hostSeverities(...), HostSeverityId::class);
         if ($scope->isUnrestricted()) {
             return;
         }

@@ -164,7 +164,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->commandRepository = new FakeCommandRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->hostRepository->resourceAccess;
         $this->optionRepository = new FakeOptionRepository();
         $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();

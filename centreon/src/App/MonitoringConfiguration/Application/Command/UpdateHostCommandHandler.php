@@ -625,46 +625,37 @@ final readonly class UpdateHostCommandHandler
             return;
         }
 
-        $foundIds = array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray());
-        $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        $scope = $this->accessScopes->hostGroups($actor);
-        if (! $scope->isUnrestricted()) {
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
-        }
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($hostGroupIds, fn (Collection $ids): array => array_keys($this->hostGroupRepository->findNamesByIds($ids)->toArray())),
+            ...$this->accessScopes->hostGroups($actor)->rejected($hostGroupIds),
+        ]));
 
         if ($missingIds !== []) {
-            throw new HostGroupNotFoundException(['host_group_ids' => array_values($missingIds)]);
+            throw new HostGroupNotFoundException(['host_group_ids' => $missingIds]);
         }
     }
 
     /**
-     * Unknown and inaccessible ids are not told apart, so a restricted actor cannot probe for
-     * resources they cannot see.
+     * The requested ids that do not exist. Callers add the ones out of the actor's scope
+     * ({@see AccessScope::rejected()}) to the same list: unknown and inaccessible ids are not told
+     * apart, so a restricted actor cannot probe for resources they cannot see.
      *
      * @template T of \App\Shared\Domain\Aggregate\AggregateRootId
      *
      * @param Collection<T> $requested
      * @param callable(Collection<T>): list<int> $resolve
-     * @param AccessScope<T> $scope
      *
      * @return list<int>
      */
-    private function missingIds(Collection $requested, callable $resolve, AccessScope $scope): array
+    private function unknownIds(Collection $requested, callable $resolve): array
     {
         if (count($requested) === 0) {
             return [];
         }
 
         $requestedIds = array_map(static fn (object $id): int => $id->value, $requested->toArray());
-        $missingIds = array_diff($requestedIds, $resolve($requested));
 
-        if (! $scope->isUnrestricted()) {
-            $missingIds = array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues()));
-        }
-
-        return array_values(array_unique($missingIds));
+        return array_values(array_unique(array_diff($requestedIds, $resolve($requested))));
     }
 
     /**
@@ -672,11 +663,10 @@ final readonly class UpdateHostCommandHandler
      */
     private function assertCategoriesExist(Collection $categoryIds, ActingUser $actor): void
     {
-        $missingIds = $this->missingIds(
-            $categoryIds,
-            fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $this->accessScopes->hostCategories($actor),
-        );
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($categoryIds, fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray())),
+            ...$this->accessScopes->hostCategories($actor)->rejected($categoryIds),
+        ]));
 
         if ($missingIds !== []) {
             throw new HostCategoryNotFoundException($missingIds);
@@ -689,13 +679,16 @@ final readonly class UpdateHostCommandHandler
             return;
         }
 
-        $missingIds = $this->missingIds(
-            new Collection([$severityId], HostSeverityId::class),
-            fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
+        $severityIds = new Collection([$severityId], HostSeverityId::class);
+        $missingIds = [
+            ...$this->unknownIds(
+                $severityIds,
+                fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $this->accessScopes->hostSeverities($actor),
-        );
+            ),
+            ...$this->accessScopes->hostSeverities($actor)->rejected($severityIds),
+        ];
 
         if ($missingIds !== []) {
             throw new HostSeverityNotFoundException($severityId->value);
@@ -716,12 +709,8 @@ final readonly class UpdateHostCommandHandler
      */
     private function assertTemplatesExist(Collection $templateIds): void
     {
-        $missingIds = $this->missingIds(
-            $templateIds,
-            fn (Collection $ids): array => array_keys($this->hostTemplateRepository->findNamesByIds($ids)->toArray()),
-            // Templates are not scoped by access rights.
-            AccessScope::unrestricted(HostTemplateId::class),
-        );
+        // Templates are not scoped by access rights: only their existence is checked.
+        $missingIds = $this->unknownIds($templateIds, fn (Collection $ids): array => array_keys($this->hostTemplateRepository->findNamesByIds($ids)->toArray()));
 
         if ($missingIds !== []) {
             throw new HostTemplateNotFoundException($missingIds);
@@ -750,11 +739,10 @@ final readonly class UpdateHostCommandHandler
      */
     private function assertHostsExist(Collection $hostIds, string $criterion, AccessScope $hostScope): void
     {
-        $missingIds = $this->missingIds(
-            $hostIds,
-            fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
-            $hostScope,
-        );
+        $missingIds = array_values(array_unique([
+            ...$this->unknownIds($hostIds, fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray())),
+            ...$hostScope->rejected($hostIds),
+        ]));
 
         if ($missingIds !== []) {
             throw new HostNotFoundException($missingIds, $criterion);
