@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\GetHostProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -95,16 +96,29 @@ final class GetHostProviderTest extends ApiTestCase
     }
 
     /**
-     * The route pins `{id}` to `\d+`. A non-numeric id must not match the route (404), never reach
-     * the provider — where `Assert::integer($uriVariables['id'])` would throw and surface as a 500.
-     * This locks that constraint: dropping it would turn this case into a documented 500.
+     * The route pins `{id}` to a positive integer. Any other id must not match the route (404), never
+     * reach the provider — where `Assert::integer($uriVariables['id'])` or HostId(0) would throw and
+     * surface as a 500. This locks that constraint: dropping it would turn this case into a 500.
      */
-    public function testItReturns404ForANonNumericId(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidIds')]
+    public function testItReturns404ForAnInvalidId(string $id): void
     {
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . '/not-a-number');
+        $this->request('GET', self::BASE_ENDPOINT . '/' . $id);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidIds(): iterable
+    {
+        yield 'non-numeric' => ['not-a-number'];
+
+        yield 'zero' => ['0'];
+
+        yield 'leading zero' => ['007'];
     }
 
     /**
@@ -224,8 +238,9 @@ final class GetHostProviderTest extends ApiTestCase
 
         $getBody = $fetched->toArray();
 
-        // Secrets are never part of the resource, on either endpoint.
+        // Secrets are never part of the resource, on either endpoint: only whether one is set.
         self::assertArrayNotHasKey('snmp_community', $getBody);
+        self::assertTrue($getBody['is_snmp_community_defined']);
 
         // A password macro's value is redacted (null), asserted directly so the guarantee does not
         // rely solely on the body-to-body comparison below (which would pass even if both leaked).
@@ -475,8 +490,6 @@ final class GetHostProviderTest extends ApiTestCase
         $transformer = $container->get(HostResourceTransformer::class);
         /** @var HostNotificationsTransformer $notificationsTransformer */
         $notificationsTransformer = $container->get(HostNotificationsTransformer::class);
-        /** @var Security $security */
-        $security = $container->get(Security::class);
         /** @var HostRepository $hostRepository */
         $hostRepository = $container->get(HostRepository::class);
         /** @var PollerRepository $pollerRepository */
@@ -505,30 +518,30 @@ final class GetHostProviderTest extends ApiTestCase
         $macroTransformer = $container->get(HostMacroTransformer::class);
         /** @var InheritedHostMacrosResolver $inheritedHostMacrosResolver */
         $inheritedHostMacrosResolver = $container->get(InheritedHostMacrosResolver::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
 
-        $container->set(
-            GetHostProvider::class,
-            new GetHostProvider(
-                $transformer,
-                $notificationsTransformer,
-                $security,
-                $hostRepository,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $mediaRepository,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                $resourceAccessRepository,
-                $macroTransformer,
-                $inheritedHostMacrosResolver,
-                $isCloudPlatform,
-            ),
+        $resourceBuilder = new HostResourceBuilder(
+            $transformer,
+            $notificationsTransformer,
+            $hostRepository,
+            $pollerRepository,
+            $hostGroupRepository,
+            $commandRepository,
+            $hostTemplateRepository,
+            $hostCategoryRepository,
+            $hostSeverityRepository,
+            $timezoneRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $timePeriodRepository,
+            $resourceAccessRepository,
+            $macroTransformer,
+            $inheritedHostMacrosResolver,
+            $isCloudPlatform,
         );
+
+        $container->set(GetHostProvider::class, new GetHostProvider($security, $hostRepository, $resourceBuilder));
     }
 
     private function insertPoller(string $name): int

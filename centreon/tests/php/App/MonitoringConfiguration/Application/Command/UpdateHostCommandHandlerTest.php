@@ -75,6 +75,7 @@ use App\MonitoringConfiguration\Domain\Event\HostVaultPurgeRequested;
 use App\MonitoringConfiguration\Domain\Exception\CircularHostRelationException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
@@ -661,6 +662,55 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertStringNotContainsString('tpl-uuid', $host->checkOptions->macros[0]->value);
     }
 
+    /**
+     * The macro changes are checked before any secret is written: clearing the community in the
+     * same request as an unknown macro id must not delete the community's key from the vault,
+     * which the stored host, left unchanged by the rejected request, still points to.
+     */
+    public function testAnUnknownMacroIdLeavesTheVaultUntouched(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
+        );
+
+        try {
+            ($this->handler)($this->command(10, snmpCommunity: null, macroChanges: [
+                new HostMacroChange(new HostMacroName('stale'), 'a', isPassword: false, id: new HostMacroId(99)),
+            ]));
+            self::fail('An unknown macro id must be rejected.');
+        } catch (HostMacroNotFoundException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
+    public function testAMissingMacroValueLeavesTheVaultUntouched(): void
+    {
+        $this->addPoller(1);
+        $this->vault->vaultEnabled = true;
+        $this->seedHost(
+            10,
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
+            macros: [new HostMacro(new HostMacroName('plain'), 'a', isPassword: false, id: new HostMacroId(5))],
+        );
+
+        try {
+            // A null value keeps the stored one, which only a stored password allows: 'plain' is not one.
+            ($this->handler)($this->command(10, snmpCommunity: 'new-community', macroChanges: [
+                new HostMacroChange(new HostMacroName('plain'), null, isPassword: true, id: new HostMacroId(5)),
+            ]));
+            self::fail('A missing value on a plain macro must be rejected.');
+        } catch (HostMacroValueRequiredException) {
+        }
+
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->hostRepository->updatedHosts);
+    }
+
     public function testEmptyingTheSnmpCommunityRemovesItsKeyFromTheVault(): void
     {
         // A password macro keeps the entry alive, but the community's key must not linger in it.
@@ -812,24 +862,26 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertFalse($events[0]->loggable);
     }
 
-    public function testTurningAPasswordIntoAPlainMacroClearsItsKey(): void
+    public function testTurningAPasswordIntoAPlainMacroLeavesTheVaultUntouched(): void
     {
         $this->addPoller(1);
         $this->vault->vaultEnabled = true;
-        $community = 'secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY';
         $this->seedHost(
             10,
-            snmpCommunity: new SnmpCommunity($community),
+            snmpCommunity: new SnmpCommunity('secret::vault::monitoring/hosts/host-uuid::_HOSTSNMPCOMMUNITY'),
             macros: [new HostMacro(new HostMacroName('pwd'), 'secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', isPassword: true, id: new HostMacroId(5))],
         );
 
-        $host = ($this->handler)($this->command(10, snmpCommunity: 'public', macroChanges: [
-            new HostMacroChange(new HostMacroName('pwd'), 'now-visible', isPassword: false, id: new HostMacroId(5)),
-        ]));
+        try {
+            ($this->handler)($this->command(10, snmpCommunity: 'public', macroChanges: [
+                new HostMacroChange(new HostMacroName('pwd'), 'now-visible', isPassword: false, id: new HostMacroId(5)),
+            ]));
+            self::fail('A password macro turned into a plain one must be rejected.');
+        } catch (HostMacroPasswordUnmaskedException) {
+        }
 
-        self::assertSame(['now-visible', false], [$host->checkOptions->macros[0]->value, $host->checkOptions->macros[0]->isPassword]);
-        $deletes = array_merge(...array_column($this->vault->writeManyCalls, 'deletes'));
-        self::assertSame(['_HOSTPWD'], $deletes);
+        self::assertSame([], $this->vault->writeManyCalls);
+        self::assertSame([], $this->hostRepository->updatedHosts);
     }
 
     public function testAnEmptyPasswordIsStoredWithoutReachingTheVault(): void
@@ -1119,6 +1171,23 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         self::assertSame([20], $this->sortedIds($host->parentHostIds));
         self::assertSame([1], $this->sortedIds($host->notifications->contactIds ?? new Collection([], NotificationContactId::class)));
         self::assertSame([], $this->sortedIds($host->notifications->contactGroupIds ?? new Collection([], ContactGroupId::class)));
+    }
+
+    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(20, name: 'hidden-parent');
+        // Host 20 exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(10)], HostId::class);
+        $this->seedHost(10);
+
+        $this->expectException(HostNotFoundException::class);
+
+        ($this->handler)($this->command(
+            10,
+            viewerId: new UserId(42),
+            parentHostIds: new Collection([new HostId(20)], HostId::class),
+        ));
     }
 
     public function testItRejectsACycleClosedThroughAPreservedRelation(): void
