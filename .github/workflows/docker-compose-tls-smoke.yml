@@ -6,19 +6,11 @@
 #      base + overlay merge cleanly (catches !override misuse, broken depends_on
 #      maps, missing volumes, etc.). Pure YAML validation, no image pull.
 #
-#   2. https-up: DISABLED by default. Gated on the `force-tls-smoke` label so
-#      the job stays skipped until someone opts in per-PR. Brings the HTTPS
-#      stack up and curls the API. Disabled because gorgone TLS support is
-#      still being worked on by the gorgone team outside this PR — `DBD::mysql
-#      4.053 + libmariadb 3.x` on the trixie image rejects `mysql_ssl=1` with
-#      "Enforcing SSL encryption is not supported", so the stack can't fully
-#      come up. PR #9237 (DatabaseTLSResolver, PHP path) is in; gorgone is the
-#      remaining blocker.
-#
-# Two ways to re-enable once gorgone TLS work merges:
-#   - Add the `force-tls-smoke` label on a PR (ad-hoc), or
-#   - Replace the expression below with the original:
-#     ${{ github.event.pull_request.head.repo.fork != true }}
+#   2. https-up: brings the HTTPS stack up on alma9, alma10 and trixie, curls the
+#      API and asserts TLS was used and gorgone has no DB connection errors.
+#      On trixie the gorgone TLS hook is a no-op (DBD::mysql 4.053 + libmariadb 3.x
+#      cannot enable SSL), so gorgone stays plaintext there until it supports
+#      DBD::MariaDB.
 
 name: docker-compose-tls-smoke
 
@@ -59,19 +51,22 @@ jobs:
             config >/dev/null
 
   https-up:
-    name: HTTPS smoke (disabled — gorgone TLS support landing separately)
+    name: HTTPS smoke (${{ matrix.os }})
     runs-on: ubuntu-24.04
-    # Disabled until the gorgone team merges native TLS support. On trixie
-    # DBD::mysql 4.053 + libmariadb 3.x can't enable SSL, so the stack can't
-    # come up cleanly. See header comment for re-enable instructions.
-    if: contains(github.event.pull_request.labels.*.name, 'force-tls-smoke')
+    if: ${{ github.event.pull_request.head.repo.fork != true }}
     needs: [config-validate]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [alma9, alma10, trixie]
     # Job-level so every docker compose invocation below (bring-up, log dump,
     # teardown) resolves the same base+overlay stack. Setting it only on the
     # bring-up step left the on-failure log dump and teardown with no compose
     # file ("no configuration file provided: not found").
     env:
       COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
+      CENTREON_WEB_OS: ${{ matrix.os }}
+      WEB_IMAGE: docker.centreon.com/centreon/centreon-web-${{ matrix.os }}:develop
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -109,6 +104,20 @@ jobs:
           echo "Ssl_accepts=${n:-<empty>}"
           if [ -z "$n" ] || [ "$n" -lt 1 ]; then
             echo "::error::No TLS handshakes recorded on db — stack is running fully plaintext."
+            exit 1
+          fi
+
+      # The web healthcheck only calls the API, so a broken gorgone (e.g. DBD::mysql
+      # rejecting SSL) would still report healthy. Fail on any gorgone DB error.
+      - name: Assert gorgone connected to the DB
+        run: |
+          n=$(docker compose exec -T web grep -ciE 'cannot connect|SSL connection error' \
+                /var/log/centreon-gorgone/gorgoned.log || true)
+          echo "gorgone DB connection errors=${n:-<empty>}"
+          if [ "${n:-1}" -ne 0 ]; then
+            docker compose exec -T web grep -iE 'cannot connect|SSL connection error' \
+              /var/log/centreon-gorgone/gorgoned.log | head -5 || true
+            echo "::error::gorgone failed to connect to the database."
             exit 1
           fi
 

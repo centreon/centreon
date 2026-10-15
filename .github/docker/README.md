@@ -49,7 +49,7 @@ Following the redirect from the host fails because the production template's red
 The overlay adds:
 
 * **`certgen`** one-shot — issues a Root CA + multi-SAN leaf cert into the `certs` named volume on first `up` (covering `web`, `remote-server`, `db`, `db-remote`, `localhost`, `127.0.0.1`). CA persists across `up` cycles; `docker compose down -v` wipes it.
-* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca=…`.
+* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca_file=…;mysql_ssl_verify_server_cert=1` (RHEL images only, see the trixie note below).
 * **`db` / `db-remote`** — *offer* TLS via `--ssl-cert` / `--ssl-key` but **do not** enforce it (no `--require-secure-transport=ON`). Clients that opt in (PHP via `DatabaseTLSResolver`, the `mysql` CLI via the `[client]` drop-in) negotiate TLS; the install wizard's legacy plaintext path keeps working. See [Known limitations](#known-limitations) for the rationale and how the smoke workflow guards against silent regression to all-plaintext.
 * **Centreon Broker** — the install-time `db_ssl_*` JSON keys (existing Centreon support) are emitted automatically when `DATABASE_SSL_ENABLED=1` is in `.env`.
 
@@ -82,7 +82,7 @@ sudo update-ca-certificates
 > **Side-by-side HTTP + HTTPS stacks from the same checkout** is a planned future feature. Today, two `up` invocations from the same directory collide on container/volume names regardless of port mapping. Pick one mode per checkout. (Port `4443` was chosen with the future side-by-side mode in mind.)
 
 > [!NOTE]
-> **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. Workaround in discussion with the gorgone team (DBD::MariaDB has been validated as a working alternative).
+> **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. On trixie the `16-tls-gorgone.sh` hook is therefore a no-op and gorgone connects to the DB in plaintext (the DB does not enforce TLS). Follow-up: gorgone support for DBD::MariaDB, which has been validated as a working alternative.
 
 > [!NOTE]
 > **DB image compatibility** — HTTPS mode has been validated against the following combinations, all passing end-to-end (web container `(healthy)`, API returns 200, all hardening headers present):
@@ -93,8 +93,8 @@ sudo update-ca-certificates
 > | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ✅ |
 > | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ |
 > | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ✅ |
-> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker — gorgone limitation per previous note |
-> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ✅ web/broker — gorgone limitation per previous note |
+> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker — gorgone plaintext (see note above) |
+> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ✅ web/broker — gorgone plaintext (see note above) |
 >
 > Two operational notes that matter for the MySQL family in particular:
 >

@@ -8,6 +8,9 @@
 # When --require-secure-transport=ON is set on the DB, gorgone's plaintext
 # connections are rejected. We patch the DSNs here so Perl DBI uses TLS.
 #
+# DBD::mysql only honors mysql_ssl_ca_file (mysql_ssl_ca is ignored), and
+# verify_server_cert makes gorgone authenticate the DB against our Root CA.
+#
 # Numbering: 16 — runs after 15-installation.sh produces the YAML and well
 # before 70-gorgone_background.sh starts gorgone.
 #
@@ -39,7 +42,7 @@ fi
 # Re-runs and already-patched lines are left untouched.
 sed -i \
   "/dsn: \"mysql:/{
-     /mysql_ssl=/! s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca=$CA_PEM\"|
+     /mysql_ssl=/! s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca_file=$CA_PEM;mysql_ssl_verify_server_cert=1\"|
    }" \
   "$CONFIG" || exit 1
 
