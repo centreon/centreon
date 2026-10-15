@@ -1,7 +1,7 @@
 # Playwright component testing
 
 Migration of the Cypress component tests (`*.cypress.spec.tsx`) to the
-Playwright **story gallery** model (1.62+, on 1.63). It runs alongside the
+Playwright **story gallery** model (1.62+, on 1.64). It runs alongside the
 Cypress component suite, nothing is removed yet: see [Migration status](#migration-status).
 
 ## Run
@@ -10,8 +10,15 @@ Cypress component suite, nothing is removed yet: see [Migration status](#migrati
 node_modules/.bin/playwright test --project=components
 node_modules/.bin/playwright test --project=components --ui
 node_modules/.bin/playwright test --project=components --update-snapshots
+node_modules/.bin/playwright test --project=components --update-snapshots=missing
+node_modules/.bin/playwright test --project=components --shuffle 271828182
+GALLERY_STATIC=1 node_modules/.bin/playwright test --project=components
 node playwright/generate-stories.mjs && node_modules/.bin/tsc -p tests/components
 ```
+
+`--update-snapshots=missing` writes the baselines of new screenshots only, and
+since 1.64 the run passes when that is all it did. `--shuffle` randomizes the
+test order (the seed reproduces it): the suite passes shuffled, keep it that way.
 
 The equivalent `pnpm playwright:ct*` scripts exist in `package.json` but `pnpm run`
 currently fails on this checkout: the `allowBuilds` entries of
@@ -24,9 +31,10 @@ running one outside CI. Two modes:
 
 - **Static build** (CI, or `GALLERY_STATIC=1`): `rspack.config.gallery.build.js`
   builds a minified gallery in ~10 s and `playwright/gallery/serve.mjs` serves
-  it. A mount parses ~7 MB of JavaScript instead of 24 MB, so the full suite runs
-  ~4x faster (7.8 vs 31.5 min locally with 4 workers). `NODE_ENV` stays
-  `development`: production MUI drops the icons' `data-testid`.
+  it. Stories load lazily, so a mount parses the 0.9 MB entry plus the chunks of
+  its story instead of the dev server's 24 MB: the full suite runs in ~8 min
+  instead of 31.5 locally with 4 workers. `NODE_ENV` stays `development`:
+  production MUI drops the icons' `data-testid`.
 - **Dev server** (default locally, `rspack.config.gallery.js`): hot reload
   while writing specs, ~2 min cold start, then 1-3 s per test.
 
@@ -42,8 +50,9 @@ Three pieces, per the Playwright model:
 - **Stories** — `*.story.tsx` files next to the component. Each named export is
   one scenario and owns everything the component needs: providers, mock data,
   state, callbacks. Tests own only interactions and assertions.
-- **The gallery** — `playwright/gallery/`, a page served by our own rspack dev
-  server. It discovers the story files, exposes `window.mount({ story, props })`
+- **The gallery** — `playwright/gallery/`, a page built by our own rspack config
+  (dev server or static build). It discovers the story files, loads the one a
+  mount names on demand, exposes `window.mount({ story, props })`
   and `window.unmount()`, renders into `#root`, and reuses the React root so
   `update()` reconciles instead of remounting. App-wide setup lives here, like
   the app entry and `cy.mount`: `ThemeProvider`, `CssBaseline`, the dayjs
@@ -59,7 +68,7 @@ extension, plus the export name. Any unique suffix resolves too, so specs use
 short ids like `Inputs/Warning/WithLabel`.
 
 `playwright/generate-stories.mjs` writes `playwright/stories.d.ts`, which
-augments the `Stories` interface of `@playwright/test` (1.63) with every full id
+augments the `Stories` interface of `@playwright/test` (1.64) with every full id
 and unambiguous suffix: `mount('Inputs/Warning/WithLabel', { label })`
 autocompletes the id and type-checks the props without importing the story.
 Rerun it after adding, renaming or moving a story; `tests/components/tsconfig.json`
