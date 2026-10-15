@@ -70,7 +70,7 @@ runs:
               --arg major_version "$major_version" \
               --arg repo_type "feature" \
               --arg feature_ticket "$feature_ticket" \
-              --arg target "jfrog" \
+              --arg target "pulp" \
               '{
                 event_type: "create-feature-repositories",
                 client_payload: {
