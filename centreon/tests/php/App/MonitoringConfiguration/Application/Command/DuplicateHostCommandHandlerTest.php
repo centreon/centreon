@@ -79,7 +79,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new FakeHostRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->repository->resourceAccess;
         $this->eventBus = new EventBusSpy();
         $this->vault = new FakeVault();
         // Off by default: the secrets then copy verbatim, exercised by the relation-copying tests; the
@@ -164,7 +164,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     public function testThrowsNotFoundWhenSourceIsOutsideTheRestrictedDuplicatorScope(): void
     {
         $this->storeSourceHost(1, 'web');
-        $this->repository->accessibleHostIds = [];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
 
@@ -174,7 +174,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     public function testAnUnrestrictedDuplicatorIsNotScopedByAcl(): void
     {
         $this->storeSourceHost(1, 'web');
-        $this->repository->accessibleHostIds = [];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         ($this->handler)(new DuplicateHostCommand(new HostId(1), actor: TestActingUsers::unrestricted(42)));
 

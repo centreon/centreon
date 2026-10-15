@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -134,15 +133,12 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
             $qb->andWhere($qb->expr()->like('hg.hg_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        $actor = $criteria->getActor();
-        if ($actor instanceof ActingUser) {
-            $scope = $this->accessScopes->hostGroups($actor);
-            if (! $scope->isUnrestricted()) {
-                $qb->andWhere($qb->expr()->in(
-                    'hg.hg_id',
-                    $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
-                ));
-            }
+        $scope = $criteria->accessScope($this->accessScopes->hostGroups(...), HostGroupId::class);
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'hg.hg_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
     }
 

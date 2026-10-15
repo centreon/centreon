@@ -155,7 +155,9 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->hostSeverityRepository = new FakeHostSeverityRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->hostRepository->resourceAccess;
+        // A restricted actor sees the host under test, as they must to edit it.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(10)], HostId::class);
 
         $container->set(HostRepository::class, $this->hostRepository);
         $container->set(PollerRepository::class, $this->pollerRepository);
@@ -1114,8 +1116,8 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         foreach ([20, 21, 30, 31] as $relatedId) {
             $this->seedHost($relatedId, name: 'related-' . $relatedId);
         }
-        // Hosts 20 and 30 are visible to the actor; 21 and 31 belong to a scope they cannot see.
-        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(20), new HostId(30)], HostId::class);
+        // The host and its relations 20 and 30 are visible to the actor; 21 and 31 belong to a scope they cannot see.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(10), new HostId(20), new HostId(30)], HostId::class);
         $this->seedHost(
             10,
             parentHostIds: new Collection([new HostId(20), new HostId(21)], HostId::class),
@@ -1199,7 +1201,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         // 20 is a child of 21, the actor can see 20 but not 21.
         $this->seedHost(21, name: 'related-21');
         $this->seedHost(20, name: 'related-20', parentHostIds: new Collection([new HostId(21)], HostId::class));
-        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(20)], HostId::class);
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(10), new HostId(20)], HostId::class);
         $this->seedHost(10, childHostIds: new Collection([new HostId(21)], HostId::class));
 
         // Making 20 a parent of host 10 closes 10 -> 21 -> 20 -> 10 through the preserved child 21.

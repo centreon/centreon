@@ -44,8 +44,8 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
     /** @var AccessScope<PollerId> */
     public AccessScope $pollerScope;
 
-    /** How many times an access list has been loaded, for the host groups, the categories, the contacts and the contact groups. */
-    public int $accessListLoads = 0;
+    /** @var array<string, int> how many times each `find*AccessScope()` lookup ran */
+    public array $lookups = [];
 
     /** @var AccessScope<HostGroupId> */
     public AccessScope $hostGroupScope;
@@ -105,44 +105,50 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findHostSeverityAccessScope(UserId $userId): AccessScope
     {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
         return $this->hostSeverityScope;
     }
 
     public function findHostCategoryAccessScope(UserId $userId): AccessScope
     {
-        ++$this->accessListLoads;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
         return $this->hostCategoryScope;
     }
 
     public function findPollerAccessScope(UserId $userId): AccessScope
     {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
         return $this->pollerScope;
     }
 
     public function findHostGroupAccessScope(UserId $userId): AccessScope
     {
-        ++$this->accessListLoads;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
         return $this->hostGroupScope;
     }
 
     public function findContactAccessScope(UserId $userId): AccessScope
     {
-        ++$this->accessListLoads;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
         return AccessScope::restrictedTo(NotificationContactId::class, $this->accessibleContactIds);
     }
 
     public function findContactGroupAccessScope(UserId $userId): AccessScope
     {
-        ++$this->accessListLoads;
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
 
         return AccessScope::restrictedTo(ContactGroupId::class, $this->accessibleContactGroupIds);
     }
 
     public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope
     {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
         if (! $among instanceof Collection) {
             return AccessScope::restrictedTo(HostId::class, $this->accessibleHostIds);
         }
@@ -160,6 +166,8 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
+        $this->lookups[__FUNCTION__] = ($this->lookups[__FUNCTION__] ?? 0) + 1;
+
         return $this->imageFolderScope;
     }
 

@@ -61,11 +61,12 @@ final readonly class GetHostProvider implements ProviderInterface
 
         // An unrestricted actor sees every host; a restricted one is scoped in the query, and an
         // out-of-scope host comes back null, indistinguishable from a missing one (no existence leak).
-        $host = $this->hostRepository->findOne($hostId, $credentialUser->credential->actingUser());
+        $actor = $credentialUser->credential->actingUser();
+        $host = $this->hostRepository->findOne($hostId, $actor);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$hostId->value], 'id');
         }
 
-        return $this->resourceBuilder->build($host, $credentialUser->credential->actingUser());
+        return $this->resourceBuilder->build($host, $actor);
     }
 }

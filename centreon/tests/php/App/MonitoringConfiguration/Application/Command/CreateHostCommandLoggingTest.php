@@ -65,6 +65,7 @@ final class CreateHostCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['snmp_community']);
+        self::assertSame(['user_id' => '1', 'unrestricted_resource_access' => true], $sanitised['actor'], 'The acting user must stay readable in the logs.');
         // The rest of the payload still goes through, so the masking is targeted.
         self::assertArrayHasKey('name', $sanitised);
     }

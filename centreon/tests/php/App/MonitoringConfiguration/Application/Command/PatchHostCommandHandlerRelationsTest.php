@@ -137,7 +137,10 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->contactRepository = new FakeNotificationContactRepository();
         $this->serviceRepository = new FakeServiceRepository();
         $this->contactGroupRepository = new FakeContactGroupRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->repository->resourceAccess;
+        // A restricted actor sees the host under test, as they must to edit it.
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(self::HOST_ID)], HostId::class);
+
         $this->eventBus = new EventBusSpy();
         $vault = new FakeVault();
         $commandRepository = new FakeCommandRepository();
@@ -303,7 +306,8 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         ($this->handler)($this->command(actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
-        self::assertSame(0, $this->resourceAccessRepository->accessListLoads);
+        // Only the host itself is looked up: no relation changes, so no relation scope is loaded.
+        self::assertSame(['findHostAccessScope' => 1], $this->resourceAccessRepository->lookups);
     }
 
     public function testAnAccessListIsLoadedOnceForTheRelationThatChanges(): void
@@ -313,7 +317,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
         ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
-        self::assertSame(1, $this->resourceAccessRepository->accessListLoads);
+        self::assertSame(['findHostAccessScope' => 1, 'findHostGroupAccessScope' => 1], $this->resourceAccessRepository->lookups);
     }
 
     public function testCategoriesAreReplacedAndAnInaccessibleOneIsRejected(): void
@@ -348,7 +352,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     {
         $this->seedHost();
         $this->seedOtherHost(6);
-        $this->repository->accessibleHostIds = [self::HOST_ID];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([new HostId(self::HOST_ID)], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
 
@@ -361,7 +365,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $this->seedOtherHost(6);
         $this->seedOtherHost(7);
         $this->seedOtherHost(8);
-        $this->repository->accessibleHostIds = [self::HOST_ID, 7];
+        $this->repository->resourceAccess->accessibleHostIds = new Collection([new HostId(self::HOST_ID), new HostId(7)], HostId::class);
 
         $result = ($this->handler)($this->command(
             parentHostIds: ListChange::replace([new HostId(7)]),

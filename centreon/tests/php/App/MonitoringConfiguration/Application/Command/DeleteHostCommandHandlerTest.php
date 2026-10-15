@@ -82,7 +82,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
     {
         $host = $this->host();
         $this->hostRepository->add($host);
-        $this->hostRepository->accessibleHostIds = [];
+        $this->hostRepository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
 
@@ -97,7 +97,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
     {
         $host = $this->host();
         $this->hostRepository->add($host);
-        $this->hostRepository->accessibleHostIds = [];
+        $this->hostRepository->resourceAccess->accessibleHostIds = new Collection([], HostId::class);
 
         ($this->handler)(new DeleteHostCommand($host->id(), actor: TestActingUsers::unrestricted(1)));
 

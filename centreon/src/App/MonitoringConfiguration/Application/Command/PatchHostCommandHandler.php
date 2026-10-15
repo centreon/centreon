@@ -53,7 +53,6 @@ use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -92,11 +91,11 @@ final readonly class PatchHostCommandHandler
      */
     public function __invoke(PatchHostCommand $command): Host
     {
-        $host = $this->getHost($command, $command->actor);
+        $host = $this->getHost($command);
         // The references come before the name: a restricted actor must not be able to tell a duplicate
         // name from a resource they cannot access.
-        $this->assertReferencesExist($command, $command->actor);
-        $withRelations = $this->relations->applyTo($host, $command, $command->actor);
+        $this->assertReferencesExist($command);
+        $withRelations = $this->relations->applyTo($host, $command);
         $this->assertNameIsAvailable($command, $host);
         $this->assertArgumentsHaveACheckCommand($command, $host);
 
@@ -130,11 +129,11 @@ final readonly class PatchHostCommandHandler
         return $updatedHost;
     }
 
-    private function getHost(PatchHostCommand $command, ActingUser $actor): Host
+    private function getHost(PatchHostCommand $command): Host
     {
         // Actor-scoped: findOne returns null for a host outside the actor's ACL scope, the same as
         // a nonexistent one, so a restricted actor can never tell them apart.
-        $host = $this->repository->findOne($command->id, $actor);
+        $host = $this->repository->findOne($command->id, $command->actor);
         if (! $host instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
@@ -146,14 +145,14 @@ final readonly class PatchHostCommandHandler
      * The same rules ran on the input, earlier: this is the authoritative check, against what exists now.
      * The check command is not listed: loading it, for the Centreon Monitoring Agent rule, is its check.
      */
-    private function assertReferencesExist(PatchHostCommand $command, ActingUser $actor): void
+    private function assertReferencesExist(PatchHostCommand $command): void
     {
         if ($command->pollerId instanceof PollerId) {
-            $this->references->assertPollerAccessible($command->pollerId, $actor);
+            $this->references->assertPollerAccessible($command->pollerId, $command->actor);
         }
 
         if ($command->severityId instanceof HostSeverityId) {
-            $this->references->assertSeverityAccessible($command->severityId, $actor);
+            $this->references->assertSeverityAccessible($command->severityId, $command->actor);
         }
 
         if ($command->timezoneId instanceof TimezoneId) {

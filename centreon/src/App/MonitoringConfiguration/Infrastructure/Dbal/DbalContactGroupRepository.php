@@ -28,8 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\Security\Domain\Aggregate\AccessScope;
-use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
@@ -102,21 +100,16 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
             ->orderBy('cg.cg_id'); // required for deterministic pagination
 
         // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
-        // their access groups or their own membership. An unrestricted actor, or none, means no scoping.
-        $actor = $criteria->getActor();
-        $scope = $actor instanceof ActingUser
-            ? $this->accessScopes->contactGroups($actor)
-            : AccessScope::unrestricted(ContactGroupId::class);
-        if (! $scope->isUnrestricted()) {
-            if ($scope->allowedIdValues() === []) {
-                // No accessible contact group: match nothing, but keep the normal (paginator) shape.
-                $qb->andWhere('1 = 0');
-            } else {
-                $qb->andWhere($qb->expr()->in(
-                    'cg.cg_id',
-                    $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
-                ));
-            }
+        // their access groups or their own membership.
+        $scope = $criteria->accessScope($this->accessScopes->contactGroups(...), ContactGroupId::class);
+        if ($scope->allowsNothing()) {
+            // No accessible contact group: match nothing, but keep the normal (paginator) shape.
+            $qb->andWhere('1 = 0');
+        } elseif (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'cg.cg_id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
         $this->filterByCriteria($qb, $criteria);
 

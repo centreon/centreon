@@ -76,10 +76,10 @@ final class AccessibleContactsValidator extends ConstraintValidator
         $foundIds = array_keys($this->contactRepository->findNamesByIds($contactIds)->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        $scope = $this->accessScopes->contacts($credentialUser->credential->actingUser());
-        if (! $scope->isUnrestricted()) {
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
-        }
+        $missingIds = array_unique(array_merge(
+            $missingIds,
+            $this->accessScopes->contacts($credentialUser->credential->actingUser())->rejected($contactIds),
+        ));
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

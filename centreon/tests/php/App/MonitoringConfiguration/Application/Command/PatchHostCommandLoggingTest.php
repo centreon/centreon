@@ -56,6 +56,6 @@ final class PatchHostCommandLoggingTest extends TestCase
 
         self::assertIsArray($sanitised);
         self::assertSame('***', $sanitised['snmp_community']);
-        self::assertArrayHasKey('actor', $sanitised);
+        self::assertSame(['user_id' => '1', 'unrestricted_resource_access' => true], $sanitised['actor'], 'The acting user must stay readable in the logs.');
     }
 }

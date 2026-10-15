@@ -82,11 +82,38 @@ final readonly class AccessScope
     }
 
     /**
+     * Whether the scope is restricted to nothing at all.
+     */
+    public function allowsNothing(): bool
+    {
+        return ! $this->unrestricted && $this->allowedIdValues === [];
+    }
+
+    /**
      * @param T $id
      */
     public function allows(AggregateRootId $id): bool
     {
         return $this->unrestricted || isset($this->allowedIdValues[$id->value]);
+    }
+
+    /**
+     * The values of the given ids the scope does not allow.
+     *
+     * @param iterable<T> $ids
+     *
+     * @return list<int>
+     */
+    public function rejected(iterable $ids): array
+    {
+        $rejected = [];
+        foreach ($ids as $id) {
+            if (! $this->allows($id)) {
+                $rejected[$id->value] = $id->value;
+            }
+        }
+
+        return array_values($rejected);
     }
 
     /**
