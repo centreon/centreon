@@ -238,7 +238,9 @@ test.describe('check command', () => {
       })
     );
     // Only active check commands, as legacy offers.
-    const url = api.selectors['configuration/commands'].urls[0];
+    const url = api.selectors['configuration/hosts/commands'].urls[0];
+    // The host-scoped selector, granted by host write access.
+    expect(url.pathname).toContain('/api/configuration/hosts/commands');
     expect(url.searchParams.getAll('type[]')).toEqual(['Check']);
     expect(url.searchParams.get('is_activated')).toBe('true');
   });
@@ -346,7 +348,9 @@ test.describe('data processing', () => {
         }
       })
     );
-    const url = api.selectors['configuration/commands'].urls[0];
+    const url = api.selectors['configuration/hosts/commands'].urls[0];
+    // The host-scoped selector, granted by host write access.
+    expect(url.pathname).toContain('/api/configuration/hosts/commands');
     expect(url.pathname).not.toContain('/api/latest');
     expect(url.searchParams.get('is_activated')).toBe('true');
   });

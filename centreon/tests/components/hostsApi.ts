@@ -54,7 +54,7 @@ export interface HostsApi {
   listing: MockedEndpoint;
   patch: Record<0 | 1 | 2, MockedEndpoint>;
   resolution: MockedEndpoint;
-  /** Selector mocks, by endpoint path (e.g. 'configuration/commands'). */
+  /** Selector mocks, by endpoint path (e.g. 'configuration/hosts/commands'). */
   selectors: Record<string, MockedEndpoint>;
 }
 
@@ -119,7 +119,7 @@ export const mockHostsApi = async (
     ['configuration/hosts/host_templates', getFormHostTemplatesResponse()],
     ['configuration/hosts/medias', getMediasResponse()],
     ['configuration/timezones', getTimezonesResponse()],
-    ['configuration/commands', getCommandsResponse()],
+    ['configuration/hosts/commands', getCommandsResponse()],
     ['configuration/host_groups', getHostGroupsResponse()],
     ['configuration/pollers', getPollersResponse()],
     ['configuration/host_templates', getHostTemplatesResponse()]
