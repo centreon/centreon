@@ -11,9 +11,10 @@ The same split exists in `src/App/`. `MonitoringConfiguration/Domain/` has both 
 
 The terms, as agreed:
 
-- **Value object:** defined by its values, immutable.
+- **Value object:** defined by its values, immutable, self-validating and compared by value.
 - **Entity:** unique and identifiable.
-- **Aggregate:** a set of entities handled as one unit, entered through an identifiable **aggregate root**.
+- **Aggregate:** a cluster of associated objects (entities, value objects) handled as one unit, entered through an identifiable **aggregate root**.
+- **Read model:** a projection built for reading only. It has no identity, is never written and does not extend `AggregateRoot`.
 - **Model:** the wider concept that covers value objects, entities, aggregates and read models.
 
 An aggregate is a model; a model is not always an aggregate.
@@ -47,11 +48,12 @@ Domain/Model/
 │   └── Icon.php                     # value object, used by this aggregate only
 ├── BusinessActivityTree/
 │   ├── BusinessActivityTree.php     # aggregate root
+│   ├── BusinessActivityRootId.php   # value object, identifies the root
 │   ├── BusinessActivityNode.php     # entity
 │   └── Kpi.php                      # entity
 └── Timeline/
     ├── Timeline.php                 # read model, ordered collection of status bands
-    ├── StatusBand.php               # read model, one contiguous status segment
+    ├── StatusBand.php               # value object, one contiguous status segment
     └── TimelinePeriod.php           # value object, the requested time window
 ```
 
