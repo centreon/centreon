@@ -130,12 +130,10 @@ export const mockHostsApi = async (
   }
   // The macros each template lends; template 7 is unknown to the endpoint.
   for (const [id, response] of Object.entries(getTemplateMacrosResponses())) {
-    await mockApi({
-      endpoint: `configuration/hosts/host_templates/${id}`,
-      response
-    });
+    const endpoint = `configuration/hosts/host_templates/${id}`;
+    selectorMocks[endpoint] = await mockApi({ endpoint, response });
   }
-  await mockApi({
+  selectorMocks['configuration/hosts/host_templates/7'] = await mockApi({
     endpoint: 'configuration/hosts/host_templates/7',
     response: { code: 404, message: 'Host template not found' },
     status: 404
