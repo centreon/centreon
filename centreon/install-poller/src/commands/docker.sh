@@ -58,9 +58,10 @@ function _checkPodmanPrerequisites() {
       socket="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/podman/podman.sock"
       enable_cmd="systemctl --user enable --now podman.socket"
     fi
-    if [ ! -S "${socket}" ]; then
+    # Ping rather than test -S: the socket file outlives a stopped podman.socket.
+    if ! curl -sf --max-time 5 --unix-socket "${socket}" http://d/_ping >/dev/null 2>&1; then
       consoleError "'${COMPOSE_CMD[*]}' uses docker-compose, which needs the Podman API socket (${socket}). Enable it with: ${enable_cmd}"
-      logError "Podman API socket ${socket} not found."
+      logError "Podman API socket ${socket} not answering."
       ret=1
     fi
   fi
