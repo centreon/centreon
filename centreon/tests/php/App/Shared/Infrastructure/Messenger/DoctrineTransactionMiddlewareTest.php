@@ -20,7 +20,6 @@
  */
 
 declare(strict_types=1);
-declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Messenger;
 
@@ -79,7 +78,7 @@ final class DoctrineTransactionMiddlewareTest extends TestCase
         // "There is no active transaction", which must not replace the deadlock.
         $deadlock = new DeadlockException(
             new class ('Deadlock found when trying to get lock', 1213) extends \Exception implements \Doctrine\DBAL\Driver\Exception {
-                public function getSQLState(): ?string
+                public function getSQLState(): string
                 {
                     return '40001';
                 }
