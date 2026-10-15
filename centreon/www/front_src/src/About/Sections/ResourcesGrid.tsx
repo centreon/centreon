@@ -34,41 +34,50 @@ const ResourcesGrid = (): ReactElement => {
   const { t } = useTranslation();
 
   return (
-    <div className="border-t border-divider pt-3">
+    <div className="border-t border-divider pt-3" id="about-resources">
       <p className="mb-2 font-medium text-section-title">
         {t(labelGetMoreFromCentreon)}
       </p>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <ResourceCard
-          actionLabel={labelBrowseTheDocs}
-          description={labelDocumentationAndGuidesDescription}
-          href={links.docs}
-          Icon={HelpOutlineIcon}
-          title={labelDocumentationAndGuides}
-        />
-        <ResourceCard
-          actionLabel={labelJoinTheWatch}
-          description={labelTheWatchCommunityDescription}
-          href={links.watch}
-          Icon={TheWatchIcon}
-          title={labelTheWatchCommunity}
-        />
-        <ResourceCard
-          actionLabel={labelOpenTheRepository}
-          description={labelContributeOnGithubDescription}
-          href={links.github}
-          Icon={GitHubIcon}
-          title={labelContributeOnGithub}
-          tone="navy"
-        />
-        <ResourceCard
-          actionLabel={labelCompareEditions}
-          description={labelEditionsAndCloudDescription}
-          href={links.editions}
-          Icon={RocketLaunchIcon}
-          title={labelEditionsAndCloud}
-          tone="navy"
-        />
+      <div className="@container">
+        <div
+          className="grid grid-cols-1 gap-2 @xl:grid-cols-2"
+          id="about-resources-grid"
+        >
+          <ResourceCard
+            actionLabel={labelBrowseTheDocs}
+            description={labelDocumentationAndGuidesDescription}
+            href={links.docs}
+            Icon={HelpOutlineIcon}
+            id="about-resource-documentation"
+            title={labelDocumentationAndGuides}
+          />
+          <ResourceCard
+            actionLabel={labelJoinTheWatch}
+            description={labelTheWatchCommunityDescription}
+            href={links.watch}
+            Icon={TheWatchIcon}
+            id="about-resource-the-watch"
+            title={labelTheWatchCommunity}
+          />
+          <ResourceCard
+            actionLabel={labelOpenTheRepository}
+            description={labelContributeOnGithubDescription}
+            href={links.github}
+            Icon={GitHubIcon}
+            id="about-resource-github"
+            title={labelContributeOnGithub}
+            tone="navy"
+          />
+          <ResourceCard
+            actionLabel={labelCompareEditions}
+            description={labelEditionsAndCloudDescription}
+            href={links.editions}
+            Icon={RocketLaunchIcon}
+            id="about-resource-editions"
+            title={labelEditionsAndCloud}
+            tone="navy"
+          />
+        </div>
       </div>
     </div>
   );
