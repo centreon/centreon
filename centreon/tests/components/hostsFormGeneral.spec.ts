@@ -194,7 +194,28 @@ test.describe('existing host', () => {
       alias: 'alias of host 0 as the detail endpoint spells it',
       category_ids: [4],
       // The arguments go back as the list they came as.
-      check_options: { args: ['3', '80%'], command_id: 9 },
+      check_options: {
+        args: ['3', '80%'],
+        command_id: 9,
+        // A null value keeps the stored password; the untouched inherited
+        // macros are left out.
+        macros: [
+          {
+            id: 1,
+            is_password: false,
+            name: 'SNMPPORT',
+            parent: null,
+            value: '161'
+          },
+          {
+            id: 2,
+            is_password: true,
+            name: 'API_TOKEN',
+            parent: null,
+            value: null
+          }
+        ]
+      },
       child_host_ids: [2],
       // Never read back, so off as legacy opens an existing host.
       create_services_linked_to_templates: false,
@@ -553,12 +574,18 @@ test.describe('default monitoring server', () => {
     mount,
     page
   }) => {
-    const component = await setUp({ mockApi, mount }, { pollersDelay: 1500 });
+    // Long enough to land after the form opens, however slow the runner.
+    const pollers = page.waitForResponse((response) =>
+      response.url().includes('/configuration/hosts/pollers')
+    );
+    const component = await setUp({ mockApi, mount }, { pollersDelay: 5000 });
     await openCreation(component);
     await hostField(page, 'host-form-name').fill('srv-apache-02');
 
-    // Nothing visible changes when the response lands: give it time to.
-    await page.waitForTimeout(2000);
+    // Nothing visible changes when the response lands: wait for it, then
+    // give React a moment to apply it.
+    await pollers;
+    await page.waitForTimeout(500);
     // A late default would reinitialise the form; this one goes without.
     await expect(hostField(page, 'host-form-name')).toHaveValue(
       'srv-apache-02'

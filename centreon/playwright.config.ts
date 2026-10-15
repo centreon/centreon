@@ -4,7 +4,12 @@ const galleryPort = Number(process.env.GALLERY_PORT ?? 9093);
 const galleryUrl = `http://localhost:${galleryPort}/playwright/gallery/index.html`;
 
 export default defineConfig({
-  expect: { timeout: 10_000 },
+  expect: {
+    timeout: 10_000,
+    // Anti-aliasing differs slightly between machines (~1% of pixels at most
+    // between WSL and the CI runner); Cypress tolerated 7%.
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 }
+  },
   forbidOnly: Boolean(process.env.CI),
   fullyParallel: true,
   outputDir: './playwright/results/artifacts',

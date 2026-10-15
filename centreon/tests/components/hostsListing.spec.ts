@@ -354,8 +354,20 @@ test.describe('actions', () => {
 
       await expect
         .poll(() => api.patch[0].bodies)
-        .toEqual([{ activate: false }]);
+        // `activated`, the key the endpoint reads: any other is ignored.
+        .toEqual([{ activated: false }]);
       expect(api.patch[0].urls[0].pathname).not.toContain('/api/latest');
+    });
+
+    test('enables a deactivated host from the row toggle', async ({
+      mount
+    }) => {
+      const component = await mountHosts(mount);
+      await component.getByTestId(`${labelEnableDisable}_1`).click();
+
+      await expect
+        .poll(() => api.patch[1].bodies)
+        .toEqual([{ activated: true }]);
     });
 
     test('offers the massive actions, and no massive change', async ({
@@ -385,7 +397,7 @@ test.describe('actions', () => {
 
       await expect
         .poll(() => api.patch[2].bodies)
-        .toEqual([{ activate: false }]);
+        .toEqual([{ activated: false }]);
     });
 
     test('deploys the services of the selected host', async ({

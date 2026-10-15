@@ -15,6 +15,7 @@ import {
   getListingResponse,
   getMediasResponse,
   getPollersResponse,
+  getTemplateMacrosResponses,
   getTimePeriodsResponse,
   getTimezonesResponse,
   refusedAddressResponse,
@@ -127,6 +128,18 @@ export const mockHostsApi = async (
   for (const [endpoint, response] of selectors) {
     selectorMocks[endpoint] = await mockApi({ endpoint, response });
   }
+  // The macros each template lends; template 7 is unknown to the endpoint.
+  for (const [id, response] of Object.entries(getTemplateMacrosResponses())) {
+    await mockApi({
+      endpoint: `configuration/hosts/host_templates/${id}`,
+      response
+    });
+  }
+  await mockApi({
+    endpoint: 'configuration/hosts/host_templates/7',
+    response: { code: 404, message: 'Host template not found' },
+    status: 404
+  });
   // Granted by write access only, as the API does.
   await mockApi({
     delay: pollersDelay,

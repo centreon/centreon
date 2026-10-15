@@ -5,7 +5,7 @@ import {
   labelCreateServicesLinkedToTemplates,
   labelInvalidGeographicCoordinates
 } from '../../www/front_src/src/Configuration/Hosts/translatedLabels';
-import { expect, test } from './fixtures';
+import { expect, moveSortable, test } from './fixtures';
 import {
   clearAutocomplete,
   fillMandatoryFields,
@@ -26,9 +26,11 @@ const iconPreview = (page: Page) =>
   page.getByTestId(extended('icon-preview')).locator('img');
 const servicesToggle = (page: Page) =>
   page.getByLabel(labelCreateServicesLinkedToTemplates, { exact: true });
-const addTemplateRow = (page: Page) =>
-  page.getByRole('button', { exact: true, name: labelAddNewEntry }).click();
 const templates = (page: Page) => page.getByTestId('host-form-templates');
+// The macros list has its own "Add new entry" button.
+const addTemplateButton = (page: Page) =>
+  templates(page).getByRole('button', { exact: true, name: labelAddNewEntry });
+const addTemplateRow = (page: Page) => addTemplateButton(page).click();
 
 test.describe('extended infos and severity', () => {
   test('opens an existing host on them', async ({ mockApi, mount, page }) => {
@@ -286,7 +288,7 @@ test.describe('templates', () => {
     );
   });
 
-  test('cannot be changed by a read-only user', async ({
+  test('templates and macros cannot be changed by a read-only user', async ({
     mockApi,
     mount,
     page
@@ -298,8 +300,16 @@ test.describe('templates', () => {
     await openHost(component, 'host 0');
 
     await expect(hostField(page, 'host-form-templates-0')).toBeDisabled();
+    await expect(addTemplateButton(page)).toBeDisabled();
     await expect(
-      page.getByRole('button', { exact: true, name: labelAddNewEntry })
+      page
+        .getByTestId('host-form-check-options-macros')
+        .getByRole('button', { exact: true, name: labelAddNewEntry })
+    ).toBeDisabled();
+    await expect(
+      page.locator(
+        'input[data-testid="host-form-check-options-macros-0-value"]'
+      )
     ).toBeDisabled();
     await expect(
       templates(page).getByTestId('delete-row').first()
@@ -361,14 +371,7 @@ test.describe('templates', () => {
     const handles = templates(page).getByTestId('drag-handle');
     await expect(handles).toHaveCount(2);
 
-    // dnd-kit's keyboard sensor: pick up, move, drop.
-    const handle = handles.first();
-    await handle.focus();
-    await page.keyboard.press('Space');
-    await expect(handle).toHaveAttribute('aria-pressed', 'true');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('Space');
-    await expect(handle).not.toHaveAttribute('aria-pressed', 'true');
+    await moveSortable(page, handles.first(), 'ArrowDown');
     await expect(hostField(page, 'host-form-templates-0')).toHaveValue(
       'generic-active-host'
     );
@@ -411,9 +414,7 @@ test.describe('templates', () => {
     );
     await openCreation(component);
 
-    await expect(
-      page.getByRole('button', { exact: true, name: labelAddNewEntry })
-    ).toBeVisible();
+    await expect(addTemplateButton(page)).toBeVisible();
     await expect(servicesToggle(page)).toHaveCount(0);
   });
 });

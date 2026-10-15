@@ -148,3 +148,30 @@ export const test = base.extend<ComponentFixtures>({
 export { expect };
 export type MockApi = ComponentFixtures['mockApi'];
 export type { MockedEndpoint };
+
+// Keyboard drag and drop of dnd-kit sortables (cy.moveSortableElement). The
+// live region announces the pick up once the items are measured: a key pressed
+// before that is lost. A move may announce nothing new (moving over the
+// item's own slot), so moves only wait briefly for an announcement.
+export const moveSortable = async (
+  page: Page,
+  handle: Locator,
+  key: 'ArrowDown' | 'ArrowUp',
+  times = 1
+): Promise<void> => {
+  const announcements = page.locator('[id^="DndLiveRegion"]');
+  const announced = (): Promise<string> =>
+    announcements.allTextContents().then((texts) => texts.join('|'));
+  const press = async (pressed: string, timeout?: number): Promise<void> => {
+    const before = await announced();
+    await page.keyboard.press(pressed);
+    await expect.poll(announced, { timeout }).not.toBe(before);
+  };
+
+  await handle.focus();
+  await press('Space');
+  for (let move = 0; move < times; move += 1) {
+    await press(key, 1_000).catch(() => undefined);
+  }
+  await press('Space');
+};

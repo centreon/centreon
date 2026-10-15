@@ -42,7 +42,7 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../../www/front_src/src/Authentication/translatedLabels';
-import { expect, test } from './fixtures';
+import { expect, moveSortable, test } from './fixtures';
 
 // Migrated from Authentication/SAML/SAMLConfiguration.
 const storyId = 'Authentication/Authentication/SAML';
@@ -231,13 +231,13 @@ test('sorts the roles relations with the keyboard', async ({ mount, page }) => {
   await all(component, labelAclAccessGroup).nth(1).click();
   await pickOption(page, 'Access Group 1');
 
-  // Keyboard drag and drop of dnd-kit, as cy.moveSortableElement did.
-  const handle = sortHandle(component).nth(1).locator('..');
-  await handle.focus();
-  await page.keyboard.press('Space');
-  await page.keyboard.press('ArrowUp');
-  await page.keyboard.press('ArrowUp');
-  await page.keyboard.press('Space');
+  // The first move only reaches the row's own slot.
+  await moveSortable(
+    page,
+    sortHandle(component).nth(1).locator('..'),
+    'ArrowUp',
+    2
+  );
 
   await expect(all(component, labelRoleValue).first()).toHaveValue('A role');
   await expect(all(component, labelAclAccessGroup).first()).toHaveValue(

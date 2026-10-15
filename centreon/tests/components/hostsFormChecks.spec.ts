@@ -1,9 +1,6 @@
 import type { Page } from '@playwright/test';
 
-import {
-  untouchedCheckOptionsPayload,
-  untouchedSchedulingOptionsPayload
-} from '../../www/front_src/src/Configuration/Hosts/Specs/utils';
+import { untouchedSchedulingOptionsPayload } from '../../www/front_src/src/Configuration/Hosts/Specs/utils';
 import {
   labelMustBeIntegerOfAtLeastOne,
   labelMustBePositiveIntegerOrZero,
@@ -233,7 +230,7 @@ test.describe('check command', () => {
     await expect.poll(() => api.creation.bodies.length).toBe(1);
     expect(api.creation.bodies[0]).toEqual(
       expect.objectContaining({
-        check_options: { args: ['3', '80%'], command_id: 9 },
+        check_options: { args: ['3', '80%'], command_id: 9, macros: [] },
         scheduling_options: {
           ...untouchedSchedulingOptionsPayload,
           check_timeperiod_id: 2
@@ -266,7 +263,7 @@ test.describe('check command', () => {
     await expect.poll(() => api.patch[0].bodies.length).toBe(1);
     expect(api.patch[0].bodies[0]).toEqual(
       expect.objectContaining({
-        check_options: untouchedCheckOptionsPayload
+        check_options: expect.objectContaining({ args: [], command_id: null })
       })
     );
   });
