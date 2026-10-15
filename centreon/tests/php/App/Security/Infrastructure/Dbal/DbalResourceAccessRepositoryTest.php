@@ -221,6 +221,15 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertEquals([101], $accessiblePollerIds->allowedIdValues());
     }
 
+    public function testAPollerRelationWithoutPollerIsIgnored(): void
+    {
+        // `poller_id` is nullable: a relation left without poller grants nothing, and must not break the lookup.
+        $contactId = $this->createContact('user-null-poller');
+        $this->linkContactToAclResourceForPollers($contactId, restrictToPollerIds: [101, null]);
+
+        self::assertSame([101], $this->repository->findPollerAccessScope(new UserId($contactId))->allowedIdValues());
+    }
+
     /**
      * Mirrors centreonACL::setPollers(): the accessible poller set is the union of poller
      * relations across every accessible ACL resource. A resource that carries no poller
@@ -346,6 +355,15 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $accessibleHostGroupIds = $this->repository->findHostGroupAccessScope($userId);
         self::assertFalse($accessibleHostGroupIds->isUnrestricted());
         self::assertEquals([201], $accessibleHostGroupIds->allowedIdValues());
+    }
+
+    public function testAHostGroupRelationWithoutHostGroupIsIgnored(): void
+    {
+        // `hg_hg_id` is nullable: a relation left without host group grants nothing, and must not break the lookup.
+        $contactId = $this->createContact('user-null-host-group');
+        $this->linkContactToAclResourceForHostGroups($contactId, restrictToHostGroupIds: [201, null], allHostGroups: false);
+
+        self::assertSame([201], $this->repository->findHostGroupAccessScope(new UserId($contactId))->allowedIdValues());
     }
 
     /**
@@ -826,7 +844,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
-     * @param list<int> $restrictToPollerIds empty means the ACL resource carries no poller restriction at all
+     * @param list<int|null> $restrictToPollerIds empty means the ACL resource carries no poller restriction at all
      */
     private function linkContactToAclResourceForPollers(int $contactId, array $restrictToPollerIds): void
     {
@@ -863,8 +881,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
-     * @param list<int> $restrictToHostGroupIds host groups explicitly granted through this
-     *                                          resource's relations; irrelevant once $allHostGroups is true
+     * @param list<int|null> $restrictToHostGroupIds host groups explicitly granted through this
+     *                                               resource's relations; irrelevant once $allHostGroups is true
      */
     private function linkContactToAclResourceForHostGroups(int $contactId, array $restrictToHostGroupIds, bool $allHostGroups): void
     {
