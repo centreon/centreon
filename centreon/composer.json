@@ -30,16 +30,16 @@
     "beberlei/assert": "3.3.*",
     "curl/curl": "2.5.*",
     "doctrine/annotations": "1.14.*",
-    "doctrine/dbal": "4.4.*",
+    "doctrine/dbal": "4.5.*",
     "doctrine/doctrine-bundle": "3.3.*",
     "dragonmantank/cron-expression": "3.6.*",
-    "enshrined/svg-sanitize": "0.22.*",
-    "firebase/php-jwt": "7.1.*",
+    "enshrined/svg-sanitize": "1.0.*",
+    "firebase/php-jwt": "7.2.*",
     "friendsofsymfony/rest-bundle": "3.9.*",
     "godruoyi/php-snowflake": "3.2.*",
     "jms/serializer-bundle": "5.5.*",
     "justinrainbow/json-schema": "5.3.*",
-    "monolog/monolog": "3.10.*",
+    "monolog/monolog": "3.12.*",
     "nelmio/cors-bundle": "2.6.*",
     "onelogin/php-saml": "4.3.*",
     "openpsa/quickform": "3.4.*",
@@ -68,7 +68,7 @@
     "symfony/lock": "8.1.*",
     "symfony/messenger": "8.1.*",
     "symfony/mime": "8.1.*",
-    "symfony/monolog-bundle": "4.0.*",
+    "symfony/monolog-bundle": "4.1.*",
     "symfony/process": "8.1.*",
     "symfony/property-access": "8.1.*",
     "symfony/property-info": "8.1.*",
@@ -81,10 +81,10 @@
     "symfony/uid": "8.1.*",
     "symfony/validator": "8.1.*",
     "symfony/yaml": "8.1.*",
-    "webmozart/assert": "1.11.*"
+    "webmozart/assert": "1.12.*"
   },
   "require-dev": {
-    "dama/doctrine-test-bundle": "8.6.*",
+    "dama/doctrine-test-bundle": "8.7.*",
     "mockery/mockery": "1.6.*",
     "pestphp/pest": "3.*",
     "php-vfs/php-vfs": "1.4.*",
@@ -95,7 +95,7 @@
     "symfony/stopwatch": "8.1.*",
     "symfony/var-dumper": "8.1.*",
     "symfony/web-profiler-bundle": "8.1.*",
-    "zircote/swagger-php": "4.10.*"
+    "zircote/swagger-php": "4.11.*"
   },
   "replace": {
     "paragonie/random_compat": "2.*",
