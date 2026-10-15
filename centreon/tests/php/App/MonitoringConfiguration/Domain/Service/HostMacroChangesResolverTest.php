@@ -41,6 +41,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\Shared\Domain\Collection;
@@ -278,6 +279,68 @@ final class HostMacroChangesResolverTest extends TestCase
         self::assertSame([], $macros);
     }
 
+    public function testOnlyTheLastOfADirectMacroSentTwiceIsKept(): void
+    {
+        $current = [$this->direct(5, 'foo', 'old')];
+
+        // Id 5 under no parent refers to a single macro: the last change sent for it wins.
+        $macros = $this->resolver->resolve([
+            $this->change('foo', 'a', id: 5),
+            $this->change('bar', 'b', id: 5),
+        ], $current, $this->inherited);
+
+        self::assertSame(['BAR'], $this->names($macros));
+        self::assertSame(5, $macros[0]->id?->value);
+        self::assertSame('b', $macros[0]->value);
+    }
+
+    public function testOnlyTheLastOfAnInheritedMacroSentTwiceIsKept(): void
+    {
+        $macros = $this->resolver->resolve([
+            $this->change('tplval', 'first', id: 11, parent: HostMacroParentEnum::Template),
+            $this->change('tplval', 'second', id: 11, parent: HostMacroParentEnum::Template),
+        ], [], $this->inherited);
+
+        self::assertCount(1, $macros);
+        self::assertSame('second', $macros[0]->value);
+    }
+
+    public function testOnlyTheLastOfACommandMacroSentTwiceIsKeptWhateverItsIds(): void
+    {
+        // A command macro is referenced by name: its id is not reliable, so two ids are one macro.
+        $macros = $this->resolver->resolve([
+            $this->change('cmd', 'first', id: 31, parent: HostMacroParentEnum::Command),
+            $this->change('cmd', 'last', id: 99, parent: HostMacroParentEnum::Command),
+        ], [], $this->inherited);
+
+        self::assertCount(1, $macros);
+        self::assertSame('last', $macros[0]->value);
+    }
+
+    public function testTheSameIdUnderAnotherParentIsAnotherMacro(): void
+    {
+        // The parent is the id namespace: direct macro 11 and template macro 11 are two macros.
+        $current = [$this->direct(11, 'own', 'old')];
+
+        $macros = $this->resolver->resolve([
+            $this->change('own', 'new', id: 11),
+            $this->change('tplval', 'overridden', id: 11, parent: HostMacroParentEnum::Template),
+        ], $current, $this->inherited);
+
+        self::assertSame(['OWN', 'TPLVAL'], $this->names($macros));
+    }
+
+    public function testNewMacrosAreNeverMergedTogether(): void
+    {
+        // Without an id, a change refers to no stored macro: none is dropped as a repeat.
+        $macros = $this->resolver->resolve([
+            $this->change('one', 'a'),
+            $this->change('two', 'b'),
+        ], [], $this->inherited);
+
+        self::assertSame(['ONE', 'TWO'], $this->names($macros));
+    }
+
     public function testAnUnknownDirectOrTemplateIdIsRejected(): void
     {
         try {
@@ -318,6 +381,63 @@ final class HostMacroChangesResolverTest extends TestCase
             [],
             $this->inherited,
         );
+    }
+
+    public function testADirectPasswordCannotBecomePlain(): void
+    {
+        $current = [$this->direct(5, 'pwd', self::HOST_SECRET, isPassword: true)];
+
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve([$this->change('pwd', 'clear', id: 5)], $current, $this->inherited);
+    }
+
+    public function testAnInheritedPasswordCannotBecomePlain(): void
+    {
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve(
+            [$this->change('tplpwd', 'clear', id: 12, parent: HostMacroParentEnum::Template)],
+            [],
+            $this->inherited,
+        );
+    }
+
+    public function testAnInheritedPasswordCannotBeOverriddenByANewPlainMacro(): void
+    {
+        // Without its id, the same name still shadows the inherited password.
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve([$this->change('tplpwd', 'clear')], [], $this->inherited);
+    }
+
+    public function testAnInheritedPasswordCannotBeOverriddenByARenamedPlainMacro(): void
+    {
+        $current = [$this->direct(5, 'plain', 'x')];
+
+        $this->expectException(HostMacroPasswordUnmaskedException::class);
+
+        $this->resolver->resolve([$this->change('tplpwd', 'x', id: 5)], $current, $this->inherited);
+    }
+
+    public function testAPlainMacroAlreadyShadowingAnInheritedPasswordCanBeEchoedBack(): void
+    {
+        // Legacy data: the override predates the rule, and resending it introduces nothing.
+        $current = [$this->direct(5, 'tplpwd', 'clear')];
+
+        $macros = $this->resolver->resolve([$this->change('tplpwd', 'clear', id: 5)], $current, $this->inherited);
+
+        self::assertSame(['TPLPWD'], $this->names($macros));
+        self::assertFalse($macros[0]->isPassword);
+    }
+
+    public function testAPlainMacroCanBecomeAPassword(): void
+    {
+        $current = [$this->direct(5, 'plain', 'x')];
+
+        $macros = $this->resolver->resolve([$this->change('plain', 'x', isPassword: true, id: 5)], $current, $this->inherited);
+
+        self::assertTrue($macros[0]->isPassword);
     }
 
     private function change(

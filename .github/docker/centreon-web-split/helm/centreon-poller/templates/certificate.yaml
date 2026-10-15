@@ -13,7 +13,12 @@ metadata:
     {{- include "centreon-poller.labels" $ | nindent 4 }}
 spec:
   secretName: {{ include "centreon-poller.otelTlsSecret" $ }}
-  commonName: {{ first .dnsNames | quote }}
+  {{- with first .dnsNames }}
+  {{- if le (len .) 64 }}
+  # X.509 caps the CN at 64 chars; agents check the SAN (dnsNames) anyway.
+  commonName: {{ . | quote }}
+  {{- end }}
+  {{- end }}
   dnsNames:
     {{- toYaml .dnsNames | nindent 4 }}
   duration: {{ .duration }}

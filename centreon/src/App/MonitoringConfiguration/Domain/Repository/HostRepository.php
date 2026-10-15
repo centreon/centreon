@@ -99,6 +99,14 @@ interface HostRepository
     public function replaceRelationsAndMacros(Host $host): void;
 
     /**
+     * Writes the host's direct macros in place, leaving everything else as it is: a macro the host
+     * already stores keeps its id and is updated, any other is inserted as a new macro of the host,
+     * and a stored macro no longer listed is deleted. A silent no-op on an unknown id or a host
+     * template.
+     */
+    public function replaceMacros(Host $host): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *
