@@ -366,10 +366,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
-        // Updating a host writes rows that reference its poller (foreign key, shared lock) and clears then
-        // rewrites its relations (gap locks), and the poller is flagged later in the same transaction, which
-        // needs it exclusively. Concurrent updates would each hold their share while waiting for the other's:
-        // a deadlock. Taking the exclusive lock first makes the second update wait instead.
+        // Concurrent updates of hosts deadlock: each one clears then rewrites its relations (a DELETE then an
+        // INSERT on the relation tables, which take gap locks that the other insert then waits for), and a
+        // move to another poller also takes a shared lock on that poller row, which the poller flag raised
+        // later in the transaction needs exclusively. Locking the poller row first makes the updates of the
+        // hosts of one poller run one after the other. Hosts of different pollers are not serialized with
+        // each other, and a move still flags the previous poller without having locked it.
         $this->lockPoller($host->pollerId->value);
 
         $qb = $this->connection->createQueryBuilder();
