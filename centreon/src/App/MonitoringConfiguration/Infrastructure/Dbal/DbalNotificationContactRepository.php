@@ -28,8 +28,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -61,7 +62,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         #[Autowire(service: NotificationContactTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -92,14 +93,12 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
 
     public function findAll(NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $accessibleContactIds = null;
         $actor = $criteria->getActor();
-        $accessibleContacts = $actor instanceof ActingUser ? $this->resourceAccessRepository->findAccessibleContactIds($actor) : null;
-        if ($accessibleContacts instanceof Collection) {
-            $accessibleContactIds = array_map(static fn (NotificationContactId $id): int => $id->value, $accessibleContacts->toArray());
-            if ($accessibleContactIds === []) {
-                return $this->emptyResult($criteria);
-            }
+        $scope = $actor instanceof ActingUser
+            ? $this->accessScopes->contacts($actor)
+            : AccessScope::unrestricted(NotificationContactId::class);
+        if (! $scope->isUnrestricted() && $scope->allowedIdValues() === []) {
+            return $this->emptyResult($criteria);
         }
 
         $qb = $this->connection->createQueryBuilder();
@@ -113,10 +112,10 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
             ->orderBy('c.contact_name') // alphabetical order for a name-based selector
             ->addOrderBy('c.contact_id'); // deterministic pagination if two contacts share a name
 
-        if ($accessibleContactIds !== null) {
+        if (! $scope->isUnrestricted()) {
             $qb->andWhere($qb->expr()->in(
                 'c.contact_id',
-                $qb->createNamedParameter($accessibleContactIds, ArrayParameterType::INTEGER)
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
             ));
         }
 

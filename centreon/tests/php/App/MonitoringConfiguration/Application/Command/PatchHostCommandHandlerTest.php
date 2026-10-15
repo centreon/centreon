@@ -85,6 +85,7 @@ use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -171,6 +172,7 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->mediaRepository,
                 $this->commandRepository,
                 $this->resourceAccessRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
             ),
             new HostRelationsUpdater(
                 new FakeHostGroupRepository(),
@@ -179,7 +181,7 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->repository,
                 new FakeNotificationContactRepository(),
                 new FakeContactGroupRepository(),
-                $this->resourceAccessRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, new FakeServiceRepository(), $this->eventBus),
             new HostMacrosUpdater(

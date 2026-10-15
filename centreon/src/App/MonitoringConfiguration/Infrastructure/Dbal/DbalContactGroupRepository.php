@@ -28,8 +28,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -61,7 +62,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         private Connection $connection,
         #[Autowire(service: ContactGroupTransformer::class)]
         private TransformerInterface $transformer,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -103,16 +104,17 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         // ACL data-scoping: a non-admin actor only sees the contact groups reachable through
         // their access groups or their own membership. An unrestricted actor, or none, means no scoping.
         $actor = $criteria->getActor();
-        $accessibleContactGroupIds = $actor instanceof ActingUser ? $this->resourceAccessRepository->findAccessibleContactGroupIds($actor) : null;
-        if ($accessibleContactGroupIds instanceof Collection) {
-            $accessibleIds = array_map(static fn (ContactGroupId $id): int => $id->value, $accessibleContactGroupIds->toArray());
-            if ($accessibleIds === []) {
+        $scope = $actor instanceof ActingUser
+            ? $this->accessScopes->contactGroups($actor)
+            : AccessScope::unrestricted(ContactGroupId::class);
+        if (! $scope->isUnrestricted()) {
+            if ($scope->allowedIdValues() === []) {
                 // No accessible contact group: match nothing, but keep the normal (paginator) shape.
                 $qb->andWhere('1 = 0');
             } else {
                 $qb->andWhere($qb->expr()->in(
                     'cg.cg_id',
-                    $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
+                    $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
                 ));
             }
         }

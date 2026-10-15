@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalMediaRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\MediaTransformer;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
@@ -57,7 +58,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->repository = new DbalMediaRepository(
             $this->connection,
             new MediaTransformer(),
-            new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection))),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded media

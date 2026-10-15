@@ -29,7 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -58,7 +58,7 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         private Connection $connection,
         #[Autowire(service: DbalHostGroupTransformer::class)]
         private TransformerInterface $transformer,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -136,16 +136,11 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
 
         $actor = $criteria->getActor();
         if ($actor instanceof ActingUser) {
-            $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor);
-            if ($accessibleHostGroupIds instanceof Collection) {
-                $ids = [];
-                foreach ($accessibleHostGroupIds as $hostGroupId) {
-                    $ids[] = $hostGroupId->value;
-                }
-
+            $scope = $this->accessScopes->hostGroups($actor);
+            if (! $scope->isUnrestricted()) {
                 $qb->andWhere($qb->expr()->in(
                     'hg.hg_id',
-                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
+                    $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
                 ));
             }
         }

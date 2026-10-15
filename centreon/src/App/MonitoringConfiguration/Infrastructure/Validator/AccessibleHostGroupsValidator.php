@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -48,7 +48,7 @@ final class AccessibleHostGroupsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostGroupRepository $hostGroupRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -77,10 +77,9 @@ final class AccessibleHostGroupsValidator extends ConstraintValidator
         $foundIds = array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($credentialUser->credential->actingUser());
-        if ($accessibleIds instanceof Collection) {
-            $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
+        $scope = $this->accessScopes->hostGroups($credentialUser->credential->actingUser());
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
         }
 
         if ($missingIds !== []) {

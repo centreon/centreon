@@ -45,6 +45,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResour
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -2936,7 +2937,7 @@ final class CreateHostProcessorTest extends ApiTestCase
             $mediaRepository,
             $mediaUrlGenerator,
             $timePeriodRepository,
-            $resourceAccessRepository,
+            new AccessScopeResolver($resourceAccessRepository),
             $macroTransformer,
             new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
             $isCloudPlatform,

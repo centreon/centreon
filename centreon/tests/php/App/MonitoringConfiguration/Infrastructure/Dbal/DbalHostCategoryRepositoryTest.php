@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostCategoryTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -60,7 +61,7 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostCategoryRepository(
             $this->connection,
             new HostCategoryTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host categories

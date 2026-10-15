@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -47,7 +47,7 @@ final class AccessibleContactsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly NotificationContactRepository $contactRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -76,10 +76,9 @@ final class AccessibleContactsValidator extends ConstraintValidator
         $foundIds = array_keys($this->contactRepository->findNamesByIds($contactIds)->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleContactIds($credentialUser->credential->actingUser());
-        if ($accessibleIds instanceof Collection) {
-            $accessibleIdValues = array_map(static fn (NotificationContactId $id): int => $id->value, $accessibleIds->toArray());
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
+        $scope = $this->accessScopes->contacts($credentialUser->credential->actingUser());
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
         }
 
         if ($missingIds !== []) {

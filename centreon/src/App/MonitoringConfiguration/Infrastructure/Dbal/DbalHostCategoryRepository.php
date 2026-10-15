@@ -29,7 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -61,7 +61,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         #[Autowire(service: HostCategoryTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -145,18 +145,14 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             return;
         }
 
-        $accessibleHostCategories = $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor);
-        // null means no host-category restriction applies — the actor sees every category.
-        if (! $accessibleHostCategories instanceof Collection) {
+        $scope = $this->accessScopes->hostCategories($actor);
+        if ($scope->isUnrestricted()) {
             return;
         }
 
-        $accessibleHostCategoryIds = array_map(
-            static fn (HostCategoryId $hostCategoryId): int => $hostCategoryId->value,
-            $accessibleHostCategories->toArray()
-        );
+        $accessibleHostCategoryIds = $scope->allowedIdValues();
 
-        // A non-null but empty set means the actor is restricted on host categories yet granted
+        // An empty scope means the actor is restricted on host categories yet granted
         // none (e.g. their ACL points only at severities): they see nothing. Mirrors legacy, where
         // hasRestrictedAccessToHostCategories is true but findAllByAccessGroupIds returns no row.
         if ($accessibleHostCategoryIds === []) {
@@ -165,7 +161,7 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             return;
         }
 
-        // Restrict to categories the actor can access. findAccessibleHostCategoryIds already scopes
+        // Restrict to categories the actor can access. findHostCategoryAccessScope already scopes
         // the set to levelless categories, so it never carries a severity id.
         $qb->andWhere(
             'hc.hc_id IN (' . $qb->createNamedParameter(

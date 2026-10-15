@@ -31,7 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
@@ -97,96 +97,64 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         return $this->unrestrictedPollerAccess;
     }
 
-    public function findAccessibleHostSeverityIds(ActingUser $actor): ?Collection
+    public function findHostSeverityAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        return $this->accessibleHostSeverityIds;
+        return $this->accessibleHostSeverityIds instanceof Collection ? AccessScope::restrictedTo(HostSeverityId::class, $this->accessibleHostSeverityIds) : AccessScope::unrestricted(HostSeverityId::class);
     }
 
-    public function findAccessibleHostCategoryIds(ActingUser $actor): ?Collection
+    public function findHostCategoryAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
         ++$this->accessListLoads;
 
-        return $this->accessibleHostCategoryIds;
+        return $this->accessibleHostCategoryIds instanceof Collection ? AccessScope::restrictedTo(HostCategoryId::class, $this->accessibleHostCategoryIds) : AccessScope::unrestricted(HostCategoryId::class);
     }
 
-    public function findAccessiblePollerIds(ActingUser $actor): ?Collection
+    public function findPollerAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        return null;
+        return AccessScope::unrestricted(PollerId::class);
     }
 
-    public function findAccessibleHostGroupIds(ActingUser $actor): ?Collection
+    public function findHostGroupAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
         ++$this->accessListLoads;
 
-        return $this->accessibleHostGroupIds;
+        return $this->accessibleHostGroupIds instanceof Collection ? AccessScope::restrictedTo(HostGroupId::class, $this->accessibleHostGroupIds) : AccessScope::unrestricted(HostGroupId::class);
     }
 
-    public function findAccessibleContactIds(ActingUser $actor): ?Collection
+    public function findContactAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
         ++$this->accessListLoads;
 
-        return $this->accessibleContactIds;
+        return AccessScope::restrictedTo(NotificationContactId::class, $this->accessibleContactIds);
     }
 
-    public function findAccessibleContactGroupIds(ActingUser $actor): ?Collection
+    public function findContactGroupAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
         ++$this->accessListLoads;
 
-        return $this->accessibleContactGroupIds;
+        return AccessScope::restrictedTo(ContactGroupId::class, $this->accessibleContactGroupIds);
     }
 
-    public function findAccessibleHostIds(ActingUser $actor, ?Collection $among = null): ?Collection
+    public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
         if (! $among instanceof Collection) {
-            return $this->accessibleHostIds;
+            return AccessScope::restrictedTo(HostId::class, $this->accessibleHostIds);
         }
 
         $amongIds = array_map(static fn (HostId $id): int => $id->value, $among->toArray());
 
-        return new Collection(
+        return AccessScope::restrictedTo(HostId::class, new Collection(
             array_values(array_filter(
                 $this->accessibleHostIds->toArray(),
                 static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
             )),
             HostId::class,
-        );
+        ));
     }
 
-    public function findAccessibleImageFolderIds(ActingUser $actor): ?Collection
+    public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        return $this->accessibleImageFolderIds;
+        return $this->accessibleImageFolderIds instanceof Collection ? AccessScope::restrictedTo(MediaDirectoryId::class, $this->accessibleImageFolderIds) : AccessScope::unrestricted(MediaDirectoryId::class);
     }
 
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void

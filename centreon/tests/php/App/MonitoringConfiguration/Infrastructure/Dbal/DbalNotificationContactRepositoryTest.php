@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\Notificatio
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationContactRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\NotificationContactTransformer;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -56,7 +57,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         $this->repository = new DbalNotificationContactRepository(
             $this->connection,
             new NotificationContactTransformer(),
-            new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection))),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded contacts

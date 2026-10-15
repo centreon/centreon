@@ -28,11 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostCategories;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostCategoriesValidator;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -91,7 +93,7 @@ final class AccessibleHostCategoriesValidatorTest extends ConstraintValidatorTes
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostCategoryRepository->method('findNamesByIds')->willReturn(new Collection([5 => new HostCategoryName('Production')], HostCategoryName::class));
-        $this->resourceAccessRepository->method('findAccessibleHostCategoryIds')->willReturn(new Collection([new HostCategoryId(9)], HostCategoryId::class));
+        $this->resourceAccessRepository->method('findHostCategoryAccessScope')->willReturn(AccessScope::restrictedTo(HostCategoryId::class, [new HostCategoryId(9)]));
 
         $constraint = new AccessibleHostCategories();
         $this->validator->validate([5], $constraint);
@@ -103,7 +105,7 @@ final class AccessibleHostCategoriesValidatorTest extends ConstraintValidatorTes
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostCategoryRepository->method('findNamesByIds')->willReturn(new Collection([5 => new HostCategoryName('Production')], HostCategoryName::class));
-        $this->resourceAccessRepository->method('findAccessibleHostCategoryIds')->willReturn(null);
+        $this->resourceAccessRepository->method('findHostCategoryAccessScope')->willReturn(AccessScope::unrestricted(HostCategoryId::class));
 
         $this->validator->validate([5], new AccessibleHostCategories());
 
@@ -112,7 +114,7 @@ final class AccessibleHostCategoriesValidatorTest extends ConstraintValidatorTes
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AccessibleHostCategoriesValidator($this->security, $this->hostCategoryRepository, $this->resourceAccessRepository);
+        return new AccessibleHostCategoriesValidator($this->security, $this->hostCategoryRepository, new AccessScopeResolver($this->resourceAccessRepository));
     }
 
     private function createCredentialUser(bool $isAdmin): CredentialUser

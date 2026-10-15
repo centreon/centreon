@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -46,7 +46,7 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostCategoryRepository $hostCategoryRepository,
-        private readonly ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -74,10 +74,9 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
 
         $missingIds = array_diff($requestedIds, array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()));
 
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostCategoryIds($credentialUser->credential->actingUser());
-        if ($accessibleIds instanceof Collection) {
-            $accessibleIdValues = array_map(static fn (HostCategoryId $id): int => $id->value, $accessibleIds->toArray());
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
+        $scope = $this->accessScopes->hostCategories($credentialUser->credential->actingUser());
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
         }
 
         if ($missingIds !== []) {
