@@ -25,8 +25,8 @@ namespace App\Security\Domain\Aggregate;
 
 /**
  * The user performing an action, as other bounded contexts need it to scope by ACL: who they are,
- * and whether they escape resource scoping. A snapshot of {@see Credential}, which stays within
- * the Security context.
+ * and whether they escape resource scoping. A snapshot of the {@see Credential} it is built from,
+ * without its roles and permissions.
  */
 final readonly class ActingUser
 {

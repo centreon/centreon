@@ -386,6 +386,32 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         ($this->handler)($this->command(parentHostIds: ListChange::add([new HostId(99)])));
     }
 
+    public function testAnUnrestrictedReplacementDropsAParentThatIsNotAHost(): void
+    {
+        // 99 is not a host (a host template, say): an unrestricted actor sees it, and so replaces it.
+        $this->seedHost(parentIds: [99]);
+        $this->seedOtherHost(6);
+
+        $result = ($this->handler)($this->command(parentHostIds: ListChange::replace([new HostId(6)])));
+
+        self::assertSame([6], $this->ids($result->parentHostIds));
+    }
+
+    public function testARestrictedReplacementKeepsAParentThatIsNotAHost(): void
+    {
+        // 99 is not a host the restricted actor can reach, so it is out of their sight and left in place.
+        $this->seedHost(parentIds: [99]);
+        $this->seedOtherHost(6);
+        $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId(self::HOST_ID), new HostId(6)], HostId::class);
+
+        $result = ($this->handler)($this->command(
+            parentHostIds: ListChange::replace([new HostId(6)]),
+            actor: TestActingUsers::restricted(self::ACTOR_ID),
+        ));
+
+        self::assertSame([6, 99], $this->ids($result->parentHostIds));
+    }
+
     public function testAHostCannotBeItsOwnParent(): void
     {
         $this->seedHost();

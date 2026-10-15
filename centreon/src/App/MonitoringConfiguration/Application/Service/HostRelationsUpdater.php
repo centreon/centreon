@@ -205,10 +205,7 @@ final readonly class HostRelationsUpdater
      */
     private function assertHostGroupsAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = array_values(array_unique([
-            ...$this->unknownIds($ids, array_keys($this->hostGroupRepository->findNamesByIds(new Collection($ids, HostGroupId::class))->toArray())),
-            ...$scope->rejected($ids),
-        ]));
+        $missingIds = $scope->missing($ids, array_keys($this->hostGroupRepository->findNamesByIds(new Collection($ids, HostGroupId::class))->toArray()));
 
         if ($missingIds !== []) {
             throw new HostGroupNotFoundException(['hostGroupIds' => $missingIds]);
@@ -234,10 +231,7 @@ final readonly class HostRelationsUpdater
      */
     private function assertCategoriesAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = array_values(array_unique([
-            ...$this->unknownIds($ids, array_keys($this->hostCategoryRepository->findNamesByIds(new Collection($ids, HostCategoryId::class))->toArray())),
-            ...$scope->rejected($ids),
-        ]));
+        $missingIds = $scope->missing($ids, array_keys($this->hostCategoryRepository->findNamesByIds(new Collection($ids, HostCategoryId::class))->toArray()));
 
         if ($missingIds !== []) {
             throw new HostCategoryNotFoundException($missingIds);
@@ -262,8 +256,8 @@ final readonly class HostRelationsUpdater
      * The parent and child hosts, both resolved against one lookup of the hosts the update involves: the
      * ones this host is linked to, and the ones the update brings or removes. Among them, those that do
      * not exist or the actor cannot see are left in place by a replacement and left alone by a removal,
-     * like the other scoped relations. A dangling relation (a deleted host) stays visible to an
-     * unrestricted actor, so that a replacement drops it.
+     * like the other scoped relations. A relation to anything that is not a host (a host template, say)
+     * stays visible to an unrestricted actor, so that a replacement drops it.
      *
      * @return array{NoValue|Collection<HostId>, NoValue|Collection<HostId>}
      */
@@ -308,10 +302,7 @@ final readonly class HostRelationsUpdater
      */
     private function assertContactsAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = array_values(array_unique([
-            ...$this->unknownIds($ids, array_keys($this->contactRepository->findNamesByIds(new Collection($ids, NotificationContactId::class))->toArray())),
-            ...$scope->rejected($ids),
-        ]));
+        $missingIds = $scope->missing($ids, array_keys($this->contactRepository->findNamesByIds(new Collection($ids, NotificationContactId::class))->toArray()));
 
         if ($missingIds !== []) {
             throw new NotificationContactNotFoundException($missingIds);
@@ -324,10 +315,7 @@ final readonly class HostRelationsUpdater
      */
     private function assertContactGroupsAccessible(array $ids, AccessScope $scope): void
     {
-        $missingIds = array_values(array_unique([
-            ...$this->unknownIds($ids, array_keys($this->contactGroupRepository->findNamesByIds(new Collection($ids, ContactGroupId::class))->toArray())),
-            ...$scope->rejected($ids),
-        ]));
+        $missingIds = $scope->missing($ids, array_keys($this->contactGroupRepository->findNamesByIds(new Collection($ids, ContactGroupId::class))->toArray()));
 
         if ($missingIds !== []) {
             throw new ContactGroupNotFoundException($missingIds);

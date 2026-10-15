@@ -507,11 +507,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         ];
     }
 
-    public function findAccessibleNamesByIds(Collection $ids, ActingUser $actor): Collection
-    {
-        return $this->findNamesByIds($this->accessScopes->hosts($actor, $ids)->filter($ids));
-    }
-
     public function findNamesByIds(Collection $ids): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());

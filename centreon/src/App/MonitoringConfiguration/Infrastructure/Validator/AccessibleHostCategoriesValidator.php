@@ -72,12 +72,10 @@ final class AccessibleHostCategoriesValidator extends ConstraintValidator
             HostCategoryId::class,
         );
 
-        $missingIds = array_diff($requestedIds, array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()));
-
-        $missingIds = array_unique(array_merge(
-            $missingIds,
-            $this->accessScopes->hostCategories($credentialUser->credential->actingUser())->rejected($categoryIds),
-        ));
+        $missingIds = $this->accessScopes->hostCategories($credentialUser->credential->actingUser())->missing(
+            $categoryIds,
+            array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

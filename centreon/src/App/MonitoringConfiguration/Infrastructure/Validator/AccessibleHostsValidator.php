@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Validator;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -45,6 +46,7 @@ final class AccessibleHostsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostRepository $hostRepository,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -69,7 +71,11 @@ final class AccessibleHostsValidator extends ConstraintValidator
             array_map(static fn (int $id): HostId => new HostId($id), $requestedIds),
             HostId::class,
         );
-        if (array_diff($requestedIds, array_keys($this->hostRepository->findAccessibleNamesByIds($hostIds, $credentialUser->credential->actingUser())->toArray())) !== []) {
+        $missingIds = $this->accessScopes->hosts($credentialUser->credential->actingUser(), $hostIds)->missing(
+            $hostIds,
+            array_keys($this->hostRepository->findNamesByIds($hostIds)->toArray()),
+        );
+        if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }

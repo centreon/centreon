@@ -69,13 +69,10 @@ final class AccessibleContactGroupsValidator extends ConstraintValidator
             ContactGroupId::class,
         );
 
-        $foundIds = array_keys($this->contactGroupRepository->findNamesByIds($contactGroupIds)->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        $missingIds = array_unique(array_merge(
-            $missingIds,
-            $this->accessScopes->contactGroups($credentialUser->credential->actingUser())->rejected($contactGroupIds),
-        ));
+        $missingIds = $this->accessScopes->contactGroups($credentialUser->credential->actingUser())->missing(
+            $contactGroupIds,
+            array_keys($this->contactGroupRepository->findNamesByIds($contactGroupIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();

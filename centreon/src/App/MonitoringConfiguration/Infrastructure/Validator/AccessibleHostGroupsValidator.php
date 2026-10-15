@@ -74,13 +74,10 @@ final class AccessibleHostGroupsValidator extends ConstraintValidator
             HostGroupId::class,
         );
 
-        $foundIds = array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        $missingIds = array_unique(array_merge(
-            $missingIds,
-            $this->accessScopes->hostGroups($credentialUser->credential->actingUser())->rejected($hostGroupIds),
-        ));
+        $missingIds = $this->accessScopes->hostGroups($credentialUser->credential->actingUser())->missing(
+            $hostGroupIds,
+            array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
             $this->context->buildViolation($constraint->message)->addViolation();
