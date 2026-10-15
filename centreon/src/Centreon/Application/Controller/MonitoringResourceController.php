@@ -122,6 +122,17 @@ class MonitoringResourceController extends AbstractController
     }
 
     /**
+     * Build uri to access the Business Activity monitoring page
+     *
+     * @param int $baId
+     * @return string
+     */
+    public function buildBaDetailsUri(int $baId): string
+    {
+        return $this->getBaseUri() . '/monitoring/bam/bas/' . $baId;
+    }
+
+    /**
      * Build uri to access service panel
      *
      * @param int $hostId
