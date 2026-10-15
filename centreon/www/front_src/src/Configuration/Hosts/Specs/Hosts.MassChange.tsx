@@ -193,12 +193,28 @@ export default () => {
         .should('have.text', labelTemplateReplacementDeletesServices)
         // The Tailwind warning tokens win over MUI's typography.
         .and('have.css', 'color', 'rgb(177, 108, 27)')
-        // `warning-light` at 50%, which Tailwind mixes in oklab.
-        .and(
-          'have.css',
-          'background-color',
-          'oklab(0.856093 0.0350919 0.0997632 / 0.5)'
-        );
+        .then((warning) => {
+          // Compared with the same class rendered alone, so the browser's own
+          // rounding of the 50% mix does not matter.
+          const reference = document.createElement('div');
+          reference.className = 'bg-warning-light/50';
+          warning[0].ownerDocument.body.appendChild(reference);
+
+          expect(warning.css('background-color')).to.equal(
+            getComputedStyle(reference).backgroundColor
+          );
+          expect(warning.css('background-color')).to.not.equal(
+            'rgba(0, 0, 0, 0)'
+          );
+
+          reference.remove();
+        });
+      // Apply takes the warning colour too.
+      cy.findByTestId('confirm').should(
+        'have.css',
+        'background-color',
+        'rgb(253, 155, 39)'
+      );
 
       cy.makeSnapshot();
 
