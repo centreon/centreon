@@ -26,18 +26,24 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
 use App\MonitoringConfiguration\Application\Command\ExtendedInformationsChanges;
+use App\MonitoringConfiguration\Application\Command\ListChange;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
@@ -104,6 +110,18 @@ final readonly class PatchHostCommandFactory
                 $this->required($input->notifications),
                 $payload->section('notifications'),
             )),
+            templateIds: $this->listChange($payload, 'template_ids', $input->templateIds, $input->templateIdsToAdd, $input->templateIdsToRemove, static fn (int $id): HostTemplateId => new HostTemplateId($id)),
+            hostGroupIds: $this->listChange($payload, 'host_group_ids', $input->hostGroupIds, $input->hostGroupIdsToAdd, $input->hostGroupIdsToRemove, static fn (int $id): HostGroupId => new HostGroupId($id)),
+            categoryIds: $this->listChange($payload, 'category_ids', $input->categoryIds, $input->categoryIdsToAdd, $input->categoryIdsToRemove, static fn (int $id): HostCategoryId => new HostCategoryId($id)),
+            parentHostIds: $this->listChange($payload, 'parent_host_ids', $input->parentHostIds, $input->parentHostIdsToAdd, $input->parentHostIdsToRemove, static fn (int $id): HostId => new HostId($id)),
+            childHostIds: $this->listChange($payload, 'child_host_ids', $input->childHostIds, $input->childHostIdsToAdd, $input->childHostIdsToRemove, static fn (int $id): HostId => new HostId($id)),
+            contactIds: $input->notifications instanceof PatchHostNotificationsInput
+                ? $this->listChange($payload->section('notifications'), 'contacts', $input->notifications->contacts, $input->notifications->contactsToAdd, $input->notifications->contactsToRemove, static fn (int $id): NotificationContactId => new NotificationContactId($id))
+                : new NoValue(),
+            contactGroupIds: $input->notifications instanceof PatchHostNotificationsInput
+                ? $this->listChange($payload->section('notifications'), 'contact_groups', $input->notifications->contactGroups, $input->notifications->contactGroupsToAdd, $input->notifications->contactGroupsToRemove, static fn (int $id): ContactGroupId => new ContactGroupId($id))
+                : new NoValue(),
+            deployServicesFromTemplates: $input->createServicesLinkedToTemplates ?? false,
             viewerId: $viewerId,
         );
     }
@@ -160,7 +178,7 @@ final readonly class PatchHostCommandFactory
     {
         return new NotificationsChanges(
             enabled: $this->provided($sent, 'enabled', static fn (): TriStateEnum => $data->enabled !== null ? TriStateEnum::from($data->enabled) : TriStateEnum::UseDefault),
-            options: $this->provided($sent, 'options', static fn (): array => array_map(NotificationOptionEnumResolver::toDomain(...), $data->options)),
+            options: $this->listChange($sent, 'options', $data->options, $data->optionsToAdd, $data->optionsToRemove, NotificationOptionEnumResolver::toDomain(...)),
             interval: $this->provided($sent, 'interval', static fn (): ?int => $data->interval),
             periodId: $this->provided($sent, 'timeperiod_id', static fn (): ?TimePeriodId => $data->timeperiodId !== null ? new TimePeriodId($data->timeperiodId) : null),
             firstDelay: $this->provided($sent, 'first_delay', static fn (): ?int => $data->firstDelay),
@@ -168,6 +186,30 @@ final readonly class PatchHostCommandFactory
             contactAdditiveInheritance: $this->provided($sent, 'contact_additive_inheritance', static fn (): bool => $data->contactAdditiveInheritance),
             contactGroupAdditiveInheritance: $this->provided($sent, 'contact_group_additive_inheritance', static fn (): bool => $data->contactGroupAdditiveInheritance),
         );
+    }
+
+    /**
+     * How the update changes a list, from the one of its three keys that was sent: the key itself
+     * replaces the list, with `_to_add` it is added to, with `_to_remove` it is removed from.
+     *
+     * @template U of int|string
+     * @template T
+     *
+     * @param list<U> $replacement
+     * @param list<U> $addition
+     * @param list<U> $removal
+     * @param \Closure(U): T $toValue
+     *
+     * @return NoValue|ListChange<T>
+     */
+    private function listChange(RequestPayload $sent, string $key, array $replacement, array $addition, array $removal, \Closure $toValue): NoValue|ListChange
+    {
+        return match (true) {
+            $sent->has($key) => ListChange::replace(array_map($toValue, array_values($replacement))),
+            $sent->has($key . '_to_add') => ListChange::add(array_map($toValue, array_values($addition))),
+            $sent->has($key . '_to_remove') => ListChange::remove(array_map($toValue, array_values($removal))),
+            default => new NoValue(),
+        };
     }
 
     /**

@@ -23,25 +23,16 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Validator\Constraints;
 
+use App\Shared\Infrastructure\ApiPlatform\CurrentRequestPayload;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 final class NotNullWhenProvidedValidator extends ConstraintValidator
 {
-    private readonly CamelCaseToSnakeCaseNameConverter $nameConverter;
-
-    private ?Request $payloadRequest = null;
-
-    private ?RequestPayload $payload = null;
-
-    public function __construct(private readonly RequestStack $requestStack)
+    public function __construct(private readonly CurrentRequestPayload $currentPayload)
     {
-        $this->nameConverter = new CamelCaseToSnakeCaseNameConverter();
     }
 
     public function validate(mixed $value, Constraint $constraint): void
@@ -54,57 +45,17 @@ final class NotNullWhenProvidedValidator extends ConstraintValidator
             return;
         }
 
-        $request = $this->requestStack->getCurrentRequest();
-        $path = $this->context->getPropertyPath();
-        if (! $request instanceof Request || $path === '') {
-            return;
-        }
-
-        $steps = $this->stepsOf($path);
+        $payload = $this->currentPayload->get();
+        $steps = RequestPayload::steps($this->context->getPropertyPath());
         $last = array_pop($steps);
-        if ($last === null) {
+        if (! $payload instanceof RequestPayload || $last === null) {
             return;
         }
 
-        $payload = $this->payloadOf($request);
-        foreach ($steps as $step) {
-            $payload = is_int($step) ? $payload->item($step) : $payload->section($step);
-        }
-
+        $payload = $payload->walk($steps);
         $isNull = is_int($last) ? $payload->itemIsNull($last) : $payload->isNull($last);
         if ($isNull) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
-    }
-
-    /**
-     * The path of a property in the body, as the keys to walk down and the indexes of the lists crossed
-     * on the way: `macros[0].name` gives `macros`, 0, `name`.
-     *
-     * @return list<int|string>
-     */
-    private function stepsOf(string $path): array
-    {
-        preg_match_all('/\[(?<index>\d+)\]|(?<key>[^.\[\]]+)/', $path, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
-
-        $steps = [];
-        foreach ($matches as $match) {
-            $steps[] = $match['key'] !== null ? $this->nameConverter->normalize($match['key']) : (int) $match['index'];
-        }
-
-        return $steps;
-    }
-
-    /**
-     * Decoded once per request, however many properties carry the constraint.
-     */
-    private function payloadOf(Request $request): RequestPayload
-    {
-        if (! $this->payload instanceof RequestPayload || $this->payloadRequest !== $request) {
-            $this->payloadRequest = $request;
-            $this->payload = RequestPayload::fromRequest($request);
-        }
-
-        return $this->payload;
     }
 }
