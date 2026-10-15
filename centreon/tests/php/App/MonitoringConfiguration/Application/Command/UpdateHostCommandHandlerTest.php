@@ -78,6 +78,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostMacroNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroPasswordUnmaskedException;
 use App\MonitoringConfiguration\Domain\Exception\HostMacroValueRequiredException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostCategoryRepository;
@@ -1042,6 +1043,19 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class)));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostServicesDeploymentRequested::class));
+    }
+
+    public function testItReportsAnUnknownTemplateSubmittedTwiceOnce(): void
+    {
+        $this->addPoller(1);
+        $this->seedHost(10);
+
+        try {
+            ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(404), new HostTemplateId(404)], HostTemplateId::class)));
+            self::fail('An unknown template must be rejected.');
+        } catch (HostTemplateNotFoundException $e) {
+            self::assertSame(['templateIds' => [404]], $e->criteria);
+        }
     }
 
     public function testItRequestsTheCleanupOfTheServicesOfARemovedTemplate(): void

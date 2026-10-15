@@ -693,10 +693,10 @@ final readonly class UpdateHostCommandHandler
             return;
         }
 
-        $missingIds = array_values(array_diff(
+        $missingIds = array_values(array_unique(array_diff(
             array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()),
             array_keys($this->hostTemplateRepository->findNamesByIds($templateIds)->toArray()),
-        ));
+        )));
 
         if ($missingIds !== []) {
             throw new HostTemplateNotFoundException($missingIds);

@@ -968,6 +968,18 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->relationCommand($poller->id(), templateIds: [404]));
     }
 
+    public function testItReportsAnUnknownTemplateSubmittedTwiceOnce(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        try {
+            ($this->handler)($this->relationCommand($poller->id(), templateIds: [404, 404]));
+            self::fail('An unknown template must be rejected.');
+        } catch (HostTemplateNotFoundException $e) {
+            self::assertSame(['templateIds' => [404]], $e->criteria);
+        }
+    }
+
     public function testItRejectsAnUnknownParentHost(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
