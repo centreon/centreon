@@ -154,6 +154,17 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame('a-real-host', $hosts[0]->name->value);
     }
 
+    public function testItCountsEveryHostButNotTheTemplates(): void
+    {
+        $before = $this->repository->countAll();
+        $pollerId = $this->createPoller('Central');
+        $this->createHostTemplate('a-template');
+        $this->createHost('an-enabled-host', $pollerId);
+        $this->createHost('a-disabled-host', $pollerId, activated: false);
+
+        self::assertSame($before + 2, $this->repository->countAll());
+    }
+
     public function testItFiltersByNameUsingLike(): void
     {
         $pollerId = $this->createPoller('Central');

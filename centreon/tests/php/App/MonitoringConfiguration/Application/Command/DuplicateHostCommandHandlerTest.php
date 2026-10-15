@@ -25,7 +25,9 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostCommandHandler;
+use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -59,7 +61,8 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -99,13 +102,16 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             new VaultCredentialWriter($this->vault),
             $this->eventBus,
             $this->logger,
-            new HostTemplateLicenseGuard(new FakeUnlicensedHostTemplates()),
+            new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
+                new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
+                new FakeMonitoringConnectorTemplateRepository(),
+            )),
         );
     }
 
     protected function tearDown(): void
     {
-        FakeUnlicensedHostTemplates::reset();
+        FakeMonitoringConnectorTemplateRepository::reset();
         parent::tearDown();
     }
 
@@ -468,7 +474,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $this->storeSourceHost(1, 'web');
         $this->vault->vaultEnabled = true;
-        FakeUnlicensedHostTemplates::restrict(5);
+        FakeMonitoringConnectorTemplateRepository::restrict(5);
 
         try {
             ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));

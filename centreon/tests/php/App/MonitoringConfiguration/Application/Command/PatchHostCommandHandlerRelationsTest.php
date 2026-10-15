@@ -28,12 +28,14 @@ use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
 use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -89,6 +91,8 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
@@ -96,7 +100,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceRepositor
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeStandardMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimePeriodRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -162,7 +165,10 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->contactRepository,
                 $this->contactGroupRepository,
                 $this->resourceAccessRepository,
-                new HostTemplateLicenseGuard(new FakeUnlicensedHostTemplates()),
+                new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
+                    new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
+                    new FakeMonitoringConnectorTemplateRepository(),
+                )),
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
             new HostMacrosUpdater(
@@ -190,7 +196,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     protected function tearDown(): void
     {
-        FakeUnlicensedHostTemplates::reset();
+        FakeMonitoringConnectorTemplateRepository::reset();
         parent::tearDown();
     }
 
@@ -676,7 +682,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testItKeepsTemplatesTheLicenseNoLongerAllows(): void
     {
         $this->seedHost(templateIds: [1, 2]);
-        FakeUnlicensedHostTemplates::restrict(1, 2);
+        FakeMonitoringConnectorTemplateRepository::restrict(1, 2);
 
         $replaced = ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2), new HostTemplateId(1)])));
         self::assertSame([2, 1], $this->ids($replaced->templateIds));
@@ -702,7 +708,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testItRejectsAddingATemplateTheLicenseNoLongerAllows(ListChange $change): void
     {
         $this->seedHost(templateIds: [1]);
-        FakeUnlicensedHostTemplates::restrict(1, 3);
+        FakeMonitoringConnectorTemplateRepository::restrict(1, 3);
 
         try {
             ($this->handler)($this->command(templateIds: $change));

@@ -112,10 +112,10 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -194,7 +194,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
 
     protected function tearDown(): void
     {
-        FakeUnlicensedHostTemplates::reset();
+        FakeMonitoringConnectorTemplateRepository::reset();
         parent::tearDown();
     }
 
@@ -1143,7 +1143,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         foreach ([7, 8] as $id) {
             $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('template-' . $id), new Collection([], HostMacro::class));
         }
-        FakeUnlicensedHostTemplates::restrict(8);
+        FakeMonitoringConnectorTemplateRepository::restrict(8);
 
         try {
             ($this->handler)($this->relationCommand($poller->id(), templateIds: [7, 8]));
@@ -1159,7 +1159,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('template-7'), new Collection([], HostMacro::class));
-        FakeUnlicensedHostTemplates::restrict(8);
+        FakeMonitoringConnectorTemplateRepository::restrict(8);
 
         $host = ($this->handler)($this->relationCommand($poller->id(), templateIds: [7]));
 

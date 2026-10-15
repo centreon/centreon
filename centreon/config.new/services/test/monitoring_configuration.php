@@ -21,13 +21,13 @@
 
 declare(strict_types=1);
 
+use App\MonitoringConfiguration\Domain\Repository\MonitoringConnectorTemplateRepository;
 use App\MonitoringConfiguration\Domain\Service\DnsResolver;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
-use App\MonitoringConfiguration\Domain\Service\UnlicensedHostTemplates;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeDnsResolver;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
 
 /*
  * Test-env service bindings for the App\MonitoringConfiguration module.
@@ -46,8 +46,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DnsResolver::class, FakeDnsResolver::class)
         ->arg('$records', ['localhost' => '127.0.0.1']);
 
-    // The test database has neither the license manager nor the plugin pack manager: the tests
-    // choose the templates the license restricts (DbalUnlicensedHostTemplatesTest covers the real one).
-    $services->set(UnlicensedHostTemplates::class, FakeUnlicensedHostTemplates::class)
+    // The test database has neither the license manager nor the plugin pack manager: the host limit
+    // is always reached, and the tests choose the templates of the paid Monitoring Connectors
+    // (DbalMonitoringConnectorTemplateRepositoryTest covers the real repository).
+    $services->set(MonitoringConnectorTemplateRepository::class, FakeMonitoringConnectorTemplateRepository::class)
         ->public();
 };

@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
-use App\MonitoringConfiguration\Domain\Service\UnlicensedHostTemplates;
 use App\Shared\Domain\Collection;
 
 /**

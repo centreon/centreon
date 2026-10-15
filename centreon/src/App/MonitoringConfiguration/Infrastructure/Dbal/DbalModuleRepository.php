@@ -21,19 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Service;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
+use Doctrine\DBAL\Connection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-interface UnlicensedHostTemplates
+final readonly class DbalModuleRepository implements ModuleRepository
 {
-    /**
-     * The host templates a host can no longer be given because the platform's license host limit is
-     * reached: the templates of the paid Monitoring Connectors and every template inheriting from
-     * them. Empty when the limit is not reached.
-     *
-     * @return Collection<HostTemplateId>
-     */
-    public function findIds(): Collection;
+    public function __construct(
+        #[Autowire(service: 'doctrine.dbal.default_connection')]
+        private Connection $connection,
+    ) {
+    }
+
+    public function isInstalled(string $name): bool
+    {
+        return $this->connection->fetchOne(
+            'SELECT 1 FROM modules_informations WHERE name = :name',
+            ['name' => $name],
+        ) !== false;
+    }
 }

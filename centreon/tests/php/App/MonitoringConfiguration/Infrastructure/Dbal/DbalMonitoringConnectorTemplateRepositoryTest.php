@@ -24,9 +24,8 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Infrastructure\Dbal\DbalUnlicensedHostTemplates;
-use App\Shared\Domain\License\HostLicenseLimitInterface;
-use App\Shared\Domain\License\LicenseCheckInterface;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalMonitoringConnectorTemplateRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
@@ -35,7 +34,7 @@ use Symfony\Component\Uid\Uuid;
  * The plugin pack manager tables belong to its module, absent from the test database: they are
  * created as temporary tables, which neither commit the test's transaction nor outlive it.
  */
-final class DbalUnlicensedHostTemplatesTest extends KernelTestCase
+final class DbalMonitoringConnectorTemplateRepositoryTest extends KernelTestCase
 {
     private Connection $connection;
 
@@ -82,11 +81,11 @@ final class DbalUnlicensedHostTemplatesTest extends KernelTestCase
         parent::tearDown();
     }
 
-    public function testItReturnsThePaidConnectorTemplatesAndTheirChildrenOnceTheLimitIsReached(): void
+    public function testItReturnsTheConnectorTemplatesAndTheTemplatesInheritingFromThem(): void
     {
-        $this->installModules();
+        $this->installPluginPackManager();
 
-        $ids = $this->findIds(maxHosts: $this->countHosts());
+        $ids = $this->findTemplateIds(['base-generic']);
 
         self::assertContains($this->paidTemplateId, $ids);
         self::assertContains($this->paidChildTemplateId, $ids);
@@ -94,101 +93,46 @@ final class DbalUnlicensedHostTemplatesTest extends KernelTestCase
         self::assertNotContains($this->standaloneTemplateId, $ids);
     }
 
-    public function testItReturnsNothingWhileTheLicenseAllowsMoreHosts(): void
+    public function testItReturnsEveryConnectorTemplateWithoutExcludedConnectors(): void
     {
-        $this->installModules();
+        $this->installPluginPackManager();
 
-        self::assertSame([], $this->findIds(maxHosts: $this->countHosts() + 1));
-    }
+        $ids = $this->findTemplateIds([]);
 
-    public function testItReturnsNothingWhenTheLicenseAllowsAnyNumberOfHosts(): void
-    {
-        $this->installModules();
-
-        self::assertSame([], $this->findIds(maxHosts: null));
-    }
-
-    public function testTheLimitIsReachedWhenTheLicenseIsInvalid(): void
-    {
-        $this->installModules();
-
-        self::assertContains($this->paidTemplateId, $this->findIds(maxHosts: null, valid: false));
-    }
-
-    public function testTheLimitIsReachedWithoutTheLicenseManager(): void
-    {
-        $this->installModules(licenseManager: false);
-
-        self::assertContains($this->paidTemplateId, $this->findIds(maxHosts: null));
-
-        $repository = new DbalUnlicensedHostTemplates($this->connection);
-        self::assertContains($this->paidTemplateId, $this->toIntegers($repository));
+        self::assertContains($this->paidTemplateId, $ids);
+        self::assertContains($this->freeTemplateId, $ids);
+        self::assertNotContains($this->standaloneTemplateId, $ids);
     }
 
     public function testItReturnsNothingWithoutThePluginPackManager(): void
     {
-        $this->installModules(pluginPackManager: false);
+        $this->installPluginPackManager(installed: false);
 
-        self::assertSame([], $this->findIds(maxHosts: 0, valid: false));
+        self::assertSame([], $this->findTemplateIds([]));
     }
 
-    private function installModules(bool $pluginPackManager = true, bool $licenseManager = true): void
+    private function installPluginPackManager(bool $installed = true): void
     {
-        // The test database may already list them: only the requested ones are kept.
-        $this->connection->executeStatement(
-            "DELETE FROM modules_informations WHERE name IN ('centreon-pp-manager', 'centreon-license-manager')"
-        );
-        if ($pluginPackManager) {
+        // The test database may already list it: only the requested state is kept.
+        $this->connection->executeStatement("DELETE FROM modules_informations WHERE name = 'centreon-pp-manager'");
+        if ($installed) {
             $this->connection->insert('modules_informations', ['name' => 'centreon-pp-manager']);
         }
-        if ($licenseManager) {
-            $this->connection->insert('modules_informations', ['name' => 'centreon-license-manager']);
-        }
     }
 
     /**
+     * @param list<string> $excludedSlugs
+     *
      * @return list<int>
      */
-    private function findIds(?int $maxHosts, bool $valid = true): array
+    private function findTemplateIds(array $excludedSlugs): array
     {
-        $licenseCheck = new class ($valid) implements LicenseCheckInterface {
-            public function __construct(private readonly bool $valid)
-            {
-            }
+        $repository = new DbalMonitoringConnectorTemplateRepository($this->connection, new DbalModuleRepository($this->connection));
 
-            public function isValid(string $product, bool $hostCheck = true): bool
-            {
-                return $this->valid && $product === 'epp';
-            }
-        };
-        $hostLicenseLimit = new class ($maxHosts) implements HostLicenseLimitInterface {
-            public function __construct(private readonly ?int $maxHosts)
-            {
-            }
-
-            public function getMaxHosts(string $product): ?int
-            {
-                return $this->maxHosts;
-            }
-        };
-
-        return $this->toIntegers(new DbalUnlicensedHostTemplates($this->connection, $licenseCheck, $hostLicenseLimit));
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function toIntegers(DbalUnlicensedHostTemplates $repository): array
-    {
-        return array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $repository->findIds()->toArray()));
-    }
-
-    private function countHosts(): int
-    {
-        /** @var int|string $count */
-        $count = $this->connection->fetchOne("SELECT COUNT(*) FROM host WHERE host_register = '1'");
-
-        return (int) $count;
+        return array_values(array_map(
+            static fn (HostTemplateId $id): int => $id->value,
+            $repository->findTemplateIds($excludedSlugs)->toArray(),
+        ));
     }
 
     private function insertHostTemplate(string $name, ?int $parentId = null): int

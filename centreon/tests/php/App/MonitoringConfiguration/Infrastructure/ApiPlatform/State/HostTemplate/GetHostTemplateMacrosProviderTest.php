@@ -25,7 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Uid\Uuid;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeUnlicensedHostTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
@@ -59,7 +59,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeUnlicensedHostTemplates::reset();
+        FakeMonitoringConnectorTemplateRepository::reset();
         parent::tearDown();
     }
 
@@ -188,7 +188,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     {
         $templateId = $this->insertHostTemplate("unlicensed-{$this->tag}", locked: true);
         $this->insertMacro($templateId, '$_HOSTPORT$', '443', isPassword: false, order: 1);
-        FakeUnlicensedHostTemplates::restrict($templateId);
+        FakeMonitoringConnectorTemplateRepository::restrict($templateId);
 
         $this->login();
 

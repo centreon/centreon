@@ -24,15 +24,16 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Service\UnlicensedHostTemplates;
+use App\MonitoringConfiguration\Domain\Repository\MonitoringConnectorTemplateRepository;
 use App\Shared\Domain\Collection;
 
 /**
- * Nothing is restricted until a test calls {@see restrict()}; a test that does calls {@see reset()} in
- * its tearDown(). The ids are static because the API test client boots a new kernel, so a new
- * instance, for every request.
+ * No template comes from a paid Monitoring Connector until a test calls {@see restrict()}; a test
+ * that does calls {@see reset()} in its tearDown(). The ids are static because the API test client
+ * boots a new kernel, so a new instance, for every request. The excluded slugs are ignored: the
+ * restricted ids are the paid connectors' templates.
  */
-final class FakeUnlicensedHostTemplates implements UnlicensedHostTemplates
+final class FakeMonitoringConnectorTemplateRepository implements MonitoringConnectorTemplateRepository
 {
     /** @var list<int> */
     private static array $ids = [];
@@ -47,7 +48,7 @@ final class FakeUnlicensedHostTemplates implements UnlicensedHostTemplates
         self::$ids = [];
     }
 
-    public function findIds(): Collection
+    public function findTemplateIds(array $excludedSlugs): Collection
     {
         return new Collection(
             array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), self::$ids),
