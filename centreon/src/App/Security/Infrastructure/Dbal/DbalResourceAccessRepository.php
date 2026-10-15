@@ -318,6 +318,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->select('DISTINCT arpr.poller_id')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
             ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            // poller_id is nullable: a relation left without poller grants nothing.
+            ->where('arpr.poller_id IS NOT NULL')
             ->setParameter('contactId', $userId->value);
 
         /** @var list<array{poller_id: numeric-string}> $rows */
@@ -359,6 +361,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->select('DISTINCT arhr.hg_hg_id')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
             ->innerJoin('accessible_res', 'acl_resources_hg_relations', 'arhr', 'arhr.acl_res_id = accessible_res.acl_res_id')
+            // hg_hg_id is nullable: a relation left without host group grants nothing.
+            ->where('arhr.hg_hg_id IS NOT NULL')
             ->setParameter('contactId', $userId->value);
 
         /** @var list<array{hg_hg_id: numeric-string}> $rows */
