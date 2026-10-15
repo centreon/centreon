@@ -118,7 +118,8 @@ case "$PLATFORM" in
     if ! rpm -q mod_ssl >/dev/null 2>&1; then
       echo "[tls] installing mod_ssl (not present in image)"
       if command -v dnf >/dev/null 2>&1; then
-        dnf install -y mod_ssl >/dev/null || exit 1
+        # mod_ssl comes from the OS repos; skip centreon ones (stable repo may 404 pre-release)
+        dnf install -y --disablerepo='centreon*' mod_ssl >/dev/null || exit 1
       fi
     fi
     # mod_ssl ships a default /etc/httpd/conf.d/ssl.conf with a "snake-oil" vhost
