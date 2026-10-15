@@ -451,7 +451,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
                 ->where($qb->expr()->in(
                     'gcgr.acl_group_id',
                     $qb->createNamedParameter($accessGroupIds, ArrayParameterType::INTEGER)
-                ));
+                ))
+                ->andWhere('gcgr.cg_cg_id IS NOT NULL');
 
             /** @var list<array{id: int|string}> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -468,6 +469,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->innerJoin('ccr', 'contact', 'c', 'c.contact_id = ccr.contact_contact_id')
             ->where('ccr.contact_contact_id = :userId')
             ->andWhere($qb->expr()->eq('c.contact_register', $qb->createNamedParameter('1')))
+            ->andWhere('ccr.contactgroup_cg_id IS NOT NULL')
             ->setParameter('userId', $userId->value);
 
         /** @var list<array{id: int|string}> $rows */

@@ -670,6 +670,21 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([$grantedContactGroupId], $accessibleIds);
     }
 
+    public function testAContactGroupRelationWithoutContactGroupIsIgnored(): void
+    {
+        // `cg_cg_id` and `contactgroup_cg_id` are nullable: a relation left without contact group grants nothing,
+        // and must not break the lookup.
+        $actorId = $this->createContact('actor-null-cg-' . uniqid());
+        $aclGroupId = $this->createAccessGroupForContact($actorId);
+
+        $grantedContactGroupId = $this->createContactGroup('granted-null-cg-' . uniqid());
+        $this->connection->insert('acl_group_contactgroups_relations', ['acl_group_id' => $aclGroupId, 'cg_cg_id' => $grantedContactGroupId]);
+        $this->connection->insert('acl_group_contactgroups_relations', ['acl_group_id' => $aclGroupId, 'cg_cg_id' => null]);
+        $this->connection->insert('contactgroup_contact_relation', ['contactgroup_cg_id' => null, 'contact_contact_id' => $actorId]);
+
+        self::assertSame([$grantedContactGroupId], $this->repository->findContactGroupAccessScope(new UserId($actorId))->allowedIdValues());
+    }
+
     public function testUserWithNoAclGroupHasAccessToNoHost(): void
     {
         $contactId = $this->createContact('no-group-hosts-' . uniqid());
