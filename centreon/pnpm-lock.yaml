@@ -243,8 +243,8 @@ importers:
         specifier: ^6.4.6
         version: 6.4.9(@types/react@19.1.4)(react@19.1.0)
       '@playwright/test':
-        specifier: 1.63.0
-        version: 1.63.0
+        specifier: 1.64.0
+        version: 1.64.0
       '@rsbuild/plugin-react':
         specifier: 2.0.1
         version: 2.0.1(@rsbuild/core@2.0.15(core-js@3.42.0))(@rspack/core@1.6.0(@swc/helpers@0.5.23))
@@ -259,7 +259,7 @@ importers:
         version: 1.5.2(react-refresh@0.16.0)
       '@rstest/browser':
         specifier: 0.10.3
-        version: 0.10.3(@rstest/core@0.10.3(core-js@3.42.0)(jsdom@26.1.0))(playwright@1.63.0)
+        version: 0.10.3(@rstest/core@0.10.3(core-js@3.42.0)(jsdom@26.1.0))(playwright@1.64.0)
       '@rstest/core':
         specifier: 0.10.3
         version: 0.10.3(core-js@3.42.0)(jsdom@26.1.0)
@@ -393,8 +393,8 @@ importers:
         specifier: ^17.1.0
         version: 17.1.0
       playwright:
-        specifier: 1.63.0
-        version: 1.63.0
+        specifier: 1.64.0
+        version: 1.64.0
       postcss:
         specifier: ^8.5.3
         version: 8.5.6
@@ -3967,8 +3967,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.63.0':
-    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+  '@playwright/test@1.64.0':
+    resolution: {integrity: sha512-oTN9FNYuN6bqQMwiho6jJKLCG2/QOYCixGXuCjRmzOq23eODeukuY2XiAVoVpAECbuezMt1MHQjAiQxK8F+Y+g==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -10952,8 +10952,8 @@ packages:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
 
-  legacy-javascript@0.0.1:
-    resolution: {integrity: sha512-lPyntS4/aS7jpuvOlitZDFifBCb4W8L/3QU0PLbUTUj+zYah8rfVjYic88yG7ZKTxhS5h9iz7duT8oUXKszLhg==}
+  legacy-javascript@0.0.3:
+    resolution: {integrity: sha512-1r6MT4dVaJyXt4G07Cm2cQ0AUaLJdefiEp4SmIAylA++gnEQ82YvmzE58RkM5EP0fk5hROLCslUPGnwIYdZQVA==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -12414,8 +12414,13 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.63.0:
-    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+  playwright-core@1.64.0:
+    resolution: {integrity: sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.64.0:
+    resolution: {integrity: sha512-kVzTnYFYEyQ9RGzBjNCd2+yEqWmVbxl3AHPynv3qQ6JTjv4a+kwRcnqQwIpuP3NnrnIrE/Q6wWAIAvMfIE2/Yg==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -18929,7 +18934,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.52':
     dependencies:
-      legacy-javascript: 0.0.1
+      legacy-javascript: 0.0.3
       third-party-web: 0.30.0
 
   '@pkgjs/parseargs@0.11.0':
@@ -18937,9 +18942,9 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@playwright/test@1.63.0':
+  '@playwright/test@1.64.0':
     dependencies:
-      playwright: 1.63.0
+      playwright: 1.64.0
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -19652,7 +19657,7 @@ snapshots:
     optionalDependencies:
       '@rspack/core': 1.6.0(@swc/helpers@0.5.23)
 
-  '@rstest/browser@0.10.3(@rstest/core@0.10.3(core-js@3.42.0)(jsdom@26.1.0))(playwright@1.63.0)':
+  '@rstest/browser@0.10.3(@rstest/core@0.10.3(core-js@3.42.0)(jsdom@26.1.0))(playwright@1.64.0)':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@rstest/core': 0.10.3(core-js@3.42.0)(jsdom@26.1.0)
@@ -19662,7 +19667,7 @@ snapshots:
       sirv: 3.0.2
       ws: 8.22.0
     optionalDependencies:
-      playwright: 1.63.0
+      playwright: 1.64.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -20193,7 +20198,7 @@ snapshots:
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0(@types/node@25.0.10)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.16.2(@swc/helpers@0.5.17))(@types/node@25.0.10)(typescript@5.9.3)))
       nyc: 15.1.0
-      playwright: 1.63.0
+      playwright: 1.64.0
       storybook: 8.6.14(prettier@3.7.4)
     transitivePeerDependencies:
       - '@swc/helpers'
@@ -27706,7 +27711,7 @@ snapshots:
     dependencies:
       readable-stream: 2.3.8
 
-  legacy-javascript@0.0.1: {}
+  legacy-javascript@0.0.3: {}
 
   leven@3.1.0: {}
 
@@ -29538,9 +29543,11 @@ snapshots:
 
   playwright-core@1.63.0: {}
 
-  playwright@1.63.0:
+  playwright-core@1.64.0: {}
+
+  playwright@1.64.0:
     dependencies:
-      playwright-core: 1.63.0
+      playwright-core: 1.64.0
 
   pluralize@8.0.0: {}
 

@@ -79,9 +79,10 @@ declare const require: {
   context: (
     directory: string,
     useSubdirectories: boolean,
-    regExp: RegExp
+    regExp: RegExp,
+    mode: 'lazy'
   ) => {
-    (key: string): Record<string, StoryComponent>;
+    (key: string): Promise<Record<string, StoryComponent>>;
     keys: () => Array<string>;
   };
 };
@@ -100,48 +101,57 @@ declare global {
   testingType: 'component'
 };
 
+// Lazy: a mount loads (and parses) only the story module it renders and what
+// that module imports, not every story of the app.
 const storyModules = require.context(
   '../../www/front_src/src',
   true,
-  /\.story\.tsx$/
+  /\.story\.tsx$/,
+  'lazy'
 );
 
 // Story id = path under www/front_src/src without the .story.tsx extension,
 // plus the export name. Any unique suffix of that id also resolves.
-const stories = new Map<string, StoryComponent>();
+const modulePaths = new Map<string, string>(
+  storyModules
+    .keys()
+    .filter((key) => key.startsWith('./'))
+    .map((key) => [key.replace(/^\.\//, '').replace(/\.story\.tsx$/, ''), key])
+);
 
-for (const key of storyModules.keys()) {
-  const modulePath = key.replace(/^\.\//, '').replace(/\.story\.tsx$/, '');
-
-  for (const [exportName, story] of Object.entries(storyModules(key))) {
-    stories.set(`${modulePath}/${exportName}`, story);
-  }
-}
-
-const resolveStory = (id: string): StoryComponent => {
-  const exactMatch = stories.get(id);
-
-  if (exactMatch) {
-    return exactMatch;
-  }
-
-  const suffixMatches = [...stories.keys()].filter((key) =>
-    key.endsWith(`/${id}`)
+const resolveStory = async (id: string): Promise<StoryComponent> => {
+  const exportName = id.slice(id.lastIndexOf('/') + 1);
+  const modulePath = id.slice(0, id.lastIndexOf('/'));
+  const candidates = [...modulePaths.keys()].filter(
+    (path) => path === modulePath || path.endsWith(`/${modulePath}`)
   );
+  const matches: Array<[string, StoryComponent]> = [];
 
-  if (suffixMatches.length === 0) {
+  for (const path of candidates) {
+    const module = await storyModules(modulePaths.get(path) as string);
+    if (module[exportName]) {
+      matches.push([`${path}/${exportName}`, module[exportName]]);
+    }
+  }
+
+  if (matches.length === 0) {
     throw new Error(
-      `Unknown story "${id}". Known stories: ${[...stories.keys()].join(', ')}`
+      `Unknown story "${id}". Known story modules: ${[...modulePaths.keys()].join(', ')}`
     );
   }
 
-  if (suffixMatches.length > 1) {
+  const exact = matches.find(([key]) => key === id);
+  if (exact) {
+    return exact[1];
+  }
+
+  if (matches.length > 1) {
     throw new Error(
-      `Ambiguous story "${id}", matching: ${suffixMatches.join(', ')}`
+      `Ambiguous story "${id}", matching: ${matches.map(([key]) => key).join(', ')}`
     );
   }
 
-  return stories.get(suffixMatches[0]) as StoryComponent;
+  return matches[0][1];
 };
 
 const container = document.getElementById('root') as HTMLElement;
@@ -162,7 +172,7 @@ let root: Root | null = null;
 // mount() rejects when the story is unknown or when rendering it, or running
 // its effects, throws.
 window.mount = async ({ story, props = {} }: MountParams): Promise<void> => {
-  const Story = resolveStory(story);
+  const Story = await resolveStory(story);
   const errorCount = window.galleryErrors.length;
 
   root ??= createRoot(container, {

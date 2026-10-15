@@ -1634,12 +1634,19 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
+      # Keyed on the Playwright version: any other dependency change in the
+      # workspace lockfile would otherwise re-download the browser.
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ env.base_directory }}
+
       - name: Cache Playwright browser
         id: playwright-cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-ct-${{ runner.os }}-${{ hashFiles('centreon/pnpm-lock.yaml') }}
+          key: playwright-ct-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
 
       # Visual snapshots must match the committed baselines, so install the full
       # Chromium (not the headless shell).
