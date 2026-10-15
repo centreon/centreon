@@ -56,6 +56,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
@@ -88,10 +89,9 @@ final class DbalHostRepositoryTest extends KernelTestCase
 
         $this->repository = new DbalHostRepository(
             $this->connection,
-            $this->realTimeConnection,
             new DbalHostTransformer(),
             new DbalNotificationsTransformer(),
-            $this->accessGroupRepository,
+            new DbalResourceAccessRepository($this->connection, $this->realTimeConnection, $this->accessGroupRepository),
         );
     }
 
