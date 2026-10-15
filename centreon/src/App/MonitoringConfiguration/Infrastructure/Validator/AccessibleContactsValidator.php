@@ -47,7 +47,7 @@ final class AccessibleContactsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly NotificationContactRepository $contactRepository,
-        private AccessScopeResolver $accessScopes,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 

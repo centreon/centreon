@@ -48,7 +48,7 @@ final class AccessibleHostGroupsValidator extends ConstraintValidator
     public function __construct(
         private readonly Security $security,
         private readonly HostGroupRepository $hostGroupRepository,
-        private AccessScopeResolver $accessScopes,
+        private readonly AccessScopeResolver $accessScopes,
     ) {
     }
 
