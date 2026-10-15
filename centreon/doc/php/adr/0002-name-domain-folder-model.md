@@ -7,6 +7,8 @@
 
 `Domain/Aggregate/` holds more than aggregates. In BAM, next to the BA and BA Tree aggregates, it holds the value objects and enums they share, and read-only models such as the Timeline (an ordered collection of status bands, clipped to a time window). The Timeline has no identity, is never written and does not extend `AggregateRoot`, so the folder name no longer describes its contents.
 
+The same split exists in `src/App/`. `MonitoringConfiguration/Domain/` has both an `Aggregate/` folder, for its aggregates and their value objects, and a `Model/` folder, for value objects such as `CentralUrl`, `UrlPath` and `ResolvableAddress`.
+
 The terms, as agreed:
 
 - **Value object:** defined by its values, immutable.
@@ -23,7 +25,15 @@ Two alternatives were weighed:
 
 ## Decision
 
+This applies to every bounded context under `src/App/` and to the BAM module.
+
 Replace `Domain/Aggregate/` with `Domain/Model/`. At the root of `Model/`, put the value objects and enums shared across the domain. Group each aggregate, and each read model, in its own subfolder.
+
+The shared building blocks in `App/Shared/Domain/Aggregate/` follow the same rule and move to `App/Shared/Domain/Model/`: `AggregateRoot`, `AggregateRootId`, `TriStateEnum`, and the `AclScopedInterface`, `PollerScopedInterface` and `VaultScopedInterface` interfaces.
+
+Migrate the existing `Aggregate/` folders, one bounded context per dedicated refactor. A new bounded context uses `Model/` from the start.
+
+In BAM:
 
 ```
 Domain/Model/
@@ -45,11 +55,29 @@ Domain/Model/
     └── TimelinePeriod.php           # value object, the requested time window
 ```
 
+In `App/MonitoringConfiguration` (excerpt):
+
+```
+Domain/Model/
+├── CentralUrl.php                   # value object
+├── ResolvableAddress.php            # value object
+├── UrlPath.php                      # value object, shared by Poller and the infrastructure
+├── Host/
+│   ├── Host.php                     # aggregate root
+│   ├── HostId.php                   # value object, identifies the root
+│   ├── HostMacro.php                # entity, identified by HostMacroId
+│   └── SnmpVersionEnum.php          # enum
+└── Poller/
+    ├── Poller.php                   # aggregate root
+    └── PollerName.php               # value object
+```
+
 ## Consequences
 
 - The folder name matches its contents, whatever the class is: aggregate, entity, read model or value object.
 - Write and read are not physically separated. Whether a class is an aggregate shows in the code (it extends `AggregateRoot`), not in its path.
 - Moving existing classes changes their namespace and the imports that use them, and the deptrac layer rules must follow. The move is done in a dedicated refactor, never inside a feature change.
+- Until its refactor, a bounded context keeps its `Aggregate/` folder, and new classes go there. Both conventions coexist across contexts for a while, never inside one context.
 - A value object used by a single aggregate stays in that aggregate's subfolder. It moves to the root of `Model/` once a second subfolder needs it.
 
 ## When to Amend
