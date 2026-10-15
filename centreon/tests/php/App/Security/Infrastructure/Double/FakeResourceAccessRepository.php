@@ -41,30 +41,31 @@ use App\Shared\Domain\Collection;
 
 final class FakeResourceAccessRepository implements ResourceAccessRepository
 {
-    public bool $unrestrictedPollerAccess = true;
+    /** @var AccessScope<PollerId> */
+    public AccessScope $pollerScope;
 
     /** How many times an access list has been loaded, for the host groups, the categories, the contacts and the contact groups. */
     public int $accessListLoads = 0;
 
-    /** @var ?Collection<HostGroupId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleHostGroupIds = null;
+    /** @var AccessScope<HostGroupId> */
+    public AccessScope $hostGroupScope;
 
-    /** @var ?Collection<MediaDirectoryId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleImageFolderIds = null;
+    /** @var AccessScope<MediaDirectoryId> */
+    public AccessScope $imageFolderScope;
 
-    /** @var ?Collection<HostCategoryId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleHostCategoryIds = null;
+    /** @var AccessScope<HostCategoryId> */
+    public AccessScope $hostCategoryScope;
 
-    /** @var ?Collection<HostSeverityId> null means unrestricted, matching the real contract */
-    public ?Collection $accessibleHostSeverityIds = null;
+    /** @var AccessScope<HostSeverityId> */
+    public AccessScope $hostSeverityScope;
 
-    /** @var Collection<NotificationContactId> unlike the nullable ones, contacts have no "unrestricted" case */
+    /** @var Collection<NotificationContactId> always restricted, as contacts carry no "all contacts" ACL flag */
     public Collection $accessibleContactIds;
 
-    /** @var Collection<ContactGroupId> unlike the nullable ones, contact groups have no "unrestricted" case */
+    /** @var Collection<ContactGroupId> always restricted, as contact groups carry no "all contact groups" ACL flag */
     public Collection $accessibleContactGroupIds;
 
-    /** @var Collection<HostId> unlike the nullable ones, hosts have no "unrestricted" case */
+    /** @var Collection<HostId> always restricted, as hosts follow the real-time ACL cache */
     public Collection $accessibleHostIds;
 
     /** @var list<array{resource: AggregateRoot<AggregateRootId>&AclScopedInterface, accessGroupIds: list<int>}> */
@@ -82,6 +83,11 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function __construct()
     {
+        $this->pollerScope = AccessScope::unrestricted(PollerId::class);
+        $this->hostGroupScope = AccessScope::unrestricted(HostGroupId::class);
+        $this->imageFolderScope = AccessScope::unrestricted(MediaDirectoryId::class);
+        $this->hostCategoryScope = AccessScope::unrestricted(HostCategoryId::class);
+        $this->hostSeverityScope = AccessScope::unrestricted(HostSeverityId::class);
         $this->accessibleContactIds = new Collection([], NotificationContactId::class);
         $this->accessibleContactGroupIds = new Collection([], ContactGroupId::class);
         $this->accessibleHostIds = new Collection([], HostId::class);
@@ -89,36 +95,36 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function hasAccessToAllPollers(UserId $userId): bool
     {
-        return $this->unrestrictedPollerAccess;
+        return $this->pollerScope->isUnrestricted();
     }
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool
     {
-        return $this->unrestrictedPollerAccess;
+        return $this->pollerScope->allows($pollerId);
     }
 
     public function findHostSeverityAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleHostSeverityIds instanceof Collection ? AccessScope::restrictedTo(HostSeverityId::class, $this->accessibleHostSeverityIds) : AccessScope::unrestricted(HostSeverityId::class);
+        return $this->hostSeverityScope;
     }
 
     public function findHostCategoryAccessScope(UserId $userId): AccessScope
     {
         ++$this->accessListLoads;
 
-        return $this->accessibleHostCategoryIds instanceof Collection ? AccessScope::restrictedTo(HostCategoryId::class, $this->accessibleHostCategoryIds) : AccessScope::unrestricted(HostCategoryId::class);
+        return $this->hostCategoryScope;
     }
 
     public function findPollerAccessScope(UserId $userId): AccessScope
     {
-        return AccessScope::unrestricted(PollerId::class);
+        return $this->pollerScope;
     }
 
     public function findHostGroupAccessScope(UserId $userId): AccessScope
     {
         ++$this->accessListLoads;
 
-        return $this->accessibleHostGroupIds instanceof Collection ? AccessScope::restrictedTo(HostGroupId::class, $this->accessibleHostGroupIds) : AccessScope::unrestricted(HostGroupId::class);
+        return $this->hostGroupScope;
     }
 
     public function findContactAccessScope(UserId $userId): AccessScope
@@ -154,7 +160,7 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
     public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
-        return $this->accessibleImageFolderIds instanceof Collection ? AccessScope::restrictedTo(MediaDirectoryId::class, $this->accessibleImageFolderIds) : AccessScope::unrestricted(MediaDirectoryId::class);
+        return $this->imageFolderScope;
     }
 
     public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void

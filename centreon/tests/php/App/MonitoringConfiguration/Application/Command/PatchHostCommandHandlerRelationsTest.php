@@ -75,6 +75,7 @@ use App\MonitoringConfiguration\Domain\Exception\NotificationContactNotFoundExce
 use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Service\AccessScopeResolver;
@@ -134,7 +135,6 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
 
     protected function setUp(): void
     {
-
         $this->repository = new FakeHostRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
@@ -158,7 +158,6 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 new FakeTimePeriodRepository(),
                 new FakeMediaRepository(),
                 $commandRepository,
-                $this->resourceAccessRepository,
                 new AccessScopeResolver($this->resourceAccessRepository),
             ),
             new HostRelationsUpdater(
@@ -253,7 +252,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testAReplacementKeepsTheHostGroupsTheActorCannotSee(): void
     {
         $this->seedHost(hostGroupIds: [1, 2]);
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2), new HostGroupId(3)]);
 
         $result = ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
@@ -263,7 +262,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testARemovalLeavesTheHostGroupsTheActorCannotSee(): void
     {
         $this->seedHost(hostGroupIds: [1, 2]);
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2)]);
 
         $result = ($this->handler)($this->command(hostGroupIds: ListChange::remove([new HostGroupId(1), new HostGroupId(2)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
@@ -273,7 +272,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testAHostGroupTheActorCannotSeeCannotBeAdded(): void
     {
         $this->seedHost();
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2)]);
 
         $this->expectException(HostGroupNotFoundException::class);
 
@@ -319,7 +318,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testAnAccessListIsLoadedOnceForTheRelationThatChanges(): void
     {
         $this->seedHost();
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(2), new HostGroupId(3)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(2), new HostGroupId(3)]);
 
         ($this->handler)($this->command(hostGroupIds: ListChange::replace([new HostGroupId(3)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));
 
@@ -333,7 +332,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
         $result = ($this->handler)($this->command(categoryIds: ListChange::replace([new HostCategoryId(2)])));
         self::assertSame([2], $this->ids($result->categoryIds));
 
-        $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([new HostCategoryId(3)], HostCategoryId::class);
+        $this->resourceAccessRepository->hostCategoryScope = AccessScope::restrictedTo(HostCategoryId::class, [new HostCategoryId(3)]);
         $this->expectException(HostCategoryNotFoundException::class);
 
         ($this->handler)($this->command(categoryIds: ListChange::add([new HostCategoryId(1)]), actor: TestActingUsers::restricted(self::ACTOR_ID)));

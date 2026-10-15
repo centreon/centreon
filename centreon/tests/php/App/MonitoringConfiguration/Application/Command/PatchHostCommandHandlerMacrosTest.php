@@ -116,7 +116,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
 
     protected function setUp(): void
     {
-
         $this->repository = new FakeHostRepository();
         $this->vault = new FakeVault();
         $this->vault->vaultEnabled = false;
@@ -140,7 +139,6 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 new FakeTimePeriodRepository(),
                 new FakeMediaRepository(),
                 $commandRepository,
-                $resourceAccessRepository,
                 new AccessScopeResolver($resourceAccessRepository),
             ),
             new HostRelationsUpdater(

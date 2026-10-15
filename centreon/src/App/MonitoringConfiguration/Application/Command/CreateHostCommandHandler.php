@@ -61,7 +61,6 @@ use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
@@ -88,7 +87,6 @@ final readonly class CreateHostCommandHandler
         private HostMacroChangesResolver $hostMacroChangesResolver,
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
-        private ResourceAccessRepository $resourceAccessRepository,
         private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private EventBus $eventBus,
@@ -98,7 +96,6 @@ final readonly class CreateHostCommandHandler
 
     public function __invoke(CreateHostCommand $command): Host
     {
-
         // References are authorized before the name is looked up: otherwise a restricted actor
         // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
         // for a request they aren't even authorized to make, and enumerate host/template names
@@ -110,10 +107,7 @@ final readonly class CreateHostCommandHandler
         // A restricted (non-admin) actor referencing a poller outside their own ACL scope gets
         // the same not-found error as a truly nonexistent poller — legacy does not distinguish
         // "doesn't exist" from "exists but you can't see it", to avoid leaking existence.
-        if (
-            ! $command->actor->hasUnrestrictedResourceAccess()
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->actor->userId)
-        ) {
+        if (! $this->accessScopes->pollers($command->actor)->allows($command->pollerId)) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 

@@ -109,7 +109,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithNoAclGroupSeesNoHostSeverity(): void
     {
         // Legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource is
-        // fully restricted (fails closed), returning an empty Collection rather than the null "see all".
+        // fully restricted (fails closed): their scope allows nothing, it is not unrestricted.
         $userId = new UserId($this->createContact('user-no-acl-hs'));
 
         $accessibleSeverities = $this->repository->findHostSeverityAccessScope($userId);
@@ -118,7 +118,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([], $accessibleSeverities->allowedIdValues());
     }
 
-    public function testUserWithAclResourceHavingNoHostSeverityRestrictionReturnsNull(): void
+    public function testUserWithAclResourceHavingNoHostSeverityRestrictionIsUnrestricted(): void
     {
         $contactId = $this->createContact('user-unrestricted-hs');
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
@@ -131,7 +131,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // Legacy pivot: hasRestrictedAccessToHostCategories() is true as soon as the ACL carries any
         // host-category relation (regardless of level), and the level-scoped join then surfaces no
         // severity for a resource granting only regular (levelless) categories — so the user sees
-        // nothing. The empty Collection (not null) preserves that fail-closed behaviour.
+        // nothing. The scope restricted to nothing preserves that fail-closed behaviour.
         $regularCategory = $this->insertHostCategory('HC-regular-only');
 
         $contactId = $this->createContact('user-regular-only-hs');
@@ -248,7 +248,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithNoAclGroupSeesNoHostCategory(): void
     {
         // Tier 1 fail-closed: a user with no accessible ACL resource is fully restricted, returning
-        // an empty Collection ("sees nothing"), not the null "see all".
+        // a scope restricted to nothing ("sees nothing"), not an unrestricted one.
         $userId = new UserId($this->createContact('user-no-acl-hc'));
 
         $accessibleCategories = $this->repository->findHostCategoryAccessScope($userId);
@@ -257,7 +257,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertSame([], $accessibleCategories->allowedIdValues());
     }
 
-    public function testUserWithAclResourceHavingNoHostCategoryRestrictionReturnsNull(): void
+    public function testUserWithAclResourceHavingNoHostCategoryRestrictionIsUnrestricted(): void
     {
         $contactId = $this->createContact('user-unrestricted-hc');
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
@@ -289,7 +289,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserGrantedOnlyHostSeveritiesIsRestrictedToNoHostCategory(): void
     {
         // the user IS restricted (a host-category ACL relation exists) but it points only at a
-        // severity, so no regular category is accessible: an EMPTY (non-null) collection, not "see all".
+        // severity, so no regular category is accessible: a scope restricted to nothing, not an unrestricted one.
         $severity = $this->insertHostSeverity('HS-only');
 
         $contactId = $this->createContact('user-severity-only');
@@ -367,8 +367,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithNoAclGroupHasAccessToNoImageFolders(): void
     {
         // Legacy `if ($accessGroups === []) return new \EmptyIterator()`: a user with no accessible
-        // ACL resource is fully restricted (fails closed), returning an empty Collection rather
-        // than the null "see all".
+        // ACL resource is fully restricted (fails closed): their scope allows nothing, it is
+        // not unrestricted.
         $userId = new UserId($this->createContact('user-no-acl-media'));
 
         $accessibleFolderIds = $this->repository->findImageFolderAccessScope($userId);

@@ -37,8 +37,8 @@ use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 
 /**
- * Resolves what an acting user may access. The one place where a user escaping resource scoping
- * (a super admin or a Cloud admin) gets an unrestricted scope: the ACL lookups are not even run.
+ * Resolves what an acting user may access: a user escaping resource scoping (a super admin or a Cloud
+ * admin) gets an unrestricted scope without any lookup, anyone else the scope of their Access Groups.
  */
 final readonly class AccessScopeResolver
 {
@@ -118,7 +118,7 @@ final readonly class AccessScopeResolver
     }
 
     /**
-     * @param ?Collection<HostId> $among when given, only these hosts are looked up
+     * @param ?Collection<HostId> $among when given, only these hosts are looked up: the scope then only answers for them
      *
      * @return AccessScope<HostId>
      */

@@ -80,8 +80,11 @@ final readonly class HostRelationsUpdater
     public function applyTo(Host $host, PatchHostCommand $command, ActingUser $actor): Host
     {
         $reachableHostIds = $this->reachableHostIds($host, $command, $actor);
+        // Not an AccessScope, unlike the other relations: the reachable hosts are the existing ones the actor
+        // can see, so for an unrestricted actor a dangling relation (a deleted host) would read as hidden and
+        // survive a replacement. Everything is visible to them instead, as ListChange assumes by default.
         $isHostVisible = $actor->hasUnrestrictedResourceAccess()
-            ? null
+            ? static fn (HostId $id): bool => true
             : static fn (HostId $id): bool => in_array($id->value, $reachableHostIds, true);
 
         $parentHostIds = $this->resolve(

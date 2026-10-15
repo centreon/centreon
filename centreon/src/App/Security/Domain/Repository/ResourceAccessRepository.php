@@ -39,6 +39,11 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 
+/**
+ * The resource access rules of a user, from their Access Groups. The `find*AccessScope()` lookups ignore
+ * whether the user escapes resource scoping (a super admin or a Cloud admin): ask
+ * {@see \App\Security\Domain\Service\AccessScopeResolver} what an acting user may access.
+ */
 interface ResourceAccessRepository
 {
     public function hasAccessToAllPollers(UserId $userId): bool;
@@ -87,18 +92,21 @@ interface ResourceAccessRepository
 
     /**
      * The levelless host categories the user may access, mirroring the legacy host-category ACL
-     * (DbReadHostCategoryRepository::findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories).
-     * A user with no accessible ACL resource, or granted only severities, is restricted to none.
-     *
-     * Ignores whether the user escapes resource scoping: see {@see \App\Security\Domain\Service\AccessScopeResolver}.
+     * (DbReadHostCategoryRepository::findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories):
+     *  - unrestricted, when their accessible ACL resources carry no host-category relation;
+     *  - restricted to nothing, when they have no accessible ACL resource or are granted only severities;
+     *  - restricted to the granted categories otherwise.
      *
      * @return AccessScope<HostCategoryId>
      */
     public function findHostCategoryAccessScope(UserId $userId): AccessScope;
 
     /**
-     * The host severities (host categories carrying a level) the user may access, mirroring the
-     * legacy host-template ACL (DbReadHostTemplateRepository::findByRequestParametersAndAccessGroups).
+     * The host severities (host categories carrying a level) the user may access, mirroring the legacy
+     * host-template ACL (DbReadHostTemplateRepository::findByRequestParametersAndAccessGroups):
+     *  - unrestricted, when their accessible ACL resources carry no host-category relation;
+     *  - restricted to nothing, when they have no accessible ACL resource or are granted no severity;
+     *  - restricted to the granted severities otherwise.
      *
      * @return AccessScope<HostSeverityId>
      */
@@ -140,7 +148,8 @@ interface ResourceAccessRepository
      * Hosts follow the real-time ACL cache (`centreon_acl`), which already resolves every
      * resource-scoping rule per Access Group, so the scope is always restricted.
      *
-     * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see
+     * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see:
+     *                                   the scope then only answers for them
      *
      * @return AccessScope<HostId>
      */

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Domain\Aggregate;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\Security\Domain\Aggregate\AccessScope;
 use App\Shared\Domain\Collection;
@@ -61,6 +62,13 @@ final class AccessScopeTest extends TestCase
         self::assertFalse($scope->isUnrestricted());
         self::assertFalse($scope->allows(new HostGroupId(1)));
         self::assertSame([], $scope->allowedIdValues());
+    }
+
+    public function testARestrictedScopeOnlyTakesIdsOfItsClass(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        AccessScope::restrictedTo(HostGroupId::class, [new HostCategoryId(1)]);
     }
 
     public function testAnUnrestrictedScopeHasNoListOfAllowedIds(): void
