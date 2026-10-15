@@ -112,10 +112,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // fully restricted (fails closed): their scope allows nothing, it is not unrestricted.
         $userId = new UserId($this->createContact('user-no-acl-hs'));
 
-        $accessibleSeverities = $this->repository->findHostSeverityAccessScope($userId);
+        $severityScope = $this->repository->findHostSeverityAccessScope($userId);
 
-        self::assertFalse($accessibleSeverities->isUnrestricted());
-        self::assertSame([], $accessibleSeverities->allowedIdValues());
+        self::assertFalse($severityScope->isUnrestricted());
+        self::assertSame([], $severityScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceHavingNoHostSeverityRestrictionIsUnrestricted(): void
@@ -137,10 +137,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('user-regular-only-hs');
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$regularCategory]);
 
-        $accessibleSeverities = $this->repository->findHostSeverityAccessScope(new UserId($contactId));
+        $severityScope = $this->repository->findHostSeverityAccessScope(new UserId($contactId));
 
-        self::assertFalse($accessibleSeverities->isUnrestricted(), 'A resource granting only regular categories must not grant access to every severity.');
-        self::assertSame([], $accessibleSeverities->allowedIdValues());
+        self::assertFalse($severityScope->isUnrestricted(), 'A resource granting only regular categories must not grant access to every severity.');
+        self::assertSame([], $severityScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceRestrictedToHostSeveritiesReturnsOnlySeverityIds(): void
@@ -157,10 +157,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             restrictToHostSeverityIds: [$severityA, $severityB, $regularCategory]
         );
 
-        $accessibleSeverities = $this->repository->findHostSeverityAccessScope(new UserId($contactId));
+        $severityScope = $this->repository->findHostSeverityAccessScope(new UserId($contactId));
 
-        self::assertFalse($accessibleSeverities->isUnrestricted());
-        $accessibleIds = $accessibleSeverities->allowedIdValues();
+        self::assertFalse($severityScope->isUnrestricted());
+        $accessibleIds = $severityScope->allowedIdValues();
         self::assertEqualsCanonicalizing([$severityA, $severityB], $accessibleIds);
     }
 
@@ -175,12 +175,12 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$severityA]);
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
 
-        $accessibleSeverities = $this->repository->findHostSeverityAccessScope(new UserId($contactId));
+        $severityScope = $this->repository->findHostSeverityAccessScope(new UserId($contactId));
 
-        self::assertFalse($accessibleSeverities->isUnrestricted(), 'A resource with no host-severity relation must not grant access to every severity.');
+        self::assertFalse($severityScope->isUnrestricted(), 'A resource with no host-severity relation must not grant access to every severity.');
         self::assertEqualsCanonicalizing(
             [$severityA],
-            $accessibleSeverities->allowedIdValues()
+            $severityScope->allowedIdValues()
         );
     }
 
@@ -216,9 +216,9 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->hasAccessToPoller(new PollerId(101), $userId));
         self::assertFalse($this->repository->hasAccessToPoller(new PollerId(102), $userId));
 
-        $accessiblePollerIds = $this->repository->findPollerAccessScope($userId);
-        self::assertFalse($accessiblePollerIds->isUnrestricted());
-        self::assertEquals([101], $accessiblePollerIds->allowedIdValues());
+        $pollerScope = $this->repository->findPollerAccessScope($userId);
+        self::assertFalse($pollerScope->isUnrestricted());
+        self::assertEquals([101], $pollerScope->allowedIdValues());
     }
 
     public function testAPollerRelationWithoutPollerIsIgnored(): void
@@ -249,9 +249,9 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertTrue($this->repository->hasAccessToPoller(new PollerId(101), $userId));
         self::assertFalse($this->repository->hasAccessToPoller(new PollerId(102), $userId));
 
-        $accessiblePollerIds = $this->repository->findPollerAccessScope($userId);
-        self::assertFalse($accessiblePollerIds->isUnrestricted());
-        self::assertEquals([101], $accessiblePollerIds->allowedIdValues());
+        $pollerScope = $this->repository->findPollerAccessScope($userId);
+        self::assertFalse($pollerScope->isUnrestricted());
+        self::assertEquals([101], $pollerScope->allowedIdValues());
     }
 
     public function testUserWithNoAclGroupSeesNoHostCategory(): void
@@ -260,10 +260,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // a scope restricted to nothing ("sees nothing"), not an unrestricted one.
         $userId = new UserId($this->createContact('user-no-acl-hc'));
 
-        $accessibleCategories = $this->repository->findHostCategoryAccessScope($userId);
+        $categoryScope = $this->repository->findHostCategoryAccessScope($userId);
 
-        self::assertFalse($accessibleCategories->isUnrestricted());
-        self::assertSame([], $accessibleCategories->allowedIdValues());
+        self::assertFalse($categoryScope->isUnrestricted());
+        self::assertSame([], $categoryScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceHavingNoHostCategoryRestrictionIsUnrestricted(): void
@@ -288,10 +288,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
             restrictToHostSeverityIds: [$categoryA, $categoryB, $severity]
         );
 
-        $accessibleCategories = $this->repository->findHostCategoryAccessScope(new UserId($contactId));
+        $categoryScope = $this->repository->findHostCategoryAccessScope(new UserId($contactId));
 
-        self::assertFalse($accessibleCategories->isUnrestricted());
-        $accessibleIds = $accessibleCategories->allowedIdValues();
+        self::assertFalse($categoryScope->isUnrestricted());
+        $accessibleIds = $categoryScope->allowedIdValues();
         self::assertEqualsCanonicalizing([$categoryA, $categoryB], $accessibleIds);
     }
 
@@ -304,20 +304,20 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('user-severity-only');
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$severity]);
 
-        $accessibleCategories = $this->repository->findHostCategoryAccessScope(new UserId($contactId));
+        $categoryScope = $this->repository->findHostCategoryAccessScope(new UserId($contactId));
 
-        self::assertFalse($accessibleCategories->isUnrestricted(), 'A severity-only grant is a restriction, not "see all".');
-        self::assertSame([], $accessibleCategories->allowedIdValues());
+        self::assertFalse($categoryScope->isUnrestricted(), 'A severity-only grant is a restriction, not "see all".');
+        self::assertSame([], $categoryScope->allowedIdValues());
     }
 
     public function testUserWithNoAclGroupHasAccessToNoHostGroups(): void
     {
         $userId = new UserId($this->createContact('user-no-acl'));
 
-        $accessibleHostGroupIds = $this->repository->findHostGroupAccessScope($userId);
+        $hostGroupScope = $this->repository->findHostGroupAccessScope($userId);
 
-        self::assertFalse($accessibleHostGroupIds->isUnrestricted());
-        self::assertSame([], $accessibleHostGroupIds->allowedIdValues());
+        self::assertFalse($hostGroupScope->isUnrestricted());
+        self::assertSame([], $hostGroupScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoHostGroups(): void
@@ -329,10 +329,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $userId = new UserId($contactId);
 
-        $accessibleHostGroupIds = $this->repository->findHostGroupAccessScope($userId);
+        $hostGroupScope = $this->repository->findHostGroupAccessScope($userId);
 
-        self::assertFalse($accessibleHostGroupIds->isUnrestricted());
-        self::assertSame([], $accessibleHostGroupIds->allowedIdValues());
+        self::assertFalse($hostGroupScope->isUnrestricted());
+        self::assertSame([], $hostGroupScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceFlaggedAllHostGroupsHasAccessToAllHostGroups(): void
@@ -352,9 +352,9 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $userId = new UserId($contactId);
 
-        $accessibleHostGroupIds = $this->repository->findHostGroupAccessScope($userId);
-        self::assertFalse($accessibleHostGroupIds->isUnrestricted());
-        self::assertEquals([201], $accessibleHostGroupIds->allowedIdValues());
+        $hostGroupScope = $this->repository->findHostGroupAccessScope($userId);
+        self::assertFalse($hostGroupScope->isUnrestricted());
+        self::assertEquals([201], $hostGroupScope->allowedIdValues());
     }
 
     public function testAHostGroupRelationWithoutHostGroupIsIgnored(): void
@@ -389,10 +389,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // not unrestricted.
         $userId = new UserId($this->createContact('user-no-acl-media'));
 
-        $accessibleFolderIds = $this->repository->findImageFolderAccessScope($userId);
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
-        self::assertFalse($accessibleFolderIds->isUnrestricted());
-        self::assertSame([], $accessibleFolderIds->allowedIdValues());
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertSame([], $folderScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoImageFolders(): void
@@ -402,10 +402,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $userId = new UserId($contactId);
 
-        $accessibleFolderIds = $this->repository->findImageFolderAccessScope($userId);
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
 
-        self::assertFalse($accessibleFolderIds->isUnrestricted());
-        self::assertSame([], $accessibleFolderIds->allowedIdValues());
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertSame([], $folderScope->allowedIdValues());
     }
 
     public function testUserWithAclResourceFlaggedAllImageFoldersHasAccessToAllImageFolders(): void
@@ -425,9 +425,9 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $userId = new UserId($contactId);
 
-        $accessibleFolderIds = $this->repository->findImageFolderAccessScope($userId);
-        self::assertFalse($accessibleFolderIds->isUnrestricted());
-        self::assertEquals([301], $accessibleFolderIds->allowedIdValues());
+        $folderScope = $this->repository->findImageFolderAccessScope($userId);
+        self::assertFalse($folderScope->isUnrestricted());
+        self::assertEquals([301], $folderScope->allowedIdValues());
     }
 
     public function testAnImageFolderRelationWithoutFolderIsIgnored(): void

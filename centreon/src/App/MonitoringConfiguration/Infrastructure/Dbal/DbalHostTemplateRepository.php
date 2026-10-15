@@ -575,13 +575,11 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return;
         }
 
-        $accessibleHostSeverityIds = $scope->allowedIdValues();
-
         // An empty scope means the actor is restricted but grants no accessible severity: they must see
         // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
         // filters out every severity-less template once a category restriction applies. Forcing an
         // always-false predicate avoids emitting an `IN ()` the driver would reject.
-        if ($accessibleHostSeverityIds === []) {
+        if ($scope->allowsNothing()) {
             $qb->andWhere('1 = 0');
 
             return;
@@ -599,7 +597,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                 SELECT 1 FROM hostcategories_relation hcr
                 WHERE hcr.host_host_id = h.host_id
                     AND hcr.hostcategories_hc_id IN (' . $qb->createNamedParameter(
-                $accessibleHostSeverityIds,
+                $scope->allowedIdValues(),
                 ArrayParameterType::INTEGER
             ) . ')
             )'
