@@ -12,11 +12,11 @@ import { BrowserRouter as Router } from 'react-router';
 
 import Hosts from '..';
 import {
-  commandsEndpoint,
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
   getHostTemplateMacrosEndpoint,
+  hostFormCommandsEndpoint,
   hostFormContactGroupsEndpoint,
   hostFormContactsEndpoint,
   hostFormHostCategoriesEndpoint,
@@ -231,7 +231,7 @@ const initialize = ({
   cy.interceptAPIRequest({
     alias: 'getFormCommands',
     method: Method.GET,
-    path: `**${commandsEndpoint}?**`,
+    path: `**${hostFormCommandsEndpoint}?**`,
     response: getCommandsResponse()
   });
 
