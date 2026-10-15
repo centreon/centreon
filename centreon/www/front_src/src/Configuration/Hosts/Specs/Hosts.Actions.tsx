@@ -105,7 +105,20 @@ export default () => {
 
       cy.waitForRequest('@patchHost').then(({ request }) => {
         expect(request.url.pathname).to.not.contain('/api/latest');
-        expect(request.body).to.deep.equal({ activate: false });
+        expect(request.body).to.deep.equal({ activated: false });
+      });
+    });
+
+    it('enables a deactivated host from the row toggle', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.findByTestId(`${labelEnableDisable}_1`).click();
+
+      // `activated`, the key the endpoint reads: any other is ignored.
+      cy.waitForRequest('@patchHost1').then(({ request }) => {
+        expect(request.body).to.deep.equal({ activated: true });
       });
     });
 
@@ -187,7 +200,7 @@ export default () => {
       // while reporting the entire selection as done is the bug this pins, and
       // it is invisible if you assert on the first host.
       cy.waitForRequest('@patchHost2').then(({ request }) => {
-        expect(request.body).to.deep.equal({ activate: false });
+        expect(request.body).to.deep.equal({ activated: false });
       });
     });
 

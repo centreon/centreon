@@ -1171,11 +1171,14 @@ jobs:
           OPERATING_SYSTEM: ${{ matrix.operating_system }}
           IMAGE_VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          curl \
-            -X DELETE \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/caches?key=docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
+          # Delete by id: the delete-by-key endpoint also removes the keys of the branches whose name starts with this one.
+          CACHE_KEY="docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_VERSION"
+          gh api --method GET "repos/$GITHUB_REPOSITORY/actions/caches" -f key="$CACHE_KEY" -f ref="$GITHUB_REF" \
+            --jq ".actions_caches[] | select(.key == \"$CACHE_KEY\") | .id" |
+            while read -r CACHE_ID; do
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/caches/$CACHE_ID"
+              echo "Deleted cache $CACHE_ID ($CACHE_KEY on $GITHUB_REF)."
+            done
         shell: bash
 
       - name: Store slim image in cache
@@ -2389,4 +2392,72 @@ jobs:
         if: failure() && steps.attest-ghcr.outcome == 'failure'
         run: |
           echo "::error::SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested. To fix: check the 'Attest SBOM on ghcr.io' step logs above for the actual cause (registry auth, Sigstore/Fulcio outage); re-running this job is safe, it only re-attests the already-published digest."
+        shell: bash
+
+  promote-docker-to-pulp-dev:
+    needs: [get-environment]
+    if: |
+      vars.PULP_DEV_REGISTRY != '' &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.is_cloud == 'false'
+    runs-on: centreon-ubuntu-26.04-small
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to Pulp dev
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+        with:
+          version: v0.22.1
+
+      - name: Promote to Pulp dev
+        id: promote-pulp-dev
+        continue-on-error: true
+        uses: ./.github/actions/promote-docker-image
+        with:
+          source_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          source_tag: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+          dest_image: ${{ vars.PULP_DEV_REGISTRY }}/default/centreon/${{ matrix.component }}
+          dest_tags: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
+          pulp_oidc_audience: ${{ vars.PULP_DEV_OIDC_AUDIENCE }}
+
+      - name: Attest SBOM
+        id: attest-sbom
+        if: steps.promote-pulp-dev.outcome == 'success'
+        continue-on-error: true
+        uses: ./.github/actions/attest-image-sbom
+        with:
+          subject_name: ghcr.io/centreon/${{ matrix.component }}
+          digest: ${{ steps.promote-pulp-dev.outputs.digest }}
+          scan_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          amd64_digest: ${{ steps.promote-pulp-dev.outputs.amd64_digest }}
+          arm64_digest: ${{ steps.promote-pulp-dev.outputs.arm64_digest }}
+
+      - name: Warn if Pulp dev delivery failed
+        if: steps.promote-pulp-dev.outcome == 'failure' || steps.attest-sbom.outcome == 'failure'
+        run: |
+          echo "::warning::Pulp dev delivery of ${{ matrix.component }}-${{ matrix.operating_system }} failed (promote: ${{ steps.promote-pulp-dev.outcome }}, SBOM attestation: ${{ steps.attest-sbom.outcome }}). ghcr.io delivery is unaffected."
         shell: bash
