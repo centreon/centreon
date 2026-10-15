@@ -405,6 +405,16 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $this->saveMacros($hostId, $host->checkOptions->macros);
     }
 
+    public function replaceMacros(Host $host): void
+    {
+        $hostId = $host->id()->value;
+        if (! $this->isRegisteredHost($hostId)) {
+            return;
+        }
+
+        $this->saveMacros($hostId, $host->checkOptions->macros);
+    }
+
     /**
      * No unique index backs `host_name` at the DB level (verified against the live schema) —
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
