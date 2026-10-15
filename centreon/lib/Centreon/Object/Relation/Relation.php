@@ -31,6 +31,9 @@ abstract class Centreon_Object_Relation
     /** @var string a column name, optionally qualified by a table name */
     private const COLUMN_IDENTIFIER_PATTERN = '/^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/';
 
+    /** @var string a select-list item: `*`, a column (optionally qualified and aliased) or the max() of a column */
+    private const SELECT_ITEM_PATTERN = '/^(\*|[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?( as [a-zA-Z_][a-zA-Z0-9_]*)?|max\([a-zA-Z_][a-zA-Z0-9_]*\))$/i';
+
     /** @var string */
     public $firstObject;
 
@@ -181,13 +184,13 @@ abstract class Centreon_Object_Relation
             if ($fString != '') {
                 $fString .= ',';
             }
-            $fString .= $this->firstObject->getTableName() . '.' . $this->sanitizeIdentifier($fparams);
+            $fString .= $this->firstObject->getTableName() . '.' . $this->sanitizeSelectItem($fparams);
         }
         foreach ($secondTableParams as $sparams) {
             if ($fString != '' || $sString != '') {
                 $sString .= ',';
             }
-            $sString .= $this->secondObject->getTableName() . '.' . $this->sanitizeIdentifier($sparams);
+            $sString .= $this->secondObject->getTableName() . '.' . $this->sanitizeSelectItem($sparams);
         }
         $sql = 'SELECT ' . $fString . $sString . ' FROM ' . $this->firstObject->getTableName() . ','
             . $this->secondObject->getTableName() . ',' . $this->relationTable
@@ -315,6 +318,26 @@ abstract class Centreon_Object_Relation
         $name = $this->sanitizeIdentifier($name);
         if (preg_match(self::COLUMN_IDENTIFIER_PATTERN, $name) !== 1) {
             throw new InvalidArgumentException("Invalid column identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    /**
+     * Validate one item of a select list.
+     *
+     * Select lists carry more than column names: an alias (`host_name as host`),
+     * the max() of a column, or `*`. This accepts those shapes and nothing else,
+     * so that a select list never takes an arbitrary expression.
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    protected function sanitizeSelectItem(string $name): string
+    {
+        $name = $this->sanitizeIdentifier($name);
+        if (preg_match(self::SELECT_ITEM_PATTERN, $name) !== 1) {
+            throw new InvalidArgumentException("Invalid select item: {$name}");
         }
 
         return $name;
