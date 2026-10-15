@@ -84,7 +84,7 @@ jobs:
     if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
     # same runner as the deliver-pulp / promote-pulp jobs: the Pulp api must be
     # reachable from here, and continue-on-error would mask a network failure
-    runs-on: centreon-ubuntu-22.04
+    runs-on: centreon-ubuntu-26.04-small
     # non-blocking during the Pulp migration, consistent with the deliver-pulp /
     # promote-pulp jobs: a Pulp-side failure must not fail the PR-close workflow.
     continue-on-error: true
@@ -95,7 +95,7 @@ jobs:
       HEAD_REF: ${{ github.head_ref }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup pulp-cli
         uses: ./.github/actions/setup-pulp-cli

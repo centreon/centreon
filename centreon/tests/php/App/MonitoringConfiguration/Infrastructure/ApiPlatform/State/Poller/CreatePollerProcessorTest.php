@@ -196,7 +196,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithEmptyName(): void
@@ -204,6 +204,28 @@ final class CreatePollerProcessorTest extends ApiTestCase
         $this->login();
 
         $this->request('POST', '/api/configuration/pollers', [
+            'json' => [
+                'name' => '',
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    /**
+     * /api/latest/configuration/pollers is a backward-compatible alias for this same operation
+     * (see LegacyApiPrefixAliasLoader) — its clients must keep getting 400 for a validation
+     * error, unlike the bare /api prefix above, which now answers 422.
+     */
+    public function testCannotCreatePollerWithEmptyNameOnTheLegacyPrefixReturns400(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
             'json' => [
                 'name' => '',
                 'poller_type' => 'vm',
@@ -230,7 +252,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithoutPollerTokenName(): void
@@ -246,7 +268,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithUnknownPollerTokenName(): void
@@ -263,7 +285,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerIfNotLogged(): void
@@ -348,7 +370,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithEmptyCentralAddress(): void
@@ -365,7 +387,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithWhitespaceCentralAddress(): void
@@ -382,7 +404,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithCentralAddressTooLong(): void
@@ -399,7 +421,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithProtocolSchemeInCentralAddress(): void
@@ -416,7 +438,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCannotCreatePollerWithProtocolSchemeInAddress(): void
@@ -433,7 +455,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testCreatePollerWithBasePathInCentralAddress(): void

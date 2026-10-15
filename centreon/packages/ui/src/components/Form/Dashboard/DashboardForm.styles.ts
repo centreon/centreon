@@ -18,4 +18,4 @@ const useGlobalRefreshIntervalStyles = makeStyles()((theme) => ({
   }
 }));
 
-export { useStyles, useGlobalRefreshIntervalStyles };
+export { useGlobalRefreshIntervalStyles, useStyles };

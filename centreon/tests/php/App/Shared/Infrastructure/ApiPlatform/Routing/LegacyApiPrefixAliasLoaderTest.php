@@ -57,16 +57,17 @@ final class LegacyApiPrefixAliasLoaderTest extends KernelTestCase
     {
         $routes = $this->getRouteCollection();
 
-        // API Platform derives this item operation from PollerResource to build IRIs, it is not
-        // an endpoint the legacy /api/latest prefix ever exposed.
-        $generatedOperation = '_api_/pollers/{id}{._format}_get';
+        // PollerResource declares this item operation as NotExposed, purely so ApiPlatform can
+        // build IRIs for the choices/collection outputs; it is not an endpoint the legacy
+        // /api/latest prefix ever exposed.
+        $generatedOperation = '_api_/configuration/pollers/{id}_get';
 
         self::assertNotNull(
-            $this->findRouteByOperationAndPath($routes, $generatedOperation, '/api/pollers/{id}.{_format}'),
+            $this->findRouteByOperationAndPath($routes, $generatedOperation, '/api/configuration/pollers/{id}'),
             'The generated item operation is expected under /api, otherwise this test no longer covers anything.',
         );
         self::assertNull(
-            $this->findRouteByOperationAndPath($routes, $generatedOperation, '/api/latest/pollers/{id}.{_format}'),
+            $this->findRouteByOperationAndPath($routes, $generatedOperation, '/api/latest/configuration/pollers/{id}'),
             'A generated item operation must not be duplicated under /api/latest.',
         );
     }

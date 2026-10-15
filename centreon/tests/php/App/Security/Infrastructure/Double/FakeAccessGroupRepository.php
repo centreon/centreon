@@ -36,6 +36,9 @@ final class FakeAccessGroupRepository implements AccessGroupRepository
     /** @var array<int, list<int>> */
     public array $groupIdsByUserId = [];
 
+    /** @var list<int> */
+    public array $flaggedGroupIds = [];
+
     public function userHasGroup(UserId $userId, string $groupName): bool
     {
         return in_array($groupName, $this->groupNamesByUserId[$userId->value] ?? [], true);
@@ -49,5 +52,12 @@ final class FakeAccessGroupRepository implements AccessGroupRepository
         );
 
         return new Collection($ids, AccessGroupId::class);
+    }
+
+    public function flagGroupsAsChanged(Collection $accessGroupIds): void
+    {
+        foreach ($accessGroupIds as $accessGroupId) {
+            $this->flaggedGroupIds[] = $accessGroupId->value;
+        }
     }
 }

@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -60,6 +62,29 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
     ) {
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostGroupId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostGroupName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hg_id', 'hg_name')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('hg_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{hg_id: int|string, hg_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['hg_id']] = new HostGroupName($row['hg_name']);
+        }
+
+        return new Collection($names, HostGroupName::class);
+    }
+
     public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
@@ -71,7 +96,8 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
             $this->filterByHostGroupCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -88,8 +114,8 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         return new InMemoryPaginator(
             items: new Collection(array_map(fn (array $row): HostGroup => $this->createHostGroup($row), $rows), HostGroup::class),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -128,12 +154,13 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
 
     private function paginate(QueryBuilder $qb, HostGroupCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return;
         }
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 
     private function countOnQueryBuilder(QueryBuilder $qb): int

@@ -25,13 +25,24 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Pol
 
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
+use Tests\App\Shared\ClearsInstalledPlatformRows;
 
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
+    use ClearsInstalledPlatformRows;
     private const BASE_ENDPOINT = '/api/configuration/pollers/installation-command';
     private const POLLER_UID = 123456789012345;
     private const POLLER_NAME = 'test-poller';
     private const POLLER_TYPE = 'vm';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->clearInstalledPlatformRows($connection, 'authentication_tokens');
+    }
 
     public function testItReturns401WhenNotAuthenticated(): void
     {

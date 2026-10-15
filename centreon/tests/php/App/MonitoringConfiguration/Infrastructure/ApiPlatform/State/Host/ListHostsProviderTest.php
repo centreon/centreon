@@ -103,6 +103,121 @@ final class ListHostsProviderTest extends ApiTestCase
         ]);
     }
 
+    public function testItIncludesTheHostIconWhenSet(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $imgId = $this->insertImage('server.png');
+        $this->linkImageToFolder($imgId, $dirId);
+        $this->insertHost('iconed-host', $pollerId, iconId: $imgId);
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'member' => [
+                ['icon' => ['id' => $imgId, 'name' => 'server.png', 'url' => '/img/media/dir/server.png']],
+            ],
+        ]);
+    }
+
+    public function testItOmitsTheIconKeyWhenTheHostHasNoIcon(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('no-icon-host', $pollerId);
+
+        $this->login();
+
+        // scoped by name: a pre-seeded host may now legitimately inherit an icon from its templates
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'no-icon-host']]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array<string, mixed>> $member */
+        $member = $response->toArray()['member'];
+        self::assertArrayNotHasKey('icon', $member[0]);
+    }
+
+    public function testItInheritsTheIconFromTheHostTemplatesWhenTheHostHasNone(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $imgId = $this->insertImage('template.png');
+        $this->linkImageToFolder($imgId, $dirId);
+        $templateId = $this->insertHostTemplate('iconed-template', iconId: $imgId);
+        $hostId = $this->insertHost('inheriting-host', $pollerId);
+        $this->linkHostToTemplate($hostId, $templateId);
+
+        $this->login();
+
+        // scoped by name so hosts pre-seeded in the database cannot shift the member order
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'inheriting-host']]]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'member' => [
+                ['icon' => ['id' => $imgId, 'name' => 'template.png', 'url' => '/img/media/dir/template.png']],
+            ],
+        ]);
+    }
+
+    public function testItPrefersTheHostOwnIconOverTheInheritedOne(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $hostImgId = $this->insertImage('host.png');
+        $this->linkImageToFolder($hostImgId, $dirId);
+        $templateImgId = $this->insertImage('template.png');
+        $this->linkImageToFolder($templateImgId, $dirId);
+        $templateId = $this->insertHostTemplate('iconed-template', iconId: $templateImgId);
+        $hostId = $this->insertHost('iconed-host', $pollerId, iconId: $hostImgId);
+        $this->linkHostToTemplate($hostId, $templateId);
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'iconed-host']]]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains([
+            'member' => [
+                ['icon' => ['id' => $hostImgId, 'name' => 'host.png', 'url' => '/img/media/dir/host.png']],
+            ],
+        ]);
+    }
+
+    public function testItResolvesTheIconOfEachHostOfAPageIndependently(): void
+    {
+        $prefix = 'icon-mix-' . bin2hex(random_bytes(4));
+        $pollerId = $this->insertPoller('Central');
+        $dirId = $this->insertImageFolder('dir');
+        $hostImgId = $this->insertImage('host.png');
+        $this->linkImageToFolder($hostImgId, $dirId);
+        $templateImgId = $this->insertImage('template.png');
+        $this->linkImageToFolder($templateImgId, $dirId);
+        $templateId = $this->insertHostTemplate('iconed-template', iconId: $templateImgId);
+        $this->insertHost("{$prefix}-own", $pollerId, iconId: $hostImgId);
+        $inheritingHostId = $this->insertHost("{$prefix}-inherited", $pollerId);
+        $this->linkHostToTemplate($inheritingHostId, $templateId);
+        $this->insertHost("{$prefix}-none", $pollerId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $prefix]]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array{name: string, icon?: array{id: int}}> $member */
+        $member = $response->toArray()['member'];
+        $iconIdsByName = [];
+        foreach ($member as $host) {
+            $iconIdsByName[$host['name']] = $host['icon']['id'] ?? null;
+        }
+        ksort($iconIdsByName);
+
+        // the host without icon nor template proves the no-template path yields no icon
+        self::assertSame(
+            ["{$prefix}-inherited" => $templateImgId, "{$prefix}-none" => null, "{$prefix}-own" => $hostImgId],
+            $iconIdsByName,
+        );
+    }
+
     public function testItOmitsTheAliasKeyWhenTheHostHasNoAlias(): void
     {
         // ApiPlatform's skip_null_values defaults to true and drops a null field from the
@@ -325,18 +440,31 @@ final class ListHostsProviderTest extends ApiTestCase
         return (int) $this->connection->lastInsertId();
     }
 
-    private function insertHostTemplate(string $name): int
+    private function insertHostTemplate(string $name, ?int $iconId = null): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_register' => '0',
         ]);
+        $templateId = (int) $this->connection->lastInsertId();
 
-        return (int) $this->connection->lastInsertId();
+        if ($iconId !== null) {
+            $this->connection->insert('extended_host_information', [
+                'host_host_id' => $templateId,
+                'ehi_icon_image' => $iconId,
+            ]);
+        }
+
+        return $templateId;
     }
 
-    private function insertHost(string $name, int $pollerId, ?string $alias = null, bool $activated = true): int
-    {
+    private function insertHost(
+        string $name,
+        int $pollerId,
+        ?string $alias = null,
+        bool $activated = true,
+        ?int $iconId = null,
+    ): int {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_alias' => $alias,
@@ -351,7 +479,35 @@ final class ListHostsProviderTest extends ApiTestCase
             'nagios_server_id' => $pollerId,
         ]);
 
+        // Every registered host always has a companion row here, even an empty one.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
+        ]);
+
         return $hostId;
+    }
+
+    private function insertImage(string $name): int
+    {
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertImageFolder(string $name): int
+    {
+        $this->connection->insert('view_img_dir', ['dir_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkImageToFolder(int $imgId, int $dirId): void
+    {
+        $this->connection->insert('view_img_dir_relation', [
+            'dir_dir_parent_id' => $dirId,
+            'img_img_id' => $imgId,
+        ]);
     }
 
     private function linkHostToTemplate(int $hostId, int $templateId): void

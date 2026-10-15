@@ -30,6 +30,86 @@ function _checkDockerPrerequisites() {
   return ${ret}
 }
 
+# centreon-vmware's Dockerfile lives in centreon-plugins (a different repo),
+# and its image is never published (licensed Broadcom VMware Perl SDK), so it
+# must be built locally. Validate the checkout + SDK archives are in place
+# before we ever reference them as a compose build context, and fail with the
+# exact command needed to fix it instead of letting `docker compose up` fail
+# deep inside the build.
+function _checkVmwarePrerequisites() {
+  local plugins_path="${VMWARE_PATH:-./centreon-plugins}"
+  local ret=0
+
+  if [ ! -d "${plugins_path}" ] || [ ! -f "${plugins_path}/.github/docker/connector/Dockerfile.connector-vmware" ]; then
+    consoleError "centreon-plugins checkout not found at '${plugins_path}'."
+    consoleError "Clone it with: git clone https://github.com/centreon/centreon-plugins.git ${plugins_path}"
+    consoleError "Or point to an existing checkout with --vmware-path <path>."
+    logError "centreon-plugins checkout not found at '${plugins_path}'."
+    ret=1
+  else
+    local missing_sdk=""
+    [ -f "${plugins_path}/sdks-vmware/VMware-vSphere-Perl-SDK-7.0.0-17698549.x86_64.tar.gz" ] || missing_sdk="${missing_sdk}VMware-vSphere-Perl-SDK-7.0.0-17698549.x86_64.tar.gz "
+    [ -f "${plugins_path}/sdks-vmware/vsan-sdk-perl.zip" ] || missing_sdk="${missing_sdk}vsan-sdk-perl.zip "
+
+    if [ -n "${missing_sdk}" ]; then
+      consoleError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      consoleError "Download them from the Broadcom Developer Portal and place them there — see ${plugins_path}/sdks-vmware/README.md."
+      logError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      ret=1
+    fi
+  fi
+
+  return ${ret}
+}
+
+# Decides once for both files (docker-compose.yaml references .env's vars,
+# so a mixed in-place/.new outcome would be worse than either uniform one).
+# Prompts on /dev/tty, not stdin (curl | bash consumes stdin for the script
+# itself); no usable tty defaults to .new, never a silent overwrite.
+function _resolveOverwriteSuffix() {
+  local dir=$1
+
+  DOCKER_FILE_SUFFIX=""
+
+  if [ ! -f "${dir}/docker-compose.yaml" ] && [ ! -f "${dir}/.env" ]; then
+    return
+  fi
+
+  if [ "${OVERWRITE}" = "1" ]; then
+    consoleInfo "--overwrite given: regenerating existing docker-compose.yaml/.env in place."
+    logInfo "Overwriting existing docker-compose.yaml/.env (--overwrite)."
+    return
+  fi
+
+  consoleWarn "docker-compose.yaml and/or .env already exist in this directory."
+
+  local reply=""
+  # Scoped 2>/dev/null: a bare `exec 3<>/dev/tty 2>/dev/null` still leaks the
+  # ENXIO error, since redirections apply left to right.
+  if { exec 3<>/dev/tty; } 2>/dev/null; then
+    printf "Overwrite them? [y/N] " >&3
+    read -r reply <&3
+    exec 3<&-
+  else
+    consoleWarn "No terminal available to prompt (non-interactive run)."
+    consoleWarn "Writing new content to docker-compose.yaml.new/.env.new instead. Pass --overwrite to regenerate in place."
+    logInfo "Non-interactive run with existing docker-compose.yaml/.env: defaulting to .new files."
+    DOCKER_FILE_SUFFIX=".new"
+    return
+  fi
+
+  case "${reply}" in
+  y | Y | yes | YES)
+    logInfo "User confirmed overwrite of existing docker-compose.yaml/.env."
+    ;;
+  *)
+    consoleInfo "Keeping existing files. Writing new content to docker-compose.yaml.new/.env.new instead."
+    logInfo "User declined overwrite; writing docker-compose.yaml.new/.env.new instead."
+    DOCKER_FILE_SUFFIX=".new"
+    ;;
+  esac
+}
+
 function runDockerInstall() {
   echo ""
   consoleMainTitle "Generating Docker Compose files for Centreon poller"
@@ -37,15 +117,33 @@ function runDockerInstall() {
   consoleTitle "Checking prerequisites:"
   _checkDockerPrerequisites || exit 1
   consoleInfo "docker and docker compose are available"
+  if [ "${WITH_VMWARE}" = "1" ]; then
+    _checkVmwarePrerequisites || exit 1
+    consoleInfo "centreon-plugins checkout and VMware SDK found"
+  fi
   echo ""
 
-  _generateDotEnv "."
-  _generateDockerCompose "."
+  _resolveOverwriteSuffix "."
+  local suffix="${DOCKER_FILE_SUFFIX}"
+  if [ "${suffix}" = ".new" ]; then
+    if [ -f "./docker-compose.yaml.new" ] || [ -f "./.env.new" ]; then
+      consoleError "docker-compose.yaml.new/.env.new already exist from a previous run. Review/merge or remove them before re-running."
+      logError "Refusing to overwrite existing docker-compose.yaml.new/.env.new."
+      exit 1
+    fi
+    # Old files are untouched; starting the stack would run stale ones.
+    START_STACK=0
+  fi
+
+  _generateDotEnv "." "${suffix}"
+  _generateSmtpDotEnv "."
+  _generateDockerCompose "." "${suffix}"
 
   echo ""
   consoleTitle "Files generated:"
-  consoleInfo "  docker-compose.yaml"
-  consoleInfo "  .env"
+  consoleInfo "  docker-compose.yaml${suffix}"
+  consoleInfo "  .env${suffix}"
+  consoleInfo "  .env.smtp (created empty if missing, never overwritten — fill in SMTP_HOST/SMTP_PORT/SMTP_FROM/SMTP_TLS for native SMTP notifications)"
   echo ""
   consoleTitle "Services included:"
   consoleInfo "  centengine, gorgone (always)"
@@ -56,9 +154,19 @@ function runDockerInstall() {
     consoleInfo "  snmptrapd, centreontrapd (--with-snmptrap)"
   fi
   if [ "${WITH_CMA}" = "1" ]; then
-    consoleInfo "  Centreon Monitoring Agent support (--with-cma): TLS certs + port 4317"
+    consoleInfo "  Centreon Monitoring Agent support (--with-cma): persisted CMA CA + port 4317"
   fi
   echo ""
+
+  if [ "${suffix}" = ".new" ]; then
+    consoleTitle "Next steps:"
+    echo "  Existing docker-compose.yaml/.env were left untouched. Review and merge manually, e.g.:"
+    echo "       diff docker-compose.yaml docker-compose.yaml.new"
+    echo "       diff .env .env.new"
+    echo ""
+    return
+  fi
+
   # No stability-based auto-start block: every case (stable/unstable/testing*)
   # now resolves TAG to a real, pullable tag (MON-208554 dropped the old
   # SET_ME_PER_COMPONENT placeholder), so --no-start/START_STACK alone decides.
@@ -71,8 +179,6 @@ function runDockerInstall() {
     consoleTitle "Next steps:"
     echo "  1. Start the stack:"
     echo "       docker compose up -d"
-    echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
-    echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
     echo ""
   fi
 }
@@ -100,9 +206,11 @@ function _dockerEffectiveStability() {
 
 function _generateDotEnv() {
   local dir=$1
+  local suffix=${2:-}
+  local out_file="${dir}/.env${suffix}"
   local tag_stability
   tag_stability="$(_dockerEffectiveStability)"
-  logInfo "Generating .env in ${dir} (stability: ${tag_stability})"
+  logInfo "Generating ${out_file} (stability: ${tag_stability})"
 
   # Registry/repo selection (ghcr.io for stable, Harbor otherwise) happens in
   # _pollerImageRepo, used by _generateDockerCompose. Only the tag is decided
@@ -134,7 +242,7 @@ function _generateDotEnv() {
     esac
   fi
 
-  cat > "${dir}/.env" <<EOF
+  cat > "${out_file}" <<EOF
 # Generated by install-poller $(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 TAG=${image_tag}
@@ -145,8 +253,13 @@ SNMPTRAPD_TAG=
 CENTREONTRAPD_TAG=
 VMWARE_TAG=
 
+# Build context for centreon-vmware (see --vmware-path)
+CENTREON_PLUGINS_PATH=${VMWARE_PATH:-./centreon-plugins}
+
 TZ=${TZ:-UTC}
 DEBUG=${DEBUG:-false}
+# centreontrapd log verbosity (only used when --with-snmptrap is set)
+CENTREONTRAPD_LOG_LEVEL=${CENTREONTRAPD_LOG_LEVEL:-error}
 
 NAME=${POLLER_NAME}
 GORGONE_UID=${GORGONE_UID}
@@ -155,20 +268,56 @@ CENTRAL_PORT=${CENTRAL_PORT}
 ENGINE_PORT=${ENGINE_PORT}
 GORGONE_TOKEN=${GORGONE_TOKEN}
 GORGONE_SSL=${GORGONE_SSL}
+# Minimum log level for gorgoned (fatal/error/warning/notice/info/debug), defaults to info.
+GORGONE_LOG_LEVEL=${GORGONE_LOG_LEVEL:-info}
 GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI=${GORGONE_PULLWSS_CENTRAL_URI}
+
+# centengine hostname = CN of the CMA CA, generated once into the poller-cma-pki
+# volume. Must match the poller address agents connect to. Changing it later
+# requires removing that volume (new CA, new fingerprint).
+ENGINE_HOSTNAME=${CMA_HOSTNAME:-centengine}
 
 APP_SECRET=${APP_SECRET}
 SALT=${SALT}
 EOF
 
   if [ $? -ne 0 ]; then
-    consoleError "Cannot write .env file."
-    logError "Cannot write .env file."
+    consoleError "Cannot write ${out_file} file."
+    logError "Cannot write ${out_file} file."
     exit 1
   fi
 
-  consoleInfo ".env written"
-  logInfo ".env written"
+  chmod 600 "${out_file}"
+
+  consoleInfo "${out_file} written"
+  logInfo "${out_file} written"
+}
+
+# .env is regenerated on re-runs (see _generateDotEnv above), so SMTP
+# credentials can't live there without being wiped out. The native-SMTP
+# notification setup (see docs) instead keeps SMTP_HOST/SMTP_PORT/SMTP_FROM/
+# SMTP_TLS in a separate .env.smtp referenced via env_file on centengine (see
+# _generateDockerCompose). Create it empty once and never touch it again on
+# subsequent runs, so user-filled values survive re-running install-poller.
+function _generateSmtpDotEnv() {
+  local dir=$1
+  local smtp_env="${dir}/.env.smtp"
+
+  if [ -f "${smtp_env}" ]; then
+    logInfo "${smtp_env} already exists, leaving it untouched"
+    return
+  fi
+
+  : > "${smtp_env}"
+
+  if [ $? -ne 0 ]; then
+    consoleError "Cannot write .env.smtp file."
+    logError "Cannot write .env.smtp file."
+    exit 1
+  fi
+
+  consoleInfo ".env.smtp written"
+  logInfo ".env.smtp written"
 }
 
 # Whether a Centreon major version (e.g. 26.10) is an on-prem release.
@@ -219,8 +368,9 @@ function _pollerImageRepo() {
 
 function _generateDockerCompose() {
   local dir=$1
-  local out="${dir}/docker-compose.yaml"
-  logInfo "Generating docker-compose.yaml in ${dir} (vmware=${WITH_VMWARE}, snmptrap=${WITH_SNMPTRAP})"
+  local suffix=${2:-}
+  local out="${dir}/docker-compose.yaml${suffix}"
+  logInfo "Generating ${out} (vmware=${WITH_VMWARE}, snmptrap=${WITH_SNMPTRAP})"
 
   # centengine (always)
   cat > "${out}" <<'EOF'
@@ -229,8 +379,11 @@ services:
 EOF
   printf '    image: "%s:${ENGINE_TAG:-${TAG}}"\n' "$(_pollerImageRepo engine)" >> "${out}"
   cat >> "${out}" <<'EOF'
+    env_file:
+      - .env
+      - .env.smtp
     container_name: "${NAME}-centengine"
-    hostname: centengine
+    hostname: "${ENGINE_HOSTNAME:-centengine}"
     restart: unless-stopped
     environment:
       NAME: "${NAME}"
@@ -246,11 +399,12 @@ EOF
       - poller-centlog:/var/log/centreon-engine
 EOF
 
-  # Centreon Monitoring Agent (optional): TLS cert mounts + gRPC port
+  # Centreon Monitoring Agent (optional): CA volume + gRPC port.
+  # poller-cma-pki persists the default CMA CA generated by centengine -k
+  # (CN = hostname), so its fingerprint survives container recreation.
   if [ "${WITH_CMA}" = "1" ]; then
     cat >> "${out}" <<'EOF'
-      - ./certs/poller.crt:/etc/pki/poller.crt
-      - ./certs/poller.key:/etc/pki/poller.key
+      - poller-cma-pki:/etc/pki/centreon-engine
     ports:
       - 4317:4317
 EOF
@@ -287,6 +441,7 @@ EOF
       GORGONE_TOKEN: "${GORGONE_TOKEN}"
       CENTRAL_HOST: "${CENTRAL_HOST}"
       CENTRAL_PORT: "${CENTRAL_PORT}"
+      GORGONE_LOG_LEVEL: "${GORGONE_LOG_LEVEL}"
       GORGONE__GORGONE__MODULES__PULLWSS__SSL: "${GORGONE_SSL}"
       GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI: "${GORGONE__GORGONE__MODULES__PULLWSS__CENTRAL_URI}"
       APP_SECRET: "${APP_SECRET}"
@@ -323,6 +478,9 @@ EOF
     cat >> "${out}" <<'EOF'
   centreon-vmware:
     image: "connector-vmware:${VMWARE_TAG:-local}"
+    build:
+      context: "${CENTREON_PLUGINS_PATH}"
+      dockerfile: .github/docker/connector/Dockerfile.connector-vmware
     container_name: "${NAME}-vmware"
     hostname: centreon-vmware
     restart: unless-stopped
@@ -377,6 +535,7 @@ EOF
     environment:
       TZ: "${TZ}"
       DEBUG: "${DEBUG}"
+      CENTREONTRAPD_LOG_LEVEL: "${CENTREONTRAPD_LOG_LEVEL}"
     volumes:
       - poller-snmp-spool:/var/spool/centreontrapd
       - poller-snmp-traps:/etc/snmp/centreon_traps:ro
@@ -409,12 +568,19 @@ EOF
 EOF
   fi
 
+  # Volume for the CMA default CA
+  if [ "${WITH_CMA}" = "1" ]; then
+    cat >> "${out}" <<'EOF'
+  poller-cma-pki:
+EOF
+  fi
+
   if [ $? -ne 0 ]; then
-    consoleError "Cannot write docker-compose.yaml file."
-    logError "Cannot write docker-compose.yaml file."
+    consoleError "Cannot write ${out} file."
+    logError "Cannot write ${out} file."
     exit 1
   fi
 
-  consoleInfo "docker-compose.yaml written"
-  logInfo "docker-compose.yaml written"
+  consoleInfo "${out} written"
+  logInfo "${out} written"
 }

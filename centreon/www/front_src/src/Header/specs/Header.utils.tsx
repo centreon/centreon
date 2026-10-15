@@ -8,7 +8,11 @@ import {
   TestQueryProvider,
   ThemeProvider
 } from '@centreon/ui';
-import { browserLocaleAtom, userPermissionsAtom } from '@centreon/ui-context';
+import {
+  browserLocaleAtom,
+  platformVersionsAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
 import { mergeDeepRight } from 'ramda';
@@ -220,7 +224,14 @@ const requestHandler =
     return undefined;
   };
 
-export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
+interface InitializeOptions {
+  installedModules?: Array<string>;
+}
+
+export const initialize = (
+  stubs: DeepPartial<Stubs> = {},
+  { installedModules = [] }: InitializeOptions = {}
+): unknown => {
   const navigate = cy.stub();
   cy.stub(testUtils, 'useNavigate').returns(navigate);
   cy.stub(testUtils, 'useNavigation').returns({
@@ -253,6 +264,17 @@ export const initialize = (stubs: DeepPartial<Stubs> = {}): unknown => {
   store.set(userPermissionsAtom, {
     poller_statistics: true,
     top_counter: true
+  });
+
+  store.set(platformVersionsAtom, {
+    modules: Object.fromEntries(
+      installedModules.map((module) => [
+        module,
+        { fix: '0', major: '25', minor: '10', version: '25.10.0' }
+      ])
+    ),
+    web: { fix: '0', major: '25', minor: '10', version: '25.10.0' },
+    widgets: {}
   });
 
   store.set(

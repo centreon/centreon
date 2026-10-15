@@ -113,7 +113,6 @@ const DataCell = ({
               if (!clickable) {
                 return;
               }
-              e.preventDefault();
               e.stopPropagation();
             }}
             {...commonCellProps}
@@ -130,7 +129,6 @@ const DataCell = ({
             if (!clickable) {
               return;
             }
-            e.preventDefault();
             e.stopPropagation();
           }}
           style={{

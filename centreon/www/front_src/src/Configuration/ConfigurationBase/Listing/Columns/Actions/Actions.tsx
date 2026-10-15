@@ -17,11 +17,27 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useColumnStyles();
 
-  const { openDeleteModal, openDuplicateModal, canDelete, canDuplicate } =
-    useActions(row);
+  const {
+    openDeleteModal,
+    openDuplicateModal,
+    canDelete,
+    canDuplicate,
+    rowActions
+  } = useActions(row);
 
   return (
     <Box className={classes.actions}>
+      {rowActions.map(({ Icon, dataTestId, label, onClick }) => (
+        <IconButton
+          ariaLabel={t(label)}
+          dataTestid={dataTestId(row)}
+          key={label}
+          onClick={() => onClick(row)}
+          title={t(label)}
+        >
+          <Icon className={classes.icon} />
+        </IconButton>
+      ))}
       {canDuplicate && (
         <IconButton
           ariaLabel={t(labelDuplicate)}

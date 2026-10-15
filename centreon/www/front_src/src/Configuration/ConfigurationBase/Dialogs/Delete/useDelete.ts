@@ -11,15 +11,25 @@ import {
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
-import { equals, isEmpty, pluck } from 'ramda';
-import { useMemo } from 'react';
+import {
+  complement,
+  equals,
+  isEmpty,
+  isNotNil,
+  last,
+  pluck,
+  propEq,
+  split
+} from 'ramda';
+import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
 
 import {
   useDeleteOne as useDeleteOneRequest,
   useDelete as useDeleteRequest
 } from '../../api';
-import { configurationAtom } from '../../atoms';
+import { configurationAtom, formStateAtom } from '../../atoms';
 import { resourcesToDeleteAtom, selectedRowsAtom } from '../../Listing/atoms';
 import {
   labelDeleteResource,
@@ -48,7 +58,15 @@ const useDelete = (): UseDeleteState => {
     resourcesToDeleteAtom
   );
 
+  const [, setSearchParams] = useSearchParams();
+
   const setSelectedRows = useSetAtom(selectedRowsAtom);
+  const [formState, setFormState] = useAtom(formStateAtom);
+
+  // The close runs once the request resolves, by which time the form may hold
+  // another resource.
+  const formStateRef = useRef(formState);
+  formStateRef.current = formState;
   const configuration = useAtomValue(configurationAtom);
 
   const name = truncate({ content: resourcesToDelete[0]?.name, maxLength: 40 });
@@ -68,9 +86,38 @@ const useDelete = (): UseDeleteState => {
     setResourcesToDelete([]);
   };
 
+  const getFailedIds = (results): Array<number> =>
+    (results ?? [])
+      .filter(complement(propEq(204, 'status')))
+      .map(({ href }) =>
+        Number.parseInt(last(split('/', href || '')) as string, 10)
+      );
+
+  // A form on a deleted resource would save into a void, and a URL still
+  // naming it would reopen it. A refused deletion leaves the resource, and its
+  // form, alone.
+  const closeFormOnDeletedResource = (failedIds: Array<number> = []): void => {
+    const currentFormState = formStateRef.current;
+    const { id, isOpen } = currentFormState;
+
+    if (!isOpen || !ids.includes(id) || failedIds.includes(id)) {
+      return;
+    }
+
+    setSearchParams({});
+    setFormState({ ...currentFormState, id: null, isOpen: false });
+  };
+
   const { deleteMutation, isMutating } = useDeleteRequest();
-  const { deleteOneMutation, isMutating: isMutatingOne } =
-    useDeleteOneRequest();
+  const {
+    deleteOneMutation,
+    deleteEachMutation,
+    isMutating: isMutatingOne
+  } = useDeleteOneRequest();
+
+  // One request for the selection, or one each, depending on what is declared.
+  const hasBulkEndpoint = isNotNil(configuration?.api?.endpoints?.delete);
+  const deletesOneByItself = equals(count, 1) || !hasBulkEndpoint;
 
   const handleApiResponse = (response) => {
     const { isError, results } = response as ResponseError;
@@ -83,6 +130,7 @@ const useDelete = (): UseDeleteState => {
         t(labelResourceDeleted(capitalize(labelResourceType)))
       );
 
+      closeFormOnDeletedResource();
       resetSelections();
 
       return;
@@ -96,13 +144,20 @@ const useDelete = (): UseDeleteState => {
       labelWarning: t(labelFailedToDeleteSomeResources)
     });
 
+    closeFormOnDeletedResource(getFailedIds(results));
     resetSelections();
   };
 
   const confirm = (): void => {
+    if (!deletesOneByItself) {
+      deleteMutation({ ids }).then(handleApiResponse);
+
+      return;
+    }
+
     equals(count, 1)
       ? deleteOneMutation({ id: ids[0] }).then(handleApiResponse)
-      : deleteMutation({ ids }).then(handleApiResponse);
+      : deleteEachMutation({ ids }).then(handleApiResponse);
   };
 
   const bodyContent = {

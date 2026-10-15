@@ -23,29 +23,33 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Security\Domain\Aggregate\UserId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class HostTemplateCriteria
+final class HostTemplateCriteria implements PaginableCriteria
 {
-    private ?int $page = null;
+    use PaginableCriteriaTrait;
+    use ViewerScopedCriteriaTrait;
 
-    private ?int $itemsPerPage = null;
+    private ?HostTemplateId $id = null;
 
     private ?string $name = null;
 
-    private ?UserId $viewerId = null;
+    private bool $excludeLocked = false;
 
-    public function withPagination(int $page, int $itemsPerPage): self
+    public function withId(HostTemplateId $id): self
     {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
         $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
+        $new->id = $id;
 
         return $new;
+    }
+
+    public function getId(): ?HostTemplateId
+    {
+        return $this->id;
     }
 
     public function withName(string $name): self
@@ -59,34 +63,21 @@ final class HostTemplateCriteria
         return $new;
     }
 
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
-    {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
-
-        return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function getViewerId(): ?UserId
+    public function withExcludeLocked(bool $exclude): self
     {
-        return $this->viewerId;
+        $new = clone $this;
+        $new->excludeLocked = $exclude;
+
+        return $new;
+    }
+
+    public function excludeLocked(): bool
+    {
+        return $this->excludeLocked;
     }
 }

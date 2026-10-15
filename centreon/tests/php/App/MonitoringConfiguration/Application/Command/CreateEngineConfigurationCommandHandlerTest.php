@@ -91,6 +91,36 @@ final class CreateEngineConfigurationCommandHandlerTest extends TestCase
         self::assertTrue($cfg->freshnessAndFlap->checkServiceFreshness);
     }
 
+    public function testItDisablesFlapAndHostDownChecksByDefaultOnPrem(): void
+    {
+        $repository = new FakeEngineConfigurationRepository();
+        $handler = new CreateEngineConfigurationCommandHandler($repository, isCloudPlatform: false);
+
+        $handler(new CreateEngineConfigurationCommand(
+            pollerId: new PollerId(1),
+            pollerName: 'Test',
+        ));
+
+        $cfg = array_values($repository->engineConfigurations)[0];
+        self::assertFalse($cfg->freshnessAndFlap->enableFlapDetection);
+        self::assertFalse($cfg->checkExecution->hostDownDisableServiceChecks);
+    }
+
+    public function testItEnablesFlapAndHostDownChecksByDefaultOnCloud(): void
+    {
+        $repository = new FakeEngineConfigurationRepository();
+        $handler = new CreateEngineConfigurationCommandHandler($repository, isCloudPlatform: true);
+
+        $handler(new CreateEngineConfigurationCommand(
+            pollerId: new PollerId(1),
+            pollerName: 'Test',
+        ));
+
+        $cfg = array_values($repository->engineConfigurations)[0];
+        self::assertTrue($cfg->freshnessAndFlap->enableFlapDetection);
+        self::assertTrue($cfg->checkExecution->hostDownDisableServiceChecks);
+    }
+
     public function testItSetsBrokerModulePath(): void
     {
         $repository = new FakeEngineConfigurationRepository();

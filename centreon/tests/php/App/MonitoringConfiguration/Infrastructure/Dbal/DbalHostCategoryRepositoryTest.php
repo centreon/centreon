@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostCategoryTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -48,12 +51,15 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
         // The repository has no ApiPlatform consumer yet (that lands with the Provider), so the
         // container would prune it; construct it directly from the always-public DBAL connection.
         $this->repository = new DbalHostCategoryRepository(
             $this->connection,
             new HostCategoryTransformer(),
-            new DbalResourceAccessRepository($this->connection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host categories
@@ -71,6 +77,33 @@ final class DbalHostCategoryRepositoryTest extends KernelTestCase
 
         self::assertContains($categoryName, $names);
         self::assertNotContains($severityName, $names, 'A host severity (level IS NOT NULL) must not appear among host categories.');
+    }
+
+    public function testFindNamesByIdsResolvesCategories(): void
+    {
+        $categoryId = $this->insertHostCategory("names-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostCategoryId($categoryId)], HostCategoryId::class)
+        )->toArray();
+
+        self::assertSame("names-{$this->tag}", $names[$categoryId]->value);
+    }
+
+    public function testFindNamesByIdsIgnoresSeverities(): void
+    {
+        $severityId = $this->insertHostCategory("sev-names-{$this->tag}", level: 1);
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostCategoryId($severityId)], HostCategoryId::class)
+        );
+
+        self::assertCount(0, $names);
+    }
+
+    public function testFindNamesByIdsReturnsNothingForAnEmptyInput(): void
+    {
+        self::assertCount(0, $this->repository->findNamesByIds(new Collection([], HostCategoryId::class)));
     }
 
     public function testFindAllFiltersByNameUsingLike(): void

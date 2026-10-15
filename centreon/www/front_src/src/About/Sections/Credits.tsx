@@ -1,12 +1,7 @@
 import type { ReactElement } from 'react';
 import { Trans } from 'react-i18next';
 
-import {
-  labelContributorsNotice,
-  labelProjectLeadersWithCount
-} from '../translatedLabels';
-
-export const projectLeaders = ['Julien Mathis', 'Romain Le Merlus'];
+import { labelContributorsNotice } from '../translatedLabels';
 
 const contributorsGraphUrl =
   'https://github.com/centreon/centreon/graphs/contributors';
@@ -14,23 +9,6 @@ const contributorsGraphUrl =
 const Credits = (): ReactElement => {
   return (
     <div>
-      <p className="mb-2 font-bold text-text-primary">
-        <Trans
-          components={{
-            count: <span className="font-normal text-text-secondary" />
-          }}
-          defaults={labelProjectLeadersWithCount}
-          values={{ total: projectLeaders.length }}
-        />
-      </p>
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-text-secondary">
-        {projectLeaders.map((name, index) => (
-          <span className="flex gap-2" key={name}>
-            {index > 0 && <span className="text-text-disabled">/</span>}
-            <span>{name}</span>
-          </span>
-        ))}
-      </div>
       <p className="text-sm">
         <Trans
           components={{

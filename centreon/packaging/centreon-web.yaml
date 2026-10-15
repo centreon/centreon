@@ -283,7 +283,7 @@ contents:
     file_info:
       mode: 0755
 
-  - src: "../cron/{centreon-backup.pl,centAcl.php,centAcl-Func.php,centstorage_purge.php,centAcl-Func.php,eventReportBuilder,centreon-send-stats.php,dashboardBuilder,centreon-backup-mysql.sh,centreon-partitioning.php,downtimeManager.php,centKnowledgeSynchronizer.php}"
+  - src: "../cron/{centreon-backup.pl,centAcl.php,centAcl-Func.php,checkConfiguration.php,centstorage_purge.php,centAcl-Func.php,eventReportBuilder,centreon-send-stats.php,dashboardBuilder,centreon-backup-mysql.sh,centreon-partitioning.php,downtimeManager.php,centKnowledgeSynchronizer.php}"
     dst: "/usr/share/centreon/cron/"
     file_info:
       mode: 0755
@@ -489,6 +489,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl >= 0.3.13-20
+      - logrotate
     provides:
       - centreon-backup
       - centreon-clapi
@@ -534,8 +535,6 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
-    recommends:
-      - logrotate
 
   deb:
     depends:
@@ -554,6 +553,7 @@ overrides:
       - rsync
       - brotli
       - lua-curl (>= 0.3.13-20)
+      - logrotate
     provides:
       - centreon-web-apache
       - centreon-web-common
@@ -605,8 +605,6 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
-    recommends:
-      - logrotate
 
 rpm:
   summary: Centreon WebUI

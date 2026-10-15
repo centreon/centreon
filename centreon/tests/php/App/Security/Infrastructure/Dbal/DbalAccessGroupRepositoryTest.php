@@ -26,6 +26,7 @@ namespace Tests\App\Security\Infrastructure\Dbal;
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
+use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -115,6 +116,33 @@ final class DbalAccessGroupRepositoryTest extends KernelTestCase
         );
 
         self::assertEqualsCanonicalizing([$directGroupId, $indirectGroupId], $groupIds);
+    }
+
+    public function testFlagGroupsAsChangedFlagsOnlyTheGivenGroups(): void
+    {
+        $flaggedGroupId = $this->createAclGroup('flagged-group', active: true);
+        $untouchedGroupId = $this->createAclGroup('untouched-group', active: true);
+        // acl_group_changed defaults to 1 at creation — reset both to 0 first so the assertion
+        // below actually proves selectivity rather than passing by coincidence.
+        $this->connection->update('acl_groups', ['acl_group_changed' => 0], ['acl_group_id' => $flaggedGroupId]);
+        $this->connection->update('acl_groups', ['acl_group_changed' => 0], ['acl_group_id' => $untouchedGroupId]);
+
+        $this->repository->flagGroupsAsChanged(new Collection([new AccessGroupId($flaggedGroupId)], AccessGroupId::class));
+
+        /** @var int|string $flaggedValue */
+        $flaggedValue = $this->connection->fetchOne('SELECT acl_group_changed FROM acl_groups WHERE acl_group_id = ?', [$flaggedGroupId]);
+        /** @var int|string $untouchedValue */
+        $untouchedValue = $this->connection->fetchOne('SELECT acl_group_changed FROM acl_groups WHERE acl_group_id = ?', [$untouchedGroupId]);
+
+        self::assertSame(1, (int) $flaggedValue);
+        self::assertSame(0, (int) $untouchedValue);
+    }
+
+    public function testFlagGroupsAsChangedIsANoOpForAnEmptyCollection(): void
+    {
+        $this->repository->flagGroupsAsChanged(new Collection([], AccessGroupId::class));
+
+        $this->addToAssertionCount(1); // simply asserting no error/query is thrown
     }
 
     private function createContact(string $alias): int
