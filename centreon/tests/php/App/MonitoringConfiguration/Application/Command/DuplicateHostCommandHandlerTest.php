@@ -61,8 +61,9 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -104,14 +105,14 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             $this->logger,
             new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                 new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
-                new FakeMonitoringConnectorTemplateRepository(),
+                new FakeMonitoringConnectorTemplates(new FakeHostTemplateRepository()),
             )),
         );
     }
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplateRepository::reset();
+        FakeMonitoringConnectorTemplates::reset();
         parent::tearDown();
     }
 
@@ -474,7 +475,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
     {
         $this->storeSourceHost(1, 'web');
         $this->vault->vaultEnabled = true;
-        FakeMonitoringConnectorTemplateRepository::restrict(5);
+        FakeMonitoringConnectorTemplates::restrict(5);
 
         try {
             ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));

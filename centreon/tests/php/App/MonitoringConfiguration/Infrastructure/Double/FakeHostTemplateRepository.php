@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
@@ -99,5 +100,10 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         }
 
         return new Collection($line, HostTemplate::class);
+    }
+
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
+    {
+        return new Collection([], HostTemplateId::class);
     }
 }

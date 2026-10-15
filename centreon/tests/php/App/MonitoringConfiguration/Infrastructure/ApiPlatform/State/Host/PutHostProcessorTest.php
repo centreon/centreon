@@ -46,7 +46,7 @@ use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class PutHostProcessorTest extends ApiTestCase
@@ -71,7 +71,7 @@ final class PutHostProcessorTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplateRepository::reset();
+        FakeMonitoringConnectorTemplates::reset();
         parent::tearDown();
     }
 
@@ -624,7 +624,7 @@ final class PutHostProcessorTest extends ApiTestCase
         $addedId = $this->insertHostTemplate($this->uniqueName('connector'));
         $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
         $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $keptId, '`order`' => 1]);
-        FakeMonitoringConnectorTemplateRepository::restrict($keptId, $addedId);
+        FakeMonitoringConnectorTemplates::restrict($keptId, $addedId);
         $payload = [...$this->payload($this->uniqueName('server'), $pollerId), 'create_services_linked_to_templates' => false];
 
         $this->request('PUT', $this->endpoint($hostId), ['json' => [...$payload, 'template_ids' => [$keptId]]]);

@@ -26,7 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Service;
 use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Repository\MonitoringConnectorTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\License\HostLicenseLimitInterface;
 use App\Shared\Domain\License\LicenseCheckInterface;
@@ -38,9 +38,9 @@ final class UnlicensedHostTemplatesTest extends TestCase
 {
     public function testItReturnsThePaidConnectorTemplatesOnceTheLimitIsReached(): void
     {
-        $repository = $this->createMock(MonitoringConnectorTemplateRepository::class);
+        $repository = $this->createMock(HostTemplateRepository::class);
         $repository->expects(self::once())
-            ->method('findTemplateIds')
+            ->method('findMonitoringConnectorTemplateIds')
             ->with(UnlicensedHostTemplates::FREE_CONNECTOR_SLUGS)
             ->willReturn(new Collection([new HostTemplateId(4), new HostTemplateId(7)], HostTemplateId::class));
 
@@ -51,8 +51,8 @@ final class UnlicensedHostTemplatesTest extends TestCase
 
     public function testItReturnsNothingWhileTheLimitIsNotReached(): void
     {
-        $repository = $this->createMock(MonitoringConnectorTemplateRepository::class);
-        $repository->expects(self::never())->method('findTemplateIds');
+        $repository = $this->createMock(HostTemplateRepository::class);
+        $repository->expects(self::never())->method('findMonitoringConnectorTemplateIds');
 
         self::assertCount(0, (new UnlicensedHostTemplates($this->unreachedLimit(), $repository))->findIds());
     }

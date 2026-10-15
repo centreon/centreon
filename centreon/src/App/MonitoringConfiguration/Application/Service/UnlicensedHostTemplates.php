@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Service;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
-use App\MonitoringConfiguration\Domain\Repository\MonitoringConnectorTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Shared\Domain\Collection;
 
 /**
@@ -48,7 +48,7 @@ final readonly class UnlicensedHostTemplates
 
     public function __construct(
         private HostLicenseLimit $hostLicenseLimit,
-        private MonitoringConnectorTemplateRepository $connectorTemplateRepository,
+        private HostTemplateRepository $hostTemplateRepository,
     ) {
     }
 
@@ -65,6 +65,6 @@ final readonly class UnlicensedHostTemplates
             return new Collection([], HostTemplateId::class);
         }
 
-        return $this->connectorTemplateRepository->findTemplateIds(self::FREE_CONNECTOR_SLUGS);
+        return $this->hostTemplateRepository->findMonitoringConnectorTemplateIds(self::FREE_CONNECTOR_SLUGS);
     }
 }

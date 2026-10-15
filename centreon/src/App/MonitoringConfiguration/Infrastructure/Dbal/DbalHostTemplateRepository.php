@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -62,6 +63,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     // host templates are host rows discriminated by host_register = '0'
     private const HOST_TEMPLATE_REGISTER = '0';
 
+    // provides the Monitoring Connectors, stored in its own tables
+    private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
+
     /**
      * @param TransformerInterface<RowTypeAlias, HostTemplate> $transformer
      */
@@ -73,6 +77,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         private TransformerInterface $transformer,
 
         private ResourceAccessRepository $resourceAccessRepository,
+
+        private ModuleRepository $moduleRepository,
     ) {
     }
 
@@ -234,6 +240,45 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         )->fetchFirstColumn();
 
         return array_map(intval(...), $serviceTemplateIds);
+    }
+
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
+    {
+        if (! $this->moduleRepository->isInstalled(self::PLUGIN_PACK_MANAGER_MODULE)) {
+            return new Collection([], HostTemplateId::class);
+        }
+
+        // The connector templates, then every template inheriting from them (legacy getHostChain()).
+        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
+        // recursion run forever.
+        [$excludeClause, $params, $types] = $excludedConnectorSlugs === []
+            ? ['', [], []]
+            : ['WHERE pp.slug NOT IN (:excludedSlugs)', ['excludedSlugs' => $excludedConnectorSlugs], ['excludedSlugs' => ArrayParameterType::STRING]];
+        $sql = <<<SQL
+            WITH RECURSIVE connector_templates (id) AS (
+                SELECT ph.host_id
+                FROM mod_ppm_pluginpack_host ph
+                INNER JOIN mod_ppm_pluginpack pp ON pp.pluginpack_id = ph.pluginpack_id
+                {$excludeClause}
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN connector_templates ct ON ct.id = htr.host_tpl_id
+            )
+            SELECT h.host_id
+            FROM host h
+            INNER JOIN connector_templates ct ON ct.id = h.host_id
+            WHERE h.host_register = '0'
+            ORDER BY h.host_id
+            SQL;
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->executeQuery($sql, $params, $types)->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): HostTemplateId => new HostTemplateId((int) $id), $ids),
+            HostTemplateId::class,
+        );
     }
 
     public function findInheritanceLine(Collection $directTemplateIds): Collection

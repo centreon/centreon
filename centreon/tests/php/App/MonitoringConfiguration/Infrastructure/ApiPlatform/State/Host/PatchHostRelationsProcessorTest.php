@@ -25,7 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class PatchHostRelationsProcessorTest extends ApiTestCase
@@ -61,7 +61,7 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplateRepository::reset();
+        FakeMonitoringConnectorTemplates::reset();
         parent::tearDown();
     }
 
@@ -120,7 +120,7 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
         $kept = $this->insertHostTemplate();
         $this->patch(['template_ids' => [$kept]]);
         $added = $this->insertHostTemplate();
-        FakeMonitoringConnectorTemplateRepository::restrict($kept, $added);
+        FakeMonitoringConnectorTemplates::restrict($kept, $added);
 
         $this->patch(['template_ids' => [$kept]]);
 
