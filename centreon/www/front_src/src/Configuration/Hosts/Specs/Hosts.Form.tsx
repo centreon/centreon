@@ -1458,7 +1458,9 @@ export default () => {
       cy.findByTestId('host-form-check-options-command').click();
       // Only active check commands, as legacy offers.
       cy.waitForRequest('@getFormCommands').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/api/configuration/hosts/commands');
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/commands'
+        );
         expect(request.url.searchParams.getAll('type[]')).to.deep.equals([
           'Check'
         ]);
@@ -1615,7 +1617,9 @@ export default () => {
 
       cy.findByTestId('host-form-data-processing-eventHandler').click();
       cy.waitForRequest('@getFormCommands').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/api/configuration/hosts/commands');
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/commands'
+        );
         expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.url.searchParams.get('is_activated')).to.equal('true');
       });

@@ -12,11 +12,11 @@ import { BrowserRouter as Router } from 'react-router';
 
 import Hosts from '..';
 import {
-  hostFormCommandsEndpoint,
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
   getHostTemplateMacrosEndpoint,
+  hostFormCommandsEndpoint,
   hostFormContactGroupsEndpoint,
   hostFormContactsEndpoint,
   hostFormHostCategoriesEndpoint,
