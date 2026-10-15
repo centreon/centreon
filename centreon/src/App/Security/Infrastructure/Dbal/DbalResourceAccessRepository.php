@@ -496,12 +496,12 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope
     {
         if ($among?->count() === 0) {
-            return AccessScope::restrictedTo(HostId::class, []);
+            return $this->hostAccessScope([], $among);
         }
 
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
         if ($accessGroupIds === []) {
-            return AccessScope::restrictedTo(HostId::class, []);
+            return $this->hostAccessScope([], $among);
         }
 
         $qb = $this->realTimeConnection->createQueryBuilder();
@@ -517,10 +517,23 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{host_id: int|string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
-        return AccessScope::restrictedTo(HostId::class, new Collection(
+        return $this->hostAccessScope(
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
-            HostId::class,
-        ));
+            $among,
+        );
+    }
+
+    /**
+     * @param list<HostId> $ids
+     * @param ?Collection<HostId> $among
+     *
+     * @return AccessScope<HostId>
+     */
+    private function hostAccessScope(array $ids, ?Collection $among): AccessScope
+    {
+        return $among instanceof Collection
+            ? AccessScope::partiallyRestrictedTo(HostId::class, $ids)
+            : AccessScope::restrictedTo(HostId::class, $ids);
     }
 
     /**

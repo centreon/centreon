@@ -42,6 +42,7 @@ final readonly class AccessScope
         private string $idClass,
         private bool $unrestricted,
         private array $allowedIdValues,
+        private bool $partial = false,
     ) {
     }
 
@@ -76,6 +77,24 @@ final readonly class AccessScope
         return new self($idClass, unrestricted: false, allowedIdValues: $allowedIdValues);
     }
 
+    /**
+     * A restricted scope looked up among some ids only: it answers for them, but cannot list what it allows
+     * nor tell whether it allows nothing, since the ids it was not looked up among are unknown to it.
+     *
+     * @template U of AggregateRootId
+     *
+     * @param class-string<U> $idClass
+     * @param iterable<U> $ids the allowed ids among the looked up ones
+     *
+     * @return self<U>
+     */
+    public static function partiallyRestrictedTo(string $idClass, iterable $ids): self
+    {
+        $scope = self::restrictedTo($idClass, $ids);
+
+        return new self($idClass, unrestricted: false, allowedIdValues: $scope->allowedIdValues, partial: true);
+    }
+
     public function isUnrestricted(): bool
     {
         return $this->unrestricted;
@@ -83,9 +102,13 @@ final readonly class AccessScope
 
     /**
      * Whether the scope is restricted to nothing at all.
+     *
+     * @throws \LogicException for a partial scope, which only knows the ids it was looked up among
      */
     public function allowsNothing(): bool
     {
+        $this->assertComplete();
+
         return ! $this->unrestricted && $this->allowedIdValues === [];
     }
 
@@ -138,6 +161,7 @@ final readonly class AccessScope
      * The values of the ids a restricted scope allows, for a query to filter on.
      *
      * @throws \LogicException for an unrestricted scope, which has no such list
+     * @throws \LogicException for a partial scope, which only knows the ids it was looked up among
      *
      * @return list<int>
      */
@@ -147,6 +171,15 @@ final readonly class AccessScope
             throw new \LogicException('An unrestricted scope allows every id: check isUnrestricted() first.');
         }
 
+        $this->assertComplete();
+
         return array_keys($this->allowedIdValues);
+    }
+
+    private function assertComplete(): void
+    {
+        if ($this->partial) {
+            throw new \LogicException('A partial scope only knows the ids it was looked up among: it cannot list or count what it allows.');
+        }
     }
 }

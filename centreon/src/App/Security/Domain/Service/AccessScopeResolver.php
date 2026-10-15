@@ -118,7 +118,7 @@ final readonly class AccessScopeResolver
     }
 
     /**
-     * @param ?Collection<HostId> $among when given, only these hosts are looked up: the scope then only answers for them
+     * @param ?Collection<HostId> $among when given, only these hosts are looked up: the scope is then partial, and only answers for them
      *
      * @return AccessScope<HostId>
      */
