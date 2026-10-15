@@ -578,7 +578,7 @@ test.describe('default monitoring server', () => {
     const pollers = page.waitForResponse((response) =>
       response.url().includes('/configuration/hosts/pollers')
     );
-    const component = await setUp({ mockApi, mount }, { pollersDelay: 5000 });
+    const component = await setUp({ mockApi, mount }, { pollersDelay: 3000 });
     await openCreation(component);
     await hostField(page, 'host-form-name').fill('srv-apache-02');
 

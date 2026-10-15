@@ -19,10 +19,18 @@ currently fails on this checkout: the `allowBuilds` entries of
 pnpm's pre-run dependency check exits non-zero. That is pre-existing on
 `develop` and affects every script, not only these.
 
-`playwright.config.ts` starts the gallery dev server itself
-(`rspack.config.gallery.js`, port 9093) and reuses a running one outside CI.
-Cold start of the dev server is ~2 min; each test then runs in 1-3 s. While
-writing specs, keep it running with
+`playwright.config.ts` starts the gallery itself on port 9093 and reuses a
+running one outside CI. Two modes:
+
+- **Static build** (CI, or `GALLERY_STATIC=1`): `rspack.config.gallery.build.js`
+  builds a minified gallery in ~10 s and `playwright/gallery/serve.mjs` serves
+  it. A mount parses ~7 MB of JavaScript instead of 24 MB, so the full suite runs
+  ~4x faster (7.8 vs 31.5 min locally with 4 workers). `NODE_ENV` stays
+  `development`: production MUI drops the icons' `data-testid`.
+- **Dev server** (default locally, `rspack.config.gallery.js`): hot reload
+  while writing specs, ~2 min cold start, then 1-3 s per test.
+
+While writing specs, keep the dev server running with
 `node_modules/.bin/rspack serve -c ./rspack.config.gallery.js`, and **restart it
 after adding a story file**: the watcher does not always pick new files up
 (`Unknown story` errors).
@@ -70,7 +78,8 @@ Specs import `test` and `expect` from `tests/components/fixtures.ts`:
   their leading slash (`'configuration/hosts'`, not `'/configuration/hosts'`).
   `MockApi` and `MockedEndpoint` are exported for shared mock modules.
 - `loadStoryData(storyId, globalName)` mounts a data story and returns what it
-  published on `window` (see below).
+  published on `window` (see below). Data stories must be deterministic: the
+  result is cached per worker, so only the first test of a worker mounts it.
 - `expectThemedScreenshot(target, name)` captures `name-light` and `name-dark`,
   the convention of the Cypress component suite. `target` is the mount locator,
   a portalled element, or the page for fixed-position components.

@@ -131,7 +131,10 @@ test('removes a selected token from its chip', async ({ mount }) => {
     .getByTestId('CancelIcon')
     .click();
 
-  await expect(component.getByTestId('tag-option-chip-1')).toHaveCount(0);
+  // Short timeout: the expected failure need not wait the default 10 s.
+  await expect(component.getByTestId('tag-option-chip-1')).toHaveCount(0, {
+    timeout: 2_000
+  });
   await expect(component.getByTestId('form-values')).toHaveValue(
     /"name":"token2".*"name":"token3"/
   );

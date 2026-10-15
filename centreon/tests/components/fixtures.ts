@@ -63,6 +63,9 @@ const parseBody = (body: string | null): unknown => {
   }
 };
 
+// Data stories are deterministic: load each once per worker, not per test.
+const storyDataCache = new Map<string, unknown>();
+
 export const test = base.extend<ComponentFixtures>({
   expectThemedScreenshot: async ({ page }, use) => {
     await use(async (target, name) => {
@@ -76,16 +79,24 @@ export const test = base.extend<ComponentFixtures>({
 
   loadStoryData: async ({ mount, page }, use) => {
     await use(async (storyId, globalName) => {
-      await mount(storyId as never);
-      await page.waitForFunction(
-        (name) => Boolean((window as unknown as Record<string, unknown>)[name]),
-        globalName
-      );
+      const key = `${storyId}#${globalName}`;
+      if (!storyDataCache.has(key)) {
+        await mount(storyId as never);
+        await page.waitForFunction(
+          (name) =>
+            Boolean((window as unknown as Record<string, unknown>)[name]),
+          globalName
+        );
+        storyDataCache.set(
+          key,
+          await page.evaluate(
+            (name) => (window as unknown as Record<string, unknown>)[name],
+            globalName
+          )
+        );
+      }
 
-      return page.evaluate(
-        (name) => (window as unknown as Record<string, unknown>)[name],
-        globalName
-      ) as never;
+      return structuredClone(storyDataCache.get(key)) as never;
     });
   },
 

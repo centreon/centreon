@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 const galleryPort = Number(process.env.GALLERY_PORT ?? 9093);
 const galleryUrl = `http://localhost:${galleryPort}/playwright/gallery/index.html`;
+// Full runs mount from a static minified build (4x faster than the dev
+// server); the dev server stays the default while writing specs.
+const staticGallery = Boolean(process.env.CI || process.env.GALLERY_STATIC);
 
 export default defineConfig({
   expect: {
@@ -49,9 +52,13 @@ export default defineConfig({
   webServer: {
     // Direct binary: `pnpm run` currently fails on this checkout because the
     // allowBuilds entries of pnpm-workspace.yaml are unresolved placeholders.
-    command: 'node_modules/.bin/rspack serve -c ./rspack.config.gallery.js',
+    command: staticGallery
+      ? 'node_modules/.bin/rspack build -c ./rspack.config.gallery.build.js && node playwright/gallery/serve.mjs'
+      : 'node_modules/.bin/rspack serve -c ./rspack.config.gallery.js',
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
     url: galleryUrl
-  }
+  },
+  // The 4 vCPUs of the CI runner; Playwright defaults to half the cores.
+  workers: process.env.CI ? 4 : undefined
 });
