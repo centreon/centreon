@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Application\Command\CheckOptionsChanges;
 use App\MonitoringConfiguration\Application\Command\DataProcessingChanges;
 use App\MonitoringConfiguration\Application\Command\ExtendedInformationsChanges;
 use App\MonitoringConfiguration\Application\Command\ListChange;
+use App\MonitoringConfiguration\Application\Command\MacroChanges;
 use App\MonitoringConfiguration\Application\Command\NotificationsChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\SchedulingOptionsChanges;
@@ -36,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\GeoCoordinates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
@@ -67,6 +69,11 @@ use Webmozart\Assert\Assert;
  */
 final readonly class PatchHostCommandFactory
 {
+    public function __construct(
+        private HostMacroTransformer $macroTransformer,
+    ) {
+    }
+
     public function create(
         HostId $id,
         int $updatedBy,
@@ -121,6 +128,7 @@ final readonly class PatchHostCommandFactory
             contactGroupIds: $input->notifications instanceof PatchHostNotificationsInput
                 ? $this->listChange($payload->section('notifications'), 'contact_groups', $input->notifications->contactGroups, $input->notifications->contactGroupsToAdd, $input->notifications->contactGroupsToRemove, static fn (int $id): ContactGroupId => new ContactGroupId($id))
                 : new NoValue(),
+            macros: $this->macroChanges($payload->section('check_options'), $input->checkOptions),
             deployServicesFromTemplates: $input->createServicesLinkedToTemplates ?? false,
             viewerId: $viewerId,
         );
@@ -172,6 +180,20 @@ final readonly class PatchHostCommandFactory
             checkCommandId: $this->provided($sent, 'command_id', static fn (): ?CommandId => $data->commandId !== null ? new CommandId($data->commandId) : null),
             args: $this->provided($sent, 'args', static fn (): array => array_values($data->args)),
         );
+    }
+
+    private function macroChanges(RequestPayload $sent, ?PatchHostCheckOptionsInput $data): NoValue|MacroChanges
+    {
+        if (! $data instanceof PatchHostCheckOptionsInput) {
+            return new NoValue();
+        }
+
+        return match (true) {
+            $sent->has('macros') => MacroChanges::replace(array_map($this->macroTransformer->toChange(...), array_values($data->macros))),
+            $sent->has('macros_to_upsert') => MacroChanges::upsert(array_map($this->macroTransformer->toChange(...), array_values($data->macrosToUpsert))),
+            $sent->has('macros_to_remove') => MacroChanges::remove(array_map(static fn (int $id): HostMacroId => new HostMacroId($id), array_values($data->macrosToRemove))),
+            default => new NoValue(),
+        };
     }
 
     private function notifications(PatchHostNotificationsInput $data, RequestPayload $sent): NotificationsChanges
