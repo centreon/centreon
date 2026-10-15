@@ -4,6 +4,8 @@ services:
     container_name: "${NAME}-centengine"
     hostname: centengine
     restart: unless-stopped
+    cap_add:
+      - NET_RAW
     environment:
       NAME: "${NAME}"
       TZ: "${TZ}"

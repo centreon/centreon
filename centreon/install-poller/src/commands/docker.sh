@@ -489,6 +489,8 @@ EOF
     container_name: "${NAME}-centengine"
     hostname: "${ENGINE_HOSTNAME:-centengine}"
     restart: unless-stopped
+    cap_add:
+      - NET_RAW
     environment:
       NAME: "${NAME}"
       TZ: "${TZ}"
