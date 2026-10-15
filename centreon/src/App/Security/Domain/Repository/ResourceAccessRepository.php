@@ -149,7 +149,7 @@ interface ResourceAccessRepository
      * resource-scoping rule per Access Group, so the scope is always restricted.
      *
      * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see:
-     *                                   the scope then only answers for them
+     *                                   the scope is then partial, and only answers for them
      *
      * @return AccessScope<HostId>
      */

@@ -155,12 +155,9 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
 
         $amongIds = array_map(static fn (HostId $id): int => $id->value, $among->toArray());
 
-        return AccessScope::restrictedTo(HostId::class, new Collection(
-            array_values(array_filter(
-                $this->accessibleHostIds->toArray(),
-                static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
-            )),
-            HostId::class,
+        return AccessScope::partiallyRestrictedTo(HostId::class, array_filter(
+            $this->accessibleHostIds->toArray(),
+            static fn (HostId $id): bool => in_array($id->value, $amongIds, true),
         ));
     }
 

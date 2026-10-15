@@ -718,13 +718,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9201]);
         $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => 9202]);
 
-        $accessibleIds = $this->repository->findHostAccessScope(
-            new UserId($actorId),
-            new Collection([new HostId(9202), new HostId(9203)], HostId::class),
-        )->allowedIdValues();
+        $among = new Collection([new HostId(9201), new HostId(9202), new HostId(9203)], HostId::class);
+        $scope = $this->repository->findHostAccessScope(new UserId($actorId), new Collection([new HostId(9202), new HostId(9203)], HostId::class));
 
-        self::assertSame([9202], $accessibleIds);
-        self::assertSame([], $this->repository->findHostAccessScope(new UserId($actorId), new Collection([], HostId::class))->allowedIdValues());
+        self::assertEquals(new Collection([new HostId(9202)], HostId::class), $scope->filter($among), 'Host 9201 is granted, but was not looked up.');
+        self::assertEquals(
+            new Collection([], HostId::class),
+            $this->repository->findHostAccessScope(new UserId($actorId), new Collection([], HostId::class))->filter($among),
+        );
     }
 
     /**

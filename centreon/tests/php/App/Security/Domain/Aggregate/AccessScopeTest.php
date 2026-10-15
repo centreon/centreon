@@ -94,4 +94,32 @@ final class AccessScopeTest extends TestCase
 
         AccessScope::unrestricted(HostGroupId::class)->allowedIdValues();
     }
+
+    public function testAPartialScopeAnswersForTheIdsItWasLookedUpAmong(): void
+    {
+        $scope = AccessScope::partiallyRestrictedTo(HostGroupId::class, [new HostGroupId(1)]);
+
+        self::assertFalse($scope->isUnrestricted());
+        self::assertTrue($scope->allows(new HostGroupId(1)));
+        self::assertFalse($scope->allows(new HostGroupId(2)));
+        self::assertSame([2], $scope->missing([new HostGroupId(1), new HostGroupId(2)], [1, 2]));
+        self::assertEquals(
+            new Collection([new HostGroupId(1)], HostGroupId::class),
+            $scope->filter(new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class)),
+        );
+    }
+
+    public function testAPartialScopeHasNoListOfAllowedIds(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        AccessScope::partiallyRestrictedTo(HostGroupId::class, [new HostGroupId(1)])->allowedIdValues();
+    }
+
+    public function testAPartialScopeCannotTellWhetherItAllowsNothing(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        AccessScope::partiallyRestrictedTo(HostGroupId::class, [])->allowsNothing();
+    }
 }
