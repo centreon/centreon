@@ -148,7 +148,7 @@ final readonly class CreateHostProcessor implements ProcessorInterface
             address: new HostAddress($data->address),
             pollerId: new PollerId($data->pollerId),
             hostGroupIds: $hostGroupIds,
-            creatorId: $credentialUser->credential->userId,
+            actor: $credentialUser->credential->actingUser(),
             dataProcessing: $dataProcessing,
             alias: $alias !== null ? new HostAlias($alias) : null,
             templateIds: $this->toIdCollection($data->templateIds, HostTemplateId::class),

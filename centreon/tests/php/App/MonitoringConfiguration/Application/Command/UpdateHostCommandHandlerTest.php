@@ -88,8 +88,8 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -109,7 +109,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
-use Tests\App\Security\Infrastructure\Double\FakeCredentialRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
@@ -170,12 +169,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $container->set(HostSeverityRepository::class, $this->hostSeverityRepository);
         $container->set(TimezoneRepository::class, new FakeTimezoneRepository());
         $container->set(HostTemplateRepository::class, $this->hostTemplateRepository);
-
-        $credentialRepository = new FakeCredentialRepository();
-        $credentialRepository->addUser(new UserId(1), unrestricted: true);
-        $credentialRepository->addUser(new UserId(42), unrestricted: false);
-
-        $container->set(CredentialRepository::class, $credentialRepository);
 
         $this->logger = new LoggerSpy();
         $container->set(LoggerInterface::class, $this->logger);
@@ -1089,7 +1082,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->command(
             10,
             hostGroupIds: new Collection([new HostGroupId(1)], HostGroupId::class),
-            updatedBy: new UserId(42),
+            actor: TestActingUsers::restricted(42),
         ));
 
         $groupIds = array_map(
@@ -1109,7 +1102,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->seedHost(10, severityId: new HostSeverityId(2));
 
         // The actor sends no severity: they cannot see the stored one, so it must not be cleared.
-        $host = ($this->handler)($this->command(10, updatedBy: new UserId(42)));
+        $host = ($this->handler)($this->command(10, actor: TestActingUsers::restricted(42)));
 
         self::assertSame(2, $host->severityId?->value);
     }
@@ -1131,7 +1124,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         // The actor resends only the relations they can see, as a GET -> PUT round trip would.
         $host = ($this->handler)($this->command(
             10,
-            updatedBy: new UserId(42),
+            actor: TestActingUsers::restricted(42),
             parentHostIds: new Collection([new HostId(20)], HostId::class),
             childHostIds: new Collection([new HostId(30)], HostId::class),
         ));
@@ -1151,7 +1144,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         // The actor drops every contact they can see: only those are removed.
         $host = ($this->handler)($this->command(
             10,
-            updatedBy: new UserId(42),
+            actor: TestActingUsers::restricted(42),
             notifications: $this->notifications([NotificationOptionEnum::Down]),
         ));
 
@@ -1194,7 +1187,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         ($this->handler)($this->command(
             10,
-            updatedBy: new UserId(42),
+            actor: TestActingUsers::restricted(42),
             parentHostIds: new Collection([new HostId(20)], HostId::class),
         ));
     }
@@ -1213,7 +1206,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
 
         ($this->handler)($this->command(
             10,
-            updatedBy: new UserId(42),
+            actor: TestActingUsers::restricted(42),
             parentHostIds: new Collection([new HostId(20)], HostId::class),
         ));
     }
@@ -1300,7 +1293,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         CheckOptions $checkOptions = new CheckOptions(null),
         ?Collection $hostGroupIds = null,
         ?HostSeverityId $severityId = null,
-        UserId $updatedBy = new UserId(1),
+        ActingUser $actor = new ActingUser(new UserId(1), unrestrictedResourceAccess: true),
         array $macroChanges = [],
         ?Notifications $notifications = null,
         DataProcessing $dataProcessing = new DataProcessing(),
@@ -1314,7 +1307,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             pollerId: new PollerId($pollerId),
             activated: $activated,
             hostGroupIds: $hostGroupIds ?? new Collection([], HostGroupId::class),
-            updatedBy: $updatedBy,
+            actor: $actor,
             templateIds: $templateIds ?? new Collection([], HostTemplateId::class),
             snmpCommunity: $snmpCommunity,
             severityId: $severityId,

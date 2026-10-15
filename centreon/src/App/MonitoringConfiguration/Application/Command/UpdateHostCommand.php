@@ -40,14 +40,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Webmozart\Assert\Assert;
 
 /**
  * Full replace (PUT) of a single host. Mirrors {@see CreateHostCommand}'s field set, plus the target
- * $id and an explicit $activated (which POST hard-codes to true), and carries $updatedBy for the
+ * $id and an explicit $activated (which POST hard-codes to true), and carries $actor for the
  * activity log / events instead of a creator.
  */
 final readonly class UpdateHostCommand
@@ -59,7 +59,7 @@ final readonly class UpdateHostCommand
      * @param Collection<HostCategoryId> $categoryIds
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
-     * @param UserId $updatedBy the acting user: the action-log actor, whose ACL scope also bounds the
+     * @param ActingUser $actor the acting user: the action-log actor, whose ACL scope also bounds the
      *                          target lookup and the poller, host-group, category and severity checks
      * @param CheckOptions $checkOptions the check command and its arguments only: the macros are
      *                                   submitted as $macroChanges and resolved by the handler
@@ -72,7 +72,7 @@ final readonly class UpdateHostCommand
         public PollerId $pollerId,
         public bool $activated,
         public Collection $hostGroupIds,
-        public UserId $updatedBy,
+        public ActingUser $actor,
         public DataProcessing $dataProcessing = new DataProcessing(),
         public ?HostAlias $alias = null,
         public Collection $templateIds = new Collection([], HostTemplateId::class),

@@ -68,7 +68,6 @@ use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -116,7 +115,6 @@ final readonly class UpdateHostCommandHandler
         private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
         private LoggerInterface $logger,
-        private CredentialRepository $credentialRepository,
     ) {
     }
 
@@ -153,8 +151,7 @@ final readonly class UpdateHostCommandHandler
     {
         // Actor-scoped: findOne returns null for a host outside the actor's ACL scope, the same as a
         // nonexistent one, so a restricted actor can never tell them apart.
-        $actor = $this->credentialRepository->getById($command->updatedBy)->actingUser();
-        $existingHost = $this->repository->findOne($command->id, $actor);
+        $existingHost = $this->repository->findOne($command->id, $command->actor);
         if (! $existingHost instanceof Host) {
             throw new HostNotFoundException([$command->id->value], 'id');
         }
@@ -166,25 +163,25 @@ final readonly class UpdateHostCommandHandler
         $this->pollerRepository->get($command->pollerId);
 
         if (
-            ! $actor->hasUnrestrictedResourceAccess()
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $actor->userId)
+            ! $command->actor->hasUnrestrictedResourceAccess()
+            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->actor->userId)
         ) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 
-        $this->assertHostGroupsExist($command->hostGroupIds, $actor);
+        $this->assertHostGroupsExist($command->hostGroupIds, $command->actor);
 
         $this->assertTemplatesExist($command->templateIds);
 
-        $this->assertCategoriesExist($command->categoryIds, $actor);
+        $this->assertCategoriesExist($command->categoryIds, $command->actor);
 
-        $this->assertSeverityExists($command->severityId, $actor);
+        $this->assertSeverityExists($command->severityId, $command->actor);
 
         $this->assertTimezoneExists($command->timezoneId);
 
         // Only the hosts involved are looked up: those submitted, and those already linked that
         // may have to be preserved.
-        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds($actor, new Collection([
+        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds($command->actor, new Collection([
             ...$command->parentHostIds->toArray(),
             ...$command->childHostIds->toArray(),
             ...$existingHost->parentHostIds->toArray(),
@@ -238,19 +235,19 @@ final readonly class UpdateHostCommandHandler
         $hostGroupIds = $this->preserveInaccessible(
             $command->hostGroupIds,
             $existingHost->hostGroupIds,
-            $this->resourceAccessRepository->findAccessibleHostGroupIds($actor),
+            $this->resourceAccessRepository->findAccessibleHostGroupIds($command->actor),
             HostGroupId::class,
         );
         $categoryIds = $this->preserveInaccessible(
             $command->categoryIds,
             $existingHost->categoryIds,
-            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
+            $this->resourceAccessRepository->findAccessibleHostCategoryIds($command->actor),
             HostCategoryId::class,
         );
         $severityId = $this->preserveInaccessibleSeverity(
             $command->severityId,
             $existingHost->severityId,
-            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
+            $this->resourceAccessRepository->findAccessibleHostSeverityIds($command->actor),
         );
 
         $host = $existingHost->with(
@@ -273,7 +270,7 @@ final readonly class UpdateHostCommandHandler
             // Absent on Cloud, where notifications follow another model: the stored block is kept.
             notifications: $command->notifications instanceof Notifications
                 ? $this->additiveInheritanceModeApplier->apply(
-                    $this->preserveInaccessibleContacts($command->notifications, $existingHost->notifications, $actor),
+                    $this->preserveInaccessibleContacts($command->notifications, $existingHost->notifications, $command->actor),
                 )
                 : new NoValue(),
             activated: $command->activated,
@@ -312,8 +309,8 @@ final readonly class UpdateHostCommandHandler
         if ($activationFlipped) {
             $this->eventBus->fire(
                 $host->activated
-                    ? new HostEnabled($host, $command->updatedBy->value)
-                    : new HostDisabled($host, $command->updatedBy->value),
+                    ? new HostEnabled($host, $command->actor->userId->value)
+                    : new HostDisabled($host, $command->actor->userId->value),
             );
         }
 
@@ -322,13 +319,13 @@ final readonly class UpdateHostCommandHandler
         $previousPollerId = $existingHost->pollerId->value === $host->pollerId->value ? null : $existingHost->pollerId;
 
         if ($loggedChange) {
-            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy->value, $previousPollerId));
+            $this->eventBus->fire(new HostUpdated($host, $command->actor->userId->value, $previousPollerId));
         } elseif ($unloggedChange && ! $activationFlipped) {
             // Only properties legacy never logs changed (host groups, templates, categories, parent/
             // child hosts, macros or notification contacts). The side effects (engine flag, ACL reload)
             // must still run: fire a non-loggable event. (When activation also flipped, the
             // enable/disable event above already runs them.)
-            $this->eventBus->fire(new HostUpdated($host, $command->updatedBy->value, $previousPollerId, loggable: false));
+            $this->eventBus->fire(new HostUpdated($host, $command->actor->userId->value, $previousPollerId, loggable: false));
         }
 
         // Deferred (post-commit) purge of the vault entry this update left without any secret: the
@@ -350,14 +347,14 @@ final readonly class UpdateHostCommandHandler
                 $host->id(),
                 $existingHost->templateIds,
                 $host->templateIds,
-                $command->updatedBy,
+                $command->actor->userId,
             ));
         }
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
             $this->eventBus->fire(new HostServicesDeploymentRequested(
                 $host->id(),
-                $command->updatedBy,
+                $command->actor->userId,
             ));
         }
 

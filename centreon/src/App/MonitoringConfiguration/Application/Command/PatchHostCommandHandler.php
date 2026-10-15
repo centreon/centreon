@@ -54,7 +54,6 @@ use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\CredentialRepository;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Event\EventBus;
@@ -81,7 +80,6 @@ final readonly class PatchHostCommandHandler
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private EventBus $eventBus,
         private LoggerInterface $logger,
-        private CredentialRepository $credentialRepository,
     ) {
     }
 
@@ -94,12 +92,11 @@ final readonly class PatchHostCommandHandler
      */
     public function __invoke(PatchHostCommand $command): Host
     {
-        $actor = $this->credentialRepository->getById($command->updatedBy)->actingUser();
-        $host = $this->getHost($command, $actor);
+        $host = $this->getHost($command, $command->actor);
         // The references come before the name: a restricted actor must not be able to tell a duplicate
         // name from a resource they cannot access.
-        $this->assertReferencesExist($command, $actor);
-        $withRelations = $this->relations->applyTo($host, $command, $actor);
+        $this->assertReferencesExist($command, $command->actor);
+        $withRelations = $this->relations->applyTo($host, $command, $command->actor);
         $this->assertNameIsAvailable($command, $host);
         $this->assertArgumentsHaveACheckCommand($command, $host);
 
@@ -114,7 +111,7 @@ final readonly class PatchHostCommandHandler
         $updatedHost = $this->moveSecretsToTheVault($host, $updatedHost, $command, macrosChanged: $macros !== null);
 
         try {
-            $this->saveAndNotify($host, $updatedHost, $command->updatedBy->value, secretRewritten: $this->providesASecret($command));
+            $this->saveAndNotify($host, $updatedHost, $command->actor->userId->value, secretRewritten: $this->providesASecret($command));
         } catch (\Throwable $exception) {
             if ($this->touchesTheVault($host, $updatedHost, $command)) {
                 $this->logger->warning(
@@ -127,7 +124,7 @@ final readonly class PatchHostCommandHandler
         }
 
         if ($command->deployServicesFromTemplates && count($updatedHost->templateIds) > 0) {
-            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->updatedBy));
+            $this->eventBus->fire(new HostServicesDeploymentRequested($updatedHost->id(), $command->actor->userId));
         }
 
         return $updatedHost;

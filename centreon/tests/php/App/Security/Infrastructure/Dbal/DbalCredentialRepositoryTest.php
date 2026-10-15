@@ -25,7 +25,6 @@ namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\Permission;
-use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Exception\CredentialNotFoundException;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
@@ -68,30 +67,6 @@ final class DbalCredentialRepositoryTest extends KernelTestCase
     {
         $this->expectException(CredentialNotFoundException::class);
         $this->repository->getByUsername('invalid-user');
-    }
-
-    public function testGetByIdReturnsCredential(): void
-    {
-        [$contactId, $username] = $this->createContact(admin: false);
-
-        $credential = $this->repository->getById(new UserId($contactId));
-
-        self::assertSame($contactId, $credential->userId->value);
-        self::assertSame($username, $credential->identifier->value);
-        self::assertFalse($credential->hasUnrestrictedResourceAccess());
-    }
-
-    public function testGetByIdReturnsAnUnrestrictedCredentialForAnAdmin(): void
-    {
-        [$contactId] = $this->createContact(admin: true);
-
-        self::assertTrue($this->repository->getById(new UserId($contactId))->hasUnrestrictedResourceAccess());
-    }
-
-    public function testGetByIdThrowsExceptionIfNotFound(): void
-    {
-        $this->expectException(CredentialNotFoundException::class);
-        $this->repository->getById(new UserId(\PHP_INT_MAX));
     }
 
     public function testContactAdminIsSuperAdmin(): void

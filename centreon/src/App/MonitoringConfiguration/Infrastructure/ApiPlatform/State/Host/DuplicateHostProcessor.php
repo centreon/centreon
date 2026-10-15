@@ -63,7 +63,7 @@ final readonly class DuplicateHostProcessor implements ProcessorInterface
         $this->commandBus->execute(
             new DuplicateHostCommand(
                 hostId: new HostId($uriVariables['id']),
-                duplicatedBy: $credentialUser->credential->userId,
+                actor: $credentialUser->credential->actingUser(),
             )
         );
 

@@ -45,13 +45,13 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\PatchHostNotificationsInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PatchHostCommandFactory;
-use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\NoValue;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class PatchHostCommandFactoryTest extends TestCase
 {
@@ -335,7 +335,7 @@ final class PatchHostCommandFactoryTest extends TestCase
     {
         return new PatchHostCommandFactory(new HostMacroTransformer())->create(
             id: new HostId(1),
-            updatedBy: new UserId(7),
+            actor: TestActingUsers::restricted(7),
             input: $input,
             payload: RequestPayload::fromRequest(Request::create('/', Request::METHOD_PATCH, content: $json, server: ['CONTENT_TYPE' => 'application/json'])),
         );
