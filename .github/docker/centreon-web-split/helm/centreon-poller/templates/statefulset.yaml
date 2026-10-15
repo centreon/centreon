@@ -3,6 +3,7 @@
 {{- $fullname := include "centreon-poller.fullname" . -}}
 {{- $engineImage := include "centreon-poller.image" (dict "ctx" . "image" .Values.images.engine) -}}
 {{- $gorgoneImage := include "centreon-poller.image" (dict "ctx" . "image" .Values.images.gorgone) -}}
+{{- $otelTlsSecret := include "centreon-poller.otelTlsSecret" . -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -45,7 +46,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       # Host name = pod name <fullname>-0 (forced by the StatefulSet
-      # controller).
+      # controller): the CMA TLS identity comes from engine.otel.tls.
       # gorgone's systemctl shim dials "centengine:50155": it must reach this
       # pod's own engine.
       hostAliases:
@@ -78,6 +79,16 @@ spec:
               # saved on clean stop). Needs an image whose entrypoint is not
               # in the home (MON-211751), or the seed would freeze it.
               seed /var/lib/centreon-engine /seed/engine-home
+              {{- if $otelTlsSecret }}
+              # CMA TLS identity: private to centengine (gorgone shares the pod).
+              for f in /seed/otel-tls-src/*; do
+                n=$(basename "$f")
+                cp "$f" "/seed/otel-tls/$n"
+                chown 901:901 "/seed/otel-tls/$n"
+                case "$n" in *.key) chmod 600 "/seed/otel-tls/$n" ;; *) chmod 644 "/seed/otel-tls/$n" ;; esac
+              done
+              own 901:901 750 /seed/otel-tls
+              {{- end }}
               ls -lnd /seed/*
           volumeMounts:
             - { name: engine, mountPath: /seed/engine }
@@ -86,6 +97,10 @@ spec:
             - { name: centcmd, mountPath: /seed/centcmd }
             - { name: cma-pki, mountPath: /seed/pki }
             - { name: engine-home, mountPath: /seed/engine-home }
+            {{- if $otelTlsSecret }}
+            - { name: otel-tls-src, mountPath: /seed/otel-tls-src, readOnly: true }
+            - { name: otel-tls, mountPath: /seed/otel-tls }
+            {{- end }}
         - name: seed-gorgone
           image: {{ $gorgoneImage }}
           imagePullPolicy: {{ .Values.images.gorgone.pullPolicy }}
@@ -172,6 +187,9 @@ spec:
             - { name: broker, mountPath: /etc/centreon-broker }
             - { name: logs, mountPath: /var/log/centreon-engine }
             - { name: cma-pki, mountPath: /etc/pki/centreon-engine }
+            {{- if $otelTlsSecret }}
+            - { name: otel-tls, mountPath: {{ .Values.engine.otel.tls.mountPath }}, readOnly: true }
+            {{- end }}
           {{- with .Values.engine.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -179,6 +197,17 @@ spec:
       volumes:
         - name: centcmd
           emptyDir: {}
+        {{- with $otelTlsSecret }}
+        # Only seed-engine reads the Secret; it copies it into otel-tls owned
+        # by centengine (key 0600). No fsGroup: it would re-own the PVCs.
+        - name: otel-tls-src
+          secret:
+            secretName: {{ . }}
+            defaultMode: 0400
+        - name: otel-tls
+          emptyDir:
+            medium: Memory
+        {{- end }}
   volumeClaimTemplates:
     {{- $claims := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "engine-home" .Values.persistence.engineHome "gorgone-data" .Values.persistence.gorgoneData }}
     {{- range $vol, $size := $claims }}
