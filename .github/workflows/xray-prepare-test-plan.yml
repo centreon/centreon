@@ -80,7 +80,6 @@ jobs:
       # -------------------------------
       - name: Retrieve existing Test Plan
         id: retrieve-test-plan
-        continue-on-error: true
         uses: ./.github/actions/xray-api-graphql
         with:
           graphql_operation: 'get-test-plan'
@@ -88,22 +87,10 @@ jobs:
           xray_token: ${{ steps.generate-xray-token.outputs.xray_token }}
 
       # -------------------------------
-      # Handle retrieval failure
-      # -------------------------------
-      - name: Handle Test Plan retrieval failure
-        id: handle-retrieval-failure
-        if: steps.retrieve-test-plan.outcome == 'failure'
-        run: |
-          echo "::warning::Failed to retrieve Test Plan from Xray API"
-          echo "Will proceed with Test Plan creation"
-          echo "needs_create=true" >> "$GITHUB_OUTPUT"
-
-      # -------------------------------
       # Extract Test Plan key from response
       # -------------------------------
       - name: Extract Test Plan key
         id: extract-test-plan-key
-        if: steps.retrieve-test-plan.outcome == 'success'
         shell: bash
         run: |
           response='${{ steps.retrieve-test-plan.outputs.response }}'
@@ -112,11 +99,11 @@ jobs:
 
           total=$(echo "$response" | jq -r '.data.getTestPlans.total')
 
-          # Guard against a non-numeric total (e.g. GraphQL error) before the arithmetic test.
+          # An unreadable total means the lookup told us nothing. Creating a plan here
+          # would duplicate the one the campaign is already filling, so stop instead.
           if [[ ! "$total" =~ ^[0-9]+$ ]]; then
-              echo "::warning::Unexpected getTestPlans.total value '$total' (response may be an error) — will create a new Test Plan."
-              echo "needs_create=true" >> "$GITHUB_OUTPUT"
-              exit 0
+              echo "::error::Unexpected getTestPlans.total value '$total' - refusing to create a Test Plan on an inconclusive lookup."
+              exit 1
           fi
 
           if [[ "$total" -eq 0 ]]; then
@@ -125,25 +112,30 @@ jobs:
               exit 0
           fi
 
+          # Several plans share this summary: picking one would scatter the results.
+          if [[ "$total" -gt 1 ]]; then
+              echo "::error::The lookup matched $total Test Plans for this summary; results would be split across duplicates. Keep a single plan and delete the others."
+              echo "First match: $(echo "$response" | jq -r '.data.getTestPlans.results[0].jira.key // "unknown"')"
+              exit 1
+          fi
+
           jira_test_plan_key=$(echo "$response" | jq -r '.data.getTestPlans.results[0].jira.key // empty')
 
           if [[ -z "$jira_test_plan_key" ]]; then
-              echo "needs_create=true" >> "$GITHUB_OUTPUT"
-              echo "Test Plan found but key is empty, will create a new one."
-          else
-              echo "needs_create=false" >> "$GITHUB_OUTPUT"
-              echo "jira_test_plan_key=$jira_test_plan_key" >> "$GITHUB_OUTPUT"
-              echo "Found existing Test Plan with key: $jira_test_plan_key - will reuse it."
+              echo "::error::Test Plan found but its key is empty."
+              exit 1
           fi
+
+          echo "needs_create=false" >> "$GITHUB_OUTPUT"
+          echo "jira_test_plan_key=$jira_test_plan_key" >> "$GITHUB_OUTPUT"
+          echo "Found existing Test Plan with key: $jira_test_plan_key - will reuse it."
 
       # -------------------------------
       # Create Test Plan if needed
       # -------------------------------
       - name: Create Test Plan
         id: create-test-plan
-        if: |
-          (steps.extract-test-plan-key.outputs.needs_create == 'true') ||
-          (steps.handle-retrieval-failure.outputs.needs_create == 'true')
+        if: steps.extract-test-plan-key.outputs.needs_create == 'true'
         uses: ./.github/actions/xray-api-graphql
         with:
           graphql_operation: 'create-test-plan'
@@ -158,8 +150,7 @@ jobs:
         shell: bash
         run: |
           # Determine if we need to use CREATE or GET response
-          if [[ "${{ steps.extract-test-plan-key.outputs.needs_create }}" == "true" ]] || \
-             [[ "${{ steps.handle-retrieval-failure.outputs.needs_create }}" == "true" ]]; then
+          if [[ "${{ steps.extract-test-plan-key.outputs.needs_create }}" == "true" ]]; then
             RESPONSE='${{ steps.create-test-plan.outputs.response }}'
             echo "Using Test Plan from CREATE operation"
             jira_test_plan_key=$(jq -r '.data.createTestPlan.testPlan.jira.key // empty' <<< "$RESPONSE")

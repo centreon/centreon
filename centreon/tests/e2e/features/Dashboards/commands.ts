@@ -450,7 +450,8 @@ Cypress.Commands.add(
     index: number,
     expectedColors: Array<string>,
     expectedValues: Array<string>,
-    alternativeValues: Array<string> = []
+    alternativeValues: Array<string> = [],
+    secondAlternativeValues: Array<string> = []
   ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
@@ -474,6 +475,10 @@ Cypress.Commands.add(
 
                   if (alternativeValues[i]) {
                     possibleValues.push(alternativeValues[i]);
+                  }
+
+                  if (secondAlternativeValues[i]) {
+                    possibleValues.push(secondAlternativeValues[i]);
                   }
 
                   expect(text.trim()).to.match(
@@ -709,7 +714,8 @@ declare global {
         index: number,
         expectedColors: Array<string>,
         expectedValue: Array<string>,
-        alternativeValues?: Array<string>
+        alternativeValues?: Array<string>,
+        secondAlternativeValues?: Array<string>
       ) => Cypress.Chainable;
       visitDashboard: (name: string) => Cypress.Chainable;
       visitDashboards: () => Cypress.Chainable;

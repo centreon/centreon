@@ -350,9 +350,9 @@ jobs:
           elapsed=0
 
           while [ $elapsed -lt $timeout ]; do
-            # Retrieve artifact names without quotes, one per line
-            artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts" \
-            --jq ".artifacts[] | select(.workflow_run.id == $run_id) | .name" | tr -d '"')
+            # Query scoped to this run: the repo-wide artifacts endpoint 500s on repos with a large artifact volume
+            artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/artifacts" \
+            --jq ".artifacts[].name" | tr -d '"')
 
             merge_list=""
             while read -r artifact; do
@@ -396,7 +396,7 @@ jobs:
         run: |
           pattern="$NAME-component-${{ matrix.type_of_report }}"
           echo "Checking artifact: $pattern-*"
-          artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts" --jq '.artifacts[].name')
+          artifacts=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.artifacts[].name')
           if echo "$artifacts" | grep -q "$pattern"; then
             echo "found=true" >> $GITHUB_OUTPUT
           else

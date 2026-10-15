@@ -68,6 +68,7 @@ class CentreonContact extends CentreonObject
     public const UNKNOWN_TIMEZONE = 'Invalid timezone';
     public const CONTACT_LOCATION = 'timezone';
     public const UNKNOWN_NOTIFICATION_OPTIONS = 'Invalid notifications options';
+    public const EMAIL_CANNOT_BE_EMPTY = 'Contact email cannot be empty';
 
     /** @var string[] */
     public static $aDepends = ['CONTACTTPL', 'CMD', 'TP'];
@@ -324,6 +325,13 @@ class CentreonContact extends CentreonObject
             }
 
             if ($regularParam == true) {
+                if (
+                    $this->register === 1
+                    && $params[1] === 'contact_email'
+                    && trim((string) $params[2]) === ''
+                ) {
+                    throw new CentreonClapiException(static::EMAIL_CANNOT_BE_EMPTY);
+                }
                 $updateParams = [$params[1] => $params[2]];
                 $updateParams['objectId'] = $objectId;
 
@@ -455,12 +463,17 @@ class CentreonContact extends CentreonObject
      *
      * @param array<int,mixed> $params
      *
+     * @throws CentreonClapiException
      * @throws PDOException
      */
     protected function initUserInformation(array $params): void
     {
         $this->addParams['contact_name'] = $this->checkIllegalChar($params[static::ORDER_NAME]);
-        $this->addParams['contact_email'] = $params[static::ORDER_MAIL];
+        $email = trim((string) ($params[static::ORDER_MAIL] ?? ''));
+        if ((int) $this->register === 1 && $email === '') {
+            throw new CentreonClapiException(static::EMAIL_CANNOT_BE_EMPTY);
+        }
+        $this->addParams['contact_email'] = $email;
     }
 
     /**

@@ -298,6 +298,8 @@ jobs:
 
   translation-build:
     needs: [get-environment, changes]
+    permissions:
+      contents: read
     if: |
       (
         needs.changes.outputs.trigger_packaging == 'true' &&
@@ -344,6 +346,13 @@ jobs:
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
+
+      - name: Check French translations completeness
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.is_targeting_feature_branch == 'false'
+        run: bash .github/scripts/translation/check-french-translations.sh
+        shell: bash
 
   frontend-web-lint:
     runs-on: ubuntu-24.04
@@ -961,11 +970,14 @@ jobs:
           OPERATING_SYSTEM: ${{ matrix.operating_system }}
           IMAGE_TAG: ${{ steps.image_tag.outputs.additional_tag || steps.image_tag.outputs.tag }}
         run: |
-          curl \
-            -X DELETE \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/caches?key=docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_TAG"
+          # Delete by id: the delete-by-key endpoint also removes the keys of the branches whose name starts with this one.
+          CACHE_KEY="docker-image-$project-slim-$OPERATING_SYSTEM-$IMAGE_TAG"
+          gh api --method GET "repos/$GITHUB_REPOSITORY/actions/caches" -f key="$CACHE_KEY" -f ref="$GITHUB_REF" \
+            --jq ".actions_caches[] | select(.key == \"$CACHE_KEY\") | .id" |
+            while read -r CACHE_ID; do
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/caches/$CACHE_ID"
+              echo "Deleted cache $CACHE_ID ($CACHE_KEY on $GITHUB_REF)."
+            done
         shell: bash
 
       - name: Store slim image in cache
@@ -1137,7 +1149,7 @@ jobs:
   #         retention-days: 1
 
   deliver-sources:
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-slim
     needs: [get-environment, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1169,7 +1181,6 @@ jobs:
           translation_directory: centreon/www/locale
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   publish-openapi-documentation:
     runs-on: infrastructure
@@ -1261,7 +1272,7 @@ jobs:
           retention-days: 1
 
   deliver:
-    runs-on: centreon-common
+    runs-on: centreon-ubuntu-26.04-small
     needs:
       [
         changes,
@@ -1311,8 +1322,48 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  deliver-pulp:
+    runs-on: centreon-ubuntu-26.04-small
+    needs: [changes, get-environment, bruno-api-test, e2e-test]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.event.pull_request.head.repo.fork != true
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+    name: deliver ${{ matrix.distrib }} (pulp)
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Deliver packages on Pulp
+        id: deliver_pulp
+        uses: ./.github/actions/package-delivery-pulp
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
 
   promote:
     needs: [get-environment, deliver]
@@ -1344,6 +1395,41 @@ jobs:
           github_ref_name: ${{ github.ref_name }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+
+  promote-pulp:
+    needs: [get-environment, deliver-pulp]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: centreon-ubuntu-26.04-small
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+    name: promote ${{ matrix.distrib }} (pulp)
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Promote ${{ matrix.distrib }} to stable on Pulp
+        id: promote_pulp
+        uses: ./.github/actions/promote-to-stable-pulp
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
 
   set-skip-label:
     needs: [get-environment, deliver, promote]

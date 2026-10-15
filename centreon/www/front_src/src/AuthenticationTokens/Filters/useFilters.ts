@@ -69,7 +69,9 @@ const useFilters = (): UseFiltersState => {
   const filterCreators = (options): Array<NamedEntity> => {
     const creatorsData = options?.map(({ creator }) => creator);
 
-    return getUniqData(creatorsData);
+    // Creators without an id have been deleted: filtering on them would send
+    // creator.id $eq null and always return an empty listing.
+    return reject(({ id }) => isNil(id), getUniqData(creatorsData));
   };
 
   const deleteCreator = (_, item): void => {

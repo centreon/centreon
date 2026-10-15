@@ -20,6 +20,7 @@ import { DisplayType } from '../Listing/models';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
+  labelAction,
   labelCheck,
   labelCheckCommandSent,
   labelCloseATicket,
@@ -30,6 +31,7 @@ import {
   labelEndDateGreaterThanStartDate,
   labelForcedCheck,
   labelForcedCheckCommandSent,
+  labelNotes,
   labelOpenTicketForHost,
   labelOpenTicketForService,
   labelSetDowntime,
@@ -906,6 +908,120 @@ describe('Open tickets', () => {
     });
 
     cy.contains(labelTicketClosed).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Notes and Action URL columns', () => {
+  beforeEach(resourcesRequests);
+
+  const columnIdsWithUrls = [...selectedColumnIds, 'notes_url', 'action_url'];
+
+  it('does not display the Notes and Action URL columns by default', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: undefined }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByTestId('LinkIcon').should('not.exist');
+    cy.findAllByTestId('FlashOnIcon').should('not.exist');
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.contains(`${labelNotes} (N)`).should('be.visible');
+    cy.contains(`${labelAction} (A)`).should('be.visible');
+
+    cy.findByLabelText('Add columns').click();
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable link icon with the note as tooltip when a resource has a note and a note URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('Restart me')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/restart');
+
+    cy.findByTestId('Restart me').trigger('mouseover');
+
+    cy.contains('Restart me').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a non-clickable icon with the note as tooltip when a resource has a note but no note URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('Maintenance info').should('contain.text', 'N');
+
+    cy.findByTestId('Maintenance info').parents('a').should('not.exist');
+
+    cy.findByTestId('Maintenance info').trigger('mouseover');
+
+    cy.contains('Maintenance info').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable link icon with the note URL as tooltip when a resource has a note URL but no note', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('https://example.com/manual')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/manual');
+
+    cy.findByTestId('https://example.com/manual').trigger('mouseover');
+
+    cy.contains('https://example.com/manual').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a clickable action icon when a resource has an action URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findByTestId('https://example.com/action')
+      .parents('a')
+      .should('have.attr', 'href', 'https://example.com/action');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays no icon for resources without note, note URL and action URL', () => {
+    render({
+      data: { resources },
+      options: { ...resourcesOptions, selectedColumnIds: columnIdsWithUrls }
+    });
+
+    cy.waitForRequest('@getResources');
+
+    cy.findAllByTestId('LinkIcon').should('have.length', 2);
+    cy.findAllByTestId('FlashOnIcon').should('have.length', 1);
+    cy.findByTestId('Maintenance info').should('be.visible');
 
     cy.makeSnapshot();
   });

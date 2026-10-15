@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/install/centreon_broker_translation.php
 msgid ""
 msgstr ""
@@ -93,7 +92,7 @@ msgstr "1 minute"
 
 #: centreon/www/install/front_translate.php
 msgid "1,000+"
-msgstr ""
+msgstr "1 000+"
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
@@ -335,6 +334,7 @@ msgstr "Gestion des groupes d'accès"
 msgid "Access List"
 msgstr "Liste d'accès"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 msgid "Access group"
 msgstr "Groupe d'accès"
@@ -500,6 +500,10 @@ msgstr "Nom de l'action"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Action URL"
 msgstr "URL d'action"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr "Accès aux actions"
 
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
@@ -1458,7 +1462,7 @@ msgstr "Une erreur est survenue durant l'authentification"
 
 #: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
 msgid "An error occurred during session logout"
-msgstr ""
+msgstr "Une erreur est survenue lors de la déconnexion de la session"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
@@ -1519,10 +1523,6 @@ msgstr ""
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "An integer with a minimum value of 1 is required"
 msgstr "Un entier supérieur à 1 est requis"
-
-#: centreon/www/install/front_translate.php
-msgid "And many others..."
-msgstr "Et bien d'autres..."
 
 #: centreon/www/install/front_translate.php
 msgid "Anomaly detection"
@@ -1610,6 +1610,12 @@ msgstr "Arguments"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Ascending"
 msgstr "Croissant"
+
+#: centreon/www/install/front_translate.php
+msgid "Ask questions, share dashboards, swap know-how."
+msgstr ""
+"Posez vos questions, partagez vos tableaux de bord et échangez votre savoir-"
+"faire."
 
 #: centreon/www/include/configuration/configResources/listResources.php
 msgid "Associated pollers"
@@ -1819,6 +1825,10 @@ msgstr "Ré-ordonnancement automatique"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Auto-Rescheduling Window"
 msgstr "Fenêtre de ré-ordonnancement automatique"
+
+#: centreon/www/install/front_translate.php
+msgid "Auto-discovery, BAM, MBI reporting and support."
+msgstr "Découverte automatique, BAM, rapports MBI et support."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -2064,6 +2074,10 @@ msgstr "Bas"
 msgid "Breadcrumb copied"
 msgstr "Fil d'Ariane copié"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
+msgstr "Broker"
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
 msgstr "Commande de lancement du module"
@@ -2104,6 +2118,10 @@ msgid ""
 msgstr ""
 "La commande de rechargement du broker ne correspond pas au format attendu. "
 "Veuillez vérifier la configuration du serveur de supervision."
+
+#: centreon/www/install/front_translate.php
+msgid "Browse the docs"
+msgstr "Consulter la documentation"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Buffering timeout"
@@ -2611,14 +2629,6 @@ msgstr "Centreon est en cours de chargement..."
 msgid "Centreon wallpaper"
 msgstr "Arrière-plan Centreon"
 
-#: centreon/www/install/front_translate.php
-msgid "Centreon website"
-msgstr "Site web de Centreon"
-
-#: centreon/www/install/front_translate.php
-msgid "Centreon's Github"
-msgstr "Github de Centreon"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Centreon-Broker "
 msgstr "Centreon-Broker "
@@ -3006,6 +3016,7 @@ msgstr "Couleurs"
 msgid "Columns"
 msgstr "Colonnes"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/install/front_translate.php
@@ -3165,6 +3176,10 @@ msgid "Compact time period"
 msgstr "Période de temps compacte"
 
 #: centreon/www/install/front_translate.php
+msgid "Compare Edition licenses"
+msgstr "Comparer les licences Edition"
+
+#: centreon/www/install/front_translate.php
 msgid "Comparison rule for the requested authentication context"
 msgstr "Règle de comparaison pour le contexte d'authentification demandé"
 
@@ -3296,7 +3311,7 @@ msgstr "Nom obligatoire"
 
 #: centreon/www/install/front_translate.php
 msgid "Computing exact count…"
-msgstr ""
+msgstr "Calcul du nombre exact…"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
@@ -3512,6 +3527,7 @@ msgstr "Contacts hérités additionnels"
 msgid "Contact already exists"
 msgstr "Le contact existe déjà"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Contact group"
@@ -3606,8 +3622,8 @@ msgid "Content is not a valid JSON string"
 msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
 
 #: centreon/www/install/front_translate.php
-msgid "Contributors"
-msgstr "Contributeurs"
+msgid "Contribute on GitHub"
+msgstr "Contribution sur GitHub"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Convert Trap information"
@@ -3648,7 +3664,7 @@ msgstr "Copier/coller le certificat x.509"
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
 msgid "Could not copy VMWare configuration file"
-msgstr ""
+msgstr "Impossible de copier le fichier de configuration VMWare"
 
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
@@ -3663,6 +3679,10 @@ msgstr ""
 "Impossible de trouver le répertoire de configuration '%s' pour le moteur de "
 "supervision '%s'.\n"
 "Veuillez vérifier son chemin ou le créer"
+
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "Could not load the SNMP trap. Please try again."
+msgstr "Impossible de charger le trap SNMP. Veuillez réessayer."
 
 #: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
@@ -4618,14 +4638,6 @@ msgstr "Détails"
 msgid "Detection by browser"
 msgstr "Détection via le navigateur"
 
-#: centreon/www/install/front_translate.php
-msgid "Developed by"
-msgstr "Développé par"
-
-#: centreon/www/install/front_translate.php
-msgid "Developers"
-msgstr "Developpeurs"
-
 #: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/options/media/images/listImg.php
@@ -5278,6 +5290,10 @@ msgid "Documentation"
 msgstr "Documentation"
 
 #: centreon/www/install/front_translate.php
+msgid "Documentation & guides"
+msgstr "Documentation et guides"
+
+#: centreon/www/install/front_translate.php
 msgid "Done"
 msgstr "Terminé"
 
@@ -5558,6 +5574,10 @@ msgid ""
 "Edit wiki\n"
 "                    page"
 msgstr "Éditer la page de wiki"
+
+#: centreon/www/install/front_translate.php
+msgid "Editions & Cloud licenses"
+msgstr "Licences Edition et Cloud"
 
 #: centreon/www/install/front_translate.php
 msgid "Editor"
@@ -5971,6 +5991,10 @@ msgstr "Heure de fin"
 #: centreon/www/install/front_translate.php
 msgid "Ends at"
 msgstr "Se termine à"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr "Engine"
 
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
@@ -6982,6 +7006,7 @@ msgstr "Hôtes escaladés"
 msgid "Escalated Services"
 msgstr "Services escaladés"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Escalation"
 msgstr "Escalade de notification"
@@ -8003,6 +8028,10 @@ msgstr "Coordonnées géographiques"
 msgid "Geographic coordinates for MAP"
 msgstr "Coordonnées géographiques pour MAP"
 
+#: centreon/www/install/front_translate.php
+msgid "Get more from Centreon"
+msgstr "Profiter davantage de Centreon"
+
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Global Functionalities Access"
 msgstr "Accès aux fonctionnalités globales"
@@ -8325,6 +8354,7 @@ msgstr "Horizontal"
 msgid "Horizontal bar chart"
 msgstr "Diagramme à barres horizontales"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -8374,6 +8404,7 @@ msgstr "Hôte/service requis"
 msgid "Host Acknowledgement"
 msgstr "Acquitter un hôte"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -8447,6 +8478,7 @@ msgstr "Intervalle contrôle de la fraicheur du résultat de l'hôte"
 msgid "Host Freshness Check Option"
 msgstr "Option de contrôle de la fraicheur du résultat de l'hôte"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/monitoring/status/HostGroups/hostGroupJS.php
 #: centreon/www/include/reporting/dashboard/viewHostGroupLog.php
@@ -8469,6 +8501,10 @@ msgstr "Nom du groupe d'hôte"
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "Host Groups Shared"
 msgstr "Groupes d'hôtes partagés"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Host ID"
+msgstr "ID de l'hôte"
 
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
@@ -8590,6 +8626,7 @@ msgstr "Options de contrôle de l'hôte"
 msgid "Host commands and shortcuts"
 msgstr "Commandes et racourcis d'hôte"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Host dependency"
 msgstr "Dépendance d'hôte"
@@ -8607,6 +8644,10 @@ msgstr "Groupe d'hôtes"
 #, php-format
 msgid "Host group (%s) not found"
 msgstr "Groupe d'hôte (%s) non trouvé"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr "Dépendance de groupe d'hôtes"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -8710,6 +8751,7 @@ msgstr "Notifications d'hôte"
 msgid "Host severities"
 msgstr "Sévérités des hôtes"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/install/front_translate.php
@@ -9624,6 +9666,10 @@ msgstr ""
 "Il est possible de spécifier les critères que vous voulez rechercher de "
 "manière précise, en utilisant la syntaxe suivante :"
 
+#: centreon/www/install/front_translate.php
+msgid "Join The Watch"
+msgstr "Rejoindre The Watch"
+
 #: centreon/www/install/menu_translation.php
 msgid "Knowledge Base"
 msgstr "Base de connaissance"
@@ -10492,6 +10538,10 @@ msgstr "Configuration des filtres sur les macros"
 msgid "Macros whitelist"
 msgstr "Liste blanche des macros"
 
+#: centreon/www/install/front_translate.php
+msgid "Made with care by the Centreon team & community"
+msgstr "Conçu avec soin par l'équipe et la communauté Centreon"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Mail Type"
 msgstr "Type de courrier"
@@ -10589,13 +10639,27 @@ msgstr "Rafraîchir uniquement manuellement"
 msgid "Manually request to synchronize this contact with his LDAP"
 msgstr "Demande de synchronisation LDAP du contact"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/menu_translation.php
 msgid "Manufacturer"
 msgstr "Constructeur"
 
 #: centreon/www/install/front_translate.php
-msgid "Many thanks to all the contributors to the security of Centreon"
-msgstr "Un grand merci à tous les contributeurs pour la sécurité de Centreon"
+msgid ""
+"Many thanks to all developers & contributors. <contributors>See the full "
+"list on GitHub ↗</contributors>"
+msgstr ""
+"Un grand merci à tous les développeurs et contributeurs. <contributors>Voir "
+"la liste complète sur GitHub ↗</contributors>"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Many thanks to everyone who responsibly disclosed and helped fix security "
+"issues. <policy>Report a vulnerability ↗</policy>"
+msgstr ""
+"Un grand merci à toutes les personnes ayant signalé de manière responsable "
+"des failles de sécurité et aidé à les corriger. <policy>Signaler une "
+"vulnérabilité ↗</policy>"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -10722,6 +10786,7 @@ msgstr "Membre du groupe d'hôtes"
 msgid "Memory file"
 msgstr "Fichier de cache"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Menu access"
 msgstr "Accès aux menus"
@@ -10748,6 +10813,7 @@ msgstr "Message tronqué (dépassant les %s caractères)"
 msgid "Meta Host %d not found"
 msgstr "Le métahôte %d n'a pas été trouvé"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -11476,6 +11542,8 @@ msgid ""
 "More than 1,000 resources match your search. Click to compute the exact "
 "count."
 msgstr ""
+"Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
+"calculer le nombre exact."
 
 #: centreon/www/install/front_translate.php
 msgid "More than 1,000 resources match your search. Click to continue."
@@ -12425,6 +12493,23 @@ msgstr "Une colonne"
 msgid "One of the elements provided is not a ResourceGroup type"
 msgstr "Un des éléments fourni n'est pas de type ResourceGroup"
 
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host group(s)."
+msgstr ""
+"Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un "
+"service avec la même description existe déjà sur le ou les groupes d'hôtes "
+"cibles."
+
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host(s)."
+msgstr ""
+"Un ou plusieurs des services sélectionnés ne peuvent pas être déplacés : un "
+"service avec la même description existe déjà sur le ou les hôtes cibles."
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "One peer retention"
 msgstr "Rétention des données pour connexion depuis serveur Central"
@@ -12466,6 +12551,18 @@ msgstr "Oups, quelque chose s'est mal passé"
 #: centreon/www/install/front_translate.php
 msgid "Open"
 msgstr "Ouvrir"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"Open and scalable IT monitoring platform for full visibility on your hybrid "
+"infrastructure"
+msgstr ""
+"Plateforme de supervision IT ouverte et évolutive pour une visibilité "
+"complète sur votre infrastructure hybride"
+
+#: centreon/www/install/front_translate.php
+msgid "Open the repository"
+msgstr "Ouvrir le dépôt"
 
 #: centreon/www/install/front_translate.php
 msgid "Open ticket for host"
@@ -13145,6 +13242,7 @@ msgid "Plugins Directory"
 msgstr "Répertoire des sondes"
 
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configKnowledge/search.php
@@ -13401,8 +13499,8 @@ msgid "Progress"
 msgstr "Progression"
 
 #: centreon/www/install/front_translate.php
-msgid "Project leaders"
-msgstr "Responsables du projet"
+msgid "Project & contributors"
+msgstr "Projet et contributeurs"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -14041,6 +14139,10 @@ msgstr "Nom de la ressource"
 msgid "Resource Type"
 msgstr "Type de ressource"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr "Accès aux ressources"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr "Nom de la règle d'accès aux ressources"
@@ -14073,6 +14175,7 @@ msgstr "Type de ressource"
 msgid "Resource used by one of the instances"
 msgstr "Ressource utilisée par une des instances"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
@@ -14359,6 +14462,7 @@ msgstr "Communauté SNMP"
 msgid "SNMP Trap Generation"
 msgstr "Génération des traps SNMP"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/menu_translation.php
@@ -14701,8 +14805,8 @@ msgid "Secret Id"
 msgstr "Secret ID"
 
 #: centreon/www/install/front_translate.php
-msgid "Security acknowledgement"
-msgstr "Remerciements pour la sécurité"
+msgid "Security"
+msgstr "Sécurité"
 
 #: centreon/www/install/front_translate.php
 msgid "See Documentation"
@@ -14953,6 +15057,7 @@ msgstr "Port de connexion"
 msgid "Server type"
 msgstr "Type de serveur"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -15003,6 +15108,7 @@ msgstr "Acquitter un service"
 msgid "Service Basic Information"
 msgstr "Informations sur le service"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
@@ -15072,6 +15178,7 @@ msgstr "Intervalle de contrôle de la fraicheur du résultat du service"
 msgid "Service Freshness Check Option"
 msgstr "Option de contrôle de la fraicheur du résultat du service"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/install/front_translate.php
@@ -15083,6 +15190,10 @@ msgstr "Groupe de services"
 #: centreon/www/install/menu_translation.php
 msgid "Service Groups"
 msgstr "Groupes de services"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Service ID"
+msgstr "ID du service"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Service Inter-Check Delay Method"
@@ -15168,6 +15279,7 @@ msgstr "Ce nom de catégorie de services existe déjà"
 msgid "Service check latency"
 msgstr "Latence du contrôle du service"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/smarty_translate.php
 msgid "Service dependency"
 msgstr "Dépendance de service"
@@ -15188,6 +15300,10 @@ msgstr "Graphiques de services"
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr "Groupe de services"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
+msgstr "Dépendance de groupe de services"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
@@ -15231,6 +15347,7 @@ msgstr "Notifications de service"
 msgid "Service severities"
 msgstr "Sévérités des services"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/front_translate.php
@@ -15582,6 +15699,10 @@ msgstr "Installation des fichiers de configurations"
 #: centreon/www/install/front_translate.php
 msgid "Settings"
 msgstr "Paramètres"
+
+#: centreon/www/install/front_translate.php
+msgid "Setup, configuration and 700+ Monitoring Connectors."
+msgstr "Installation, configuration et plus de 700 connecteurs de supervision."
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
@@ -15964,6 +16085,19 @@ msgstr "Options de stalking non autorisées (%s)"
 #: centreon/www/install/dashboard_widgets.php
 msgid "Standard"
 msgstr "Standard"
+
+#: centreon/www/install/front_translate.php
+msgid "Star centreon/centreon on GitHub"
+msgstr "Ajouter une étoile à centreon/centreon sur GitHub"
+
+#: centreon/www/install/front_translate.php
+msgid "Star on GitHub"
+msgstr "Ajouter une étoile sur GitHub"
+
+#: centreon/www/install/front_translate.php
+msgid "Star the repo, open issues, submit connectors."
+msgstr ""
+"Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/widgets/host-monitoring/src/action.php
@@ -16540,6 +16674,10 @@ msgstr "Les fichiers SQL sont situés dans \"%s\""
 #: centreon/www/widgets/httploader/index.php
 msgid "The URL provided for the website does not use a valid URL pattern."
 msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."
+
+#: centreon/www/install/front_translate.php
+msgid "The Watch community"
+msgstr "La communauté The Watch"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
@@ -17163,6 +17301,10 @@ msgstr "Cette adresse IP existe déjà"
 msgid "This Month"
 msgstr "Ce mois ci"
 
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "This SNMP trap no longer exists."
+msgstr "Ce trap SNMP n'existe plus."
+
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format
 msgid "This SNMP version (%s) is not allowed"
@@ -17188,6 +17330,14 @@ msgstr "Cette action est irréversible."
 #, php-format
 msgid "This active checks status (%d) is not allowed"
 msgstr "Le statut de contrôles actifs %d n'est pas autorisé"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Ce groupe de contacts n'est pas disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Ce contact n'est pas disponible"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid ""
@@ -17461,6 +17611,7 @@ msgstr "Fuseau horaire"
 msgid "Time format"
 msgstr "Format d'heure"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/monitoring/recurrentDowntime/ajaxForms.php
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 #: centreon/www/install/front_translate.php
@@ -19434,10 +19585,6 @@ msgstr ""
 "supervision CMA de s’authentifier auprès du collecteur correspondant."
 
 #: centreon/www/install/front_translate.php
-msgid "You can see the full list on"
-msgstr "Vous pouvez voir la liste complète sur"
-
-#: centreon/www/install/front_translate.php
 msgid "You can use regular expression syntax to retrieve more relevant results"
 msgstr ""
 "Vous pouvez utiliser des expressions régulières afin d'afficher des "
@@ -19893,10 +20040,6 @@ msgid "align picker"
 msgstr "Aligner la sélection"
 
 #: centreon/www/install/front_translate.php
-msgid "and"
-msgstr "et"
-
-#: centreon/www/install/front_translate.php
 msgid "and an access group:"
 msgstr "et un groupe d'accès :"
 
@@ -20270,10 +20413,6 @@ msgstr ""
 "comme Adresse de Serveur Central"
 
 #: centreon/www/install/front_translate.php
-msgid "the community"
-msgstr "la communauté"
-
-#: centreon/www/install/front_translate.php
 msgid "then copy the script to each host you want to monitor."
 msgstr "puis copiez le script sur chaque hôte que vous souhaitez superviser."
 
@@ -20337,7 +20476,7 @@ msgstr "année"
 
 #: centreon/www/install/front_translate.php
 msgid "{{count}} resources"
-msgstr ""
+msgstr "{{count}} ressources"
 
 #: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
@@ -20659,6 +20798,10 @@ msgstr ""
 #: unknown
 msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
+
+#: unknown
+msgid "And many others..."
+msgstr "Et bien d'autres..."
 
 #: unknown
 msgid "Animation effects"
@@ -21020,6 +21163,14 @@ msgid "Centreon is updated."
 msgstr "Centreon a été mis à jour."
 
 #: unknown
+msgid "Centreon website"
+msgstr "Site web de Centreon"
+
+#: unknown
+msgid "Centreon's Github"
+msgstr "Github de Centreon"
+
+#: unknown
 msgid "Centreon-Broker"
 msgstr "Centreon Broker"
 
@@ -21227,6 +21378,10 @@ msgid "Contact templace"
 msgstr "Modèle de contacts"
 
 #: unknown
+msgid "Contributors"
+msgstr "Contributeurs"
+
+#: unknown
 msgid "Correlation"
 msgstr "Activer la corrélation"
 
@@ -21401,6 +21556,14 @@ msgstr "Supprimer les groupes d'hôtes"
 #: unknown
 msgid "Dependencies Management"
 msgstr "Gestion des dépendances"
+
+#: unknown
+msgid "Developed by"
+msgstr "Développé par"
+
+#: unknown
+msgid "Developers"
+msgstr "Developpeurs"
 
 #: unknown
 msgid ""
@@ -22685,6 +22848,11 @@ msgid "Manual filling OK"
 msgstr "Remplissage manuel OK"
 
 #: unknown
+msgid "Many thanks to all the contributors to the security of Centreon"
+msgstr ""
+"Un grand merci à tous les contributeurs pour la sécurité de Centreon"
+
+#: unknown
 msgid "Map"
 msgstr "Map"
 
@@ -23251,6 +23419,10 @@ msgid "Project Leaders"
 msgstr "Chefs de projet"
 
 #: unknown
+msgid "Project leaders"
+msgstr "Responsables du projet"
+
+#: unknown
 msgid "Provider %1 is loaded"
 msgstr "Le fournisseur %1 est chargé"
 
@@ -23569,6 +23741,10 @@ msgstr "Rechercher des groupes de contacts"
 #: unknown
 msgid "Secondary grid color"
 msgstr "Couleur secondaire de la grille"
+
+#: unknown
+msgid "Security acknowledgement"
+msgstr "Remerciements pour la sécurité"
 
 #: unknown
 msgid "Security patch available"
@@ -24658,6 +24834,10 @@ msgstr ""
 "Centreonsur Github"
 
 #: unknown
+msgid "You can see the full list on"
+msgstr "Vous pouvez voir la liste complète sur"
+
+#: unknown
 msgid "You can see the full list on the"
 msgstr "Vous pouvez voir la liste complète sur le"
 
@@ -24744,6 +24924,10 @@ msgid ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 msgstr ""
 "[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine valide"
+
+#: unknown
+msgid "and"
+msgstr "et"
 
 #: unknown
 msgid "cgi"
@@ -24888,6 +25072,10 @@ msgstr "traps snmp"
 #: unknown
 msgid "snmpttconvertmib Directory + Binary"
 msgstr "Chemin complet de l'exécutable snmpttconvertmib"
+
+#: unknown
+msgid "the community"
+msgstr "la communauté"
 
 #: unknown
 msgid "timeperiod"

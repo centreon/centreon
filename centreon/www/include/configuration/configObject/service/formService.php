@@ -1078,6 +1078,9 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
     $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 } elseif ($o === SERVICE_MASSIVE_CHANGE) {
     $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
+    // Prevent a mass change from moving a service onto a host/hostgroup that already
+    // has (or would end up with) another service sharing the same description.
+    $form->addFormRule('checkServiceMassiveChangeExistence');
 }
 
 if (isset($service['service_template_model_stm_id']) && ($service['service_template_model_stm_id'] === '')) {

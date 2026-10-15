@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
 import ACListing from './Listing/Listing';
-import { openFormModalAtom, searchAtom } from './atoms';
+import { filtersAtom, openFormModalAtom, searchAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
 import {
   labelAddAgentConfiguration,
@@ -19,6 +19,7 @@ const AgentConfigurationPage = (): JSX.Element => {
   const { t } = useTranslation();
 
   const search = useAtomValue(searchAtom);
+  const filters = useAtomValue(filtersAtom);
 
   const { isDataEmpty, isLoading, hasData, total, data } =
     useGetAgentConfigurations();
@@ -31,7 +32,10 @@ const AgentConfigurationPage = (): JSX.Element => {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
   }
 
-  const isEmpty = isDataEmpty && !isLoading && !search;
+  const hasActiveFilters =
+    filters.agentTypes.length > 0 || filters.pollers.length > 0;
+
+  const isEmpty = isDataEmpty && !isLoading && !search && !hasActiveFilters;
 
   return (
     <PageLayout>

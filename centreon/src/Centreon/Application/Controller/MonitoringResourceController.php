@@ -93,7 +93,7 @@ class MonitoringResourceController extends AbstractController
 
         return $this->buildListingUri([
             'details' => json_encode([
-                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, 'host'),
+                'resourcesDetailsEndpoint' => $this->generateResourceDetailsEndpoint($parameters, 'host'),
                 'type' => ResourceEntity::TYPE_HOST,
                 'id' => $hostId,
                 'tab' => $tab,
@@ -150,7 +150,7 @@ class MonitoringResourceController extends AbstractController
 
         return $this->buildListingUri([
             'details' => json_encode([
-                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, 'service'),
+                'resourcesDetailsEndpoint' => $this->generateResourceDetailsEndpoint($parameters, 'service'),
                 'id' => $serviceId,
                 'tab' => $tab,
                 'uuid' => 'h' . $hostId . '-s' . $serviceId,
@@ -238,7 +238,7 @@ class MonitoringResourceController extends AbstractController
             'details' => json_encode([
                 'id' => $resourceId,
                 'tab' => self::TAB_DETAILS_NAME,
-                'resourcesDetailsEndpoint' => $this->getBaseUri() . $this->generateResourceDetailsEndpoint($parameters, $resourceType),
+                'resourcesDetailsEndpoint' => $this->generateResourceDetailsEndpoint($parameters, $resourceType),
             ]),
         ]);
     }

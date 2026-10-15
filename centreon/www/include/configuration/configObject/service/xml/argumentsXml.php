@@ -19,6 +19,11 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../../../../../config/centreon.config.php');
 
 require_once __DIR__ . '/argumentsXmlFunction.php';
@@ -29,6 +34,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreonXML.class.php';
 // Get session
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 
 if (! isset($_SESSION['centreon'])) {
     CentreonSession::start(1);
@@ -38,6 +44,28 @@ if (isset($_SESSION['centreon'])) {
     $oreon = $_SESSION['centreon'];
 } else {
     exit;
+}
+
+// The endpoint hands back persisted command arguments for the ids it is given,
+// so reaching one of the three pages that embed the form is the minimum. The
+// form is included by formService.php (60201 services by host, 60202 by host
+// group) and by formServiceTemplateModel.php (60206).
+if (! $oreon->user->admin) {
+    $access = $oreon->user->access;
+    $reachesForm = $access !== null
+        && ($access->page(60201) !== 0 || $access->page(60202) !== 0 || $access->page(60206) !== 0);
+
+    if (! $reachesForm) {
+        // The XSLT consumer ignores the HTTP status, so this trace is the only
+        // signal a denial leaves anywhere.
+        Logger::create(LogChannelEnum::WEB)->warning(
+            'Command arguments: page access denied',
+            ['contact_id' => (int) $oreon->user->get_id()]
+        );
+        http_response_code(403);
+
+        exit;
+    }
 }
 
 // Get language
@@ -65,6 +93,73 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
     $svcId = CentreonDB::escape($_GET['svcId']);
     $svcTplId = CentreonDB::escape($_GET['svcTplId']);
     $o = CentreonDB::escape($_GET['o']);
+
+    // Page access alone would let any id be probed, so the service is also
+    // checked against the caller ACL. Only monitored services
+    // (service_register = '1') carry a centreon_acl entry of their own; the
+    // other registers (templates, meta services) are deliberately left to the
+    // page check above, which is the only lever available for them.
+    if ((int) $svcId !== 0 && ! $oreon->user->admin) {
+        try {
+            $isMonitoredService = (bool) $db->fetchOne(
+                <<<'SQL'
+                    SELECT 1 FROM `service`
+                    WHERE service_id = :svcId AND service_register = '1'
+                    LIMIT 1
+                    SQL,
+                QueryParameters::create([QueryParameter::int('svcId', (int) $svcId)])
+            );
+
+            if ($isMonitoredService) {
+                $groupIds = array_values(array_filter(array_map(
+                    'intval',
+                    array_keys($oreon->user->access->getAccessGroups())
+                )));
+
+                $isGranted = false;
+                if ($groupIds !== []) {
+                    $aclDbName       = $db->getConnectionConfig()->getDatabaseNameRealTime();
+                    $aclPlaceholders = [];
+                    $aclParameters   = [QueryParameter::int('svcId', (int) $svcId)];
+                    foreach ($groupIds as $index => $groupId) {
+                        $placeholder       = 'acl_gid' . $index;
+                        $aclPlaceholders[] = ':' . $placeholder;
+                        $aclParameters[]   = QueryParameter::int($placeholder, $groupId);
+                    }
+                    $aclIn = implode(', ', $aclPlaceholders);
+
+                    $isGranted = (bool) $db->fetchOne(
+                        <<<SQL
+                            SELECT 1 FROM `{$aclDbName}`.centreon_acl
+                            WHERE service_id = :svcId AND group_id IN ({$aclIn})
+                            LIMIT 1
+                            SQL,
+                        QueryParameters::create($aclParameters)
+                    );
+                }
+
+                if (! $isGranted) {
+                    // The XSLT consumer ignores the HTTP status, so this trace is
+                    // the only signal a denial leaves anywhere.
+                    Logger::create(LogChannelEnum::WEB)->warning(
+                        'Command arguments: service access denied',
+                        ['contact_id' => (int) $oreon->user->get_id(), 'svc_id' => (int) $svcId]
+                    );
+                    http_response_code(403);
+
+                    exit;
+                }
+            }
+        } catch (Throwable $exception) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                'Command arguments: failed to resolve the service ACL scope',
+                ['exception' => $exception, 'svc_id' => (int) $svcId]
+            );
+            http_response_code(500);
+
+            exit;
+        }
+    }
 
     $tab = [];
     if (! $cmdId && $svcTplId) {

@@ -25,6 +25,7 @@ namespace Tests\App\Upgrade\Infrastructure\Dbal;
 
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Dbal\DbalUpdateRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -256,7 +257,7 @@ final class DbalUpdateRepositoryTest extends TestCase
         return new DbalUpdateRepository(
             $this->configConnection,
             $this->realtimeConnection,
-            $this->connectionConfig,
+            new LegacyConnectionFactory($this->connectionConfig),
             $this->libDir,
             $this->installDir,
             $filesystem ?? $this->realFilesystem,

@@ -41,6 +41,10 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.api.centreon_keepalive}&action=keepAlive`
   }).as('keepAlive');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.api.monitoring_servers}?page=*`
+  }).as('getPollers');
 });
 
 after(() => {
@@ -102,6 +106,9 @@ Then('the form is closed', () => {
 
 Then('the informations are successfully saved', () => {
   cy.contains(data.updated.name).click();
-  cy.wait('@getConnectorDetail');
+  // The detail request may legitimately not fire a second time — reopening the
+  // just-saved form can be served from the client cache — so wait on the
+  // reopened form, not on the request.
+  cy.contains('Modify an additional configuration').should('be.visible');
   cy.verifyAccFieldValues(data.updated);
 });

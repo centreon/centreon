@@ -15,6 +15,7 @@ export const labelSelectAtLeastThreeColumns =
   'At least three columns must be selected';
 export const labelInformation = 'Information';
 export const labelAction = 'Action';
+export const labelNotes = 'Notes';
 
 export const labelAuthor = 'Author';
 export const labelStartTime = 'Start time';

@@ -9,7 +9,7 @@ parameters:
     api.header: "Api-Version"
     api.version.latest: "25.10"
     database_host: "%env(hostCentreon)%"
-    database_port: "%env(port)%"
+    database_port: "%env(int:port)%"
     database_db: "%env(db)%"
     database_dbstg: "%env(dbcstg)%"
     database_user: "%env(user)%"

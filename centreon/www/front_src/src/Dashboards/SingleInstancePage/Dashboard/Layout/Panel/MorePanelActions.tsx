@@ -14,10 +14,12 @@ import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 import useWidgetForm from '../../AddEditWidget/useWidgetModal';
 import {
   dashboardAtom,
+  isEditingAtom,
   switchPanelsEditionModeDerivedAtom,
   widgetToDeleteAtom
 } from '../../atoms';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
+import useResetDashboardFromSavedState from '../../hooks/useResetDashboardFromSavedState';
 import { Panel } from '../../models';
 import {
   labelDeleteWidget,
@@ -49,6 +51,7 @@ const MorePanelActions = ({
     window.location.search
   );
   const dashboard = useAtomValue(dashboardAtom);
+  const isEditing = useAtomValue(isEditingAtom);
   const switchPanelsEditionMode = useSetAtom(
     switchPanelsEditionModeDerivedAtom
   );
@@ -58,8 +61,13 @@ const MorePanelActions = ({
 
   const { openModal } = useWidgetForm();
 
+  const resetDashboardFromSavedState = useResetDashboardFromSavedState();
+
   const edit = (): void => {
-    openModal(dashboard.layout.find((panel) => equals(panel.i, id)) || null);
+    const layout =
+      canEdit && !isEditing ? resetDashboardFromSavedState() : dashboard.layout;
+
+    openModal(layout.find((panel) => equals(panel.i, id)) || null);
 
     close();
 

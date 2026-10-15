@@ -27,6 +27,7 @@ use Centreon\Domain\Repository\TaskRepository;
 use Centreon\Infrastructure\Service\CentcoreCommandService;
 use Centreon\Infrastructure\Service\CentreonClapiServiceInterface;
 use CentreonRemote\Infrastructure\Export\ExportCommitment;
+use ConfigGenerateRemote\Backend;
 use Pimple\Container;
 
 /**
@@ -34,6 +35,12 @@ use Pimple\Container;
  */
 class CentreonWorker implements CentreonClapiServiceInterface
 {
+    /**
+     * Default staleness threshold (in seconds) used to remove orphaned export temp
+     * directories when no --commandTimeout is provided.
+     */
+    private const DEFAULT_ORPHAN_TMPDIR_MAX_AGE = 3600;
+
     /** @var Container */
     private $container;
 
@@ -59,6 +66,8 @@ class CentreonWorker implements CentreonClapiServiceInterface
      *
      * When --commandTimeout <seconds> is provided, import tasks stuck in 'inprogress'
      * state for longer than the given duration are deleted before processing begins.
+     * Orphaned export temp directories older than that same threshold are also removed
+     * from the export cache to prevent filesystem saturation.
      */
     public function processQueue(): void
     {
@@ -72,6 +81,17 @@ class CentreonWorker implements CentreonClapiServiceInterface
             echo date('Y-m-d H:i:s') . " - INFO - Deleted {$deleted} timed-out import task(s)"
                 . " (older than {$commandTimeout}s).\n";
         }
+
+        // remove orphaned temporary export directories left behind when a worker
+        // process was killed before movePath()/cleanPath() could run (e.g. gorgone
+        // command timeout). Reuse the gorgone command timeout as the staleness
+        // threshold when available: past that duration the process that created the
+        // directory has necessarily been killed, so it is safe to remove.
+        $orphanMaxAge = $commandTimeout ?? self::DEFAULT_ORPHAN_TMPDIR_MAX_AGE;
+        $removedEntries = Backend::cleanOrphanedTmpDirs($orphanMaxAge);
+
+        echo date('Y-m-d H:i:s') . " - INFO - Removed {$removedEntries} orphaned export"
+            . " temp entry(ies) (older than {$orphanMaxAge}s).\n";
 
         // check export tasks in database and execute these
         $this->processExportTasks();

@@ -63,7 +63,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'Service Categories');
   }
 );
 
@@ -120,7 +120,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'Service Categories');
   }
 );
 
@@ -167,7 +167,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'Service Categories');
   }
 );
 
@@ -232,7 +232,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'Service Categories');
   }
 );
 
@@ -271,6 +271,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'servicecategories');
+      .should('contain.text', 'Service Categories');
   }
 );

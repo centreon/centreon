@@ -1,7 +1,7 @@
 import debounce from '@mui/utils/debounce';
-import { useAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { ChangeEvent, useRef, useState } from 'react';
-import { searchAtom } from '../../atoms';
+import { changeSearchAtom, searchAtom } from '../../atoms';
 
 interface UseSearchState {
   search: string;
@@ -9,12 +9,13 @@ interface UseSearchState {
 }
 
 export const useSearch = (): UseSearchState => {
-  const [search, setSearch] = useAtom(searchAtom);
+  const search = useAtomValue(searchAtom);
+  const changeSearch = useSetAtom(changeSearchAtom);
   const [inputValue, setInputValue] = useState(search);
 
   const searchDebounced = useRef(
     debounce<(debouncedSearch: string) => void>((debouncedSearch): void => {
-      setSearch(debouncedSearch);
+      changeSearch(debouncedSearch);
     }, 500)
   );
 

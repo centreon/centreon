@@ -63,7 +63,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -140,7 +140,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -171,7 +171,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -247,7 +247,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );
 
@@ -285,6 +285,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'serviceseverity');
+      .should('contain.text', 'Service severity');
   }
 );

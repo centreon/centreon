@@ -34,6 +34,9 @@ checkstyle.core.xml
 **/centreon-build/
 **/build/
 
+# locally generated self-signed certificates
+**/certs/
+
 # Mac Os cache files
 .DS_Store
 
