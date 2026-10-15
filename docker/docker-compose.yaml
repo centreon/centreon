@@ -59,8 +59,6 @@ services:
       - poller-broker:/etc/centreon-broker
       - poller-centcmd:/var/lib/centreon-engine/rw
       - poller-gorgone-data:/var/lib/centreon-gorgone/
-      # Podman: append :U, otherwise the volume stays root-owned and gorgone
-      # cannot write centreontrapd.sdb (Docker rejects :U).
       - poller-snmp-traps:/etc/snmp/centreon_traps
     healthcheck:
       test: ["CMD-SHELL", "grep -q \":$$(printf '%04X' $${CENTRAL_PORT:-443}) 01\" /proc/net/tcp /proc/net/tcp6 2>/dev/null"]

@@ -558,19 +558,11 @@ EOF
       - poller-gorgone-data:/var/lib/centreon-gorgone/
 EOF
 
-  # gorgone extra volume for snmptrap. gorgone's image has no
-  # /etc/snmp/centreon_traps and mounts the volume first (centreontrapd depends
-  # on it), so the volume starts out root-owned. Docker then still copies
-  # centreontrapd's 900:900 ownership in on its (later) mount of the empty
-  # volume; Podman only does that on the first mount, leaving gorgone (uid 903)
-  # unable to write centreontrapd.sdb. :U (Podman-only, Docker rejects it)
-  # chowns it to gorgone's user; centreontrapd only reads it.
+  # gorgone extra volume for snmptrap
   if [ "${WITH_SNMPTRAP}" = "1" ]; then
-    local traps_opt=""
-    if [ "${CONTAINER_ENGINE}" = "podman" ]; then
-      traps_opt=":U"
-    fi
-    echo "      - poller-snmp-traps:/etc/snmp/centreon_traps${traps_opt}" >> "${out}"
+    cat >> "${out}" <<'EOF'
+      - poller-snmp-traps:/etc/snmp/centreon_traps
+EOF
   fi
 
   # gorgone healthcheck (always, after volumes)
