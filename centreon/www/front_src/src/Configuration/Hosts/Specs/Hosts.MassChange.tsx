@@ -96,14 +96,6 @@ export default () => {
         'have.text',
         'The changes will be applied to 2 hosts.'
       );
-      cy.findByTestId('mass-change-selection')
-        .find('li')
-        .then((items) => {
-          expect([...items].map((item) => item.textContent)).to.deep.equal([
-            'host 0',
-            'host 2'
-          ]);
-        });
       cy.findByTestId('mass-change-warning').should('not.exist');
 
       cy.findByTestId('confirm').click();
@@ -260,10 +252,10 @@ export default () => {
         .should('have.value', '3');
 
       save();
-      cy.findByTestId('mass-change-selection')
-        .find('li')
-        .should('have.length', 1)
-        .and('have.text', 'host 2');
+      cy.findByTestId('mass-change-confirmation').should(
+        'have.text',
+        'The changes will be applied to 1 host.'
+      );
       cy.findByTestId('confirm').click();
 
       // Host 0 is not written to again.

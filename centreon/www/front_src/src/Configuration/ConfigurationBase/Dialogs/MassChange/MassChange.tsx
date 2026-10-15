@@ -25,8 +25,8 @@ interface Props {
   getWarning?: MassChangeForm['getConfirmationWarning'];
 }
 
-// States the count and names the rows before anything is written: a check-all
-// selects the whole page, deactivated rows included.
+// States the count before anything is written: a check-all selects the whole
+// page, deactivated rows included.
 const MassChangeDialog = ({ getWarning }: Props): ReactElement => {
   const { t } = useTranslation();
 
@@ -60,16 +60,6 @@ const MassChangeDialog = ({ getWarning }: Props): ReactElement => {
           <Typography data-testid="mass-change-confirmation">
             {t(labelApplyChangesTo(type), { count })}
           </Typography>
-          <ul
-            className="m-0 max-h-40 overflow-y-auto pl-5"
-            data-testid="mass-change-selection"
-          >
-            {selection.map(({ id, name }) => (
-              <li key={id}>
-                <Typography>{name}</Typography>
-              </li>
-            ))}
-          </ul>
           {warning && (
             <Alert data-testid="mass-change-warning" severity="warning">
               {warning}
