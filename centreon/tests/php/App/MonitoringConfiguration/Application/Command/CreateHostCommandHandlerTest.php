@@ -176,6 +176,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->credentialRepository->addUser(new UserId(1), unrestricted: true);
         $this->credentialRepository->addUser(new UserId(7), unrestricted: false);
         $this->credentialRepository->addUser(new UserId(9), unrestricted: false);
+
         $this->vault->vaultEnabled = false;
 
         $container->set(HostRepository::class, $this->hostRepository);

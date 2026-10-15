@@ -908,9 +908,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds($actor, $amongIds);
 
-        return $accessibleHostIds === null
-            ? null
-            : array_values(array_map(static fn (HostId $id): int => $id->value, $accessibleHostIds->toArray()));
+        return $accessibleHostIds instanceof Collection
+            ? array_values(array_map(static fn (HostId $id): int => $id->value, $accessibleHostIds->toArray()))
+            : null;
     }
 
     /**

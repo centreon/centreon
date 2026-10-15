@@ -69,6 +69,7 @@ final class DeleteHostCommandHandlerTest extends TestCase
         $credentialRepository = new FakeCredentialRepository();
         $credentialRepository->addUser(new UserId(1), unrestricted: true);
         $credentialRepository->addUser(new UserId(7), unrestricted: false);
+
         $this->handler = new DeleteHostCommandHandler(
             $this->hostRepository,
             $this->serviceRepository,
