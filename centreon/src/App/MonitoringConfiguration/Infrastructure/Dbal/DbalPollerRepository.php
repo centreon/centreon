@@ -38,7 +38,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
@@ -143,7 +143,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         #[Autowire(service: DbalGlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
 
         private bool $withCmaCertificates = false,
     ) {
@@ -457,7 +457,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             realTimeConnection: $this->realTimeConnection,
             pollerTransformer: $this->pollerTransformer,
             globalMacroTransformer: $this->globalMacroTransformer,
-            resourceAccessRepository: $this->resourceAccessRepository,
+            accessScopes: $this->accessScopes,
             withCmaCertificates: true,
         );
     }
@@ -520,16 +520,11 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
         $actor = $criteria->getActor();
         if ($actor instanceof ActingUser) {
-            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($actor);
-            if ($accessiblePollerIds instanceof Collection) {
-                $ids = [];
-                foreach ($accessiblePollerIds as $pollerId) {
-                    $ids[] = $pollerId->value;
-                }
-
+            $scope = $this->accessScopes->pollers($actor);
+            if (! $scope->isUnrestricted()) {
                 $qb->andWhere($qb->expr()->in(
                     'p.id',
-                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
+                    $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
                 ));
             }
         }

@@ -42,6 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResour
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -1023,7 +1024,7 @@ final class PutHostProcessorTest extends ApiTestCase
             $mediaRepository,
             $mediaUrlGenerator,
             $timePeriodRepository,
-            $resourceAccessRepository,
+            new AccessScopeResolver($resourceAccessRepository),
             $macroTransformer,
             $inheritedHostMacrosResolver,
             $isCloudPlatform,

@@ -42,6 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResour
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
@@ -535,7 +536,7 @@ final class GetHostProviderTest extends ApiTestCase
             $mediaRepository,
             $mediaUrlGenerator,
             $timePeriodRepository,
-            $resourceAccessRepository,
+            new AccessScopeResolver($resourceAccessRepository),
             $macroTransformer,
             $inheritedHostMacrosResolver,
             $isCloudPlatform,

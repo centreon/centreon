@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -64,7 +65,7 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
             new DbalModuleRepository($this->connection),
         );
 

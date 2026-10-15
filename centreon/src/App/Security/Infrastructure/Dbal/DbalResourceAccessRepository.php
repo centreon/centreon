@@ -33,7 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -193,14 +193,8 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ]);
     }
 
-    public function findAccessibleHostCategoryIds(ActingUser $actor): ?Collection
+    public function findHostCategoryAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
@@ -214,7 +208,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), ['contactId' => $userId->value]) === false) {
-            return new Collection([], HostCategoryId::class);
+            return AccessScope::restrictedTo(HostCategoryId::class, []);
         }
 
         // Tier 2 — legacy `hasRestrictedAccessToHostCategories() === false`: accessible resources exist
@@ -229,7 +223,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($hasHostCategoryRelationQb->getSQL(), ['contactId' => $userId->value]) === false) {
-            return null;
+            return AccessScope::unrestricted(HostCategoryId::class);
         }
 
         // Tier 3 — legacy `AND hc.hc_id IN (<granted categories>)` on a `hc.level IS NULL` join: the user
@@ -249,20 +243,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{hc_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(HostCategoryId::class, new Collection(
             array_map(static fn (array $row): HostCategoryId => new HostCategoryId((int) $row['hc_id']), $rows),
             HostCategoryId::class,
-        );
+        ));
     }
 
-    public function findAccessibleHostSeverityIds(ActingUser $actor): ?Collection
+    public function findHostSeverityAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
@@ -276,7 +264,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), ['contactId' => $userId->value]) === false) {
-            return new Collection([], HostSeverityId::class);
+            return AccessScope::restrictedTo(HostSeverityId::class, []);
         }
 
         // Tier 2 — legacy `hasRestrictedAccessToHostCategories() === false`: accessible resources exist
@@ -291,7 +279,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($hasHostCategoryRelationQb->getSQL(), ['contactId' => $userId->value]) === false) {
-            return null;
+            return AccessScope::unrestricted(HostSeverityId::class);
         }
 
         // Tiers 3 & 4 — legacy `AND hc.hc_id IN (<granted categories>)` on a `hc.level IS NOT NULL`
@@ -311,22 +299,16 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{hc_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(HostSeverityId::class, new Collection(
             array_map(static fn (array $row): HostSeverityId => new HostSeverityId((int) $row['hc_id']), $rows),
             HostSeverityId::class,
-        );
+        ));
     }
 
-    public function findAccessiblePollerIds(ActingUser $actor): ?Collection
+    public function findPollerAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         if ($this->hasAccessToAllPollers($userId)) {
-            return null;
+            return AccessScope::unrestricted(PollerId::class);
         }
 
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
@@ -341,20 +323,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{poller_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(PollerId::class, new Collection(
             array_map(static fn (array $row): PollerId => new PollerId((int) $row['poller_id']), $rows),
             PollerId::class,
-        );
+        ));
     }
 
-    public function findAccessibleHostGroupIds(ActingUser $actor): ?Collection
+    public function findHostGroupAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Unlike pollers, host groups carry an explicit "all host groups" flag on the ACL resource
@@ -371,7 +347,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($allHostGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
-            return null;
+            return AccessScope::unrestricted(HostGroupId::class);
         }
 
         // No "all host groups" flag anywhere: the accessible set is the union of host-group
@@ -388,20 +364,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{hg_hg_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(HostGroupId::class, new Collection(
             array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows),
             HostGroupId::class,
-        );
+        ));
     }
 
-    public function findAccessibleImageFolderIds(ActingUser $actor): ?Collection
+    public function findImageFolderAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         // Unlike pollers, image folders carry an explicit "all image folders" flag on the ACL
@@ -419,7 +389,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->setMaxResults(1);
 
         if ($this->connection->fetchOne($allImageFoldersQb->getSQL(), ['contactId' => $userId->value]) !== false) {
-            return null;
+            return AccessScope::unrestricted(MediaDirectoryId::class);
         }
 
         // No "all image folders" flag anywhere: the accessible set is the union of image-folder
@@ -436,23 +406,17 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{dir_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(MediaDirectoryId::class, new Collection(
             array_map(static fn (array $row): MediaDirectoryId => new MediaDirectoryId((int) $row['dir_id']), $rows),
             MediaDirectoryId::class,
-        );
+        ));
     }
 
-    public function findAccessibleContactIds(ActingUser $actor): ?Collection
+    public function findContactAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
         if ($accessGroupIds === []) {
-            return new Collection([], NotificationContactId::class);
+            return AccessScope::restrictedTo(NotificationContactId::class, []);
         }
 
         // Two bounded queries unioned in PHP rather than one query with an OR across both join
@@ -463,20 +427,14 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ...$this->findContactIdsLinkedViaContactGroupToAccessGroups($accessGroupIds),
         ]);
 
-        return new Collection(
+        return AccessScope::restrictedTo(NotificationContactId::class, new Collection(
             array_map(static fn (int $id): NotificationContactId => new NotificationContactId($id), array_values($contactIds)),
             NotificationContactId::class,
-        );
+        ));
     }
 
-    public function findAccessibleContactGroupIds(ActingUser $actor): ?Collection
+    public function findContactGroupAccessScope(UserId $userId): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
 
         $contactGroupIds = [];
@@ -512,13 +470,13 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             $contactGroupIds[] = (int) $row['id'];
         }
 
-        return new Collection(
+        return AccessScope::restrictedTo(ContactGroupId::class, new Collection(
             array_map(
                 static fn (int $id): ContactGroupId => new ContactGroupId($id),
                 array_values(array_unique($contactGroupIds)),
             ),
             ContactGroupId::class,
-        );
+        ));
     }
 
     /**
@@ -527,21 +485,15 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
      * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
      * the query count stays constant regardless of how many hosts exist or are returned.
      */
-    public function findAccessibleHostIds(ActingUser $actor, ?Collection $among = null): ?Collection
+    public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope
     {
-        if ($actor->hasUnrestrictedResourceAccess()) {
-            return null;
-        }
-
-        $userId = $actor->userId;
-
         if ($among?->count() === 0) {
-            return new Collection([], HostId::class);
+            return AccessScope::restrictedTo(HostId::class, []);
         }
 
         $accessGroupIds = $this->findActiveAccessGroupIdValues($userId);
         if ($accessGroupIds === []) {
-            return new Collection([], HostId::class);
+            return AccessScope::restrictedTo(HostId::class, []);
         }
 
         $qb = $this->realTimeConnection->createQueryBuilder();
@@ -557,10 +509,10 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{host_id: int|string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
-        return new Collection(
+        return AccessScope::restrictedTo(HostId::class, new Collection(
             array_map(static fn (array $row): HostId => new HostId((int) $row['host_id']), $rows),
             HostId::class,
-        );
+        ));
     }
 
     /**

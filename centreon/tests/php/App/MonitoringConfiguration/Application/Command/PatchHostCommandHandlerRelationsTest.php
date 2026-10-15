@@ -77,6 +77,7 @@ use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
@@ -158,6 +159,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 new FakeMediaRepository(),
                 $commandRepository,
                 $this->resourceAccessRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
             ),
             new HostRelationsUpdater(
                 $this->hostGroupRepository,
@@ -166,7 +168,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->repository,
                 $this->contactRepository,
                 $this->contactGroupRepository,
-                $this->resourceAccessRepository,
+                new AccessScopeResolver($this->resourceAccessRepository),
                 new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                     new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
                     $this->hostTemplateRepository,

@@ -28,13 +28,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverity;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostSeverityValidator;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
-use App\Shared\Domain\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\ConstraintValidatorInterface;
@@ -84,8 +85,8 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostSeverityRepository->method('findNameById')->willReturn(new HostSeverityName('critical'));
-        $this->resourceAccessRepository->method('findAccessibleHostSeverityIds')
-            ->willReturn(new Collection([new HostSeverityId(9)], HostSeverityId::class));
+        $this->resourceAccessRepository->method('findHostSeverityAccessScope')
+            ->willReturn(AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(9)]));
 
         $constraint = new AccessibleHostSeverity();
         $this->validator->validate(4, $constraint);
@@ -97,8 +98,8 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostSeverityRepository->method('findNameById')->willReturn(new HostSeverityName('critical'));
-        $this->resourceAccessRepository->method('findAccessibleHostSeverityIds')
-            ->willReturn(new Collection([new HostSeverityId(4)], HostSeverityId::class));
+        $this->resourceAccessRepository->method('findHostSeverityAccessScope')
+            ->willReturn(AccessScope::restrictedTo(HostSeverityId::class, [new HostSeverityId(4)]));
 
         $this->validator->validate(4, new AccessibleHostSeverity());
 
@@ -109,7 +110,7 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
     {
         $this->security->method('getUser')->willReturn($this->createCredentialUser(isAdmin: false));
         $this->hostSeverityRepository->method('findNameById')->willReturn(new HostSeverityName('critical'));
-        $this->resourceAccessRepository->method('findAccessibleHostSeverityIds')->willReturn(null);
+        $this->resourceAccessRepository->method('findHostSeverityAccessScope')->willReturn(AccessScope::unrestricted(HostSeverityId::class));
 
         $this->validator->validate(4, new AccessibleHostSeverity());
 
@@ -118,7 +119,7 @@ final class AccessibleHostSeverityValidatorTest extends ConstraintValidatorTestC
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AccessibleHostSeverityValidator($this->security, $this->hostSeverityRepository, $this->resourceAccessRepository);
+        return new AccessibleHostSeverityValidator($this->security, $this->hostSeverityRepository, new AccessScopeResolver($this->resourceAccessRepository));
     }
 
     private function createCredentialUser(bool $isAdmin): CredentialUser

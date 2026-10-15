@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
@@ -37,7 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -76,7 +75,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         #[Autowire(service: HostTemplateTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
 
         private ModuleRepository $moduleRepository,
     ) {
@@ -576,18 +575,14 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor);
-        // null means no host-severity restriction applies — the actor sees every host template.
-        if (! $accessibleHostSeverities instanceof Collection) {
+        $scope = $this->accessScopes->hostSeverities($actor);
+        if ($scope->isUnrestricted()) {
             return;
         }
 
-        $accessibleHostSeverityIds = array_map(
-            static fn (HostSeverityId $hostSeverityId): int => $hostSeverityId->value,
-            $accessibleHostSeverities->toArray()
-        );
+        $accessibleHostSeverityIds = $scope->allowedIdValues();
 
-        // An empty set means the actor is restricted but grants no accessible severity: they must see
+        // An empty scope means the actor is restricted but grants no accessible severity: they must see
         // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
         // filters out every severity-less template once a category restriction applies. Forcing an
         // always-false predicate avoids emitting an `IN ()` the driver would reject.
@@ -601,7 +596,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         // legacy findByRequestParametersAndAccessGroups, whose "AND hc.hc_id IN (...)" is applied on a
         // join filtered by "hc.level IS NOT NULL", so a template linked only to a regular (levelless)
         // category — or to none — is excluded. The accessible set is already severity-scoped (see
-        // ResourceAccessRepository::findAccessibleHostSeverityIds), so matching the relation id
+        // ResourceAccessRepository::findHostSeverityAccessScope), so matching the relation id
         // directly is enough. EXISTS rather than a JOIN keeps LIMIT/OFFSET pagination correct, as
         // hostcategories_relation carries no per-host uniqueness.
         $qb->andWhere(

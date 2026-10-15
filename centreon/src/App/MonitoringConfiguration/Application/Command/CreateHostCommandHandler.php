@@ -59,8 +59,10 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
@@ -87,6 +89,7 @@ final readonly class CreateHostCommandHandler
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private EventBus $eventBus,
         private HostTemplateLicenseGuard $templateLicenseGuard,
@@ -210,10 +213,9 @@ final readonly class CreateHostCommandHandler
         $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor);
-        if ($accessibleIds instanceof Collection) {
-            $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
+        $scope = $this->accessScopes->hostGroups($actor);
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
         }
 
         if ($missingIds !== []) {
@@ -267,11 +269,11 @@ final readonly class CreateHostCommandHandler
      *
      * @param Collection<T> $requested
      * @param callable(Collection<T>): list<int> $resolve
-     * @param Collection<T>|null $accessible
+     * @param AccessScope<T> $scope
      *
      * @return list<int>
      */
-    private function missingIds(Collection $requested, callable $resolve, ?Collection $accessible = null): array
+    private function missingIds(Collection $requested, callable $resolve, AccessScope $scope): array
     {
         if (count($requested) === 0) {
             return [];
@@ -280,9 +282,8 @@ final readonly class CreateHostCommandHandler
         $requestedIds = array_map(static fn (object $id): int => $id->value, $requested->toArray());
         $missingIds = array_diff($requestedIds, $resolve($requested));
 
-        if ($accessible instanceof Collection) {
-            $accessibleIds = array_map(static fn (object $id): int => $id->value, $accessible->toArray());
-            $missingIds = array_merge($missingIds, array_diff($requestedIds, $accessibleIds));
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues()));
         }
 
         return array_values(array_unique($missingIds));
@@ -296,7 +297,7 @@ final readonly class CreateHostCommandHandler
         $missingIds = $this->missingIds(
             $categoryIds,
             fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
+            $this->accessScopes->hostCategories($actor),
         );
 
         if ($missingIds !== []) {
@@ -315,7 +316,7 @@ final readonly class CreateHostCommandHandler
             fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
+            $this->accessScopes->hostSeverities($actor),
         );
 
         if ($missingIds !== []) {
@@ -340,6 +341,8 @@ final readonly class CreateHostCommandHandler
         $missingIds = $this->missingIds(
             $templateIds,
             fn (Collection $ids): array => array_keys($this->hostTemplateRepository->findNamesByIds($ids)->toArray()),
+            // Templates are not scoped by access rights.
+            AccessScope::unrestricted(HostTemplateId::class),
         );
 
         if ($missingIds !== []) {
@@ -358,25 +361,25 @@ final readonly class CreateHostCommandHandler
      */
     private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ActingUser $actor): void
     {
-        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds(
+        $hostScope = $this->accessScopes->hosts(
             $actor,
             new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
         );
 
-        $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
-        $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $hostScope);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $hostScope);
     }
 
     /**
      * @param Collection<HostId> $hostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the actor is unrestricted
+     * @param AccessScope<HostId> $hostScope
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, AccessScope $hostScope): void
     {
         $missingIds = $this->missingIds(
             $hostIds,
             fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
-            $accessibleHostIds,
+            $hostScope,
         );
 
         if ($missingIds !== []) {

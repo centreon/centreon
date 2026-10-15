@@ -28,8 +28,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -65,7 +66,7 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
         #[Autowire(service: MediaTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -84,13 +85,12 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
 
     public function findAll(MediaCriteria $criteria): \IteratorAggregate&\Countable
     {
-        $accessibleFolderIds = null;
         $actor = $criteria->getActor();
-        if ($actor instanceof ActingUser) {
-            $accessibleFolderIds = $this->resourceAccessRepository->findAccessibleImageFolderIds($actor);
-            if ($accessibleFolderIds instanceof Collection && $accessibleFolderIds->count() === 0) {
-                return $this->emptyResult($criteria);
-            }
+        $scope = $actor instanceof ActingUser
+            ? $this->accessScopes->imageFolders($actor)
+            : AccessScope::unrestricted(MediaDirectoryId::class);
+        if (! $scope->isUnrestricted() && $scope->allowedIdValues() === []) {
+            return $this->emptyResult($criteria);
         }
 
         $qb = $this->connection->createQueryBuilder();
@@ -101,13 +101,10 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
             ->orderBy('img.img_path') // alphabetical order for a name-based selector, matches legacy
             ->addOrderBy('img.img_id'); // deterministic pagination (img_path is not unique)
 
-        if ($accessibleFolderIds instanceof Collection) {
+        if (! $scope->isUnrestricted()) {
             $qb->andWhere($qb->expr()->in(
                 'dir.dir_id',
-                $qb->createNamedParameter(
-                    array_map(static fn (MediaDirectoryId $id): int => $id->value, iterator_to_array($accessibleFolderIds)),
-                    ArrayParameterType::INTEGER
-                )
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
             ));
         }
 

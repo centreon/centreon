@@ -44,7 +44,7 @@ use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
-use App\Shared\Domain\Collection;
+use App\Security\Domain\Service\AccessScopeResolver;
 
 /**
  * The authoritative check of the resources a host write refers to, run by the command handler after
@@ -63,6 +63,7 @@ final readonly class HostReferencesChecker
         private MediaRepository $mediaRepository,
         private CommandRepository $commandRepository,
         private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -81,14 +82,7 @@ final readonly class HostReferencesChecker
             throw new HostSeverityNotFoundException($severityId->value);
         }
 
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor);
-        if (
-            $accessibleIds instanceof Collection
-            && ! array_any(
-                $accessibleIds->toArray(),
-                static fn (HostSeverityId $accessibleId): bool => $accessibleId->value === $severityId->value,
-            )
-        ) {
+        if (! $this->accessScopes->hostSeverities($actor)->allows($severityId)) {
             throw new HostSeverityNotFoundException($severityId->value);
         }
     }

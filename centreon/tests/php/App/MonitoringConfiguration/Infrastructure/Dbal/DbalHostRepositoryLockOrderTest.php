@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalNotificationsTransformer;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
@@ -70,7 +71,7 @@ final class DbalHostRepositoryLockOrderTest extends TestCase
             $connection,
             new DbalHostTransformer(),
             new DbalNotificationsTransformer(),
-            $this->createMock(ResourceAccessRepository::class),
+            new AccessScopeResolver($this->createMock(ResourceAccessRepository::class)),
         );
 
         try {

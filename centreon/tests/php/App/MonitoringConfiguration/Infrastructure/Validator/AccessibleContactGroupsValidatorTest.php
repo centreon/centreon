@@ -28,12 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleContactGroupsValidator;
-use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Role;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -75,10 +76,8 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
         $this->contactGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new ContactGroupName('supervisors')], ContactGroupName::class),
         );
-        // an admin is never scoped: the lookup is asked for the unrestricted actor, and restricts nothing
-        $this->resourceAccessRepository->expects(self::once())->method('findAccessibleContactGroupIds')
-            ->with(self::callback(static fn (ActingUser $actor): bool => $actor->hasUnrestrictedResourceAccess()))
-            ->willReturn(null);
+        // an admin is never scoped, so the ACL lookup must not even be attempted
+        $this->resourceAccessRepository->expects(self::never())->method('findContactGroupAccessScope');
 
         $this->validator->validate([5], new AccessibleContactGroups());
 
@@ -107,9 +106,7 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
         $this->contactGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new ContactGroupName('supervisors')], ContactGroupName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactGroupIds')->willReturn(
-            new Collection([new ContactGroupId(9)], ContactGroupId::class),
-        );
+        $this->resourceAccessRepository->method('findContactGroupAccessScope')->willReturn(AccessScope::restrictedTo(ContactGroupId::class, [new ContactGroupId(9)]));
 
         $constraint = new AccessibleContactGroups();
         $this->validator->validate([5], $constraint);
@@ -123,9 +120,7 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
         $this->contactGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new ContactGroupName('supervisors')], ContactGroupName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactGroupIds')->willReturn(
-            new Collection([new ContactGroupId(5)], ContactGroupId::class),
-        );
+        $this->resourceAccessRepository->method('findContactGroupAccessScope')->willReturn(AccessScope::restrictedTo(ContactGroupId::class, [new ContactGroupId(5)]));
 
         $this->validator->validate([5], new AccessibleContactGroups());
 
@@ -142,9 +137,7 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
         $this->contactGroupRepository->method('findNamesByIds')->willReturn(
             new Collection([5 => new ContactGroupName('supervisors')], ContactGroupName::class),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactGroupIds')->willReturn(
-            new Collection([], ContactGroupId::class),
-        );
+        $this->resourceAccessRepository->method('findContactGroupAccessScope')->willReturn(AccessScope::restrictedTo(ContactGroupId::class, []));
 
         $constraint = new AccessibleContactGroups();
         $this->validator->validate([5], $constraint);
@@ -178,9 +171,7 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
                 ContactGroupName::class,
             ),
         );
-        $this->resourceAccessRepository->method('findAccessibleContactGroupIds')->willReturn(
-            new Collection([new ContactGroupId(5)], ContactGroupId::class),
-        );
+        $this->resourceAccessRepository->method('findContactGroupAccessScope')->willReturn(AccessScope::restrictedTo(ContactGroupId::class, [new ContactGroupId(5)]));
 
         $constraint = new AccessibleContactGroups();
         $this->validator->validate([5, 9], $constraint);
@@ -190,7 +181,7 @@ final class AccessibleContactGroupsValidatorTest extends ConstraintValidatorTest
 
     protected function createValidator(): ConstraintValidatorInterface
     {
-        return new AccessibleContactGroupsValidator($this->security, $this->contactGroupRepository, $this->resourceAccessRepository);
+        return new AccessibleContactGroupsValidator($this->security, $this->contactGroupRepository, new AccessScopeResolver($this->resourceAccessRepository));
     }
 
     private function createCredentialUser(bool $isAdmin): CredentialUser

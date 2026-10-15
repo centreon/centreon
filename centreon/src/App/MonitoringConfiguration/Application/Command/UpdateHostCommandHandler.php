@@ -68,8 +68,10 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Aggregate\AggregateRootId;
@@ -112,6 +114,7 @@ final readonly class UpdateHostCommandHandler
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
         private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
@@ -186,20 +189,20 @@ final readonly class UpdateHostCommandHandler
 
         // Only the hosts involved are looked up: those submitted, and those already linked that
         // may have to be preserved.
-        $accessibleHostIds = $this->resourceAccessRepository->findAccessibleHostIds($command->actor, new Collection([
+        $hostScope = $this->accessScopes->hosts($command->actor, new Collection([
             ...$command->parentHostIds->toArray(),
             ...$command->childHostIds->toArray(),
             ...$existingHost->parentHostIds->toArray(),
             ...$existingHost->childHostIds->toArray(),
         ], HostId::class));
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $accessibleHostIds);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $hostScope);
 
         // Out-of-scope parent and child hosts are hidden from a restricted actor (as by the legacy
         // host form), who cannot resend them, so they are preserved. The circularity check runs on
         // the final lists, since a preserved relation is kept in the graph.
-        $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $accessibleHostIds, HostId::class);
-        $childHostIds = $this->preserveInaccessible($command->childHostIds, $existingHost->childHostIds, $accessibleHostIds, HostId::class);
+        $parentHostIds = $this->preserveInaccessible($command->parentHostIds, $existingHost->parentHostIds, $hostScope, HostId::class);
+        $childHostIds = $this->preserveInaccessible($command->childHostIds, $existingHost->childHostIds, $hostScope, HostId::class);
 
         $this->assertRelationsAreNotCircular($command->id, $parentHostIds, $childHostIds);
 
@@ -240,19 +243,19 @@ final readonly class UpdateHostCommandHandler
         $hostGroupIds = $this->preserveInaccessible(
             $command->hostGroupIds,
             $existingHost->hostGroupIds,
-            $this->resourceAccessRepository->findAccessibleHostGroupIds($command->actor),
+            $this->accessScopes->hostGroups($command->actor),
             HostGroupId::class,
         );
         $categoryIds = $this->preserveInaccessible(
             $command->categoryIds,
             $existingHost->categoryIds,
-            $this->resourceAccessRepository->findAccessibleHostCategoryIds($command->actor),
+            $this->accessScopes->hostCategories($command->actor),
             HostCategoryId::class,
         );
         $severityId = $this->preserveInaccessibleSeverity(
             $command->severityId,
             $existingHost->severityId,
-            $this->resourceAccessRepository->findAccessibleHostSeverityIds($command->actor),
+            $this->accessScopes->hostSeverities($command->actor),
         );
 
         $host = $existingHost->with(
@@ -536,14 +539,14 @@ final readonly class UpdateHostCommandHandler
      * Scopes a full-replace association list to what the actor may change. Ids outside the actor's
      * ACL scope are invisible to them, so they can never be resent; preserving them from the existing
      * host keeps the wholesale relation replace from silently dropping them (legacy
-     * PartialUpdateHost). A null $accessible means the dimension is unrestricted for this actor
-     * (nothing is out of scope), so the submitted list is used as is.
+     * PartialUpdateHost). With an unrestricted scope nothing is out of scope, so the submitted list is
+     * used as is.
      *
      * @template T of AggregateRootId
      *
      * @param Collection<T> $submitted
      * @param Collection<T> $existing
-     * @param Collection<T>|null $accessible
+     * @param AccessScope<T> $scope
      * @param class-string<T> $className
      *
      * @return Collection<T>
@@ -551,19 +554,18 @@ final readonly class UpdateHostCommandHandler
     private function preserveInaccessible(
         Collection $submitted,
         Collection $existing,
-        ?Collection $accessible,
+        AccessScope $scope,
         string $className,
     ): Collection {
-        if (! $accessible instanceof Collection) {
+        if ($scope->isUnrestricted()) {
             return $submitted;
         }
 
-        $accessibleValues = array_map(static fn (AggregateRootId $id): int => $id->value, $accessible->toArray());
         $submittedValues = array_map(static fn (AggregateRootId $id): int => $id->value, $submitted->toArray());
 
         $preserved = array_filter(
             $existing->toArray(),
-            static fn (AggregateRootId $id): bool => ! in_array($id->value, $accessibleValues, true)
+            static fn (AggregateRootId $id): bool => ! $scope->allows($id)
                 && ! in_array($id->value, $submittedValues, true),
         );
 
@@ -587,13 +589,13 @@ final readonly class UpdateHostCommandHandler
             $this->preserveInaccessible(
                 $submitted->contactIds,
                 $existing->contactIds,
-                $this->resourceAccessRepository->findAccessibleContactIds($actor),
+                $this->accessScopes->contacts($actor),
                 NotificationContactId::class,
             ),
             $this->preserveInaccessible(
                 $submitted->contactGroupIds,
                 $existing->contactGroupIds,
-                $this->resourceAccessRepository->findAccessibleContactGroupIds($actor),
+                $this->accessScopes->contactGroups($actor),
                 ContactGroupId::class,
             ),
         );
@@ -605,20 +607,18 @@ final readonly class UpdateHostCommandHandler
      * is preserved (a restricted actor who sends none never meant to clear a severity they cannot
      * even see).
      *
-     * @param Collection<HostSeverityId>|null $accessible
+     * @param AccessScope<HostSeverityId> $scope
      */
     private function preserveInaccessibleSeverity(
         ?HostSeverityId $submitted,
         ?HostSeverityId $existing,
-        ?Collection $accessible,
+        AccessScope $scope,
     ): ?HostSeverityId {
-        if ($submitted instanceof HostSeverityId || ! $existing instanceof HostSeverityId || ! $accessible instanceof Collection) {
+        if ($submitted instanceof HostSeverityId || ! $existing instanceof HostSeverityId) {
             return $submitted;
         }
 
-        $accessibleValues = array_map(static fn (HostSeverityId $id): int => $id->value, $accessible->toArray());
-
-        return in_array($existing->value, $accessibleValues, true) ? null : $existing;
+        return $scope->allows($existing) ? null : $existing;
     }
 
     /**
@@ -634,10 +634,9 @@ final readonly class UpdateHostCommandHandler
         $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
         $missingIds = array_diff($requestedIds, $foundIds);
 
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($actor);
-        if ($accessibleIds instanceof Collection) {
-            $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
+        $scope = $this->accessScopes->hostGroups($actor);
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues())));
         }
 
         if ($missingIds !== []) {
@@ -653,11 +652,11 @@ final readonly class UpdateHostCommandHandler
      *
      * @param Collection<T> $requested
      * @param callable(Collection<T>): list<int> $resolve
-     * @param Collection<T>|null $accessible
+     * @param AccessScope<T> $scope
      *
      * @return list<int>
      */
-    private function missingIds(Collection $requested, callable $resolve, ?Collection $accessible = null): array
+    private function missingIds(Collection $requested, callable $resolve, AccessScope $scope): array
     {
         if (count($requested) === 0) {
             return [];
@@ -666,9 +665,8 @@ final readonly class UpdateHostCommandHandler
         $requestedIds = array_map(static fn (object $id): int => $id->value, $requested->toArray());
         $missingIds = array_diff($requestedIds, $resolve($requested));
 
-        if ($accessible instanceof Collection) {
-            $accessibleIds = array_map(static fn (object $id): int => $id->value, $accessible->toArray());
-            $missingIds = array_merge($missingIds, array_diff($requestedIds, $accessibleIds));
+        if (! $scope->isUnrestricted()) {
+            $missingIds = array_merge($missingIds, array_diff($requestedIds, $scope->allowedIdValues()));
         }
 
         return array_values(array_unique($missingIds));
@@ -682,7 +680,7 @@ final readonly class UpdateHostCommandHandler
         $missingIds = $this->missingIds(
             $categoryIds,
             fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $this->resourceAccessRepository->findAccessibleHostCategoryIds($actor),
+            $this->accessScopes->hostCategories($actor),
         );
 
         if ($missingIds !== []) {
@@ -701,7 +699,7 @@ final readonly class UpdateHostCommandHandler
             fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
                 ? [$severityId->value]
                 : [],
-            $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor),
+            $this->accessScopes->hostSeverities($actor),
         );
 
         if ($missingIds !== []) {
@@ -726,6 +724,8 @@ final readonly class UpdateHostCommandHandler
         $missingIds = $this->missingIds(
             $templateIds,
             fn (Collection $ids): array => array_keys($this->hostTemplateRepository->findNamesByIds($ids)->toArray()),
+            // Templates are not scoped by access rights.
+            AccessScope::unrestricted(HostTemplateId::class),
         );
 
         if ($missingIds !== []) {
@@ -741,24 +741,24 @@ final readonly class UpdateHostCommandHandler
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the actor is unrestricted
+     * @param AccessScope<HostId> $hostScope
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?Collection $accessibleHostIds): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, AccessScope $hostScope): void
     {
-        $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
-        $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $hostScope);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $hostScope);
     }
 
     /**
      * @param Collection<HostId> $hostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the actor is unrestricted
+     * @param AccessScope<HostId> $hostScope
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, AccessScope $hostScope): void
     {
         $missingIds = $this->missingIds(
             $hostIds,
             fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
-            $accessibleHostIds,
+            $hostScope,
         );
 
         if ($missingIds !== []) {

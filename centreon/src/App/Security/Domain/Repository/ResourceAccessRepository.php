@@ -32,7 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaDirectoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Aggregate\AccessScope;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
@@ -86,81 +86,63 @@ interface ResourceAccessRepository
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
     /**
-     * Returns the levelless host categories the user is restricted to.
+     * The levelless host categories the user may access, mirroring the legacy host-category ACL
+     * (DbReadHostCategoryRepository::findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories).
+     * A user with no accessible ACL resource, or granted only severities, is restricted to none.
      *
-     * Three states, mirroring the legacy host-category ACL (DbReadHostCategoryRepository::
-     * findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories):
-     *  - null                   → no restriction applies (an unrestricted actor included); the user sees every category
-     *  - an empty Collection    → the user is restricted but grants no accessible regular category
-     *                             (e.g. only severities, or no accessible ACL resource): sees nothing
-     *  - a non-empty Collection → the user is restricted to exactly these categories
+     * Ignores whether the user escapes resource scoping: see {@see \App\Security\Domain\Service\AccessScopeResolver}.
      *
-     * @return Collection<HostCategoryId>|null
+     * @return AccessScope<HostCategoryId>
      */
-    public function findAccessibleHostCategoryIds(ActingUser $actor): ?Collection;
+    public function findHostCategoryAccessScope(UserId $userId): AccessScope;
 
     /**
-     * Returns the host severities (host categories carrying a level) the user is restricted to.
+     * The host severities (host categories carrying a level) the user may access, mirroring the
+     * legacy host-template ACL (DbReadHostTemplateRepository::findByRequestParametersAndAccessGroups).
      *
-     * Three states, mirroring the legacy host-template ACL (DbReadHostTemplateRepository::
-     * findByRequestParametersAndAccessGroups):
-     *  - null                   → no restriction applies (an unrestricted actor included); the user sees host templates of any severity
-     *  - an empty Collection    → the user is restricted but grants no accessible severity: sees nothing
-     *  - a non-empty Collection → the user is restricted to exactly these severities
+     * @return AccessScope<HostSeverityId>
+     */
+    public function findHostSeverityAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * @return AccessScope<PollerId>
+     */
+    public function findPollerAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * @return AccessScope<HostGroupId>
+     */
+    public function findHostGroupAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * @return AccessScope<MediaDirectoryId>
+     */
+    public function findImageFolderAccessScope(UserId $userId): AccessScope;
+
+    /**
+     * Contacts are not ACL *resources*: they carry no `acl_resources_*` relation and no "all
+     * contacts" flag. A user sees the contacts attached to one of their Access Groups, directly or
+     * through a contact group, so the scope is always restricted.
      *
-     * @return Collection<HostSeverityId>|null
+     * @return AccessScope<NotificationContactId>
      */
-    public function findAccessibleHostSeverityIds(ActingUser $actor): ?Collection;
+    public function findContactAccessScope(UserId $userId): AccessScope;
 
     /**
-     * @return Collection<PollerId>|null null means no restriction applies (the actor is unrestricted, or
-     *                                   can access all pollers); an empty Collection means the user can access none
-     */
-    public function findAccessiblePollerIds(ActingUser $actor): ?Collection;
-
-    /**
-     * @return Collection<HostGroupId>|null null means no restriction applies (the actor is unrestricted, or
-     *                                      can access all host groups); an empty Collection means the user can access none
-     */
-    public function findAccessibleHostGroupIds(ActingUser $actor): ?Collection;
-
-    /**
-     * @return Collection<MediaDirectoryId>|null null means no restriction applies (the actor is unrestricted, or
-     *                                           can access all image folders); an empty Collection means
-     *                                           the user can access none
-     */
-    public function findAccessibleImageFolderIds(ActingUser $actor): ?Collection;
-
-    /**
-     * Contacts are not ACL *resources*: unlike pollers or host groups, they carry no
-     * `acl_resources_*` relation and no "all contacts" flag. Their visibility comes from Access
-     * Group membership instead — a restricted user sees the contacts attached to one of their
-     * Access Groups, directly or through a contact group. So the only "no restriction
-     * applies" case is an unrestricted actor.
+     * Same Access-Group-membership model as {@see self::findContactAccessScope()}, plus the contact
+     * groups the user is a member of.
      *
-     * @return Collection<NotificationContactId>|null null for an unrestricted actor; empty means the user can access
-     *                                                no contact at all
+     * @return AccessScope<ContactGroupId>
      */
-    public function findAccessibleContactIds(ActingUser $actor): ?Collection;
-
-    /**
-     * Same Access-Group-membership model as {@see self::findAccessibleContactIds()}: a restricted
-     * user sees the contact groups attached to one of their Access Groups, plus the ones they are
-     * themselves a member of.
-     *
-     * @return Collection<ContactGroupId>|null null for an unrestricted actor; empty means the user can access no
-     *                                         contact group at all
-     */
-    public function findAccessibleContactGroupIds(ActingUser $actor): ?Collection;
+    public function findContactGroupAccessScope(UserId $userId): AccessScope;
 
     /**
      * Hosts follow the real-time ACL cache (`centreon_acl`), which already resolves every
-     * resource-scoping rule per Access Group, so a restricted user is always limited to the hosts
-     * listed there: like contacts, only an unrestricted actor escapes it.
+     * resource-scoping rule per Access Group, so the scope is always restricted.
      *
      * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see
      *
-     * @return Collection<HostId>|null null for an unrestricted actor; empty means the user can access no host at all
+     * @return AccessScope<HostId>
      */
-    public function findAccessibleHostIds(ActingUser $actor, ?Collection $among = null): ?Collection;
+    public function findHostAccessScope(UserId $userId, ?Collection $among = null): AccessScope;
 }

@@ -68,6 +68,7 @@ use App\MonitoringConfiguration\Domain\Exception\ReservedHostMacroNameException;
 use App\MonitoringConfiguration\Domain\Exception\VaultWriteFailedException;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Vault\VaultCredentialWriter;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\NoValue;
@@ -140,6 +141,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 new FakeMediaRepository(),
                 $commandRepository,
                 $resourceAccessRepository,
+                new AccessScopeResolver($resourceAccessRepository),
             ),
             new HostRelationsUpdater(
                 new FakeHostGroupRepository(),
@@ -148,7 +150,7 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 $this->repository,
                 new FakeNotificationContactRepository(),
                 new FakeContactGroupRepository(),
-                $resourceAccessRepository,
+                new AccessScopeResolver($resourceAccessRepository),
                 new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                     new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
                     $hostTemplateRepository,

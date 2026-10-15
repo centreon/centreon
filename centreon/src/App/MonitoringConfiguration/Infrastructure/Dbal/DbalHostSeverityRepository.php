@@ -29,7 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostSeverityCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostSeverityRepository;
 use App\Security\Domain\Aggregate\ActingUser;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Pagination;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
@@ -62,7 +62,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
         #[Autowire(service: HostSeverityTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
@@ -135,18 +135,14 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($actor);
-        // null means no host-severity restriction applies — the actor sees every severity.
-        if (! $accessibleHostSeverities instanceof Collection) {
+        $scope = $this->accessScopes->hostSeverities($actor);
+        if ($scope->isUnrestricted()) {
             return;
         }
 
-        $accessibleHostSeverityIds = array_map(
-            static fn (HostSeverityId $hostSeverityId): int => $hostSeverityId->value,
-            $accessibleHostSeverities->toArray()
-        );
+        $accessibleHostSeverityIds = $scope->allowedIdValues();
 
-        // A non-null but empty set means the actor is restricted on host severities yet granted
+        // An empty scope means the actor is restricted on host severities yet granted
         // none (e.g. their ACL points only at levelless categories): they see nothing. Mirrors legacy,
         // where hasRestrictedAccessToHostSeverities is true but findAllByAccessGroups returns no row.
         if ($accessibleHostSeverityIds === []) {
@@ -155,7 +151,7 @@ final readonly class DbalHostSeverityRepository extends DbalRepository implement
             return;
         }
 
-        // Restrict to severities the actor can access. findAccessibleHostSeverityIds already scopes
+        // Restrict to severities the actor can access. findHostSeverityAccessScope already scopes
         // the set to level-bearing categories, so it never carries a levelless category id.
         $qb->andWhere(
             'hc.hc_id IN (' . $qb->createNamedParameter(
