@@ -366,6 +366,14 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
+        // Concurrent updates of hosts deadlock: each one clears then rewrites its relations (a DELETE then an
+        // INSERT on the relation tables, which take gap locks that the other insert then waits for), and a
+        // move to another poller also takes a shared lock on that poller row, which the poller flag raised
+        // later in the transaction needs exclusively. Locking the poller row first makes the updates of the
+        // hosts of one poller run one after the other. Hosts of different pollers are not serialized with
+        // each other, and a move still flags the previous poller without having locked it.
+        $this->lockPoller($host->pollerId->value);
+
         $qb = $this->connection->createQueryBuilder();
         $qb->update(self::TABLE_NAME);
         foreach (self::HOST_COLUMN_PARAMETERS as $column => $parameter) {
@@ -396,6 +404,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         if (! $this->isRegisteredHost($hostId)) {
             return;
         }
+
+        // See update(): the poller lock comes before any row of this host is touched.
+        $this->lockPoller($host->pollerId->value);
 
         // Every relation is replaced wholesale: clear this host's rows, then re-insert them from
         // $host, exactly as add() writes them for a new host. Macros are written in place instead
@@ -608,8 +619,20 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
+        // See update(): the poller lock comes before any row of this host is touched.
+        $this->lockPoller($host->pollerId->value);
+
         $this->clearRelations($hostId);
         $this->insertRelations($hostId, $host);
+    }
+
+    private function lockPoller(int $pollerId): void
+    {
+        $this->connection->executeQuery(
+            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
+            ['poller_id' => $pollerId],
+            ['poller_id' => ParameterType::INTEGER],
+        );
     }
 
     /**
