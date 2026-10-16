@@ -1,0 +1,7 @@
+# Standalone workspace: the Playwright E2E suite is self-contained (it drives
+# the running app over HTTP and imports no @centreon package), so it is NOT part
+# of the centreon frontend workspace. Keeping it separate means CI installs only
+# Playwright instead of the whole frontend dependency graph.
+
+# Keep the same 7-day supply-chain policy as the main workspace.
+minimumReleaseAge: 10080

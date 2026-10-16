@@ -1,0 +1,64 @@
+import { defineConfig, devices } from '@playwright/test';
+
+const galleryPort = Number(process.env.GALLERY_PORT ?? 9093);
+const galleryUrl = `http://localhost:${galleryPort}/playwright/gallery/index.html`;
+// Full runs mount from a static minified build (4x faster than the dev
+// server); the dev server stays the default while writing specs.
+const staticGallery = Boolean(process.env.CI || process.env.GALLERY_STATIC);
+
+export default defineConfig({
+  expect: {
+    timeout: 10_000,
+    // Anti-aliasing differs slightly between machines (~1% of pixels at most
+    // between WSL and the CI runner); Cypress tolerated 7%.
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 }
+  },
+  forbidOnly: Boolean(process.env.CI),
+  fullyParallel: true,
+  outputDir: './playwright/results/artifacts',
+  projects: [
+    {
+      name: 'components',
+      testDir: './tests/components',
+      use: {
+        ...devices['Desktop Chrome'],
+        // mount() navigates here, so baseURL must be the gallery page.
+        baseURL: galleryUrl,
+        reuseContext: true,
+        serviceWorkers: 'block',
+        // Date formatting happens in the browser; the Cypress scripts get the
+        // same determinism from TZ=Etc/UTC.
+        timezoneId: 'UTC',
+        // Same viewport as cy.adjustViewport(), for comparable screenshots.
+        viewport: { height: 590, width: 1280 }
+      }
+    }
+  ],
+  reporter: [
+    ['list'],
+    ['html', { open: 'never', outputFolder: './playwright/results/html' }]
+  ],
+  retries: process.env.CI ? 1 : 0,
+  // Not "screenshots": the repository .gitignore ignores **/screenshots, and
+  // this mirrors cypress/visual-testing-snapshots.
+  snapshotPathTemplate:
+    './playwright/visual-testing-snapshots/{testFileName}/{arg}-{projectName}{ext}',
+  timeout: 60_000,
+  use: {
+    screenshot: 'only-on-failure',
+    testIdAttribute: 'data-testid',
+    trace: 'retain-on-failure'
+  },
+  webServer: {
+    // Direct binary: `pnpm run` currently fails on this checkout because the
+    // allowBuilds entries of pnpm-workspace.yaml are unresolved placeholders.
+    command: staticGallery
+      ? 'node_modules/.bin/rspack build -c ./rspack.config.gallery.build.js && node playwright/gallery/serve.mjs'
+      : 'node_modules/.bin/rspack serve -c ./rspack.config.gallery.js',
+    reuseExistingServer: !process.env.CI,
+    timeout: 300_000,
+    url: galleryUrl
+  },
+  // The 4 vCPUs of the CI runner; Playwright defaults to half the cores.
+  workers: process.env.CI ? 4 : undefined
+});

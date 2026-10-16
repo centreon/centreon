@@ -4,7 +4,12 @@ import { JsonDecoder } from 'ts.data.json';
 
 import { Endpoints, FieldType } from '../../models';
 
-const resourceDecoder = JsonDecoder.object(
+const resourceDecoder = JsonDecoder.object<{
+  alias: string | null;
+  id: number;
+  isActivated: boolean;
+  name: string;
+}>(
   {
     alias: JsonDecoder.nullable(JsonDecoder.string),
     id: JsonDecoder.number,
