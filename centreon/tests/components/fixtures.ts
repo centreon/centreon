@@ -167,7 +167,7 @@ export type { MockedEndpoint };
 export const moveSortable = async (
   page: Page,
   handle: Locator,
-  key: 'ArrowDown' | 'ArrowUp',
+  key: 'ArrowDown' | 'ArrowLeft' | 'ArrowRight' | 'ArrowUp',
   times = 1
 ): Promise<void> => {
   const announcements = page.locator('[id^="DndLiveRegion"]');

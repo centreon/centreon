@@ -20,8 +20,8 @@ import type * as Story17 from '../www/front_src/src/Configuration/Commands/Comma
 import type * as Story18 from '../www/front_src/src/Configuration/ConfigurationBase/ConfigurationBase.story';
 import type * as Story19 from '../www/front_src/src/Configuration/HostGroups/HostGroups.story';
 import type * as Story20 from '../www/front_src/src/Configuration/Hosts/Hosts.story';
-import type * as Story80 from '../www/front_src/src/components/FederatedComponents/FederatedFallbacks.story';
-import type * as Story81 from '../www/front_src/src/components/FederatedPage/FederatedPage.story';
+import type * as Story81 from '../www/front_src/src/components/FederatedComponents/FederatedFallbacks.story';
+import type * as Story82 from '../www/front_src/src/components/FederatedPage/FederatedPage.story';
 import type * as Story59 from '../www/front_src/src/Dashboards/components/DashboardLibrary/DashboardListing/Actions/Filter.story';
 import type * as Story21 from '../www/front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/WidgetProperties/Inputs/Autocomplete/ConnectedAutocomplete.story';
 import type * as Story22 from '../www/front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/WidgetProperties/Inputs/Boundaries.story';
@@ -68,7 +68,7 @@ import type * as Story63 from '../www/front_src/src/Header/Poller/PollerSubMenu/
 import type * as Story64 from '../www/front_src/src/Login/Login.story';
 import type * as Story65 from '../www/front_src/src/Main/Main.story';
 import type * as Story66 from '../www/front_src/src/Navigation/Sidebar/Sidebar.story';
-import type * as Story82 from '../www/front_src/src/publicPages/PublicPagesManager.story';
+import type * as Story83 from '../www/front_src/src/publicPages/PublicPagesManager.story';
 import type * as Story67 from '../www/front_src/src/ResetPassword/ResetPassword.story';
 import type * as Story68 from '../www/front_src/src/ResourceAccessManagement/AddEditResourceAccessRule/AddEditResourceAccessRuleModal.story';
 import type * as Story69 from '../www/front_src/src/ResourceAccessManagement/Filter/ResourceAccessRulesFilter.story';
@@ -81,7 +81,8 @@ import type * as Story75 from '../www/front_src/src/Resources/Filter/FilterStora
 import type * as Story76 from '../www/front_src/src/Resources/Filter/Save/CreateFilterDialog.story';
 import type * as Story77 from '../www/front_src/src/Resources/Filter/SearchHelp.story';
 import type * as Story78 from '../www/front_src/src/Resources/Graph/Performance/Graph/AddCommentForm/AddCommentForm.story';
-import type * as Story79 from '../www/front_src/src/VaultConfiguration/VaultConfiguration.story';
+import type * as Story79 from '../www/front_src/src/Resources/Listing/Listing.story';
+import type * as Story80 from '../www/front_src/src/VaultConfiguration/VaultConfiguration.story';
 
 declare module '@playwright/test' {
   interface Stories {
@@ -545,20 +546,26 @@ declare module '@playwright/test' {
     'Graph/AddCommentForm/AddCommentForm/Default': typeof Story78.Default;
     'AddCommentForm/AddCommentForm/Default': typeof Story78.Default;
     'AddCommentForm/Default': typeof Story78.Default;
-    'VaultConfiguration/VaultConfiguration/Default': typeof Story79.Default;
-    'VaultConfiguration/Default': typeof Story79.Default;
-    'components/FederatedComponents/FederatedFallbacks/PageFallback': typeof Story80.PageFallback;
-    'FederatedComponents/FederatedFallbacks/PageFallback': typeof Story80.PageFallback;
-    'FederatedFallbacks/PageFallback': typeof Story80.PageFallback;
-    PageFallback: typeof Story80.PageFallback;
-    'components/FederatedComponents/FederatedFallbacks/ComponentFallback': typeof Story80.ComponentFallback;
-    'FederatedComponents/FederatedFallbacks/ComponentFallback': typeof Story80.ComponentFallback;
-    'FederatedFallbacks/ComponentFallback': typeof Story80.ComponentFallback;
-    ComponentFallback: typeof Story80.ComponentFallback;
-    'components/FederatedPage/FederatedPage/Default': typeof Story81.Default;
-    'FederatedPage/FederatedPage/Default': typeof Story81.Default;
-    'FederatedPage/Default': typeof Story81.Default;
-    'publicPages/PublicPagesManager/Default': typeof Story82.Default;
-    'PublicPagesManager/Default': typeof Story82.Default;
+    'Resources/Listing/Listing/Default': typeof Story79.Default;
+    'Listing/Listing/Default': typeof Story79.Default;
+    'Listing/Default': typeof Story79.Default;
+    'Resources/Listing/Listing/Data': typeof Story79.Data;
+    'Listing/Listing/Data': typeof Story79.Data;
+    'Listing/Data': typeof Story79.Data;
+    'VaultConfiguration/VaultConfiguration/Default': typeof Story80.Default;
+    'VaultConfiguration/Default': typeof Story80.Default;
+    'components/FederatedComponents/FederatedFallbacks/PageFallback': typeof Story81.PageFallback;
+    'FederatedComponents/FederatedFallbacks/PageFallback': typeof Story81.PageFallback;
+    'FederatedFallbacks/PageFallback': typeof Story81.PageFallback;
+    PageFallback: typeof Story81.PageFallback;
+    'components/FederatedComponents/FederatedFallbacks/ComponentFallback': typeof Story81.ComponentFallback;
+    'FederatedComponents/FederatedFallbacks/ComponentFallback': typeof Story81.ComponentFallback;
+    'FederatedFallbacks/ComponentFallback': typeof Story81.ComponentFallback;
+    ComponentFallback: typeof Story81.ComponentFallback;
+    'components/FederatedPage/FederatedPage/Default': typeof Story82.Default;
+    'FederatedPage/FederatedPage/Default': typeof Story82.Default;
+    'FederatedPage/Default': typeof Story82.Default;
+    'publicPages/PublicPagesManager/Default': typeof Story83.Default;
+    'PublicPagesManager/Default': typeof Story83.Default;
   }
 }
