@@ -5429,26 +5429,6 @@ msgid "Drag to reorder"
 msgstr "Faire glisser pour réorganiser"
 
 #: centreon/www/install/front_translate.php
-msgid "Picked up row {{position}}"
-msgstr "Ligne {{position}} saisie"
-
-#: centreon/www/install/front_translate.php
-msgid "Reordering cancelled, row {{position}} returned to its original position"
-msgstr "Réorganisation annulée, la ligne {{position}} a retrouvé sa position d'origine"
-
-#: centreon/www/install/front_translate.php
-msgid "Row {{position}} dropped at position {{newPosition}}"
-msgstr "Ligne {{position}} déposée en position {{newPosition}}"
-
-#: centreon/www/install/front_translate.php
-msgid "Row {{position}} moved to position {{newPosition}}"
-msgstr "Ligne {{position}} déplacée en position {{newPosition}}"
-
-#: centreon/www/install/front_translate.php
-msgid "To pick up a row, press space or enter. Use the arrow keys to move it, then press space or enter to drop it, or escape to cancel."
-msgstr "Pour saisir une ligne, appuyez sur Espace ou Entrée. Utilisez les flèches pour la déplacer, puis appuyez sur Espace ou Entrée pour la déposer, ou sur Échap pour annuler."
-
-#: centreon/www/install/front_translate.php
 msgid "Drop or"
 msgstr "Faire glisser ou"
 
@@ -13146,6 +13126,10 @@ msgstr "Périodes"
 msgid "Persistent"
 msgstr "Persistant"
 
+#: centreon/www/install/front_translate.php
+msgid "Picked up row {{position}}"
+msgstr "Ligne {{position}} saisie"
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Pie chart"
 msgstr "Camembert"
@@ -13989,6 +13973,13 @@ msgstr "Supprimé"
 msgid "Rename"
 msgstr "Renommer"
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"Reordering cancelled, row {{position}} returned to its original position"
+msgstr ""
+"Réorganisation annulée, la ligne {{position}} a retrouvé sa position "
+"d'origine"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -14495,6 +14486,14 @@ msgstr "Régle de routage"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Route parameters"
 msgstr "Paramètres de routage"
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} dropped at position {{newPosition}}"
+msgstr "Ligne {{position}} déposée en position {{newPosition}}"
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} moved to position {{newPosition}}"
+msgstr "Ligne {{position}} déplacée en position {{newPosition}}"
 
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
@@ -17828,6 +17827,15 @@ msgstr "Au"
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "To manually request a LDAP synchronization of a contact"
 msgstr "Demande de synchronisation LDAP du contact"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"To pick up a row, press space or enter. Use the arrow keys to move it, then "
+"press space or enter to drop it, or escape to cancel."
+msgstr ""
+"Pour saisir une ligne, appuyez sur Espace ou Entrée. Utilisez les flèches "
+"pour la déplacer, puis appuyez sur Espace ou Entrée pour la déposer, ou sur "
+"Échap pour annuler."
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid ""
