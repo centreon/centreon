@@ -26,6 +26,7 @@ namespace Core\HostTemplate\Application\Exception;
 class HostTemplateException extends \Exception
 {
     public const CODE_CONFLICT = 1;
+    public const CODE_INVALID_ARGUMENT = 2;
 
     /**
      * @return self
@@ -178,5 +179,21 @@ class HostTemplateException extends \Exception
     public static function circularTemplateInheritance(): self
     {
         return new self(_('Circular inheritance not allowed'), self::CODE_CONFLICT);
+    }
+
+    /**
+     * @param int[] $templateIds
+     *
+     * @return self
+     */
+    public static function templatesNotLicensed(array $templateIds): self
+    {
+        return new self(
+            sprintf(
+                _("The license host limit is reached: the host templates with ID(s) '%s' come from Monitoring Connectors and cannot be used"),
+                implode(',', $templateIds)
+            ),
+            self::CODE_INVALID_ARGUMENT
+        );
     }
 }

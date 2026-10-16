@@ -162,6 +162,7 @@ final class PartialUpdateHostTemplate
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
                     HostTemplateException::CODE_CONFLICT => new ConflictResponse($ex),
+                    HostTemplateException::CODE_INVALID_ARGUMENT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -187,6 +188,15 @@ final class PartialUpdateHostTemplate
 
             if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveHostUuidFromVault($hostTemplate);
+            }
+
+            $currentDirectParentIds = [];
+            if (! $request->templates instanceof NoValue) {
+                $currentDirectParentIds = array_map(
+                    'intval',
+                    $this->readHostTemplateRepository->findByHostId($hostTemplate->getId())
+                );
+                $this->validation->assertAreLicensedTemplates(array_unique($request->templates), $currentDirectParentIds);
             }
 
             $this->updateHostTemplate($request, $hostTemplate);

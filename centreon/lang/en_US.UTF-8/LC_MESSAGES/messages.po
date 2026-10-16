@@ -16568,6 +16568,16 @@ msgstr "The host severity icon with id '%d' does not exist"
 msgid "The hours are applied in the %s timezone."
 msgstr "The hours are applied in the %s timezone."
 
+#: centreon/src/Core/Host/Application/Exception/HostException.php
+#: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#, php-format
+msgid ""
+"The license host limit is reached: the host templates with ID(s) '%s' come "
+"from Monitoring Connectors and cannot be used"
+msgstr ""
+"The license host limit is reached: the host templates with ID(s) '%s' come "
+"from Monitoring Connectors and cannot be used"
+
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"
 msgstr "The message field should not be empty!"
