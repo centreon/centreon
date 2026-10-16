@@ -11,7 +11,7 @@ import {
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
-import { equals, isEmpty, pluck } from 'ramda';
+import { equals, isEmpty, isNotNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -69,8 +69,15 @@ const useDelete = (): UseDeleteState => {
   };
 
   const { deleteMutation, isMutating } = useDeleteRequest();
-  const { deleteOneMutation, isMutating: isMutatingOne } =
-    useDeleteOneRequest();
+  const {
+    deleteOneMutation,
+    deleteEachMutation,
+    isMutating: isMutatingOne
+  } = useDeleteOneRequest();
+
+  // One request for the selection, or one each, depending on what is declared.
+  const hasBulkEndpoint = isNotNil(configuration?.api?.endpoints?.delete);
+  const deletesOneByItself = equals(count, 1) || !hasBulkEndpoint;
 
   const handleApiResponse = (response) => {
     const { isError, results } = response as ResponseError;
@@ -100,9 +107,15 @@ const useDelete = (): UseDeleteState => {
   };
 
   const confirm = (): void => {
+    if (!deletesOneByItself) {
+      deleteMutation({ ids }).then(handleApiResponse);
+
+      return;
+    }
+
     equals(count, 1)
       ? deleteOneMutation({ id: ids[0] }).then(handleApiResponse)
-      : deleteMutation({ ids }).then(handleApiResponse);
+      : deleteEachMutation({ ids }).then(handleApiResponse);
   };
 
   const bodyContent = {
