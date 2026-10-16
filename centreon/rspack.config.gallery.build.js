@@ -15,9 +15,10 @@ module.exports = {
   optimization: { nodeEnv: 'development' },
   output: {
     ...gallery.output,
+    // One directory per port: parallel runs must not rebuild each other's.
     path: path.resolve(
       __dirname,
-      'www/static/playwright-gallery-build/playwright/gallery'
+      `www/static/playwright-gallery-build-${process.env.GALLERY_PORT || 9093}/playwright/gallery`
     )
   },
   plugins: gallery.plugins.filter(

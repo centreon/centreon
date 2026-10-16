@@ -4,8 +4,8 @@ import { stat } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
 
-const root = resolve('www/static/playwright-gallery-build');
 const port = Number(process.env.GALLERY_PORT ?? 9093);
+const root = resolve(`www/static/playwright-gallery-build-${port}`);
 const contentTypes = {
   '.css': 'text/css',
   '.html': 'text/html',
