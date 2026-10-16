@@ -24,9 +24,12 @@ namespace Centreon\Domain\Repository;
 use Centreon\Domain\Entity\CfgCentreonBrokerInfo;
 use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInfoInterface;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 
 /**
  * Repository to manage centreon broker flows configuration (input, output...)
+ * stored in cfg_centreonbroker_input_output (one record per input/output).
  */
 class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements CfgCentreonBrokerInfoInterface
 {
@@ -43,45 +46,85 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
         // if there is no config group for a specific flow, first one id is 0
         $configGroupId = 0;
 
-        $sql = 'SELECT MAX(config_group_id) as max_config_group_id '
-            . 'FROM cfg_centreonbroker_info cbi '
+        $sql = 'SELECT MAX(input_output_id) as max_config_group_id '
+            . 'FROM cfg_centreonbroker_input_output cbio '
             . 'WHERE config_id = :config_id '
-            . 'AND config_group = :config_group';
+            . 'AND tag = :config_group';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':config_id', $configId, \PDO::PARAM_INT);
         $stmt->bindParam(':config_group', $flow, \PDO::PARAM_STR);
         $stmt->execute();
 
-        $row = $stmt->fetch();
-        if (! is_null($row['max_config_group_id'])) {
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (is_array($row) && ! is_null($row['max_config_group_id'])) {
             // to get the new new config group id, we need to increment the max exsting one
-            $configGroupId = $row['max_config_group_id'] + 1;
+            $configGroupId = (int) $row['max_config_group_id'] + 1;
         }
 
         return $configGroupId;
     }
 
     /**
-     * Insert broker configuration in database (table cfg_centreonbroker_info)
+     * Insert a broker configuration parameter in database (table cfg_centreonbroker_input_output).
+     * The parameter is added to the input/output identified by its config id, config group and config group id,
+     * which is created when it does not exist yet. A parameter already stored with the same key is replaced.
      *
      * @param CfgCentreonBrokerInfo $brokerInfoEntity the broker info entity
      */
     public function add(CfgCentreonBrokerInfo $brokerInfoEntity): void
     {
-        $sql = 'INSERT INTO ' . $brokerInfoEntity::TABLE . ' '
-            . '(config_id, config_group, config_group_id, config_key, config_value) '
-            . 'VALUES (:config_id, :config_group, :config_group_id, :config_key, :config_value)';
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':config_id', $brokerInfoEntity->getConfigId(), \PDO::PARAM_INT);
-        $stmt->bindValue(':config_group', $brokerInfoEntity->getConfigGroup(), \PDO::PARAM_STR);
-        $stmt->bindValue(':config_group_id', $brokerInfoEntity->getConfigGroupId(), \PDO::PARAM_INT);
-        $stmt->bindValue(':config_key', $brokerInfoEntity->getConfigKey(), \PDO::PARAM_STR);
-        $stmt->bindValue(':config_value', $brokerInfoEntity->getConfigValue(), \PDO::PARAM_STR);
+        $configId = $brokerInfoEntity->getConfigId();
+        $tag = $brokerInfoEntity->getConfigGroup();
+        $inputOutputId = $brokerInfoEntity->getConfigGroupId();
+
+        $stmt = $this->db->prepare(
+            <<<'SQL'
+                SELECT tag, input_output_id, name, type_id, type, parameters
+                FROM cfg_centreonbroker_input_output
+                WHERE config_id = :config_id
+                    AND tag = :tag
+                    AND input_output_id = :input_output_id
+                SQL
+        );
+        $stmt->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+        $stmt->bindValue(':tag', $tag, \PDO::PARAM_STR);
+        $stmt->bindValue(':input_output_id', $inputOutputId, \PDO::PARAM_INT);
         $stmt->execute();
+        $record = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        $rows = is_array($record) ? StoredBrokerInputOutput::fromRecord($record)->toLegacyRows() : [];
+        $rows[] = [
+            'config_group' => $tag,
+            'config_group_id' => $inputOutputId,
+            'config_key' => $brokerInfoEntity->getConfigKey(),
+            'config_value' => $brokerInfoEntity->getConfigValue(),
+        ];
+
+        $stmt = $this->db->prepare(
+            <<<'SQL'
+                REPLACE INTO cfg_centreonbroker_input_output
+                    (config_id, tag, input_output_id, name, type_id, type, parameters)
+                VALUES (:config_id, :tag, :input_output_id, :name, :type_id, :type, :parameters)
+                SQL
+        );
+        foreach (BrokerInfoRowsConverter::convert($rows) as $inputOutput) {
+            $stmt->bindValue(':config_id', $configId, \PDO::PARAM_INT);
+            $stmt->bindValue(':tag', $inputOutput->tag, \PDO::PARAM_STR);
+            $stmt->bindValue(':input_output_id', $inputOutput->id, \PDO::PARAM_INT);
+            $stmt->bindValue(':name', $inputOutput->name, \PDO::PARAM_STR);
+            $stmt->bindValue(
+                ':type_id',
+                $inputOutput->typeId,
+                $inputOutput->typeId === null ? \PDO::PARAM_NULL : \PDO::PARAM_INT
+            );
+            $stmt->bindValue(':type', $inputOutput->type, $inputOutput->type === null ? \PDO::PARAM_NULL : \PDO::PARAM_STR);
+            $stmt->bindValue(':parameters', $inputOutput->encodeParameters(), \PDO::PARAM_STR);
+            $stmt->execute();
+        }
     }
 
     /**
-     * Export
+     * Export the broker inputs/outputs of the given pollers, as rows of the former cfg_centreonbroker_info table.
      *
      * @param int[] $pollerIds
      * @return array
@@ -93,13 +136,14 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
             return [];
         }
 
-        $ids = join(',', $pollerIds);
+        $ids = join(',', array_map('intval', $pollerIds));
 
         $sql = <<<SQL
-            SELECT t.*
-            FROM cfg_centreonbroker_info AS t
+            SELECT t.config_id, t.tag, t.input_output_id, t.name, t.type_id, t.type, t.parameters
+            FROM cfg_centreonbroker_input_output AS t
             INNER JOIN cfg_centreonbroker AS cci ON cci.config_id = t.config_id
             WHERE cci.ns_nagios_server IN ({$ids})
+            ORDER BY t.config_id, t.tag, t.input_output_id
             SQL;
 
         $stmt = $this->db->prepare($sql);
@@ -107,8 +151,10 @@ class CfgCentreonBrokerInfoRepository extends ServiceEntityRepository implements
 
         $result = [];
 
-        while ($row = $stmt->fetch()) {
-            $result[] = $row;
+        while ($record = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            foreach (StoredBrokerInputOutput::fromRecord($record)->toLegacyRows() as $row) {
+                $result[] = ['config_id' => (int) $record['config_id'], ...$row];
+            }
         }
 
         return $result;

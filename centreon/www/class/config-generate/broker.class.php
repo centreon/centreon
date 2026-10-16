@@ -20,6 +20,7 @@
  */
 
 use App\Kernel;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
@@ -73,15 +74,13 @@ class Broker extends AbstractObjectJSON
 
     /** @var string */
     protected $attributes_select_parameters = '
-        config_group,
-        config_group_id,
         config_id,
-        config_key,
-        config_value,
-        grp_level,
-        subgrp_id,
-        parent_grp_id,
-        fieldIndex
+        tag,
+        input_output_id,
+        name,
+        type_id,
+        type,
+        parameters
     ';
 
     /** @var string */
@@ -269,9 +268,9 @@ class Broker extends AbstractObjectJSON
         if (is_null($this->stmt_broker_parameters)) {
             $this->stmt_broker_parameters = $this->backend_instance->db->prepare("SELECT
               {$this->attributes_select_parameters}
-            FROM cfg_centreonbroker_info
+            FROM cfg_centreonbroker_input_output
             WHERE config_id = :config_id
-            ORDER BY config_group, config_group_id
+            ORDER BY tag, input_output_id
             ");
         }
 
@@ -320,7 +319,7 @@ class Broker extends AbstractObjectJSON
 
             $this->stmt_broker_parameters->bindParam(':config_id', $row['config_id'], PDO::PARAM_INT);
             $this->stmt_broker_parameters->execute();
-            $resultParameters = $this->stmt_broker_parameters->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
+            $resultParameters = $this->getFlowParameterRows($this->stmt_broker_parameters->fetchAll(PDO::FETCH_ASSOC));
 
             // logger
             $object['log']['directory'] = HtmlAnalyzer::sanitizeAndRemoveTags($row['log_directory']);
@@ -360,6 +359,7 @@ class Broker extends AbstractObjectJSON
                 }
 
                 $subValuesToCastInArray = [];
+                $storageGroupIds = [];
                 $rrdCacheOption = null;
                 $rrdCached = null;
                 foreach ($value as $subvalue) {
@@ -406,13 +406,13 @@ class Broker extends AbstractObjectJSON
                                         $this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]
                                     );
                             }
-                            // Let broker insert in index data in pollers
+                            // Let broker insert in index data in pollers (applied once all rows are read)
                             if (
                                 $subvalue['config_key'] === 'type'
                                 && $subvalue['config_value'] === 'storage'
                                 && ! $localhost
                             ) {
-                                $object[$key][$subvalue['config_group_id']]['insert_in_index_data'] = 'yes';
+                                $storageGroupIds[] = $subvalue['config_group_id'];
                             }
                         }
                     } else {
@@ -433,6 +433,9 @@ class Broker extends AbstractObjectJSON
                             $anomalyDetectionLuaOutputGroupID = $subvalue['config_group_id'];
                         }
                     }
+                }
+                foreach ($storageGroupIds as $storageGroupId) {
+                    $object[$key][$storageGroupId]['insert_in_index_data'] = 'yes';
                 }
 
                 // Check if we need to add values from external
@@ -984,5 +987,29 @@ class Broker extends AbstractObjectJSON
                 }
             }
         }
+    }
+
+    /**
+     * Expands the inputs/outputs of a broker configuration into rows of the former cfg_centreonbroker_info
+     * format, grouped by tag ("input"/"output") as the generation loop expects them.
+     *
+     * @param list<array<string, mixed>> $records records of cfg_centreonbroker_input_output
+     *                                            ordered by tag and input_output_id
+     *
+     * @throws JsonException
+     * @return array<string, list<array<string, mixed>>>
+     */
+    private function getFlowParameterRows(array $records): array
+    {
+        $rowsByTag = [];
+        foreach ($records as $record) {
+            foreach (StoredBrokerInputOutput::fromRecord($record)->toLegacyRows() as $row) {
+                $tag = $row['config_group'];
+                unset($row['config_group']);
+                $rowsByTag[$tag][] = ['config_id' => (int) $record['config_id'], ...$row];
+            }
+        }
+
+        return $rowsByTag;
     }
 }

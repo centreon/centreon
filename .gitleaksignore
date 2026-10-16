@@ -16,6 +16,6 @@ centreon/tests/php/Security/EncryptionTest.php:generic-api-key:48
 centreon/tests/php/Security/EncryptionTest.php:generic-api-key:47
 .github/docker/keycloak/configuration/Centreon_SSO_realm.json:generic-api-key:1110
 .github/docker/keycloak/configuration/Centreon_SSO_realm.json:generic-api-key:964
-centreon/tests/php/App/MonitoringConfiguration/Infrastructure/BrokerInputOutput/snapshots/clapi_set_parameters.json:generic-api-key:182
+centreon/tests/php/App/MonitoringConfiguration/Infrastructure/BrokerInputOutput/snapshots/clapi_set_parameters.json:generic-api-key:179
 centreon/tests/php/App/MonitoringConfiguration/Infrastructure/BrokerInputOutput/snapshots/clapi_add_defaults.json:generic-api-key:238
 centreon/tests/php/App/MonitoringConfiguration/Infrastructure/BrokerInputOutput/snapshots/clapi_add_defaults.json:generic-api-key:268

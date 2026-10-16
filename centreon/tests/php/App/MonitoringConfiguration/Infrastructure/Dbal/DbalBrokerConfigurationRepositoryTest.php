@@ -112,19 +112,12 @@ final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
         $this->repository->add($config);
         $configId = $config->id()->value;
 
-        $rows = $this->connection->fetchAllAssociative(
-            "SELECT config_key, config_value, config_group_id FROM cfg_centreonbroker_info
-             WHERE config_id = :id AND config_group = 'output'",
-            ['id' => $configId],
-        );
+        $flows = $this->fetchOutputFlows($configId);
 
-        self::assertCount(18, $rows);
-
-        $params = [];
-        foreach ($rows as $row) {
-            $params[$row['config_key']] = $row['config_value'];
-            self::assertSame(0, $row['config_group_id']);
-        }
+        // A single output flow, at input_output_id 0, made of 18 key/value pairs.
+        self::assertSame([0], array_keys($flows));
+        $params = $flows[0];
+        self::assertCount(18, $params);
 
         self::assertSame('ipv4', $params['type']);
         self::assertSame('1_3', $params['blockId']);
@@ -146,18 +139,11 @@ final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
         $this->repository->add($config);
         $configId = $config->id()->value;
 
-        $rows = $this->connection->fetchAllAssociative(
-            "SELECT config_key, config_value FROM cfg_centreonbroker_info
-             WHERE config_id = :id AND config_group = 'output'",
-            ['id' => $configId],
-        );
+        $flows = $this->fetchOutputFlows($configId);
 
-        self::assertCount(12, $rows);
-
-        $params = [];
-        foreach ($rows as $row) {
-            $params[$row['config_key']] = $row['config_value'];
-        }
+        self::assertCount(1, $flows);
+        $params = $flows[0];
+        self::assertCount(12, $params);
 
         self::assertSame('bbdo_client', $params['type']);
         self::assertSame('1_36', $params['blockId']);
@@ -279,19 +265,45 @@ final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
         ]);
         $configId = (int) $this->connection->lastInsertId();
 
-        $inputRows = [
-            ['config_key' => 'type', 'config_value' => 'bbdo_server'],
-            ['config_key' => 'authorization', 'config_value' => $token],
-        ];
-        foreach ($inputRows as $row) {
-            $this->connection->insert('cfg_centreonbroker_info', [
-                'config_id' => $configId,
-                'config_key' => $row['config_key'],
-                'config_value' => $row['config_value'],
-                'config_group' => 'input',
-                'config_group_id' => 0,
-                'grp_level' => 0,
-            ]);
+        $this->connection->insert('cfg_centreonbroker_input_output', [
+            'config_id' => $configId,
+            'tag' => 'input',
+            'input_output_id' => 0,
+            'name' => '',
+            'type' => 'bbdo_server',
+            'parameters' => json_encode(['authorization' => $token], JSON_THROW_ON_ERROR),
+        ]);
+    }
+
+    /**
+     * Reads the output flows of a broker configuration from `cfg_centreonbroker_input_output` and
+     * flattens each of them into its key => value pairs, the `type`/`blockId`/`name` meta values
+     * included (former one-row-per-key encoding).
+     *
+     * @return array<int, array<string, string>> flattened parameters indexed by input_output_id
+     */
+    private function fetchOutputFlows(int $configId): array
+    {
+        /** @var list<array{input_output_id: int, name: string, type_id: int, type: string, parameters: string}> $records */
+        $records = $this->connection->fetchAllAssociative(
+            "SELECT input_output_id, name, type_id, type, parameters FROM cfg_centreonbroker_input_output
+             WHERE config_id = :id AND tag = 'output'
+             ORDER BY input_output_id",
+            ['id' => $configId],
+        );
+
+        $flows = [];
+        foreach ($records as $record) {
+            /** @var array<string, string> $parameters */
+            $parameters = json_decode($record['parameters'], true, flags: JSON_THROW_ON_ERROR);
+            $flows[$record['input_output_id']] = [
+                'type' => $record['type'],
+                'name' => $record['name'],
+                'blockId' => '1_' . $record['type_id'],
+                ...$parameters,
+            ];
         }
+
+        return $flows;
     }
 }

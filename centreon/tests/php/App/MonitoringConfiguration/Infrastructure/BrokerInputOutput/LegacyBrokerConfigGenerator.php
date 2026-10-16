@@ -68,8 +68,9 @@ final class LegacyBrokerConfigGenerator
         }
 
         $this->warnings = [];
-        set_error_handler(function (int $level, string $message, string $file, int $line): bool {
-            $this->warnings[] = sprintf('%s:%d %s', basename($file), $line, $message);
+        // Line numbers are left out so that unrelated edits of the generation code do not change expectations.
+        set_error_handler(function (int $level, string $message, string $file): bool {
+            $this->warnings[] = sprintf('%s %s', basename($file), $message);
 
             return true;
         }, E_WARNING | E_NOTICE | E_USER_WARNING | E_USER_NOTICE);

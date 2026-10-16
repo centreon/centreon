@@ -308,7 +308,7 @@ final class CoreBrokerInputOutputRepositoryTest extends KernelTestCase
         self::assertSame('output-2', $this->readRepository->findByIdAndBrokerId('output', 2, $configId)?->getName());
         self::assertSame('input-1', $this->readRepository->findByIdAndBrokerId('input', 1, $configId)?->getName());
         self::assertSame('other-output-1', $this->readRepository->findByIdAndBrokerId('output', 1, $otherConfigId)?->getName());
-        self::assertSame(['output' => ['output-2'], 'input' => ['input-1']], $this->namesByTag($configId));
+        self::assertSame(['input' => ['input-1'], 'output' => ['output-2']], $this->namesByTag($configId));
     }
 
     public function testFindAllGroupsFlowsByConfigurationWithClearPasswords(): void
@@ -321,7 +321,7 @@ final class CoreBrokerInputOutputRepositoryTest extends KernelTestCase
             'authorization' => 'grpc-secret',
             'filters_category' => ['neb'],
         ]);
-        // The group at index 1 is skipped (no name nor value), so stored fieldIndex values are 0 and 2.
+        // The group at index 1 is skipped (no name nor value).
         $this->flows->addThroughApi($configId, 'output', 33, 'lua-output', [
             'path' => '/lua.lua',
             'lua_parameter' => [
@@ -343,10 +343,10 @@ final class CoreBrokerInputOutputRepositoryTest extends KernelTestCase
 
         $lua = $this->findAllGroupedField($configId, 1, 'lua_parameter');
         ksort($lua);
-        self::assertSame([0, 2], array_keys($lua), 'findAll() keeps the stored fieldIndex keys');
+        self::assertSame([0, 1], array_keys($lua), 'findAll() lists the stored groups');
         self::assertSame(
             ['name' => 'api-key', 'type' => 'password', 'value' => 'lua-secret'],
-            self::normalize($lua[2], true),
+            self::normalize($lua[1], true),
             'findAll() keeps grouped passwords in clear'
         );
         $readLua = $this->readRepository->findByIdAndBrokerId('output', 1, $configId)?->getParameters()['lua_parameter'] ?? null;
@@ -605,6 +605,8 @@ final class CoreBrokerInputOutputRepositoryTest extends KernelTestCase
         foreach ($this->readRepository->findAll()[$configId] ?? [] as $inputOutput) {
             $names[$inputOutput->getTag()][] = $inputOutput->getName();
         }
+        // findAll() does not define the order of inputs/outputs.
+        ksort($names);
 
         return $names;
     }

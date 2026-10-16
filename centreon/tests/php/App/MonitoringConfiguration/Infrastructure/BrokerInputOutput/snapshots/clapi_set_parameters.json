@@ -61,7 +61,6 @@
             "parameter key;parameter value",
             "category;dumper",
             "filters;",
-            "filters;",
             "host;",
             "name;input-ipv4",
             "negotiation;yes",
@@ -80,7 +79,6 @@
         "output": [
             "parameter key;parameter value",
             "name;output-lua",
-            "path;/usr/share/centreon-broker/lua/a.lua",
             "path;/usr/share/centreon-broker/lua/b.lua",
             "type;lua"
         ]
@@ -176,7 +174,6 @@
             "db_port;",
             "db_type;T=options:C=value:CK=key:K=unified_sql_db_type",
             "db_user;",
-            "filters;",
             "filters;",
             "insert_in_index_data;T=options:C=value:CK=key:K=index_data",
             "interval;T=options:C=value:CK=key:K=interval_length",

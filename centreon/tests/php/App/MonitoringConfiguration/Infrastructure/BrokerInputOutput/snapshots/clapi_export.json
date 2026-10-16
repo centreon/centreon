@@ -155,14 +155,6 @@
                         "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;type;ipv4"
                     ]
                 ],
-                "LOGGER": [
-                    [
-                        "CENTBROKERCFG;ADDLOGGER;clapi-9300-export;/var/log/centreon-broker/pre-21-04.log;file",
-                        "CENTBROKERCFG;SETLOGGER;clapi-9300-export;0;config;yes",
-                        "CENTBROKERCFG;SETLOGGER;clapi-9300-export;0;level;low",
-                        "CENTBROKERCFG;SETLOGGER;clapi-9300-export;0;type;file"
-                    ]
-                ],
                 "OUTPUT": [
                     [
                         "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;api-lua;lua",

@@ -423,6 +423,62 @@ final class LegacyBrokerFormTest extends KernelTestCase
         ]);
     }
 
+    /**
+     * Before re-posting the flows of a submitted form, all the flows of the configuration are deleted, except the
+     * "lua_parameter_*" parameters when the form posted the unindexed lua parameter template: those are kept alone,
+     * detached from the name, type and other parameters of their flow.
+     */
+    public function testDeletionOfTheFlowsBeforeTheFormIsReposted(): void
+    {
+        $this->loadBrokerFunctions();
+        $configId = $this->database->createBrokerConfiguration(self::POLLER_ID, 'form-delete');
+        $this->addApiFlows($configId, luaPassword: 'lua-secret');
+        $this->flows->insertLegacyRows($configId, 'output', 10, [
+            ['key' => 'type', 'value' => 'lua'],
+            ['key' => 'name', 'value' => 'clapi-lua'],
+            ['key' => 'path', 'value' => '/usr/share/centreon-broker/lua/clapi.lua'],
+            ['key' => 'lua_parameter__name', 'value' => 'clapi-param'],
+            ['key' => 'blockId', 'value' => '1_33'],
+        ]);
+        $otherConfigId = $this->database->createBrokerConfiguration(self::OTHER_POLLER_ID, 'form-delete-other');
+        $this->addApiFlows($otherConfigId, luaPassword: 'other-lua-secret', secretPrefix: 'other-');
+        $otherRowsBefore = $this->duplicatedRows($otherConfigId);
+        $broker = $this->createBrokerForm();
+
+        $this->callPrivate($broker, 'deleteBrokerInputOutputs', $configId, true);
+
+        $keptRows = $this->duplicatedRows($configId);
+        // An input/output always has a name: the kept lua parameters come with an empty one.
+        self::assertSame(
+            self::sortRows([
+                ['config_key' => 'name', 'config_value' => '', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => null],
+                ['config_key' => 'name', 'config_value' => '', 'config_group' => 'output', 'config_group_id' => 10, 'fieldIndex' => null],
+            ]),
+            array_values(array_filter($keptRows, static fn (mixed $row): bool => is_array($row) && $row['config_key'] === 'name')),
+        );
+        self::assertSame(
+            self::sortRows([
+                ['config_key' => 'lua_parameter__type', 'config_value' => 'string', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 0],
+                ['config_key' => 'lua_parameter__name', 'config_value' => 'lua-param-1', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 0],
+                ['config_key' => 'lua_parameter__value', 'config_value' => 'value-1', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 0],
+                ['config_key' => 'lua_parameter__type', 'config_value' => 'password', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 1],
+                ['config_key' => 'lua_parameter__name', 'config_value' => 'lua-param-2', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 1],
+                ['config_key' => 'lua_parameter__value', 'config_value' => 'lua-secret', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 1],
+                ['config_key' => 'lua_parameter__type', 'config_value' => 'number', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 2],
+                ['config_key' => 'lua_parameter__name', 'config_value' => 'lua-param-3', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 2],
+                ['config_key' => 'lua_parameter__value', 'config_value' => '999', 'config_group' => 'output', 'config_group_id' => 2, 'fieldIndex' => 2],
+                ['config_key' => 'lua_parameter__name', 'config_value' => 'clapi-param', 'config_group' => 'output', 'config_group_id' => 10, 'fieldIndex' => null],
+            ]),
+            self::sortRows(array_filter($keptRows, static fn (mixed $row): bool => is_array($row) && $row['config_key'] !== 'name')),
+        );
+        self::assertSame($otherRowsBefore, $this->duplicatedRows($otherConfigId));
+
+        $this->callPrivate($broker, 'deleteBrokerInputOutputs', $configId, false);
+
+        self::assertSame([], $this->cfgBrokerInfoData($configId));
+        self::assertSame($otherRowsBefore, $this->duplicatedRows($otherConfigId));
+    }
+
     private function callLegacyFunction(string $function, mixed ...$arguments): mixed
     {
         self::assertTrue(function_exists($function), sprintf('Legacy function %s() is not loaded', $function));

@@ -210,6 +210,6 @@
         }
     },
     "php-warnings": [
-        "broker.class.php:609 Undefined array key \"encrypt\""
+        "broker.class.php Undefined array key \"encrypt\""
     ]
 }

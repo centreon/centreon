@@ -31,17 +31,9 @@ use Core\Broker\Domain\Model\Type;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 /**
+ * @phpstan-import-type _Record from StoredBrokerInputOutput
+ *
  * @phpstan-type _InputOutput array{
- *      config_group_id:int,
- *      config_key:string,
- *      config_value:string,
- *      subgrp_id:null|int,
- *      parent_grp_id:null|int,
- *      fieldIndex:null|int
- * }
- * @phpstan-type _ExtendedInputOutput array{
- *      config_id:int,
- *      config_group:string,
  *      config_group_id:int,
  *      config_key:string,
  *      config_value:string,
@@ -176,16 +168,16 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT
-                    cfg.config_group_id,
-                    cfg.config_key,
-                    cfg.config_value,
-                    cfg.subgrp_id,
-                    cfg.parent_grp_id,
-                    cfg.fieldIndex
-                FROM `:db`.`cfg_centreonbroker_info` cfg
-                WHERE cfg.config_group = :tag
+                    cfg.tag,
+                    cfg.input_output_id,
+                    cfg.name,
+                    cfg.type_id,
+                    cfg.type,
+                    cfg.parameters
+                FROM `:db`.`cfg_centreonbroker_input_output` cfg
+                WHERE cfg.tag = :tag
                     AND cfg.config_id = :brokerId
-                    AND cfg.config_group_id = :inputOutputId
+                    AND cfg.input_output_id = :inputOutputId
                 SQL
         ));
         $statement->bindValue(':tag', $tag, \PDO::PARAM_STR);
@@ -193,12 +185,12 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
         $statement->bindValue(':inputOutputId', $inputOutputId, \PDO::PARAM_INT);
         $statement->execute();
 
-        if (! ($result = $statement->fetchAll(\PDO::FETCH_ASSOC))) {
+        if (! ($record = $statement->fetch(\PDO::FETCH_ASSOC))) {
             return null;
         }
 
-        /** @var _InputOutput[] $result */
-        return $this->createFromArray($result, $tag);
+        /** @var _Record $record */
+        return $this->createFromArray(StoredBrokerInputOutput::fromRecord($record)->toLegacyRows(), $tag);
     }
 
     /**
@@ -209,20 +201,30 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT
-                    cfg.config_value
-                FROM `:db`.`cfg_centreonbroker_info` cfg
+                    cfg.tag,
+                    cfg.input_output_id,
+                    cfg.name,
+                    cfg.type_id,
+                    cfg.type,
+                    cfg.parameters
+                FROM `:db`.`cfg_centreonbroker_input_output` cfg
                 WHERE cfg.config_id = :brokerId
-                    AND cfg.config_value LIKE 'secret::%'
-                LIMIT 1
                 SQL
         ));
         $statement->bindValue(':brokerId', $brokerId, \PDO::PARAM_INT);
         $statement->execute();
 
-        $result = $statement->fetchColumn();
-        /** @var string|null|false $result */
+        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var _Record $record */
+            $inputOutput = StoredBrokerInputOutput::fromRecord($record);
+            foreach ($inputOutput->toLegacyRows() as $row) {
+                if (str_starts_with($row['config_value'], 'secret::')) {
+                    return $row['config_value'];
+                }
+            }
+        }
 
-        return $result !== false ? $result : null;
+        return null;
     }
 
     /**
@@ -234,32 +236,27 @@ class DbReadBrokerInputOutputRepository extends AbstractRepositoryRDB implements
             <<<'SQL'
                 SELECT
                     cfg.config_id,
-                    cfg.config_group,
-                    cfg.config_group_id,
-                    cfg.config_key,
-                    cfg.config_value,
-                    cfg.subgrp_id,
-                    cfg.parent_grp_id,
-                    cfg.fieldIndex
-                FROM `:db`.`cfg_centreonbroker_info` cfg
+                    cfg.tag,
+                    cfg.input_output_id,
+                    cfg.name,
+                    cfg.type_id,
+                    cfg.type,
+                    cfg.parameters
+                FROM `:db`.`cfg_centreonbroker_input_output` cfg
                 SQL
         ));
         $statement->execute();
 
-        $data = [];
-        while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            /** @var _ExtendedInputOutput $row */
-            $data[$row['config_id'] . '_' . $row['config_group'] . '_' . $row['config_group_id']][] = $row;
-        }
-
         $results = [];
-        foreach ($data as $values) {
-            $firstElem = current($values);
-
-            /** @var _ExtendedInputOutput[] $values */
-            $inputOutput = $this->createFromArray($values, $firstElem['config_group'], true);
+        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            /** @var _Record&array{config_id: int|string} $record */
+            $inputOutput = $this->createFromArray(
+                StoredBrokerInputOutput::fromRecord($record)->toLegacyRows(),
+                $record['tag'],
+                true
+            );
             if ($inputOutput !== null) {
-                $results[$firstElem['config_id']][] = $inputOutput;
+                $results[(int) $record['config_id']][] = $inputOutput;
             }
         }
 

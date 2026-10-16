@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\BrokerConfiguration;
 
 /**
- * The `config_group` of a `cfg_centreonbroker_info` row.
+ * The group of a broker flow (the `tag` of a `cfg_centreonbroker_input_output` record).
  */
 enum BrokerFlowGroupEnum: string
 {

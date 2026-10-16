@@ -234,16 +234,22 @@ class CentreonGraphNg
 
         // Get RRDCacheD options
         $stmt = $this->db->query(
-            "SELECT config_key, config_value
-            FROM cfg_centreonbroker_info AS cbi
-            INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbi.config_id)
+            "SELECT JSON_UNQUOTE(JSON_EXTRACT(cbio.parameters, '$.rrd_cached_option')) AS rrd_cached_option,
+                JSON_UNQUOTE(JSON_EXTRACT(cbio.parameters, '$.rrd_cached')) AS rrd_cached
+            FROM cfg_centreonbroker_input_output AS cbio
+            INNER JOIN cfg_centreonbroker AS cb ON (cb.config_id = cbio.config_id)
             INNER JOIN nagios_server AS ns ON (ns.id = cb.ns_nagios_server)
             WHERE ns.localhost = '1'
-            AND cbi.config_key IN ('rrd_cached_option', 'rrd_cached')"
+            AND JSON_CONTAINS_PATH(cbio.parameters, 'one', '$.rrd_cached_option', '$.rrd_cached')
+            ORDER BY cbio.config_id, cbio.tag, cbio.input_output_id"
         );
 
         while ($row = $stmt->fetch()) {
-            $this->rrdCachedOptions[$row['config_key']] = $row['config_value'];
+            foreach (['rrd_cached_option', 'rrd_cached'] as $rrdCachedKey) {
+                if ($row[$rrdCachedKey] !== null) {
+                    $this->rrdCachedOptions[$rrdCachedKey] = $row[$rrdCachedKey];
+                }
+            }
         }
     }
 

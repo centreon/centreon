@@ -35,18 +35,18 @@
                 },
                 "name": "lua-output",
                 "parameters": {
-                    "lua_parameter": {
-                        "0": {
+                    "lua_parameter": [
+                        {
                             "name": "endpoint",
                             "type": "string",
                             "value": "https://example.com"
                         },
-                        "2": {
+                        {
                             "name": "api-key",
                             "type": "password",
                             "value": "lua-secret"
                         }
-                    },
+                    ],
                     "path": "/lua.lua"
                 }
             },
@@ -172,8 +172,9 @@
                 },
                 "name": "forward-to-master",
                 "parameters": {
-                    "category": "neb",
-                    "filters": "",
+                    "filters_category": [
+                        "neb"
+                    ],
                     "host": "192.168.0.10",
                     "port": "5669"
                 }

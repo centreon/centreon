@@ -39,6 +39,6 @@
         "name": "connection-to-lookup-poller"
     },
     "php-warnings": [
-        "broker.class.php:526 foreach() argument must be of type array|object, null given"
+        "broker.class.php foreach() argument must be of type array|object, null given"
     ]
 }

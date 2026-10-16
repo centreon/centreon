@@ -39,30 +39,19 @@
             },
             "input": [
                 {
-                    "port": "5669",
-                    "protocol": "bbdo",
                     "type": "ipv4",
-                    "name": "input"
-                }
-            ],
-            "logger": [
-                {
-                    "type": "file",
-                    "level": "low",
-                    "info": "no",
-                    "error": "yes",
-                    "debug": "no",
-                    "config": "yes",
-                    "name": "/var/log/centreon-broker/pre-21-04.log"
+                    "name": "input",
+                    "port": "5669",
+                    "protocol": "bbdo"
                 }
             ],
             "output": [
                 {
                     "type": "ipv4",
-                    "protocol": "bbdo",
-                    "port": "5669",
+                    "name": "output",
                     "host": "central.example.com",
-                    "name": "output"
+                    "port": "5669",
+                    "protocol": "bbdo"
                 }
             ],
             "stats": [

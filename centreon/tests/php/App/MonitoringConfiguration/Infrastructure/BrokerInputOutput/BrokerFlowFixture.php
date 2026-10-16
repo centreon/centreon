@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\BrokerInputOutput;
 
 use Core\Broker\Domain\Model\NewBrokerInputOutput;
 use Core\Broker\Infrastructure\Repository\DbReadBrokerInputOutputRepository;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
 use Core\Broker\Infrastructure\Repository\DbWriteBrokerInputOutputRepository;
 
 /**
@@ -34,8 +35,8 @@ use Core\Broker\Infrastructure\Repository\DbWriteBrokerInputOutputRepository;
  *   so it follows the storage format automatically.
  * - insertLegacyRows() is the ONLY place where tests write the storage directly. It reproduces what writers
  *   that bypass the API (CLAPI, remote wizard, base configuration, modules, upgrade scripts) store today,
- *   expressed in the cfg_centreonbroker_info EAV encoding. When the storage changes, this method converts
- *   the rows to the new format with the production converter, and every expectation stays unchanged.
+ *   expressed in the former cfg_centreonbroker_info EAV encoding. The rows are converted with the production
+ *   converter used by the upgrade, exactly as on an upgraded platform.
  *
  * @phpstan-import-type _BrokerInputOutputParameter from \Core\Broker\Domain\Model\BrokerInputOutput
  *
@@ -87,27 +88,35 @@ final readonly class BrokerFlowFixture
      */
     public function insertLegacyRows(int $configId, string $group, ?int $groupId, array $rows): void
     {
+        $legacyRows = array_map(
+            static fn (array $row): array => [
+                'config_group' => $group,
+                'config_group_id' => $groupId,
+                'config_key' => $row['key'],
+                'config_value' => $row['value'],
+                'subgrp_id' => $row['subgrp_id'] ?? null,
+                'fieldIndex' => $row['fieldIndex'] ?? null,
+            ],
+            $rows
+        );
+
         $statement = $this->database->configuration->prepare(
             <<<'SQL'
-                INSERT INTO cfg_centreonbroker_info (
-                    config_id, config_key, config_value, config_group, config_group_id,
-                    grp_level, subgrp_id, parent_grp_id, fieldIndex
+                INSERT INTO cfg_centreonbroker_input_output (
+                    config_id, tag, input_output_id, name, type_id, type, parameters
                 ) VALUES (
-                    :configId, :key, :value, :group, :groupId,
-                    :grpLevel, :subgrpId, :parentGrpId, :fieldIndex
+                    :configId, :tag, :inputOutputId, :name, :typeId, :type, :parameters
                 )
                 SQL
         );
-        foreach ($rows as $row) {
+        foreach (BrokerInfoRowsConverter::convert($legacyRows) as $inputOutput) {
             $statement->bindValue(':configId', $configId, \PDO::PARAM_INT);
-            $statement->bindValue(':key', $row['key']);
-            $statement->bindValue(':value', $row['value']);
-            $statement->bindValue(':group', $group);
-            $this->bindNullableInt($statement, ':groupId', $groupId);
-            $statement->bindValue(':grpLevel', $row['grp_level'] ?? 0, \PDO::PARAM_INT);
-            $this->bindNullableInt($statement, ':subgrpId', $row['subgrp_id'] ?? null);
-            $this->bindNullableInt($statement, ':parentGrpId', $row['parent_grp_id'] ?? null);
-            $this->bindNullableInt($statement, ':fieldIndex', $row['fieldIndex'] ?? null);
+            $statement->bindValue(':tag', $inputOutput->tag);
+            $statement->bindValue(':inputOutputId', $inputOutput->id, \PDO::PARAM_INT);
+            $statement->bindValue(':name', $inputOutput->name);
+            $this->bindNullableInt($statement, ':typeId', $inputOutput->typeId);
+            $statement->bindValue(':type', $inputOutput->type, $inputOutput->type === null ? \PDO::PARAM_NULL : \PDO::PARAM_STR);
+            $statement->bindValue(':parameters', $inputOutput->encodeParameters());
             $statement->execute();
         }
     }
