@@ -253,6 +253,42 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->assertEquals('submit-service-check-result', $members[0]['name']);
     }
 
+    public function testItRejectsAnUnknownSortField(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['command_line' => 'asc']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsASortFieldThatIsNotAPlainFieldName(): void
+    {
+        $this->login();
+
+        $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['sort' => ['command_id, (SELECT SLEEP(5))' => 'asc']]]
+        );
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAnUnknownSortDirection(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['name' => 'upward']]]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAScalarSortParameter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => 'name']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
     public function testItShouldIgnoreUnknownOperator(): void
     {
         $this->login();
