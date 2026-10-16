@@ -253,6 +253,30 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->assertEquals('submit-service-check-result', $members[0]['name']);
     }
 
+    public function testItSortsCommandsByActivationStatus(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->update('command', ['command_activate' => '0'], ['command_id' => 3]);
+
+        $this->login();
+
+        // the status column of the shared listing sends sort[is_activated]
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['is_activated' => 'asc']]]);
+        self::assertResponseIsSuccessful();
+        /** @var list<array{name: string, is_activated: bool}> $ascending */
+        $ascending = (array) $response->toArray()['member'];
+        self::assertSame('check_centreon_cpu', $ascending[0]['name']);
+        self::assertFalse($ascending[0]['is_activated']);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['sort' => ['is_activated' => 'desc']]]);
+        self::assertResponseIsSuccessful();
+        /** @var list<array{name: string, is_activated: bool}> $descending */
+        $descending = (array) $response->toArray()['member'];
+        self::assertTrue($descending[0]['is_activated']);
+        self::assertSame('check_centreon_cpu', $descending[count($descending) - 1]['name']);
+    }
+
     public function testItRejectsAnUnknownSortField(): void
     {
         $this->login();

@@ -151,6 +151,7 @@ final class CommandCriteria implements SortableCriteria, PaginableCriteria
         return [
             'name' => 'command_name',
             'type' => 'command_type',
+            'is_activated' => 'command_activate',
         ];
     }
 }
