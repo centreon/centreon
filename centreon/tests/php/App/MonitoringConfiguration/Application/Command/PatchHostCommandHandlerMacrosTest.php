@@ -28,11 +28,14 @@ use App\MonitoringConfiguration\Application\Command\MacroChanges;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommand;
 use App\MonitoringConfiguration\Application\Command\PatchHostCommandHandler;
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
+use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
 use App\MonitoringConfiguration\Application\Service\HostMacrosUpdater;
 use App\MonitoringConfiguration\Application\Service\HostReferencesChecker;
 use App\MonitoringConfiguration\Application\Service\HostRelationsUpdater;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Application\Service\HostTemplateServicesCleaner;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
@@ -78,6 +81,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
@@ -143,6 +147,10 @@ final class PatchHostCommandHandlerMacrosTest extends TestCase
                 new FakeNotificationContactRepository(),
                 new FakeContactGroupRepository(),
                 $resourceAccessRepository,
+                new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
+                    new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
+                    $hostTemplateRepository,
+                )),
             ),
             new HostTemplateServicesCleaner($hostTemplateRepository, new FakeServiceRepository(), $this->eventBus),
             new HostMacrosUpdater(

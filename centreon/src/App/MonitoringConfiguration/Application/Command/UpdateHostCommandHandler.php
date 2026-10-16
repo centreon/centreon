@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
@@ -115,6 +116,7 @@ final readonly class UpdateHostCommandHandler
         private VaultCredentialWriter $vaultCredentialWriter,
         private EventBus $eventBus,
         private LoggerInterface $logger,
+        private HostTemplateLicenseGuard $templateLicenseGuard,
     ) {
     }
 
@@ -172,6 +174,9 @@ final readonly class UpdateHostCommandHandler
         $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
 
         $this->assertTemplatesExist($command->templateIds);
+
+        // The templates the host already has are kept, even those it could no longer be given.
+        $this->templateLicenseGuard->assertLicensed($command->templateIds, $existingHost->templateIds);
 
         $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
 
