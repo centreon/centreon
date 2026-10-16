@@ -45,6 +45,27 @@ before its first export can take that long to pick it up (`kubectl delete pod`
 to apply it at once). The same back-off delays a "restart" from the central
 (a clean exit) until the engine has run 10 minutes without restarting.
 
+## Centreon Cloud
+
+The defaults already match a Centreon Cloud central (what `install.sh --cloud`
+sets): gorgone reaches it over SSL on 443 (`central.port`, `central.ssl`).
+Only the host differs from an on-prem install:
+
+```yaml
+central:
+  host: <tenant>.<region>.centreon.cloud
+```
+
+- The broker output (443 instead of 5669) comes with the poller's
+  configuration from the central: nothing to set in the chart.
+- Cloud releases use the poller images of the latest on-prem (`.10`) major
+  (e.g. 26.10 for 27.04): the chart's `appVersion` applies as is, no chart
+  release per cloud version.
+- No probe checks the connection to the central (unlike the docker-compose
+  healthchecks of `install.sh`): it would restart the poller on every central
+  or network outage, which fixes nothing. Watch the poller status in Centreon
+  instead.
+
 ## Centreon Monitoring Agents (CMA)
 
 Agents dial the poller on 4317 (`engine.otel.service`, LoadBalancer for agents
