@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,29 +57,37 @@ final class CentreonCeipTest extends TestCase
     public static function licensesWithoutEditionProvider(): iterable
     {
         yield 'EPP' => [['epp' => self::license()], 'IT Edition', false];
+
         yield 'EPP IT100' => [['epp' => self::license(['type' => 'IT100'])], 'IT-100 Edition', false];
+
         yield 'EPP unlimited for more than 90 days' => [
             ['epp' => self::license(self::unlimitedLicensing())],
             'MSP Edition',
             true,
         ];
+
         yield 'EPP unlimited for 90 days or less' => [
             ['epp' => self::license(['hosts' => -1, 'start' => '2026-01-01', 'end' => '2026-03-01'])],
             'IT Edition',
             false,
         ];
+
         yield 'EPP and BAM' => [['epp' => self::license(), 'bam' => self::license()], 'Business Edition', true];
+
         yield 'IT100 EPP and MAP' => [
             ['epp' => self::license(['type' => 'IT100']), 'map' => self::license()],
             'Business Edition',
             true,
         ];
+
         yield 'standalone MBI' => [['mbi' => self::license()], 'Business Edition', true];
+
         yield 'unlimited BAM for more than 90 days' => [
             ['bam' => self::license(self::unlimitedLicensing())],
             'MSP Edition',
             true,
         ];
+
         yield 'no license' => [[], 'Open Source', false];
     }
 
@@ -105,12 +113,19 @@ final class CentreonCeipTest extends TestCase
     public static function declaredEditionProvider(): iterable
     {
         yield 'IT-100' => ['IT-100', 'IT-100 Edition', false];
+
         yield 'IT' => ['IT', 'IT Edition', false];
+
         yield 'BE' => ['BE', 'Business Edition', true];
+
         yield 'MSP' => ['MSP', 'MSP Edition', true];
+
         yield 'PRO' => ['PRO', 'PRO Edition', false];
+
         yield 'CUSTOM' => ['CUSTOM', 'Custom Edition', true];
+
         yield 'lowercase' => ['be', 'Business Edition', true];
+
         yield 'mixed case with spaces' => ['  Msp ', 'MSP Edition', true];
     }
 
@@ -139,6 +154,7 @@ final class CentreonCeipTest extends TestCase
             'IT Edition',
             false,
         ];
+
         yield 'BE edition on an EPP computed as IT' => [
             ['epp' => self::license(['edition' => 'BE'])],
             'Business Edition',
@@ -171,51 +187,61 @@ final class CentreonCeipTest extends TestCase
             'Custom Edition',
             true,
         ];
+
         yield 'IT-100 EPP and CUSTOM MAP' => [
             ['epp' => self::license(['edition' => 'IT-100']), 'map' => self::license(['edition' => 'CUSTOM'])],
             'Custom Edition',
             true,
         ];
+
         yield 'BE EPP and BE BAM' => [
             ['epp' => self::license(['edition' => 'BE']), 'bam' => self::license(['edition' => 'be'])],
             'Business Edition',
             true,
         ];
+
         yield 'MSP EPP and BE BAM' => [
             ['epp' => self::license(['edition' => 'MSP']), 'bam' => self::license(['edition' => 'BE'])],
             'Custom Edition',
             true,
         ];
+
         yield 'EPP without edition and CUSTOM BAM' => [
             ['epp' => self::license(), 'bam' => self::license(['edition' => 'CUSTOM'])],
             'Custom Edition',
             true,
         ];
+
         yield 'IT EPP and BAM without edition' => [
             ['epp' => self::license(['edition' => 'IT']), 'bam' => self::license()],
             'Custom Edition',
             true,
         ];
+
         yield 'IT-100 EPP and MBI without edition' => [
             ['epp' => self::license(['edition' => 'IT-100']), 'mbi' => self::license()],
             'Custom Edition',
             true,
         ];
+
         yield 'PRO EPP and PRO MAP' => [
             ['epp' => self::license(['edition' => 'PRO']), 'map' => self::license(['edition' => 'PRO'])],
             'Custom Edition',
             true,
         ];
+
         yield 'BE EPP and BAM without edition' => [
             ['epp' => self::license(['edition' => 'BE']), 'bam' => self::license()],
             'Business Edition',
             true,
         ];
+
         yield 'MSP EPP and MAP without edition' => [
             ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'MSP']), 'map' => self::license()],
             'MSP Edition',
             true,
         ];
+
         yield 'standalone CUSTOM MBI' => [['mbi' => self::license(['edition' => 'CUSTOM'])], 'Custom Edition', true];
     }
 
@@ -241,7 +267,9 @@ final class CentreonCeipTest extends TestCase
     public static function nonStandardEditionProvider(): iterable
     {
         yield 'unknown value' => [['epp' => self::license(['edition' => 'ENTERPRISE'])]];
+
         yield 'IT100 without hyphen' => [['epp' => self::license(['type' => 'IT100', 'edition' => 'IT100'])]];
+
         yield 'unknown value on an EPP computed as MSP' => [
             ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'foo'])],
         ];
@@ -265,18 +293,25 @@ final class CentreonCeipTest extends TestCase
             ['epp' => self::license(['edition' => 'MSP', 'asset_id' => ' 02i5800000ABCDE '])],
             '02i5800000ABCDE',
         ];
+
         yield 'EPP computed as MSP' => [['epp' => self::license([...self::unlimitedLicensing(), 'asset_id' => 'A1'])], 'A1'];
+
         yield 'BAM computed as MSP' => [
             ['epp' => self::license(), 'bam' => self::license([...self::unlimitedLicensing(), 'asset_id' => 'B1'])],
             'B1',
         ];
+
         yield 'MSP edition without asset ID' => [['epp' => self::license(['edition' => 'MSP'])], null];
+
         yield 'MSP edition with an empty asset ID' => [['epp' => self::license(['edition' => 'MSP', 'asset_id' => ''])], null];
+
         yield 'BE edition' => [['epp' => self::license(['edition' => 'BE', 'asset_id' => 'A1'])], null];
+
         yield 'IT edition on an EPP computed as MSP' => [
             ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'IT', 'asset_id' => 'A1'])],
             null,
         ];
+
         yield 'custom edition' => [['epp' => self::license(['edition' => 'foo', 'asset_id' => 'A1'])], null];
     }
 
@@ -299,8 +334,11 @@ final class CentreonCeipTest extends TestCase
     public static function ignoredEditionProvider(): iterable
     {
         yield 'empty string' => [''];
+
         yield 'blank string' => ['   '];
+
         yield 'null' => [null];
+
         yield 'integer' => [42];
     }
 
