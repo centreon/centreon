@@ -164,6 +164,8 @@ networkPolicy:
   enabled: true
   otelFrom: []
   trapsFrom: []
+  # Full NetworkPolicy ingress rules, added as is: a rule without `ports`
+  # opens every port, including the engine's gRPC API (50155).
   extraIngress: []
 
 # On SIGTERM centengine stops cleanly (~15 s) and cbmod saves its queue.

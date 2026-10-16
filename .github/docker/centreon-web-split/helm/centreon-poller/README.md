@@ -156,6 +156,7 @@ Enabling it does not change the volume list.
 | `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
 | `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
 | `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
+| `networkPolicy.extraIngress` | `[]` | Extra ingress rules, added as is (not limited to 4317/162) |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -238,7 +239,8 @@ only 4317/tcp (CMA) and 162/udp (traps, when enabled) are reachable from
 outside the pod; restrict their sources with `networkPolicy.otelFrom` /
 `trapsFrom`. The engine's gRPC API (50155, unauthenticated, can shut the
 engine down) and the VMware connector (5700) are only reachable from inside
-the pod. Egress is not restricted (central, broker, monitored hosts).
+the pod, unless `networkPolicy.extraIngress` opens them: its rules are added
+as is, so a rule without `ports` (e.g. `[{}]`) allows every port. Egress is not restricted (central, broker, monitored hosts).
 With k3s (kube-router), a source pod selected by `podSelector` is only
 allowed a moment after it starts: its very first connection may be refused
 (retry). Sources given as `ipBlock` are not affected.
