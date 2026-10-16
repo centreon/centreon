@@ -25,6 +25,8 @@ namespace App\Shared\Infrastructure\Messenger;
 
 use App\Shared\Application\Command\NonTransactionalCommand;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DbalException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
@@ -35,6 +37,7 @@ final readonly class DoctrineTransactionMiddleware implements MiddlewareInterfac
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -62,13 +65,22 @@ final readonly class DoctrineTransactionMiddleware implements MiddlewareInterfac
      * The server may already have ended the transaction (deadlock victim, lost connection): the driver
      * then refuses the rollback with "There is no active transaction". That failure must not replace
      * the exception that caused it, which is the one worth reporting.
+     *
+     * Only a DBAL failure is absorbed, so an Error raised by the rollback itself still surfaces. When this
+     * middleware runs nested (a command dispatched inside the transaction of another one), the rollback goes
+     * through a savepoint and DBAL only lowers its nesting level once that succeeds: an absorbed failure
+     * leaves the connection believing a transaction is still open. A short-lived PHP-FPM request does not
+     * care, but a long-running process (worker) would keep that stale level.
      */
     private function rollBackKeepingCause(): void
     {
         try {
             $this->connection->rollBack();
-        } catch (\Throwable) {
-            // Nothing left to roll back, and nothing to add to the original exception.
+        } catch (DbalException $rollbackFailure) {
+            $this->logger->debug(
+                'The rollback failed, the exception that caused it is rethrown instead.',
+                ['exception' => $rollbackFailure],
+            );
         }
     }
 }
