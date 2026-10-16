@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\GraphTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -82,7 +81,6 @@ class DbReadGraphTemplateRepository extends AbstractRepositoryRDB implements Rea
     public function findByRequestParameters(RequestParametersInterface $requestParameters): array
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
-        $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
         $sqlTranslator->setConcordanceArray([
             'id' => 'graph_id',
             'name' => 'name',
