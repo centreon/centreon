@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\TimePeriod\TimePeriodId;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 /**
@@ -105,6 +106,15 @@ final readonly class Notifications
         Assert::nullOrGreaterThanEq($recoveryDelay, self::MIN_RECOVERY_DELAY);
     }
 
+    public static function default(): self
+    {
+        return new self(
+            TriStateEnum::UseDefault,
+            new Collection([], NotificationContactId::class),
+            new Collection([], ContactGroupId::class),
+        );
+    }
+
     /**
      * Both additive-inheritance flags forced off, every other field untouched — for a platform
      * whose `inheritance_mode` option does not enable them. Lives here rather than in the caller
@@ -127,6 +137,83 @@ final readonly class Notifications
     }
 
     /**
+     * @param NoValue|list<NotificationOptionEnum> $options
+     * @param NoValue|Collection<NotificationContactId> $contactIds
+     * @param NoValue|Collection<ContactGroupId> $contactGroupIds
+     */
+    public function with(
+        NoValue|TriStateEnum $enabled = new NoValue(),
+        NoValue|array $options = new NoValue(),
+        NoValue|int|null $interval = new NoValue(),
+        NoValue|TimePeriodId|null $periodId = new NoValue(),
+        NoValue|int|null $firstDelay = new NoValue(),
+        NoValue|int|null $recoveryDelay = new NoValue(),
+        NoValue|bool $contactAdditiveInheritance = new NoValue(),
+        NoValue|bool $contactGroupAdditiveInheritance = new NoValue(),
+        NoValue|Collection $contactIds = new NoValue(),
+        NoValue|Collection $contactGroupIds = new NoValue(),
+    ): self {
+        return new self(
+            enabled: NoValue::resolve($enabled, $this->enabled),
+            contactIds: NoValue::resolve($contactIds, $this->contactIds),
+            contactGroupIds: NoValue::resolve($contactGroupIds, $this->contactGroupIds),
+            options: NoValue::resolve($options, $this->options),
+            interval: NoValue::resolve($interval, $this->interval),
+            periodId: NoValue::resolve($periodId, $this->periodId),
+            firstDelay: NoValue::resolve($firstDelay, $this->firstDelay),
+            recoveryDelay: NoValue::resolve($recoveryDelay, $this->recoveryDelay),
+            contactAdditiveInheritance: NoValue::resolve($contactAdditiveInheritance, $this->contactAdditiveInheritance),
+            contactGroupAdditiveInheritance: NoValue::resolve($contactGroupAdditiveInheritance, $this->contactGroupAdditiveInheritance),
+        );
+    }
+
+    /**
+     * Same settings, other contacts and contact groups — the relations {@see self::with()} leaves
+     * alone.
+     *
+     * @param Collection<NotificationContactId> $contactIds
+     * @param Collection<ContactGroupId> $contactGroupIds
+     */
+    public function withContacts(Collection $contactIds, Collection $contactGroupIds): self
+    {
+        return new self(
+            enabled: $this->enabled,
+            contactIds: $contactIds,
+            contactGroupIds: $contactGroupIds,
+            options: $this->options,
+            interval: $this->interval,
+            periodId: $this->periodId,
+            firstDelay: $this->firstDelay,
+            recoveryDelay: $this->recoveryDelay,
+            contactAdditiveInheritance: $this->contactAdditiveInheritance,
+            contactGroupAdditiveInheritance: $this->contactGroupAdditiveInheritance,
+        );
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->enabled === $other->enabled
+            && $this->options === $other->options
+            && $this->interval === $other->interval
+            && $this->periodId?->value === $other->periodId?->value
+            && $this->firstDelay === $other->firstDelay
+            && $this->recoveryDelay === $other->recoveryDelay
+            && $this->contactAdditiveInheritance === $other->contactAdditiveInheritance
+            && $this->contactGroupAdditiveInheritance === $other->contactGroupAdditiveInheritance
+            && $this->hasSameContactsAs($other);
+    }
+
+    /**
+     * The contacts and the contact groups, compared as sets: they are relations of the host, written on
+     * their own.
+     */
+    public function hasSameContactsAs(self $other): bool
+    {
+        return $this->idValues($this->contactIds) === $this->idValues($other->contactIds)
+            && $this->idValues($this->contactGroupIds) === $this->idValues($other->contactGroupIds);
+    }
+
+    /**
      * @template T of AggregateRootId
      *
      * @param Collection<T> $ids
@@ -142,5 +229,20 @@ final readonly class Notifications
         }
 
         return new Collection(array_values($uniqueIds), $className);
+    }
+
+    /**
+     * @template T of AggregateRootId
+     *
+     * @param Collection<T> $ids
+     *
+     * @return list<int>
+     */
+    private function idValues(Collection $ids): array
+    {
+        $values = array_values(array_map(static fn (AggregateRootId $id): int => $id->value, $ids->toArray()));
+        sort($values);
+
+        return $values;
     }
 }

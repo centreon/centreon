@@ -1,6 +1,9 @@
 import { Button, List, ListItem, Typography } from '@mui/material';
 
-import { platformFeaturesAtom } from '@centreon/ui-context';
+import {
+  platformFeaturesAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
@@ -40,6 +43,14 @@ export const PollerSubMenu = ({
   displayPollerButton
 }: PollerSubMenuProps): ReactElement => {
   const platformFeatures = useAtomValue(platformFeaturesAtom);
+  const userPermissions = useAtomValue(userPermissionsAtom);
+
+  // Explicitly false, not falsy: the atom is null until /platform/features
+  // resolves, and a loose check would flash this on-premise entry on a cloud
+  // platform.
+  const canCreatePoller =
+    platformFeatures?.isCloudPlatform === false &&
+    !!userPermissions?.create_edit_poller_cfg;
 
   return (
     <List className="min-w-[256px] p-0" data-testid="poller-menu">
@@ -92,10 +103,7 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
 
-      {/* Explicitly false, not falsy: the atom is null until /platform/features
-          resolves, and a loose check would flash this on-premise entry on a
-          cloud platform. */}
-      {platformFeatures?.isCloudPlatform === false && (
+      {canCreatePoller && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <CloudInstallCommand closeSubMenu={closeSubMenu} />
         </ListItem>

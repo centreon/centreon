@@ -2,7 +2,8 @@ import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   platformFeaturesAtom,
   ThemeMode,
-  userAtom
+  userAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
 import { createStore, getDefaultStore, Provider } from 'jotai';
@@ -17,16 +18,22 @@ import {
 import { PollerSubMenu } from './PollerSubMenu';
 
 interface InitializeOptions {
+  canCreatePoller?: boolean;
   // null emulates the atom before /platform/features resolves.
   isCloudPlatform?: boolean | null;
   themeMode?: ThemeMode;
 }
 
 const initialize = ({
+  canCreatePoller = true,
   isCloudPlatform = false,
   themeMode = ThemeMode.light
 }: InitializeOptions = {}): void => {
   const store = createStore();
+
+  store.set(userPermissionsAtom, {
+    create_edit_poller_cfg: canCreatePoller
+  });
 
   store.set(
     platformFeaturesAtom,
@@ -94,6 +101,12 @@ describe('PollerSubMenu', () => {
 
     it('hides the button while the platform features are not resolved', () => {
       initialize({ isCloudPlatform: null });
+
+      cy.findByTestId(labelCreateNewPoller).should('not.exist');
+    });
+
+    it('hides the button when the user cannot create or edit pollers', () => {
+      initialize({ canCreatePoller: false });
 
       cy.findByTestId(labelCreateNewPoller).should('not.exist');
     });

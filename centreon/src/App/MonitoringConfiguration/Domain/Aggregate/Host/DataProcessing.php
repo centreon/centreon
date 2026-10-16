@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
+use App\Shared\Domain\NoValue;
 use Webmozart\Assert\Assert;
 
 /**
@@ -37,6 +38,9 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DataProcessing
 {
+    /** Seconds a Centreon Monitoring Agent host may stay silent before its result is considered stale. */
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 120;
+
     /**
      * @param list<string> $eventHandlerArgs
      */
@@ -63,13 +67,58 @@ final readonly class DataProcessing
         if ($highFlapThreshold !== null) {
             Assert::range($highFlapThreshold, 0, 100, 'DataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         }
-        Assert::allString($eventHandlerArgs);
-        // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R# (CommandArgumentsFormatter),
-        // matching legacy. The legacy read path splits on '!' and decodes those tokens, so an argument
-        // carrying the '!' delimiter or a literal #BR#/#T#/#R# would not round-trip; raw \n\t\r are fine
-        // because the formatter encodes them. Same rule as CheckOptions::$args.
-        foreach (['!', '#BR#', '#T#', '#R#'] as $reserved) {
-            Assert::allNotContains($eventHandlerArgs, $reserved, 'DataProcessing::eventHandlerArgs must not contain the "!" delimiter or a #BR#/#T#/#R# escape token.');
-        }
+        CommandArguments::assertValid($eventHandlerArgs, 'DataProcessing::eventHandlerArgs');
+    }
+
+    /**
+     * @param NoValue|list<string> $eventHandlerArgs
+     */
+    public function with(
+        NoValue|TriStateEnum $checkFreshness = new NoValue(),
+        NoValue|TriStateEnum $flapDetectionEnabled = new NoValue(),
+        NoValue|TriStateEnum $eventHandlerEnabled = new NoValue(),
+        NoValue|int|null $acknowledgmentTimeout = new NoValue(),
+        NoValue|int|null $freshnessThreshold = new NoValue(),
+        NoValue|int|null $lowFlapThreshold = new NoValue(),
+        NoValue|int|null $highFlapThreshold = new NoValue(),
+        NoValue|CommandId|null $eventHandlerCommandId = new NoValue(),
+        NoValue|array $eventHandlerArgs = new NoValue(),
+    ): self {
+        return new self(
+            checkFreshness: NoValue::resolve($checkFreshness, $this->checkFreshness),
+            flapDetectionEnabled: NoValue::resolve($flapDetectionEnabled, $this->flapDetectionEnabled),
+            eventHandlerEnabled: NoValue::resolve($eventHandlerEnabled, $this->eventHandlerEnabled),
+            acknowledgmentTimeout: NoValue::resolve($acknowledgmentTimeout, $this->acknowledgmentTimeout),
+            freshnessThreshold: NoValue::resolve($freshnessThreshold, $this->freshnessThreshold),
+            lowFlapThreshold: NoValue::resolve($lowFlapThreshold, $this->lowFlapThreshold),
+            highFlapThreshold: NoValue::resolve($highFlapThreshold, $this->highFlapThreshold),
+            eventHandlerCommandId: NoValue::resolve($eventHandlerCommandId, $this->eventHandlerCommandId),
+            eventHandlerArgs: NoValue::resolve($eventHandlerArgs, $this->eventHandlerArgs),
+        );
+    }
+
+    /**
+     * A host checked by a Centreon Monitoring Agent pushes its results: freshness is always checked,
+     * with a fixed threshold, whatever was asked.
+     */
+    public function withCentreonMonitoringAgentFreshness(): self
+    {
+        return $this->with(
+            checkFreshness: TriStateEnum::True,
+            freshnessThreshold: self::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD,
+        );
+    }
+
+    public function equals(self $other): bool
+    {
+        return $this->checkFreshness === $other->checkFreshness
+            && $this->flapDetectionEnabled === $other->flapDetectionEnabled
+            && $this->eventHandlerEnabled === $other->eventHandlerEnabled
+            && $this->acknowledgmentTimeout === $other->acknowledgmentTimeout
+            && $this->freshnessThreshold === $other->freshnessThreshold
+            && $this->lowFlapThreshold === $other->lowFlapThreshold
+            && $this->highFlapThreshold === $other->highFlapThreshold
+            && $this->eventHandlerCommandId?->value === $other->eventHandlerCommandId?->value
+            && $this->eventHandlerArgs === $other->eventHandlerArgs;
     }
 }

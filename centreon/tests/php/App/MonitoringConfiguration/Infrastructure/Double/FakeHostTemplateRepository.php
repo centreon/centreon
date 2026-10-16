@@ -35,8 +35,14 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var array<int, HostTemplate> */
     public array $hostTemplates = [];
 
+    /** @var array<int, list<int>> the service templates a template provides, its ancestors' included, indexed by template id */
+    public array $serviceTemplateIdsByTemplate = [];
+
     /** @var array<int, MediaId> inherited icon ids indexed by host id */
     public array $inheritedIconIds = [];
+
+    /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
+    public array $receivedLineTemplateIds = [];
 
     public function findNamesByIds(Collection $ids): Collection
     {
@@ -48,6 +54,16 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
         }
 
         return new Collection($names, HostTemplateName::class);
+    }
+
+    public function findServiceTemplateIds(Collection $templateIds): array
+    {
+        $serviceTemplateIds = [];
+        foreach ($templateIds as $id) {
+            array_push($serviceTemplateIds, ...($this->serviceTemplateIdsByTemplate[$id->value] ?? []));
+        }
+
+        return array_values(array_unique($serviceTemplateIds));
     }
 
     public function findInheritedIconIds(Collection $hostIds): Collection
@@ -65,5 +81,23 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         return new Collection(array_values($this->hostTemplates), HostTemplate::class);
+    }
+
+    /**
+     * Returns the known templates among the requested ones, in order: the fake has no relations, so
+     * a test describing a multi-level line passes the whole line as direct templates.
+     */
+    public function findInheritanceLine(Collection $directTemplateIds): Collection
+    {
+        $this->receivedLineTemplateIds = [];
+        $line = [];
+        foreach ($directTemplateIds as $id) {
+            $this->receivedLineTemplateIds[] = $id->value;
+            if (isset($this->hostTemplates[$id->value])) {
+                $line[] = $this->hostTemplates[$id->value];
+            }
+        }
+
+        return new Collection($line, HostTemplate::class);
     }
 }
