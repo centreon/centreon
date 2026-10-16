@@ -51,7 +51,8 @@ export enum InputType {
   List = 13,
   File = 14,
   Divider = 15,
-  ExclusiveCheckboxGroup = 16
+  ExclusiveCheckboxGroup = 16,
+  SegmentedButtons = 17
 }
 
 interface FieldsTableGetRequiredProps {
@@ -88,6 +89,12 @@ export interface InputProps {
     useNewAPIFormat?: boolean;
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     customQueryParameters: Array<QueryParameter>;
+    // The API the options are read from. Left out, the request goes to the
+    // default `./api/latest` as it always has.
+    baseEndpoint?: string;
+    // What the options are cached under. Left out, the field's label is used,
+    // which two fields reading different endpoints can share.
+    queryKey?: string;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;
@@ -105,6 +112,8 @@ export interface InputProps {
     exclusiveOption: string;
     labelPlacement?: LabelPlacement;
     options: Array<string>;
+    // The options as chips instead of checkboxes; the exclusive one stays a switch.
+    variant?: 'checkboxes' | 'chips';
   };
   file?: {
     multiple?: boolean;
@@ -161,6 +170,12 @@ export interface InputProps {
     row?: boolean;
   };
   required?: boolean;
+  segmentedButtons?: {
+    options: Array<{
+      label: string;
+      value: string;
+    }>;
+  };
   switchInput?: {
     getChecked?: (value: unknown) => boolean;
   };

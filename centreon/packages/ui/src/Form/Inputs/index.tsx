@@ -48,6 +48,7 @@ import {
   InputType
 } from './models';
 import RadioInput from './Radio';
+import SegmentedButtons from './SegmentedButtons';
 import { SubgroupDivider } from './SubGroupDivider';
 import SwitchInput from './Switch';
 import TextInput from './Text';
@@ -88,6 +89,10 @@ export const getInput = cond<
   [
     equals(InputType.ExclusiveCheckboxGroup) as (b: InputType) => boolean,
     always(ExclusiveCheckboxGroup)
+  ],
+  [
+    equals(InputType.SegmentedButtons) as (b: InputType) => boolean,
+    always(SegmentedButtons)
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
   [equals(InputType.File) as (b: InputType) => boolean, always(File)],
