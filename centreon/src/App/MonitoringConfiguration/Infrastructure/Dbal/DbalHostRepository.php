@@ -179,6 +179,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
+        // Before any row of the host is written, see lockPoller().
+        $this->lockPoller($host->pollerId->value);
+
         $extendedInformations = $host->extendedInformations;
 
         $qb = $this->connection->createQueryBuilder();
@@ -610,6 +613,24 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         $this->clearRelations($hostId);
         $this->insertRelations($hostId, $host);
+    }
+
+    /**
+     * Takes the exclusive lock of a poller row, before any row of a host of that poller is written.
+     *
+     * Writing a host takes a shared lock on its poller row, through the foreign key of `ns_host_relation`
+     * (the `host` table has none). The poller is flagged for a configuration reload later in the same
+     * transaction, which needs that row exclusively. Two concurrent writes on one poller would each hold the
+     * shared lock while waiting for the exclusive one: a deadlock. Locking first makes the second write wait
+     * for the first instead. Hosts of different pollers are not serialized with each other.
+     */
+    private function lockPoller(int $pollerId): void
+    {
+        $this->connection->executeQuery(
+            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
+            ['poller_id' => $pollerId],
+            ['poller_id' => ParameterType::INTEGER],
+        );
     }
 
     /**

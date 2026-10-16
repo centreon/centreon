@@ -120,7 +120,7 @@ public function handle(Envelope $envelope, StackInterface $stack): Envelope
 
         return $envelope;
     } catch (\Throwable $th) {
-        $this->connection->rollBack();
+        $this->rollBackKeepingCause(); // a failing rollback never replaces $th
 
         throw $th;
     }
@@ -133,6 +133,7 @@ Key points:
 - **DBAL connection.** The middleware is autowired on `doctrine.dbal.default_connection`. Legacy repositories that go through direct PDO (cf. the dual Centreon connection — `ContactRepositoryRDB`, `DbReadAccessGroupRepository`) are **not covered** by this transaction. Any transactional write must therefore go through DBAL to commit alongside the rest of the command.
 - **Granularity = 1 command = 1 transaction.** All mutations emitted by a handler (through several aggregate repositories or several calls on the same one) commit or roll back as a block. This is the guarantee that frees handlers from any `beginTransaction` / `commit` boilerplate.
 - **On throw.** The rollback is complete then the exception is propagated to the next middleware — concretely the `LoggingMiddleware`, which logs the error **after** the rollback. The log therefore reflects the final persistent state, not the "transaction in progress" state.
+- **A failing rollback never replaces the cause.** When the server already ended the transaction (deadlock victim, lost connection), the rollback itself fails with "There is no active transaction". That DBAL failure is logged at `debug` level and absorbed, and the original exception is the one propagated. Any other `Throwable` raised by the rollback is not absorbed.
 - **No nesting.** Wiring a second transactional middleware or reopening a transaction from the handler does **not** create a nested transaction — DBAL handles this with a counter, but the inner `commit` is a no-op. If a write path must live outside the bus (CLI, batch), introduce a `TransactionalRunnerInterface` port at that boundary rather than reinventing the transaction on the handler side.
 
 ---
