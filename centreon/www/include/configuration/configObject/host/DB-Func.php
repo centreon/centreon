@@ -36,6 +36,7 @@ use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Api\InternalApiClient;
@@ -1286,7 +1287,7 @@ function updateHost_MC($hostId = null)
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $submittedValues['host_check_freshness']['host_check_freshness'] = '1';
-            $submittedValues['host_freshness_threshold'] = 120;
+            $submittedValues['host_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
     // For Centreon 2, we no longer need "host_template_model_htm_id" in Nagios 3
