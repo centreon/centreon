@@ -34,6 +34,11 @@ class Command
     public const COMMAND_MAX_LENGTH = NewCommand::COMMAND_MAX_LENGTH;
     public const EXAMPLE_MAX_LENGTH = NewCommand::EXAMPLE_MAX_LENGTH;
     public const NAME_MAX_LENGTH = NewCommand::NAME_MAX_LENGTH;
+
+    /**
+     * Seconds a Centreon Monitoring Agent object may stay silent before its result is considered stale.
+     * Keep in sync with {@see \App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD}.
+     */
     public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 500;
 
     /**
