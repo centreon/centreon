@@ -6,12 +6,13 @@ import { FormActions, FormActionsProps } from '@centreon/ui/components';
 import { FormikHelpers, useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ObjectSchema } from 'yup';
 
 import { formActionsAtom, isFormDirtyAtom } from '../atoms';
 import { CloseModalConfirmation } from '../Dialogs';
+import type { FormMode } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
 import { useFormStyles } from './Form.styles';
 
@@ -21,7 +22,7 @@ export type ResourceFormProps = {
     values: Record<string, unknown>,
     helpers: FormikHelpers<Record<string, unknown>>
   ) => void;
-  mode?: 'add' | 'edit';
+  mode?: FormMode;
   inputs: Array<InputProps>;
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
@@ -43,7 +44,7 @@ const Actions = ({
   mode
 }: {
   onCancel: FormActionsProps['onCancel'];
-  mode?: 'add' | 'edit';
+  mode?: FormMode;
 }): JSX.Element => {
   const { t } = useTranslation();
 
@@ -82,8 +83,11 @@ const PublishedActions = (): JSX.Element => {
   const setIsDirty = useSetAtom(isFormDirtyAtom);
   const setFormActions = useSetAtom(formActionsAtom);
 
-  const { dirty, isValid, isSubmitting, submitForm, resetForm } =
-    useFormikContext();
+  const { dirty, isValid, isSubmitting, submitForm, resetForm, values } =
+    useFormikContext<Record<string, unknown>>();
+
+  const valuesRef = useRef(values);
+  valuesRef.current = values;
 
   useEffect(() => {
     setIsDirty(dirty);
@@ -93,6 +97,7 @@ const PublishedActions = (): JSX.Element => {
     setFormActions({
       canReset: dirty && !isSubmitting,
       canSubmit: dirty && isValid && !isSubmitting,
+      getValues: () => valuesRef.current,
       isSubmitting,
       reset: () => resetForm(),
       submit: () => {

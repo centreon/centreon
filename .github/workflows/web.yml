@@ -2599,6 +2599,7 @@ jobs:
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   promote-pulp:
     needs: [get-environment, deliver-pulp]

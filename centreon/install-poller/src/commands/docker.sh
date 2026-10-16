@@ -12,19 +12,98 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Picks the compose runner into COMPOSE_CMD (first that works): docker
+# compose, podman compose, podman-compose. `podman compose` exits non-zero
+# when it has no provider installed, so probing `version` is what tells
+# whether a runner is usable, not just the presence of the binary. Docker
+# compose additionally needs a reachable daemon (`version` doesn't contact
+# it), otherwise the next runner is tried. Also records whether the engine
+# behind it is Podman (podman-docker's `docker` shim included) and rootless,
+# for _checkPodmanPrerequisites.
 function _checkDockerPrerequisites() {
-  local ret=0
+  local docker_unreachable=0
 
-  if ! type docker >/dev/null 2>&1; then
-    consoleError "docker is not installed or not in PATH."
-    logError "docker is not installed or not in PATH."
-    ret=1
+  if docker compose version >/dev/null 2>&1; then
+    if docker info >/dev/null 2>&1; then
+      COMPOSE_CMD=(docker compose)
+    else
+      docker_unreachable=1
+      logInfo "docker compose found but the Docker daemon is not reachable, trying Podman."
+    fi
   fi
 
-  if ! docker compose version >/dev/null 2>&1; then
-    consoleError "docker compose (v2 plugin) is not available. Run 'docker compose version' to verify."
-    logError "docker compose plugin is not available."
-    ret=1
+  if [ ${#COMPOSE_CMD[@]} -eq 0 ]; then
+    if podman compose version >/dev/null 2>&1; then
+      COMPOSE_CMD=(podman compose)
+    elif podman-compose version >/dev/null 2>&1; then
+      COMPOSE_CMD=(podman-compose)
+    fi
+  fi
+
+  if [ ${#COMPOSE_CMD[@]} -eq 0 ]; then
+    if [ "${docker_unreachable}" = "1" ]; then
+      consoleError "docker compose is installed but the Docker daemon is not reachable: is it running, and can $(id -un) use it (docker group)?"
+      consoleError "Run 'docker info' to verify."
+      logError "docker compose found but the Docker daemon is not reachable, and no Podman runner found."
+      return 1
+    fi
+    consoleError "No compose runner found. Install Docker with the compose v2 plugin, or Podman with podman-compose."
+    consoleError "Run 'docker compose version', 'podman compose version' or 'podman-compose version' to verify."
+    logError "No compose runner found (docker compose, podman compose, podman-compose)."
+    return 1
+  fi
+
+  CONTAINER_ENGINE="docker"
+  if [ "${COMPOSE_CMD[0]}" != "docker" ] || docker version 2>/dev/null | grep -q "Podman"; then
+    CONTAINER_ENGINE="podman"
+    if [ "$(podman info --format '{{.Host.Security.Rootless}}' 2>/dev/null)" = "true" ]; then
+      ENGINE_ROOTLESS=1
+    fi
+  fi
+  logInfo "Compose runner: ${COMPOSE_CMD[*]} (engine: ${CONTAINER_ENGINE}, rootless: ${ENGINE_ROOTLESS})"
+
+  return 0
+}
+
+# Podman-only host checks that would otherwise only surface as a failed
+# `compose up` with a half-started stack.
+function _checkPodmanPrerequisites() {
+  local ret=0
+
+  # podman compose / the docker shim delegate to docker-compose when it is
+  # installed, which talks to the Podman API socket: not running by default.
+  if [ "${COMPOSE_CMD[0]}" != "podman-compose" ] && "${COMPOSE_CMD[@]}" version 2>&1 | grep -q "Docker Compose"; then
+    local socket="/run/podman/podman.sock"
+    local enable_cmd="sudo systemctl enable --now podman.socket"
+    if [ "${ENGINE_ROOTLESS}" = "1" ]; then
+      socket="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/podman/podman.sock"
+      enable_cmd="systemctl --user enable --now podman.socket"
+    fi
+    # Ping rather than test -S: the socket file outlives a stopped podman.socket.
+    if ! curl -sf --max-time 5 --unix-socket "${socket}" http://d/_ping >/dev/null 2>&1; then
+      consoleError "'${COMPOSE_CMD[*]}' uses docker-compose, which needs the Podman API socket (${socket}). Enable it with: ${enable_cmd}"
+      logError "Podman API socket ${socket} not answering."
+      ret=1
+    fi
+  fi
+
+  # Rootless Podman cannot publish ports below ip_unprivileged_port_start (1024 by default).
+  if [ "${ENGINE_ROOTLESS}" = "1" ] && [ "${WITH_SNMPTRAP}" = "1" ]; then
+    local port_start
+    port_start=$(cat /proc/sys/net/ipv4/ip_unprivileged_port_start 2>/dev/null || echo 1024)
+    if [ "${port_start}" -gt 162 ]; then
+      consoleError "Rootless Podman cannot publish port 162/udp (snmptrapd): net.ipv4.ip_unprivileged_port_start is ${port_start}."
+      consoleError "Allow it with: echo 'net.ipv4.ip_unprivileged_port_start=162' | sudo tee /etc/sysctl.d/99-centreon-poller.conf && sudo sysctl --system"
+      logError "net.ipv4.ip_unprivileged_port_start=${port_start} > 162 with rootless Podman and --with-snmptrap."
+      ret=1
+    fi
+  fi
+
+  # Without linger, the user's systemd instance (and the rootless stack with
+  # it) stops when the last session ends, e.g. right after a curl | bash over SSH.
+  if [ "${ENGINE_ROOTLESS}" = "1" ] && loginctl show-user "$(id -un)" -p Linger 2>/dev/null | grep -q "=no"; then
+    consoleWarn "Lingering is disabled for $(id -un): the rootless stack will stop when you log out. Enable it with: sudo loginctl enable-linger $(id -un)"
+    logInfo "Linger disabled for $(id -un) with rootless Podman."
   fi
 
   return ${ret}
@@ -55,6 +134,17 @@ function _checkVmwarePrerequisites() {
       consoleError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
       consoleError "Download them from the Broadcom Developer Portal and place them there — see ${plugins_path}/sdks-vmware/README.md."
       logError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      ret=1
+    fi
+
+    # Podman's builder rejects COPY --link (seen with buildah 1.39); only matters when
+    # compose will actually build, i.e. the image isn't there yet.
+    local dockerfile="${plugins_path}/.github/docker/connector/Dockerfile.connector-vmware"
+    if [ "${CONTAINER_ENGINE}" = "podman" ] && grep -q "COPY --link" "${dockerfile}" &&
+      ! podman image exists "localhost/connector-vmware:local" 2>/dev/null; then
+      consoleError "${dockerfile} uses 'COPY --link', which Podman's builder does not support."
+      consoleError "Drop the flag (it is only a cache optimization) with: sed -i 's/COPY --link /COPY /' ${dockerfile}"
+      logError "COPY --link in ${dockerfile} is not supported by Podman."
       ret=1
     fi
   fi
@@ -116,7 +206,13 @@ function runDockerInstall() {
 
   consoleTitle "Checking prerequisites:"
   _checkDockerPrerequisites || exit 1
-  consoleInfo "docker and docker compose are available"
+  consoleInfo "compose runner: ${COMPOSE_CMD[*]} (engine: ${CONTAINER_ENGINE}$([ "${ENGINE_ROOTLESS}" = "1" ] && echo ", rootless"))"
+  if [ "${CONTAINER_ENGINE}" = "podman" ] && ! _checkPodmanPrerequisites; then
+    if [ "${START_STACK}" = "1" ]; then
+      exit 1
+    fi
+    consoleWarn "--no-start given: generating files anyway. Fix the above before starting the stack."
+  fi
   if [ "${WITH_VMWARE}" = "1" ]; then
     _checkVmwarePrerequisites || exit 1
     consoleInfo "centreon-plugins checkout and VMware SDK found"
@@ -163,6 +259,8 @@ function runDockerInstall() {
     echo "  Existing docker-compose.yaml/.env were left untouched. Review and merge manually, e.g.:"
     echo "       diff docker-compose.yaml docker-compose.yaml.new"
     echo "       diff .env .env.new"
+    echo "  Adopt both together: docker-compose.yaml.new expects ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG"
+    echo "  to be set in .env (an older .env leaves them empty, and compose then refuses to start)."
     echo ""
     return
   fi
@@ -173,14 +271,38 @@ function runDockerInstall() {
   if [ "${START_STACK}" = "1" ]; then
     echo ""
     consoleTitle "Starting stack:"
-    docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
+    local rc=0
+    "${COMPOSE_CMD[@]}" up -d || rc=$?
+    if [ "${rc}" -ne 0 ]; then
+      consoleError "Failed to start stack."
+      logError "${COMPOSE_CMD[*]} up -d failed (exit ${rc})"
+      exit 1
+    fi
     echo ""
   else
     consoleTitle "Next steps:"
     echo "  1. Start the stack:"
-    echo "       docker compose up -d"
+    echo "       ${COMPOSE_CMD[*]} up -d"
     echo ""
   fi
+
+  if [ "${CONTAINER_ENGINE}" = "podman" ]; then
+    _printPodmanRebootHint
+  fi
+}
+
+# Podman has no daemon: restart policies are only applied at boot by
+# podman-restart.service, and rootless containers additionally need the
+# user's systemd instance to outlive their login session (linger).
+function _printPodmanRebootHint() {
+  consoleTitle "Podman: keep the stack running after logout and reboot"
+  if [ "${ENGINE_ROOTLESS}" = "1" ]; then
+    echo "       sudo loginctl enable-linger $(id -un)"
+    echo "       systemctl --user enable podman-restart.service"
+  else
+    echo "       sudo systemctl enable podman-restart.service"
+  fi
+  echo ""
 }
 
 # Effective stability for every Docker decision (tag, registry, whether to
@@ -246,11 +368,14 @@ function _generateDotEnv() {
 # Generated by install-poller $(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 TAG=${image_tag}
-# Per-service tag overrides (leave empty to use TAG for all)
-ENGINE_TAG=
-GORGONE_TAG=
-SNMPTRAPD_TAG=
-CENTREONTRAPD_TAG=
+# Per-service tags, default to TAG (must not be empty). Resolved here rather
+# than with a nested \${ENGINE_TAG:-\${TAG}} in docker-compose.yaml, which
+# podman-compose leaves unexpanded.
+ENGINE_TAG=\${TAG}
+GORGONE_TAG=\${TAG}
+SNMPTRAPD_TAG=\${TAG}
+CENTREONTRAPD_TAG=\${TAG}
+# centreon-vmware is built locally (leave empty for "local")
 VMWARE_TAG=
 
 # Build context for centreon-vmware (see --vmware-path)
@@ -377,7 +502,7 @@ function _generateDockerCompose() {
 services:
   centengine:
 EOF
-  printf '    image: "%s:${ENGINE_TAG:-${TAG}}"\n' "$(_pollerImageRepo engine)" >> "${out}"
+  printf '    image: "%s:${ENGINE_TAG:?set ENGINE_TAG in .env}"\n' "$(_pollerImageRepo engine)" >> "${out}"
   cat >> "${out}" <<'EOF'
     env_file:
       - .env
@@ -385,6 +510,8 @@ EOF
     container_name: "${NAME}-centengine"
     hostname: "${ENGINE_HOSTNAME:-centengine}"
     restart: unless-stopped
+    cap_add:
+      - NET_RAW
     environment:
       NAME: "${NAME}"
       TZ: "${TZ}"
@@ -427,7 +554,7 @@ EOF
   cat >> "${out}" <<'EOF'
   gorgone:
 EOF
-  printf '    image: "%s:${GORGONE_TAG:-${TAG}}"\n' "$(_pollerImageRepo gorgone)" >> "${out}"
+  printf '    image: "%s:${GORGONE_TAG:?set GORGONE_TAG in .env}"\n' "$(_pollerImageRepo gorgone)" >> "${out}"
   cat >> "${out}" <<'EOF'
     container_name: "${NAME}-gorgone"
     hostname: gorgone
@@ -477,7 +604,7 @@ EOF
   if [ "${WITH_VMWARE}" = "1" ]; then
     cat >> "${out}" <<'EOF'
   centreon-vmware:
-    image: "connector-vmware:${VMWARE_TAG:-local}"
+    image: "localhost/connector-vmware:${VMWARE_TAG:-local}"
     build:
       context: "${CENTREON_PLUGINS_PATH}"
       dockerfile: .github/docker/connector/Dockerfile.connector-vmware
@@ -504,7 +631,17 @@ EOF
     cat >> "${out}" <<'EOF'
   snmptrapd:
 EOF
-    printf '    image: "%s:${SNMPTRAPD_TAG:-${TAG}}"\n' "$(_pollerImageRepo snmptrapd)" >> "${out}"
+    printf '    image: "%s:${SNMPTRAPD_TAG:?set SNMPTRAPD_TAG in .env}"\n' "$(_pollerImageRepo snmptrapd)" >> "${out}"
+    # Rootless Podman's bridge port forwarder replaces the trap sender's IP
+    # with the container's, so centreontrapd can't match the host: publish
+    # 162/udp through pasta (or slirp4netns' own forwarder) instead.
+    if [ "${ENGINE_ROOTLESS}" = "1" ]; then
+      local trap_network="slirp4netns:port_handler=slirp4netns"
+      if [ -n "$(podman info --format '{{.Host.Pasta.Executable}}' 2>/dev/null)" ]; then
+        trap_network="pasta"
+      fi
+      echo "    network_mode: ${trap_network}" >> "${out}"
+    fi
     cat >> "${out}" <<'EOF'
     container_name: "${NAME}-snmptrap"
     hostname: snmptrapd
@@ -527,7 +664,7 @@ EOF
 
   centreontrapd:
 EOF
-    printf '    image: "%s:${CENTREONTRAPD_TAG:-${TAG}}"\n' "$(_pollerImageRepo centreontrapd)" >> "${out}"
+    printf '    image: "%s:${CENTREONTRAPD_TAG:?set CENTREONTRAPD_TAG in .env}"\n' "$(_pollerImageRepo centreontrapd)" >> "${out}"
     cat >> "${out}" <<'EOF'
     container_name: "${NAME}-centreontrap"
     hostname: centreontrapd

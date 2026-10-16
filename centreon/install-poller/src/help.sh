@@ -34,7 +34,7 @@ function help() {
   echo -e "  --salt string\t\t\tEncryption salt"
   echo ""
   echo "Docker behavior flags:"
-  echo -e "  --no-start\t\t\tOnly generate files, do not run docker compose up -d"
+  echo -e "  --no-start\t\t\tOnly generate files, do not start the stack (docker compose, podman compose or podman-compose, first found)"
   echo -e "  --overwrite\t\t\tOverwrite existing docker-compose.yaml/.env without prompting (for non-interactive/scripted runs)"
   echo ""
   echo "Docker optional flags:"
