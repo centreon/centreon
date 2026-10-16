@@ -38,9 +38,7 @@ export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>
 
 export const timezonesEndpoint = '/configuration/timezones';
 
-// No host-scoped command selector exists: this one is granted by the command
-// ACLs rather than by host write access.
-export const commandsEndpoint = '/configuration/commands';
+export const hostFormCommandsEndpoint = '/configuration/hosts/commands';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;
