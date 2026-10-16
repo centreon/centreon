@@ -45,3 +45,9 @@ Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
 ehthumbs_vista.db
+
+# qa-ticket-verify skill: per-run generated artifacts, not source
+.claude/skills/qa-ticket-verify/runs/*
+!.claude/skills/qa-ticket-verify/runs/.gitkeep
+.playwright-mcp/
+playwright-mcp-output/
