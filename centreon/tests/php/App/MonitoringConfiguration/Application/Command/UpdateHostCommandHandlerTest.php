@@ -106,7 +106,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupReposit
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
@@ -176,12 +175,6 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         /** @var UpdateHostCommandHandler $handler */
         $handler = $container->get(UpdateHostCommandHandler::class);
         $this->handler = $handler;
-    }
-
-    protected function tearDown(): void
-    {
-        FakeMonitoringConnectorTemplates::reset();
-        parent::tearDown();
     }
 
     public function testItUpdatesTheHost(): void
@@ -1288,7 +1281,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
         $this->hostTemplateRepository->hostTemplates[7] = new HostTemplate(new HostTemplateId(7), new HostTemplateName('connector'), new Collection([], HostMacro::class));
         $templateIds = new Collection([new HostTemplateId(7)], HostTemplateId::class);
         $this->seedHost(10, templateIds: $templateIds);
-        FakeMonitoringConnectorTemplates::restrict(7);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [7];
 
         $host = ($this->handler)($this->command(10, name: 'renamed', templateIds: $templateIds));
 
@@ -1303,7 +1296,7 @@ final class UpdateHostCommandHandlerTest extends KernelTestCase
             $this->hostTemplateRepository->hostTemplates[$id] = new HostTemplate(new HostTemplateId($id), new HostTemplateName('connector-' . $id), new Collection([], HostMacro::class));
         }
         $this->seedHost(10, templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class));
-        FakeMonitoringConnectorTemplates::restrict(7, 8);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [7, 8];
 
         try {
             ($this->handler)($this->command(10, templateIds: new Collection([new HostTemplateId(7), new HostTemplateId(8)], HostTemplateId::class)));

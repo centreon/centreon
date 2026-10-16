@@ -50,11 +50,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts';
 
     private Connection $connection;
@@ -76,7 +77,7 @@ final class CreateHostProcessorTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplates::reset();
+        $this->dropMonitoringConnectorTables($this->connection);
         parent::tearDown();
     }
 
@@ -1456,7 +1457,7 @@ final class CreateHostProcessorTest extends ApiTestCase
     public function testItRejectsATemplateTheLicenseNoLongerAllows(): void
     {
         $templateId = $this->insertHostTemplate($this->uniqueName('connector'));
-        FakeMonitoringConnectorTemplates::restrict($templateId);
+        $this->insertMonitoringConnectorTemplates($this->connection, $templateId);
 
         $this->assertReferenceIsRejected('template_ids', [$templateId]);
         // One line per violation, each prefixed with its field.

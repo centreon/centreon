@@ -25,12 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Uid\Uuid;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts/host_templates';
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
@@ -59,7 +60,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplates::reset();
+        $this->dropMonitoringConnectorTables($this->connection);
         parent::tearDown();
     }
 
@@ -124,7 +125,7 @@ final class ListHostTemplatesChoicesProviderTest extends ApiTestCase
         $allowedName = "allowed-{$this->tag}";
         $this->insertHostTemplate($allowedName);
         $unlicensedId = $this->insertHostTemplate("unlicensed-{$this->tag}");
-        FakeMonitoringConnectorTemplates::restrict($unlicensedId);
+        $this->insertMonitoringConnectorTemplates($this->connection, $unlicensedId);
 
         $this->login();
 

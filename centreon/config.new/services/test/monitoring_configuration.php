@@ -21,15 +21,11 @@
 
 declare(strict_types=1);
 
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Service\DnsResolver;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeDnsResolver;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
-
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 /*
  * Test-env service bindings for the App\MonitoringConfiguration module.
@@ -47,11 +43,4 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Keeps the API test suite off the runner's DNS: every other hostname is unresolved.
     $services->set(DnsResolver::class, FakeDnsResolver::class)
         ->arg('$records', ['localhost' => '127.0.0.1']);
-
-    // The test database has neither the license manager nor the plugin pack manager: the host limit
-    // is always reached, and the tests choose the templates of the paid Monitoring Connectors
-    // (DbalHostTemplateRepositoryTest covers the real query).
-    $services->set(FakeMonitoringConnectorTemplates::class)
-        ->decorate(HostTemplateRepository::class)
-        ->args([service('.inner')]);
 };

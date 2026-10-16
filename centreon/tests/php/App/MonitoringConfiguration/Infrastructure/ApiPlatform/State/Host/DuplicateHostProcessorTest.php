@@ -25,11 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use Doctrine\DBAL\Connection;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class DuplicateHostProcessorTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
+
     private Connection $connection;
 
     private Connection $realTimeConnection;
@@ -49,7 +51,7 @@ final class DuplicateHostProcessorTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplates::reset();
+        $this->dropMonitoringConnectorTables($this->connection);
         parent::tearDown();
     }
 
@@ -271,7 +273,7 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         $hostId = $this->insertHost($name, $pollerId);
         $templateId = $this->insertHostTemplate($this->uniqueName('connector'));
         $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $templateId, '`order`' => 1]);
-        FakeMonitoringConnectorTemplates::restrict($templateId);
+        $this->insertMonitoringConnectorTemplates($this->connection, $templateId);
 
         $this->login();
         $this->request('POST', "/api/configuration/hosts/{$hostId}/_duplicate");

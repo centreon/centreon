@@ -103,7 +103,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
@@ -186,7 +185,7 @@ final class PatchHostCommandHandlerTest extends TestCase
                 $this->resourceAccessRepository,
                 new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                     new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
-                    new FakeMonitoringConnectorTemplates(new FakeHostTemplateRepository()),
+                    $this->hostTemplateRepository,
                 )),
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, new FakeServiceRepository(), $this->eventBus),

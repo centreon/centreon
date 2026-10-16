@@ -45,6 +45,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
     /** @var list<int> the template ids of the last findInheritanceLine() call, in order */
     public array $receivedLineTemplateIds = [];
 
+    /** @var list<int> the templates of the paid Monitoring Connectors, the excluded connector slugs being ignored */
+    public array $monitoringConnectorTemplateIds = [];
+
     public function findNamesByIds(Collection $ids): Collection
     {
         $names = [];
@@ -104,6 +107,9 @@ final class FakeHostTemplateRepository implements HostTemplateRepository
 
     public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
     {
-        return new Collection([], HostTemplateId::class);
+        return new Collection(
+            array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $this->monitoringConnectorTemplateIds),
+            HostTemplateId::class,
+        );
     }
 }

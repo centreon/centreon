@@ -33,23 +33,20 @@ use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 
 final class HostTemplateLicenseGuardTest extends TestCase
 {
     private HostTemplateLicenseGuard $guard;
 
+    private FakeHostTemplateRepository $hostTemplateRepository;
+
     protected function setUp(): void
     {
+        $this->hostTemplateRepository = new FakeHostTemplateRepository();
         $this->guard = new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
             new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
-            new FakeMonitoringConnectorTemplates(new FakeHostTemplateRepository()),
+            $this->hostTemplateRepository,
         ));
-    }
-
-    protected function tearDown(): void
-    {
-        FakeMonitoringConnectorTemplates::reset();
     }
 
     public function testItAcceptsAnyTemplateWhileTheLicenseAllowsThem(): void
@@ -61,7 +58,7 @@ final class HostTemplateLicenseGuardTest extends TestCase
 
     public function testItRejectsOnlyTheTemplatesTheLicenseNoLongerAllows(): void
     {
-        FakeMonitoringConnectorTemplates::restrict(2, 3, 4);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [2, 3, 4];
 
         try {
             $this->guard->assertLicensed($this->ids(1, 2, 4));
@@ -73,7 +70,7 @@ final class HostTemplateLicenseGuardTest extends TestCase
 
     public function testItAcceptsTheTemplatesTheHostAlreadyHas(): void
     {
-        FakeMonitoringConnectorTemplates::restrict(2);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [2];
         $this->expectNotToPerformAssertions();
 
         $this->guard->assertLicensed($this->ids(1, 2), currentTemplateIds: $this->ids(2));
@@ -81,7 +78,7 @@ final class HostTemplateLicenseGuardTest extends TestCase
 
     public function testItRejectsATemplateAddedNextToOneTheHostAlreadyHas(): void
     {
-        FakeMonitoringConnectorTemplates::restrict(2, 3);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [2, 3];
 
         $this->expectException(UnlicensedHostTemplatesException::class);
 

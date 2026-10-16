@@ -92,7 +92,6 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostSeverityRepo
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMediaRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeNotificationContactRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
@@ -167,7 +166,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
                 $this->resourceAccessRepository,
                 new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
                     new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
-                    new FakeMonitoringConnectorTemplates(new FakeHostTemplateRepository()),
+                    $this->hostTemplateRepository,
                 )),
             ),
             new HostTemplateServicesCleaner($this->hostTemplateRepository, $this->serviceRepository, $this->eventBus),
@@ -192,12 +191,6 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
             $this->contactRepository->names[$id] = new NotificationContactName('contact-' . $id);
             $this->contactGroupRepository->names[$id] = new ContactGroupName('contact-group-' . $id);
         }
-    }
-
-    protected function tearDown(): void
-    {
-        FakeMonitoringConnectorTemplates::reset();
-        parent::tearDown();
     }
 
     public function testItReplacesTheHostGroups(): void
@@ -682,7 +675,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testItKeepsTemplatesTheLicenseNoLongerAllows(): void
     {
         $this->seedHost(templateIds: [1, 2]);
-        FakeMonitoringConnectorTemplates::restrict(1, 2);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [1, 2];
 
         $replaced = ($this->handler)($this->command(templateIds: ListChange::replace([new HostTemplateId(2), new HostTemplateId(1)])));
         self::assertSame([2, 1], $this->ids($replaced->templateIds));
@@ -708,7 +701,7 @@ final class PatchHostCommandHandlerRelationsTest extends TestCase
     public function testItRejectsAddingATemplateTheLicenseNoLongerAllows(ListChange $change): void
     {
         $this->seedHost(templateIds: [1]);
-        FakeMonitoringConnectorTemplates::restrict(1, 3);
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [1, 3];
 
         try {
             ($this->handler)($this->command(templateIds: $change));

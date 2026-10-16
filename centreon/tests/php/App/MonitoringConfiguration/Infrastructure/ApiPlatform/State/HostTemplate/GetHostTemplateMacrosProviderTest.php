@@ -25,12 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Uid\Uuid;
-use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeMonitoringConnectorTemplates;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts/host_templates';
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
@@ -59,7 +60,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 
     protected function tearDown(): void
     {
-        FakeMonitoringConnectorTemplates::reset();
+        $this->dropMonitoringConnectorTables($this->connection);
         parent::tearDown();
     }
 
@@ -188,7 +189,7 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
     {
         $templateId = $this->insertHostTemplate("unlicensed-{$this->tag}", locked: true);
         $this->insertMacro($templateId, '$_HOSTPORT$', '443', isPassword: false, order: 1);
-        FakeMonitoringConnectorTemplates::restrict($templateId);
+        $this->insertMonitoringConnectorTemplates($this->connection, $templateId);
 
         $this->login();
 
