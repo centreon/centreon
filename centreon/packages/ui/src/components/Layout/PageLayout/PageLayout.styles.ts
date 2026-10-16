@@ -1,6 +1,20 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
+  // The quick access list is capped at half the screen height and scrolls,
+  // so the buttons below it stay visible with a long list.
+  quickAccessElements: {
+    maxHeight: '50vh',
+    overflowY: 'auto'
+  },
+  quickAccessLoadMore: {
+    height: 1
+  },
+  quickAccessLoading: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(1, 0)
+  },
   pageLayout: {
     display: 'grid',
     gridTemplateRows: 'min-content',
