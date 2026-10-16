@@ -51,3 +51,40 @@ spec:
       {{- end }}
 {{- end }}
 {{- end }}
+{{- with .Values.traps }}
+{{- if .enabled }}
+---
+# SNMP traps from the monitored devices. centreontrapd identifies the sender
+# by source IP: externalTrafficPolicy Local keeps it (Cluster SNATs it).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}-snmptrap
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+  {{- with .service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .service.type | default "LoadBalancer" }}
+  publishNotReadyAddresses: true
+  {{- if and (eq (.service.type | default "LoadBalancer") "LoadBalancer") .service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if and (ne (.service.type | default "LoadBalancer") "ClusterIP") .service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .service.externalTrafficPolicy }}
+  {{- end }}
+  selector:
+    {{- include "centreon-poller.selectorLabels" $ | nindent 4 }}
+  ports:
+    - name: snmptrap
+      protocol: UDP
+      port: {{ .service.port }}
+      targetPort: snmptrap
+      {{- if and (eq (.service.type | default "LoadBalancer") "NodePort") .service.nodePort }}
+      nodePort: {{ .service.nodePort }}
+      {{- end }}
+{{- end }}
+{{- end }}
