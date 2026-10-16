@@ -33,13 +33,14 @@ namespace Core\Broker\Infrastructure\Repository;
  * - "category" and "event" rows are filter values, the empty "filters" parent rows are dropped;
  * - any other row is a simple parameter, the last row of a repeated key wins.
  *
+ * Rows without config_group_id belong to the input/output 0, as when the generation casts it.
  * Rows must be given in read order. Rows of other groups than input and output (legacy "logger") are dropped.
  *
  * @phpstan-import-type _StoredParameters from StoredBrokerInputOutput
  *
  * @phpstan-type _BrokerInfoRow array{
  *     config_group: string,
- *     config_group_id: int|string,
+ *     config_group_id: int|string|null,
  *     config_key: string,
  *     config_value: string,
  *     subgrp_id?: int|string|null,
@@ -65,7 +66,7 @@ final class BrokerInfoRowsConverter
             if (! in_array($row['config_group'], ['input', 'output'], true)) {
                 continue;
             }
-            $rowsByFlow[$row['config_group'] . '_' . $row['config_group_id']][] = $row;
+            $rowsByFlow[$row['config_group'] . '_' . (int) $row['config_group_id']][] = $row;
         }
 
         return array_values(array_map(self::convertFlow(...), $rowsByFlow));

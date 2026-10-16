@@ -50,4 +50,15 @@ final readonly class StoredBrokerInputOutput
         public array $parameters,
     ) {
     }
+
+    /**
+     * @throws \JsonException
+     */
+    public function encodeParameters(): string
+    {
+        return json_encode(
+            $this->parameters === [] ? new \stdClass() : $this->parameters,
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
+    }
 }

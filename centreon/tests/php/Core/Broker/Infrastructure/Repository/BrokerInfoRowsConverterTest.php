@@ -218,6 +218,30 @@ final class BrokerInfoRowsConverterTest extends TestCase
     }
 
     #[Test]
+    public function itMergesRowsWithoutGroupIdIntoTheFlowZero(): void
+    {
+        $flows = BrokerInfoRowsConverter::convert([
+            $this->row('output', 0, 'name', 'output'),
+            ['config_group' => 'output', 'config_group_id' => null, 'config_key' => 'port', 'config_value' => '5669'],
+        ]);
+
+        self::assertCount(1, $flows);
+        self::assertSame(['port' => '5669'], $flows[0]->parameters);
+    }
+
+    #[Test]
+    public function itEncodesParametersAsAJsonObject(): void
+    {
+        $flows = BrokerInfoRowsConverter::convert([
+            $this->row('output', 0, 'name', 'empty'),
+            $this->row('output', 1, 'path', '/usr/share/lua/é.lua'),
+        ]);
+
+        self::assertSame('{}', $flows[0]->encodeParameters());
+        self::assertSame('{"path":"/usr/share/lua/é.lua"}', $flows[1]->encodeParameters());
+    }
+
+    #[Test]
     public function itDropsLegacyLoggerAndUnknownGroups(): void
     {
         $rows = [
