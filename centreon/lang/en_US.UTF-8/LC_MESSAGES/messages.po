@@ -5173,6 +5173,10 @@ msgid "Drag to reorder"
 msgstr "Drag to reorder"
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr "Replacing the templates will delete all the services created by the previous templates on every selected host."
+
 msgid "Drop or"
 msgstr "Drop or"
 
