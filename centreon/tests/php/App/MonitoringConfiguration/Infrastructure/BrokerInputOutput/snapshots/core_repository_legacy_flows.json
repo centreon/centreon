@@ -1,0 +1,173 @@
+{
+    "input": [
+        {
+            "id": 0,
+            "tag": "input",
+            "type": {
+                "id": 3,
+                "name": "ipv4"
+            },
+            "name": "central-broker-master-input",
+            "parameters": {
+                "host": "",
+                "port": "5669",
+                "protocol": "bbdo",
+                "retry_interval": "15",
+                "tls": "auto"
+            }
+        },
+        {
+            "id": 1,
+            "tag": "input",
+            "type": {
+                "id": 3,
+                "name": "ipv4"
+            },
+            "name": "clapi-input",
+            "parameters": {
+                "port": "5669",
+                "protocol": "bbdo"
+            }
+        }
+    ],
+    "output": [
+        {
+            "id": 0,
+            "tag": "output",
+            "type": {
+                "id": 37,
+                "name": "event_script"
+            },
+            "name": "central-broker-master-event-script",
+            "parameters": {
+                "filters_event": [
+                    "neb:UnknownHost"
+                ],
+                "script_path": "/usr/share/centreon/bin/console agent-configuration:host:create",
+                "timeout": "15"
+            }
+        },
+        {
+            "id": 1,
+            "tag": "output",
+            "type": {
+                "id": 3,
+                "name": "ipv4"
+            },
+            "name": "poller-module-output",
+            "parameters": {
+                "failover": "",
+                "host": "10.0.0.1",
+                "port": "5669",
+                "protocol": "bbdo",
+                "retry_interval": "15",
+                "tls": "no"
+            }
+        },
+        {
+            "id": 2,
+            "tag": "output",
+            "type": {
+                "id": 33,
+                "name": "lua"
+            },
+            "name": "clapi-lua",
+            "parameters": {
+                "filters_category": [
+                    "neb",
+                    "neb",
+                    "storage"
+                ],
+                "lua_parameter__name": "clapi-param",
+                "path": "/usr/share/centreon-broker/lua/clapi.lua"
+            }
+        },
+        {
+            "id": 3,
+            "tag": "output",
+            "type": {
+                "id": 3,
+                "name": "ipv4"
+            },
+            "name": "forward-to-master",
+            "parameters": {
+                "category": "neb",
+                "filters": "",
+                "host": "192.168.0.10",
+                "port": "5669"
+            }
+        },
+        {
+            "id": 4,
+            "tag": "output",
+            "type": {
+                "id": 3,
+                "name": "ipv4"
+            },
+            "name": "centreon-map",
+            "parameters": {
+                "filters_category": [
+                    "bam",
+                    "neb"
+                ],
+                "negociation": "yes",
+                "port": "5758"
+            }
+        },
+        {
+            "id": 5,
+            "tag": "output",
+            "type": {
+                "id": 38,
+                "name": "bam"
+            },
+            "name": "centreon-bam-monitoring",
+            "parameters": {
+                "cache": "yes",
+                "command_file": "/var/lib/centreon-engine/rw/centengine.cmd",
+                "db_name": "centreon",
+                "db_password": "bam-secret"
+            }
+        },
+        {
+            "id": 6,
+            "tag": "output",
+            "type": {
+                "id": 39,
+                "name": "bam_bi"
+            },
+            "name": "centreon-bam-reporting",
+            "parameters": {
+                "db_name": "centreon_storage",
+                "filters_category": [
+                    "bam"
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "tag": "output",
+            "type": {
+                "id": 33,
+                "name": "lua"
+            },
+            "name": "forward-to-anomaly-detection",
+            "parameters": {
+                "lua_parameter": [
+                    {
+                        "name": "max_queue_size",
+                        "type": "number",
+                        "value": "100"
+                    },
+                    {
+                        "name": "saas_token",
+                        "type": "password",
+                        "value": null
+                    }
+                ],
+                "path": "/usr/share/centreon-broker/lua/centreon-anomaly-detection.lua"
+            }
+        },
+        null
+    ]
+}

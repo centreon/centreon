@@ -1,0 +1,21 @@
+{
+    "id": 0,
+    "tag": "input",
+    "type": {
+        "id": 3,
+        "name": "ipv4"
+    },
+    "name": "clapi-input-updated",
+    "parameters": {
+        "ca_certificate": "",
+        "host": "example.com",
+        "negotiation": "yes",
+        "one_peer_retention_mode": "no",
+        "port": "5700",
+        "private_key": "",
+        "protocol": "",
+        "public_cert": "",
+        "tls": "no",
+        "tls_hostname": ""
+    }
+}

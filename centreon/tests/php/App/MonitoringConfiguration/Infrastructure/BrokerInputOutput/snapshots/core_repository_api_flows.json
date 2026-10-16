@@ -1,0 +1,158 @@
+{
+    "input": {
+        "1": {
+            "id": 1,
+            "tag": "input",
+            "type": {
+                "id": 35,
+                "name": "bbdo_server"
+            },
+            "name": "bbdo-server-input",
+            "parameters": {
+                "authorization": "grpc-secret",
+                "certificate": "",
+                "compression": "no",
+                "encryption": "no",
+                "filters_category": [
+                    "neb",
+                    "storage"
+                ],
+                "host": "",
+                "port": "5669",
+                "private_key": "",
+                "retention": "no",
+                "transport_protocol": "gRPC"
+            }
+        },
+        "2": {
+            "id": 2,
+            "tag": "input",
+            "type": {
+                "id": 3,
+                "name": "ipv4"
+            },
+            "name": "ipv4-input",
+            "parameters": {
+                "ca_certificate": "",
+                "host": "localhost",
+                "negotiation": "yes",
+                "one_peer_retention_mode": "no",
+                "port": "5670",
+                "private_key": "",
+                "protocol": "bbdo",
+                "public_cert": "",
+                "tls": "no",
+                "tls_hostname": ""
+            }
+        }
+    },
+    "output": {
+        "1": {
+            "id": 1,
+            "tag": "output",
+            "type": {
+                "id": 33,
+                "name": "lua"
+            },
+            "name": "lua-output",
+            "parameters": {
+                "filters_category": [
+                    "dumper",
+                    "storage"
+                ],
+                "lua_parameter": [
+                    {
+                        "name": "empty-password",
+                        "type": "password",
+                        "value": null
+                    },
+                    {
+                        "name": "lua-param-1",
+                        "type": "string",
+                        "value": "value-1"
+                    },
+                    {
+                        "name": "lua-param-2",
+                        "type": "number",
+                        "value": "999"
+                    },
+                    {
+                        "name": "lua-param-3",
+                        "type": "password",
+                        "value": null
+                    },
+                    {
+                        "name": "name-only",
+                        "type": "string",
+                        "value": ""
+                    }
+                ],
+                "path": "/usr/share/centreon-broker/lua/connector.lua"
+            }
+        },
+        "2": {
+            "id": 2,
+            "tag": "output",
+            "type": {
+                "id": 31,
+                "name": "influxdb"
+            },
+            "name": "influxdb-output",
+            "parameters": {
+                "cache": "no",
+                "db_host": "127.0.0.1",
+                "db_name": "metrics",
+                "db_password": "influx-secret",
+                "db_port": "8086",
+                "db_user": "influx-user",
+                "metrics_column": [
+                    {
+                        "is_tag": "false",
+                        "name": "value",
+                        "type": "string",
+                        "value": "$VALUE$"
+                    },
+                    {
+                        "is_tag": "true",
+                        "name": "host",
+                        "type": "string",
+                        "value": "$HOST$"
+                    }
+                ],
+                "metrics_timeseries": "$METRIC$",
+                "status_timeseries": "$INSTANCE$"
+            }
+        },
+        "3": {
+            "id": 3,
+            "tag": "output",
+            "type": {
+                "id": 34,
+                "name": "unified_sql"
+            },
+            "name": "unified-sql-output",
+            "parameters": {
+                "cleanup_check_interval": "",
+                "connections_count": "",
+                "db_host": "127.0.0.1",
+                "db_name": "centreon_storage",
+                "db_password": "",
+                "db_port": "3306",
+                "db_type": "",
+                "db_user": "centreon",
+                "filters_category": [
+                    "dumper",
+                    "storage"
+                ],
+                "insert_in_index_data": "",
+                "instance_timeout": "",
+                "interval": "",
+                "length": "",
+                "queries_per_transaction": "",
+                "read_timeout": "",
+                "rebuild_check_interval": "",
+                "store_in_data_bin": "yes"
+            }
+        }
+    }
+}
