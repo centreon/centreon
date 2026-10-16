@@ -32,6 +32,10 @@ export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 export const hostFormHostTemplatesEndpoint =
   '/configuration/hosts/host_templates';
 
+// One template's macros, its own and those it inherits.
+export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>
+  `${hostFormHostTemplatesEndpoint}/${id}`;
+
 export const timezonesEndpoint = '/configuration/timezones';
 
 // No host-scoped command selector exists: this one is granted by the command
