@@ -41,8 +41,10 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostMacroTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostNotificationsTransformer;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceBuilder;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -408,9 +410,9 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * Every field is null here, and the serializer omits null properties rather than emitting
-     * them (same convention as the top-level `icon`/`alias`) — so `extended_informations` itself
-     * stays present, but comes back with none of its own sub-keys.
+     * Every field is null here, so `extended_informations` is a nullable sub-object left null (same
+     * convention as `severity`/`timezone`) — it is omitted from the body entirely rather than
+     * emitted as an all-null object, which the serializer would collapse to an invalid `[]`.
      */
     public function testItCreatesAHostWithoutExtendedInformations(): void
     {
@@ -426,7 +428,7 @@ final class CreateHostProcessorTest extends ApiTestCase
         ]);
 
         self::assertResponseStatusCodeSame(201);
-        self::assertSame([], $response->toArray()['extended_informations']);
+        self::assertArrayNotHasKey('extended_informations', $response->toArray());
     }
 
     public function testItRejectsAMalformedGeoCoordinatesInExtendedInformations(): void
@@ -1163,8 +1165,9 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         $payload = $response->toArray();
         // Write-only: legacy never returns it either, and with a vault configured the stored value
-        // would be a `secret::` reference.
+        // would be a `secret::` reference. Only whether one is set is exposed.
         self::assertArrayNotHasKey('snmp_community', $payload);
+        self::assertTrue($payload['is_snmp_community_defined']);
 
         /** @var int $hostId */
         $hostId = $payload['id'];
@@ -2915,28 +2918,33 @@ final class CreateHostProcessorTest extends ApiTestCase
         /** @var TimezoneRepository $timezoneRepository */
         $timezoneRepository = $container->get(TimezoneRepository::class);
 
+        /** @var ResourceAccessRepository $resourceAccessRepository */
+        $resourceAccessRepository = $container->get(ResourceAccessRepository::class);
+        $macroTransformer = new HostMacroTransformer();
+
+        $resourceBuilder = new HostResourceBuilder(
+            $transformer,
+            $notificationsTransformer,
+            $hostRepository,
+            $pollerRepository,
+            $hostGroupRepository,
+            $commandRepository,
+            $hostTemplateRepository,
+            $hostCategoryRepository,
+            $hostSeverityRepository,
+            $timezoneRepository,
+            $mediaRepository,
+            $mediaUrlGenerator,
+            $timePeriodRepository,
+            $resourceAccessRepository,
+            $macroTransformer,
+            new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
+            $isCloudPlatform,
+        );
+
         $container->set(
             CreateHostProcessor::class,
-            new CreateHostProcessor(
-                $commandBus,
-                $transformer,
-                $security,
-                $pollerRepository,
-                $hostGroupRepository,
-                $commandRepository,
-                $hostTemplateRepository,
-                $hostCategoryRepository,
-                $hostSeverityRepository,
-                $timezoneRepository,
-                $hostRepository,
-                $mediaRepository,
-                $notificationsTransformer,
-                $mediaUrlGenerator,
-                $timePeriodRepository,
-                new HostMacroTransformer(),
-                new InheritedHostMacrosResolver($hostTemplateRepository, $commandRepository),
-                $isCloudPlatform,
-            ),
+            new CreateHostProcessor($commandBus, $security, $hostRepository, $macroTransformer, $resourceBuilder, $isCloudPlatform),
         );
     }
 

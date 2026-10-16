@@ -81,6 +81,14 @@ interface HostRepository
     public function update(Host $host): void;
 
     /**
+     * Full replace of a host's relations (host groups, categories and severity, templates, parents and
+     * children, contacts and contact groups), complementing {@see update()}: every relation table is
+     * cleared and written again from $host. The macros are not touched. A silent no-op on an unknown id
+     * or a host template.
+     */
+    public function replaceRelations(Host $host): void;
+
+    /**
      * Full replace of a host's relations and macros (PUT semantics), complementing {@see update()},
      * which writes its own fields and its poller. Every relation table (host groups,
      * categories/severity, templates, parents/children, contacts/contact groups) is cleared and
@@ -91,6 +99,14 @@ interface HostRepository
     public function replaceRelationsAndMacros(Host $host): void;
 
     /**
+     * Writes the host's direct macros in place, leaving everything else as it is: a macro the host
+     * already stores keeps its id and is updated, any other is inserted as a new macro of the host,
+     * and a stored macro no longer listed is deleted. A silent no-op on an unknown id or a host
+     * template.
+     */
+    public function replaceMacros(Host $host): void;
+
+    /**
      * Looked up across hosts AND host templates (both share the same `host` table and the
      * same name uniqueness constraint in legacy) — never scope this to real hosts only.
      *
@@ -98,10 +114,10 @@ interface HostRepository
      * template, which has no poller relation and therefore cannot be hydrated into a valid
      * `Host` (poller is a required, non-nullable field on the aggregate).
      *
-     * $excludedHostId leaves a host out of the lookup, so that a host can be renamed to a name that only
-     * differs from its own by its case.
+     * @param ?HostId $excludingHostId leaves a host out of the lookup, so that a host can be renamed to a
+     *                                 name that only differs from its own by its case
      */
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool;
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool;
 
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
@@ -111,21 +127,24 @@ interface HostRepository
     /**
      * Never returns a host template, though both share the `host` table.
      *
+     * With a viewer, a host outside their ACL scope is left out of the result, like an unknown one,
+     * as {@see findOne()} does.
+     *
      * @param Collection<HostId> $ids
+     * @param ?UserId $viewerId null means the requester is unrestricted
      *
      * @return Collection<HostName> indexed by id
      */
-    public function findNamesByIds(Collection $ids): Collection;
+    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection;
 
     /**
      * Includes $ids themselves, minus any that is not a host.
      *
      * @param Collection<HostId> $ids
-     * @param ?HostId $excludingHostId on an update, the edited host's own parent/child edges are
-     *                                 about to be replaced, so they must not contribute phantom
-     *                                 ancestors to the circular-inheritance check; pass its id to
-     *                                 drop every `host_hostparent_relation` row touching it from
-     *                                 the traversal
+     * @param ?HostId $excludingHostId on an update, the edited host's own parent and child edges are about
+     *                                 to be replaced, so they must not contribute phantom ancestors to the
+     *                                 circular-inheritance check: pass its id to drop every
+     *                                 `host_hostparent_relation` row touching it from the traversal
      *
      * @return Collection<HostId>
      */

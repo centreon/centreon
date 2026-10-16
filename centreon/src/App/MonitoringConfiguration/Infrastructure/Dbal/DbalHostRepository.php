@@ -34,9 +34,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
-use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -170,13 +169,11 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
-        private Connection $realTimeConnection,
         #[Autowire(service: DbalHostTransformer::class)]
         private TransformerInterface $transformer,
         #[Autowire(service: DbalNotificationsTransformer::class)]
         private TransformerInterface $notificationsTransformer,
-        private AccessGroupRepository $accessGroupRepository,
+        private ResourceAccessRepository $resourceAccessRepository,
     ) {
     }
 
@@ -236,7 +233,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         if (
             $viewerId instanceof UserId
-            && ! in_array($id->value, $this->findAccessibleHostIds($viewerId), true)
+            && ! in_array($id->value, $this->findAccessibleHostIdValues($viewerId, [$id->value]), true)
         ) {
             // Exists but outside the viewer's ACL scope, or does not exist at all — both read as
             // "not found" to the caller, so as not to leak existence (see HostRepository::findOne()).
@@ -408,12 +405,22 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $this->saveMacros($hostId, $host->checkOptions->macros);
     }
 
+    public function replaceMacros(Host $host): void
+    {
+        $hostId = $host->id()->value;
+        if (! $this->isRegisteredHost($hostId)) {
+            return;
+        }
+
+        $this->saveMacros($hostId, $host->checkOptions->macros);
+    }
+
     /**
      * No unique index backs `host_name` at the DB level (verified against the live schema) —
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
      * introduced here. This is the only safeguard against a duplicate name.
      */
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')
@@ -421,8 +428,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
             ->setMaxResults(1);
 
-        if ($excludedHostId instanceof HostId) {
-            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludedHostId->value, ParameterType::INTEGER)));
+        if ($excludingHostId instanceof HostId) {
+            $qb->andWhere($qb->expr()->neq('host_id', $qb->createNamedParameter($excludingHostId->value, ParameterType::INTEGER)));
         }
 
         return (bool) $qb->executeQuery()->fetchOne();
@@ -432,7 +439,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     {
         $accessibleHostIds = null;
         if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
-            $accessibleHostIds = $this->findAccessibleHostIds($viewerId);
+            $accessibleHostIds = $this->findAccessibleHostIdValues($viewerId);
             if ($accessibleHostIds === []) {
                 return new Collection([], Host::class);
             }
@@ -508,9 +515,13 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         ];
     }
 
-    public function findNamesByIds(Collection $ids): Collection
+    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
     {
         $idValues = array_map(static fn (HostId $id): int => $id->value, $ids->toArray());
+        if ($viewerId instanceof UserId) {
+            $idValues = array_values(array_intersect($idValues, $this->findAccessibleHostIdValues($viewerId, array_values($idValues))));
+        }
+
         if ($idValues === []) {
             return new Collection([], HostName::class);
         }
@@ -585,6 +596,23 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     }
 
     /**
+     * Full replace of a host's relations, complementing {@see update()}, which writes its own fields and
+     * its poller. Every relation table (host groups, categories and severity, templates, parents and
+     * children, contacts and contact groups) is cleared and written again from $host. The macros are
+     * not touched. A silent no-op on an unknown id or a host template.
+     */
+    public function replaceRelations(Host $host): void
+    {
+        $hostId = $host->id()->value;
+        if (! $this->isRegisteredHost($hostId)) {
+            return;
+        }
+
+        $this->clearRelations($hostId);
+        $this->insertRelations($hostId, $host);
+    }
+
+    /**
      * The severity is the one row of `hostcategories_relation` pointing to a `hostcategories` row with a
      * level: the categories, which have none, are left alone.
      */
@@ -603,8 +631,8 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     }
 
     /**
-     * The relations add() and replaceRelationsAndMacros() write: everything but the poller (a
-     * column-like relation written by add()/update()) and the macros.
+     * The relations add(), replaceRelations() and replaceRelationsAndMacros() write: everything but
+     * the poller (a column-like relation written by add()/update()) and the macros.
      */
     private function insertRelations(int $hostId, Host $host): void
     {
@@ -860,34 +888,20 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     }
 
     /**
-     * Host-level ACL is a real-time cache (`centreon_acl`, on a separate connection than the
-     * `host` table) mapping accessible host ids per Access Group — mirrors legacy exactly.
-     * Kept as two bounded queries (Access Group ids, then host ids), never a per-host lookup:
-     * the query count stays constant regardless of how many hosts exist or are returned.
+     * @param ?list<int> $among when given, only these hosts are looked up, instead of every host the user can see
      *
      * @return list<int>
      */
-    private function findAccessibleHostIds(UserId $userId): array
+    private function findAccessibleHostIdValues(UserId $userId, ?array $among = null): array
     {
-        $groupIds = array_map(
-            static fn (AccessGroupId $id): int => $id->value,
-            iterator_to_array($this->accessGroupRepository->findActiveGroupIdsForUser($userId)),
-        );
+        $amongIds = $among === null
+            ? null
+            : new Collection(array_map(static fn (int $id): HostId => new HostId($id), $among), HostId::class);
 
-        if ($groupIds === []) {
-            return [];
-        }
-
-        $qb = $this->realTimeConnection->createQueryBuilder();
-        $qb->select('DISTINCT host_id')
-            ->from('centreon_acl')
-            ->where('service_id IS NULL')
-            ->andWhere($qb->expr()->in('group_id', $qb->createNamedParameter($groupIds, ArrayParameterType::INTEGER)));
-
-        /** @var list<array{host_id: int|string}> $rows */
-        $rows = $qb->executeQuery()->fetchAllAssociative();
-
-        return array_map(static fn (array $row): int => (int) $row['host_id'], $rows);
+        return array_values(array_map(
+            static fn (HostId $id): int => $id->value,
+            iterator_to_array($this->resourceAccessRepository->findAccessibleHostIds($userId, $amongIds)),
+        ));
     }
 
     /**

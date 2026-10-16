@@ -1,7 +1,12 @@
+import { Method } from '@centreon/ui';
+
 import { panelDataTestIds } from '../../ConfigurationBase/Panel/dataTestIds';
+import { getHostTemplateMacrosEndpoint } from '../api/endpoints';
 import {
   labelAddNewEntry,
+  labelAlreadyExists,
   labelChildHosts,
+  labelCommandInheritance,
   labelCreateServicesLinkedToTemplates,
   labelDataProcessing,
   labelDefault,
@@ -28,6 +33,7 @@ import {
   labelRelations,
   labelResolve,
   labelSnmpVersion,
+  labelTemplateInheritance,
   labelTimezone,
   labelUnreachable,
   labelYes
@@ -160,7 +166,28 @@ export default () => {
           alias: 'alias of host 0 as the detail endpoint spells it',
           category_ids: [4],
           // The arguments go back as the list they came as.
-          check_options: { args: ['3', '80%'], command_id: 9 },
+          check_options: {
+            args: ['3', '80%'],
+            command_id: 9,
+            // A null value keeps the stored password; the untouched
+            // inherited macros are left out.
+            macros: [
+              {
+                id: 1,
+                is_password: false,
+                name: 'SNMPPORT',
+                parent: null,
+                value: '161'
+              },
+              {
+                id: 2,
+                is_password: true,
+                name: 'API_TOKEN',
+                parent: null,
+                value: null
+              }
+            ]
+          },
           child_host_ids: [2],
           // Never read back, so off as legacy opens an existing host.
           create_services_linked_to_templates: false,
@@ -1431,7 +1458,9 @@ export default () => {
       cy.findByTestId('host-form-check-options-command').click();
       // Only active check commands, as legacy offers.
       cy.waitForRequest('@getFormCommands').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/api/configuration/commands');
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/commands'
+        );
         expect(request.url.searchParams.getAll('type[]')).to.deep.equals([
           'Check'
         ]);
@@ -1457,7 +1486,8 @@ export default () => {
       cy.waitForRequest('@createHost').then(({ request }) => {
         expect(request.body.check_options).to.deep.equals({
           args: ['3', '80%'],
-          command_id: 9
+          command_id: 9,
+          macros: []
         });
         expect(request.body.scheduling_options).to.deep.equals({
           ...untouchedSchedulingOptionsPayload,
@@ -1487,9 +1517,8 @@ export default () => {
       cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
 
       cy.waitForRequest('@patchHost').then(({ request }) => {
-        expect(request.body.check_options).to.deep.equals(
-          untouchedCheckOptionsPayload
-        );
+        expect(request.body.check_options.args).to.deep.equals([]);
+        expect(request.body.check_options.command_id).to.equal(null);
       });
     });
 
@@ -1588,7 +1617,9 @@ export default () => {
 
       cy.findByTestId('host-form-data-processing-eventHandler').click();
       cy.waitForRequest('@getFormCommands').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/api/configuration/commands');
+        expect(request.url.pathname).to.contain(
+          '/api/configuration/hosts/commands'
+        );
         expect(request.url.pathname).to.not.contain('/api/latest');
         expect(request.url.searchParams.get('is_activated')).to.equal('true');
       });
@@ -1934,7 +1965,9 @@ export default () => {
       cy.findByTestId('host-form-poller').click();
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
       cy.findByTestId('host-form-templates-0').click();
       // The form's own selector, granted by host write access.
       cy.waitForRequest('@getFormHostTemplates').then(({ request }) => {
@@ -1947,7 +1980,9 @@ export default () => {
         .contains('linux-server-standard')
         .click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
       cy.findByTestId('host-form-templates-1').click();
       // Not offered twice.
       cy.get('.MuiAutocomplete-popper')
@@ -1978,7 +2013,9 @@ export default () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
       cy.findByTestId('host-form-templates-0').click();
       cy.get('.MuiAutocomplete-popper')
         .contains('linux-server-standard')
@@ -2021,12 +2058,16 @@ export default () => {
       cy.findByTestId('host-form-poller').click();
       cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
       cy.findByTestId('host-form-templates-0').click();
       cy.get('.MuiAutocomplete-popper')
         .contains('linux-server-standard')
         .click();
-      cy.findByRole('button', { name: labelAddNewEntry }).click();
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
 
       // Nothing picked yet: no template page to open.
       cy.findAllByTestId('host-form-templates-edit')
@@ -2040,7 +2081,7 @@ export default () => {
       });
     });
 
-    it('lets a user who may only look at hosts change no template', () => {
+    it('lets a user who may only look at hosts change no template nor macro', () => {
       initialize({ hasWriteAccess: false });
 
       cy.waitForRequest('@getAllHosts');
@@ -2050,7 +2091,15 @@ export default () => {
       cy.waitForRequest('@getHost');
 
       cy.findByTestId('host-form-templates-0').should('be.disabled');
-      cy.findByRole('button', { name: labelAddNewEntry }).should('be.disabled');
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .should('be.disabled');
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .should('be.disabled');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-0-value"]'
+      ).should('be.disabled');
       cy.findByTestId('host-form-templates')
         .findAllByTestId('delete-row')
         .first()
@@ -2167,9 +2216,522 @@ export default () => {
 
       cy.get('[data-testid="add-resource"]').click();
 
-      cy.findByRole('button', { name: labelAddNewEntry }).should('exist');
+      cy.findByTestId('host-form-templates')
+        .findByRole('button', { name: labelAddNewEntry })
+        .should('exist');
       cy.findByLabelText(labelCreateServicesLinkedToTemplates).should(
         'not.exist'
+      );
+    });
+    it('creates a host with its custom macros, a password one masked', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
+      cy.get('input[data-testid="host-form-check-options-macros-0-name"]').type(
+        ' snmpport '
+      );
+      cy.get('input[data-testid="host-form-check-options-macros-0-value"]')
+        .type('161')
+        .should('have.attr', 'type', 'text');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
+      cy.get('input[data-testid="host-form-check-options-macros-1-name"]').type(
+        'api_token'
+      );
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-1-value"]'
+      ).type('s3cret');
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(1)
+        .click();
+      cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
+        .should('have.attr', 'type', 'password')
+        .and('have.value', 's3cret');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@createHost').then(({ request }) => {
+        // Named as the server stores them: trimmed, upper-cased.
+        expect(request.body.check_options).to.deep.equals({
+          ...untouchedCheckOptionsPayload,
+          macros: [
+            {
+              id: null,
+              is_password: false,
+              name: 'SNMPPORT',
+              parent: null,
+              value: '161'
+            },
+            {
+              id: null,
+              is_password: true,
+              name: 'API_TOKEN',
+              parent: null,
+              value: 's3cret'
+            }
+          ]
+        });
+      });
+    });
+
+    it('opens an existing host on its custom macros', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-0-name"]'
+      ).should('have.value', 'SNMPPORT');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-0-value"]'
+      ).should('have.value', '161');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-1-name"]'
+      ).should('have.value', 'API_TOKEN');
+      // Masked and locked: the API never sends a password back.
+      cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
+        .should('have.attr', 'type', 'password')
+        .and('have.value', '********')
+        .and('be.disabled');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-2-name"]'
+      ).should('have.value', 'OS');
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-3-name"]'
+      ).should('have.value', 'WARNING');
+    });
+
+    it('tints inherited macros as legacy does, until they are changed', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .contains(labelTemplateInheritance)
+        .scrollIntoView()
+        .should('be.visible');
+      cy.findByTestId('host-form-check-options-macros')
+        .contains(labelCommandInheritance)
+        .scrollIntoView()
+        .should('be.visible');
+
+      const macroRow = (index: number) =>
+        cy
+          .get(
+            `input[data-testid="host-form-check-options-macros-${index}-name"]`
+          )
+          .closest('li');
+
+      macroRow(0).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+      macroRow(2).should('have.css', 'background-color', 'rgb(255, 203, 107)');
+      macroRow(3).should('have.css', 'background-color', 'rgb(182, 252, 167)');
+
+      // Overridden: the host's own from now on.
+      cy.get('input[data-testid="host-form-check-options-macros-2-value"]')
+        .clear()
+        .type('debian');
+      macroRow(2).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+      // Back to the inherited value: inherited again.
+      cy.get('input[data-testid="host-form-check-options-macros-2-value"]')
+        .clear()
+        .type('linux');
+      macroRow(2).should('have.css', 'background-color', 'rgb(255, 203, 107)');
+    });
+
+    it('overrides an inherited macro and replaces a stored password', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros-1-value-clear').click();
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-1-value"]'
+      ).type('n3w');
+      cy.get('input[data-testid="host-form-check-options-macros-2-value"]')
+        .clear()
+        .type('debian');
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        // Id and parent tell the server which inherited macro this overrides.
+        expect(request.body.check_options.macros.slice(1)).to.deep.equals([
+          {
+            id: 2,
+            is_password: true,
+            name: 'API_TOKEN',
+            parent: null,
+            value: 'n3w'
+          },
+          {
+            id: 11,
+            is_password: false,
+            name: 'OS',
+            parent: 'template',
+            value: 'debian'
+          }
+        ]);
+      });
+    });
+
+    it('keeps a stored password one, replaced only once cleared', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      // As legacy: a stored password stays one; other macros may change.
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(1)
+        .should('be.disabled');
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(0)
+        .should('be.enabled');
+
+      cy.findByTestId('host-form-check-options-macros-1-value-clear').click();
+      cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
+        .should('be.enabled')
+        .and('have.value', '')
+        .and('be.focused');
+
+      // Back to keeping the stored one.
+      cy.findByTestId('host-form-check-options-macros-1-value-revert').click();
+      cy.get('input[data-testid="host-form-check-options-macros-1-value"]')
+        .should('be.disabled')
+        .and('have.value', '********');
+
+      // Cleared and left empty: an empty password.
+      cy.findByTestId('host-form-check-options-macros-1-value-clear').click();
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        expect(request.body.check_options.macros[1]).to.deep.equals({
+          id: 2,
+          is_password: true,
+          name: 'API_TOKEN',
+          parent: null,
+          value: ''
+        });
+      });
+    });
+
+    it('lets a macro added on edition turn into a password and back', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(4)
+        .click();
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-4-value"]'
+      ).should('have.attr', 'type', 'password');
+      cy.findAllByTestId('host-form-check-options-macros-password')
+        .eq(4)
+        .click();
+      cy.get(
+        'input[data-testid="host-form-check-options-macros-4-value"]'
+      ).should('have.attr', 'type', 'text');
+    });
+
+    it('deletes a custom macro by leaving it out', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.contains('host 0').click();
+
+      cy.waitForRequest('@getHost');
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findAllByTestId('delete-row')
+        .first()
+        .click();
+
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+      cy.waitForRequest('@patchHost').then(({ request }) => {
+        // The stored password keeps its own id and null value.
+        expect(request.body.check_options.macros).to.deep.equals([
+          {
+            id: 2,
+            is_password: true,
+            name: 'API_TOKEN',
+            parent: null,
+            value: null
+          }
+        ]);
+      });
+    });
+
+    describe('inherited from the templates picked', () => {
+      const templateBackground = 'rgb(255, 203, 107)';
+      const commandBackground = 'rgb(182, 252, 167)';
+
+      const macroInput = (index: number, key: 'name' | 'value') =>
+        cy.get(
+          `input[data-testid="host-form-check-options-macros-${index}-${key}"]`
+        );
+
+      const macroRow = (index: number) =>
+        macroInput(index, 'name').closest('li');
+
+      const openCreation = (): void => {
+        initialize({});
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.get('[data-testid="add-resource"]').click();
+      };
+
+      const addTemplate = (index: number, name: string): void => {
+        cy.findByTestId('host-form-templates')
+          .findByRole('button', { name: labelAddNewEntry })
+          .click();
+        cy.findByTestId(`host-form-templates-${index}`).click();
+        cy.get('.MuiAutocomplete-popper').contains(name).click();
+      };
+
+      it('shows what each template lends, the first one prevailing', () => {
+        openCreation();
+
+        addTemplate(0, 'generic-active-host');
+        cy.waitForRequest('@getTemplateMacros5').then(({ request }) => {
+          expect(request.url.pathname).to.contain(
+            '/api/configuration/hosts/host_templates/5'
+          );
+        });
+
+        macroInput(0, 'name').should('have.value', 'OS');
+        macroInput(0, 'value').should('have.value', 'linux');
+        macroRow(0).should('have.css', 'background-color', templateBackground);
+        macroInput(1, 'name').should('have.value', 'TIMEOUT');
+        macroInput(2, 'name').should('have.value', 'WARNING');
+        macroRow(2).should('have.css', 'background-color', commandBackground);
+
+        addTemplate(1, 'generic-passive-host');
+        cy.waitForRequest('@getTemplateMacros6');
+
+        // Template 5 still gives OS; template 6's WARNING beats the command's.
+        macroInput(0, 'value').should('have.value', 'linux');
+        macroInput(1, 'name').should('have.value', 'TIMEOUT');
+        macroInput(2, 'name').should('have.value', 'WARNING');
+        macroInput(2, 'value').should('have.value', '80');
+        macroRow(2).should('have.css', 'background-color', templateBackground);
+
+        cy.findByTestId('host-form-templates')
+          .findAllByTestId('delete-row')
+          .first()
+          .click();
+
+        // Only template 6 left.
+        macroInput(0, 'name').should('have.value', 'WARNING');
+        macroInput(1, 'name').should('have.value', 'OS');
+        macroInput(1, 'value').should('have.value', 'windows');
+        macroInput(2, 'name').should('not.exist');
+      });
+
+      it("leaves the templates' command macros out once a check command is picked", () => {
+        openCreation();
+
+        cy.findByTestId('host-form-check-options-command').click();
+        cy.get('.MuiAutocomplete-popper').contains('check-host-alive').click();
+
+        addTemplate(0, 'generic-active-host');
+        cy.waitForRequest('@getTemplateMacros5');
+
+        macroInput(1, 'name').should('have.value', 'TIMEOUT');
+        macroInput(2, 'name').should('not.exist');
+      });
+
+      it('lends nothing, silently, while the endpoint answers 404', () => {
+        openCreation();
+
+        addTemplate(0, 'linux-server-standard');
+        cy.waitForRequest('@getTemplateMacros7');
+
+        macroInput(0, 'name').should('not.exist');
+        cy.contains('Host template not found').should('not.exist');
+      });
+
+      it('sends only the macros the host changes or owns', () => {
+        openCreation();
+
+        cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+        cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+        cy.findByTestId('host-form-poller').click();
+        cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+        addTemplate(0, 'generic-active-host');
+        cy.waitForRequest('@getTemplateMacros5');
+
+        macroInput(1, 'value').clear().type('20');
+        macroRow(1).should('have.css', 'background-color', 'rgba(0, 0, 0, 0)');
+
+        cy.get(`button[data-testid="${panelDataTestIds.save}"]`).click();
+
+        cy.waitForRequest('@createHost').then(({ request }) => {
+          // Id and parent make TIMEOUT an override of template 5's.
+          expect(request.body.check_options.macros).to.deep.equals([
+            {
+              id: 31,
+              is_password: false,
+              name: 'TIMEOUT',
+              parent: 'template',
+              value: '20'
+            }
+          ]);
+        });
+      });
+
+      it('keeps the rows as they are when a template fails to load', () => {
+        initialize({});
+
+        cy.interceptAPIRequest({
+          alias: 'getTemplateMacros5',
+          method: Method.GET,
+          path: `**${getHostTemplateMacrosEndpoint({ id: 5 })}`,
+          response: { code: 500, message: 'Internal error' },
+          statusCode: 500
+        });
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.contains('host 0').click();
+
+        cy.waitForRequest('@getHost');
+
+        cy.findByTestId('host-form-templates')
+          .findAllByTestId('delete-row')
+          .first()
+          .click();
+        cy.waitForRequest('@getTemplateMacros5');
+
+        cy.contains('Internal error').should('be.visible');
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(2, 'value').should('have.value', 'linux');
+        macroInput(3, 'name').should('have.value', 'WARNING');
+      });
+
+      it('keeps the rows as they are, silently, when a template is not found', () => {
+        initialize({});
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.contains('host 0').click();
+
+        cy.waitForRequest('@getHost');
+
+        // Host 0 has templates 6 and 5; template 7 answers 404.
+        addTemplate(2, 'linux-server-standard');
+        cy.waitForRequest('@getTemplateMacros7');
+
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(3, 'name').should('have.value', 'WARNING');
+        macroRow(2).should('have.css', 'background-color', templateBackground);
+        cy.contains('Host template not found').should('not.exist');
+      });
+
+      it('follows the templates changed on an existing host', () => {
+        initialize({});
+
+        cy.waitForRequest('@getAllHosts');
+
+        cy.contains('host 0').click();
+
+        cy.waitForRequest('@getHost');
+
+        // As loaded: nothing fetched, the detail's inherited macros shown.
+        macroInput(2, 'name').should('have.value', 'OS');
+        macroInput(3, 'name').should('have.value', 'WARNING');
+
+        // Host 0's templates are 6 then 5: keep 5 alone.
+        cy.findByTestId('host-form-templates')
+          .findAllByTestId('delete-row')
+          .first()
+          .click();
+        cy.waitForRequest('@getTemplateMacros5');
+
+        // Host 0 keeps its own check command's WARNING, not template 5's
+        // command macros; template 5's OS replaces template 6's.
+        macroInput(0, 'name').should('have.value', 'SNMPPORT');
+        macroInput(1, 'name').should('have.value', 'API_TOKEN');
+        macroInput(2, 'name').should('have.value', 'WARNING');
+        macroInput(3, 'name').should('have.value', 'OS');
+        macroInput(3, 'value').should('have.value', 'linux');
+        macroInput(4, 'name').should('have.value', 'TIMEOUT');
+        macroInput(5, 'name').should('not.exist');
+      });
+    });
+
+    it('refuses two custom macros of the same name', () => {
+      initialize({});
+
+      cy.waitForRequest('@getAllHosts');
+
+      cy.get('[data-testid="add-resource"]').click();
+
+      cy.findAllByTestId('host-form-name').eq(1).type('srv-apache-02');
+      cy.findAllByTestId('host-form-address').eq(1).type('10.0.0.42');
+
+      cy.findByTestId('host-form-poller').click();
+      cy.get('.MuiAutocomplete-popper').contains('Poller EU').click();
+
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
+      cy.get('input[data-testid="host-form-check-options-macros-0-name"]').type(
+        'port'
+      );
+      cy.findByTestId('host-form-check-options-macros')
+        .findByRole('button', { name: labelAddNewEntry })
+        .click();
+      // The same name once the server upper-cases it.
+      cy.get('input[data-testid="host-form-check-options-macros-1-name"]')
+        .type('PORT ')
+        .blur();
+
+      cy.findByTestId('host-form-check-options-macros')
+        .contains(labelAlreadyExists)
+        .should('be.visible');
+      cy.get(`button[data-testid="${panelDataTestIds.save}"]`).should(
+        'be.disabled'
       );
     });
   });

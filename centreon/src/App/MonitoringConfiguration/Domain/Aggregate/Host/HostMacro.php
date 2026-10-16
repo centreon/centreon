@@ -124,4 +124,14 @@ final readonly class HostMacro
     {
         return new self($this->name, $value, $isPassword, $this->id, $this->parent);
     }
+
+    /**
+     * A copy of this macro as a brand-new direct row: it keeps the name and password flag, takes
+     * $value when one is given (a re-minted secret) or the current value otherwise, and drops the id
+     * and origin so the copy never borrows the source's identity. Used when duplicating a host.
+     */
+    public function copyWithoutIdentity(?string $value = null): self
+    {
+        return new self($this->name, $value ?? $this->value, $this->isPassword);
+    }
 }

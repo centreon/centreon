@@ -1,0 +1,37 @@
+meta {
+  name: POST /configuration/commands - Create command - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{CommandName}}",
+    "type": "Check",
+    "command_line": "{{CommandLine}}",
+    "is_shell_enabled": false
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Command created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("CommandId", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

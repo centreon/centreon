@@ -59,6 +59,28 @@ final class DeleteHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidIds')]
+    public function testItReturns404ForAnInvalidId(string $id): void
+    {
+        $this->login();
+
+        $this->request('DELETE', '/api/configuration/hosts/' . $id);
+
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidIds(): iterable
+    {
+        yield 'non-numeric' => ['not-a-number'];
+
+        yield 'zero' => ['0'];
+
+        yield 'leading zero' => ['007'];
+    }
+
     public function testItReturns404ForANonExistentHost(): void
     {
         $this->login();

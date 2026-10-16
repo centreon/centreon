@@ -39,6 +39,12 @@ final class FakeHostRepository implements HostRepository
     public array $hosts = [];
 
     /**
+     * When true, {@see isNameUsedByHostOrTemplate()} reports every name as taken, letting a test
+     * exercise the exhausted-suffix path without seeding hundreds of hosts.
+     */
+    public bool $forceNameUsed = false;
+
+    /**
      * When set, {@see findOne()} with a non-null viewer only returns ids listed here; any other
      * reads as not found. Null means the viewer sees everything — used to simulate ACL scoping.
      *
@@ -58,6 +64,9 @@ final class FakeHostRepository implements HostRepository
     /** @var list<Host> */
     public array $relationsReplacedHosts = [];
 
+    /** @var list<Host> */
+    public array $macrosReplacedHosts = [];
+
     /**
      * Host id to its parents, mirroring `host_hostparent_relation`, which the real repository
      * writes from both sides: a host created with children becomes their parent in the graph.
@@ -76,6 +85,7 @@ final class FakeHostRepository implements HostRepository
         $reflection->setValue($host, new HostId($id));
 
         $this->hosts[$id] = $host;
+        $this->indexParentEdges($id, $host);
 
         return $host;
     }
@@ -91,14 +101,7 @@ final class FakeHostRepository implements HostRepository
         $reflection->setValue($host, new HostId($id));
 
         $this->hosts[$id] = $host;
-
-        foreach ($host->parentHostIds as $parentId) {
-            $this->parentIds[$id][] = $parentId->value;
-        }
-
-        foreach ($host->childHostIds as $childId) {
-            $this->parentIds[$childId->value][] = $id;
-        }
+        $this->indexParentEdges($id, $host);
     }
 
     /**
@@ -157,6 +160,11 @@ final class FakeHostRepository implements HostRepository
         $this->hosts[$host->id()->value] = $host;
     }
 
+    public function replaceRelations(Host $host): void
+    {
+        $this->replaceRelationsAndMacros($host);
+    }
+
     public function replaceRelationsAndMacros(Host $host): void
     {
         $id = $host->id()->value;
@@ -167,7 +175,7 @@ final class FakeHostRepository implements HostRepository
         $this->relationsReplacedHosts[] = $host;
         $this->hosts[$id] = $host;
 
-        // Rebuild this host's edges in the ancestor map (full-replace, like the real one).
+        // Rebuild this host's edges in the ancestor map (full replace, like the real one).
         unset($this->parentIds[$id]);
         foreach ($this->parentIds as $child => $parents) {
             $this->parentIds[$child] = array_values(array_filter($parents, static fn (int $parent): bool => $parent !== $id));
@@ -180,10 +188,25 @@ final class FakeHostRepository implements HostRepository
         }
     }
 
-    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludedHostId = null): bool
+    public function replaceMacros(Host $host): void
     {
+        $id = $host->id()->value;
+        if (! isset($this->hosts[$id])) {
+            return;
+        }
+
+        $this->macrosReplacedHosts[] = $host;
+        $this->hosts[$id] = $host;
+    }
+
+    public function isNameUsedByHostOrTemplate(HostName $name, ?HostId $excludingHostId = null): bool
+    {
+        if ($this->forceNameUsed) {
+            return true;
+        }
+
         foreach ($this->hosts as $host) {
-            if ($host->id()->value !== $excludedHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
+            if ($host->id()->value !== $excludingHostId?->value && strcasecmp($host->name->value, $name->value) === 0) {
                 return true;
             }
         }
@@ -196,10 +219,14 @@ final class FakeHostRepository implements HostRepository
         return new Collection(array_values($this->hosts), Host::class);
     }
 
-    public function findNamesByIds(Collection $ids): Collection
+    public function findNamesByIds(Collection $ids, ?UserId $viewerId = null): Collection
     {
         $names = [];
         foreach ($ids as $id) {
+            if ($viewerId instanceof UserId && $this->accessibleHostIds !== null && ! in_array($id->value, $this->accessibleHostIds, true)) {
+                continue;
+            }
+
             if (isset($this->hosts[$id->value])) {
                 $names[$id->value] = $this->hosts[$id->value]->name;
             }
@@ -221,11 +248,12 @@ final class FakeHostRepository implements HostRepository
             }
             $seen[$current] = true;
 
-            // Drop every edge touching the excluded host, both where it is the child (skip its
-            // outgoing traversal) and where it is a parent (never queue it).
+            // Drop every edge touching the excluded host: where it is the child (skip its outgoing
+            // traversal) and where it is a parent (never queue it).
             if ($current === $exclude) {
                 continue;
             }
+
             foreach ($this->parentIds[$current] ?? [] as $parentId) {
                 if ($parentId === $exclude) {
                     continue;
@@ -238,5 +266,16 @@ final class FakeHostRepository implements HostRepository
             array_map(static fn (int $id): HostId => new HostId($id), array_keys($seen)),
             HostId::class,
         );
+    }
+
+    private function indexParentEdges(int $id, Host $host): void
+    {
+        foreach ($host->parentHostIds as $parentId) {
+            $this->parentIds[$id][] = $parentId->value;
+        }
+
+        foreach ($host->childHostIds as $childId) {
+            $this->parentIds[$childId->value][] = $id;
+        }
     }
 }

@@ -12,10 +12,11 @@ import { BrowserRouter as Router } from 'react-router';
 
 import Hosts from '..';
 import {
-  commandsEndpoint,
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
+  getHostTemplateMacrosEndpoint,
+  hostFormCommandsEndpoint,
   hostFormContactGroupsEndpoint,
   hostFormContactsEndpoint,
   hostFormHostCategoriesEndpoint,
@@ -46,6 +47,7 @@ import {
   getListingResponse,
   getMediasResponse,
   getPollersResponse,
+  getTemplateMacrosResponses,
   getTimePeriodsResponse,
   getTimezonesResponse,
   refusedAddressResponse,
@@ -229,7 +231,7 @@ const initialize = ({
   cy.interceptAPIRequest({
     alias: 'getFormCommands',
     method: Method.GET,
-    path: `**${commandsEndpoint}?**`,
+    path: `**${hostFormCommandsEndpoint}?**`,
     response: getCommandsResponse()
   });
 
@@ -245,6 +247,23 @@ const initialize = ({
     method: Method.GET,
     path: `**${hostFormHostTemplatesEndpoint}?**`,
     response: getFormHostTemplatesResponse()
+  });
+
+  Object.entries(getTemplateMacrosResponses()).forEach(([id, response]) => {
+    cy.interceptAPIRequest({
+      alias: `getTemplateMacros${id}`,
+      method: Method.GET,
+      path: `**${getHostTemplateMacrosEndpoint({ id: Number(id) })}`,
+      response
+    });
+  });
+
+  cy.interceptAPIRequest({
+    alias: 'getTemplateMacros7',
+    method: Method.GET,
+    path: `**${getHostTemplateMacrosEndpoint({ id: 7 })}`,
+    response: { code: 404, message: 'Host template not found' },
+    statusCode: 404
   });
 
   cy.interceptAPIRequest({
