@@ -27,7 +27,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Factory\BrokerConfigurationFactory;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalBrokerConfigurationRepository;
+use Core\Broker\Infrastructure\Repository\BrokerInfoRowsConverter;
+use Core\Broker\Infrastructure\Repository\StoredBrokerInputOutput;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\Shared\ClearsInstalledPlatformRows;
 
@@ -152,6 +155,74 @@ final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
         self::assertSame('gRPC', $params['transport_protocol']);
         self::assertSame('central-token', $params['authorization']);
         self::assertSame('yes', $params['encryption']);
+    }
+
+    /**
+     * The repository encodes flows itself (src/App may not depend on Core): its records must be the ones
+     * the upgrade converter builds from the same parameters in the former one-row-per-key encoding.
+     */
+    #[DataProvider('providePlatforms')]
+    public function testItStoresFlowsAsTheUpgradeConverterDoes(bool $isCloud, string $centralAddress): void
+    {
+        $config = $this->factory->createDefault(
+            new PollerId(self::POLLER_ID),
+            'TestPoller',
+            $isCloud,
+            new CentralAddress($centralAddress),
+        );
+
+        $this->repository->add($config);
+
+        /** @var array<string, int> $typeIds */
+        $typeIds = $this->connection->fetchAllKeyValue('SELECT type_shortname, cb_type_id FROM cb_type');
+        $legacyRows = [];
+        foreach ($config->flows as $flow) {
+            // The type and blockId rows used to be written from the stream type.
+            $metaRows = [
+                'type' => $flow->type->value,
+                'blockId' => ($flow->group->value === 'input' ? '2_' : '1_') . $typeIds[$flow->type->value],
+            ];
+            foreach ($metaRows as $key => $value) {
+                $legacyRows[] = [
+                    'config_group' => $flow->group->value,
+                    'config_group_id' => $flow->groupId,
+                    'config_key' => $key,
+                    'config_value' => $value,
+                ];
+            }
+            foreach ($flow->parameters as $parameter) {
+                $legacyRows[] = [
+                    'config_group' => $flow->group->value,
+                    'config_group_id' => $flow->groupId,
+                    'config_key' => $parameter->configKey,
+                    'config_value' => $parameter->configValue,
+                    'subgrp_id' => $parameter->subGroupId,
+                    'fieldIndex' => $parameter->fieldIndex,
+                ];
+            }
+        }
+
+        /** @var list<array{tag: string, input_output_id: int, name: string, type_id: int|null, type: string|null, parameters: string}> $records */
+        $records = $this->connection->fetchAllAssociative(
+            'SELECT tag, input_output_id, name, type_id, type, parameters FROM cfg_centreonbroker_input_output
+             WHERE config_id = :id ORDER BY tag, input_output_id',
+            ['id' => $config->id()->value],
+        );
+
+        self::assertNotSame([], $records);
+        self::assertEquals(
+            BrokerInfoRowsConverter::convert($legacyRows),
+            array_map(StoredBrokerInputOutput::fromRecord(...), $records),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{bool, string}>
+     */
+    public static function providePlatforms(): iterable
+    {
+        yield 'on-prem' => [false, self::ON_PREM_CENTRAL_ADDRESS];
+        yield 'cloud' => [true, self::CLOUD_CENTRAL_ADDRESS];
     }
 
     public function testGetCentralBbdoServerAuthorizationTokenReturnsTheInputToken(): void

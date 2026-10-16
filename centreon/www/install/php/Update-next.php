@@ -126,6 +126,13 @@ $migrateBrokerInputsOutputs = function () use ($pearDB, &$errorMessage, $version
     LoggerUpgrade::create()->info($version, "Converted {$count} broker inputs/outputs");
 };
 
+$dropLegacyBrokerInfoTable = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to drop the cfg_centreonbroker_info table';
+    LoggerUpgrade::create()->info($version, 'Dropping the cfg_centreonbroker_info table');
+
+    $pearDB->executeStatement('DROP TABLE IF EXISTS `cfg_centreonbroker_info`');
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -145,6 +152,9 @@ try {
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
+
+    // DDL statements for configuration database, once its data is converted
+    $dropLegacyBrokerInfoTable();
 
     LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
