@@ -1,0 +1,94 @@
+{
+    "pre-21-04-loggers.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "pre-21-04-loggers",
+            "poller_id": 9101,
+            "uid": 100000000009101,
+            "poller_name": "broker-io-poller-9101",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "pre-21-04-loggers.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "input": [
+                {
+                    "port": "5669",
+                    "protocol": "bbdo",
+                    "type": "ipv4",
+                    "name": "input"
+                }
+            ],
+            "logger": [
+                {
+                    "type": "file",
+                    "level": "low",
+                    "info": "no",
+                    "error": "yes",
+                    "debug": "no",
+                    "config": "yes",
+                    "name": "/var/log/centreon-broker/pre-21-04.log"
+                }
+            ],
+            "output": [
+                {
+                    "type": "ipv4",
+                    "protocol": "bbdo",
+                    "port": "5669",
+                    "host": "central.example.com",
+                    "name": "output"
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "pre-21-04-loggers-stats",
+                    "json_fifo": "/var/lib/centreon-broker/pre-21-04-loggers-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "cbd": [
+                {
+                    "name": "pre-21-04-loggers",
+                    "configuration_file": "/etc/centreon-broker/pre-21-04-loggers.json",
+                    "run": true,
+                    "reload": true
+                }
+            ],
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": []
+}

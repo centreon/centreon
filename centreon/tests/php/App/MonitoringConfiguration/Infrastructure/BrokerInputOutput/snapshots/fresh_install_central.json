@@ -1,0 +1,124 @@
+{
+    "central-broker-master.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "central-broker-master",
+            "poller_id": 9100,
+            "uid": 100000000009100,
+            "poller_name": "broker-io-poller-9100",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "central-broker-master.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "input": [
+                {
+                    "port": "5669",
+                    "name": "central-broker-master-input",
+                    "type": "ipv4",
+                    "compression": "auto",
+                    "one_peer_retention_mode": "no",
+                    "negotiation": "yes",
+                    "tls": "auto",
+                    "protocol": "bbdo",
+                    "retry_interval": "15",
+                    "buffering_timeout": "0"
+                }
+            ],
+            "output": [
+                {
+                    "interval": "60",
+                    "length": "15552000",
+                    "store_in_data_bin": "yes",
+                    "insert_in_index_data": "1",
+                    "type": "unified_sql",
+                    "db_password": "db-secret",
+                    "db_name": "centreon_storage",
+                    "name": "central-broker-master-unified-sql",
+                    "db_type": "mysql",
+                    "retry_interval": "15",
+                    "buffering_timeout": "0",
+                    "db_host": "localhost",
+                    "db_port": "3306",
+                    "db_user": "centreon"
+                },
+                {
+                    "type": "ipv4",
+                    "compression": "no",
+                    "one_peer_retention_mode": "no",
+                    "negotiation": "yes",
+                    "tls": "no",
+                    "protocol": "bbdo",
+                    "retry_interval": "15",
+                    "host": "localhost",
+                    "buffering_timeout": "0",
+                    "port": "5670",
+                    "name": "centreon-broker-master-rrd"
+                },
+                {
+                    "name": "central-broker-master-event-script",
+                    "script_path": "/usr/share/centreon/bin/console agent-configuration:host:create",
+                    "timeout": "15",
+                    "managed_event_ttl": "3600",
+                    "filters": {
+                        "event": [
+                            "neb:UnknownHost"
+                        ]
+                    },
+                    "type": "event_script",
+                    "event": "neb:UnknownHost"
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "central-broker-master-stats",
+                    "json_fifo": "/var/lib/centreon-broker/central-broker-master-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "cbd": [
+                {
+                    "name": "central-broker-master",
+                    "configuration_file": "/etc/centreon-broker/central-broker-master.json",
+                    "run": true,
+                    "reload": true
+                }
+            ],
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": []
+}

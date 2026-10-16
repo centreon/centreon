@@ -1,0 +1,215 @@
+{
+    "central-api.json": {
+        "centreonBroker": {
+            "broker_id": "<broker-0>",
+            "broker_name": "central-api",
+            "poller_id": 9100,
+            "uid": 100000000009100,
+            "poller_name": "broker-io-poller-9100",
+            "module_directory": "/usr/share/centreon/lib/centreon-broker",
+            "log_timestamp": false,
+            "log_thread_id": false,
+            "event_queue_max_size": 100000,
+            "command_file": "/var/lib/centreon-broker/command.sock",
+            "cache_directory": "/var/lib/centreon-broker",
+            "bbdo_version": "3.1.0",
+            "log": {
+                "directory": "/var/log/centreon-broker",
+                "filename": "central-api.log",
+                "max_size": 0,
+                "loggers": {
+                    "core": "error",
+                    "config": "error",
+                    "sql": "error",
+                    "processing": "error",
+                    "perfdata": "error",
+                    "bbdo": "error",
+                    "tcp": "error",
+                    "tls": "error",
+                    "lua": "error",
+                    "bam": "error",
+                    "neb": "error",
+                    "rrd": "error",
+                    "grpc": "error",
+                    "influxdb": "error",
+                    "graphite": "error",
+                    "victoria_metrics": "error",
+                    "stats": "error"
+                }
+            },
+            "input": [
+                {
+                    "type": "bbdo_server",
+                    "name": "bbdo-server-input",
+                    "port": "5669",
+                    "transport_protocol": "gRPC",
+                    "encryption": "no",
+                    "filters": {
+                        "category": [
+                            "dumper",
+                            "storage"
+                        ]
+                    }
+                },
+                {
+                    "type": "ipv4",
+                    "name": "ipv4-input",
+                    "port": "5670",
+                    "host": "localhost",
+                    "tls": "no",
+                    "protocol": "bbdo",
+                    "negotiation": "no",
+                    "one_peer_retention_mode": "yes",
+                    "filters": {
+                        "category": [
+                            "neb"
+                        ]
+                    }
+                }
+            ],
+            "output": [
+                {
+                    "type": "lua",
+                    "name": "stream-connector",
+                    "path": "/usr/share/centreon-broker/lua/connector.lua",
+                    "filters": {
+                        "category": [
+                            "dumper",
+                            "storage"
+                        ]
+                    },
+                    "lua_parameter": [
+                        {
+                            "name": "lua-param-1",
+                            "value": "value-1",
+                            "type": "string"
+                        },
+                        {
+                            "name": "lua-param-2",
+                            "value": "999",
+                            "type": "number"
+                        },
+                        {
+                            "name": "lua-param-3",
+                            "value": "lua-secret",
+                            "type": "password"
+                        }
+                    ]
+                },
+                {
+                    "type": "influxdb",
+                    "name": "influxdb",
+                    "db_host": "127.0.0.1",
+                    "db_user": "influx-user",
+                    "db_password": "influx-secret",
+                    "db_name": "metrics",
+                    "db_port": "8086",
+                    "metrics_timeseries": "$METRIC$",
+                    "status_timeseries": "$INSTANCE$",
+                    "cache": "no",
+                    "metrics_column": [
+                        {
+                            "name": "value",
+                            "value": "$VALUE$",
+                            "type": "number",
+                            "is_tag": "false"
+                        },
+                        {
+                            "name": "host",
+                            "value": "$HOST$",
+                            "type": "string",
+                            "is_tag": "true"
+                        }
+                    ],
+                    "status_column": [
+                        {
+                            "name": "state",
+                            "value": "$STATE$",
+                            "type": "string",
+                            "is_tag": "true"
+                        }
+                    ]
+                },
+                {
+                    "type": "bbdo_client",
+                    "name": "bbdo-client-output",
+                    "host": "127.0.0.1",
+                    "port": "5671",
+                    "transport_protocol": "gRPC",
+                    "encryption": "no",
+                    "compression": "no",
+                    "filters": {
+                        "category": [
+                            "dumper",
+                            "neb"
+                        ]
+                    }
+                },
+                {
+                    "type": "file",
+                    "name": "file-output",
+                    "path": "/var/lib/centreon-broker/file-output",
+                    "protocol": "bbdo",
+                    "max_size": "512",
+                    "filters": {
+                        "category": [
+                            "correlation"
+                        ]
+                    }
+                },
+                {
+                    "type": "unified_sql",
+                    "name": "unified-sql",
+                    "db_host": "127.0.0.1",
+                    "db_user": "centreon",
+                    "db_password": "",
+                    "db_name": "centreon_storage",
+                    "interval": "60",
+                    "length": "15552000",
+                    "db_port": "3306",
+                    "queries_per_transaction": "10000",
+                    "read_timeout": "4500",
+                    "rebuild_check_interval": "12",
+                    "store_in_data_bin": "no",
+                    "insert_in_index_data": "1",
+                    "cleanup_check_interval": "7500",
+                    "instance_timeout": "5000",
+                    "connections_count": "3",
+                    "db_type": "mysql",
+                    "filters": {
+                        "category": [
+                            "dumper",
+                            "storage"
+                        ]
+                    }
+                }
+            ],
+            "stats": [
+                {
+                    "type": "stats",
+                    "name": "central-api-stats",
+                    "json_fifo": "/var/lib/centreon-broker/central-api-stats.json"
+                }
+            ],
+            "grpc": {
+                "port": "<51000 + broker-0>"
+            }
+        }
+    },
+    "watchdog.json": {
+        "centreonBroker": {
+            "cbd": [
+                {
+                    "name": "central-api",
+                    "configuration_file": "/etc/centreon-broker/central-api.json",
+                    "run": true,
+                    "reload": true
+                }
+            ],
+            "log": "/var/log/centreon-broker/watchdog.log"
+        }
+    },
+    "php-warnings": [
+        "broker.class.php:609 Undefined array key \"encrypt\""
+    ]
+}
