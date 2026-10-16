@@ -8,6 +8,7 @@ import {
   labelEnable,
   labelEnableDisable,
   labelFilters,
+  labelMassChange,
   labelMoreActions,
   labelSearch
 } from '../../www/front_src/src/Configuration/ConfigurationBase/translatedLabels';
@@ -342,8 +343,11 @@ test.describe('actions', () => {
       await menu.getByText(labelDelete, { exact: true }).click();
       await page.getByTestId('confirm').click();
 
+      // Every row, the deactivated host 1 included; sequentially, so the last
+      // one proves the whole fan-out ran.
       await expect.poll(() => api.deletion[2].urls.length).toBe(1);
       expect(api.deletion[0].urls).toHaveLength(1);
+      expect(api.deletion[1].urls).toHaveLength(1);
     });
 
     test('disables an activated host from the row toggle', async ({
@@ -370,9 +374,7 @@ test.describe('actions', () => {
         .toEqual([{ activated: true }]);
     });
 
-    test('offers the massive actions, and no massive change', async ({
-      mount
-    }) => {
+    test('offers every massive action', async ({ mount }) => {
       const component = await mountHosts(mount);
       await selectFirstSelectableRow(component);
       const menu = await openMoreActions(component);
@@ -382,6 +384,7 @@ test.describe('actions', () => {
         labelEnable,
         labelDisable,
         labelDelete,
+        labelMassChange,
         labelDeployServices
       ]);
     });
@@ -390,7 +393,8 @@ test.describe('actions', () => {
       mount
     }) => {
       const component = await mountHosts(mount);
-      // Hosts 0 and 2: host 1 is deactivated and cannot be selected.
+      // Every row, the deactivated host 1 included although its own checkbox
+      // is greyed.
       await selectAll(component);
       const menu = await openMoreActions(component);
       await menu.getByText(labelDisable, { exact: true }).click();

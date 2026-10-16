@@ -41,13 +41,15 @@ export interface HostsApiOptions {
   hasDefaultPoller?: boolean;
   hasWriteAccess?: boolean;
   isEmpty?: boolean;
+  /** The hosts whose partial update (PATCH) is refused. */
+  patchFails?: Array<number>;
   pollersDelay?: number;
   resolveDelay?: number;
 }
 
 export interface HostsApi {
   creation: MockedEndpoint;
-  deletion: Record<0 | 2, MockedEndpoint>;
+  deletion: Record<0 | 1 | 2, MockedEndpoint>;
   deployment: MockedEndpoint;
   details: Record<0 | 1 | 2, MockedEndpoint>;
   duplication: MockedEndpoint;
@@ -60,6 +62,8 @@ export interface HostsApi {
 
 const host = (id: number | string) => `configuration/hosts/${id}`;
 
+export const patchRefusedMessage = 'The host cannot be updated';
+
 export const mockHostsApi = async (
   mockApi: MockApi,
   {
@@ -68,10 +72,21 @@ export const mockHostsApi = async (
     hasDefaultPoller = true,
     hasWriteAccess = true,
     isEmpty = false,
+    patchFails = [],
     pollersDelay = 0,
     resolveDelay = 0
   }: HostsApiOptions = {}
 ): Promise<HostsApi> => {
+  const mockPatch = (id: number) =>
+    mockApi({
+      delay: 500,
+      endpoint: host(id),
+      method: 'PATCH',
+      response: patchFails.includes(id)
+        ? { code: 422, message: patchRefusedMessage }
+        : {},
+      status: patchFails.includes(id) ? 422 : 200
+    });
   const details0 = await mockApi({
     endpoint: host(0),
     response: getHostResponse()
@@ -156,6 +171,7 @@ export const mockHostsApi = async (
     }),
     deletion: {
       0: await mockApi({ endpoint: host(0), method: 'DELETE' }),
+      1: await mockApi({ endpoint: host(1), method: 'DELETE' }),
       2: await mockApi({ endpoint: host(2), method: 'DELETE' })
     },
     deployment: await mockApi({
@@ -173,10 +189,12 @@ export const mockHostsApi = async (
       endpoint: 'configuration/hosts',
       response: isEmpty ? emptyListingResponse : getListingResponse()
     }),
+    // Enable, disable, edit and mass change are a partial update of the
+    // host, one request per host; slow enough to observe the pending state.
     patch: {
-      0: await mockApi({ endpoint: host(0), method: 'PATCH' }),
-      1: await mockApi({ endpoint: host(1), method: 'PATCH' }),
-      2: await mockApi({ endpoint: host(2), method: 'PATCH' })
+      0: await mockPatch(0),
+      1: await mockPatch(1),
+      2: await mockPatch(2)
     },
     resolution: await mockApi({
       delay: resolveDelay,
