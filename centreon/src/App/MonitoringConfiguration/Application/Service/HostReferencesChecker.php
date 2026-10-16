@@ -42,16 +42,15 @@ use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimePeriodRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
-use App\Shared\Domain\Collection;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 
 /**
  * The authoritative check of the resources a host write refers to, run by the command handler after
  * the same rules ran, earlier, on the input. It catches what changed in between.
  *
- * A resource the viewer cannot access is reported like one that does not exist, so a restricted
- * viewer cannot probe for what they cannot see. A null $viewerId means the requester is unrestricted.
+ * A resource the actor cannot access is reported like one that does not exist, so a restricted
+ * actor cannot probe for what they cannot see.
  */
 final readonly class HostReferencesChecker
 {
@@ -62,37 +61,26 @@ final readonly class HostReferencesChecker
         private TimePeriodRepository $timePeriodRepository,
         private MediaRepository $mediaRepository,
         private CommandRepository $commandRepository,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
-    public function assertPollerAccessible(PollerId $pollerId, ?UserId $viewerId): void
+    public function assertPollerAccessible(PollerId $pollerId, ActingUser $actor): void
     {
         $this->pollerRepository->get($pollerId);
 
-        if ($viewerId instanceof UserId && ! $this->resourceAccessRepository->hasAccessToPoller($pollerId, $viewerId)) {
+        if (! $this->accessScopes->pollers($actor)->allows($pollerId)) {
             throw new PollerNotFoundException(['id' => $pollerId->value]);
         }
     }
 
-    public function assertSeverityAccessible(HostSeverityId $severityId, ?UserId $viewerId): void
+    public function assertSeverityAccessible(HostSeverityId $severityId, ActingUser $actor): void
     {
         if (! $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName) {
             throw new HostSeverityNotFoundException($severityId->value);
         }
 
-        if (! $viewerId instanceof UserId) {
-            return;
-        }
-
-        $accessibleIds = $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId);
-        if (
-            $accessibleIds instanceof Collection
-            && ! array_any(
-                $accessibleIds->toArray(),
-                static fn (HostSeverityId $accessibleId): bool => $accessibleId->value === $severityId->value,
-            )
-        ) {
+        if (! $this->accessScopes->hostSeverities($actor)->allows($severityId)) {
             throw new HostSeverityNotFoundException($severityId->value);
         }
     }

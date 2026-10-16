@@ -28,13 +28,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalMediaRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\MediaTransformer;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class DbalMediaRepositoryTest extends KernelTestCase
 {
@@ -57,7 +58,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->repository = new DbalMediaRepository(
             $this->connection,
             new MediaTransformer(),
-            new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $this->connection, new DbalAccessGroupRepository($this->connection))),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded media
@@ -86,12 +87,12 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         self::assertFalse($this->repository->existsOne(new MediaId($imgId)));
     }
 
-    public function testFindAllReturnsAllMediaWithoutAViewer(): void
+    public function testFindAllReturnsAllMediaWithoutAActor(): void
     {
         $name = "media-{$this->tag}.png";
         $this->insertMedia($name, $this->defaultDirId);
 
-        $names = $this->names($this->repository->findAll());
+        $names = $this->names($this->repository->findAll(new MediaCriteria()->withoutAccessScope()));
 
         self::assertContains($name, $names);
     }
@@ -101,7 +102,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->insertMedia("match-{$this->tag}.png", $this->defaultDirId);
         $this->insertMedia("other-{$this->tag}.png", $this->defaultDirId);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withoutAccessScope()->withName("match-{$this->tag}")));
 
         self::assertSame(["match-{$this->tag}.png"], $names);
     }
@@ -115,7 +116,7 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded media cannot skew the total.
         // page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new MediaCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            (new MediaCriteria())->withoutAccessScope()->withName("pg-{$this->tag}-")->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -131,22 +132,22 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $this->insertMedia("with-dir-{$this->tag}.png", $dirId);
 
         /** @var list<Media> $medias */
-        $medias = iterator_to_array($this->repository->findAll((new MediaCriteria())->withName("with-dir-{$this->tag}")));
+        $medias = iterator_to_array($this->repository->findAll((new MediaCriteria())->withoutAccessScope()->withName("with-dir-{$this->tag}")));
 
         self::assertCount(1, $medias);
         self::assertSame("custom-dir-{$this->tag}", $medias[0]->directory->value);
     }
 
-    public function testFindAllReturnsEveryMediaForAnUnrestrictedViewer(): void
+    public function testFindAllReturnsEveryMediaForAnUnrestrictedActor(): void
     {
         $accessibleName = "unrestricted-in-{$this->tag}";
         $this->insertMedia("{$accessibleName}.png", $this->defaultDirId);
 
-        $viewerId = $this->createViewer();
+        $actorId = $this->createActor();
         // one Access Group flagged all_image_folders='1': matches legacy's "sees everything" shortcut
-        $this->linkContactToAclResourceForImageFolders($viewerId, restrictToImageFolderIds: [], allImageFolders: true);
+        $this->linkContactToAclResourceForImageFolders($actorId, restrictToImageFolderIds: [], allImageFolders: true);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withViewerId(new UserId($viewerId))));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains("{$accessibleName}.png", $names);
     }
@@ -161,35 +162,36 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         $inaccessibleName = "folder-out-{$this->tag}.png";
         $this->insertMedia($inaccessibleName, $this->defaultDirId);
 
-        $viewerId = $this->createViewer();
-        $this->linkContactToAclResourceForImageFolders($viewerId, restrictToImageFolderIds: [$restrictedDirId], allImageFolders: false);
+        $actorId = $this->createActor();
+        $this->linkContactToAclResourceForImageFolders($actorId, restrictToImageFolderIds: [$restrictedDirId], allImageFolders: false);
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withViewerId(new UserId($viewerId))));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
         self::assertContains($accessibleName, $names);
-        self::assertNotContains($inaccessibleName, $names, 'Media in a folder not granted to the viewer must be excluded.');
+        self::assertNotContains($inaccessibleName, $names, 'Media in a folder not granted to the actor must be excluded.');
+        self::assertContains($inaccessibleName, $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::unrestricted($actorId)))), 'An unrestricted actor is not scoped by ACL.');
     }
 
-    public function testFindAllReturnsNoMediaForARestrictedViewerWithNoAccessGroup(): void
+    public function testFindAllReturnsNoMediaForARestrictedActorWithNoAccessGroup(): void
     {
         $this->insertMedia("anymedia-{$this->tag}.png", $this->defaultDirId);
 
-        // a viewer whose own contact record carries no ACL group relation at all
-        $viewerId = $this->createViewer();
+        // an actor whose own contact record carries no ACL group relation at all
+        $actorId = $this->createActor();
 
-        $names = $this->names($this->repository->findAll((new MediaCriteria())->withViewerId(new UserId($viewerId))));
+        $names = $this->names($this->repository->findAll((new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))));
 
-        self::assertSame([], $names, 'A viewer with no active Access Group is restricted and sees no media.');
+        self::assertSame([], $names, 'An actor with no active Access Group is restricted and sees no media.');
     }
 
-    public function testFindAllReturnsAnEmptyPaginatorForARestrictedViewerWithNoAccessGroup(): void
+    public function testFindAllReturnsAnEmptyPaginatorForARestrictedActorWithNoAccessGroup(): void
     {
         $this->insertMedia("anymedia-{$this->tag}.png", $this->defaultDirId);
 
-        $viewerId = $this->createViewer();
+        $actorId = $this->createActor();
 
         $result = $this->repository->findAll(
-            (new MediaCriteria())->withViewerId(new UserId($viewerId))->withPagination(1, 10)
+            (new MediaCriteria())->withActor(TestActingUsers::restricted($actorId))->withPagination(1, 10)
         );
 
         self::assertInstanceOf(
@@ -229,11 +231,11 @@ final class DbalMediaRepositoryTest extends KernelTestCase
         return $imgId;
     }
 
-    private function createViewer(): int
+    private function createActor(): int
     {
         $this->connection->insert('contact', [
-            'contact_name' => "viewer-{$this->tag}-" . Uuid::v4()->toRfc4122(),
-            'contact_alias' => "viewer-{$this->tag}-" . Uuid::v4()->toRfc4122(),
+            'contact_name' => "actor-{$this->tag}-" . Uuid::v4()->toRfc4122(),
+            'contact_alias' => "actor-{$this->tag}-" . Uuid::v4()->toRfc4122(),
             'contact_admin' => '0',
             'contact_register' => '1',
             'contact_activate' => '1',

@@ -37,7 +37,7 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
@@ -142,7 +142,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         #[Autowire(service: DbalGlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
 
         private bool $withCmaCertificates = false,
     ) {
@@ -362,7 +362,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return new Collection($names, PollerName::class);
     }
 
-    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(PollerCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
@@ -372,11 +372,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->from(self::TABLE_NAME, 'p')
             ->orderBy('p.id'); // required for deterministic pagination
 
-        if ($criteria instanceof PollerCriteria) {
-            $this->filterByPollerCriteria($qb, $criteria);
-        }
+        $this->filterByPollerCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -458,7 +456,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             realTimeConnection: $this->realTimeConnection,
             pollerTransformer: $this->pollerTransformer,
             globalMacroTransformer: $this->globalMacroTransformer,
-            resourceAccessRepository: $this->resourceAccessRepository,
+            accessScopes: $this->accessScopes,
             withCmaCertificates: true,
         );
     }
@@ -519,19 +517,12 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ));
         }
 
-        if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {
-            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($viewerId);
-            if ($accessiblePollerIds instanceof Collection) {
-                $ids = [];
-                foreach ($accessiblePollerIds as $pollerId) {
-                    $ids[] = $pollerId->value;
-                }
-
-                $qb->andWhere($qb->expr()->in(
-                    'p.id',
-                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
-                ));
-            }
+        $scope = $criteria->accessScope($this->accessScopes->pollers(...), PollerId::class);
+        if (! $scope->isUnrestricted()) {
+            $qb->andWhere($qb->expr()->in(
+                'p.id',
+                $qb->createNamedParameter($scope->allowedIdValues(), ArrayParameterType::INTEGER)
+            ));
         }
     }
 

@@ -125,8 +125,8 @@ final class ListHostTemplatesProviderTest extends ApiTestCase
 
     public function testItRestrictsListingToAccessibleSeveritiesForARestrictedUser(): void
     {
-        // legacy scopes restricted viewers by host *severities* (categories with a level), not by
-        // regular host categories, even when the regular category is in the viewer's ACL.
+        // legacy scopes restricted actors by host *severities* (categories with a level), not by
+        // regular host categories, even when the regular category is in the actor's ACL.
         $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
         $regularId = $this->insertHostCategory("reg-{$this->tag}");
 

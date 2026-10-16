@@ -58,8 +58,9 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
 use App\MonitoringConfiguration\Domain\Service\HostMacroChangesResolver;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
@@ -85,7 +86,7 @@ final readonly class CreateHostCommandHandler
         private HostMacroChangesResolver $hostMacroChangesResolver,
         private HostMacroSecretsSynchronizer $hostMacroSecretsSynchronizer,
         private AdditiveInheritanceModeApplier $additiveInheritanceModeApplier,
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
         private VaultInterface $vault,
         private EventBus $eventBus,
     ) {
@@ -93,7 +94,7 @@ final readonly class CreateHostCommandHandler
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        // References are authorized before the name is looked up: otherwise a restricted viewer
+        // References are authorized before the name is looked up: otherwise a restricted actor
         // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
         // for a request they aren't even authorized to make, and enumerate host/template names
         // that way.
@@ -101,27 +102,24 @@ final readonly class CreateHostCommandHandler
         // Throws PollerNotFoundException if it doesn't exist at all.
         $this->pollerRepository->get($command->pollerId);
 
-        // A restricted (non-admin) viewer referencing a poller outside their own ACL scope gets
+        // A restricted (non-admin) actor referencing a poller outside their own ACL scope gets
         // the same not-found error as a truly nonexistent poller — legacy does not distinguish
         // "doesn't exist" from "exists but you can't see it", to avoid leaking existence.
-        if (
-            $command->viewerId instanceof UserId
-            && ! $this->resourceAccessRepository->hasAccessToPoller($command->pollerId, $command->viewerId)
-        ) {
+        if (! $this->accessScopes->pollers($command->actor)->allows($command->pollerId)) {
             throw new PollerNotFoundException(['id' => $command->pollerId->value]);
         }
 
-        $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
+        $this->assertHostGroupsExist($command->hostGroupIds, $command->actor);
 
         $this->assertTemplatesExist($command->templateIds);
 
-        $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
+        $this->assertCategoriesExist($command->categoryIds, $command->actor);
 
-        $this->assertSeverityExists($command->severityId, $command->viewerId);
+        $this->assertSeverityExists($command->severityId, $command->actor);
 
         $this->assertTimezoneExists($command->timezoneId);
 
-        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $command->viewerId);
+        $this->assertRelatedHostsExist($command->parentHostIds, $command->childHostIds, $command->actor);
 
         $this->assertRelationsAreNotCircular($command->parentHostIds, $command->childHostIds);
 
@@ -183,16 +181,10 @@ final readonly class CreateHostCommandHandler
 
         $this->repository->add($host);
 
-        $this->eventBus->fire(new HostCreated($host, $command->creatorId));
+        $this->eventBus->fire(new HostCreated($host, $command->actor->userId->value));
 
         if ($command->deployServicesFromTemplates && count($command->templateIds) > 0) {
-
-            $this->eventBus->fire(new HostServicesDeploymentRequested(
-                $host->id(),
-
-                new UserId($command->creatorId),
-            ));
-
+            $this->eventBus->fire(new HostServicesDeploymentRequested($host->id(), $command->actor->userId));
         }
 
         return $host;
@@ -201,26 +193,19 @@ final readonly class CreateHostCommandHandler
     /**
      * @param Collection<HostGroupId> $hostGroupIds
      */
-    private function assertHostGroupsExist(Collection $hostGroupIds, ?UserId $viewerId): void
+    private function assertHostGroupsExist(Collection $hostGroupIds, ActingUser $actor): void
     {
         if (count($hostGroupIds) === 0) {
             return;
         }
 
-        $foundIds = array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray());
-        $requestedIds = array_map(static fn (HostGroupId $id): int => $id->value, $hostGroupIds->toArray());
-        $missingIds = array_diff($requestedIds, $foundIds);
-
-        if ($viewerId instanceof UserId) {
-            $accessibleIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
-            if ($accessibleIds instanceof Collection) {
-                $accessibleIdValues = array_map(static fn (HostGroupId $id): int => $id->value, $accessibleIds->toArray());
-                $missingIds = array_unique(array_merge($missingIds, array_diff($requestedIds, $accessibleIdValues)));
-            }
-        }
+        $missingIds = $this->accessScopes->hostGroups($actor)->missing(
+            $hostGroupIds,
+            array_keys($this->hostGroupRepository->findNamesByIds($hostGroupIds)->toArray()),
+        );
 
         if ($missingIds !== []) {
-            throw new HostGroupNotFoundException(['host_group_ids' => array_values($missingIds)]);
+            throw new HostGroupNotFoundException(['host_group_ids' => $missingIds]);
         }
     }
 
@@ -263,43 +248,17 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * Unknown and inaccessible ids are not told apart, so a restricted viewer cannot probe for
-     * resources they cannot see.
-     *
-     * @template T of \App\Shared\Domain\Aggregate\AggregateRootId
-     *
-     * @param Collection<T> $requested
-     * @param callable(Collection<T>): list<int> $resolve
-     * @param Collection<T>|null $accessible
-     *
-     * @return list<int>
-     */
-    private function missingIds(Collection $requested, callable $resolve, ?Collection $accessible = null): array
-    {
-        if (count($requested) === 0) {
-            return [];
-        }
-
-        $requestedIds = array_map(static fn (object $id): int => $id->value, $requested->toArray());
-        $missingIds = array_diff($requestedIds, $resolve($requested));
-
-        if ($accessible instanceof Collection) {
-            $accessibleIds = array_map(static fn (object $id): int => $id->value, $accessible->toArray());
-            $missingIds = array_merge($missingIds, array_diff($requestedIds, $accessibleIds));
-        }
-
-        return array_values(array_unique($missingIds));
-    }
-
-    /**
      * @param Collection<HostCategoryId> $categoryIds
      */
-    private function assertCategoriesExist(Collection $categoryIds, ?UserId $viewerId): void
+    private function assertCategoriesExist(Collection $categoryIds, ActingUser $actor): void
     {
-        $missingIds = $this->missingIds(
+        if (count($categoryIds) === 0) {
+            return;
+        }
+
+        $missingIds = $this->accessScopes->hostCategories($actor)->missing(
             $categoryIds,
-            fn (Collection $ids): array => array_keys($this->hostCategoryRepository->findNamesByIds($ids)->toArray()),
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostCategoryIds($viewerId) : null,
+            array_keys($this->hostCategoryRepository->findNamesByIds($categoryIds)->toArray()),
         );
 
         if ($missingIds !== []) {
@@ -307,18 +266,15 @@ final readonly class CreateHostCommandHandler
         }
     }
 
-    private function assertSeverityExists(?HostSeverityId $severityId, ?UserId $viewerId): void
+    private function assertSeverityExists(?HostSeverityId $severityId, ActingUser $actor): void
     {
         if (! $severityId instanceof HostSeverityId) {
             return;
         }
 
-        $missingIds = $this->missingIds(
-            new Collection([$severityId], HostSeverityId::class),
-            fn (Collection $ids): array => $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName
-                ? [$severityId->value]
-                : [],
-            $viewerId instanceof UserId ? $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId) : null,
+        $missingIds = $this->accessScopes->hostSeverities($actor)->missing(
+            [$severityId],
+            $this->hostSeverityRepository->findNameById($severityId) instanceof HostSeverityName ? [$severityId->value] : [],
         );
 
         if ($missingIds !== []) {
@@ -340,10 +296,14 @@ final readonly class CreateHostCommandHandler
      */
     private function assertTemplatesExist(Collection $templateIds): void
     {
-        $missingIds = $this->missingIds(
-            $templateIds,
-            fn (Collection $ids): array => array_keys($this->hostTemplateRepository->findNamesByIds($ids)->toArray()),
-        );
+        if (count($templateIds) === 0) {
+            return;
+        }
+
+        $missingIds = array_values(array_unique(array_diff(
+            array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()),
+            array_keys($this->hostTemplateRepository->findNamesByIds($templateIds)->toArray()),
+        )));
 
         if ($missingIds !== []) {
             throw new HostTemplateNotFoundException($missingIds);
@@ -351,37 +311,38 @@ final readonly class CreateHostCommandHandler
     }
 
     /**
-     * ACL-scoped: a restricted viewer may only link the hosts within their scope, as the legacy
+     * ACL-scoped: a restricted actor may only link the hosts within their scope, as the legacy
      * form only offers those (CentreonHost::getObjectForSelect2()). Unknown and inaccessible ids
-     * are not told apart, so a restricted viewer cannot probe for hosts they cannot see. Host
+     * are not told apart, so a restricted actor cannot probe for hosts they cannot see. Host
      * templates resolve to nothing here, so one cannot be smuggled in.
      *
      * @param Collection<HostId> $parentHostIds
      * @param Collection<HostId> $childHostIds
      */
-    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ?UserId $viewerId): void
+    private function assertRelatedHostsExist(Collection $parentHostIds, Collection $childHostIds, ActingUser $actor): void
     {
-        $accessibleHostIds = $viewerId instanceof UserId
-            ? $this->resourceAccessRepository->findAccessibleHostIds(
-                $viewerId,
-                new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
-            )
-            : null;
+        $hostScope = $this->accessScopes->hosts(
+            $actor,
+            new Collection([...$parentHostIds->toArray(), ...$childHostIds->toArray()], HostId::class),
+        );
 
-        $this->assertHostsExist($parentHostIds, 'parentHostIds', $accessibleHostIds);
-        $this->assertHostsExist($childHostIds, 'childHostIds', $accessibleHostIds);
+        $this->assertHostsExist($parentHostIds, 'parentHostIds', $hostScope);
+        $this->assertHostsExist($childHostIds, 'childHostIds', $hostScope);
     }
 
     /**
      * @param Collection<HostId> $hostIds
-     * @param Collection<HostId>|null $accessibleHostIds null when the viewer is unrestricted
+     * @param AccessScope<HostId> $hostScope
      */
-    private function assertHostsExist(Collection $hostIds, string $criterion, ?Collection $accessibleHostIds): void
+    private function assertHostsExist(Collection $hostIds, string $criterion, AccessScope $hostScope): void
     {
-        $missingIds = $this->missingIds(
+        if (count($hostIds) === 0) {
+            return;
+        }
+
+        $missingIds = $hostScope->missing(
             $hostIds,
-            fn (Collection $ids): array => array_keys($this->repository->findNamesByIds($ids)->toArray()),
-            $accessibleHostIds,
+            array_keys($this->repository->findNamesByIds($hostIds)->toArray()),
         );
 
         if ($missingIds !== []) {

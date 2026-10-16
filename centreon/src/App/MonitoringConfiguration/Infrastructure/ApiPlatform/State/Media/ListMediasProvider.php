@@ -82,9 +82,7 @@ final readonly class ListMediasProvider implements ProviderInterface
             $criteria = $criteria->withName($name);
         }
 
-        if (! $credentialUser->credential->hasUnrestrictedResourceAccess()) {
-            $criteria = $criteria->withViewerId($credentialUser->credential->userId);
-        }
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $medias = $this->repository->findAll($criteria);
         $resources = [];

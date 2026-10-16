@@ -28,13 +28,14 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupTransformer;
-use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class DbalHostGroupRepositoryTest extends KernelTestCase
 {
@@ -57,7 +58,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->repository = new DbalHostGroupRepository(
             $this->connection,
             new DbalHostGroupTransformer(),
-            new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
+            new AccessScopeResolver(new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection))),
         );
     }
 
@@ -94,7 +95,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(301, 'HostGroup-A');
         $this->insertHostGroup(302, 'HostGroup-B');
 
-        $hostGroups = iterator_to_array($this->repository->findAll());
+        $hostGroups = iterator_to_array($this->repository->findAll(new HostGroupCriteria()->withoutAccessScope()));
 
         self::assertCount(2, $hostGroups);
         self::assertContainsOnlyInstancesOf(HostGroup::class, $hostGroups);
@@ -105,7 +106,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(301, 'Linux-Servers');
         $this->insertHostGroup(302, 'Windows-Servers');
 
-        $criteria = (new HostGroupCriteria())->withName('Linux');
+        $criteria = (new HostGroupCriteria())->withoutAccessScope()->withName('Linux');
 
         $hostGroups = iterator_to_array($this->repository->findAll($criteria));
 
@@ -119,7 +120,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $this->insertHostGroup(302, 'HostGroup-B');
         $this->insertHostGroup(303, 'HostGroup-C');
 
-        $criteria = (new HostGroupCriteria())->withPagination(page: 2, itemsPerPage: 1);
+        $criteria = (new HostGroupCriteria())->withoutAccessScope()->withPagination(page: 2, itemsPerPage: 1);
 
         $paginator = $this->repository->findAll($criteria);
 
@@ -130,7 +131,7 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         self::assertSame(['HostGroup-B'], $this->extractNames(iterator_to_array($paginator)));
     }
 
-    public function testFindAllRestrictsToAccessibleHostGroupsForARestrictedViewer(): void
+    public function testFindAllRestrictsToAccessibleHostGroupsForARestrictedActor(): void
     {
         $this->insertHostGroup(301, 'HostGroup-A');
         $this->insertHostGroup(302, 'HostGroup-B');
@@ -138,12 +139,13 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $contactId = $this->createContact('restricted-user');
         $this->restrictContactToHostGroups($contactId, [302]);
 
-        $criteria = (new HostGroupCriteria())->withViewerId(new UserId($contactId));
+        $criteria = (new HostGroupCriteria())->withActor(TestActingUsers::restricted($contactId));
 
         $hostGroups = iterator_to_array($this->repository->findAll($criteria));
 
         self::assertCount(1, $hostGroups);
         self::assertSame(['HostGroup-B'], $this->extractNames($hostGroups));
+        self::assertContains('HostGroup-A', $this->extractNames(iterator_to_array($this->repository->findAll((new HostGroupCriteria())->withActor(TestActingUsers::unrestricted($contactId))))), 'An unrestricted actor is not scoped by ACL.');
     }
 
     private function insertHostGroup(int $id, string $name): void

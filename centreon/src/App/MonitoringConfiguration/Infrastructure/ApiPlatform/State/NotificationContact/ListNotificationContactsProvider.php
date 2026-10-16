@@ -82,9 +82,7 @@ final readonly class ListNotificationContactsProvider implements ProviderInterfa
             $criteria = $criteria->withName($name);
         }
 
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $contacts = $this->repository->findAll($criteria);
         $resources = [];

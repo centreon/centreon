@@ -89,9 +89,7 @@ final readonly class ListContactGroupsChoicesProvider implements ProviderInterfa
         // rather than surfacing an option the save would reject.
         $criteria = $criteria->withExcludeLdap(true);
 
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $contactGroups = $this->repository->findAll($criteria);
         $resources = [];

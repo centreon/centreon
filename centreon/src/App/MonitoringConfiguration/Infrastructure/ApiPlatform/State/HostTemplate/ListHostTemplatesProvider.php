@@ -63,8 +63,6 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        $hasUnrestrictedResourceAccess = $credentialUser->credential->hasUnrestrictedResourceAccess();
-
         $criteria = new HostTemplateCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
@@ -80,9 +78,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
 
         // Users with unrestricted resource access see every host template; others are scoped to their
         // accessible host severities.
-        $criteria = $hasUnrestrictedResourceAccess
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $hostTemplates = $this->repository->findAll($criteria);
         $resources = [];

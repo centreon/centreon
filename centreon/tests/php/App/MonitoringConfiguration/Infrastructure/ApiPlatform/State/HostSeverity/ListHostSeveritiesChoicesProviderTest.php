@@ -123,7 +123,7 @@ final class ListHostSeveritiesChoicesProviderTest extends ApiTestCase
 
     /**
      * Legacy's severity picker on the host form (CentreonCriticality::getList()) ignores ACL
-     * visibility: unlike the generic /configuration/host_severities endpoint, a viewer restricted
+     * visibility: unlike the generic /configuration/host_severities endpoint, an actor restricted
      * to some categories must still see every severity through this host-scoped selector.
      */
     public function testItIgnoresHostCategoryAclRestrictionsForARestrictedUser(): void

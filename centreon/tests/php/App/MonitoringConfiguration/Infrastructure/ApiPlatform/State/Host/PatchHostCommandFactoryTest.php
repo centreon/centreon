@@ -51,6 +51,7 @@ use App\Shared\Infrastructure\ApiPlatform\RequestPayload;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 
 final class PatchHostCommandFactoryTest extends TestCase
 {
@@ -334,8 +335,7 @@ final class PatchHostCommandFactoryTest extends TestCase
     {
         return new PatchHostCommandFactory(new HostMacroTransformer())->create(
             id: new HostId(1),
-            updatedBy: 7,
-            viewerId: null,
+            actor: TestActingUsers::restricted(7),
             input: $input,
             payload: RequestPayload::fromRequest(Request::create('/', Request::METHOD_PATCH, content: $json, server: ['CONTENT_TYPE' => 'application/json'])),
         );

@@ -85,10 +85,8 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
         }
 
         // ACL data-scoping: an admin (unrestricted access) sees everything; anyone else is
-        // scoped to the contact groups they may see, resolved by the repository from the viewer.
-        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
-            ? $criteria
-            : $criteria->withViewerId($credentialUser->credential->userId);
+        // scoped to the contact groups they may see, resolved by the repository from the actor.
+        $criteria = $criteria->withActor($credentialUser->credential->actingUser());
 
         $contactGroups = $this->repository->findAll($criteria);
         $resources = [];

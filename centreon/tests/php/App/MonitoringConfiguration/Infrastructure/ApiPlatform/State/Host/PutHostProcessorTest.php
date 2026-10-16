@@ -42,6 +42,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResour
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -702,13 +703,13 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
-    public function testItHidesAHostOutsideTheRestrictedViewerScope(): void
+    public function testItHidesAHostOutsideTheRestrictedActorScope(): void
     {
         $pollerId = $this->insertPoller('Central');
         $name = $this->uniqueName('server');
         $hostId = $this->insertHost($name, $pollerId);
-        // The host is deliberately not linked to the viewer's access group in centreon_acl.
-        $this->loginRestrictedViewer(pollerIds: [$pollerId]);
+        // The host is deliberately not linked to the actor's access group in centreon_acl.
+        $this->loginRestrictedActor(pollerIds: [$pollerId]);
 
         $this->request('PUT', $this->endpoint($hostId), [
             'json' => $this->payload($this->uniqueName('server'), $pollerId),
@@ -719,12 +720,12 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame($name, $this->connection->fetchOne('SELECT host_name FROM host WHERE host_id = ?', [$hostId]));
     }
 
-    public function testARestrictedViewerCannotMoveAHostToAnInaccessiblePoller(): void
+    public function testARestrictedActorCannotMoveAHostToAnInaccessiblePoller(): void
     {
         $pollerId = $this->insertPoller('Accessible');
         $inaccessiblePollerId = $this->insertPoller('Inaccessible');
         $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
-        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(pollerIds: [$pollerId]));
+        $this->linkHostToAcl($hostId, $this->loginRestrictedActor(pollerIds: [$pollerId]));
 
         $this->request('PUT', $this->endpoint($hostId), [
             'json' => $this->payload($this->uniqueName('server'), $inaccessiblePollerId),
@@ -754,7 +755,7 @@ final class PutHostProcessorTest extends ApiTestCase
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('inaccessibleReferences')]
-    public function testARestrictedViewerCannotReferenceAnInaccessibleResource(string $field, string $kind): void
+    public function testARestrictedActorCannotReferenceAnInaccessibleResource(string $field, string $kind): void
     {
         $pollerId = $this->insertPoller('Central');
         $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
@@ -764,11 +765,11 @@ final class PutHostProcessorTest extends ApiTestCase
             'group' => $this->insertHostGroup($this->uniqueName('group')),
             'category' => $this->insertHostCategory($this->uniqueName('category')),
             'severity' => $this->insertHostSeverity($this->uniqueName('severity')),
-            // Exists, but has no centreon_acl row for the viewer.
+            // Exists, but has no centreon_acl row for the actor.
             'host' => $this->insertHost($this->uniqueName('hidden'), $pollerId),
         ];
         $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
-        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(
+        $this->linkHostToAcl($hostId, $this->loginRestrictedActor(
             pollerIds: [$pollerId],
             hostGroupIds: [$accessibleGroupId],
             hostCategoryIds: [$accessibleCategoryId, $accessibleSeverityId],
@@ -794,18 +795,18 @@ final class PutHostProcessorTest extends ApiTestCase
     }
 
     /**
-     * An existing contact or contact group outside the viewer's Access Groups is rejected like a
+     * An existing contact or contact group outside the actor's Access Groups is rejected like a
      * missing one, as on CreateHost, and nothing is written.
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('inaccessibleNotificationRecipients')]
-    public function testARestrictedViewerCannotNotifyAnInaccessibleRecipient(string $field, string $message): void
+    public function testARestrictedActorCannotNotifyAnInaccessibleRecipient(string $field, string $message): void
     {
         $pollerId = $this->insertPoller('Central');
         $inaccessibleId = $field === 'contacts'
             ? $this->insertNotificationContact('outsider')
             : $this->insertContactGroup('outsiders');
         $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
-        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(pollerIds: [$pollerId]));
+        $this->linkHostToAcl($hostId, $this->loginRestrictedActor(pollerIds: [$pollerId]));
 
         $response = $this->request('PUT', $this->endpoint($hostId), [
             'json' => [
@@ -820,7 +821,7 @@ final class PutHostProcessorTest extends ApiTestCase
         self::assertSame([], $this->intColumn('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = ?', $hostId));
     }
 
-    public function testARestrictedViewerRoundTripKeepsOutOfScopeGroupsCategoriesAndSeverity(): void
+    public function testARestrictedActorRoundTripKeepsOutOfScopeGroupsCategoriesAndSeverity(): void
     {
         $pollerId = $this->insertPoller('Central');
         $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
@@ -835,13 +836,13 @@ final class PutHostProcessorTest extends ApiTestCase
         foreach ([$accessibleCategoryId, $hiddenCategoryId, $hiddenSeverityId] as $categoryId) {
             $this->connection->insert('hostcategories_relation', ['hostcategories_hc_id' => $categoryId, 'host_host_id' => $hostId]);
         }
-        $this->linkHostToAcl($hostId, $this->loginRestrictedViewer(
+        $this->linkHostToAcl($hostId, $this->loginRestrictedActor(
             pollerIds: [$pollerId],
             hostGroupIds: [$accessibleGroupId],
             hostCategoryIds: [$accessibleCategoryId],
         ));
 
-        // What the viewer can see of the host, sent back unchanged.
+        // What the actor can see of the host, sent back unchanged.
         $this->request('PUT', $this->endpoint($hostId), [
             'json' => [
                 ...$this->payload($this->uniqueName('server'), $pollerId),
@@ -863,10 +864,10 @@ final class PutHostProcessorTest extends ApiTestCase
 
     /**
      * The legacy host form hides the related hosts, contacts and contact groups outside the
-     * viewer's scope: a round trip keeps them stored, and the response, built like the GetHost
+     * actor's scope: a round trip keeps them stored, and the response, built like the GetHost
      * body, never surfaces them (nor the hidden groups, categories and severity).
      */
-    public function testARestrictedViewerRoundTripKeepsAndHidesOutOfScopeRelations(): void
+    public function testARestrictedActorRoundTripKeepsAndHidesOutOfScopeRelations(): void
     {
         $pollerId = $this->insertPoller('Central');
         $accessibleGroupId = $this->insertHostGroup($this->uniqueName('group'));
@@ -889,13 +890,13 @@ final class PutHostProcessorTest extends ApiTestCase
         }
         $this->connection->insert('hostcategories_relation', ['hostcategories_hc_id' => $hiddenSeverityId, 'host_host_id' => $hostId]);
 
-        $aclGroupId = $this->loginRestrictedViewer(pollerIds: [$pollerId], hostGroupIds: [$accessibleGroupId]);
+        $aclGroupId = $this->loginRestrictedActor(pollerIds: [$pollerId], hostGroupIds: [$accessibleGroupId]);
         foreach ([$hostId, $visibleParentId] as $accessibleHostId) {
             $this->linkHostToAcl($accessibleHostId, $aclGroupId);
         }
         $this->connection->insert('acl_group_contacts_relations', ['acl_group_id' => $aclGroupId, 'contact_contact_id' => $visibleContactId]);
 
-        // What the viewer can see of the host, sent back unchanged.
+        // What the actor can see of the host, sent back unchanged.
         $response = $this->request('PUT', $this->endpoint($hostId), [
             'headers' => ['accept' => 'application/json'],
             'json' => [
@@ -994,7 +995,7 @@ final class PutHostProcessorTest extends ApiTestCase
             $mediaRepository,
             $mediaUrlGenerator,
             $timePeriodRepository,
-            $resourceAccessRepository,
+            new AccessScopeResolver($resourceAccessRepository),
             $macroTransformer,
             $inheritedHostMacrosResolver,
             $isCloudPlatform,
@@ -1090,9 +1091,9 @@ final class PutHostProcessorTest extends ApiTestCase
      * @param list<int> $hostGroupIds
      * @param list<int> $hostCategoryIds
      *
-     * @return int the viewer's access group, to link hosts to in centreon_acl
+     * @return int the actor's access group, to link hosts to in centreon_acl
      */
-    private function loginRestrictedViewer(array $pollerIds, array $hostGroupIds = [], array $hostCategoryIds = []): int
+    private function loginRestrictedActor(array $pollerIds, array $hostGroupIds = [], array $hostCategoryIds = []): int
     {
         $username = bin2hex(random_bytes(8));
         $this->createApiUser($this->connection, $username, admin: false);

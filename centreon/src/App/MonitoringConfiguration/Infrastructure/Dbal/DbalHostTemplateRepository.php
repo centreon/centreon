@@ -35,8 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\Security\Domain\Aggregate\UserId;
-use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Security\Domain\Service\AccessScopeResolver;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -72,11 +71,11 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         #[Autowire(service: HostTemplateTransformer::class)]
         private TransformerInterface $transformer,
 
-        private ResourceAccessRepository $resourceAccessRepository,
+        private AccessScopeResolver $accessScopes,
     ) {
     }
 
-    public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(HostTemplateCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('h.host_id', 'h.host_name')
@@ -84,11 +83,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             ->where('h.host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
             ->orderBy('h.host_id'); // required for deterministic pagination
 
-        if ($criteria instanceof HostTemplateCriteria) {
-            $this->filterByCriteria($qb, $criteria);
-        }
+        $this->filterByCriteria($qb, $criteria);
 
-        $pagination = $criteria?->getPagination();
+        $pagination = $criteria->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -526,42 +523,31 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $qb->andWhere($qb->expr()->eq('h.host_locked', $qb->createNamedParameter(0, ParameterType::INTEGER)));
         }
 
-        $this->filterByViewer($qb, $criteria);
+        $this->filterByAccessScope($qb, $criteria);
     }
 
-    private function filterByViewer(QueryBuilder $qb, HostTemplateCriteria $criteria): void
+    private function filterByAccessScope(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
-        $viewerId = $criteria->getViewerId();
-        if (! $viewerId instanceof UserId) {
+        $scope = $criteria->accessScope($this->accessScopes->hostSeverities(...), HostSeverityId::class);
+        if ($scope->isUnrestricted()) {
             return;
         }
 
-        $accessibleHostSeverities = $this->resourceAccessRepository->findAccessibleHostSeverityIds($viewerId);
-        // null means no host-severity restriction applies — the viewer sees every host template.
-        if (! $accessibleHostSeverities instanceof Collection) {
-            return;
-        }
-
-        $accessibleHostSeverityIds = array_map(
-            static fn (HostSeverityId $hostSeverityId): int => $hostSeverityId->value,
-            $accessibleHostSeverities->toArray()
-        );
-
-        // An empty set means the viewer is restricted but grants no accessible severity: they must see
+        // An empty scope means the actor is restricted but grants no accessible severity: they must see
         // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
         // filters out every severity-less template once a category restriction applies. Forcing an
         // always-false predicate avoids emitting an `IN ()` the driver would reject.
-        if ($accessibleHostSeverityIds === []) {
+        if ($scope->allowsNothing()) {
             $qb->andWhere('1 = 0');
 
             return;
         }
 
-        // Restricted viewer: keep only templates linked to an accessible host severity. This mirrors
+        // Restricted actor: keep only templates linked to an accessible host severity. This mirrors
         // legacy findByRequestParametersAndAccessGroups, whose "AND hc.hc_id IN (...)" is applied on a
         // join filtered by "hc.level IS NOT NULL", so a template linked only to a regular (levelless)
         // category — or to none — is excluded. The accessible set is already severity-scoped (see
-        // ResourceAccessRepository::findAccessibleHostSeverityIds), so matching the relation id
+        // ResourceAccessRepository::findHostSeverityAccessScope), so matching the relation id
         // directly is enough. EXISTS rather than a JOIN keeps LIMIT/OFFSET pagination correct, as
         // hostcategories_relation carries no per-host uniqueness.
         $qb->andWhere(
@@ -569,7 +555,7 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
                 SELECT 1 FROM hostcategories_relation hcr
                 WHERE hcr.host_host_id = h.host_id
                     AND hcr.hostcategories_hc_id IN (' . $qb->createNamedParameter(
-                $accessibleHostSeverityIds,
+                $scope->allowedIdValues(),
                 ArrayParameterType::INTEGER
             ) . ')
             )'

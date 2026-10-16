@@ -73,14 +73,15 @@ final class DuplicateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testItReturns404WhenTheHostIsOutsideTheViewerAclScope(): void
+    public function testItReturns404WhenTheHostIsOutsideTheActorAclScope(): void
     {
         $pollerId = $this->insertPoller('Central');
         $hostId = $this->insertHost($this->uniqueName('web'), $pollerId);
 
         // A non-admin with the host read/write role but no ACL access to this host: the source lookup
         // is ACL-scoped, so an out-of-scope host reads as not found (404), not 403 or 204. Proves the
-        // command's viewerId scoping — dropping it would let this restricted user reach the host (204).
+        // handler scopes the lookup by the duplicator's ACL — dropping it would let this restricted user reach
+        // the host (204).
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
         $this->grantHostReadAndWriteTopologyRole($contactId);

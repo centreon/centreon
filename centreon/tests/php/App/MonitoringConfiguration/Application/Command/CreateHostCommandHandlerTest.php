@@ -95,6 +95,8 @@ use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\TimezoneRepository;
+use App\Security\Domain\Aggregate\AccessScope;
+use App\Security\Domain\Aggregate\ActingUser;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -115,6 +117,7 @@ use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeOptionRepository
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeTimezoneRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
+use Tests\App\Security\Infrastructure\Double\TestActingUsers;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
 
@@ -160,7 +163,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->pollerRepository = new FakePollerRepository();
         $this->hostGroupRepository = new FakeHostGroupRepository();
         $this->commandRepository = new FakeCommandRepository();
-        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->resourceAccessRepository = $this->hostRepository->resourceAccess;
         $this->optionRepository = new FakeOptionRepository();
         $this->vault = new FakeVault();
         $this->eventBus = new EventBusSpy();
@@ -168,6 +171,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         $this->hostSeverityRepository = new FakeHostSeverityRepository();
         $this->timezoneRepository = new FakeTimezoneRepository();
         $this->hostTemplateRepository = new FakeHostTemplateRepository();
+
         $this->vault->vaultEnabled = false;
 
         $container->set(HostRepository::class, $this->hostRepository);
@@ -199,7 +203,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
         ));
 
         self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
@@ -215,7 +219,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkCommandId: new CommandId(9),
             checkCommandArgs: ['-w', '5'],
         ));
@@ -235,7 +239,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkCommandId: new CommandId(404),
         ));
     }
@@ -249,7 +253,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('community'), 'public', isPassword: false),
             ], HostMacroChange::class),
@@ -272,7 +276,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
             ], HostMacroChange::class),
@@ -292,7 +296,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
                 address: new HostAddress('127.0.0.1'),
                 pollerId: $poller->id(),
                 hostGroupIds: new Collection([], HostGroupId::class),
-                creatorId: 1,
+                actor: TestActingUsers::unrestricted(1),
                 snmpCommunity: 'public',
                 macroChanges: new Collection([
                     new HostMacroChange(new HostMacroName('token'), 'x', isPassword: false, id: new HostMacroId(123)),
@@ -320,7 +324,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('mypwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
@@ -351,7 +355,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('renamed'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
@@ -380,7 +384,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             snmpCommunity: 'public',
             macroChanges: new Collection([
@@ -419,7 +423,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('tplpwd'), null, isPassword: true, id: new HostMacroId(70), parent: HostMacroParentEnum::Template),
@@ -440,7 +444,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             checkCommandId: new CommandId(9),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('fromcommand'), 'set', isPassword: false, id: new HostMacroId(999), parent: HostMacroParentEnum::Command),
@@ -465,7 +469,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('inherited'), 'shared', isPassword: false),
@@ -494,7 +498,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(8), new HostTemplateId(7)], HostTemplateId::class),
             checkCommandId: new CommandId(9),
             macroChanges: new Collection([
@@ -526,7 +530,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             templateIds: new Collection([new HostTemplateId(7)], HostTemplateId::class),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('fromtemplatecommand'), '', isPassword: false),
@@ -547,7 +551,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
             ], HostMacroChange::class),
@@ -572,7 +576,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpCommunity: 'public',
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
@@ -603,7 +607,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             macroChanges: new Collection([
                 new HostMacroChange(new HostMacroName('secret'), 's3cr3t', isPassword: true),
             ], HostMacroChange::class),
@@ -622,7 +626,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
         );
         ($this->handler)($command);
 
@@ -640,7 +644,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId(404),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
         ));
     }
 
@@ -655,7 +659,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([new HostGroupId(404)], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
         ));
     }
 
@@ -669,7 +673,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([new HostGroupId(5)], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
         ));
 
         self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
@@ -684,39 +688,56 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
         ));
 
         self::assertTrue($this->eventBus->shouldHaveDispatched(HostCreated::class));
     }
 
-    public function testARestrictedViewerCanCreateAHostOnAnAccessiblePoller(): void
+    public function testARestrictedActorCanCreateAHostOnAnAccessiblePoller(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         // this specific poller is accessible
-        $this->resourceAccessRepository->unrestrictedPollerAccess = true;
+        $this->resourceAccessRepository->pollerScope = AccessScope::unrestricted(PollerId::class);
 
         ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
-            viewerId: new UserId(7),
+            actor: TestActingUsers::restricted(7),
+        ));
+
+        self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
+    }
+
+    public function testAnUnrestrictedCreatorIsNotScopedByAcl(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, []);
+
+        ($this->handler)(new CreateHostCommand(
+            name: new HostName('server-01'),
+            address: new HostAddress('127.0.0.1'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([new HostGroupId(5)], HostGroupId::class),
+            actor: TestActingUsers::unrestricted(1),
         ));
 
         self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
     }
 
     /**
-     * A restricted viewer referencing a poller outside their own ACL scope gets the same
+     * A restricted actor referencing a poller outside their own ACL scope gets the same
      * not-found error as a truly nonexistent poller — legacy does not distinguish the two,
      * to avoid leaking existence information.
      */
-    public function testARestrictedViewerCannotCreateAHostOnAnInaccessiblePoller(): void
+    public function testARestrictedActorCannotCreateAHostOnAnInaccessiblePoller(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
 
         $this->expectException(PollerNotFoundException::class);
 
@@ -725,17 +746,16 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
-            viewerId: new UserId(7),
+            actor: TestActingUsers::restricted(7),
         ));
     }
 
-    public function testARestrictedViewerCannotReferenceAHostGroupOutsideTheirAccessibleScope(): void
+    public function testARestrictedActorCannotReferenceAHostGroupOutsideTheirAccessibleScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
         // Restricted to a different set of host groups than the one being requested (5).
-        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(9)], HostGroupId::class);
+        $this->resourceAccessRepository->hostGroupScope = AccessScope::restrictedTo(HostGroupId::class, [new HostGroupId(9)]);
 
         $this->expectException(HostGroupNotFoundException::class);
 
@@ -744,22 +764,21 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([new HostGroupId(5)], HostGroupId::class),
-            creatorId: 1,
-            viewerId: new UserId(7),
+            actor: TestActingUsers::restricted(7),
         ));
     }
 
     /**
-     * References are authorized before the name is looked up, so a restricted viewer cannot tell
+     * References are authorized before the name is looked up, so a restricted actor cannot tell
      * a duplicate name apart from an inaccessible poller — both surface as the same
      * PollerNotFoundException, never HostAlreadyExistsException, closing an enumeration channel
-     * (a restricted viewer could otherwise learn a name is already taken by some host or template
+     * (a restricted actor could otherwise learn a name is already taken by some host or template
      * they can't even see, just by observing whether they get a 409 or a 404).
      */
-    public function testARestrictedViewerGetsPollerNotFoundNotDuplicateNameForAnInaccessiblePollerWithADuplicateName(): void
+    public function testARestrictedActorGetsPollerNotFoundNotDuplicateNameForAnInaccessiblePollerWithADuplicateName(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
-        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+        $this->resourceAccessRepository->pollerScope = AccessScope::restrictedTo(PollerId::class, []);
 
         $existingName = new HostName('server-01');
         $this->hostRepository->add(new Host(
@@ -780,8 +799,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.2'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
-            viewerId: new UserId(7),
+            actor: TestActingUsers::restricted(7),
         ));
     }
 
@@ -871,7 +889,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             alias: new HostAlias('Web server'),
         ));
 
@@ -887,15 +905,15 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [404]));
     }
 
-    public function testItRejectsACategoryOutsideTheViewerScope(): void
+    public function testItRejectsACategoryOutsideTheActorScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostCategoryRepository->hostCategories[7] = new HostCategory(new HostCategoryId(7), new HostCategoryName('Production'));
-        $this->resourceAccessRepository->accessibleHostCategoryIds = new Collection([], HostCategoryId::class);
+        $this->resourceAccessRepository->hostCategoryScope = AccessScope::restrictedTo(HostCategoryId::class, []);
 
         $this->expectException(HostCategoryNotFoundException::class);
 
-        ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [7], viewerId: new UserId(9)));
+        ($this->handler)($this->referenceCommand($poller->id(), categoryIds: [7], actor: TestActingUsers::restricted(9)));
     }
 
     public function testItRejectsAnUnknownSeverity(): void
@@ -907,15 +925,15 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->referenceCommand($poller->id(), severityId: 404));
     }
 
-    public function testItRejectsASeverityOutsideTheViewerScope(): void
+    public function testItRejectsASeverityOutsideTheActorScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $this->hostSeverityRepository->hostSeverities[7] = new HostSeverityName('Critical');
-        $this->resourceAccessRepository->accessibleHostSeverityIds = new Collection([], HostSeverityId::class);
+        $this->resourceAccessRepository->hostSeverityScope = AccessScope::restrictedTo(HostSeverityId::class, []);
 
         $this->expectException(HostSeverityNotFoundException::class);
 
-        ($this->handler)($this->referenceCommand($poller->id(), severityId: 7, viewerId: new UserId(9)));
+        ($this->handler)($this->referenceCommand($poller->id(), severityId: 7, actor: TestActingUsers::restricted(9)));
     }
 
     public function testItRejectsAnUnknownTimezone(): void
@@ -950,6 +968,18 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->relationCommand($poller->id(), templateIds: [404]));
     }
 
+    public function testItReportsAnUnknownTemplateSubmittedTwiceOnce(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+
+        try {
+            ($this->handler)($this->relationCommand($poller->id(), templateIds: [404, 404]));
+            self::fail('An unknown template must be rejected.');
+        } catch (HostTemplateNotFoundException $e) {
+            self::assertSame(['templateIds' => [404]], $e->criteria);
+        }
+    }
+
     public function testItRejectsAnUnknownParentHost(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
@@ -968,25 +998,25 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         ($this->handler)($this->relationCommand($poller->id(), childHostIds: [404]));
     }
 
-    public function testARestrictedViewerCannotLinkAParentHostOutsideTheirScope(): void
+    public function testARestrictedActorCannotLinkAParentHostOutsideTheirScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $parentId = $this->addRelatedHost($poller->id(), 'hidden-parent');
-        // The host exists but is out of the viewer's scope: it reads as not found, like an unknown one.
+        // The host exists but is out of the actor's scope: it reads as not found, like an unknown one.
         $this->resourceAccessRepository->accessibleHostIds = new Collection([], HostId::class);
 
         $this->expectException(HostNotFoundException::class);
 
-        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], viewerId: new UserId(7)));
+        ($this->handler)($this->relationCommand($poller->id(), parentHostIds: [$parentId], actor: TestActingUsers::restricted(7)));
     }
 
-    public function testARestrictedViewerCanLinkAChildHostWithinTheirScope(): void
+    public function testARestrictedActorCanLinkAChildHostWithinTheirScope(): void
     {
         $poller = $this->addPoller($this->pollerRepository, 1);
         $childId = $this->addRelatedHost($poller->id(), 'visible-child');
         $this->resourceAccessRepository->accessibleHostIds = new Collection([new HostId($childId)], HostId::class);
 
-        $host = ($this->handler)($this->relationCommand($poller->id(), childHostIds: [$childId], viewerId: new UserId(7)));
+        $host = ($this->handler)($this->relationCommand($poller->id(), childHostIds: [$childId], actor: TestActingUsers::restricted(7)));
 
         self::assertSame([$childId], array_map(static fn (HostId $id): int => $id->value, $host->childHostIds->toArray()));
     }
@@ -1077,7 +1107,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
         ));
 
@@ -1099,7 +1129,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
         ));
 
@@ -1120,7 +1150,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             notifications: $this->notifications(contactAdditiveInheritance: true, contactGroupAdditiveInheritance: true),
         ));
 
@@ -1136,7 +1166,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $pollerId,
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: TestActingUsers::unrestricted(1),
             snmpVersion: SnmpVersionEnum::TwoC,
             snmpCommunity: $snmpCommunity,
         );
@@ -1150,15 +1180,14 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         array $categoryIds = [],
         ?int $severityId = null,
         ?int $timezoneId = null,
-        ?UserId $viewerId = null,
+        ActingUser $actor = new ActingUser(new UserId(1), unrestrictedResourceAccess: true),
     ): CreateHostCommand {
         return new CreateHostCommand(
             name: new HostName('reference-host'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $pollerId,
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
-            viewerId: $viewerId,
+            actor: $actor,
             categoryIds: new Collection(
                 array_map(static fn (int $id): HostCategoryId => new HostCategoryId($id), $categoryIds),
                 HostCategoryId::class,
@@ -1179,14 +1208,14 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
         array $parentHostIds = [],
         array $childHostIds = [],
         bool $deployServicesFromTemplates = true,
-        ?UserId $viewerId = null,
+        ActingUser $actor = new ActingUser(new UserId(1), unrestrictedResourceAccess: true),
     ): CreateHostCommand {
         return new CreateHostCommand(
             name: new HostName('relation-host'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $pollerId,
             hostGroupIds: new Collection([], HostGroupId::class),
-            creatorId: 1,
+            actor: $actor,
             templateIds: new Collection(
                 array_map(static fn (int $id): HostTemplateId => new HostTemplateId($id), $templateIds),
                 HostTemplateId::class,
@@ -1200,7 +1229,6 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
                 HostId::class,
             ),
             deployServicesFromTemplates: $deployServicesFromTemplates,
-            viewerId: $viewerId,
         );
     }
 
