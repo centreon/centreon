@@ -29,7 +29,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Exception\HostTemplateNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\MonitoringConfiguration\Domain\Service\InheritedHostMacrosResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateMacrosOutput;
@@ -42,8 +41,9 @@ use Webmozart\Assert\Assert;
  * macros (direct, parent null), then those it inherits from its ancestor templates and check
  * commands that it does not override (parent "template" or "command"), resolved like GetHost.
  *
- * Scoped like the host template choices list (ListHostTemplatesChoicesProvider): no viewer scoping,
- * and locked (paid plugin-pack) templates are not found. An inactive template is not found either.
+ * No viewer scoping, like the host template choices list (ListHostTemplatesChoicesProvider). Unlike
+ * that list, the license host limit does not apply: a template the license no longer allows still
+ * gives its macros, as a host may already have it. An inactive template is not found.
  *
  * @implements ProviderInterface<HostTemplateMacrosOutput>
  */
@@ -60,11 +60,6 @@ final readonly class GetHostTemplateMacrosProvider implements ProviderInterface
     {
         Assert::integer($uriVariables['id']);
         $templateId = new HostTemplateId($uriVariables['id']);
-
-        $criteria = (new HostTemplateCriteria())->withId($templateId)->withExcludeLocked(true);
-        if (count($this->repository->findAll($criteria)) === 0) {
-            throw new HostTemplateNotFoundException([$templateId->value], 'id');
-        }
 
         // The line starts with the template itself (when active), followed by its ancestors.
         /** @var list<HostTemplate> $inheritanceLine */

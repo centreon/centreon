@@ -607,6 +607,19 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         );
     }
 
+    public function countAll(): int
+    {
+        /** @var int|string $count */
+        $count = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from(self::TABLE_NAME)
+            ->where("host_register = '1'")
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int) $count;
+    }
+
     /**
      * Full replace of a host's relations, complementing {@see update()}, which writes its own fields and
      * its poller. Every relation table (host groups, categories and severity, templates, parents and
