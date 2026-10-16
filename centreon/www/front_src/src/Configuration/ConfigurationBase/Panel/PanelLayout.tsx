@@ -15,7 +15,7 @@ interface Props {
 }
 
 const PanelLayout = ({ form, hasWriteAccess, width }: Props): ReactElement => {
-  const { id, isOpen } = useAtomValue(formStateAtom);
+  const { id, isOpen, mode } = useAtomValue(formStateAtom);
 
   const [draggedWidth, setDraggedWidth] = useAtom(panelWidthAtom);
 
@@ -52,8 +52,9 @@ const PanelLayout = ({ form, hasWriteAccess, width }: Props): ReactElement => {
           <Panel
             form={form}
             hasWriteAccess={hasWriteAccess}
-            // Remounts on another resource, dropping the latched detail.
-            key={id}
+            // Remounts on another resource or mode, dropping the latched
+            // detail.
+            key={`${mode}-${id}`}
             onResize={setDraggedWidth}
             width={panelWidth}
           />
