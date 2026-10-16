@@ -116,7 +116,7 @@ final readonly class ListHostsProvider implements ProviderInterface
             $criteria = $criteria->withActivated($activated);
         }
 
-        $criteria = $this->handleSort($this->validateSort($filters, $criteria), $criteria);
+        $criteria = $this->handleSort($filters, $criteria);
 
         $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
             ? $criteria
@@ -137,38 +137,6 @@ final readonly class ListHostsProvider implements ProviderInterface
             $hosts->getItemsPerPage(),
             $hosts->getTotalItems()
         );
-    }
-
-    /**
-     * Rejects what the criteria cannot sort on, instead of silently ignoring it: a typo in the
-     * field or the direction would otherwise return an unsorted page that looks valid.
-     *
-     * @param array<string, mixed> $filters
-     *
-     * @return array{sort: array<string, string>}
-     */
-    private function validateSort(array $filters, HostCriteria $criteria): array
-    {
-        $requested = $filters['sort'] ?? [];
-        if (! is_array($requested)) {
-            throw new BadRequestHttpException('The "sort" parameter must use the "sort[field]=asc|desc" format.');
-        }
-
-        $allowedFields = array_keys($criteria->getFieldMapping());
-        $sort = [];
-        foreach ($requested as $field => $direction) {
-            if (! in_array($field, $allowedFields, true)) {
-                throw new BadRequestHttpException(
-                    sprintf('Cannot sort on "%s", allowed fields are: %s.', $field, implode(', ', $allowedFields))
-                );
-            }
-            if (! is_string($direction) || ! in_array(mb_strtolower($direction), ['asc', 'desc'], true)) {
-                throw new BadRequestHttpException(sprintf('The sort direction of "%s" must be "asc" or "desc".', $field));
-            }
-            $sort[$field] = $direction;
-        }
-
-        return ['sort' => $sort];
     }
 
     /**
