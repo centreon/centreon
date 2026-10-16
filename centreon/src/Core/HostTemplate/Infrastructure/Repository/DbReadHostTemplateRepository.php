@@ -87,22 +87,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
 {
     use LoggerTrait;
     use HostCategoryRepositoryTrait;
-    private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
-
-    /** Monitoring Connectors free of license, whose templates stay usable once the host limit is reached. */
-    private const FREE_CONNECTOR_SLUGS = [
-        'applications-databases-mysql',
-        'applications-monitoring-centreon-central',
-        'applications-monitoring-centreon-database',
-        'applications-monitoring-centreon-poller',
-        'base-generic',
-        'hardware-printers-standard-rfc3805-snmp',
-        'hardware-ups-standard-rfc1628-snmp',
-        'network-cisco-standard-snmp',
-        'operatingsystems-linux-snmp',
-        'operatingsystems-windows-snmp',
-    ];
-
     /**
      * @param DatabaseConnection $db
      */
@@ -826,57 +810,6 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findIdsFromPaidConnectors(): array
-    {
-        $this->info('Find the host templates coming from the paid Monitoring Connectors');
-
-        $isPluginPackManagerInstalled = $this->db->prepare(
-            $this->translateDbName('SELECT 1 FROM `:db`.modules_informations WHERE `name` = :moduleName')
-        );
-        $isPluginPackManagerInstalled->bindValue(':moduleName', self::PLUGIN_PACK_MANAGER_MODULE, \PDO::PARAM_STR);
-        $isPluginPackManagerInstalled->execute();
-        if ($isPluginPackManagerInstalled->fetchColumn() === false) {
-            return [];
-        }
-
-        $freeSlugPlaceholders = array_map(
-            static fn (int $index): string => ':freeSlug' . $index,
-            array_keys(self::FREE_CONNECTOR_SLUGS)
-        );
-        $request = str_replace(
-            ':freeSlugs',
-            implode(', ', $freeSlugPlaceholders),
-            <<<'SQL'
-                WITH RECURSIVE unlicensed (id) AS (
-                    SELECT ph.host_id
-                    FROM `:db`.mod_ppm_pluginpack_host ph
-                    INNER JOIN `:db`.mod_ppm_pluginpack pp ON pp.pluginpack_id = ph.pluginpack_id
-                    WHERE pp.slug NOT IN (:freeSlugs)
-                    UNION
-                    SELECT htr.host_host_id
-                    FROM `:db`.host_template_relation htr
-                    INNER JOIN unlicensed u ON u.id = htr.host_tpl_id
-                )
-                SELECT h.host_id
-                FROM `:db`.host h
-                INNER JOIN unlicensed u ON u.id = h.host_id
-                WHERE h.host_register = :hostTemplateType
-                ORDER BY h.host_id
-                SQL
-        );
-        $statement = $this->db->prepare($this->translateDbName($request));
-        foreach (self::FREE_CONNECTOR_SLUGS as $index => $slug) {
-            $statement->bindValue(':freeSlug' . $index, $slug, \PDO::PARAM_STR);
-        }
-        $statement->bindValue(':hostTemplateType', HostType::Template->value, \PDO::PARAM_STR);
-        $statement->execute();
-
-        return array_map('intval', $statement->fetchAll(\PDO::FETCH_COLUMN));
     }
 
     /**

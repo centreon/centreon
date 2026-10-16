@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
+
 interface ReadHostLicenseRepositoryInterface
 {
     /**
      * Whether the license manager is installed and the license of the Monitoring Connectors is valid.
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return bool
      */
@@ -38,7 +40,7 @@ interface ReadHostLicenseRepositoryInterface
      * The number of hosts the license allows, null when it allows any number.
      * A license without a readable limit allows no host.
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int|null
      */
@@ -47,9 +49,19 @@ interface ReadHostLicenseRepositoryInterface
     /**
      * The number of hosts of the platform, whether they are enabled or not.
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int
      */
     public function countHosts(): int;
+
+    /**
+     * Find the host templates coming from the Monitoring Connectors that are not free of license, and every
+     * host template inheriting from them. Empty without the plugin pack manager module.
+     *
+     * @throws RepositoryException
+     *
+     * @return int[]
+     */
+    public function findPaidConnectorTemplateIds(): array;
 }

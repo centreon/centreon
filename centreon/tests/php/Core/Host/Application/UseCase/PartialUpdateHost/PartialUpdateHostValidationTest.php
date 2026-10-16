@@ -51,7 +51,6 @@ beforeEach(function (): void {
         readCommandRepository: $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         inheritanceManager: $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         unlicensedHostTemplatesFinder: new UnlicensedHostTemplatesFinder(
-            $this->readHostTemplateRepository,
             $this->readHostLicenseRepository = $this->createMock(ReadHostLicenseRepositoryInterface::class),
         ),
         accessGroups: $this->accessGroup = []
@@ -221,7 +220,7 @@ it('throws an exception when parent template ID creates a circular inheritance',
 );
 
 it('throws an exception when a template added comes from a paid connector and the host limit is reached', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->method('isValid')->willReturn(false);
 
     expect(fn () => $this->validation->assertAreLicensedTemplates([10, 11], [11]))
@@ -232,7 +231,7 @@ it('throws an exception when a template added comes from a paid connector and th
 });
 
 it('does not throw when the paid template is already given', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->method('isValid')->willReturn(false);
 
     $this->validation->assertAreLicensedTemplates([10, 11], [10]);

@@ -24,19 +24,14 @@ declare(strict_types=1);
 namespace Tests\Core\HostTemplate\Application;
 
 use Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\UnlicensedHostTemplatesFinder;
 
 beforeEach(function (): void {
-    $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->readHostLicenseRepository = $this->createMock(ReadHostLicenseRepositoryInterface::class);
-    $this->finder = new UnlicensedHostTemplatesFinder(
-        $this->readHostTemplateRepository,
-        $this->readHostLicenseRepository,
-    );
+    $this->finder = new UnlicensedHostTemplatesFinder($this->readHostLicenseRepository);
 
     $this->limitReached = function (): void {
-        $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10, 11]);
+        $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10, 11]);
         $this->readHostLicenseRepository->method('isValid')->willReturn(true);
         $this->readHostLicenseRepository->method('getMaxHosts')->willReturn(100);
         $this->readHostLicenseRepository->method('countHosts')->willReturn(100);
@@ -44,14 +39,14 @@ beforeEach(function (): void {
 });
 
 it('finds nothing and reads nothing when no template is added', function (): void {
-    $this->readHostTemplateRepository->expects($this->never())->method('findIdsFromPaidConnectors');
+    $this->readHostLicenseRepository->expects($this->never())->method('findPaidConnectorTemplateIds');
     $this->readHostLicenseRepository->expects($this->never())->method('isValid');
 
     expect($this->finder->findAmongAdded([10, 11], [10, 11]))->toBe([]);
 });
 
 it('does not read the license when no added template comes from a paid connector', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->expects($this->never())->method('isValid');
 
     expect($this->finder->findAmongAdded([1, 2]))->toBe([]);
@@ -76,7 +71,7 @@ it('finds only the paid templates among the added ones', function (): void {
 });
 
 it('finds nothing while the license allows more hosts than the platform has', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->method('isValid')->willReturn(true);
     $this->readHostLicenseRepository->method('getMaxHosts')->willReturn(100);
     $this->readHostLicenseRepository->method('countHosts')->willReturn(99);
@@ -85,7 +80,7 @@ it('finds nothing while the license allows more hosts than the platform has', fu
 });
 
 it('finds nothing when the license allows any number of hosts', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->method('isValid')->willReturn(true);
     $this->readHostLicenseRepository->method('getMaxHosts')->willReturn(null);
     $this->readHostLicenseRepository->expects($this->never())->method('countHosts');
@@ -94,7 +89,7 @@ it('finds nothing when the license allows any number of hosts', function (): voi
 });
 
 it('considers the limit reached when the platform has more hosts than the license allows', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->method('isValid')->willReturn(true);
     $this->readHostLicenseRepository->method('getMaxHosts')->willReturn(100);
     $this->readHostLicenseRepository->method('countHosts')->willReturn(101);
@@ -103,7 +98,7 @@ it('considers the limit reached when the platform has more hosts than the licens
 });
 
 it('considers the limit reached when the license is not valid', function (): void {
-    $this->readHostTemplateRepository->method('findIdsFromPaidConnectors')->willReturn([10]);
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
     $this->readHostLicenseRepository->method('isValid')->willReturn(false);
     $this->readHostLicenseRepository->expects($this->never())->method('getMaxHosts');
 

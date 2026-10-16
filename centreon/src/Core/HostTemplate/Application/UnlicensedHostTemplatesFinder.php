@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 
 /**
  * Once the license host limit is reached, a host or a host template can no longer be given a template
@@ -34,7 +34,6 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 final class UnlicensedHostTemplatesFinder
 {
     public function __construct(
-        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly ReadHostLicenseRepositoryInterface $readHostLicenseRepository,
     ) {
     }
@@ -43,7 +42,7 @@ final class UnlicensedHostTemplatesFinder
      * @param int[] $templateIds the templates the host or the host template is given
      * @param int[] $currentTemplateIds the templates it already has
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return int[] the templates among the added ones that the license no longer allows
      */
@@ -55,7 +54,7 @@ final class UnlicensedHostTemplatesFinder
         }
 
         $unlicensedIds = array_values(
-            array_intersect($addedIds, $this->readHostTemplateRepository->findIdsFromPaidConnectors())
+            array_intersect($addedIds, $this->readHostLicenseRepository->findPaidConnectorTemplateIds())
         );
         if ($unlicensedIds === [] || ! $this->isHostLimitReached()) {
             return [];
@@ -65,7 +64,7 @@ final class UnlicensedHostTemplatesFinder
     }
 
     /**
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return bool
      */
