@@ -1,0 +1,224 @@
+[
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;clapi-ipv4;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;host;central.example.com",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;port;5669",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;category;neb,storage",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-export;clapi-input;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;port;5670",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-export",
+        "output": [
+            "id;name",
+            "1;api-bbdo-server",
+            "2;clapi-input"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-export",
+        "output": [
+            "id;name",
+            "1;api-lua",
+            "2;api-influxdb",
+            "3;clapi-ipv4",
+            "10;centreon-map",
+            "11;centreon-bam-monitoring",
+            "12;forward-to-anomaly-detection",
+            "13;no-block-id"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-export;1",
+        "output": [
+            "parameter key;parameter value",
+            "authorization;",
+            "category;dumper",
+            "category;storage",
+            "certificate;",
+            "compression;no",
+            "encryption;no",
+            "filters;",
+            "host;",
+            "name;api-bbdo-server",
+            "port;5669",
+            "private_key;",
+            "retention;no",
+            "transport_protocol;gRPC",
+            "type;bbdo_server"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-export;2",
+        "output": [
+            "parameter key;parameter value",
+            "name;clapi-input",
+            "negotiation;yes",
+            "port;5670",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-export;1",
+        "output": [
+            "parameter key;parameter value",
+            "category;neb",
+            "filters;",
+            "lua_parameter__name;lua-param-1",
+            "lua_parameter__name;lua-param-2",
+            "lua_parameter__type;number",
+            "lua_parameter__type;string",
+            "lua_parameter__value;999",
+            "lua_parameter__value;value-1",
+            "name;api-lua",
+            "path;/usr/share/centreon-broker/lua/connector.lua",
+            "type;lua"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-export;3",
+        "output": [
+            "parameter key;parameter value",
+            "category;neb",
+            "category;storage",
+            "filters;",
+            "host;central.example.com",
+            "name;clapi-ipv4",
+            "negotiation;yes",
+            "port;5669",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-export;12",
+        "output": [
+            "parameter key;parameter value",
+            "lua_parameter__name;max_queue_size",
+            "lua_parameter__type;number",
+            "lua_parameter__value;100",
+            "name;forward-to-anomaly-detection",
+            "path;/usr/share/centreon-broker/lua/centreon-anomaly-detection.lua",
+            "second-line",
+            "type;lua"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;EXPORT;clapi-9300-export",
+        "output": {
+            "broker": [
+                "CENTBROKERCFG;ADD;clapi-9300-export;broker-io-poller-9300",
+                "CENTBROKERCFG;SETPARAM;clapi-9300-export;filename;clapi-9300-export.json",
+                "CENTBROKERCFG;SETPARAM;clapi-9300-export;cache_directory;/var/lib/centreon-broker",
+                "CENTBROKERCFG;SETPARAM;clapi-9300-export;stats_activate;1",
+                "CENTBROKERCFG;SETPARAM;clapi-9300-export;daemon;1",
+                "CENTBROKERCFG;SETPARAM;clapi-9300-export;pool_size;",
+                "CENTBROKERCFG;SETPARAM;clapi-9300-export;event_queues_total_size;"
+            ],
+            "flows": {
+                "INPUT": [
+                    [
+                        "CENTBROKERCFG;ADDINPUT;clapi-9300-export;api-bbdo-server;bbdo_server",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;category;dumper,storage",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;compression;no",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;encryption;no",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;port;5669",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;retention;no",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;transport_protocol;gRPC",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;1;type;bbdo_server"
+                    ],
+                    [
+                        "CENTBROKERCFG;ADDINPUT;clapi-9300-export;clapi-input;ipv4",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;negotiation;yes",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;port;5670",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;protocol;bbdo",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;tls;no",
+                        "CENTBROKERCFG;SETINPUT;clapi-9300-export;2;type;ipv4"
+                    ]
+                ],
+                "LOGGER": [
+                    [
+                        "CENTBROKERCFG;ADDLOGGER;clapi-9300-export;/var/log/centreon-broker/pre-21-04.log;file",
+                        "CENTBROKERCFG;SETLOGGER;clapi-9300-export;0;config;yes",
+                        "CENTBROKERCFG;SETLOGGER;clapi-9300-export;0;level;low",
+                        "CENTBROKERCFG;SETLOGGER;clapi-9300-export;0;type;file"
+                    ]
+                ],
+                "OUTPUT": [
+                    [
+                        "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;api-lua;lua",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;category;neb",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;lua_parameter__name;lua-param-1",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;lua_parameter__name;lua-param-2",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;lua_parameter__type;number",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;lua_parameter__type;string",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;lua_parameter__value;999",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;lua_parameter__value;value-1",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;path;/usr/share/centreon-broker/lua/connector.lua",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;1;type;lua"
+                    ],
+                    [
+                        "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;api-influxdb;influxdb",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;cache;no",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;db_host;127.0.0.1",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;db_name;metrics",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;db_password;influx-secret",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;db_port;8086",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;db_user;influx-user",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;metrics_column__is_tag;true",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;metrics_column__name;host",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;metrics_column__type;string",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;metrics_column__value;$HOST$",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;metrics_timeseries;$METRIC$",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;status_timeseries;$INSTANCE$",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;2;type;influxdb"
+                    ],
+                    [
+                        "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;clapi-ipv4;ipv4",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;category;neb,storage",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;host;central.example.com",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;negotiation;yes",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;port;5669",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;protocol;bbdo",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;tls;no",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;3;type;ipv4"
+                    ],
+                    [
+                        "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;centreon-map;ipv4",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;10;category;bam,neb",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;10;port;5758",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;10;protocol;bbdo",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;10;type;ipv4"
+                    ],
+                    [
+                        "CENTBROKERCFG;ADDOUTPUT;clapi-9300-export;forward-to-anomaly-detection;lua",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;12;lua_parameter__name;max_queue_size",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;12;lua_parameter__type;number",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;12;lua_parameter__value;100",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;12;path;/usr/share/centreon-broker/lua/centreon-anomaly-detection.lua<br/>second-line",
+                        "CENTBROKERCFG;SETOUTPUT;clapi-9300-export;12;type;lua"
+                    ]
+                ]
+            }
+        }
+    }
+]

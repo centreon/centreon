@@ -1,0 +1,200 @@
+{
+    "clapi": [
+        {
+            "command": "CENTBROKERCFG;ADDINPUT;clapi-9301-central;central-input;ipv4",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETINPUT;clapi-9301-central;0;port;5669",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETINPUT;clapi-9301-central;0;category;neb",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9301-central;to-delete;ipv4",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9301-central;rrd-output;rrd",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;1;port;5670",
+            "output": [],
+            "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+        },
+        {
+            "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9301-central;lua-output;lua",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;2;path;/usr/share/centreon-broker/lua/connector.lua",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;2;category;neb,storage",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;2;category;neb,storage",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9301-central;sql-output;unified_sql",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;3;db_host;127.0.0.1",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;3;db_port;3306",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;3;db_user;centreon",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;3;db_password;db-secret",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;3;db_name;centreon_storage",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;SETOUTPUT;clapi-9301-central;3;category;storage",
+            "output": []
+        },
+        {
+            "command": "CENTBROKERCFG;DELOUTPUT;clapi-9301-central;0",
+            "output": []
+        }
+    ],
+    "files": {
+        "clapi-9301-central.json": {
+            "centreonBroker": {
+                "broker_id": "<broker-0>",
+                "broker_name": "clapi-9301-central",
+                "poller_id": 9301,
+                "uid": 100000000009301,
+                "poller_name": "broker-io-poller-9301",
+                "module_directory": "/usr/share/centreon/lib/centreon-broker",
+                "log_timestamp": false,
+                "log_thread_id": false,
+                "event_queue_max_size": 100000,
+                "command_file": "/var/lib/centreon-broker/command.sock",
+                "cache_directory": "/var/lib/centreon-broker",
+                "bbdo_version": "3.1.0",
+                "log": {
+                    "directory": "/var/log/centreon-broker",
+                    "filename": "clapi-9301-central.log",
+                    "max_size": 0,
+                    "loggers": {
+                        "core": "error",
+                        "config": "error",
+                        "sql": "error",
+                        "processing": "error",
+                        "perfdata": "error",
+                        "bbdo": "error",
+                        "tcp": "error",
+                        "tls": "error",
+                        "lua": "error",
+                        "bam": "error",
+                        "neb": "error",
+                        "rrd": "error",
+                        "grpc": "error",
+                        "influxdb": "error",
+                        "graphite": "error",
+                        "victoria_metrics": "error",
+                        "stats": "error"
+                    }
+                },
+                "input": [
+                    {
+                        "type": "ipv4",
+                        "name": "central-input",
+                        "protocol": "bbdo",
+                        "tls": "no",
+                        "negotiation": "yes",
+                        "port": "5669",
+                        "filters": {
+                            "category": [
+                                "neb"
+                            ]
+                        }
+                    }
+                ],
+                "output": [
+                    {
+                        "name": "rrd-output",
+                        "write_status": "yes",
+                        "insert_in_index_data": "1",
+                        "write_metrics": "yes",
+                        "store_in_data_bin": "yes",
+                        "status_path": "D=centreon_storage:T=config:C=RRDdatabase_status_path:CK=id:K=1",
+                        "metrics_path": "D=centreon_storage:T=config:C=RRDdatabase_path:CK=id:K=1",
+                        "type": "rrd"
+                    },
+                    {
+                        "name": "lua-output",
+                        "filters": {
+                            "category": [
+                                "neb",
+                                "storage"
+                            ]
+                        },
+                        "path": "/usr/share/centreon-broker/lua/connector.lua",
+                        "type": "lua"
+                    },
+                    {
+                        "filters": {
+                            "category": [
+                                "storage"
+                            ]
+                        },
+                        "db_name": "centreon_storage",
+                        "db_password": "db-secret",
+                        "db_user": "centreon",
+                        "db_port": "3306",
+                        "db_host": "127.0.0.1",
+                        "db_type": "mysql",
+                        "insert_in_index_data": "1",
+                        "store_in_data_bin": "yes",
+                        "length": "15552000",
+                        "interval": "60",
+                        "name": "sql-output",
+                        "type": "unified_sql"
+                    }
+                ],
+                "stats": [
+                    {
+                        "type": "stats",
+                        "name": "clapi-9301-central-stats",
+                        "json_fifo": "/var/lib/centreon-broker/clapi-9301-central-stats.json"
+                    }
+                ],
+                "grpc": {
+                    "port": "<51000 + broker-0>"
+                }
+            }
+        },
+        "watchdog.json": {
+            "centreonBroker": {
+                "cbd": [
+                    {
+                        "name": "clapi-9301-central",
+                        "configuration_file": "/etc/centreon-broker/clapi-9301-central.json",
+                        "run": true,
+                        "reload": true
+                    }
+                ],
+                "log": "/var/log/centreon-broker/watchdog.log"
+            }
+        },
+        "php-warnings": []
+    }
+}

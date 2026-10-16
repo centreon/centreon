@@ -1,0 +1,205 @@
+[
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-set;input-ipv4;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-set;output-lua;lua",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-set;output-influxdb;influxdb",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-set;output-sql;unified_sql",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-set;0;port;5669",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-set;0;host;",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-set;0;tls;yes",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-set;0;category;neb,storage",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-set;0",
+        "output": [
+            "parameter key;parameter value",
+            "category;neb",
+            "category;storage",
+            "filters;",
+            "host;",
+            "name;input-ipv4",
+            "negotiation;yes",
+            "port;5669",
+            "protocol;bbdo",
+            "tls;yes",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-set;0;category;dumper",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-set;0;port;5670",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;GETINPUT;clapi-9300-set;0",
+        "output": [
+            "parameter key;parameter value",
+            "category;dumper",
+            "filters;",
+            "filters;",
+            "host;",
+            "name;input-ipv4",
+            "negotiation;yes",
+            "port;5670",
+            "protocol;bbdo",
+            "tls;yes",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;path;/usr/share/centreon-broker/lua/a.lua,/usr/share/centreon-broker/lua/b.lua",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-set;0",
+        "output": [
+            "parameter key;parameter value",
+            "name;output-lua",
+            "path;/usr/share/centreon-broker/lua/a.lua",
+            "path;/usr/share/centreon-broker/lua/b.lua",
+            "type;lua"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;path;/usr/share/centreon-broker/lua/connector.lua",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;lua_parameter__name_0;param",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;lua_parameter;param",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;value;value-1",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;type;password",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;0;name;renamed-lua",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-set;0",
+        "output": [
+            "parameter key;parameter value",
+            "name;renamed-lua",
+            "path;/usr/share/centreon-broker/lua/connector.lua",
+            "type;password",
+            "value;value-1"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;1;metrics_column__name_0;host",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;1;is_tag;true",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;1;db_port;8086",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-set;1",
+        "output": [
+            "parameter key;parameter value",
+            "db_host;",
+            "db_name;",
+            "db_port;8086",
+            "db_user;",
+            "is_tag;true",
+            "metrics_timeseries;",
+            "name;output-influxdb",
+            "status_timeseries;",
+            "type;influxdb"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;2;name;sql-a,sql-b",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;2;db_host;127.0.0.1",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;2;category;storage",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-set;2;category;storage",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-set;2",
+        "output": [
+            "parameter key;parameter value",
+            "category;storage",
+            "db_host;127.0.0.1",
+            "db_name;",
+            "db_port;",
+            "db_type;T=options:C=value:CK=key:K=unified_sql_db_type",
+            "db_user;",
+            "filters;",
+            "filters;",
+            "insert_in_index_data;T=options:C=value:CK=key:K=index_data",
+            "interval;T=options:C=value:CK=key:K=interval_length",
+            "length;D=centreon_storage:T=config:C=len_storage_rrd:RPN=86400 *:CK=id:K=1",
+            "name;output-sql",
+            "store_in_data_bin;yes",
+            "type;unified_sql"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-set",
+        "output": [
+            "id;name",
+            "0;renamed-lua",
+            "1;output-influxdb",
+            "2;output-sql"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-set",
+        "output": [
+            "id;name",
+            "0;input-ipv4"
+        ]
+    }
+]

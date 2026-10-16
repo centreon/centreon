@@ -1,0 +1,141 @@
+[
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-a;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-b;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-c;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-ids;input-a;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;output-a",
+            "1;output-b",
+            "2;output-c"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;input-a"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-ids;1",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-d;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;output-a",
+            "2;output-c",
+            "3;output-d"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-ids;3",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-e;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;output-a",
+            "2;output-c",
+            "3;output-e"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-ids;42",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-ids;0",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-ids;2",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-ids;3",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-ids",
+        "output": [
+            "id;name"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-ids;0",
+        "output": [
+            "parameter key;parameter value"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-a;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;output-a"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;DELINPUT;clapi-9300-ids;0",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-ids",
+        "output": [
+            "id;name"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-ids;input-b;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;input-b"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-ids;output-f;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-ids",
+        "output": [
+            "id;name",
+            "0;output-a",
+            "1;api-output",
+            "2;output-f"
+        ]
+    }
+]

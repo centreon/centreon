@@ -1,0 +1,159 @@
+[
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;output-a;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-errors;input-a;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-unknown;output-x;ipv4",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Object not found:clapi-9300-unknown"
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-unknown",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Object not found:clapi-9300-unknown"
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Object not found:"
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Missing parameters"
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;output-x",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Missing parameters"
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;output-x;unknown_type",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Unknown parameter"
+    },
+    {
+        "command": "CENTBROKERCFG;ADDINPUT;clapi-9300-errors;input-x;rrd",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Unknown combination: input/rrd"
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;output-a;ipv6",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Object already exists"
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;input-a;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;output-b,output-c;ipv4",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;ADDOUTPUT;clapi-9300-errors;output-c;ipv4",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Object already exists"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-errors;0;port",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Missing parameters"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-errors;42;port;5669",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-errors;0;unknown_field;value",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-errors;0;path;/var/lib/file",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-errors;0;tls;maybe",
+        "output": []
+    },
+    {
+        "command": "CENTBROKERCFG;SETOUTPUT;clapi-9300-errors;0;category;neb,bam",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;SETINPUT;clapi-9300-errors;0;category;",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Invalid field"
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-errors",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Missing parameters"
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-errors;42",
+        "output": [
+            "parameter key;parameter value"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;DELOUTPUT;clapi-9300-errors;",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Missing parameters"
+    },
+    {
+        "command": "CENTBROKERCFG;UNKNOWNOUTPUT;clapi-9300-errors",
+        "output": [],
+        "error": "CentreonClapi\\CentreonClapiException: Method not implemented into Centreon API"
+    },
+    {
+        "command": "CENTBROKERCFG;LISTOUTPUT;clapi-9300-errors",
+        "output": [
+            "id;name",
+            "0;output-a",
+            "1;input-a",
+            "2;output-b",
+            "2;output-c"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;LISTINPUT;clapi-9300-errors",
+        "output": [
+            "id;name",
+            "0;input-a"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-errors;0",
+        "output": [
+            "parameter key;parameter value",
+            "name;output-a",
+            "negotiation;yes",
+            "port;",
+            "protocol;bbdo",
+            "tls;maybe",
+            "type;ipv4"
+        ]
+    },
+    {
+        "command": "CENTBROKERCFG;GETOUTPUT;clapi-9300-errors;1",
+        "output": [
+            "parameter key;parameter value",
+            "name;input-a",
+            "negotiation;yes",
+            "port;",
+            "protocol;bbdo",
+            "tls;no",
+            "type;ipv4"
+        ]
+    }
+]
