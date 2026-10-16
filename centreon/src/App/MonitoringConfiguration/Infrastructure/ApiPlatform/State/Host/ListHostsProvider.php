@@ -49,6 +49,7 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -61,6 +62,7 @@ use Webmozart\Assert\Assert;
 final readonly class ListHostsProvider implements ProviderInterface
 {
     use FilterAwareProviderTrait;
+    use SortAwareProviderTrait;
 
     /**
      * @param TransformerInterface<Host, HostCollectionOutput> $transformer
@@ -114,6 +116,8 @@ final readonly class ListHostsProvider implements ProviderInterface
             $criteria = $criteria->withActivated($activated);
         }
 
+        $criteria = $this->handleSort($this->validateSort($filters, $criteria), $criteria);
+
         $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
             ? $criteria
             : $criteria->withViewerId($credentialUser->credential->userId);
@@ -133,6 +137,38 @@ final readonly class ListHostsProvider implements ProviderInterface
             $hosts->getItemsPerPage(),
             $hosts->getTotalItems()
         );
+    }
+
+    /**
+     * Rejects what the criteria cannot sort on, instead of silently ignoring it: a typo in the
+     * field or the direction would otherwise return an unsorted page that looks valid.
+     *
+     * @param array<string, mixed> $filters
+     *
+     * @return array{sort: array<string, string>}
+     */
+    private function validateSort(array $filters, HostCriteria $criteria): array
+    {
+        $requested = $filters['sort'] ?? [];
+        if (! is_array($requested)) {
+            throw new BadRequestHttpException('The "sort" parameter must use the "sort[field]=asc|desc" format.');
+        }
+
+        $allowedFields = array_keys($criteria->getFieldMapping());
+        $sort = [];
+        foreach ($requested as $field => $direction) {
+            if (! in_array($field, $allowedFields, true)) {
+                throw new BadRequestHttpException(
+                    sprintf('Cannot sort on "%s", allowed fields are: %s.', $field, implode(', ', $allowedFields))
+                );
+            }
+            if (! is_string($direction) || ! in_array(mb_strtolower($direction), ['asc', 'desc'], true)) {
+                throw new BadRequestHttpException(sprintf('The sort direction of "%s" must be "asc" or "desc".', $field));
+            }
+            $sort[$field] = $direction;
+        }
+
+        return ['sort' => $sort];
     }
 
     /**

@@ -453,8 +453,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
             ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
             ->andWhere("h.host_register = '1'")
-            ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image')
-            ->orderBy('h.host_id'); // required for deterministic pagination
+            ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image');
 
         if ($accessibleHostIds !== null) {
             $qb->andWhere($qb->expr()->in(
@@ -465,7 +464,10 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         if ($criteria instanceof HostCriteria) {
             $this->filterByHostCriteria($qb, $criteria);
+            $this->applySort($qb, 'h', $criteria);
         }
+        // last sort key: alias and address are not unique, and pagination must stay deterministic
+        $qb->addOrderBy('h.host_id');
 
         $pagination = $criteria?->getPagination();
         if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
