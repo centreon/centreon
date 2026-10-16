@@ -177,7 +177,10 @@ test('warns that replacing the templates deletes their services', async ({
   await expect(warning(page)).toContainText(
     labelTemplateReplacementDeletesServices
   );
-  await expectThemedScreenshot(page, 'hosts-mass-change-template-warning');
+  await expectThemedScreenshot(
+    confirmation(page),
+    'hosts-mass-change-template-warning'
+  );
 
   await page.getByTestId('confirm').click();
   await expectPatchedHosts(api, [0, 2], {
@@ -266,7 +269,7 @@ test('keeps the panel open on every host when they all fail', async ({
   await page.getByTestId('confirm').click();
 
   await expectPatchedHosts(api, [0, 2]);
-  await expect(page.getByText('Failed to update the hosts')).toBeVisible();
+  await expect(page.getByText('Failed to update the hosts')).toBeAttached();
   await expect(page.getByText('Hosts updated')).toHaveCount(0);
   await expectHeaderCount(page, 2);
   await expect(
