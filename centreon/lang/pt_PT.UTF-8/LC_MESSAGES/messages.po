@@ -4736,6 +4736,7 @@ msgid "Dependent Services"
 msgstr "Serviços Dependentes"
 
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/install/front_translate.php
 msgid "Deploy Service"
 msgstr "Aplica Serviço"
 
@@ -5075,6 +5076,7 @@ msgid "Display Top Counter pollers statistics"
 msgstr "Mostra Contadores de Topo para estatisticas do coletor"
 
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/install/front_translate.php
 msgid "Display all Services for this host"
 msgstr "Mostra todos os Serviços para este Host"
 
@@ -9170,6 +9172,7 @@ msgid "IP Address"
 msgstr "Endereço IP"
 
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/install/front_translate.php
 msgid "IP Address / DNS"
 msgstr "Endereço IP / DNS"
 
@@ -16873,6 +16876,7 @@ msgstr "Nome do Modelo já esta em uso"
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/listServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Templates"
 msgstr "Modelos"
