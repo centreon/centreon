@@ -25,6 +25,7 @@ import { Outlet, useLocation } from 'react-router';
 import reactRoutes from '../reactRoutes/routeMap';
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
 import { MainLoaderWithoutTranslation } from './MainLoader';
+import PrefetchProvidersConfiguration from './PrefetchProvidersConfiguration';
 import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
 
@@ -93,14 +94,26 @@ const Main = (): JSX.Element => {
     }
   }, [platformInstallationStatus, areUserParametersLoaded]);
 
+  const prefetchProvidersConfiguration = hasReachedAPublicPage ? null : (
+    <PrefetchProvidersConfiguration />
+  );
+
   if (!hasReachedAPublicPage && isNil(platformInstallationStatus)) {
-    return <MainLoaderWithoutTranslation />;
+    return (
+      <>
+        {prefetchProvidersConfiguration}
+        <MainLoaderWithoutTranslation />
+      </>
+    );
   }
 
   return (
-    <Suspense fallback={<MainLoaderWithoutTranslation />}>
-      <Outlet />
-    </Suspense>
+    <>
+      {prefetchProvidersConfiguration}
+      <Suspense fallback={<MainLoaderWithoutTranslation />}>
+        <Outlet />
+      </Suspense>
+    </>
   );
 };
 
