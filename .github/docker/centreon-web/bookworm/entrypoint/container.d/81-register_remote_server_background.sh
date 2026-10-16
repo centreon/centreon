@@ -11,6 +11,11 @@ DB_USER="${MYSQL_USER:-centreon}"
 DB_PASSWORD="${MYSQL_PASSWORD:-centreon}"
 MAX_RETRIES=120
 
+# HTTPS mode = certs volume mounted by docker-compose.tls.yml (Root CA trusted by 04-tls.sh)
+SCHEME=http; URL_PREFIX=""
+if [ -f /etc/pki/centreon-tls/rootCA.pem ]; then SCHEME=https; URL_PREFIX="https://"; fi
+CENTRAL_URL="${SCHEME}://${CENTRAL_HOST}"
+
 wait_for_api() {
   local url="$1"
   local label="$2"
@@ -27,8 +32,8 @@ wait_for_api() {
   echo "$label is ready."
 }
 
-wait_for_api "http://localhost/centreon/api/latest/platform/versions" "remote-server (local)"
-wait_for_api "http://${CENTRAL_HOST}/centreon/api/latest/platform/versions" "central (${CENTRAL_HOST})"
+wait_for_api "${SCHEME}://localhost/centreon/api/latest/platform/versions" "remote-server (local)"
+wait_for_api "${CENTRAL_URL}/centreon/api/latest/platform/versions" "central (${CENTRAL_HOST})"
 
 # Step 1: convert this server to a remote and register it to the central
 TEMPLATE_FILE=$(mktemp)
@@ -36,9 +41,9 @@ cat > "$TEMPLATE_FILE" <<EOF
 API_USERNAME="${CENTRAL_API_USERNAME}"
 API_TARGET_PASSWORD="${CENTRAL_API_PASSWORD}"
 CURRENT_NODE_TYPE="remote"
-TARGET_NODE_ADDRESS="${CENTRAL_HOST}"
+TARGET_NODE_ADDRESS="${URL_PREFIX}${CENTRAL_HOST}"
 CURRENT_NODE_NAME="${REMOTE_SERVER_NAME}"
-CURRENT_NODE_ADDRESS="${REMOTE_SERVER_NAME}"
+CURRENT_NODE_ADDRESS="${URL_PREFIX}${REMOTE_SERVER_NAME}"
 API_CURRENT_NODE_USERNAME="${CENTRAL_API_USERNAME}"
 API_CURRENT_NODE_PASSWORD="${CENTRAL_API_PASSWORD}"
 EOF
@@ -59,7 +64,7 @@ fi
 echo "Getting auth token from central ..."
 AUTH_RESPONSE=$(curl -s -m 30 -X POST \
   -d "username=${CENTRAL_API_USERNAME}&password=${CENTRAL_API_PASSWORD}" \
-  "http://${CENTRAL_HOST}/centreon/api/index.php?action=authenticate")
+  "${CENTRAL_URL}/centreon/api/index.php?action=authenticate")
 AUTH_TOKEN=$(echo "$AUTH_RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d['authToken'])" 2>/dev/null)
 if [ -z "$AUTH_TOKEN" ]; then
   echo "Failed to get auth token from central (response: ${AUTH_RESPONSE})"
@@ -93,7 +98,7 @@ LINK_RESPONSE=$(curl -s -m 60 \
   -H "centreon-auth-token: ${AUTH_TOKEN}" \
   -X POST -H "Content-Type: application/json" \
   -d "$LINK_PAYLOAD" \
-  "http://${CENTRAL_HOST}/centreon/api/index.php?object=centreon_configuration_remote&action=linkCentreonRemoteServer")
+  "${CENTRAL_URL}/centreon/api/index.php?object=centreon_configuration_remote&action=linkCentreonRemoteServer")
 
 echo "linkCentreonRemoteServer response: ${LINK_RESPONSE}"
 
@@ -115,7 +120,7 @@ if [ -n "$TASK_ID" ] && [ "$TASK_ID" != "null" ]; then
       -H "centreon-auth-token: ${AUTH_TOKEN}" \
       -X POST -H "Content-Type: application/json" \
       -d "{\"task_id\": ${TASK_ID}}" \
-      "http://${CENTRAL_HOST}/centreon/api/index.php?object=centreon_task_service&action=getTaskStatus")
+      "${CENTRAL_URL}/centreon/api/index.php?object=centreon_task_service&action=getTaskStatus")
 
     STATUS=$(echo "$STATUS_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status',''))" 2>/dev/null)
     echo "Task status: ${STATUS}"
@@ -141,7 +146,7 @@ echo "Getting JWT token from central ..."
 JWT_RESPONSE=$(curl -s -m 30 -X POST \
   -H "Content-Type: application/json" \
   -d "{\"security\":{\"credentials\":{\"login\":\"${CENTRAL_API_USERNAME}\",\"password\":\"${CENTRAL_API_PASSWORD}\"}}}" \
-  "http://${CENTRAL_HOST}/centreon/api/latest/login")
+  "${CENTRAL_URL}/centreon/api/latest/login")
 JWT_TOKEN=$(echo "$JWT_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['security']['token'])" 2>/dev/null)
 if [ -z "$JWT_TOKEN" ]; then
   echo "Failed to get JWT token (response: ${JWT_RESPONSE})"
@@ -152,7 +157,7 @@ fi
 echo "Getting monitoring server IDs ..."
 SERVERS_RESPONSE=$(curl -s -m 30 \
   -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
-  "http://${CENTRAL_HOST}/centreon/api/latest/configuration/monitoring-servers")
+  "${CENTRAL_URL}/centreon/api/latest/configuration/monitoring-servers")
 CENTRAL_SERVER_ID=$(echo "$SERVERS_RESPONSE" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
@@ -185,7 +190,7 @@ retries=0
 until [ $retries -ge $MAX_RETRIES ]; do
   THUMBPRINT_TOKEN_RESPONSE=$(curl -s -m 30 -X POST \
     -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
-    "http://${CENTRAL_HOST}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/commands/thumbprint")
+    "${CENTRAL_URL}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/commands/thumbprint")
   THUMBPRINT_TOKEN=$(echo "$THUMBPRINT_TOKEN_RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('token',''))" 2>/dev/null)
   if [ -n "$THUMBPRINT_TOKEN" ]; then
     break
@@ -205,7 +210,7 @@ until [ $retries -ge 30 ]; do
   sleep 2
   THUMBPRINT_RESPONSE=$(curl -s -m 10 \
     -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
-    "http://${CENTRAL_HOST}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/responses/${THUMBPRINT_TOKEN}")
+    "${CENTRAL_URL}/centreon/api/latest/gorgone/pollers/${CENTRAL_SERVER_ID}/responses/${THUMBPRINT_TOKEN}")
   THUMBPRINT=$(echo "$THUMBPRINT_RESPONSE" | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
@@ -266,7 +271,7 @@ sleep 10
 echo "Generating and reloading configuration for remote server (ID: ${REMOTE_SERVER_ID}) ..."
 GEN_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m 120 \
   -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
-  "http://${CENTRAL_HOST}/centreon/api/latest/configuration/monitoring-servers/${REMOTE_SERVER_ID}/generate-and-reload")
+  "${CENTRAL_URL}/centreon/api/latest/configuration/monitoring-servers/${REMOTE_SERVER_ID}/generate-and-reload")
 if [ "$GEN_HTTP_CODE" = "204" ]; then
   echo "Configuration generated and reloaded successfully."
 else
@@ -283,7 +288,7 @@ systemctl restart cbd centengine
 echo "Generating and reloading configuration for central server (ID: ${CENTRAL_SERVER_ID}) ..."
 GEN_CENTRAL_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -m 120 \
   -H "X-AUTH-TOKEN: ${JWT_TOKEN}" \
-  "http://${CENTRAL_HOST}/centreon/api/latest/configuration/monitoring-servers/${CENTRAL_SERVER_ID}/generate-and-reload")
+  "${CENTRAL_URL}/centreon/api/latest/configuration/monitoring-servers/${CENTRAL_SERVER_ID}/generate-and-reload")
 if [ "$GEN_CENTRAL_HTTP_CODE" = "204" ]; then
   echo "Central configuration generated and reloaded successfully."
 else
