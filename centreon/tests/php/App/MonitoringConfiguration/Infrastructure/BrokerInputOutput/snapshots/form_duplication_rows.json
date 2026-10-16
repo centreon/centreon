@@ -1,0 +1,686 @@
+{
+    "api": [
+        {
+            "config_key": "authorization",
+            "config_value": "grpc-token",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "2_35",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "dumper",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "storage",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "certificate",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "compression",
+            "config_value": "no",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "encryption",
+            "config_value": "no",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "host",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "name",
+            "config_value": "bbdo-server-input",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "port",
+            "config_value": "5669",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "private_key",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "retention",
+            "config_value": "no",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "transport_protocol",
+            "config_value": "gRPC",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "bbdo_server",
+            "config_group": "input",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "2_3",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "ca_certificate",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "neb",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "host",
+            "config_value": "localhost",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "name",
+            "config_value": "ipv4-input",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "negotiation",
+            "config_value": "no",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "one_peer_retention_mode",
+            "config_value": "yes",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "port",
+            "config_value": "5670",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "private_key",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "protocol",
+            "config_value": "bbdo",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "public_cert",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "tls",
+            "config_value": "no",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "tls_hostname",
+            "config_value": "",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "ipv4",
+            "config_group": "input",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "1_34",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "cleanup_check_interval",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "connections_count",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_host",
+            "config_value": "localhost",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_name",
+            "config_value": "centreon_storage",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_password",
+            "config_value": "db-secret",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_port",
+            "config_value": "3306",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_type",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_user",
+            "config_value": "centreon",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "insert_in_index_data",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "instance_timeout",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "interval",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "length",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "name",
+            "config_value": "unified-sql",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "queries_per_transaction",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "read_timeout",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "rebuild_check_interval",
+            "config_value": "",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "store_in_data_bin",
+            "config_value": "yes",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "unified_sql",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "1_33",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "dumper",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "storage",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "lua_parameter__name",
+            "config_value": "lua-param-1",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "lua_parameter__name",
+            "config_value": "lua-param-2",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 1
+        },
+        {
+            "config_key": "lua_parameter__name",
+            "config_value": "lua-param-3",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 2
+        },
+        {
+            "config_key": "lua_parameter__type",
+            "config_value": "number",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 2
+        },
+        {
+            "config_key": "lua_parameter__type",
+            "config_value": "password",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 1
+        },
+        {
+            "config_key": "lua_parameter__type",
+            "config_value": "string",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "lua_parameter__value",
+            "config_value": "999",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 2
+        },
+        {
+            "config_key": "lua_parameter__value",
+            "config_value": "lua-secret",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 1
+        },
+        {
+            "config_key": "lua_parameter__value",
+            "config_value": "value-1",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "name",
+            "config_value": "stream-connector",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "path",
+            "config_value": "/usr/share/centreon-broker/lua/connector.lua",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "lua",
+            "config_group": "output",
+            "config_group_id": 2,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "1_31",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "cache",
+            "config_value": "no",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_host",
+            "config_value": "127.0.0.1",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_name",
+            "config_value": "metrics",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_password",
+            "config_value": "influx-secret",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_port",
+            "config_value": "8086",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "db_user",
+            "config_value": "influx-user",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "metrics_column__is_tag",
+            "config_value": "false",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "metrics_column__name",
+            "config_value": "value",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "metrics_column__type",
+            "config_value": "number",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "metrics_column__value",
+            "config_value": "$VALUE$",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "metrics_timeseries",
+            "config_value": "$METRIC$",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "name",
+            "config_value": "influxdb",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "status_timeseries",
+            "config_value": "$INSTANCE$",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "influxdb",
+            "config_group": "output",
+            "config_group_id": 3,
+            "fieldIndex": null
+        }
+    ],
+    "legacy": [
+        {
+            "config_key": "blockId",
+            "config_value": "2_3",
+            "config_group": "input",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "name",
+            "config_value": "legacy-input",
+            "config_group": "input",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "port",
+            "config_value": "5669",
+            "config_group": "input",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "protocol",
+            "config_value": "bbdo",
+            "config_group": "input",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "tls",
+            "config_value": "no",
+            "config_group": "input",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "ipv4",
+            "config_group": "input",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "1_33",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "neb",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "category",
+            "config_value": "storage",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "lua_parameter__name",
+            "config_value": "clapi-param",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "name",
+            "config_value": "clapi-lua",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "path",
+            "config_value": "/usr/share/centreon-broker/lua/clapi.lua",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "lua",
+            "config_group": "output",
+            "config_group_id": 0,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "blockId",
+            "config_value": "1_33",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "lua_parameter__name",
+            "config_value": "max_queue_size",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "lua_parameter__type",
+            "config_value": "number",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "lua_parameter__value",
+            "config_value": "100",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": 0
+        },
+        {
+            "config_key": "name",
+            "config_value": "module-lua",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "path",
+            "config_value": "/usr/share/centreon-broker/lua/module.lua",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        },
+        {
+            "config_key": "type",
+            "config_value": "lua",
+            "config_group": "output",
+            "config_group_id": 1,
+            "fieldIndex": null
+        }
+    ],
+    "unknown": []
+}
