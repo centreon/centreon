@@ -25,11 +25,13 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Uid\Uuid;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 final class GetHostTemplateMacrosProviderTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts/host_templates';
 
     // topology pages whose hierarchy builds ROLE_CONFIGURATION_HOSTS_HOSTS_R[W]
@@ -54,6 +56,12 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         $this->connection = $connection;
 
         $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropMonitoringConnectorTables($this->connection);
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -174,15 +182,20 @@ final class GetHostTemplateMacrosProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
-    public function testItReturnsNotFoundForALockedTemplate(): void
+    /**
+     * A host may already have a template the license no longer allows: its macros stay readable.
+     */
+    public function testItReturnsTheMacrosOfATemplateTheLicenseNoLongerAllows(): void
     {
-        // excluded from the host template choices list (CentreonHost::getLimitedList()), so not readable here
-        $templateId = $this->insertHostTemplate("locked-{$this->tag}", locked: true);
+        $templateId = $this->insertHostTemplate("unlicensed-{$this->tag}", locked: true);
+        $this->insertMacro($templateId, '$_HOSTPORT$', '443', isPassword: false, order: 1);
+        $this->insertMonitoringConnectorTemplates($this->connection, $templateId);
 
         $this->login();
 
-        $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
-        self::assertResponseStatusCodeSame(404);
+        $response = $this->request('GET', self::BASE_ENDPOINT . "/{$templateId}");
+        self::assertResponseIsSuccessful();
+        self::assertSame(['PORT'], array_column((array) $response->toArray()['macros'], 'name'));
     }
 
     public function testItReturnsNotFoundForAnInactiveTemplate(): void
