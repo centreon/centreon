@@ -21,204 +21,322 @@
 
 declare(strict_types=1);
 
+namespace Tests\www\api\class;
+
+use CentreonCeipLicenseType;
+use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
 require_once __DIR__ . '/../../../../../www/class/centreonCeipLicenseType.class.php';
 
-/**
- * @param array<string, mixed> $licensing
- *
- * @return array<string, mixed>
- */
-function ceipLicense(array $licensing = []): array
+final class CentreonCeipTest extends TestCase
 {
-    return [
-        'client' => ['name' => 'ACME'],
-        'platform' => ['environment' => 'production'],
-        'licensing' => [
-            'hosts' => 50,
-            'type' => 'IT',
-            'start' => '2026-01-01',
-            'end' => '2026-02-01',
-            ...$licensing,
-        ],
-    ];
+    /**
+     * @param array<string, array<string, mixed>> $licenses
+     */
+    #[DataProvider('licensesWithoutEditionProvider')]
+    public function testResolveComputesTheLicenseTypeWhenNoLicenseCarriesAnEdition(
+        array $licenses,
+        string $expectedLicenseType,
+        bool $expectedFingerprint,
+    ): void {
+        self::assertSame(
+            [
+                'licenseType' => $expectedLicenseType,
+                'withFingerprint' => $expectedFingerprint,
+                'assetId' => null,
+            ],
+            CentreonCeipLicenseType::resolve($licenses),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>>, string, bool}>
+     */
+    public static function licensesWithoutEditionProvider(): iterable
+    {
+        yield 'EPP' => [['epp' => self::license()], 'IT Edition', false];
+        yield 'EPP IT100' => [['epp' => self::license(['type' => 'IT100'])], 'IT-100 Edition', false];
+        yield 'EPP unlimited for more than 90 days' => [
+            ['epp' => self::license(self::unlimitedLicensing())],
+            'MSP Edition',
+            true,
+        ];
+        yield 'EPP unlimited for 90 days or less' => [
+            ['epp' => self::license(['hosts' => -1, 'start' => '2026-01-01', 'end' => '2026-03-01'])],
+            'IT Edition',
+            false,
+        ];
+        yield 'EPP and BAM' => [['epp' => self::license(), 'bam' => self::license()], 'Business Edition', true];
+        yield 'IT100 EPP and MAP' => [
+            ['epp' => self::license(['type' => 'IT100']), 'map' => self::license()],
+            'Business Edition',
+            true,
+        ];
+        yield 'standalone MBI' => [['mbi' => self::license()], 'Business Edition', true];
+        yield 'unlimited BAM for more than 90 days' => [
+            ['bam' => self::license(self::unlimitedLicensing())],
+            'MSP Edition',
+            true,
+        ];
+        yield 'no license' => [[], 'Open Source', false];
+    }
+
+    #[DataProvider('declaredEditionProvider')]
+    public function testResolveUsesTheDeclaredEditionAsLicenseType(
+        string $edition,
+        string $expectedLicenseType,
+        bool $expectedFingerprint,
+    ): void {
+        self::assertSame(
+            [
+                'licenseType' => $expectedLicenseType,
+                'withFingerprint' => $expectedFingerprint,
+                'assetId' => null,
+            ],
+            CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])]),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function declaredEditionProvider(): iterable
+    {
+        yield 'IT-100' => ['IT-100', 'IT-100 Edition', false];
+        yield 'IT' => ['IT', 'IT Edition', false];
+        yield 'BE' => ['BE', 'Business Edition', true];
+        yield 'MSP' => ['MSP', 'MSP Edition', true];
+        yield 'PRO' => ['PRO', 'PRO Edition', false];
+        yield 'CUSTOM' => ['CUSTOM', 'Custom Edition', true];
+        yield 'lowercase' => ['be', 'Business Edition', true];
+        yield 'mixed case with spaces' => ['  Msp ', 'MSP Edition', true];
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $licenses
+     */
+    #[DataProvider('editionOverridingComputedTypeProvider')]
+    public function testResolveMakesTheFingerprintFollowTheDeclaredEditionRatherThanTheComputedType(
+        array $licenses,
+        string $expectedLicenseType,
+        bool $expectedFingerprint,
+    ): void {
+        $result = CentreonCeipLicenseType::resolve($licenses);
+
+        self::assertSame($expectedLicenseType, $result['licenseType']);
+        self::assertSame($expectedFingerprint, $result['withFingerprint']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>>, string, bool}>
+     */
+    public static function editionOverridingComputedTypeProvider(): iterable
+    {
+        yield 'IT edition on an EPP computed as MSP' => [
+            ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'IT'])],
+            'IT Edition',
+            false,
+        ];
+        yield 'BE edition on an EPP computed as IT' => [
+            ['epp' => self::license(['edition' => 'BE'])],
+            'Business Edition',
+            true,
+        ];
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $licenses
+     */
+    #[DataProvider('combinedEditionsProvider')]
+    public function testResolveCombinesTheEditionsDeclaredByEveryLicense(
+        array $licenses,
+        string $expectedLicenseType,
+        bool $expectedFingerprint,
+    ): void {
+        $result = CentreonCeipLicenseType::resolve($licenses);
+
+        self::assertSame($expectedLicenseType, $result['licenseType']);
+        self::assertSame($expectedFingerprint, $result['withFingerprint']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>>, string, bool}>
+     */
+    public static function combinedEditionsProvider(): iterable
+    {
+        yield 'IT EPP and CUSTOM BAM' => [
+            ['epp' => self::license(['edition' => 'IT']), 'bam' => self::license(['edition' => 'CUSTOM'])],
+            'Custom Edition',
+            true,
+        ];
+        yield 'IT-100 EPP and CUSTOM MAP' => [
+            ['epp' => self::license(['edition' => 'IT-100']), 'map' => self::license(['edition' => 'CUSTOM'])],
+            'Custom Edition',
+            true,
+        ];
+        yield 'BE EPP and BE BAM' => [
+            ['epp' => self::license(['edition' => 'BE']), 'bam' => self::license(['edition' => 'be'])],
+            'Business Edition',
+            true,
+        ];
+        yield 'MSP EPP and BE BAM' => [
+            ['epp' => self::license(['edition' => 'MSP']), 'bam' => self::license(['edition' => 'BE'])],
+            'Custom Edition',
+            true,
+        ];
+        yield 'EPP without edition and CUSTOM BAM' => [
+            ['epp' => self::license(), 'bam' => self::license(['edition' => 'CUSTOM'])],
+            'Custom Edition',
+            true,
+        ];
+        yield 'IT EPP and BAM without edition' => [
+            ['epp' => self::license(['edition' => 'IT']), 'bam' => self::license()],
+            'Custom Edition',
+            true,
+        ];
+        yield 'IT-100 EPP and MBI without edition' => [
+            ['epp' => self::license(['edition' => 'IT-100']), 'mbi' => self::license()],
+            'Custom Edition',
+            true,
+        ];
+        yield 'PRO EPP and PRO MAP' => [
+            ['epp' => self::license(['edition' => 'PRO']), 'map' => self::license(['edition' => 'PRO'])],
+            'Custom Edition',
+            true,
+        ];
+        yield 'BE EPP and BAM without edition' => [
+            ['epp' => self::license(['edition' => 'BE']), 'bam' => self::license()],
+            'Business Edition',
+            true,
+        ];
+        yield 'MSP EPP and MAP without edition' => [
+            ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'MSP']), 'map' => self::license()],
+            'MSP Edition',
+            true,
+        ];
+        yield 'standalone CUSTOM MBI' => [['mbi' => self::license(['edition' => 'CUSTOM'])], 'Custom Edition', true];
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $licenses
+     */
+    #[DataProvider('nonStandardEditionProvider')]
+    public function testResolveReportsAnyNonStandardEditionAsCustom(array $licenses): void
+    {
+        self::assertSame(
+            [
+                'licenseType' => 'Custom Edition',
+                'withFingerprint' => true,
+                'assetId' => null,
+            ],
+            CentreonCeipLicenseType::resolve($licenses),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>>}>
+     */
+    public static function nonStandardEditionProvider(): iterable
+    {
+        yield 'unknown value' => [['epp' => self::license(['edition' => 'ENTERPRISE'])]];
+        yield 'IT100 without hyphen' => [['epp' => self::license(['type' => 'IT100', 'edition' => 'IT100'])]];
+        yield 'unknown value on an EPP computed as MSP' => [
+            ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'foo'])],
+        ];
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $licenses
+     */
+    #[DataProvider('assetIdProvider')]
+    public function testResolveReturnsTheAssetIdOfMspPlatformsOnly(array $licenses, ?string $expectedAssetId): void
+    {
+        self::assertSame($expectedAssetId, CentreonCeipLicenseType::resolve($licenses)['assetId']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, array<string, mixed>>, string|null}>
+     */
+    public static function assetIdProvider(): iterable
+    {
+        yield 'MSP edition' => [
+            ['epp' => self::license(['edition' => 'MSP', 'asset_id' => ' 02i5800000ABCDE '])],
+            '02i5800000ABCDE',
+        ];
+        yield 'EPP computed as MSP' => [['epp' => self::license([...self::unlimitedLicensing(), 'asset_id' => 'A1'])], 'A1'];
+        yield 'BAM computed as MSP' => [
+            ['epp' => self::license(), 'bam' => self::license([...self::unlimitedLicensing(), 'asset_id' => 'B1'])],
+            'B1',
+        ];
+        yield 'MSP edition without asset ID' => [['epp' => self::license(['edition' => 'MSP'])], null];
+        yield 'MSP edition with an empty asset ID' => [['epp' => self::license(['edition' => 'MSP', 'asset_id' => ''])], null];
+        yield 'BE edition' => [['epp' => self::license(['edition' => 'BE', 'asset_id' => 'A1'])], null];
+        yield 'IT edition on an EPP computed as MSP' => [
+            ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'IT', 'asset_id' => 'A1'])],
+            null,
+        ];
+        yield 'custom edition' => [['epp' => self::license(['edition' => 'foo', 'asset_id' => 'A1'])], null];
+    }
+
+    #[DataProvider('ignoredEditionProvider')]
+    public function testResolveIgnoresAnEmptyOrNonStringEdition(mixed $edition): void
+    {
+        self::assertSame(
+            [
+                'licenseType' => 'IT Edition',
+                'withFingerprint' => false,
+                'assetId' => null,
+            ],
+            CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])]),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function ignoredEditionProvider(): iterable
+    {
+        yield 'empty string' => [''];
+        yield 'blank string' => ['   '];
+        yield 'null' => [null];
+        yield 'integer' => [42];
+    }
+
+    public function testResolveThrowsOnAnInvalidLicenseDate(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid date format');
+
+        CentreonCeipLicenseType::resolve(['epp' => self::license(['end' => 'not-a-date'])]);
+    }
+
+    /**
+     * @param array<string, mixed> $licensing
+     *
+     * @return array<string, mixed>
+     */
+    private static function license(array $licensing = []): array
+    {
+        return [
+            'client' => ['name' => 'ACME'],
+            'platform' => ['environment' => 'production'],
+            'licensing' => [
+                'hosts' => 50,
+                'type' => 'IT',
+                'start' => '2026-01-01',
+                'end' => '2026-02-01',
+                ...$licensing,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed> unlimited hosts for one year
+     */
+    private static function unlimitedLicensing(): array
+    {
+        return ['hosts' => -1, 'start' => '2026-01-01', 'end' => '2027-01-01'];
+    }
 }
-
-/** @return array<string, mixed> unlimited hosts for one year */
-function ceipUnlimitedLicensing(): array
-{
-    return ['hosts' => -1, 'start' => '2026-01-01', 'end' => '2027-01-01'];
-}
-
-it('computes the license type when no license carries an edition', function (
-    array $licenses,
-    string $expectedLicenseType,
-    bool $expectedFingerprint,
-): void {
-    expect(CentreonCeipLicenseType::resolve($licenses))->toBe([
-        'licenseType' => $expectedLicenseType,
-        'withFingerprint' => $expectedFingerprint,
-        'assetId' => null,
-    ]);
-})->with([
-    'EPP' => [['epp' => ceipLicense()], 'IT Edition', false],
-    'EPP IT100' => [['epp' => ceipLicense(['type' => 'IT100'])], 'IT-100 Edition', false],
-    'EPP unlimited for more than 90 days' => [['epp' => ceipLicense(ceipUnlimitedLicensing())], 'MSP Edition', true],
-    'EPP unlimited for 90 days or less' => [
-        ['epp' => ceipLicense(['hosts' => -1, 'start' => '2026-01-01', 'end' => '2026-03-01'])],
-        'IT Edition',
-        false,
-    ],
-    'EPP and BAM' => [['epp' => ceipLicense(), 'bam' => ceipLicense()], 'Business Edition', true],
-    'IT100 EPP and MAP' => [['epp' => ceipLicense(['type' => 'IT100']), 'map' => ceipLicense()], 'Business Edition', true],
-    'standalone MBI' => [['mbi' => ceipLicense()], 'Business Edition', true],
-    'unlimited BAM for more than 90 days' => [['bam' => ceipLicense(ceipUnlimitedLicensing())], 'MSP Edition', true],
-    'no license' => [[], 'Open Source', false],
-]);
-
-it('uses the declared edition as license type', function (
-    string $edition,
-    string $expectedLicenseType,
-    bool $expectedFingerprint,
-): void {
-    expect(CentreonCeipLicenseType::resolve(['epp' => ceipLicense(['edition' => $edition])]))->toBe([
-        'licenseType' => $expectedLicenseType,
-        'withFingerprint' => $expectedFingerprint,
-        'assetId' => null,
-    ]);
-})->with([
-    'IT-100' => ['IT-100', 'IT-100 Edition', false],
-    'IT' => ['IT', 'IT Edition', false],
-    'BE' => ['BE', 'Business Edition', true],
-    'MSP' => ['MSP', 'MSP Edition', true],
-    'PRO' => ['PRO', 'PRO Edition', false],
-    'CUSTOM' => ['CUSTOM', 'Custom Edition', true],
-    'lowercase' => ['be', 'Business Edition', true],
-    'mixed case with spaces' => ['  Msp ', 'MSP Edition', true],
-]);
-
-it('makes the fingerprint follow the declared edition rather than the computed type', function (
-    array $licenses,
-    string $expectedLicenseType,
-    bool $expectedFingerprint,
-): void {
-    $result = CentreonCeipLicenseType::resolve($licenses);
-
-    expect($result['licenseType'])->toBe($expectedLicenseType)
-        ->and($result['withFingerprint'])->toBe($expectedFingerprint);
-})->with([
-    'IT edition on an EPP computed as MSP' => [
-        ['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'IT'])],
-        'IT Edition',
-        false,
-    ],
-    'BE edition on an EPP computed as IT' => [
-        ['epp' => ceipLicense(['edition' => 'BE'])],
-        'Business Edition',
-        true,
-    ],
-]);
-
-it('combines the editions declared by every license', function (
-    array $licenses,
-    string $expectedLicenseType,
-    bool $expectedFingerprint,
-): void {
-    $result = CentreonCeipLicenseType::resolve($licenses);
-
-    expect($result['licenseType'])->toBe($expectedLicenseType)
-        ->and($result['withFingerprint'])->toBe($expectedFingerprint);
-})->with([
-    'IT EPP and CUSTOM BAM' => [
-        ['epp' => ceipLicense(['edition' => 'IT']), 'bam' => ceipLicense(['edition' => 'CUSTOM'])],
-        'Custom Edition',
-        true,
-    ],
-    'IT-100 EPP and CUSTOM MAP' => [
-        ['epp' => ceipLicense(['edition' => 'IT-100']), 'map' => ceipLicense(['edition' => 'CUSTOM'])],
-        'Custom Edition',
-        true,
-    ],
-    'BE EPP and BE BAM' => [
-        ['epp' => ceipLicense(['edition' => 'BE']), 'bam' => ceipLicense(['edition' => 'be'])],
-        'Business Edition',
-        true,
-    ],
-    'MSP EPP and BE BAM' => [
-        ['epp' => ceipLicense(['edition' => 'MSP']), 'bam' => ceipLicense(['edition' => 'BE'])],
-        'Custom Edition',
-        true,
-    ],
-    'EPP without edition and CUSTOM BAM' => [
-        ['epp' => ceipLicense(), 'bam' => ceipLicense(['edition' => 'CUSTOM'])],
-        'Custom Edition',
-        true,
-    ],
-    'IT EPP and BAM without edition' => [
-        ['epp' => ceipLicense(['edition' => 'IT']), 'bam' => ceipLicense()],
-        'Custom Edition',
-        true,
-    ],
-    'IT-100 EPP and MBI without edition' => [
-        ['epp' => ceipLicense(['edition' => 'IT-100']), 'mbi' => ceipLicense()],
-        'Custom Edition',
-        true,
-    ],
-    'PRO EPP and PRO MAP' => [
-        ['epp' => ceipLicense(['edition' => 'PRO']), 'map' => ceipLicense(['edition' => 'PRO'])],
-        'Custom Edition',
-        true,
-    ],
-    'BE EPP and BAM without edition' => [
-        ['epp' => ceipLicense(['edition' => 'BE']), 'bam' => ceipLicense()],
-        'Business Edition',
-        true,
-    ],
-    'MSP EPP and MAP without edition' => [
-        ['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'MSP']), 'map' => ceipLicense()],
-        'MSP Edition',
-        true,
-    ],
-    'standalone CUSTOM MBI' => [['mbi' => ceipLicense(['edition' => 'CUSTOM'])], 'Custom Edition', true],
-]);
-
-it('reports any non-standard edition as custom', function (array $licenses): void {
-    expect(CentreonCeipLicenseType::resolve($licenses))->toBe([
-        'licenseType' => 'Custom Edition',
-        'withFingerprint' => true,
-        'assetId' => null,
-    ]);
-})->with([
-    'unknown value' => [['epp' => ceipLicense(['edition' => 'ENTERPRISE'])]],
-    'IT100 without hyphen' => [['epp' => ceipLicense(['type' => 'IT100', 'edition' => 'IT100'])]],
-    'unknown value on an EPP computed as MSP' => [['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'foo'])]],
-]);
-
-it('returns the asset ID of MSP platforms only', function (array $licenses, ?string $expectedAssetId): void {
-    expect(CentreonCeipLicenseType::resolve($licenses)['assetId'])->toBe($expectedAssetId);
-})->with([
-    'MSP edition' => [['epp' => ceipLicense(['edition' => 'MSP', 'asset_id' => ' 02i5800000ABCDE '])], '02i5800000ABCDE'],
-    'EPP computed as MSP' => [['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'asset_id' => 'A1'])], 'A1'],
-    'BAM computed as MSP' => [['epp' => ceipLicense(), 'bam' => ceipLicense([...ceipUnlimitedLicensing(), 'asset_id' => 'B1'])], 'B1'],
-    'MSP edition without asset ID' => [['epp' => ceipLicense(['edition' => 'MSP'])], null],
-    'MSP edition with an empty asset ID' => [['epp' => ceipLicense(['edition' => 'MSP', 'asset_id' => ''])], null],
-    'BE edition' => [['epp' => ceipLicense(['edition' => 'BE', 'asset_id' => 'A1'])], null],
-    'IT edition on an EPP computed as MSP' => [['epp' => ceipLicense([...ceipUnlimitedLicensing(), 'edition' => 'IT', 'asset_id' => 'A1'])], null],
-    'custom edition' => [['epp' => ceipLicense(['edition' => 'foo', 'asset_id' => 'A1'])], null],
-]);
-
-it('ignores an empty or non-string edition', function (mixed $edition): void {
-    expect(CentreonCeipLicenseType::resolve(['epp' => ceipLicense(['edition' => $edition])]))->toBe([
-        'licenseType' => 'IT Edition',
-        'withFingerprint' => false,
-        'assetId' => null,
-    ]);
-})->with([
-    'empty string' => [''],
-    'blank string' => ['   '],
-    'null' => [null],
-    'integer' => [42],
-]);
-
-it('throws on an invalid license date', function (): void {
-    CentreonCeipLicenseType::resolve(['epp' => ceipLicense(['end' => 'not-a-date'])]);
-})->throws(Exception::class, 'Invalid date format');
