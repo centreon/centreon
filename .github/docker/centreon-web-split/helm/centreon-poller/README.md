@@ -148,7 +148,9 @@ Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
 pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
 (not the case with `engine.otel.tls`, whose identity comes from your Secret or
 issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
-configuration (`engine`, `broker`, traps) comes back with the next export.
+configuration (`engine`, `broker`) comes back with the next export; the traps
+database (`traps-config`) does not: generate and apply it again for the poller
+(Configuration > SNMP Traps > Generate).
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
 ignores new chart defaults (e.g. a new volume size). A change to the volume
@@ -206,3 +208,6 @@ Pod Security Standards:
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
+- The trap spool is an emptyDir: traps not yet processed by `centreontrapd`
+  (seconds, or while it waits for its database) are lost when the pod is
+  replaced, like any trap sent while the pod is down (SNMP traps are UDP).
