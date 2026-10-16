@@ -485,6 +485,55 @@ final class ListHostsProviderTest extends ApiTestCase
         self::assertSame(['sort-host-1', 'sort-host-2'], $this->listSortedHostNames(['activated' => 'desc']));
     }
 
+    public function testItSortsHostsOnSeveralFieldsInTheOrderOfTheRequest(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->insertHost('sort-host-b', $pollerId, address: '10.0.0.1');
+        $this->insertHost('sort-host-a', $pollerId, address: '10.0.0.1');
+        $this->insertHost('sort-host-c', $pollerId, address: '10.0.0.2');
+
+        $this->login();
+
+        // the address decides first, the name only breaks the ties
+        self::assertSame(
+            ['sort-host-b', 'sort-host-a', 'sort-host-c'],
+            $this->listSortedHostNames(['address' => 'asc', 'name' => 'desc'])
+        );
+        self::assertSame(
+            ['sort-host-c', 'sort-host-a', 'sort-host-b'],
+            $this->listSortedHostNames(['address' => 'desc', 'name' => 'asc'])
+        );
+    }
+
+    public function testItDoesNotRepeatOrSkipAHostAcrossPagesWhenTheSortedValuesAreEqual(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        foreach (['sort-host-a', 'sort-host-b', 'sort-host-c', 'sort-host-d', 'sort-host-e'] as $name) {
+            $this->insertHost($name, $pollerId, alias: 'same-alias');
+        }
+
+        $this->login();
+
+        $names = [];
+        foreach (['1', '2', '3'] as $page) {
+            $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => [
+                'name' => ['lk' => 'sort-host-'],
+                'sort' => ['alias' => 'asc'],
+                'itemsPerPage' => '2',
+                'page' => $page,
+            ]]);
+            self::assertResponseIsSuccessful();
+
+            /** @var list<array{name: string}> $members */
+            $members = $response->toArray()['member'];
+            array_push($names, ...array_column($members, 'name'));
+        }
+
+        // equal aliases: only the host id tie-breaker keeps the pages consistent with each other
+        self::assertCount(5, $names);
+        self::assertCount(5, array_unique($names));
+    }
+
     public function testItKeepsTheSortAcrossPages(): void
     {
         $pollerId = $this->insertPoller('Central');
