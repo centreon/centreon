@@ -552,7 +552,7 @@ final class PatchHostCommandHandlerTest extends TestCase
         ));
 
         self::assertSame(TriStateEnum::True, $result->dataProcessing->checkFreshness);
-        self::assertSame(120, $result->dataProcessing->freshnessThreshold);
+        self::assertSame(500, $result->dataProcessing->freshnessThreshold);
     }
 
     public function testAnOrdinaryCommandLeavesTheFreshnessSettingsAlone(): void

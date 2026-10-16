@@ -35,6 +35,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -444,7 +445,7 @@ final class AddServiceTemplate
             }
             if ($command->isCentreonMonitoringAgentCommand()) {
                 $request->checkFreshness = 1;
-                $request->freshnessThreshold = 120;
+                $request->freshnessThreshold = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
             }
         }
         $newServiceTemplate = $this->createNewServiceTemplate($request);
