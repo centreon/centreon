@@ -1,3 +1,4 @@
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -205,7 +206,7 @@ describe('SortableEntriesList - single input rows', () => {
     });
   });
 
-  it('removes a row and moves the focus to the delete button of the row taking its place', () => {
+  it('removes a row and moves the focus to the first input of the row taking its place', () => {
     const { onChange } = initializeTemplates({
       templates: [options[0], options[1], options[2]]
     });
@@ -217,9 +218,7 @@ describe('SortableEntriesList - single input rows', () => {
       expect(getLastValues(onChange)).to.deep.equal([options[1], options[2]]);
     });
     cy.focused()
-      .should('have.attr', 'data-testid', 'delete-row')
-      .closest('li')
-      .find('[data-testid="Template"]')
+      .should('have.attr', 'data-testid', 'Template')
       .should('have.value', options[1].name);
   });
 
@@ -326,15 +325,17 @@ const renderMacroRow = ({
   setField,
   value: macro
 }: RenderRowParams<MacroRow>): JSX.Element => (
-  <div className="flex gap-2">
+  <div className="grid grid-cols-2 gap-2 @max-[600px]:grid-cols-1">
     <TextField
       dataTestId="macro-name"
+      fullWidth
       label="Name"
       onChange={(event): void => setField('name', event.target.value)}
       value={macro.name}
     />
     <TextField
       dataTestId="macro-value"
+      fullWidth
       label="Value"
       onChange={(event): void => setField('value', event.target.value)}
       type={macro.isPassword ? 'password' : 'text'}
@@ -502,5 +503,290 @@ describe('SortableEntriesList - multiple input rows', () => {
 
     getRows().eq(0).should('have.class', 'origin-direct');
     getRows().eq(1).should('have.class', 'origin-fromTpl');
+  });
+});
+
+const buildMacros = (count: number): Array<MacroRow> =>
+  Array.from({ length: count }, (_, index) => ({
+    ...emptyMacro,
+    name: `MACRO_${index + 1}`
+  }));
+
+const panelWidths = [1400, 900, 720, 560];
+
+// The panel width is state, so changing it resizes the mounted list at runtime.
+const ResizablePanel = ({
+  count,
+  maxVisibleRows,
+  onChangeSpy
+}: {
+  count: number;
+  maxVisibleRows?: number;
+  onChangeSpy: Stub;
+}): JSX.Element => {
+  const [width, setWidth] = useState(panelWidths[0]);
+
+  return (
+    <div className="p-4">
+      {panelWidths.map((panelWidth) => (
+        <button
+          data-testid={`width-${panelWidth}`}
+          key={panelWidth}
+          onClick={(): void => setWidth(panelWidth)}
+          type="button"
+        >
+          {panelWidth}
+        </button>
+      ))}
+      <div data-testid="panel" style={{ width }}>
+        <ControlledList<MacroRow>
+          actions={(): Array<SortableRowAction> => [
+            {
+              icon: <VisibilityIcon />,
+              id: 'toggle-password',
+              label: 'Toggle password',
+              onClick: () => undefined
+            },
+            {
+              icon: <DescriptionOutlinedIcon />,
+              id: 'macro-description',
+              label: 'Description',
+              onClick: () => undefined
+            }
+          ]}
+          createValue={(): MacroRow => emptyMacro}
+          initialValues={buildMacros(count)}
+          maxVisibleRows={maxVisibleRows}
+          onChangeSpy={onChangeSpy}
+          renderRow={renderMacroRow}
+        />
+      </div>
+    </div>
+  );
+};
+
+const initializePanel = ({
+  count,
+  maxVisibleRows
+}: {
+  count: number;
+  maxVisibleRows?: number;
+}): { onChange: Stub } => {
+  const onChange = cy.stub();
+
+  cy.viewport(1600, 900);
+  cy.mount({
+    Component: (
+      <ResizablePanel
+        count={count}
+        maxVisibleRows={maxVisibleRows}
+        onChangeSpy={onChange}
+      />
+    )
+  });
+
+  return { onChange };
+};
+
+const getScrollArea = (): Cypress.Chainable =>
+  cy.findByTestId('sortable-entries-scroll');
+
+const getRect = (element: Element): DOMRect => element.getBoundingClientRect();
+
+const getLastNames = (onChange: Stub): Array<string> =>
+  getLastValues<MacroRow>(onChange).map(({ name }) => name);
+
+describe('SortableEntriesList - capped list', () => {
+  it('shows maxVisibleRows rows plus half of the next one, and keeps the add button outside the scroll area', () => {
+    initializePanel({ count: 15, maxVisibleRows: 10 });
+
+    getScrollArea().should(($scrollArea) => {
+      const scrollArea = $scrollArea[0];
+      const rows = scrollArea.querySelectorAll('li');
+      const visibleBottom = getRect(scrollArea).bottom;
+
+      expect(scrollArea.scrollHeight).to.be.greaterThan(
+        scrollArea.clientHeight
+      );
+      expect(getRect(rows[9]).bottom).to.be.at.most(visibleBottom);
+      expect(visibleBottom - getRect(rows[10]).top).to.be.closeTo(
+        getRect(rows[10]).height / 2,
+        1
+      );
+    });
+
+    cy.findByTestId('Add')
+      .should('be.visible')
+      .closest('[data-testid="sortable-entries-scroll"]')
+      .should('not.exist');
+  });
+
+  it('fades the cut-off row only while rows are hidden below', () => {
+    initializePanel({ count: 15, maxVisibleRows: 10 });
+
+    getScrollArea().should('not.have.css', 'mask-image', 'none');
+    getScrollArea().scrollTo('bottom');
+    getScrollArea().should('have.css', 'mask-image', 'none');
+  });
+
+  it('does not cap a list shorter than maxVisibleRows', () => {
+    initializePanel({ count: 5, maxVisibleRows: 10 });
+
+    getScrollArea()
+      .should('have.css', 'max-height', 'none')
+      .should(($scrollArea) => {
+        expect($scrollArea[0].scrollHeight).to.equal(
+          $scrollArea[0].clientHeight
+        );
+      });
+  });
+
+  it('focuses and scrolls to a row added at the end of a capped list', () => {
+    initializePanel({ count: 15, maxVisibleRows: 10 });
+
+    cy.findByTestId('Add').click();
+
+    getRows().should('have.length', 16);
+    cy.focused()
+      .should('have.attr', 'data-testid', 'macro-name')
+      .should(($input) => {
+        const scrollAreaRect = getRect(
+          $input[0].closest(
+            '[data-testid="sortable-entries-scroll"]'
+          ) as Element
+        );
+        const inputRect = getRect($input[0]);
+
+        expect(inputRect.top).to.be.at.least(scrollAreaRect.top);
+        expect(inputRect.bottom).to.be.at.most(scrollAreaRect.bottom);
+      });
+  });
+
+  it('scrolls to the focused new row when adding it makes the list reach the cap', () => {
+    initializePanel({ count: 10, maxVisibleRows: 10 });
+
+    getScrollArea().should('have.css', 'max-height', 'none');
+    cy.findByTestId('Add').click();
+
+    getRows().should('have.length', 11);
+    getScrollArea().should('not.have.css', 'max-height', 'none');
+    cy.focused()
+      .should('have.attr', 'data-testid', 'macro-name')
+      .closest('li')
+      .should(($row) => {
+        const scrollAreaRect = getRect(
+          $row[0].closest('[data-testid="sortable-entries-scroll"]') as Element
+        );
+
+        // 1px tolerance for sub-pixel row heights.
+        expect(getRect($row[0]).bottom).to.be.at.most(
+          scrollAreaRect.bottom + 1
+        );
+      });
+    getScrollArea().should('have.css', 'mask-image', 'none');
+  });
+
+  it('moves a row past the visible area with the keyboard, scrolling the list', () => {
+    const { onChange } = initializePanel({ count: 15, maxVisibleRows: 10 });
+
+    cy.moveSortableElement({
+      direction: 'down',
+      element: cy.findAllByTestId('drag-handle').eq(0),
+      times: 12
+    });
+
+    cy.wrap(onChange).should(() => {
+      expect(getLastNames(onChange).indexOf('MACRO_1')).to.equal(12);
+    });
+    getScrollArea().its('0.scrollTop').should('be.greaterThan', 0);
+  });
+
+  it('auto-scrolls while a row is dragged with the pointer near the bottom edge', () => {
+    const { onChange } = initializePanel({ count: 15, maxVisibleRows: 10 });
+
+    cy.findAllByTestId('drag-handle')
+      .eq(0)
+      .then(($handle) => {
+        const { left, top, width, height } = getRect($handle[0]);
+        const pointer = {
+          button: 0,
+          clientX: left + width / 2,
+          isPrimary: true,
+          pointerId: 1
+        };
+
+        cy.wrap($handle).trigger('pointerdown', {
+          ...pointer,
+          clientY: top + height / 2
+        });
+
+        getScrollArea().then(($scrollArea) => {
+          const clientY = getRect($scrollArea[0]).bottom - 5;
+
+          cy.document().trigger('pointermove', { ...pointer, clientY });
+          getScrollArea().its('0.scrollTop').should('be.greaterThan', 100);
+          cy.document().trigger('pointermove', { ...pointer, clientY });
+          cy.document().trigger('pointerup', { ...pointer, clientY });
+        });
+      });
+
+    cy.wrap(onChange).should(() => {
+      expect(getLastNames(onChange).indexOf('MACRO_1')).to.be.greaterThan(10);
+    });
+  });
+});
+
+describe('SortableEntriesList - container responsive rows', () => {
+  const getFieldRects = (): Cypress.Chainable<Array<DOMRect>> =>
+    getRows()
+      .eq(0)
+      .find('.MuiFormControl-root')
+      .then(($fields) => $fields.toArray().map(getRect));
+
+  it('keeps the fields and the four buttons on one line at 1400, 900 and 720px, resized at runtime', () => {
+    initializePanel({ count: 3 });
+
+    [1400, 900, 720, 1400].forEach((width) => {
+      cy.findByTestId(`width-${width}`).click();
+      cy.findByTestId('panel').should('have.css', 'width', `${width}px`);
+
+      getFieldRects().should(([name, value]) => {
+        expect(value.top).to.equal(name.top);
+        expect(name.width).to.be.at.least(275);
+        expect(value.width).to.be.at.least(275);
+      });
+
+      cy.get('[data-row-fields]')
+        .eq(0)
+        .next()
+        .find('button')
+        .should('have.length', 4)
+        .should(($buttons) => {
+          const rects = $buttons.toArray().map(getRect);
+          const panelRight = getRect(
+            Cypress.$('[data-testid="panel"]')[0]
+          ).right;
+
+          rects.slice(1).forEach((rect, index) => {
+            expect(rect.top).to.equal(rects[index].top);
+            expect(rect.left - rects[index].left).to.equal(32);
+          });
+          expect(rects[3].right).to.be.at.most(panelRight);
+        });
+    });
+  });
+
+  it('stacks the fields when the list gets narrower than 600px, whatever the viewport', () => {
+    initializePanel({ count: 3 });
+
+    cy.findByTestId('width-560').click();
+    getFieldRects().should(([name, value]) => {
+      expect(value.top).to.be.greaterThan(name.bottom);
+    });
+
+    cy.findByTestId('width-900').click();
+    getFieldRects().should(([name, value]) => {
+      expect(value.top).to.equal(name.top);
+    });
   });
 });

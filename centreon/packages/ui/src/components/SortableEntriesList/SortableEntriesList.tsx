@@ -29,6 +29,7 @@ import {
   labelRowMovedOver,
   labelRowPickedUp
 } from './translatedLabels';
+import { useMaxVisibleRows } from './useMaxVisibleRows';
 import { useSortableEntries } from './useSortableEntries';
 
 export interface Props<T> {
@@ -42,8 +43,17 @@ export interface Props<T> {
   getRowClassName?: (params: RowParams<T>) => string | undefined;
   /** Accessible name of the list. */
   label?: string;
+  /**
+   * Caps the list to this many rows, the next one half visible, and scrolls
+   * the rest. The add button stays outside the scroll area.
+   */
+  maxVisibleRows?: number;
   onChange: (values: Array<T>) => void;
-  /** Renders the inputs of one row. `values` gives access to sibling rows. */
+  /**
+   * Renders the inputs of one row. `values` gives access to sibling rows. The
+   * list is a CSS container, so the row layout can adapt to the list width
+   * with container query classes (e.g. `@max-[600px]:grid-cols-1`).
+   */
   renderRow: (params: RenderRowParams<T>) => ReactNode;
   values: Array<T>;
 }
@@ -60,6 +70,7 @@ export const SortableEntriesList = <T,>({
   draggable = true,
   getRowClassName,
   label,
+  maxVisibleRows,
   onChange,
   renderRow,
   values
@@ -81,10 +92,21 @@ export const SortableEntriesList = <T,>({
     values
   });
 
+  const {
+    hasHiddenRowsBelow,
+    listRef,
+    maxHeight,
+    scrollRef,
+    updateHiddenRowsBelow
+  } = useMaxVisibleRows(maxVisibleRows);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
+      coordinateGetter: sortableKeyboardCoordinates,
+      // Instant scroll keeps each key press based on up-to-date positions in a
+      // capped list.
+      scrollBehavior: 'auto'
     })
   );
 
@@ -113,7 +135,7 @@ export const SortableEntriesList = <T,>({
   };
 
   return (
-    <div ref={containerRef}>
+    <div className="@container w-full" ref={containerRef}>
       <ItemComposition labelAdd={translatedAddLabel} onAddItem={addEntry}>
         {[
           <DndContext
@@ -133,28 +155,41 @@ export const SortableEntriesList = <T,>({
               items={entryIds}
               strategy={verticalListSortingStrategy}
             >
-              <ul
-                aria-label={label}
-                className="m-0 flex w-full list-none flex-col gap-2 p-0"
+              <div
+                className={
+                  maxVisibleRows
+                    ? `relative w-full overflow-y-auto pt-2 [scrollbar-gutter:stable] [scrollbar-width:thin] ${hasHiddenRowsBelow ? '[mask-image:linear-gradient(to_bottom,#000_calc(100%-2rem),transparent)]' : ''}`
+                    : 'w-full'
+                }
+                data-testid="sortable-entries-scroll"
+                onScroll={updateHiddenRowsBelow}
+                ref={scrollRef}
+                style={{ maxHeight }}
               >
-                {entries.map(({ id, value }, index) => {
-                  const rowParams = { index, value, values };
+                <ul
+                  aria-label={label}
+                  className="m-0 flex w-full list-none flex-col gap-2 p-0"
+                  ref={listRef}
+                >
+                  {entries.map(({ id, value }, index) => {
+                    const rowParams = { index, value, values };
 
-                  return (
-                    <Row<T>
-                      actions={actions?.(rowParams) ?? []}
-                      className={getRowClassName?.(rowParams)}
-                      draggable={draggable}
-                      id={id}
-                      key={id}
-                      onDelete={removeEntry}
-                      onUpdate={updateEntry}
-                      renderRow={renderRow}
-                      rowParams={rowParams}
-                    />
-                  );
-                })}
-              </ul>
+                    return (
+                      <Row<T>
+                        actions={actions?.(rowParams) ?? []}
+                        className={getRowClassName?.(rowParams)}
+                        draggable={draggable}
+                        id={id}
+                        key={id}
+                        onDelete={removeEntry}
+                        onUpdate={updateEntry}
+                        renderRow={renderRow}
+                        rowParams={rowParams}
+                      />
+                    );
+                  })}
+                </ul>
+              </div>
             </SortableContext>
           </DndContext>
         ]}
