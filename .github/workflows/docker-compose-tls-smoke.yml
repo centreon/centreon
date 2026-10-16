@@ -6,8 +6,9 @@
 #      base + overlay merge cleanly (catches !override misuse, broken depends_on
 #      maps, missing volumes, etc.). Pure YAML validation, no image pull.
 #
-#   2. https-up: brings the HTTPS stack up on alma9, alma10 and trixie, curls the
-#      API and asserts TLS was used and gorgone has no DB connection errors.
+#   2. https-up: brings the HTTPS stack (web + remote-server) up on alma9, alma10
+#      and trixie, curls both APIs and asserts TLS was used and gorgone has no DB
+#      connection errors.
 #      On trixie the gorgone TLS hook is a no-op (DBD::mysql 4.053 + libmariadb 3.x
 #      cannot enable SSL), so gorgone stays plaintext there until it supports
 #      DBD::MariaDB.
@@ -65,6 +66,7 @@ jobs:
     # file ("no configuration file provided: not found").
     env:
       COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
+      COMPOSE_PROFILES: remote-server
       CENTREON_WEB_OS: ${{ matrix.os }}
       WEB_IMAGE: docker.centreon.com/centreon/centreon-web-${{ matrix.os }}:develop
     steps:
@@ -83,13 +85,15 @@ jobs:
         run: docker build -t centreon-certgen:local .github/docker/certgen
 
       - name: Bring up HTTPS stack
-        run: docker compose up -d --wait --wait-timeout 300
+        run: docker compose up -d --wait --wait-timeout 600
 
-      - name: Probe HTTPS endpoint
+      - name: Probe HTTPS endpoints (web, remote-server)
         run: |
-          curl --fail-with-body -k --show-error \
-            --retry 10 --retry-delay 3 --retry-connrefused \
-            https://localhost:4443/centreon/api/latest/platform/versions
+          for port in 4443 4444; do
+            curl --fail-with-body -k --show-error \
+              --retry 10 --retry-delay 3 --retry-connrefused \
+              https://localhost:$port/centreon/api/latest/platform/versions
+          done
 
       # We don't enforce --require-secure-transport=ON server-side (see
       # docker-compose.tls.yml header: install wizard plaintext path) — so this
@@ -111,15 +115,19 @@ jobs:
       # rejecting SSL) would still report healthy. Fail on any gorgone DB error.
       - name: Assert gorgone connected to the DB
         run: |
-          n=$(docker compose exec -T web grep -ciE 'cannot connect|SSL connection error' \
-                /var/log/centreon-gorgone/gorgoned.log || true)
-          echo "gorgone DB connection errors=${n:-<empty>}"
-          if [ "${n:-1}" -ne 0 ]; then
-            docker compose exec -T web grep -iE 'cannot connect|SSL connection error' \
-              /var/log/centreon-gorgone/gorgoned.log | head -5 || true
-            echo "::error::gorgone failed to connect to the database."
-            exit 1
-          fi
+          rc=0
+          for svc in web remote-server; do
+            n=$(docker compose exec -T "$svc" grep -ciE 'cannot connect|SSL connection error' \
+                  /var/log/centreon-gorgone/gorgoned.log || true)
+            echo "$svc: gorgone DB connection errors=${n:-<empty>}"
+            if [ "${n:-1}" -ne 0 ]; then
+              docker compose exec -T "$svc" grep -iE 'cannot connect|SSL connection error' \
+                /var/log/centreon-gorgone/gorgoned.log | head -5 || true
+              echo "::error::gorgone failed to connect to the database on $svc."
+              rc=1
+            fi
+          done
+          exit $rc
 
       - name: Inspect cert chain
         if: always()
