@@ -163,13 +163,8 @@ Specs import `test` and `expect` from `tests/components/fixtures.ts`:
 
 ## Migration status
 
-82 of the 97 Cypress component spec files of `www/front_src` are migrated;
-their Cypress versions stay until this suite replaces them in CI. The 15 remaining ones
-are the largest (600 to 1,150 lines, heavy API mocking): the Header suite
-(including `CloudInstallCommand`), the Resources listing, details, filters and
-actions, the dashboards listing and dashboard page, the widget edition modal,
-the status grid (with and without BAM) and resources table widgets, the agent
-configuration listing and the `ConfigurationBase` suite. The `packages/ui`
+All 97 Cypress component spec files of `www/front_src` are migrated; their
+Cypress versions stay until this suite replaces them in CI. The `packages/ui`
 specs are out of scope.
 
 ## Findings
@@ -198,6 +193,29 @@ did not catch:
 - The additional connector update case expected the port `1000` after typing
   `100`, an artefact of Cypress typing into a number field; the migrated spec
   expects the value typed.
+- **React Compiler** — `rspack.config.cypress.js` builds with coverage, which
+  turns the compiler off: the Cypress suite never runs the compiled code users
+  get. The gallery does, and two compiler-only bugs show up, both marked with
+  `test.fail()`:
+  - **Bug** — the open tickets column of the resources table widget reads
+    `row.parent.id` while rendering; host rows have no parent and the widget
+    crashes.
+  - **Bug** — the `@centreon/ui` `ContentEditable` reads
+    `editor.isEditable()` while rendering: the widget description editor stays
+    editable outside the edition mode.
+- **Bug** — `Resources/Actions/Resource` sets `aria-disabled` to the object
+  `find()` returns (`"[object Object]"`).
+- **Bug** — clearing the agent configuration filters sends an empty search,
+  then the debounced name search resends the old filters: the listing stays
+  filtered while the form is empty.
+- Some Cypress assertions never ran: the Header clipboard check sat in an
+  unreturned promise, and five widget resources cases were `it` blocks nested
+  in another `it`.
+- Some Cypress cases leaned on state left by previous ones: the dashboard
+  complex layout case on the `edit=true` URL, the widget modal cases on a store
+  shared across cases (`layout[1]`).
+- Cypress specs are not type-checked: a `ConfigurationBase` spec helper had an
+  untyped decoder, and the resources table mounts lacked `isInViewport`.
 
 ## Known gaps
 
@@ -205,5 +223,5 @@ did not catch:
   fails at runtime; regenerating the registry keeps autocompletion and props
   typing accurate.
 - The `playwright-component-test` job of `.github/workflows/web.yml` runs the
-  suite, but the Cypress component job still runs too: the migrated Cypress
-  specs stay until the remaining ones are migrated.
+  suite, but the Cypress component job still runs too: removing the Cypress
+  specs and job is the next step once the team agrees.
