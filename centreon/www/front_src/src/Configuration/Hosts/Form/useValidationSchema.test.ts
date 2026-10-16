@@ -168,24 +168,24 @@ describe('Host form validation', () => {
       }
     };
 
-    it.each(['interval', 'firstDelay', 'recoveryDelay'])(
-      'accepts an empty %s, 0 and a positive integer',
-      (field) => {
-        expect(delayError(field, '')).toBeNull();
-        expect(delayError(field, 0)).toBeNull();
-        expect(delayError(field, 12)).toBeNull();
-      }
-    );
+    it.each([
+      'interval',
+      'firstDelay',
+      'recoveryDelay'
+    ])('accepts an empty %s, 0 and a positive integer', (field) => {
+      expect(delayError(field, '')).toBeNull();
+      expect(delayError(field, 0)).toBeNull();
+      expect(delayError(field, 12)).toBeNull();
+    });
 
-    it.each(['interval', 'firstDelay', 'recoveryDelay'])(
-      'refuses a negative or fractional %s',
-      (field) => {
-        expect(delayError(field, -1)).toEqual(labelMustBePositiveIntegerOrZero);
-        expect(delayError(field, 1.5)).toEqual(
-          labelMustBePositiveIntegerOrZero
-        );
-      }
-    );
+    it.each([
+      'interval',
+      'firstDelay',
+      'recoveryDelay'
+    ])('refuses a negative or fractional %s', (field) => {
+      expect(delayError(field, -1)).toEqual(labelMustBePositiveIntegerOrZero);
+      expect(delayError(field, 1.5)).toEqual(labelMustBePositiveIntegerOrZero);
+    });
   });
 
   describe('Scheduling options', () => {
@@ -255,20 +255,20 @@ describe('Host form validation', () => {
       );
     });
 
-    it.each(['lowFlapThreshold', 'highFlapThreshold'])(
-      'accepts a %s of 0 or more, leaving the 100 cap to the server',
-      (field) => {
-        expect(dataProcessingError(field, '')).toBeNull();
-        expect(dataProcessingError(field, 0)).toBeNull();
-        expect(dataProcessingError(field, 101)).toBeNull();
-        expect(dataProcessingError(field, -1)).toEqual(
-          labelMustBePositiveIntegerOrZero
-        );
-        expect(dataProcessingError(field, 12.5)).toEqual(
-          labelMustBePositiveIntegerOrZero
-        );
-      }
-    );
+    it.each([
+      'lowFlapThreshold',
+      'highFlapThreshold'
+    ])('accepts a %s of 0 or more, leaving the 100 cap to the server', (field) => {
+      expect(dataProcessingError(field, '')).toBeNull();
+      expect(dataProcessingError(field, 0)).toBeNull();
+      expect(dataProcessingError(field, 101)).toBeNull();
+      expect(dataProcessingError(field, -1)).toEqual(
+        labelMustBePositiveIntegerOrZero
+      );
+      expect(dataProcessingError(field, 12.5)).toEqual(
+        labelMustBePositiveIntegerOrZero
+      );
+    });
   });
 
   describe('SNMP community', () => {
