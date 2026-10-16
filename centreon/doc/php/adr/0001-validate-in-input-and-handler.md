@@ -13,13 +13,13 @@ One alternative was weighed: validate in the Input only. It lost because the Inp
 
 ## Decision
 
-Validate every write request in both layers. Put in the Input DTO every rule that can be checked from the payload and the authenticated viewer: shape, bounds, and the existence and accessibility of referenced resources. Re-check in the command handler every rule the write depends on, as the authority. Duplicate a rule rather than move it.
+Validate every write request in both layers. Put in the Input DTO every rule that can be checked from the payload and the authenticated viewer: shape, bounds, and the existence and accessibility of referenced resources. Re-check in the command handler or the domain layer every rule the write depends on, as the authority. Duplicate a rule rather than move it.
 
 ## Consequences
 
 - The Input validator is early and best effort: it returns a field-level violation (HTTP 422) and saves a round trip. The handler check is authoritative: what changed since validation surfaces there as a domain exception, mapped to an HTTP status by the existing exception mapping. The handler contains no HTTP vocabulary.
 - What the Input adds depends on the rule. For shape and bounds, it prevents a value object from throwing an unmapped exception (HTTP 500). For references and uniqueness, the handler already reports a field-level violation, so the Input only fails earlier, before the transaction opens, and points to the exact field.
-- Both layers give the same answer for the same case: the same status and, when the payload is at fault, the same field path. A missing resource and an inaccessible one are never told apart, so a restricted viewer cannot probe for what they cannot see.
+- Both layers enforce the same rule, but they do not report it the same way. The Input is soft validation: a violated constraint always leads to HTTP 422 with the field path. The handler is hard validation: a violated rule raises a domain exception mapped by the existing exception mapping, for example 404 for a missing resource or 409 for a conflict, or 500 if the exception is not mapped. Within each layer, a missing resource and an inaccessible one produce the same outcome, so a restricted viewer cannot probe for what they cannot see.
 - A custom validator that builds a domain value object is declared after the shape constraints, inside `Assert\Sequentially`. It must never run on a value the shape constraints would reject, since the value object would throw instead of producing a violation.
 - In the handler, references are authorized before any check that could reveal another resource (a uniqueness check, for example). Every validation runs before the first irreversible external write, such as a write to the vault.
 - Every duplicated rule has a validator test and a handler test.
