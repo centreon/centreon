@@ -87,8 +87,14 @@ abstract readonly class DbalRepository
 
     final protected function sort(QueryBuilder $qb, string $alias, SortableCriteria $criteria): void
     {
+        $mapping = $criteria->getFieldMapping();
         foreach ($criteria->getSort() as $field => $direction) {
-            $qb->addOrderBy("{$alias}." . ($criteria->getFieldMapping()[$field] ?? $field), $direction->value);
+            // only mapped columns reach the query: a field name is never trusted as a column name
+            if (! isset($mapping[$field])) {
+                continue;
+            }
+
+            $qb->addOrderBy("{$alias}.{$mapping[$field]}", $direction->value);
         }
     }
 }
