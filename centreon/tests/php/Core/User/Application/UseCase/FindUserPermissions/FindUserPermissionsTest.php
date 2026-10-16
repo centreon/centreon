@@ -48,6 +48,7 @@ it('should return every permission as active when the user is an admin', functio
             'top_counter',
             'poller_statistics',
             'configuration_host_group_write',
+            'configuration_host_write',
             'see_check_commands',
             'manage_check_commands',
             'see_notification_commands',
@@ -91,6 +92,7 @@ it(
     'top counter' => [Contact::ROLE_DISPLAY_TOP_COUNTER, 'top_counter'],
     'poller statistics' => [Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS, 'poller_statistics'],
     'host group write' => [Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE, 'configuration_host_group_write'],
+    'host write' => [Contact::ROLE_CONFIGURATION_HOSTS_WRITE, 'configuration_host_write'],
     'see check commands' => [Contact::ROLE_SEE_CHECK_COMMANDS, 'see_check_commands'],
     'manage check commands' => [Contact::ROLE_MANAGE_CHECK_COMMANDS, 'manage_check_commands'],
     'see notification commands' => [Contact::ROLE_SEE_NOTIFICATION_COMMANDS, 'see_notification_commands'],
@@ -106,10 +108,10 @@ it('should return the permission when the user has the corresponding topology ro
     $this->user->method('isAdmin')->willReturn(false);
     $this->user->method('hasRole')->willReturn(false);
     $this->user->method('hasTopologyRole')->willReturnCallback(
-        static fn (string $role): bool => $role === Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE
+        static fn (string $role): bool => $role === Contact::ROLE_CONFIGURATION_HOSTS_WRITE
     );
 
     $response = ($this->useCase)($this->user);
 
-    expect(($this->getPermissionNames)($response))->toBe(['configuration_host_group_write']);
+    expect(($this->getPermissionNames)($response))->toBe(['configuration_host_write']);
 });
