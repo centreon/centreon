@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "26.11",
+  "version": "26.12",
   "type": "project",
   "license": "Apache-2.0",
   "require": {
