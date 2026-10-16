@@ -51,14 +51,34 @@ Agents dial the poller on 4317 (`engine.otel.service`, LoadBalancer for agents
 outside the cluster). With `encryption: full` they check the poller
 certificate against the FQDN of their `endpoint`.
 
-The engine's default CA (`/etc/pki/centreon-engine/default_cma_ca.*`,
-generated at first start and persisted) has CN = host name and no SAN. The
-pod host name is `<release>-0` (forced by the StatefulSet controller), so it
-never matches an external FQDN: agents with `encryption: full` must dial that
-exact name.
+The engine's default CA (`/etc/pki/centreon-engine/default_cma_ca.*`) has
+CN = host name and no SAN. The pod host name is `<release>-0` (forced by the
+StatefulSet controller), so it never matches an external FQDN. Provide the
+TLS identity instead:
 
-An agent configuration delivered after the engine started needs an export
-with **Restart** (a reload does not load the OpenTelemetry module).
+1. Get a certificate with the FQDN agents dial as SAN, either:
+   - **cert-manager** (recommended): `engine.otel.tls.certManager.enabled=true`,
+     `dnsNames` = the FQDN(s), `issuerRef` = your Issuer / ClusterIssuer
+     (e.g. a CA Issuer whose CA the agents trust). The chart creates the
+     `Certificate`; cert-manager writes the Secret `<release>-otel-tls` and
+     renews it.
+   - or a `kubernetes.io/tls` Secret of yours (`tls.crt`, `tls.key`, optional
+     `ca.crt`): `engine.otel.tls.existingSecret=<secret>`. A self-signed CA
+     also works: the engine issues its server certificates from it.
+
+   The CA's subject must differ from the server certificate's (a CA named
+   after the FQDN makes the server certificate look self-signed to agents).
+2. The init container copies the Secret to `/etc/pki/centreon-poller`, owned
+   by centengine (key `0600`, not readable by gorgone). A renewed certificate
+   is picked up at the next pod restart.
+3. In the poller's agent configuration in Centreon: public certificate
+   `/etc/pki/centreon-poller/tls.crt`, private key
+   `/etc/pki/centreon-poller/tls.key` (CA certificate
+   `/etc/pki/centreon-poller/ca.crt` if any), then export with **Restart**
+   (a reload does not load the OpenTelemetry module).
+4. Give the agents the CA in `ca_certificate` (`install_cma.ps1 -CA <file>`).
+
+Poller-initiated (reverse) connections do not use this identity.
 
 ## Central-side prerequisites
 
@@ -80,6 +100,8 @@ with **Restart** (a reload does not load the OpenTelemetry module).
 | `engine.addNetRaw` | `false` | `true` on CRI-O / OpenShift for `check_icmp`, see Security |
 | `gorgone.extraEnv` / `engine.extraEnv` | `[]` | E.g. `SMTP_*` on the engine |
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
+| `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
+| `engine.otel.tls.certManager` | disabled | Certificate issued by cert-manager (`dnsNames`, `issuerRef`), see CMA |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -90,14 +112,15 @@ with **Restart** (a reload does not load the OpenTelemetry module).
 | `broker` | `/etc/centreon-broker` | Delivered cbmod config (not seeded) |
 | `etc` | `/etc/centreon` | gorgone config |
 | `logs` | `/var/log/centreon-engine` | Logs, `retention.dat` |
-| `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA |
+| `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
 | `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
 
 Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
 `cma-pki` makes the engine generate a **new** default CMA CA, so every agent
-pinned on the old one (`-Fingerprint` / `ca_certificate`) must be
-reconfigured. Losing `gorgone-data` regenerates the gorgone keys. The delivered
+pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
+(not the case with `engine.otel.tls`, whose identity comes from your Secret or
+issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
 configuration (`engine`, `broker`) comes back with the next export.
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
