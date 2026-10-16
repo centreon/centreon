@@ -12,11 +12,11 @@ import { BrowserRouter as Router } from 'react-router';
 
 import Hosts from '..';
 import {
-  commandsEndpoint,
   getDeployServicesEndpoint,
   getDuplicateHostEndpoint,
   getHostEndpoint,
   getHostTemplateMacrosEndpoint,
+  hostFormCommandsEndpoint,
   hostFormContactGroupsEndpoint,
   hostFormContactsEndpoint,
   hostFormHostCategoriesEndpoint,
@@ -65,10 +65,17 @@ interface Props {
   hasDefaultPoller?: boolean;
   pollersDelay?: number;
   resolveDelay?: number;
+  // The hosts whose partial update is refused.
+  patchFails?: Array<number>;
 }
 
 // What the selector answers a user it does not grant.
 export const pollersForbiddenMessage = 'You are not allowed to access pollers';
+
+export const patchRefusedMessage = 'The host cannot be updated';
+
+// The hosts every PATCH was sent to, in order.
+export const patchedHostIds: Array<number> = [];
 
 const addressResolutions = {
   refused: { response: refusedAddressResponse, statusCode: 422 },
@@ -85,7 +92,8 @@ const initialize = ({
   addressResolution = 'resolved',
   hasDefaultPoller = true,
   pollersDelay,
-  resolveDelay
+  resolveDelay,
+  patchFails = []
 }: Props): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -231,7 +239,7 @@ const initialize = ({
   cy.interceptAPIRequest({
     alias: 'getFormCommands',
     method: Method.GET,
-    path: `**${commandsEndpoint}?**`,
+    path: `**${hostFormCommandsEndpoint}?**`,
     response: getCommandsResponse()
   });
 
@@ -294,26 +302,30 @@ const initialize = ({
     response: getHostTemplatesResponse()
   });
 
-  // Enable and disable are a partial update of the host, one request per host.
-  cy.interceptAPIRequest({
-    alias: 'patchHost',
-    method: Method.PATCH,
-    path: `**${getHostEndpoint({ id: 0 })}`,
-    response: {}
-  });
+  // Enable, disable, edit and mass change are a partial update of the host,
+  // one request per host. Each one is recorded, so a test can tell exactly
+  // which hosts were written to, none included.
+  patchedHostIds.length = 0;
 
-  cy.interceptAPIRequest({
-    alias: 'patchHost1',
-    method: Method.PATCH,
-    path: `**${getHostEndpoint({ id: 1 })}`,
-    response: {}
-  });
+  [0, 1, 2].forEach((id) => {
+    const fails = patchFails.includes(id);
 
-  cy.interceptAPIRequest({
-    alias: 'patchHost2',
-    method: Method.PATCH,
-    path: `**${getHostEndpoint({ id: 2 })}`,
-    response: {}
+    cy.interceptRequest(
+      Method.PATCH,
+      `**${getHostEndpoint({ id })}`,
+      (_request, response, context) => {
+        patchedHostIds.push(id);
+
+        return response(
+          context.delay(500),
+          context.json(
+            fails ? { code: 422, message: patchRefusedMessage } : {}
+          ),
+          context.status(fails ? 422 : 200)
+        );
+      },
+      id === 0 ? 'patchHost' : `patchHost${id}`
+    );
   });
 
   // Every write names one host, so each row has its own intercept.

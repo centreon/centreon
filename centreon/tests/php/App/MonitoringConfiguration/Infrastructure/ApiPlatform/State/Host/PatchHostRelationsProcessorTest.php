@@ -25,10 +25,12 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Hos
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class PatchHostRelationsProcessorTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
     private const BASE_ENDPOINT = '/api/configuration/hosts';
 
     /** @var array{headers: array{Content-Type: string}} */
@@ -56,6 +58,12 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
         ]);
         $this->pollerId = (int) $this->connection->lastInsertId();
         $this->hostId = $this->insertHost($this->uniqueName('host'));
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropMonitoringConnectorTables($this->connection);
+        parent::tearDown();
     }
 
     public function testTheHostGroupsAreReplacedAddedToAndRemovedFrom(): void
@@ -106,6 +114,22 @@ final class PatchHostRelationsProcessorTest extends ApiTestCase
         $third = $this->insertHostTemplate();
         $this->patch(['template_ids_to_add' => [$third]]);
         self::assertSame([$second, $first, $third], $this->templateIds());
+    }
+
+    public function testItKeepsATemplateTheLicenseNoLongerAllowsButRejectsAddingOne(): void
+    {
+        $kept = $this->insertHostTemplate();
+        $this->patch(['template_ids' => [$kept]]);
+        $added = $this->insertHostTemplate();
+        $this->insertMonitoringConnectorTemplates($this->connection, $kept, $added);
+
+        $this->patch(['template_ids' => [$kept]]);
+
+        $this->request('PATCH', self::BASE_ENDPOINT . '/' . $this->hostId, self::PATCH_HEADERS + ['json' => ['template_ids_to_add' => [$added]]]);
+        self::assertResponseStatusCodeSame(422);
+        // One line per violation, each prefixed with its field.
+        self::assertJsonContains(['message' => "[template_ids] The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.\n"]);
+        self::assertSame([$kept], $this->templateIds());
     }
 
     public function testRemovingATemplateDeletesTheServicesOnlyItProvides(): void

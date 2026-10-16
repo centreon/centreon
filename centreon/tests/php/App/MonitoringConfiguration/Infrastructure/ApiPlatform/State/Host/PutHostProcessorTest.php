@@ -46,10 +46,13 @@ use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\InsertsMonitoringConnectorTemplates;
 use Tests\App\Shared\ApiTestCase;
 
 final class PutHostProcessorTest extends ApiTestCase
 {
+    use InsertsMonitoringConnectorTemplates;
+
     private Connection $connection;
 
     private Connection $realTimeConnection;
@@ -66,6 +69,12 @@ final class PutHostProcessorTest extends ApiTestCase
         /** @var Connection $realTimeConnection */
         $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $this->realTimeConnection = $realTimeConnection;
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropMonitoringConnectorTables($this->connection);
+        parent::tearDown();
     }
 
     public function testItRequiresAuthentication(): void
@@ -607,6 +616,26 @@ final class PutHostProcessorTest extends ApiTestCase
         /** @var array{check_options: array{macros: list<array<string, mixed>>}} $payload */
         $payload = $response->toArray();
         self::assertArrayNotHasKey('value', $payload['check_options']['macros'][0]);
+    }
+
+    public function testItKeepsATemplateTheLicenseNoLongerAllowsButRejectsAddingOne(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $keptId = $this->insertHostTemplate($this->uniqueName('connector'));
+        $addedId = $this->insertHostTemplate($this->uniqueName('connector'));
+        $hostId = $this->insertHost($this->uniqueName('server'), $pollerId);
+        $this->connection->insert('host_template_relation', ['host_host_id' => $hostId, 'host_tpl_id' => $keptId, '`order`' => 1]);
+        $this->insertMonitoringConnectorTemplates($this->connection, $keptId, $addedId);
+        $payload = [...$this->payload($this->uniqueName('server'), $pollerId), 'create_services_linked_to_templates' => false];
+
+        $this->request('PUT', $this->endpoint($hostId), ['json' => [...$payload, 'template_ids' => [$keptId]]]);
+        self::assertResponseStatusCodeSame(200);
+
+        $this->request('PUT', $this->endpoint($hostId), ['json' => [...$payload, 'template_ids' => [$keptId, $addedId]]]);
+        self::assertResponseStatusCodeSame(422);
+        // One line per violation, each prefixed with its field.
+        self::assertJsonContains(['message' => "[template_ids] The license host limit is reached: host templates coming from Monitoring Connectors cannot be used.\n"]);
     }
 
     public function testAChangedInheritedMacroBecomesADirectMacroWithoutTouchingTheTemplate(): void
