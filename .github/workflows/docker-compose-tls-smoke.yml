@@ -1,0 +1,157 @@
+# docker-compose-tls-smoke.yml
+#
+# Two-step smoke test for the HTTPS overlay (.github/docker/docker-compose.tls.yml,
+# web TLS only: the DB, gorgone and broker stay in plaintext on this branch).
+#
+#   1. config-validate: `docker compose config` on base + overlay (merge errors,
+#      broken depends_on maps, missing volumes). Pure YAML validation.
+#
+#   2. https-up: brings the HTTPS stack up on alma8, alma9 and bookworm, curls the
+#      API, checks the :80 -> :443 redirect and that gorgone has no DB connection
+#      errors. WEB_IMAGE has no default on this branch, so it is always set here.
+
+name: docker-compose-tls-smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/docker/**'
+      - '.github/workflows/docker-compose-tls-smoke.yml'
+  push:
+    branches: [dev-24.10.x]
+    paths:
+      - '.github/docker/**'
+      - '.github/workflows/docker-compose-tls-smoke.yml'
+
+# Least-privilege default for GITHUB_TOKEN: this workflow only checks out and
+# runs docker; neither job writes to the repo. Registry auth in https-up uses
+# explicit Harbor secrets, not GITHUB_TOKEN.
+permissions:
+  contents: read
+
+jobs:
+  config-validate:
+    name: Validate base + overlay merge
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: docker compose config (HTTP — baseline)
+        env:
+          WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:dev-24.10.x
+        run: docker compose -f .github/docker/docker-compose.yml config >/dev/null
+
+      - name: docker compose config (HTTPS overlay)
+        env:
+          WEB_IMAGE: docker.centreon.com/centreon/centreon-web-alma9:dev-24.10.x
+        run: |
+          docker compose \
+            -f .github/docker/docker-compose.yml \
+            -f .github/docker/docker-compose.tls.yml \
+            config >/dev/null
+
+  https-up:
+    name: HTTPS smoke (${{ matrix.os }})
+    runs-on: ubuntu-24.04
+    if: ${{ github.event.pull_request.head.repo.fork != true }}
+    needs: [config-validate]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [alma8, alma9, bookworm]
+    # Job-level so every docker compose invocation below (bring-up, log dump,
+    # teardown) resolves the same base+overlay stack. Setting it only on the
+    # bring-up step left the on-failure log dump and teardown with no compose
+    # file ("no configuration file provided: not found").
+    env:
+      COMPOSE_FILE: .github/docker/docker-compose.yml:.github/docker/docker-compose.tls.yml
+      CENTREON_WEB_OS: ${{ matrix.os }}
+      WEB_IMAGE: docker.centreon.com/centreon/centreon-web-${{ matrix.os }}:dev-24.10.x
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Login to internal registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Build certgen image
+        run: docker build -t centreon-certgen:local .github/docker/certgen
+
+      - name: Bring up HTTPS stack
+        run: docker compose up -d --wait --wait-timeout 600
+
+      - name: Probe HTTPS endpoint
+        run: |
+          curl --fail-with-body -k --show-error \
+            --retry 10 --retry-delay 3 --retry-connrefused \
+            https://localhost:4443/centreon/api/latest/platform/versions
+
+      - name: Assert HTTP redirects to HTTPS
+        run: |
+          headers=$(curl -s -D - -o /dev/null http://localhost:4000/centreon/)
+          echo "$headers" | head -5
+          echo "$headers" | grep -qiE '^location: https://' || { echo "::error::no :80 -> :443 redirect"; exit 1; }
+
+      # The web healthcheck only calls the API, so a broken gorgone (e.g. DBD::mysql
+      # rejecting SSL) would still report healthy. Fail on any gorgone DB error.
+      - name: Assert gorgone connected to the DB
+        run: |
+          n=$(docker compose exec -T web grep -ciE 'cannot connect|SSL connection error' \
+                /var/log/centreon-gorgone/gorgoned.log || true)
+          echo "gorgone DB connection errors=${n:-<empty>}"
+          if [ "${n:-1}" -ne 0 ]; then
+            docker compose exec -T web grep -iE 'cannot connect|SSL connection error' \
+              /var/log/centreon-gorgone/gorgoned.log | head -5 || true
+            echo "::error::gorgone failed to connect to the database."
+            exit 1
+          fi
+
+      - name: Inspect cert chain
+        if: always()
+        run: |
+          echo "::group::server cert chain"
+          openssl s_client -showcerts -connect localhost:4443 -servername web < /dev/null 2>/dev/null \
+            | openssl x509 -noout -text \
+            | grep -E "Subject:|Issuer:|DNS:|IP Address:" || true
+          echo "::endgroup::"
+
+      # Visibility steps run on every result (success OR failure) so we can
+      # diagnose the kind of issue — healthcheck timing, gorgone DBD::mysql
+      # rejection, Apache vhost generation — that doesn't surface in the probe's
+      # exit code. --timestamps is critical for timing-sensitive races (e.g.
+      # web→db connect attempts vs. db healthcheck transition).
+      - name: Show container status
+        if: always()
+        run: |
+          echo "::group::docker compose ps"
+          docker compose ps
+          echo "::endgroup::"
+
+      - name: Dump container logs (per-service, always)
+        if: always()
+        run: |
+          # Iterate the services we expect. The `|| true` ensures a service
+          # that was profiled out (or never started) doesn't fail the step;
+          # any service added to the overlay in future just needs to be
+          # appended here, and the on-failure fallback below covers the gap
+          # in the interim.
+          for svc in certgen db web; do
+            echo "::group::logs: $svc"
+            docker compose logs --no-color --timestamps --tail=500 "$svc" 2>&1 || true
+            echo "::endgroup::"
+          done
+
+      - name: Dump all logs on failure (fallback for services not listed above)
+        if: failure()
+        run: docker compose logs --no-color --timestamps --tail=2000
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

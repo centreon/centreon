@@ -13,6 +13,33 @@ docker compose -f .github/docker/docker-compose.yml up -d --wait
 
 Centreon web should be accessible at `http://localhost:4000/centreon`
 
+## :lock: HTTP / HTTPS mode
+
+The stack runs in plain HTTP by default. HTTPS (web TLS only) is opt-in through a compose overlay:
+
+```bash
+export WEB_IMAGE=docker.centreon.com/centreon/centreon-web-alma9:dev-24.10.x
+docker compose -f .github/docker/docker-compose.yml -f .github/docker/docker-compose.tls.yml up -d
+```
+
+or uncomment `COMPOSE_FILE` in `.github/docker/.env`. `WEB_IMAGE` has no default on this branch. Set `CENTREON_WEB_OS` (`alma9` default, `alma8`, `bookworm`) to match the `WEB_IMAGE` OS. Requires docker compose >= 2.20.
+
+| Service | HTTP port | HTTPS mode             |
+|---------|-----------|------------------------|
+| `web`   | `4000:80` | `4000:80` + `4443:443` |
+
+`:80` stays mapped: `curl -I http://localhost:4000/centreon/` returns the `302` to HTTPS emitted by the official Apache template.
+
+The overlay adds:
+
+* **`certgen`** one-shot: issues a Root CA and a leaf certificate (SAN `web`, `localhost`, `127.0.0.1`) into the `certs` named volume. `docker compose down -v` wipes it.
+* **`web`**: `04-tls.sh` installs the CA in the OS trust store and drops the official Apache HTTPS vhost (only the certificate paths differ from production).
+
+> [!NOTE]
+> **Web TLS only.** The DB, gorgone and broker connections stay in plaintext on this branch.
+
+To verify with the dev CA: `docker compose -f .github/docker/docker-compose.yml -f .github/docker/docker-compose.tls.yml cp web:/etc/pki/centreon-tls/rootCA.pem /tmp/centreon-dev-ca.pem`, then `curl --cacert /tmp/centreon-dev-ca.pem https://localhost:4443/centreon/api/latest/platform/versions`.
+
 ## :toolbox: Custom database image
 
 By default, MariaDB 10.11 is used to store Centreon data (configuration & monitoring).
