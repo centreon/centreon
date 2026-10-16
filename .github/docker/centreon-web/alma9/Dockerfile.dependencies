@@ -67,7 +67,7 @@ dnf install -y \
 
 dnf install -y \
   perl-interpreter \
-  perl-DBD-MySQL \
+  perl-DBD-MariaDB \
   perl-DBD-SQLite \
   perl-DBI \
   perl-HTML-Parser \
