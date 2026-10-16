@@ -1,0 +1,44 @@
+{
+    "read-model": {
+        "id": 1,
+        "tag": "input",
+        "type": {
+            "id": 3,
+            "name": "ipv4"
+        },
+        "name": "connection-to-lookup-poller",
+        "parameters": {
+            "port": "5669",
+            "retry_interval": "15",
+            "buffering_timeout": "0",
+            "host": "10.20.30.40",
+            "protocol": "bbdo",
+            "tls": "no",
+            "failover": "",
+            "private_key": "",
+            "public_cert": "",
+            "ca_certificate": "",
+            "negotiation": "yes",
+            "one_peer_retention_mode": "no",
+            "compression": "no",
+            "compression_level": "",
+            "compression_buffer": ""
+        }
+    },
+    "generated-input": {
+        "type": "ipv4",
+        "compression": "no",
+        "one_peer_retention_mode": "no",
+        "negotiation": "yes",
+        "tls": "no",
+        "protocol": "bbdo",
+        "host": "10.20.30.40",
+        "buffering_timeout": "0",
+        "retry_interval": "15",
+        "port": "5669",
+        "name": "connection-to-lookup-poller"
+    },
+    "php-warnings": [
+        "broker.class.php:526 foreach() argument must be of type array|object, null given"
+    ]
+}
