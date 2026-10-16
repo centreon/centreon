@@ -15,17 +15,38 @@
 # Picks the compose runner into COMPOSE_CMD (first that works): docker
 # compose, podman compose, podman-compose. `podman compose` exits non-zero
 # when it has no provider installed, so probing `version` is what tells
-# whether a runner is usable, not just the presence of the binary. Also
-# records whether the engine behind it is Podman (podman-docker's `docker`
-# shim included) and rootless, for _checkPodmanPrerequisites.
+# whether a runner is usable, not just the presence of the binary. Docker
+# compose additionally needs a reachable daemon (`version` doesn't contact
+# it), otherwise the next runner is tried. Also records whether the engine
+# behind it is Podman (podman-docker's `docker` shim included) and rootless,
+# for _checkPodmanPrerequisites.
 function _checkDockerPrerequisites() {
+  local docker_unreachable=0
+
   if docker compose version >/dev/null 2>&1; then
-    COMPOSE_CMD=(docker compose)
-  elif podman compose version >/dev/null 2>&1; then
-    COMPOSE_CMD=(podman compose)
-  elif podman-compose version >/dev/null 2>&1; then
-    COMPOSE_CMD=(podman-compose)
-  else
+    if docker info >/dev/null 2>&1; then
+      COMPOSE_CMD=(docker compose)
+    else
+      docker_unreachable=1
+      logInfo "docker compose found but the Docker daemon is not reachable, trying Podman."
+    fi
+  fi
+
+  if [ ${#COMPOSE_CMD[@]} -eq 0 ]; then
+    if podman compose version >/dev/null 2>&1; then
+      COMPOSE_CMD=(podman compose)
+    elif podman-compose version >/dev/null 2>&1; then
+      COMPOSE_CMD=(podman-compose)
+    fi
+  fi
+
+  if [ ${#COMPOSE_CMD[@]} -eq 0 ]; then
+    if [ "${docker_unreachable}" = "1" ]; then
+      consoleError "docker compose is installed but the Docker daemon is not reachable: is it running, and can $(id -un) use it (docker group)?"
+      consoleError "Run 'docker info' to verify."
+      logError "docker compose found but the Docker daemon is not reachable, and no Podman runner found."
+      return 1
+    fi
     consoleError "No compose runner found. Install Docker with the compose v2 plugin, or Podman with podman-compose."
     consoleError "Run 'docker compose version', 'podman compose version' or 'podman-compose version' to verify."
     logError "No compose runner found (docker compose, podman compose, podman-compose)."
