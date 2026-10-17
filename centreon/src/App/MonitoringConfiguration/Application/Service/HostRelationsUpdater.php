@@ -73,6 +73,7 @@ final readonly class HostRelationsUpdater
         private NotificationContactRepository $contactRepository,
         private ContactGroupRepository $contactGroupRepository,
         private ResourceAccessRepository $resourceAccessRepository,
+        private HostTemplateLicenseGuard $templateLicenseGuard,
     ) {
     }
 
@@ -111,7 +112,11 @@ final readonly class HostRelationsUpdater
                 $command->templateIds,
                 $host->templateIds,
                 HostTemplateId::class,
-                fn (array $ids) => $this->assertTemplatesExist($ids),
+                function (array $ids) use ($host): void {
+                    $this->assertTemplatesExist($ids);
+                    // The templates the host already has are kept, even those it could no longer be given.
+                    $this->templateLicenseGuard->assertLicensed(new Collection($ids, HostTemplateId::class), $host->templateIds);
+                },
             ),
             hostGroupIds: $this->resolveScoped(
                 $command->hostGroupIds,

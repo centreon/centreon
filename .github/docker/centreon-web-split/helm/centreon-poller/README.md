@@ -45,6 +45,27 @@ before its first export can take that long to pick it up (`kubectl delete pod`
 to apply it at once). The same back-off delays a "restart" from the central
 (a clean exit) until the engine has run 10 minutes without restarting.
 
+## Centreon Cloud
+
+The defaults already match a Centreon Cloud central (what `install.sh --cloud`
+sets): gorgone reaches it over SSL on 443 (`central.port`, `central.ssl`).
+Only the host differs from an on-prem install:
+
+```yaml
+central:
+  host: <tenant>.<region>.centreon.cloud
+```
+
+- The broker output (443 instead of 5669) comes with the poller's
+  configuration from the central: nothing to set in the chart.
+- Cloud releases use the poller images of the latest on-prem (`.10`) major
+  (e.g. 26.10 for 27.04): the chart's `appVersion` applies as is, no chart
+  release per cloud version.
+- No probe checks the connection to the central (unlike the docker-compose
+  healthchecks of `install.sh`): it would restart the poller on every central
+  or network outage, which fixes nothing. Watch the poller status in Centreon
+  instead.
+
 ## Centreon Monitoring Agents (CMA)
 
 Agents dial the poller on 4317 (`engine.otel.service`, LoadBalancer for agents
@@ -104,6 +125,32 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
 - Enabling traps on an installed poller changes the volume list (see
   Persistence for the upgrade procedure).
 
+## VMware connector
+
+`--set vmware.enabled=true` adds `centreon-vmware` to the poller pod. The
+engine's VMware plugins reach it as `centreon-vmware:5700` (host alias to the
+pod itself), its configuration (`/etc/centreon/centreon_vmware.json`) is
+delivered by the central through gorgone, and it restarts on each update.
+
+There is no public image: it embeds the VMware Perl SDK, under a Broadcom
+license. Build it from a `centreon-plugins` checkout with the SDK archives in
+`sdks-vmware/` (see its README), push it to a **private** registry and give
+the chart its reference and pull secret:
+
+```powershell
+docker build -f .github/docker/connector/Dockerfile.connector-vmware `
+  -t registry.example.com/centreon/connector-vmware:<version> .
+docker push registry.example.com/centreon/connector-vmware:<version>
+
+helm upgrade poller-1 . -n pollers --reset-then-reuse-values `
+  --set vmware.enabled=true `
+  --set vmware.image.repository=registry.example.com/centreon/connector-vmware `
+  --set vmware.image.tag=<version> `
+  --set "imagePullSecrets[0].name=<registry-secret>"
+```
+
+Enabling it does not change the volume list.
+
 ## Central-side prerequisites
 
 - pullwss goes through the central's web server / ingress at
@@ -128,6 +175,9 @@ plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
 | `engine.otel.tls.certManager` | disabled | Certificate issued by cert-manager (`dnsNames`, `issuerRef`), see CMA |
 | `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
 | `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
+| `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
+| `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
+| `networkPolicy.extraIngress` | `[]` | Extra ingress rules, added as is (not limited to 4317/162) |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -204,6 +254,17 @@ Pod Security Standards:
   containerd grants by default (k3s, EKS, GKE, AKS).
 - CRI-O / OpenShift drop NET_RAW: set `engine.addNetRaw: true`, which requires
   a `privileged` namespace.
+
+NetworkPolicy (`networkPolicy.enabled`, default on, needs an enforcing CNI):
+only 4317/tcp (CMA) and 162/udp (traps, when enabled) are reachable from
+outside the pod; restrict their sources with `networkPolicy.otelFrom` /
+`trapsFrom`. The engine's gRPC API (50155, unauthenticated, can shut the
+engine down) and the VMware connector (5700) are only reachable from inside
+the pod, unless `networkPolicy.extraIngress` opens them: its rules are added
+as is, so a rule without `ports` (e.g. `[{}]`) allows every port. Egress is not restricted (central, broker, monitored hosts).
+With k3s (kube-router), a source pod selected by `podSelector` is only
+allowed a moment after it starts: its very first connection may be refused
+(retry). Sources given as `ipBlock` are not affected.
 
 ## Known limitations
 
