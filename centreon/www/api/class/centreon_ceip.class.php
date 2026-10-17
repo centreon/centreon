@@ -34,6 +34,7 @@ require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonUUID.class.php';
 require_once __DIR__ . '/../../class/centreonStatistics.class.php';
 require_once __DIR__ . '/../../include/common/common-Func.php';
+require_once __DIR__ . '/../../class/centreonCeipLicenseType.class.php';
 require_once __DIR__ . '/webService.class.php';
 
 /**
@@ -293,6 +294,10 @@ class CentreonCeip extends CentreonWebService
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
         }
 
+        if (isset($licenseInfo['asset_id'])) {
+            $accountInformation['asset_id'] = $licenseInfo['asset_id'];
+        }
+
         if (! empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
             $accountInformation['LACCESS'] = $laccess;
         }
@@ -332,49 +337,32 @@ class CentreonCeip extends CentreonWebService
             /** @var LicenseService $licenseObject */
             $licenseObject = $dependencyInjector['lm.license'];
 
-            /** @var array<array-key, array<array-key, string|array<array-key, string>>> $licenseInformation */
-            $licenseInformation = [];
+            /** @var array<string, array<array-key, mixed>> $validLicenses */
+            $validLicenses = [];
             foreach ($centreonModules as $module) {
                 $licenseObject->setProduct($module);
                 $isLicenseValid = $licenseObject->validate();
                 if ($isLicenseValid && ! empty($licenseObject->getData())) {
-                    /**
-                     * @var array<
-                     *  array-key,
-                     *  array<array-key, array<array-key, string|array<array-key, string>>>> $licenseInformation
-                     */
-                    $licenseInformation[$module] = $licenseObject->getData();
+                    /** @var array<array-key, array<array-key, mixed>> $licenseData */
+                    $licenseData = $licenseObject->getData();
+                    $validLicenses[$module] = $licenseData;
                     /** @var string $licenseClientName */
-                    $licenseClientName = $licenseInformation[$module]['client']['name'];
-                    $hostsLimitation = $licenseInformation[$module]['licensing']['hosts'];
-                    $licenseMode = $licenseInformation[$module]['platform']['mode'] ?? null;
-                    $licenseStart = DateTime::createFromFormat(
-                        'Y-m-d',
-                        $licenseInformation[$module]['licensing']['start']
-                    ) ?: throw new Exception('Invalid date format');
-                    $licenseEnd = DateTime::createFromFormat(
-                        'Y-m-d',
-                        $licenseInformation[$module]['licensing']['end']
-                    ) ?: throw new Exception('Invalid date format');
-                    $licenseDurationInDays = (int) ($licenseEnd->diff($licenseStart)->days ?? 0);
-                    if ($module === 'epp') {
-                        $productLicense = 'IT Edition';
-                        if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
-                            $productLicense = 'IT-100 Edition';
-                        } elseif ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
-                            $productLicense = 'MSP Edition';
-                            $fingerprint = $fingerprintService->calculateFingerprint();
-                        }
-                    }
-                    if (in_array($module, ['mbi', 'bam', 'map'], true)) {
-                        $productLicense = 'Business Edition';
-                        $fingerprint = $fingerprintService->calculateFingerprint();
-                        if ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
-                            $productLicense = 'MSP Edition';
-                        }
+                    $licenseClientName = $licenseData['client']['name'];
+                    $hostsLimitation = $licenseData['licensing']['hosts'];
+                    $licenseMode = $licenseData['platform']['mode'] ?? null;
+                    if ($module !== 'epp') {
                         break;
                     }
-                    $environment = $licenseInformation[$module]['platform']['environment'];
+                    $environment = $licenseData['platform']['environment'];
+                }
+            }
+
+            if ($validLicenses !== []) {
+                $licenseType = CentreonCeipLicenseType::resolve($validLicenses);
+                $productLicense = $licenseType['licenseType'];
+                $assetId = $licenseType['assetId'];
+                if ($licenseType['withFingerprint']) {
+                    $fingerprint = $fingerprintService->calculateFingerprint();
                 }
             }
         } catch (UnknownIdentifierException) {
@@ -399,6 +387,10 @@ class CentreonCeip extends CentreonWebService
 
         if (isset($fingerprint)) {
             $licenseInformation['fingerprint'] = $fingerprint;
+        }
+
+        if (isset($assetId)) {
+            $licenseInformation['asset_id'] = $assetId;
         }
 
         if (isset($licenseMode)) {
