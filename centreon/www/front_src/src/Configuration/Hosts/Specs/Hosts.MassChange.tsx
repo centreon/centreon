@@ -102,6 +102,9 @@ const expectPatchedHosts = async (
       if (body) {
         expect(request.body).toEqual(body);
       }
+
+      // Answered too, not only sent: requests are logged on arrival.
+      expect(calls.every(({ answered }) => answered)).toBe(true);
     });
   });
 };
