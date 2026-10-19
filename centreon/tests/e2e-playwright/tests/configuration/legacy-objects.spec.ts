@@ -2,18 +2,19 @@ import { randomUUID } from 'node:crypto';
 
 import { adminStorageStatePath } from '../../fixtures/auth';
 import {
-  legacyObjectCleanup,
-  legacyObjectProvisioning,
-  legacyObjects
+  legacyObjects,
+  removeLegacyObject,
+  seedLegacyObject
 } from '../../fixtures/legacy-objects';
 import { expect, test } from '../../fixtures/test';
 import { LegacyListingPage } from '../../pages/LegacyListingPage';
 
 /**
  * Replaces the edit, duplicate and delete scenarios the Cypress suite repeats
- * for each legacy configuration object (Contacts/02, Hosts/02-03-07,
- * Services-configuration/01-04-05, Snmp-Traps/01-03, Time-Period/01): one
- * lifecycle per object type on a freshly seeded object.
+ * for each legacy configuration object (Commands/02, Contacts/02,
+ * HostGroups/02, Hosts/02-03-07, Notifications/01,
+ * Services-configuration/01-04-05-07-10-11, Snmp-Traps/01-03,
+ * Time-Period/01): one lifecycle per object type on a freshly seeded object.
  */
 test.use({ storageState: adminStorageStatePath });
 
@@ -27,9 +28,7 @@ for (const object of legacyObjects) {
     const edited = `${name} edited`;
     const listing = new LegacyListingPage(page, object.topologyPage);
 
-    // Shared objects the type relies on, kept between tests.
-    await adminApi.provision(object.prerequisites ?? [], { tolerate: [409] });
-    await adminApi.provision(legacyObjectProvisioning(object, name));
+    await seedLegacyObject(adminApi, object, name);
 
     try {
       await listing.open(name);
@@ -51,9 +50,7 @@ for (const object of legacyObjects) {
       await expect(listing.row(name)).toHaveCount(0);
       await expect(listing.row(duplicate)).toHaveCount(0);
     } finally {
-      await adminApi
-        .provision(legacyObjectCleanup(object, name), { tolerate: [404, 409] })
-        .catch(() => undefined);
+      await removeLegacyObject(adminApi, object, name);
     }
   });
 }

@@ -52,10 +52,16 @@ export class LegacyListingPage extends BasePage {
     await this.listingLoaded();
     if (search) {
       // The first search field of each listing filters on the object name.
-      const field = this.page.locator('input[name^="search"]').first();
-      await field.fill(search);
-      await Promise.all([this.page.waitForEvent('load'), field.press('Enter')]);
-      await this.listingLoaded();
+      const field = this.page.locator('input[name^="search"]:visible').first();
+      // A few listings, such as the connectors, have no search field.
+      if ((await field.count()) > 0) {
+        await field.fill(search);
+        await Promise.all([
+          this.page.waitForEvent('load'),
+          field.press('Enter')
+        ]);
+        await this.listingLoaded();
+      }
     }
   }
 
@@ -84,10 +90,16 @@ export class LegacyListingPage extends BasePage {
     name: string,
     { editable = true }: { editable?: boolean } = {}
   ): Promise<void> {
-    await Promise.all([
-      this.page.waitForEvent('load'),
-      this.row(name).getByRole('link', { exact: true, name }).first().click()
-    ]);
+    const link = this.row(name)
+      .getByRole('link', { exact: true, name })
+      .first();
+    const href = (await link.getAttribute('href')) ?? '';
+    if (href.startsWith('main.php')) {
+      // Some listings link to the React shell: open the document it frames.
+      await this.goto(`/centreon/${href.replace('main.php', 'main.get.php')}`);
+    } else {
+      await Promise.all([this.page.waitForEvent('load'), link.click()]);
+    }
     if (editable) {
       await expect(this.saveButton).toBeVisible({ timeout: 30_000 });
     }
