@@ -376,6 +376,8 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         $this->applySort($qb, 'cm', $criteria);
+        // last sort key: name, type and status are not unique, and pagination must stay deterministic
+        $qb->addOrderBy('cm.command_id');
     }
 
     /**
@@ -507,6 +509,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb = clone $qb; // avoid modifying the initial query builder
 
         $count = $qb
+            ->resetOrderBy()
             ->select('COUNT(DISTINCT cm.command_id)')
             ->setFirstResult(0) // reset any pagination
             ->setMaxResults(null)
