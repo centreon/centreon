@@ -15,6 +15,8 @@ export interface LegacyObject {
     insert: (name: string) => Array<string>;
     remove: (names: Array<string>) => string;
   };
+  /** False when the listing offers no duplication. */
+  duplicable?: false;
   /** Text field of the form changed by the test. */
   editField: string;
   /** Human-readable label of the object type. */
@@ -231,6 +233,23 @@ export const legacyObjects: Array<LegacyObject> = [
         `DELETE FROM meta_service WHERE meta_name IN (${inList(names)})`
     },
     topologyPage: '60204'
+  },
+  {
+    addValues: (name) => `${name};${name} description`,
+    clapi: 'LDAP',
+    duplicable: false,
+    editField: 'ar_description',
+    label: 'LDAP configuration',
+    links: (name) => [
+      { action: 'ADDSERVER', object: 'LDAP', values: `${name};192.0.2.1;389;0;0` }
+    ],
+    // The form checks the filters and needs a contact template.
+    requiredParams: [
+      'user_filter;(&(uid=%s)(objectClass=posixAccount))',
+      'group_filter;(&(cn=%s)(objectClass=groupOfNames))',
+      'ldap_contact_tmpl;contact_template'
+    ],
+    topologyPage: '50113&o=ldap'
   },
   {
     clapi: 'VMETRIC',

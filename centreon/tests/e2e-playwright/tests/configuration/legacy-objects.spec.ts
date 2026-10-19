@@ -19,7 +19,7 @@ import { LegacyListingPage } from '../../pages/LegacyListingPage';
 test.use({ storageState: adminStorageStatePath });
 
 for (const object of legacyObjects) {
-  test(`edits, duplicates and deletes a ${object.label}`, async ({
+  test(`${object.duplicable === false ? 'edits' : 'edits, duplicates'} and deletes a ${object.label}`, async ({
     adminApi,
     page
   }) => {
@@ -37,16 +37,21 @@ for (const object of legacyObjects) {
       await listing.openForm(name);
       await expect(listing.field(object.editField)).toHaveValue(edited);
 
-      await listing.open(name);
-      await listing.bulk('Duplicate', [name]);
-      await expect(listing.row(duplicate)).toBeVisible();
-      await test.step('The duplicate keeps the properties', async () => {
-        await listing.openForm(duplicate);
-        await expect(listing.field(object.editField)).toHaveValue(edited);
-      });
+      if (object.duplicable !== false) {
+        await listing.open(name);
+        await listing.bulk('Duplicate', [name]);
+        await expect(listing.row(duplicate)).toBeVisible();
+        await test.step('The duplicate keeps the properties', async () => {
+          await listing.openForm(duplicate);
+          await expect(listing.field(object.editField)).toHaveValue(edited);
+        });
+      }
 
       await listing.open(name);
-      await listing.bulk('Delete', [name, duplicate]);
+      await listing.bulk(
+        'Delete',
+        object.duplicable === false ? [name] : [name, duplicate]
+      );
       await expect(listing.row(name)).toHaveCount(0);
       await expect(listing.row(duplicate)).toHaveCount(0);
     } finally {
