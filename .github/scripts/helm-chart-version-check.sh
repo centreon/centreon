@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
-# Fail when a chart changed against the PR base without a higher `version` in
-# its Chart.yaml (MON-212455): published chart versions are immutable, a chart
-# change must ship under a new one. Files under <chart>/ci/ (CI values, not
-# packaged) don't count as a change.
-#
-# Expected env vars:
-#   BASE_REF    PR base branch, fetched as origin/$BASE_REF
-#   CHART_DIR   chart directory (e.g. .github/helm/centreon-poller)
+# A changed chart (outside ci/) needs a higher version. Env: BASE_REF, CHART_DIR.
 set -euo pipefail
 
 chart_version() {

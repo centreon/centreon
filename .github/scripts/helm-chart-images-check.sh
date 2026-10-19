@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
-# Before promoting a chart as stable (MON-212455): every ghcr.io image it
-# references by default must already be published, otherwise the stable chart
-# would point to missing images. Renders the chart with each CI values file
-# (<chart>/ci/*-values.yaml) and resolves every ghcr.io image with crane.
-#
-# Needs helm and crane on PATH, ghcr.io credentials (crane reads the docker
-# config) able to read the image packages.
-#
-# Expected env vars:
-#   CHART_DIR   chart directory (e.g. .github/helm/centreon-poller)
+# Every ghcr.io image the chart renders must exist. Env: CHART_DIR.
 set -euo pipefail
 
 shopt -s nullglob

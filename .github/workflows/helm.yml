@@ -1,11 +1,5 @@
 name: helm
 
-# Helm charts under .github/helm/<chart>/ (MON-212455):
-# - pull request: lint, render and schema-check every chart, require a version bump
-# - push on develop / dev-XX.XX.x: publish a pre-release (<version>-<branch>.<run>) to Harbor
-# - push on XX.XX.x: publish <version> to Harbor, then promote that exact
-#   artifact (same digest) to ghcr.io and Pulp dev, like the container images
-#   promoted by web.yml (stable, on-prem only; master is the cloud stable branch)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -32,7 +26,6 @@ env:
   HELM_VERSION: v4.3.1
   KUBECONFORM_VERSION: v0.8.0
   KUBECONFORM_SHA256: 9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883
-  # Lowest Kubernetes version the charts support (kubeVersion in Chart.yaml).
   KUBE_VERSION: 1.29.0
 
 jobs:
@@ -112,7 +105,6 @@ jobs:
           for values in "${values_files[@]}"; do
             echo "::group::$values"
             helm lint "$CHART_DIR" -f "$values" --kube-version "$KUBE_VERSION"
-            # cert-manager resources: schemas from the CRDs catalog
             helm template ci "$CHART_DIR" -f "$values" --kube-version "$KUBE_VERSION" \
               | kubeconform -strict -summary -kubernetes-version "$KUBE_VERSION" \
                   -schema-location default \
@@ -184,8 +176,7 @@ jobs:
           version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
 
           if [[ "$STABILITY" == "stable" ]]; then
-            # A stable version is published once: the promoted artifact must stay
-            # the one already on Harbor (helm package is not byte-reproducible).
+            # Published once: helm package is not reproducible.
             if digest=$(crane digest "$CHART_REPOSITORY/$chart:$version" 2>/dev/null); then
               echo "::notice::$chart $version already on Harbor ($digest), not republished."
               echo "pushed=false" >> "$GITHUB_OUTPUT"
@@ -206,7 +197,6 @@ jobs:
         shell: bash
 
       - name: Attest build provenance
-        # Keyed by digest: crane copy keeps it, so it verifies on ghcr.io and Pulp too.
         if: steps.push.outputs.pushed == 'true'
         id: attest-build-provenance
         continue-on-error: true
@@ -394,8 +384,6 @@ jobs:
         shell: bash
 
       - name: Promote to Pulp dev
-        # Re-copying the same Harbor candidate is a no-op: a stable version is
-        # never republished on Harbor, so its digest doesn't change.
         id: promote-pulp-dev
         env:
           SOURCE_REF: ${{ steps.candidate.outputs.ref }}
