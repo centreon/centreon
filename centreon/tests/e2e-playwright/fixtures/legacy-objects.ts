@@ -54,6 +54,10 @@ const inList = (names: Array<string>): string =>
 const insertMetaService = (name: string): string =>
   `INSERT INTO meta_service (meta_name, meta_display, check_period, max_check_attempts, normal_check_interval, retry_check_interval, calcul_type, meta_select_mode, regexp_str, metric, data_source_type, meta_activate) SELECT '${name}', '${name} output', 1, 3, 5, 1, 'AVE', '2', 'pw', 'pl', 0, '0' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM meta_service WHERE meta_name = '${name}')`;
 
+/** A virtual metric on a service of the central server. */
+export const insertVirtualMetric = (name: string, service: string): string =>
+  `INSERT INTO virtual_metrics (index_id, vmetric_name, def_type, rpn_function, unit_name, hidden, comment, vmetric_activate) SELECT id, '${name}', '0', 'rta,2,*', 'ms', '0', '${name} comment', '1' FROM centreon_storage.index_data WHERE host_name = 'Centreon-Server' AND service_description = '${service}'`;
+
 // Dependencies all need their failure criteria (see the host dependency).
 const dependency = (
   label: string,
@@ -227,6 +231,17 @@ export const legacyObjects: Array<LegacyObject> = [
         `DELETE FROM meta_service WHERE meta_name IN (${inList(names)})`
     },
     topologyPage: '60204'
+  },
+  {
+    clapi: 'VMETRIC',
+    editField: 'comment',
+    label: 'virtual metric',
+    sql: {
+      insert: (name) => [insertVirtualMetric(name, 'Ping')],
+      remove: (names) =>
+        `DELETE FROM virtual_metrics WHERE vmetric_name IN (${inList(names)})`
+    },
+    topologyPage: '20408'
   },
   {
     clapi: 'CONNECTOR',
