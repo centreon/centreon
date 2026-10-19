@@ -87,6 +87,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
 {
     use LoggerTrait;
     use HostCategoryRepositoryTrait;
+
     /**
      * @param DatabaseConnection $db
      */

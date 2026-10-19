@@ -43,7 +43,6 @@ use Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface;
 final class DbReadHostLicenseRepository extends DatabaseRepository implements ReadHostLicenseRepositoryInterface
 {
     use SqlMultipleBindTrait;
-
     private const LICENSE_MANAGER_MODULE = 'centreon-license-manager';
     private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
     private const LICENSE_PRODUCT = 'epp';
