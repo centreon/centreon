@@ -1232,14 +1232,14 @@ class CentreonService
             } else {
                 // Anomaly detection services (register 3) hang on regular hosts and are
                 // offered by the search (centreon_configuration_service), keep them on reload.
-                $serviceRegisterFilter = (string) $register === '1'
-                    ? "s.service_register IN ('1', '3')"
-                    : "s.service_register = '{$register}'";
+                $registerFilter = (string) $register === '1'
+                    ? "h.host_register = '1' AND s.service_register IN ('1', '3') "
+                    : "h.host_register = '0' AND s.service_register = '0' ";
                 $queryService = 'SELECT DISTINCT s.service_description, s.service_id, h.host_name, h.host_id '
                     . 'FROM host h, service s, host_service_relation hsr '
                     . 'WHERE hsr.host_host_id = h.host_id '
                     . 'AND hsr.service_service_id = s.service_id '
-                    . "AND h.host_register = '{$register}' AND {$serviceRegisterFilter} "
+                    . 'AND ' . $registerFilter
                     . $selectedHosts
                     . $selectedServices
                     . 'ORDER BY h.host_name ';
