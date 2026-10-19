@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Every ghcr.io image the chart renders must exist. Env: CHART_DIR.
+# Every ghcr.io image the chart renders must exist. Env: CHART_DIR (ci/ values), CHART_REF (chart to render, default CHART_DIR).
 set -euo pipefail
 
 shopt -s nullglob
@@ -11,7 +11,7 @@ fi
 
 rendered=""
 for values in "${values_files[@]}"; do
-  rendered+="$(helm template ci "$CHART_DIR" -f "$values" --kube-version 1.29.0)"$'\n'
+  rendered+="$(helm template ci "${CHART_REF:-$CHART_DIR}" -f "$values" --kube-version 1.29.0)"$'\n'
 done
 images=$(awk '$1 == "image:" || $2 == "image:" { print $NF }' <<< "$rendered" | tr -d "\"'" | awk '/^ghcr\.io\//' | sort -u)
 if [[ -z "$images" ]]; then

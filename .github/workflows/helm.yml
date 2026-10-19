@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - ".version"
       - ".github/helm/**"
       - ".github/workflows/helm.yml"
       - ".github/scripts/helm-chart-*.sh"
@@ -20,6 +21,7 @@ on:
       - "release-[2-9][0-9].[0-9][0-9]-next"
       - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
+      - ".version"
       - ".github/helm/**"
       - ".github/workflows/helm.yml"
       - ".github/scripts/helm-chart-*.sh"
@@ -181,7 +183,6 @@ jobs:
         env:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
           REF_NAME: ${{ github.ref_name }}
-          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
           RUN_NUMBER: ${{ github.run_number }}
           HARBOR_REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           OUT_DIR: /tmp/charts
@@ -306,9 +307,18 @@ jobs:
           } >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Check the chart's default images are on ghcr.io
+      - name: Check the candidate's default images are on ghcr.io
         if: steps.candidate.outputs.promote == 'true'
-        run: bash .github/scripts/helm-chart-images-check.sh
+        env:
+          REGISTRY_USERNAME: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+          VERSION: ${{ steps.candidate.outputs.version }}
+        run: |
+          set -euo pipefail
+          echo "$REGISTRY_PASSWORD" | helm registry login "${CHART_REPOSITORY%%/*}" --username "$REGISTRY_USERNAME" --password-stdin
+          helm pull "oci://$CHART_REPOSITORY/${{ matrix.chart }}" --version "$VERSION" --destination /tmp/candidate
+          helm registry logout "${CHART_REPOSITORY%%/*}"
+          CHART_REF="/tmp/candidate/${{ matrix.chart }}-$VERSION.tgz" bash .github/scripts/helm-chart-images-check.sh
         shell: bash
 
       - name: Promote to ghcr.io (best-effort, non-blocking)
@@ -395,8 +405,17 @@ jobs:
           } >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Check the chart's default images are on ghcr.io
-        run: bash .github/scripts/helm-chart-images-check.sh
+      - name: Check the candidate's default images are on ghcr.io
+        env:
+          REGISTRY_USERNAME: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+          VERSION: ${{ steps.candidate.outputs.version }}
+        run: |
+          set -euo pipefail
+          echo "$REGISTRY_PASSWORD" | helm registry login "${CHART_REPOSITORY%%/*}" --username "$REGISTRY_USERNAME" --password-stdin
+          helm pull "oci://$CHART_REPOSITORY/${{ matrix.chart }}" --version "$VERSION" --destination /tmp/candidate
+          helm registry logout "${CHART_REPOSITORY%%/*}"
+          CHART_REF="/tmp/candidate/${{ matrix.chart }}-$VERSION.tgz" bash .github/scripts/helm-chart-images-check.sh
         shell: bash
 
       - name: Promote to Pulp dev

@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
-# Chart major = appVersion year; on PRs (BASE_REF set), a changed chart (outside ci/) needs a higher version.
+# Chart major = year of .version MAJOR; on PRs (BASE_REF set), a changed chart (outside ci/) needs a higher version.
 # Env: CHART_DIR, BASE_REF.
 set -euo pipefail
 
-chart_field() {
-  awk -v field="$1:" '$1 == field { gsub(/"/, "", $2); print $2; exit }'
-}
 chart_version() {
-  chart_field version
+  awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }'
 }
 
 head_version=$(chart_version < "$CHART_DIR/Chart.yaml")
-app_version=$(chart_field appVersion < "$CHART_DIR/Chart.yaml")
-if [[ "${head_version%%.*}" != "${app_version%%.*}" ]]; then
-  echo "::error file=$CHART_DIR/Chart.yaml::$CHART_DIR version $head_version must start with the appVersion year (${app_version%%.*}.y.z for appVersion $app_version)."
+MAJOR=$(. ./.version && echo "$MAJOR")
+if [[ "${head_version%%.*}" != "${MAJOR%%.*}" ]]; then
+  echo "::error file=$CHART_DIR/Chart.yaml::$CHART_DIR version $head_version must start with ${MAJOR%%.*} (.version MAJOR=$MAJOR): ${MAJOR%%.*}.y.z."
   exit 1
 fi
 

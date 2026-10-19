@@ -5,7 +5,7 @@ description: >-
   to a central running anywhere. One release per poller.
 type: application
 version: 26.0.0
-# Default image tag (stable images are tagged with the major version).
+# Local installs only: the CI sets it from .version.
 appVersion: "26.10"
 kubeVersion: ">=1.29.0-0"
 keywords:

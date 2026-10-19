@@ -268,9 +268,10 @@ allowed a moment after it starts: its very first connection may be refused
 
 ## Chart versions
 
-`version` follows SemVer, its major being the year of the Centreon on-prem
-major in `appVersion` (`26.x.y` for 26.10): minor for new optional features,
-patch for fixes. Breaking changes only come with a new major.
+`version` follows SemVer, its major being the year of the Centreon major
+(`26.x.y` for 26.10): minor for new optional features, patch for fixes.
+Breaking changes only come with a new major. The CI sets `appVersion` from
+the branch `.version`.
 
 | Published as | Where | Default images |
 |---|---|---|
