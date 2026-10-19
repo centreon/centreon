@@ -45,7 +45,20 @@ backend behaviour.
 
 ## Status
 
-Tracked in the README coverage section, family by family.
+Migrated families are listed in the README coverage section. Still in
+Cypress:
+
+| Family | Reason |
+| --- | --- |
+| Metric widgets (single metric, graph, top/bottom) | Need performance data on the stack |
+| Cloud notification emails, Downtime/04 | Need the broker Lua output, or wait for real minutes |
+| Platform update/upgrade, custom URI/port/DB name, backup, partitioning | Need dedicated stack images |
+| Virtual metrics, SNMP trap groups, host group services, meta service type filter | Legacy pages not yet covered |
+| Services-configuration/13-14, Contacts/04-05, Knowledge base, Logs/06, Administration/01-02, Ldaps/01 | Legacy pages not yet covered |
+
+Dropped: Services-configuration/02 and Web-SSO/03 (they asserted nothing, see
+below), Hosts/12 (select2 rendering, exercised by the mass change tests), and
+the widget display options covered by the component suite.
 
 ## Findings
 

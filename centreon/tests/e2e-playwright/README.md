@@ -11,33 +11,31 @@ encapsulated in a Page Object (`pages/`). Tests describe _intentions_
 
 ## Coverage and status
 
-> **This is a proof of concept, not a replacement for the Cypress suite.** It
-> shows that the patterns — Page Object Model, API-based provisioning,
-> legacy-iframe pages, OIDC, CI fan-out — work end-to-end against Centreon. It
-> does **not** yet match the breadth of the Cypress + Cucumber suite
-> (`tests/e2e`): roughly **~15% of the Cypress scenarios** are covered today.
+The suite holds **142 tests** (44 files) migrated from the Cypress + Cucumber
+suite (`tests/e2e`). They are not ported one for one: each family is triaged
+(kept, merged into one journey, parametrized, or dropped when the component
+suite covers it); see [MIGRATION.md](MIGRATION.md) for the plan, the status and
+the findings.
 
-**Migrated (happy paths)** — authentication (login + OIDC), dashboards
-(create / edit / navigate / delete), resources-status (listing +
-acknowledgement), cloud-notifications (listing), api-token
-(create / delete / filter / sort), proxy and custom-views (legacy iframes),
-commands, macros, hosts, host-groups, contacts, services (create), time-period,
-snmp-traps, poller-configuration, additional-connectors.
+**Migrated** — authentication (login, local password policies, autologin,
+LDAP, OpenID Connect, SAML, Web SSO), ACL effects (menus, actions, scoped
+listings, event logs), change logs, legacy configuration objects (edit,
+duplicate and delete of 21 object types), mass change, legacy listing
+filters, dashboards (library, permissions, sharing, favourites, status
+widgets on real data), Resources Status (listing, filters, acknowledgement,
+downtime, submitted status, CSV export), realtime and recurrent DST
+downtimes, cloud notification rules, API tokens, proxy, custom views,
+commands, macros, hosts, host groups, contacts, services, time periods, SNMP
+traps, pollers, additional connectors, agent configurations, resource access
+rules.
 
-**Not yet migrated — keep relying on Cypress for these:**
+**Still in Cypress** — metric widgets (single metric, graph, top/bottom),
+cloud notification email delivery, fixed downtime start and stop, platform
+update/upgrade, custom URI/port/database name, backup and partitioning, and a
+few legacy pages listed in MIGRATION.md.
 
-- **Access control & enterprise auth**: ACL (action / menu / resource access),
-  LDAP, SAML, local password policies. Security-sensitive and currently
-  **uncovered** by Playwright.
-- **Audit / change logs**.
-- **Dashboard widgets**: only a few cases vs the 100+ widget-configuration
-  scenarios in Cypress.
-- Deeper flows of partially-migrated features: services configuration beyond
-  create, resources-status advanced filters / export, downtime cancellation, …
-
-Four tests are currently **skipped** (`agent-configuration`,
-`resources-access-management`, `downtime` ×2) — each carries an in-file comment
-explaining why and what is needed to re-enable it.
+One test is marked `test.fail()`: the autologin link copied on a React page
+(known bug, see MIGRATION.md).
 
 ## Continuous integration
 
