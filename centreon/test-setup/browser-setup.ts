@@ -63,6 +63,18 @@ beforeAll(async () => {
   await worker.start({ onUnhandledRequest: 'bypass', quiet: true });
 });
 
+// React Testing Library declares a jsdom-style act environment, in which
+// React warns about every state update made outside `act()`. In a real
+// browser the page updates on its own (queries resolving, popovers settling)
+// and the tests wait for it with `findBy*`/`waitFor`, so those warnings are
+// noise. Off for each test, after the library's own `beforeAll` turned it on;
+// its `render` and events still turn it on while they run.
+beforeEach(() => {
+  (
+    globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }
+  ).IS_REACT_ACT_ENVIRONMENT = false;
+});
+
 // Cypress starts every test from empty storage and a clean request log; so do
 // the tests here.
 afterEach(() => {
