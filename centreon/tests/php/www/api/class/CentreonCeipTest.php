@@ -360,12 +360,30 @@ final class CentreonCeipTest extends TestCase
         yield 'integer' => [42];
     }
 
-    public function testResolveThrowsOnAnInvalidLicenseDate(): void
+    /**
+     * @param array<string, mixed> $licensing
+     */
+    #[DataProvider('invalidDateProvider')]
+    public function testResolveThrowsOnAnInvalidLicenseDate(array $licensing): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid date format');
 
-        CentreonCeipLicenseType::resolve(['epp' => self::license(['end' => 'not-a-date'])]);
+        CentreonCeipLicenseType::resolve(['epp' => self::license($licensing)]);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function invalidDateProvider(): iterable
+    {
+        yield 'unparseable end' => [['end' => 'not-a-date']];
+
+        yield 'unparseable start' => [['start' => 'not-a-date']];
+
+        yield 'invalid calendar end' => [['end' => '2025-02-30']];
+
+        yield 'invalid calendar start' => [['start' => '2025-02-30']];
     }
 
     /**

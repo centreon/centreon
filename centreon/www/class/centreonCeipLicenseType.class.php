@@ -142,11 +142,29 @@ final class CentreonCeipLicenseType
      */
     private static function durationInDays(array $license): int
     {
-        $start = DateTime::createFromFormat('Y-m-d', (string) $license['licensing']['start'])
-            ?: throw new Exception('Invalid date format');
-        $end = DateTime::createFromFormat('Y-m-d', (string) $license['licensing']['end'])
-            ?: throw new Exception('Invalid date format');
+        $start = self::parseDate((string) $license['licensing']['start']);
+        $end = self::parseDate((string) $license['licensing']['end']);
 
         return (int) ($end->diff($start)->days ?? 0);
+    }
+
+    /**
+     * Parse a 'Y-m-d' date, rejecting invalid calendar dates (createFromFormat rolls
+     * '2025-02-30' over to March and only warns, so a false check alone is not enough).
+     *
+     * @throws Exception when the date is not a valid 'Y-m-d' date
+     */
+    private static function parseDate(string $date): DateTime
+    {
+        $parsed = DateTime::createFromFormat('Y-m-d', $date);
+        $errors = DateTime::getLastErrors();
+        if (
+            $parsed === false
+            || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new Exception('Invalid date format');
+        }
+
+        return $parsed;
     }
 }
