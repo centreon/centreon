@@ -31,3 +31,4 @@ export const panelWidthAtom = atomWithStorage<number | null>(
 export const isFormDirtyAtom = atom<boolean>(false);
 export const isCloseConfirmationDialogOpenAtom = atom<boolean>(false);
 export const isResetConfirmationDialogOpenAtom = atom<boolean>(false);
+export const isMassChangeConfirmationDialogOpenAtom = atom<boolean>(false);

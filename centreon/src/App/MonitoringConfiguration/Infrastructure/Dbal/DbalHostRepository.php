@@ -179,6 +179,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
     public function add(Host $host): void
     {
+        // Before any row of the host is written, see lockPoller().
+        $this->lockPoller($host->pollerId->value);
+
         $extendedInformations = $host->extendedInformations;
 
         $qb = $this->connection->createQueryBuilder();
@@ -366,6 +369,12 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
+        // Concurrent updates of hosts also deadlock on the relation tables: each one clears then rewrites its
+        // relations (a DELETE then an INSERT, which take gap locks that the other insert then waits for).
+        // Locking the poller row first (see lockPoller()) makes the updates of the hosts of one poller run one
+        // after the other. A move to another poller still flags the previous poller without having locked it.
+        $this->lockPoller($host->pollerId->value);
+
         $qb = $this->connection->createQueryBuilder();
         $qb->update(self::TABLE_NAME);
         foreach (self::HOST_COLUMN_PARAMETERS as $column => $parameter) {
@@ -396,6 +405,9 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         if (! $this->isRegisteredHost($hostId)) {
             return;
         }
+
+        // See lockPoller(): the poller lock comes before any row of this host is touched.
+        $this->lockPoller($host->pollerId->value);
 
         // Every relation is replaced wholesale: clear this host's rows, then re-insert them from
         // $host, exactly as add() writes them for a new host. Macros are written in place instead
@@ -597,6 +609,19 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         );
     }
 
+    public function countAll(): int
+    {
+        /** @var int|string $count */
+        $count = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from(self::TABLE_NAME)
+            ->where("host_register = '1'")
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int) $count;
+    }
+
     /**
      * Full replace of a host's relations, complementing {@see update()}, which writes its own fields and
      * its poller. Every relation table (host groups, categories and severity, templates, parents and
@@ -610,8 +635,29 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             return;
         }
 
+        // See lockPoller(): the poller lock comes before any row of this host is touched.
+        $this->lockPoller($host->pollerId->value);
+
         $this->clearRelations($hostId);
         $this->insertRelations($hostId, $host);
+    }
+
+    /**
+     * Takes the exclusive lock of a poller row, before any row of a host of that poller is written.
+     *
+     * Writing a host takes a shared lock on its poller row, through the foreign key of `ns_host_relation`
+     * (the `host` table has none). The poller is flagged for a configuration reload later in the same
+     * transaction, which needs that row exclusively. Two concurrent writes on one poller would each hold the
+     * shared lock while waiting for the exclusive one: a deadlock. Locking first makes the second write wait
+     * for the first instead. Hosts of different pollers are not serialized with each other.
+     */
+    private function lockPoller(int $pollerId): void
+    {
+        $this->connection->executeQuery(
+            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
+            ['poller_id' => $pollerId],
+            ['poller_id' => ParameterType::INTEGER],
+        );
     }
 
     /**

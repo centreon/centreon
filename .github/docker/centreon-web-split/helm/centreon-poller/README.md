@@ -45,6 +45,27 @@ before its first export can take that long to pick it up (`kubectl delete pod`
 to apply it at once). The same back-off delays a "restart" from the central
 (a clean exit) until the engine has run 10 minutes without restarting.
 
+## Centreon Cloud
+
+The defaults already match a Centreon Cloud central (what `install.sh --cloud`
+sets): gorgone reaches it over SSL on 443 (`central.port`, `central.ssl`).
+Only the host differs from an on-prem install:
+
+```yaml
+central:
+  host: <tenant>.<region>.centreon.cloud
+```
+
+- The broker output (443 instead of 5669) comes with the poller's
+  configuration from the central: nothing to set in the chart.
+- Cloud releases use the poller images of the latest on-prem (`.10`) major
+  (e.g. 26.10 for 27.04): the chart's `appVersion` applies as is, no chart
+  release per cloud version.
+- No probe checks the connection to the central (unlike the docker-compose
+  healthchecks of `install.sh`): it would restart the poller on every central
+  or network outage, which fixes nothing. Watch the poller status in Centreon
+  instead.
+
 ## Centreon Monitoring Agents (CMA)
 
 Agents dial the poller on 4317 (`engine.otel.service`, LoadBalancer for agents
@@ -80,6 +101,56 @@ TLS identity instead:
 
 Poller-initiated (reverse) connections do not use this identity.
 
+## SNMP traps
+
+`--set traps.enabled=true` adds `snmptrapd` (receives traps on 162/udp, spools
+them) and `centreontrapd` (matches them against the definitions delivered by
+the central, submits results to the engine's command FIFO) to the poller pod,
+plus a `traps-config` volume (`/etc/snmp/centreon_traps`) and a
+`<release>-snmptrap` Service (LoadBalancer, UDP 162).
+
+- Generate and apply the SNMP traps database for the poller from the central
+  (Configuration > SNMP Traps > Generate). `centreontrapd` crash-loops until
+  `centreontrapd.sdb` is delivered, logging "Can't open the file
+  .../centreontrapd.sdb: Read-only file system" (the definitions are
+  read-only for it, only gorgone writes them).
+- With `traps.logLevel=info` or `debug`, "Duplicate trap detected ...
+  Skipping" also shows up for matched traps (second pass while the result is
+  submitted): it does not mean the host is unknown.
+- `centreontrapd` matches the sender by source IP: the load balancer must keep
+  it. `externalTrafficPolicy: Local` (default) does with cloud load balancers
+  and MetalLB; k3s' built-in ServiceLB (klipper) does not.
+- `snmptrapd` runs as uid 900: the pod gets the
+  `net.ipv4.ip_unprivileged_port_start=162` sysctl (allowed by `baseline`).
+- Enabling traps on an installed poller changes the volume list (see
+  Persistence for the upgrade procedure).
+
+## VMware connector
+
+`--set vmware.enabled=true` adds `centreon-vmware` to the poller pod. The
+engine's VMware plugins reach it as `centreon-vmware:5700` (host alias to the
+pod itself), its configuration (`/etc/centreon/centreon_vmware.json`) is
+delivered by the central through gorgone, and it restarts on each update.
+
+There is no public image: it embeds the VMware Perl SDK, under a Broadcom
+license. Build it from a `centreon-plugins` checkout with the SDK archives in
+`sdks-vmware/` (see its README), push it to a **private** registry and give
+the chart its reference and pull secret:
+
+```powershell
+docker build -f .github/docker/connector/Dockerfile.connector-vmware `
+  -t registry.example.com/centreon/connector-vmware:<version> .
+docker push registry.example.com/centreon/connector-vmware:<version>
+
+helm upgrade poller-1 . -n pollers --reset-then-reuse-values `
+  --set vmware.enabled=true `
+  --set vmware.image.repository=registry.example.com/centreon/connector-vmware `
+  --set vmware.image.tag=<version> `
+  --set "imagePullSecrets[0].name=<registry-secret>"
+```
+
+Enabling it does not change the volume list.
+
 ## Central-side prerequisites
 
 - pullwss goes through the central's web server / ingress at
@@ -102,6 +173,11 @@ Poller-initiated (reverse) connections do not use this identity.
 | `engine.otel.service` | ClusterIP 4317 | CMA agents; LoadBalancer for agents outside the cluster |
 | `engine.otel.tls.existingSecret` | — | TLS identity for the agents, see CMA |
 | `engine.otel.tls.certManager` | disabled | Certificate issued by cert-manager (`dnsNames`, `issuerRef`), see CMA |
+| `traps.enabled` | `false` | snmptrapd + centreontrapd, see SNMP traps |
+| `traps.service` | LoadBalancer UDP 162, `externalTrafficPolicy: Local` | Keeps the trap source IP |
+| `vmware.enabled` / `vmware.image` | `false` / — | Image required, built with the licensed SDK, see VMware connector |
+| `networkPolicy.enabled` / `otelFrom` / `trapsFrom` | `true` / anywhere / anywhere | Ingress limited to 4317/tcp and 162/udp, see Security |
+| `networkPolicy.extraIngress` | `[]` | Extra ingress rules, added as is (not limited to 4317/162) |
 | `persistence.*` | see `values.yaml` | **Immutable after install** (volumeClaimTemplates) |
 
 ## Persistence
@@ -115,13 +191,16 @@ Poller-initiated (reverse) connections do not use this identity.
 | `cma-pki` | `/etc/pki/centreon-engine` | Default CMA CA, used without `engine.otel.tls` |
 | `engine-home` | `/var/lib/centreon-engine` | Engine user's home = cbmod's default cache directory (queue saved on clean stop). The command FIFO dir `rw/` is an emptyDir mounted over it |
 | `gorgone-data` | `/var/lib/centreon-gorgone` | gorgone keys and history |
+| `traps-config` | `/etc/snmp/centreon_traps` | Trap definitions (`traps.enabled`), redelivered by the central |
 
 Back up at least `cma-pki` and `gorgone-data` (volume snapshots): losing
 `cma-pki` makes the engine generate a **new** default CMA CA, so every agent
 pinned on the old one (`-Fingerprint` / `ca_certificate`) must be reconfigured
 (not the case with `engine.otel.tls`, whose identity comes from your Secret or
 issuer). Losing `gorgone-data` regenerates the gorgone keys. The delivered
-configuration (`engine`, `broker`) comes back with the next export.
+configuration (`engine`, `broker`) comes back with the next export; the traps
+database (`traps-config`) does not: generate and apply it again for the poller
+(Configuration > SNMP Traps > Generate).
 
 Upgrades: use `--reset-then-reuse-values` rather than `--reuse-values`, which
 ignores new chart defaults (e.g. a new volume size). A change to the volume
@@ -176,6 +255,20 @@ Pod Security Standards:
 - CRI-O / OpenShift drop NET_RAW: set `engine.addNetRaw: true`, which requires
   a `privileged` namespace.
 
+NetworkPolicy (`networkPolicy.enabled`, default on, needs an enforcing CNI):
+only 4317/tcp (CMA) and 162/udp (traps, when enabled) are reachable from
+outside the pod; restrict their sources with `networkPolicy.otelFrom` /
+`trapsFrom`. The engine's gRPC API (50155, unauthenticated, can shut the
+engine down) and the VMware connector (5700) are only reachable from inside
+the pod, unless `networkPolicy.extraIngress` opens them: its rules are added
+as is, so a rule without `ports` (e.g. `[{}]`) allows every port. Egress is not restricted (central, broker, monitored hosts).
+With k3s (kube-router), a source pod selected by `podSelector` is only
+allowed a moment after it starts: its very first connection may be refused
+(retry). Sources given as `ipBlock` are not affected.
+
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
+- The trap spool is an emptyDir: traps not yet processed by `centreontrapd`
+  (seconds, or while it waits for its database) are lost when the pod is
+  replaced, like any trap sent while the pod is down (SNMP traps are UDP).
