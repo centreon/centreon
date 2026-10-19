@@ -5,6 +5,7 @@ import type { Page } from '@playwright/test';
 import { adminStorageStatePath } from '../../fixtures/auth';
 import { expect, test } from '../../fixtures/test';
 import { queryCentreonDb } from '../../helpers/docker';
+import { waitForServiceMetrics } from '../../helpers/metrics';
 import { DashboardDetailPage } from '../../pages/DashboardDetailPage';
 
 /**
@@ -200,18 +201,9 @@ const widgets: Array<WidgetCase> = [
 test.use({ storageState: adminStorageStatePath });
 
 test.beforeAll(async () => {
-  // A fresh stack gets the metrics with the first checks of the service.
+  // A fresh stack gets the metrics, then their points, with the first checks.
   test.setTimeout(360_000);
-  await expect
-    .poll(
-      () =>
-        queryCentreonDb(
-          `SELECT COUNT(*) FROM index_data i JOIN metrics m ON m.index_id = i.id WHERE i.host_name = '${host}' AND i.service_description = '${service}' AND m.metric_name IN ('rta', 'pl') AND m.current_value IS NOT NULL`,
-          'centreon_storage'
-        ).trim(),
-      { intervals: [10_000], timeout: 300_000 }
-    )
-    .toBe('2');
+  await waitForServiceMetrics({ metrics: ['rta', 'pl'], points: 3, service });
 });
 
 for (const widget of widgets) {

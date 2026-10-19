@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { adminStorageStatePath } from '../../fixtures/auth';
 import { expect, test } from '../../fixtures/test';
 import { queryCentreonDb } from '../../helpers/docker';
+import { waitForServiceMetrics } from '../../helpers/metrics';
 import { LegacyListingPage } from '../../pages/LegacyListingPage';
 
 /**
@@ -12,6 +13,12 @@ import { LegacyListingPage } from '../../pages/LegacyListingPage';
  * adds still exports.
  */
 test.use({ storageState: adminStorageStatePath });
+
+// The metric picker lists the metrics the services already reported.
+test.beforeAll(async () => {
+  test.setTimeout(360_000);
+  await waitForServiceMetrics({ metrics: ['rta'], service: 'Ping' });
+});
 
 interface PickerItem {
   id: string;

@@ -90,10 +90,12 @@ test.describe('Realtime downtimes', () => {
           time: dstCase.start.time
         }
       });
+      // The form comments the downtime with the user: the downtimes of the
+      // other cases may not be cancelled yet.
       const scheduled = (from: number, to: number) =>
         Number(
           queryCentreonDb(
-            `SELECT COUNT(*) FROM downtimes WHERE host_id = ${hostId} AND service_id = ${serviceId} AND cancelled = 0 AND start_time >= ${from} AND end_time <= ${to}`,
+            `SELECT COUNT(*) FROM downtimes WHERE host_id = ${hostId} AND service_id = ${serviceId} AND cancelled = 0 AND start_time >= ${from} AND end_time <= ${to} AND comment_data LIKE '%${user.credentials.login}%'`,
             'centreon_storage'
           ).trim()
         );

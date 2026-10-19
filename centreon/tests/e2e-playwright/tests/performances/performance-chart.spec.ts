@@ -6,6 +6,7 @@ import { adminUser } from '../../fixtures/credentials';
 import { insertVirtualMetric } from '../../fixtures/legacy-objects';
 import { expect, test } from '../../fixtures/test';
 import { queryCentreonDb } from '../../helpers/docker';
+import { waitForServiceMetrics } from '../../helpers/metrics';
 import { signIn } from '../../helpers/session';
 
 /**
@@ -23,11 +24,14 @@ const openChart = async (page: Page): Promise<void> => {
 test('holds back a chart of more than 20 metrics behind a warning', async ({
   page
 }) => {
+  test.setTimeout(420_000);
+  const metrics = await waitForServiceMetrics({ service });
+  test.skip(metrics > 20, `${service} already has ${metrics} metrics`);
   const prefix = `pw-vm-${randomUUID().slice(0, 6)}`;
   await signIn(page, adminUser);
   const warning = page.getByText('More than 20 may cause performance issues.');
 
-  await test.step('The chart of the 13 metrics of the service is drawn', async () => {
+  await test.step('The chart of the metrics of the service is drawn', async () => {
     await openChart(page);
     await expect(page.getByText('Split chart').first()).toBeVisible({
       timeout: 30_000
@@ -36,10 +40,10 @@ test('holds back a chart of more than 20 metrics behind a warning', async ({
   });
 
   try {
-    for (let index = 1; index <= 10; index += 1) {
+    for (let index = metrics; index <= 20; index += 1) {
       queryCentreonDb(insertVirtualMetric(`${prefix}-${index}`, service));
     }
-    await test.step('Ten more metrics hold it back', async () => {
+    await test.step('Virtual metrics past 20 hold it back', async () => {
       await openChart(page);
       await expect(warning).toBeVisible({ timeout: 30_000 });
       const displayAnyway = page.getByRole('button', { name: 'Display anyway' });

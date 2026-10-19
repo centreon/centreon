@@ -1,5 +1,6 @@
 import type { CentreonApi, ClapiAction } from '../helpers/CentreonApi';
 import { queryCentreonDb } from '../helpers/docker';
+import { waitForServiceMetrics } from '../helpers/metrics';
 
 /**
  * A legacy configuration object whose listing offers the same edit,
@@ -10,6 +11,8 @@ export interface LegacyObject {
   clapi: string;
   /** CLAPI `ADD` values for an object called `name`. */
   addValues?: (name: string) => string;
+  /** What the platform must provide before the seeding. */
+  ready?: () => Promise<unknown>;
   /** Statements seeding and removing the types CLAPI does not handle. */
   sql?: {
     insert: (name: string) => Array<string>;
@@ -255,6 +258,7 @@ export const legacyObjects: Array<LegacyObject> = [
     clapi: 'VMETRIC',
     editField: 'comment',
     label: 'virtual metric',
+    ready: () => waitForServiceMetrics({ metrics: ['rta'], service: 'Ping' }),
     sql: {
       insert: (name) => [insertVirtualMetric(name, 'Ping')],
       remove: (names) =>
@@ -328,6 +332,7 @@ export const seedLegacyObject = async (
   object: LegacyObject,
   name: string
 ): Promise<void> => {
+  await object.ready?.();
   // Shared objects, kept between tests.
   await adminApi.provision(object.prerequisites ?? [], { tolerate: [409] });
   for (const statement of object.sqlPrerequisites ?? []) {
