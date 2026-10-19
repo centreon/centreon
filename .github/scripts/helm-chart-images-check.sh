@@ -9,11 +9,11 @@ if [[ ${#values_files[@]} -eq 0 ]]; then
   exit 1
 fi
 
-images=$(
-  for values in "${values_files[@]}"; do
-    helm template ci "$CHART_DIR" -f "$values" --kube-version 1.29.0
-  done | awk '$1 == "image:" || $2 == "image:" { print $NF }' | tr -d "\"'" | grep '^ghcr\.io/' | sort -u
-)
+rendered=""
+for values in "${values_files[@]}"; do
+  rendered+="$(helm template ci "$CHART_DIR" -f "$values" --kube-version 1.29.0)"$'\n'
+done
+images=$(awk '$1 == "image:" || $2 == "image:" { print $NF }' <<< "$rendered" | tr -d "\"'" | awk '/^ghcr\.io\//' | sort -u)
 if [[ -z "$images" ]]; then
   echo "No ghcr.io image referenced by $CHART_DIR."
   exit 0
