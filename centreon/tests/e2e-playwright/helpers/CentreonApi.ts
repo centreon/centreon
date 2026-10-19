@@ -161,6 +161,32 @@ export class CentreonApi {
     return id;
   }
 
+  /** Save a dashboard with one widget filling its first row. */
+  async setDashboardWidget(
+    dashboardId: number,
+    widget: { name: string; path: string; settings: object }
+  ): Promise<void> {
+    CentreonApi.ok(
+      await this.context.post(
+        `${this.base}/api/latest/configuration/dashboards/${dashboardId}`,
+        {
+          multipart: {
+            'panels[0][layout][height]': '4',
+            'panels[0][layout][min_height]': '2',
+            'panels[0][layout][min_width]': '2',
+            'panels[0][layout][width]': '12',
+            'panels[0][layout][x]': '0',
+            'panels[0][layout][y]': '0',
+            'panels[0][name]': widget.name,
+            'panels[0][widget_settings]': JSON.stringify(widget.settings),
+            'panels[0][widget_type]': widget.path
+          }
+        }
+      ),
+      `add the ${widget.name} widget to dashboard ${dashboardId}`
+    );
+  }
+
   async createDashboards(dashboards: Array<DashboardSeed>): Promise<void> {
     for (const dashboard of dashboards) {
       await this.createDashboard(dashboard);
