@@ -103,3 +103,7 @@ Tracked in the README coverage section, family by family.
   removing them before they reach the engine.
 - Downtime/04 (a fixed downtime starts and ends on time) waits for real
   minutes; postponed.
+- Cloud notifications: the migrated test checks what the form saves through
+  the API (resources, service events, contacts, time period, message) and that
+  a duplicate keeps it. Delivering the emails needs the broker Lua output of
+  the notification module; postponed.
