@@ -10,7 +10,8 @@ MAJOR=$(. ./.version && echo "$MAJOR")
 
 case "$STABILITY" in
   unstable)
-    image_tag="$MAJOR"
+    # Harbor tags: "develop" once validated on develop, MAJOR on dev-XX.XX.x.
+    if [[ "$REF_NAME" == develop ]]; then image_tag=develop; else image_tag="$MAJOR"; fi
     prerelease="$version-$(tr -c 'a-z0-9\n' '-' <<< "$REF_NAME").$RUN_NUMBER"
     ;;
   testing)
