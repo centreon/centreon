@@ -1,0 +1,39 @@
+# Test-only database override — speeds up the ephemeral CI/e2e stack.
+#
+# Layer it on top of docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose-test-db.yml up -d web
+# (the Playwright e2e suite does this automatically when
+#  CENTREON_COMPOSE_OVERRIDES=docker-compose-test-db.yml is set).
+#
+# Two levers, both measured ~50% faster time-to-healthy than the default
+# bitnamilegacy image on disk (see the boot-performance analysis):
+#   1. Official `mariadb` image — leaner first-boot init than the bitnami
+#      wrapper (no temporary-server + grants + restart cycle).
+#   2. Data directory on tmpfs (RAM) — these stacks are throwaway, so losing
+#      the data on restart is fine and avoids slow container-layer disk I/O.
+#
+# Test-only: do NOT use for anything that must persist data across restarts.
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-centreon}"
+      MARIADB_ROOT_HOST: "%"
+      # The official image refuses to start if both "allow empty" and a password
+      # are set; the base .env sets the former, so blank it out here.
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: ""
+    command:
+      - "--skip-ssl"
+      - "--skip-name-resolve"
+      - "--innodb-flush-method=nosync"
+      - "--innodb-log-file-size=32M"
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "mariadb-admin ping -uroot -p${MYSQL_ROOT_PASSWORD:-centreon} --silent"
+      interval: 2s
+      timeout: 5s
+      retries: 60
+      start_period: 5s
