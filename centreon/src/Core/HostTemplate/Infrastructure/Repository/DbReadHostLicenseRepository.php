@@ -39,6 +39,10 @@ use Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface;
  * Reads the license through the license manager module, the way the legacy
  * CentreonHost::isAllowed() does: the module is a legacy service, only reachable from the
  * legacy container.
+ *
+ * Intentional src/Core duplicate of App\MonitoringConfiguration\Application\Service\HostLicenseLimit and
+ * App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates: src/Core runs in the legacy
+ * kernel, which does not have the src/App services. Keep both in sync.
  */
 final class DbReadHostLicenseRepository extends DatabaseRepository implements ReadHostLicenseRepositoryInterface
 {
@@ -48,7 +52,10 @@ final class DbReadHostLicenseRepository extends DatabaseRepository implements Re
     private const LICENSE_PRODUCT = 'epp';
     private const UNLIMITED_HOSTS = -1;
 
-    /** Monitoring Connectors free of license, whose templates stay usable once the host limit is reached. */
+    /**
+     * Monitoring Connectors free of license, whose templates stay usable once the host limit is reached.
+     * Keep in sync with CentreonHost::getLimitedList() and UnlicensedHostTemplates::FREE_CONNECTOR_SLUGS.
+     */
     private const FREE_CONNECTOR_SLUGS = [
         'applications-databases-mysql',
         'applications-monitoring-centreon-central',

@@ -192,10 +192,7 @@ final class PartialUpdateHostTemplate
 
             $currentDirectParentIds = [];
             if (! $request->templates instanceof NoValue) {
-                $currentDirectParentIds = array_map(
-                    'intval',
-                    $this->readHostTemplateRepository->findByHostId($hostTemplate->getId())
-                );
+                $currentDirectParentIds = $this->findDirectParentTemplateIds($hostTemplate);
                 $this->validation->assertAreLicensedTemplates(array_unique($request->templates), $currentDirectParentIds);
             }
 
@@ -593,6 +590,20 @@ final class PartialUpdateHostTemplate
             ]);
             $this->writeHostTemplateRepository->addParent($hostTemplateId, $templateId, $order);
         }
+    }
+
+    /**
+     * The current direct parent templates, read before they are replaced.
+     *
+     * @param HostTemplate $hostTemplate
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    private function findDirectParentTemplateIds(HostTemplate $hostTemplate): array
+    {
+        return array_map('intval', $this->readHostTemplateRepository->findByHostId($hostTemplate->getId()));
     }
 
     /**
