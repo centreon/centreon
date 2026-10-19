@@ -37,11 +37,21 @@ class CentreonServiceTest extends TestCase
     /** SQL passed to prepare() by getObjectForSelect2() */
     private string $preparedQuery = '';
 
+    /** Values bound to the select2 query, by placeholder */
+    private array $boundValues = [];
+
     private CentreonService $service;
 
     protected function setUp(): void
     {
         $this->select2Statement = $this->createMock(CentreonDBStatement::class);
+        $this->select2Statement->method('bindValue')->willReturnCallback(
+            function (string $param, mixed $value): bool {
+                $this->boundValues[$param] = $value;
+
+                return true;
+            }
+        );
 
         // Pollers loaded by CentreonInstance when CentreonService is built
         $pollerStatement = $this->createMock(CentreonDBStatement::class);
@@ -73,8 +83,10 @@ class CentreonServiceTest extends TestCase
 
         $services = $this->service->getObjectForSelect2(['10-100', '10-300'], []);
 
-        $this->assertStringContainsString("h.host_register = '1'", $this->preparedQuery);
-        $this->assertStringContainsString("s.service_register IN ('1', '3')", $this->preparedQuery);
+        $this->assertStringContainsString('s.service_register IN (:serviceRegister, :adServiceRegister)', $this->preparedQuery);
+        $this->assertSame('1', $this->boundValues[':hostRegister']);
+        $this->assertSame('1', $this->boundValues[':serviceRegister']);
+        $this->assertSame('3', $this->boundValues[':adServiceRegister']);
         $this->assertSame(
             [
                 ['id' => '10-100', 'text' => 'H - S1'],
@@ -90,9 +102,9 @@ class CentreonServiceTest extends TestCase
 
         $this->service->getObjectForSelect2(['1-200'], [], '0');
 
-        $this->assertStringContainsString("h.host_register = '0'", $this->preparedQuery);
-        $this->assertStringContainsString("s.service_register = '0'", $this->preparedQuery);
-        $this->assertStringNotContainsString("'3'", $this->preparedQuery);
+        $this->assertSame('0', $this->boundValues[':hostRegister']);
+        $this->assertSame('0', $this->boundValues[':serviceRegister']);
+        $this->assertSame('0', $this->boundValues[':adServiceRegister']);
     }
 
     public function testHostGroupServicesStillOnlyMatchRegularServices(): void
