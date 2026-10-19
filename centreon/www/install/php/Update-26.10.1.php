@@ -1,0 +1,171 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerUpgrade;
+use Core\Command\Domain\Model\Command;
+
+require_once __DIR__ . '/../../../bootstrap.php';
+
+$version = '26.10.1';
+
+$errorMessage = '';
+
+/**
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
+ */
+
+// TODO add your functions here
+
+$fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix the gorgone_communication_type column comment';
+    LoggerUpgrade::create()->info($version, 'Fixing the gorgone_communication_type column comment');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            MODIFY COLUMN `gorgone_communication_type`
+            enum('1','2','3','4') NOT NULL DEFAULT '1'
+            COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
+};
+
+$realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to realign command audit logs to the 'command' object type";
+    LoggerUpgrade::create()->info($version, "Realigning command audit logs from 'commands' to 'command'");
+
+    // The ActivityLogging system used to store command changes under the plural
+    // 'commands' token, which the Administration > Logs Type filter (bound on the
+    // canonical singular 'command') could never match. Realign the existing rows.
+    $pearDBO->update(
+        <<<'SQL'
+            UPDATE `log_action` SET `object_type` = 'command' WHERE `object_type` = 'commands'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Successfully realigned command audit logs to 'command'");
+};
+
+/**
+ * Hosts, services and their templates checked by a Centreon Monitoring Agent command had their freshness
+ * threshold forced to 120s, which triggers too many re-checks: move the ones still at 120s to the new value.
+ * The command filter mirrors Command::isCentreonMonitoringAgentCommand().
+ */
+$updateCentreonMonitoringAgentFreshnessThreshold = function () use ($pearDB, &$errorMessage, $version): void {
+    $queryParameters = QueryParameters::create([
+        QueryParameter::int('previousThreshold', 120),
+        QueryParameter::int('newThreshold', Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD),
+    ]);
+
+    $errorMessage = 'Unable to update the freshness threshold of hosts using a Centreon Monitoring Agent command';
+    LoggerUpgrade::create()->info($version, 'Updating the freshness threshold of hosts using a Centreon Monitoring Agent command');
+
+    $updatedHosts = $pearDB->update(
+        <<<'SQL'
+            UPDATE `host` h
+            INNER JOIN `command` c
+                ON c.`command_id` = h.`command_command_id`
+            SET h.`host_freshness_threshold` = :newThreshold
+            WHERE c.`command_locked` = 1
+                AND (c.`command_name` LIKE BINARY '%Centreon-Monitoring-Agent%' OR c.`command_name` LIKE BINARY '%-CMA-%')
+                AND h.`host_freshness_threshold` = :previousThreshold
+            SQL,
+        $queryParameters
+    );
+
+    LoggerUpgrade::create()->info($version, "Updated the freshness threshold of {$updatedHosts} host(s) and host template(s)");
+
+    $errorMessage = 'Unable to update the freshness threshold of services using a Centreon Monitoring Agent command';
+    LoggerUpgrade::create()->info($version, 'Updating the freshness threshold of services using a Centreon Monitoring Agent command');
+
+    $updatedServices = $pearDB->update(
+        <<<'SQL'
+            UPDATE `service` s
+            INNER JOIN `command` c
+                ON c.`command_id` = s.`command_command_id`
+            SET s.`service_freshness_threshold` = :newThreshold
+            WHERE c.`command_locked` = 1
+                AND (c.`command_name` LIKE BINARY '%Centreon-Monitoring-Agent%' OR c.`command_name` LIKE BINARY '%-CMA-%')
+                AND s.`service_freshness_threshold` = :previousThreshold
+            SQL,
+        $queryParameters
+    );
+
+    LoggerUpgrade::create()->info($version, "Updated the freshness threshold of {$updatedServices} service(s) and service template(s)");
+};
+
+try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
+    // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
+
+    // DDL statements for configuration database
+    $fixGorgoneCommunicationTypeComment();
+
+    $realignCommandActionLogObjectType();
+
+    // Transactional queries for configuration database
+    $errorMessage = 'Unable to start the configuration database transaction';
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
+    }
+
+    // TODO add your function calls to update the configuration database data here
+    $updateCentreonMonitoringAgentFreshnessThreshold();
+
+    $errorMessage = 'Unable to commit the configuration database transaction';
+    $pearDB->commitTransaction();
+
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
+
+} catch (Throwable $throwable) {
+    try {
+        if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
+            $pearDB->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $rollbackException
+        );
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
+        );
+    }
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
+}
