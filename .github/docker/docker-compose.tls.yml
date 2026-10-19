@@ -1,0 +1,53 @@
+# HTTPS-mode overlay (web TLS only). Load alongside docker-compose.yml via -f flags or by
+# setting COMPOSE_FILE. See README.md "HTTP / HTTPS mode".
+#
+# Adds: certgen one-shot, the `certs` named volume, Apache TLS on web and remote-server.
+# Replaces (not merges): web.ports, remote-server.ports, web/remote-server healthcheck targets.
+# The DB, gorgone and broker keep their plaintext connections (no DB TLS on this branch).
+#
+# Requires: docker compose >= 2.20 (for `!override` and `service_completed_successfully`).
+
+services:
+  certgen:
+    build: ./certgen
+    image: "${CERTGEN_IMAGE:-centreon-certgen:local}"
+    command:
+      - web
+      - remote-server
+      - localhost
+      - "127.0.0.1"
+    volumes:
+      - certs:/out
+
+  web:
+    ports: !override
+      # :80 stays mapped so the :80 -> :443 redirect of the official template can be checked.
+      - "4000:80"
+      - "4443:443"
+    volumes:
+      # Pre-built WEB_IMAGEs don't contain the hook, so bind-mount it (runs BEFORE install).
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
+      - certs:/etc/pki/centreon-tls:ro
+    # Only declare what the overlay adds; `db` inherits the base file's service_healthy wait.
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /tmp/docker.ready ] && curl -k --fail https://localhost/centreon/api/latest/platform/versions"]
+
+  remote-server:
+    ports: !override
+      - "4001:80"
+      - "4444:443"
+    volumes:
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh:ro
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
+      - certs:/etc/pki/centreon-tls:ro
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ] && curl -k --fail https://localhost/centreon/api/latest/platform/versions"]
+
+volumes:
+  certs:
