@@ -166,7 +166,7 @@ final class DataProcessingTest extends TestCase
         $changed = $original->withCentreonMonitoringAgentFreshness();
 
         self::assertSame(TriStateEnum::True, $changed->checkFreshness);
-        self::assertSame(120, $changed->freshnessThreshold);
+        self::assertSame(500, $changed->freshnessThreshold);
         self::assertSame(10, $changed->lowFlapThreshold);
     }
 
