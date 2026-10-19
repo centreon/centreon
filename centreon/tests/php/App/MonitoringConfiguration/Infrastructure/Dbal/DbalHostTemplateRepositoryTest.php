@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
+use App\MonitoringConfiguration\Infrastructure\Dbal\DbalModuleRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
@@ -63,10 +64,19 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
             $this->connection,
             new HostTemplateTransformer(),
             new DbalResourceAccessRepository($this->connection, $realTimeConnection, new DbalAccessGroupRepository($this->connection)),
+            new DbalModuleRepository($this->connection),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host templates
         $this->tag = Uuid::v4()->toRfc4122();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->executeStatement('DROP TEMPORARY TABLE IF EXISTS mod_ppm_pluginpack_host');
+        $this->connection->executeStatement('DROP TEMPORARY TABLE IF EXISTS mod_ppm_pluginpack');
+
+        parent::tearDown();
     }
 
     public function testFindAllReturnsHostTemplatesAndExcludesRegularHosts(): void
@@ -82,19 +92,19 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertNotContains($hostName, $names, 'A regular host (host_register = 1) must not appear among host templates.');
     }
 
-    public function testFindAllExcludesLockedTemplatesWhenRequested(): void
+    public function testFindAllExcludesTheRequestedIds(): void
     {
-        $unlockedName = "unlocked-{$this->tag}";
-        $this->insertHostTemplate($unlockedName);
-        $lockedName = "locked-{$this->tag}";
-        $this->insertHostTemplate($lockedName, locked: true);
+        $keptName = "kept-{$this->tag}";
+        $this->insertHostTemplate($keptName);
+        $excludedName = "excluded-{$this->tag}";
+        $excludedId = $this->insertHostTemplate($excludedName);
 
         $names = $this->names($this->repository->findAll(
-            (new HostTemplateCriteria())->withName($this->tag)->withExcludeLocked(true)
+            (new HostTemplateCriteria())->withName($this->tag)->withExcludedIds(new Collection([new HostTemplateId($excludedId)], HostTemplateId::class))
         ));
 
-        self::assertContains($unlockedName, $names);
-        self::assertNotContains($lockedName, $names);
+        self::assertContains($keptName, $names);
+        self::assertNotContains($excludedName, $names);
     }
 
     public function testFindAllFiltersById(): void
@@ -535,6 +545,92 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame([], $this->inheritanceLine());
     }
 
+    public function testFindMonitoringConnectorTemplateIdsReturnsTheConnectorTemplatesAndTheirChildren(): void
+    {
+        [$paidId, $paidChildId, $freeId, $standaloneId] = $this->insertMonitoringConnectors();
+
+        $ids = $this->monitoringConnectorTemplateIds(['base-generic']);
+
+        self::assertContains($paidId, $ids);
+        self::assertContains($paidChildId, $ids);
+        self::assertNotContains($freeId, $ids);
+        self::assertNotContains($standaloneId, $ids);
+    }
+
+    public function testFindMonitoringConnectorTemplateIdsReturnsEveryConnectorTemplateWithoutExcludedConnectors(): void
+    {
+        [$paidId, , $freeId, $standaloneId] = $this->insertMonitoringConnectors();
+
+        $ids = $this->monitoringConnectorTemplateIds([]);
+
+        self::assertContains($paidId, $ids);
+        self::assertContains($freeId, $ids);
+        self::assertNotContains($standaloneId, $ids);
+    }
+
+    public function testFindMonitoringConnectorTemplateIdsReturnsNothingWithoutThePluginPackManager(): void
+    {
+        $this->insertMonitoringConnectors(pluginPackManagerInstalled: false);
+
+        self::assertSame([], $this->monitoringConnectorTemplateIds([]));
+    }
+
+    /**
+     * The plugin pack manager tables belong to its module, absent from the test database: they are
+     * created as temporary tables, which neither commit the test's transaction nor outlive it.
+     *
+     * @return array{int, int, int, int} a paid connector's template, a template inheriting from it, a
+     *                                   free connector's template, a template of no connector
+     */
+    private function insertMonitoringConnectors(bool $pluginPackManagerInstalled = true): array
+    {
+        // The test database may already list the module: only the requested state is kept.
+        $this->connection->executeStatement("DELETE FROM modules_informations WHERE name = 'centreon-pp-manager'");
+        if ($pluginPackManagerInstalled) {
+            $this->connection->insert('modules_informations', ['name' => 'centreon-pp-manager']);
+        }
+        $this->connection->executeStatement(
+            'CREATE TEMPORARY TABLE mod_ppm_pluginpack (pluginpack_id INT AUTO_INCREMENT PRIMARY KEY, slug VARCHAR(255) NOT NULL)'
+        );
+        $this->connection->executeStatement(
+            'CREATE TEMPORARY TABLE mod_ppm_pluginpack_host (pluginpack_id INT NOT NULL, host_id INT NOT NULL)'
+        );
+
+        $paidId = $this->insertHostTemplate("paid-{$this->tag}");
+        $paidChildId = $this->insertHostTemplate("paid-custom-{$this->tag}");
+        $this->linkHostToTemplate($paidChildId, $paidId, 1);
+        $freeId = $this->insertHostTemplate("free-{$this->tag}");
+        $standaloneId = $this->insertHostTemplate("standalone-{$this->tag}");
+        $this->insertMonitoringConnector('cloud-aws-ec2-' . $this->tag, $paidId);
+        $this->insertMonitoringConnector('base-generic', $freeId);
+        // A host using a paid template is not a template: it is never returned.
+        $this->linkHostToTemplate($this->insertRegularHost("host-{$this->tag}"), $paidId, 1);
+
+        return [$paidId, $paidChildId, $freeId, $standaloneId];
+    }
+
+    private function insertMonitoringConnector(string $slug, int $templateId): void
+    {
+        $this->connection->insert('mod_ppm_pluginpack', ['slug' => $slug]);
+        $this->connection->insert('mod_ppm_pluginpack_host', [
+            'pluginpack_id' => (int) $this->connection->lastInsertId(),
+            'host_id' => $templateId,
+        ]);
+    }
+
+    /**
+     * @param list<string> $excludedConnectorSlugs
+     *
+     * @return list<int>
+     */
+    private function monitoringConnectorTemplateIds(array $excludedConnectorSlugs): array
+    {
+        return array_values(array_map(
+            static fn (HostTemplateId $id): int => $id->value,
+            $this->repository->findMonitoringConnectorTemplateIds($excludedConnectorSlugs)->toArray(),
+        ));
+    }
+
     private function linkServiceToHost(int $serviceId, int $hostId): void
     {
         $this->connection->insert('host_service_relation', [
@@ -655,13 +751,12 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         ]);
     }
 
-    private function insertHostTemplate(string $name, bool $locked = false): int
+    private function insertHostTemplate(string $name): int
     {
         $this->connection->insert('host', [
             'host_name' => $name,
             'host_register' => '0',
             'host_activate' => '1',
-            'host_locked' => $locked ? '1' : '0',
         ]);
 
         return (int) $this->connection->lastInsertId();

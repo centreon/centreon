@@ -49,11 +49,24 @@ spec:
       # controller): the CMA TLS identity comes from engine.otel.tls.
       # gorgone's systemctl shim dials "centengine:50155": it must reach this
       # pod's own engine.
+      # The VMware connector is reached as "centreon-vmware" (same name as
+      # with install-poller), here in the same pod.
       hostAliases:
         - ip: 127.0.0.1
           hostnames:
             - centengine
+            {{- if .Values.vmware.enabled }}
+            - centreon-vmware
+            {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- if .Values.traps.enabled }}
+      # snmptrapd runs as uid 900 and binds 162/udp: Docker allows it through
+      # its default unprivileged port range, Kubernetes through this sysctl
+      # ("safe", allowed by the baseline Pod Security Standard).
+      securityContext:
+        sysctls:
+          - { name: net.ipv4.ip_unprivileged_port_start, value: "162" }
+      {{- end }}
       initContainers:
         # Docker named-volume copy-up made explicit. /etc/centreon-broker is
         # NOT seeded: it waits for the config delivered by the central.
@@ -114,10 +127,38 @@ spec:
               # Gorgone keys and history: keeps the poller identity across
               # reinstalls.
               seed /var/lib/centreon-gorgone /seed/gorgone-data
+              {{- if .Values.traps.enabled }}
+              # Trap definitions (centreontrapd.sdb): written by gorgone (903),
+              # read by centreontrapd (900).
+              own 903:900 775 /seed/traps-config
+              # Trap spool: snmptrapd writes, centreontrapd consumes.
+              own 900:900 1777 /seed/traps-spool
+              {{- end }}
               ls -lnd /seed/*
           volumeMounts:
             - { name: etc, mountPath: /seed/etc }
             - { name: gorgone-data, mountPath: /seed/gorgone-data }
+            {{- if .Values.traps.enabled }}
+            - { name: traps-config, mountPath: /seed/traps-config }
+            - { name: traps-spool, mountPath: /seed/traps-spool }
+            {{- end }}
+        {{- if .Values.vmware.enabled }}
+        # The connector's default config (until the central delivers one),
+        # never overwritten.
+        - name: seed-vmware
+          image: {{ include "centreon-poller.vmwareImage" . }}
+          imagePullPolicy: {{ .Values.vmware.image.pullPolicy }}
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              [ -e /seed/etc/centreon_vmware.json ] ||
+                cp -p /etc/centreon/centreon_vmware.json /seed/etc/
+              ls -ln /seed/etc/centreon_vmware.json
+          volumeMounts:
+            - { name: etc, mountPath: /seed/etc }
+        {{- end }}
       containers:
         - name: gorgone
           image: {{ $gorgoneImage }}
@@ -147,6 +188,9 @@ spec:
             - { name: centcmd, mountPath: /var/lib/centreon-engine/rw }
             - { name: etc, mountPath: /etc/centreon }
             - { name: gorgone-data, mountPath: /var/lib/centreon-gorgone }
+            {{- if .Values.traps.enabled }}
+            - { name: traps-config, mountPath: /etc/snmp/centreon_traps }
+            {{- end }}
           {{- with .Values.gorgone.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -194,9 +238,71 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+        {{- with .Values.traps }}
+        {{- if .enabled }}
+        # SNMP traps: snmptrapd receives them on 162/udp and spools them,
+        # centreontrapd matches them against the delivered definitions and
+        # submits results to the engine's command FIFO (hence the same pod).
+        - name: snmptrapd
+          image: {{ include "centreon-poller.image" (dict "ctx" $ "image" .images.snmptrapd) }}
+          imagePullPolicy: {{ .images.snmptrapd.pullPolicy }}
+          env:
+            - { name: TZ, value: {{ $.Values.poller.timezone | quote }} }
+            - { name: DEBUG, value: {{ $.Values.debug | quote }} }
+          ports:
+            - { name: snmptrap, containerPort: 162, protocol: UDP }
+          volumeMounts:
+            - { name: traps-spool, mountPath: /var/spool/centreontrapd }
+          {{- with .snmptrapdResources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        - name: centreontrapd
+          image: {{ include "centreon-poller.image" (dict "ctx" $ "image" .images.centreontrapd) }}
+          imagePullPolicy: {{ .images.centreontrapd.pullPolicy }}
+          env:
+            - { name: TZ, value: {{ $.Values.poller.timezone | quote }} }
+            - { name: DEBUG, value: {{ $.Values.debug | quote }} }
+            - { name: CENTREONTRAPD_LOG_LEVEL, value: {{ .logLevel | quote }} }
+          volumeMounts:
+            - { name: traps-spool, mountPath: /var/spool/centreontrapd }
+            - { name: traps-config, mountPath: /etc/snmp/centreon_traps, readOnly: true }
+            - { name: centcmd, mountPath: /var/lib/centreon-engine/rw }
+          {{- with .centreontrapdResources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.vmware.enabled }}
+        # VMware connector, queried by the engine's VMware plugins on 5700.
+        # Its config (/etc/centreon/centreon_vmware.json) is delivered by the
+        # central through gorgone; the connector restarts itself on change.
+        - name: centreon-vmware
+          image: {{ include "centreon-poller.vmwareImage" . }}
+          imagePullPolicy: {{ .Values.vmware.image.pullPolicy }}
+          env:
+            - { name: TZ, value: {{ .Values.poller.timezone | quote }} }
+            - { name: DEBUG, value: {{ .Values.debug | quote }} }
+            {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "APP_SECRET" "key" .Values.secrets.keys.appSecret) | nindent 12 }}
+            {{- include "centreon-poller.secretEnv" (dict "ctx" . "name" "SALT" "key" .Values.secrets.keys.salt) | nindent 12 }}
+          ports:
+            - { name: vmware, containerPort: 5700 }
+          volumeMounts:
+            - { name: etc, mountPath: /etc/centreon }
+          {{- with .Values.vmware.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
       volumes:
         - name: centcmd
           emptyDir: {}
+        {{- if .Values.traps.enabled }}
+        # Traps waiting for centreontrapd: processed within seconds.
+        - name: traps-spool
+          emptyDir: {}
+        {{- end }}
         {{- with $otelTlsSecret }}
         # Only seed-engine reads the Secret; it copies it into otel-tls owned
         # by centengine (key 0600). No fsGroup: it would re-own the PVCs.
@@ -210,6 +316,9 @@ spec:
         {{- end }}
   volumeClaimTemplates:
     {{- $claims := dict "engine" .Values.persistence.engine "broker" .Values.persistence.broker "etc" .Values.persistence.etc "logs" .Values.persistence.logs "cma-pki" .Values.persistence.cmaPki "engine-home" .Values.persistence.engineHome "gorgone-data" .Values.persistence.gorgoneData }}
+    {{- if .Values.traps.enabled }}
+    {{- $_ := set $claims "traps-config" .Values.persistence.trapsConfig }}
+    {{- end }}
     {{- range $vol, $size := $claims }}
     - metadata:
         name: {{ $vol }}

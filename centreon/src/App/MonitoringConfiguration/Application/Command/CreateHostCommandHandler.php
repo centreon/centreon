@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Service\AdditiveInheritanceModeApplier;
 use App\MonitoringConfiguration\Application\Service\HostMacroSecretsSynchronizer;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
@@ -88,6 +89,7 @@ final readonly class CreateHostCommandHandler
         private ResourceAccessRepository $resourceAccessRepository,
         private VaultInterface $vault,
         private EventBus $eventBus,
+        private HostTemplateLicenseGuard $templateLicenseGuard,
     ) {
     }
 
@@ -114,6 +116,8 @@ final readonly class CreateHostCommandHandler
         $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
 
         $this->assertTemplatesExist($command->templateIds);
+
+        $this->templateLicenseGuard->assertLicensed($command->templateIds);
 
         $this->assertCategoriesExist($command->categoryIds, $command->viewerId);
 

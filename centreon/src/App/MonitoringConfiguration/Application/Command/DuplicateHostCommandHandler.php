@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacro;
@@ -62,6 +63,7 @@ final readonly class DuplicateHostCommandHandler
         private VaultCredentialWriter $vaultWriter,
         private EventBus $eventBus,
         private LoggerInterface $logger,
+        private HostTemplateLicenseGuard $templateLicenseGuard,
     ) {
     }
 
@@ -73,6 +75,10 @@ final readonly class DuplicateHostCommandHandler
         if (! $source instanceof Host) {
             throw new HostNotFoundException([$command->hostId->value], 'id');
         }
+
+        // The copy is a new host: it can only be given the source's templates while the license allows
+        // them. Checked before the vault is touched, like the name below.
+        $this->templateLicenseGuard->assertLicensed($source->templateIds);
 
         // Resolve the free name before touching the vault: a 409 (every suffix taken, or too long) must
         // not leave a freshly-minted vault entry behind.

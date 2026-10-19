@@ -25,6 +25,9 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\DuplicateHostCommand;
 use App\MonitoringConfiguration\Application\Command\DuplicateHostCommandHandler;
+use App\MonitoringConfiguration\Application\Service\HostLicenseLimit;
+use App\MonitoringConfiguration\Application\Service\HostTemplateLicenseGuard;
+use App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -50,6 +53,7 @@ use App\MonitoringConfiguration\Domain\Event\HostServicesDuplicationRequested;
 use App\MonitoringConfiguration\Domain\Exception\DuplicatedHostNameTooLongException;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostNotFoundException;
+use App\MonitoringConfiguration\Domain\Exception\UnlicensedHostTemplatesException;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Application\Vault\VaultCredentialReader;
 use App\Shared\Application\Vault\VaultCredentialWriter;
@@ -57,6 +61,8 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Vault\VaultPathEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostTemplateRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 use Tests\App\Shared\Double\FakeVault;
@@ -74,6 +80,8 @@ final class DuplicateHostCommandHandlerTest extends TestCase
 
     private RecordingLogger $logger;
 
+    private FakeHostTemplateRepository $hostTemplateRepository;
+
     private DuplicateHostCommandHandler $handler;
 
     protected function setUp(): void
@@ -87,6 +95,7 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         $this->vault->vaultEnabled = false;
 
         $this->logger = new RecordingLogger();
+        $this->hostTemplateRepository = new FakeHostTemplateRepository();
 
         $this->handler = new DuplicateHostCommandHandler(
             $this->repository,
@@ -96,6 +105,10 @@ final class DuplicateHostCommandHandlerTest extends TestCase
             new VaultCredentialWriter($this->vault),
             $this->eventBus,
             $this->logger,
+            new HostTemplateLicenseGuard(new UnlicensedHostTemplates(
+                new HostLicenseLimit(new FakeModuleRepository(), new FakeHostRepository()),
+                $this->hostTemplateRepository,
+            )),
         );
     }
 
@@ -452,6 +465,23 @@ final class DuplicateHostCommandHandlerTest extends TestCase
         self::assertSame('PLAIN', $macro->name->value);
         self::assertSame('visible-value', $macro->value);
         self::assertNull($macro->id);
+    }
+
+    public function testItRejectsASourceWhoseTemplatesTheLicenseNoLongerAllows(): void
+    {
+        $this->storeSourceHost(1, 'web');
+        $this->vault->vaultEnabled = true;
+        $this->hostTemplateRepository->monitoringConnectorTemplateIds = [5];
+
+        try {
+            ($this->handler)(new DuplicateHostCommand(new HostId(1), duplicatedBy: new UserId(42), viewerId: null));
+            self::fail('A host whose templates the license no longer allows must not be duplicated.');
+        } catch (UnlicensedHostTemplatesException $exception) {
+            self::assertSame(['templateIds' => [5]], $exception->criteria);
+        }
+
+        self::assertNull($this->findCopyByName('web_1'));
+        self::assertSame([], $this->vault->writeManyCalls);
     }
 
     private function storeSourceHost(int $id, string $name): Host

@@ -4,6 +4,7 @@ import {
   labelDuplicate,
   labelEnable,
   labelEnableDisable,
+  labelMassChange,
   labelMoreActions
 } from '../../ConfigurationBase/translatedLabels';
 import {
@@ -157,7 +158,7 @@ export default () => {
       cy.contains(labelServicesDeployed).should('not.exist');
     });
 
-    it('offers every massive action the ticket lists, and no massive change', () => {
+    it('offers every massive action the ticket lists', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
@@ -167,16 +168,17 @@ export default () => {
       cy.findByTestId(labelMoreActions).click();
 
       // A positive assertion on the whole menu: it fails if an entry goes
-      // missing and if massive change appears before its own ticket lands.
+      // missing or one appears.
       cy.get('[role="menu"]')
         .findAllByRole('menuitem')
-        .should('have.length', 5)
+        .should('have.length', 6)
         .then((entries) => {
           expect([...entries].map((entry) => entry.textContent)).to.deep.equal([
             labelDuplicate,
             labelEnable,
             labelDisable,
             labelDelete,
+            labelMassChange,
             labelDeployServices
           ]);
         });
@@ -189,8 +191,8 @@ export default () => {
 
       cy.waitForRequest('@getAllHosts');
 
-      // Select-all takes every selectable row — hosts 0 and 2; host 1 is
-      // deactivated and cannot be selected.
+      // Select-all takes every row, the deactivated host 1 included although
+      // its own checkbox is greyed.
       cy.get('input[type="checkbox"]').eq(0).click();
 
       cy.findByTestId(labelMoreActions).click();

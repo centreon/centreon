@@ -38,6 +38,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -311,7 +312,7 @@ final class PartialUpdateHost
                 }
                 if ($command->isCentreonMonitoringAgentCommand()) {
                     $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
-                    $host->setFreshnessThreshold(120);
+                    $host->setFreshnessThreshold(Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD);
                 }
             }
         }
