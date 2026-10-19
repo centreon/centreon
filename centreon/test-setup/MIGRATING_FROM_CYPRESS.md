@@ -104,6 +104,12 @@ equivalent. Either:
 
 ## Gotchas
 
+- An unhandled promise rejection or uncaught error fails the whole test file,
+  even when every test passed; Cypress hid them (`uncaught:exception`). Fix
+  the code that leaves the promise unhandled rather than filtering the error:
+  a `CancelledError` from React Query, for instance, means a `fetchQuery()`
+  without a `.catch` in a component that unmounted while it loaded.
+
 - Storage, the request log and the MSW handlers are reset after each test, as
   Cypress did. URL state is not: reset it in the test's `initialize`.
 - MUI menus, poppers and dialogs render in a portal: query them from `screen`

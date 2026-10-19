@@ -43,16 +43,6 @@ window.ResizeObserver = class extends NativeResizeObserver {
   }
 };
 
-// A query cancelled on unmount rejects with a CancelledError, which is not a
-// failure: Cypress ignored it the same way.
-window.addEventListener('unhandledrejection', (event) => {
-  if (
-    String(event.reason?.message ?? event.reason).includes('CancelledError')
-  ) {
-    event.preventDefault();
-  }
-});
-
 // No transitions nor animations: what the tests read is the end state.
 document.head.insertAdjacentHTML(
   'beforeend',
