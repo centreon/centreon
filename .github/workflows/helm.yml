@@ -89,8 +89,7 @@ jobs:
           sudo tar -xzf /tmp/kubeconform.tar.gz -C /usr/local/bin kubeconform
         shell: bash
 
-      - name: Check the chart version was bumped
-        if: github.event_name == 'pull_request'
+      - name: Check the chart version
         env:
           BASE_REF: ${{ github.base_ref }}
         run: bash .github/scripts/helm-chart-version-check.sh
@@ -120,8 +119,7 @@ jobs:
     if: |
       github.event_name == 'push' &&
       needs.get-charts.outputs.charts != '[]' &&
-      (contains(fromJSON('["unstable", "testing"]'), needs.get-environment.outputs.stability) ||
-        (needs.get-environment.outputs.stability == 'stable' && needs.get-environment.outputs.is_cloud == 'false')) &&
+      contains(fromJSON('["unstable", "testing"]'), needs.get-environment.outputs.stability) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
@@ -131,6 +129,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      packages: read
       id-token: write
       attestations: write
     strategy:
@@ -162,6 +161,13 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
 
+      - name: Login to ghcr.io
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Login helm to Harbor registry
         env:
           REGISTRY_USERNAME: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
@@ -170,47 +176,50 @@ jobs:
           echo "$REGISTRY_PASSWORD" | helm registry login "${CHART_REPOSITORY%%/*}" --username "$REGISTRY_USERNAME" --password-stdin
         shell: bash
 
-      - name: Package and push
-        id: push
+      - name: Package
+        id: package
         env:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
           REF_NAME: ${{ github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          RUN_NUMBER: ${{ github.run_number }}
+          HARBOR_REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          OUT_DIR: /tmp/charts
+        run: bash .github/scripts/helm-chart-package.sh
+        shell: bash
+
+      - name: Push the pre-release
+        env:
+          VERSION: ${{ steps.package.outputs.prerelease }}
+        run: |
+          helm push "/tmp/charts/${{ matrix.chart }}-$VERSION.tgz" "oci://$CHART_REPOSITORY"
+        shell: bash
+
+      - name: Push the release candidate
+        if: steps.package.outputs.candidate != ''
+        id: candidate
+        env:
+          VERSION: ${{ steps.package.outputs.candidate }}
         run: |
           set -euo pipefail
-          chart=$(basename "$CHART_DIR")
-          version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
-
-          if [[ "$STABILITY" == "stable" ]]; then
-            # Published once: helm package is not reproducible.
-            if digest=$(crane digest "$CHART_REPOSITORY/$chart:$version" 2>/dev/null); then
-              echo "::notice::$chart $version already on Harbor ($digest), not republished."
-              echo "pushed=false" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-          elif [[ "$STABILITY" == "testing" ]]; then
-            version="$version-rc.$GITHUB_RUN_NUMBER"
-          else
-            version="$version-$(tr -c 'a-z0-9\n' '-' <<< "$REF_NAME").$GITHUB_RUN_NUMBER"
+          if released=$(crane digest "ghcr.io/centreon/charts/${{ matrix.chart }}:$VERSION" 2>/dev/null); then
+            echo "::warning::${{ matrix.chart }} $VERSION is already released on ghcr.io ($released): bump the chart version for a new candidate."
+            exit 0
           fi
-
-          helm package "$CHART_DIR" --version "$version" --destination /tmp/charts
-          helm push "/tmp/charts/$chart-$version.tgz" "oci://$CHART_REPOSITORY"
-          digest=$(crane digest "$CHART_REPOSITORY/$chart:$version")
-          echo "$CHART_REPOSITORY/$chart:$version -> $digest"
-          {
-            echo "pushed=true"
-            echo "digest=$digest"
-          } >> "$GITHUB_OUTPUT"
+          helm push "/tmp/charts/${{ matrix.chart }}-$VERSION.tgz" "oci://$CHART_REPOSITORY"
+          digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$VERSION")
+          echo "$CHART_REPOSITORY/${{ matrix.chart }}:$VERSION -> $digest"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Attest build provenance
-        if: steps.push.outputs.pushed == 'true'
+        if: steps.candidate.outputs.digest != ''
         id: attest-build-provenance
         continue-on-error: true
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-name: ghcr.io/centreon/charts/${{ matrix.chart }}
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-digest: ${{ steps.candidate.outputs.digest }}
           push-to-registry: false
           create-storage-record: false
 
@@ -226,7 +235,7 @@ jobs:
         shell: bash
 
   promote-to-ghcr:
-    needs: [get-environment, get-charts, publish]
+    needs: [get-environment, get-charts, lint]
     if: |
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name == 'push' &&
@@ -282,7 +291,7 @@ jobs:
           set -euo pipefail
           version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
           if ! digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$version"); then
-            echo "::error::No candidate chart on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version."
+            echo "::error::No release candidate on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version (published by the release/hotfix branch)."
             exit 1
           fi
           if existing=$(crane digest "$DEST_IMAGE:$version" 2>/dev/null); then
@@ -319,7 +328,7 @@ jobs:
         shell: bash
 
   promote-to-pulp-dev:
-    needs: [get-environment, get-charts, publish]
+    needs: [get-environment, get-charts, lint]
     if: |
       vars.PULP_DEV_REGISTRY != '' &&
       needs.get-environment.outputs.stability == 'stable' &&
@@ -377,7 +386,7 @@ jobs:
           set -euo pipefail
           version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
           if ! digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$version"); then
-            echo "::error::No candidate chart on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version."
+            echo "::error::No release candidate on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version (published by the release/hotfix branch)."
             exit 1
           fi
           {
