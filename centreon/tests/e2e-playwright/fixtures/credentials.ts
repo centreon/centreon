@@ -12,6 +12,12 @@ export const adminUser: Credentials = {
   password: process.env.CENTREON_ADMIN_PASSWORD ?? 'Centreon!2021'
 };
 
+/** User of the `openldap` test directory of the docker stack. */
+export const ldapUser: Credentials = {
+  login: 'centréon-ldap4',
+  password: 'centreon-ldap4'
+};
+
 export const invalidUser: Credentials = {
   login: adminUser.login,
   password: 'wrong-password'
