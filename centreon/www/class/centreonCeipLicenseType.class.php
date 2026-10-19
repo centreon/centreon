@@ -65,7 +65,7 @@ final class CentreonCeipLicenseType
      *
      * @throws Exception when a license start or end date is invalid
      *
-     * @return array{licenseType: string, withFingerprint: bool, assetId: string|null}
+     * @return array{licenseType: string, withFingerprint: bool, assetId: string|null, unknownEdition: string|null}
      */
     public static function resolve(array $licenses): array
     {
@@ -78,7 +78,7 @@ final class CentreonCeipLicenseType
         foreach ($licenses as $module => $license) {
             $edition = self::readString($license, 'edition');
             if ($edition !== null) {
-                $editions[strtoupper($edition)] = true;
+                $editions[strtoupper($edition)] = $edition;
             }
             $assetId ??= self::readString($license, 'asset_id');
             $durationInDays = self::durationInDays($license);
@@ -99,22 +99,24 @@ final class CentreonCeipLicenseType
             }
         }
 
+        $unknownEdition = null;
         if ($editions !== []) {
-            $edition = count($editions) === 1 ? array_key_first($editions) : 'CUSTOM';
-            if (
-                ! isset(self::EDITION_LABELS[$edition])
-                || ($hasModuleLicense && in_array($edition, self::EDITIONS_WITHOUT_MODULES, true))
-            ) {
-                $edition = 'CUSTOM';
+            $editionKey = count($editions) === 1 ? array_key_first($editions) : 'CUSTOM';
+            if (! isset(self::EDITION_LABELS[$editionKey])) {
+                $unknownEdition = $editions[$editionKey];
+                $editionKey = 'CUSTOM';
+            } elseif ($hasModuleLicense && in_array($editionKey, self::EDITIONS_WITHOUT_MODULES, true)) {
+                $editionKey = 'CUSTOM';
             }
-            $licenseType = self::EDITION_LABELS[$edition];
-            $withFingerprint = in_array($edition, self::FINGERPRINTED_EDITIONS, true);
+            $licenseType = self::EDITION_LABELS[$editionKey];
+            $withFingerprint = in_array($editionKey, self::FINGERPRINTED_EDITIONS, true);
         }
 
         return [
             'licenseType' => $licenseType,
             'withFingerprint' => $withFingerprint,
             'assetId' => $licenseType === self::MSP_EDITION_LABEL ? $assetId : null,
+            'unknownEdition' => $unknownEdition,
         ];
     }
 

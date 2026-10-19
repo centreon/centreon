@@ -46,6 +46,7 @@ final class CentreonCeipTest extends TestCase
                 'licenseType' => $expectedLicenseType,
                 'withFingerprint' => $expectedFingerprint,
                 'assetId' => null,
+                'unknownEdition' => null,
             ],
             CentreonCeipLicenseType::resolve($licenses),
         );
@@ -102,6 +103,7 @@ final class CentreonCeipTest extends TestCase
                 'licenseType' => $expectedLicenseType,
                 'withFingerprint' => $expectedFingerprint,
                 'assetId' => null,
+                'unknownEdition' => null,
             ],
             CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])]),
         );
@@ -249,30 +251,45 @@ final class CentreonCeipTest extends TestCase
      * @param array<string, array<string, mixed>> $licenses
      */
     #[DataProvider('nonStandardEditionProvider')]
-    public function testResolveReportsAnyNonStandardEditionAsCustom(array $licenses): void
-    {
+    public function testResolveReportsAnyNonStandardEditionAsCustomAndKeepsItsRawValue(
+        array $licenses,
+        string $expectedUnknownEdition,
+    ): void {
         self::assertSame(
             [
                 'licenseType' => 'Custom Edition',
                 'withFingerprint' => true,
                 'assetId' => null,
+                'unknownEdition' => $expectedUnknownEdition,
             ],
             CentreonCeipLicenseType::resolve($licenses),
         );
     }
 
     /**
-     * @return iterable<string, array{array<string, array<string, mixed>>}>
+     * @return iterable<string, array{array<string, array<string, mixed>>, string}>
      */
     public static function nonStandardEditionProvider(): iterable
     {
-        yield 'unknown value' => [['epp' => self::license(['edition' => 'ENTERPRISE'])]];
+        yield 'unknown value' => [['epp' => self::license(['edition' => 'ENTERPRISE'])], 'ENTERPRISE'];
 
-        yield 'IT100 without hyphen' => [['epp' => self::license(['type' => 'IT100', 'edition' => 'IT100'])]];
+        yield 'IT100 without hyphen' => [['epp' => self::license(['type' => 'IT100', 'edition' => 'IT100'])], 'IT100'];
 
         yield 'unknown value on an EPP computed as MSP' => [
             ['epp' => self::license([...self::unlimitedLicensing(), 'edition' => 'foo'])],
+            'foo',
         ];
+    }
+
+    public function testResolveDoesNotFlagAnUnknownEditionWhenKnownEditionsCombineIntoCustom(): void
+    {
+        $result = CentreonCeipLicenseType::resolve([
+            'epp' => self::license(['edition' => 'MSP']),
+            'bam' => self::license(['edition' => 'BE']),
+        ]);
+
+        self::assertSame('Custom Edition', $result['licenseType']);
+        self::assertNull($result['unknownEdition']);
     }
 
     /**
@@ -323,6 +340,7 @@ final class CentreonCeipTest extends TestCase
                 'licenseType' => 'IT Edition',
                 'withFingerprint' => false,
                 'assetId' => null,
+                'unknownEdition' => null,
             ],
             CentreonCeipLicenseType::resolve(['epp' => self::license(['edition' => $edition])]),
         );

@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger as PlatformLogger;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Centreon\LegacyContainer;
@@ -363,6 +365,14 @@ class CentreonCeip extends CentreonWebService
                 $assetId = $licenseType['assetId'];
                 if ($licenseType['withFingerprint']) {
                     $fingerprint = $fingerprintService->calculateFingerprint();
+                }
+                if (isset($licenseType['unknownEdition'])) {
+                    PlatformLogger::create(LogChannelEnum::WEB)->warning(
+                        sprintf(
+                            "CEIP: unrecognized license edition '%s' reported as Custom Edition",
+                            $licenseType['unknownEdition']
+                        )
+                    );
                 }
             }
         } catch (UnknownIdentifierException) {
