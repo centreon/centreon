@@ -135,6 +135,8 @@ jobs:
         "centreon/www/front_src/**"
         "!centreon/**/cypress/**"
         "!centreon/**/*.cypress.*"
+        "!centreon/**/*.browser.test.*"
+        "!centreon/**/__snapshots__/**"
         "!centreon/**/__mocks__/**"
       backend_test_paths: |
         "centreon/.php-cs-fixer*"
@@ -148,6 +150,12 @@ jobs:
         "centreon/cypress.config.ts"
         "centreon/**/cypress/**"
         "centreon/**/*.cypress.*"
+        "centreon/rstest.config.ts"
+        "centreon/tsconfig.rstest.json"
+        "centreon/test-setup/**"
+        "centreon/public/**"
+        "centreon/**/*.browser.test.*"
+        "centreon/**/__snapshots__/**"
         "centreon/**/__mocks__/**"
         "centreon/lighthouse/**"
       api_test_paths: |
@@ -477,6 +485,55 @@ jobs:
         uses: ./.github/actions/publish-report
         with:
           path: "centreon/junit.xml"
+
+  frontend-browser-test:
+    runs-on: ubuntu-24.04
+    needs: [changes, get-environment]
+    if: |
+      needs.changes.outputs.trigger_frontend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
+        working-directory: centreon
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      - name: Install Chromium
+        run: pnpm rstest:install
+        working-directory: centreon
+
+      - name: Browser component test
+        run: pnpm rstest:run
+        working-directory: centreon
+
+      - if: failure()
+        uses: ./.github/actions/publish-report
+        with:
+          check_name: frontend-browser-test-report
+          path: "centreon/rstest-junit.xml"
 
   frontend-component-test:
     needs: [changes, get-environment]
@@ -866,6 +923,7 @@ jobs:
         frontend-unit-test,
         frontend-type-check,
         frontend-component-test,
+        frontend-browser-test,
         gherkin-lint,
         e2e-lint,
       ]

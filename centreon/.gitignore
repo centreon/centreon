@@ -18,6 +18,7 @@ www/service-worker.js
 www/include/core/menu/templates/*.js
 www/include/core/menu/templates/*.tpl
 junit.xml
+rstest-junit.xml
 .nyc_output
 coverage/
 **/v8-compile-cache-0
