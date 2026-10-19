@@ -221,6 +221,21 @@ export class CentreonApi {
   }
 
   /**
+   * Teardown: run each action on its own and report the failures instead of
+   * stopping at the first one, so one stale object does not leave the others.
+   */
+  async cleanUp(actions: Array<ClapiAction>): Promise<Array<string>> {
+    const failures: Array<string> = [];
+    for (const action of actions) {
+      await this.provision([action]).catch((error: Error) =>
+        failures.push(error.message)
+      );
+    }
+
+    return failures;
+  }
+
+  /**
    * Push passive check results, mirroring `cy.submitResults`. The output is
    * dated 15 seconds in the past so the engine accepts it as a fresh result.
    */

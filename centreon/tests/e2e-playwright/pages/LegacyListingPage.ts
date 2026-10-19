@@ -39,8 +39,9 @@ export class LegacyListingPage extends BasePage {
       .describe('Save button');
   }
 
+  // Read-only users get the table without the toolbar actions.
   private async listingLoaded(): Promise<void> {
-    await expect(this.bulkActions.or(this.addLink).first()).toBeVisible({
+    await expect(this.page.locator('table.ListTable').first()).toBeVisible({
       timeout: 30_000
     });
   }
@@ -105,6 +106,25 @@ export class LegacyListingPage extends BasePage {
         .click();
       await expect(badge).not.toHaveText(status);
     });
+  }
+
+  /**
+   * Post a listing action as the form would, with a CSRF token read from the
+   * listing: a valid token makes sure the server reaches its ACL checks. The
+   * token is single-use, so each call reads a fresh one.
+   */
+  async post(fields: Record<string, string>): Promise<number> {
+    await this.open();
+    const token = await this.page
+      .locator('form[name="form"] input[name="centreon_token"]')
+      .first()
+      .inputValue();
+    const response = await this.page.request.post(
+      `/centreon/main.get.php?p=${this.topologyPage}`,
+      { form: { centreon_token: token, ...fields } }
+    );
+
+    return response.status();
   }
 
   /** Tick rows and apply a bulk action, accepting its confirmation. */

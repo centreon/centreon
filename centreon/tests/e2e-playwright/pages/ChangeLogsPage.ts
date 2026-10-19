@@ -20,10 +20,9 @@ export class ChangeLogsPage extends BasePage {
     await this.goto(
       `/centreon/main.get.php?p=508&SearchB=1&searchU=&otype=0&searchO=${encodeURIComponent(name)}`
     );
-    await expect(this.page.locator('input[name="searchO"]')).toHaveValue(
-      name,
-      { timeout: 30_000 }
-    );
+    await expect(this.page.locator('input[name="searchO"]')).toHaveValue(name, {
+      timeout: 30_000
+    });
   }
 
   /** Log lines of an action (badge text), most recent first. */

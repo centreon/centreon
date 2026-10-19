@@ -13,6 +13,8 @@ export interface LegacyObject {
   editField: string;
   /** Human-readable label of the object type. */
   label: string;
+  /** CLAPI actions linking it to the objects its form requires. */
+  links?: (name: string) => Array<ClapiAction>;
   /** Shared objects it relies on, created once and kept. */
   prerequisites?: Array<ClapiAction>;
   /** CLAPI `SETPARAM` values the form requires and `ADD` leaves empty. */
@@ -23,10 +25,46 @@ export interface LegacyObject {
 
 // Host every host dependency of the stack can rely on.
 const pollerHost = 'Centreon-Server';
+// Access group the seeded ACL objects are linked to.
+const aclGroup = 'pw-acl-group';
 // Vendor of the SNMP traps seeded by the tests.
 const trapVendor = 'pw-trap-vendor';
 
 export const legacyObjects: Array<LegacyObject> = [
+  {
+    addValues: (name) => `${name};${name} alias`,
+    clapi: 'ACLGROUP',
+    editField: 'acl_group_alias',
+    label: 'ACL access group',
+    topologyPage: '50203'
+  },
+  {
+    addValues: (name) => `${name};${name} description`,
+    clapi: 'ACLACTION',
+    editField: 'acl_action_description',
+    label: 'ACL actions access',
+    links: (name) => [
+      { action: 'ADDACTION', object: 'ACLGROUP', values: `${aclGroup};${name}` }
+    ],
+    prerequisites: [
+      { action: 'ADD', object: 'ACLGROUP', values: `${aclGroup};${aclGroup}` }
+    ],
+    topologyPage: '50204'
+  },
+  {
+    addValues: (name) => `${name};${name} alias`,
+    clapi: 'ACLMENU',
+    editField: 'acl_topo_alias',
+    label: 'ACL menu access',
+    topologyPage: '50201'
+  },
+  {
+    addValues: (name) => `${name};${name} alias`,
+    clapi: 'ACLRESOURCE',
+    editField: 'acl_res_alias',
+    label: 'ACL resources access',
+    topologyPage: '50202'
+  },
   {
     addValues: (name) => `${name};${name} alias`,
     clapi: 'CG',
@@ -118,7 +156,8 @@ export const legacyObjectProvisioning = (
     action: 'SETPARAM',
     object: object.clapi,
     values: `${name};${param}`
-  }))
+  })),
+  ...(object.links?.(name) ?? [])
 ];
 
 /** Best-effort removal of an object and of its duplicate. */
