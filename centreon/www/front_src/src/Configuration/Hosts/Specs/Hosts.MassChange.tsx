@@ -213,6 +213,16 @@ export default () => {
         ).not.toBeInTheDocument()
       );
       expectNoPatch();
+
+      // Then accepted: a single write proves none went out before, whether
+      // on the first Save or on Cancel, however late it would have landed.
+      await save();
+      await expectConfirmation('The changes will be applied to 1 host.');
+      await confirm();
+
+      expect(await screen.findByText('Host updated')).toBeInTheDocument();
+      expect(getRequestCalls('patchHost')).toHaveLength(1);
+      expect(patchedHostIds).toEqual([0]);
     });
 
     it('warns that replacing the templates deletes their services', async () => {

@@ -88,11 +88,19 @@ const decodeBody = async (request: Request): Promise<unknown> => {
 };
 
 // Logged on arrival, as cypress-msw-interceptor did, so `getRequestCalls`
-// also counts the requests a delayed mock has not answered yet.
-const receive = (alias: string, request: RecordedRequest): (() => void) => {
+// also counts the requests a delayed mock has not answered yet. A request
+// whose test ended while it was being read is not logged at all.
+const receive = (
+  alias: string,
+  request: RecordedRequest,
+  receivedIn: number
+): (() => void) => {
+  if (receivedIn !== generation) {
+    return (): void => undefined;
+  }
+
   const key = normalizeAlias(alias);
   const call: Call = { answered: false, request };
-  const receivedIn = generation;
 
   calls.set(key, [...(calls.get(key) ?? []), call]);
 
@@ -132,8 +140,9 @@ export const interceptRequest = (
 ): void => {
   worker.use(
     methods[method](toMswPath(path), async ({ request }) => {
+      const receivedIn = generation;
       const recorded = await toRecordedRequest(request);
-      const answer = receive(alias, recorded);
+      const answer = receive(alias, recorded, receivedIn);
       const response = await resolver({ request: recorded });
 
       answer();
@@ -164,7 +173,12 @@ export const interceptAPIRequest = ({
         return undefined;
       }
 
-      const answer = receive(alias, await toRecordedRequest(request));
+      const receivedIn = generation;
+      const answer = receive(
+        alias,
+        await toRecordedRequest(request),
+        receivedIn
+      );
 
       if (delay > 0) {
         await wait(delay);

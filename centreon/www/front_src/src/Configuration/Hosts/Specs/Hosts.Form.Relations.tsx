@@ -179,6 +179,9 @@ export default () => {
       (await screen.findAllByTestId('host-form-name'))[0]
     ).toBeInTheDocument();
     expect(screen.queryByText(pollersForbiddenMessage)).not.toBeInTheDocument();
+    // Not even asked: the lookup would have gone out when the page mounted,
+    // long before the host detail answered.
+    expect(getRequestCalls('@getFormPollers')).toHaveLength(0);
   });
 
   it('resolves an address once while a lookup is running', async () => {
