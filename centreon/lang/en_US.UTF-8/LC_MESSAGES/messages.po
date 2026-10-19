@@ -16569,10 +16569,10 @@ msgstr "The hours are applied in the %s timezone."
 #, php-format
 msgid ""
 "The license host limit is reached: the host templates with ID(s) '%s' come "
-"from Monitoring Connectors and cannot be used"
+"from or inherit from licensed Monitoring Connectors and cannot be used"
 msgstr ""
 "The license host limit is reached: the host templates with ID(s) '%s' come "
-"from Monitoring Connectors and cannot be used"
+"from or inherit from licensed Monitoring Connectors and cannot be used"
 
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"
