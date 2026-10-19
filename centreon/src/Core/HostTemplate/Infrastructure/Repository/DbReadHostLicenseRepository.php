@@ -38,7 +38,7 @@ use Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface;
 /**
  * Reads the license through the license manager module, the way the legacy
  * CentreonHost::isAllowed() does: the module is a legacy service, only reachable from the
- * legacy container.
+ * legacy container. Only the host count and the paid connector templates are read from the database.
  *
  * Intentional src/Core duplicate of App\MonitoringConfiguration\Application\Service\HostLicenseLimit and
  * App\MonitoringConfiguration\Application\Service\UnlicensedHostTemplates: src/Core runs in the legacy
