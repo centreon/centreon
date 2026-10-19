@@ -48,6 +48,16 @@ const sleep = (ms: number): Promise<void> =>
 export const execInWebContainer = (command: string): string =>
   execCompose(['exec', '-T', 'web', 'sh', '-c', command]);
 
+/**
+ * Run a SQL statement on the `centreon` database from the `web` container,
+ * with the credentials of the platform: for states no API can set, such as an
+ * old password.
+ */
+export const queryCentreonDb = (sql: string): string =>
+  execInWebContainer(
+    `mysql -h db -u centreon -p"$(php -r 'include "/etc/centreon/centreon.conf.php"; echo $conf_centreon["password"];')" centreon -N -e ${JSON.stringify(sql)}`
+  );
+
 /** Names of the compose services currently in the "running" state. */
 const runningServices = (): Array<string> =>
   execCompose(['ps', '--services', '--status', 'running'])
