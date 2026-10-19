@@ -48,10 +48,7 @@ export class DashboardSharingDialog {
         })
         .click();
       await this.page.getByRole('option', { name }).click();
-      await this.pickRole(
-        this.dialog.getByTestId('add_role'),
-        role
-      );
+      await this.pickRole(this.dialog.getByTestId('add_role'), role);
       await this.dialog.getByTestId('add').click();
       await expect(this.dialog.getByTestId(`role-${name}`)).toBeVisible();
     });

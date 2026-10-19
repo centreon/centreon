@@ -20,6 +20,20 @@ export class MyAccountPage extends BasePage {
     });
   }
 
+  /** Generate an autologin key and save it. */
+  async generateAutologinKey(): Promise<void> {
+    await test.step('Generate an autologin key', async () => {
+      await this.open();
+      const key = this.page.locator('#aKey');
+      await this.page.locator('#generateAutologinKeyButton').click();
+      await expect(key).not.toHaveValue('');
+      await Promise.all([
+        this.page.waitForEvent('load'),
+        this.page.locator('#validForm input[name="submitC"]').click()
+      ]);
+    });
+  }
+
   /** Submit a password change. */
   async changePassword(current: string, next: string): Promise<void> {
     await test.step('Change the password', async () => {

@@ -77,3 +77,6 @@ Tracked in the README coverage section, family by family.
   results.
 - Passive services update their downtime state with their next result only:
   the tests push results until the state follows.
+- **Bug** — the autologin link the profile menu copies on a React page (such
+  as Resources Status) leads to the login page; the same key works on a
+  `main.php` link, which is where Cypress copied it. Marked `test.fail()`.

@@ -30,6 +30,17 @@ export class MainHeader extends BasePage {
     await expect(this.profileButton).toBeVisible();
   }
 
+  /** The autologin link the profile menu offers to copy. */
+  async autologinLink(): Promise<string> {
+    await this.profileButton.click();
+    const link = this.page.locator('#autologin-input');
+    await expect(link).toHaveValue(/autologin=1/);
+    const value = await link.inputValue();
+    await this.page.keyboard.press('Escape');
+
+    return value;
+  }
+
   /** Open the profile menu and trigger the logout action. */
   async logout(): Promise<void> {
     await test.step('Log out', async () => {
