@@ -52,6 +52,36 @@ const logSince = (line: number): string =>
     `tail -n +${line + 1} ${cloudNotificationLog} 2>/dev/null || true`
   );
 
+/** Split concatenated JSON documents, such as `{...}{...}`. */
+const jsonDocuments = (text: string): Array<unknown> => {
+  const documents: Array<unknown> = [];
+  let depth = 0;
+  let inString = false;
+  let start = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    if (inString) {
+      if (char === '\\') {
+        index += 1;
+      } else if (char === '"') {
+        inString = false;
+      }
+    } else if (char === '"') {
+      inString = true;
+    } else if (char === '{') {
+      depth += 1;
+    } else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        documents.push(JSON.parse(text.slice(start, index + 1)));
+        start = index + 1;
+      }
+    }
+  }
+
+  return documents;
+};
+
 test.beforeAll(async () => {
   test.setTimeout(420_000);
   await ensureResourcesMonitored(baseURL);
@@ -165,16 +195,17 @@ test('emails the contacts of a rule when a covered service changes status', asyn
       .split('\n')
       .filter((line) => line.includes('Notification sent: '))
       .map((line) => {
-        const [destination, message] = line
-          .slice(line.indexOf('Notification sent: ') + 19)
-          .replace('}{"Subject"', '}\n{"Subject"')
-          .split('\n')
-          .map((json) => JSON.parse(json));
+        const [destination, message] = jsonDocuments(
+          line.slice(line.indexOf('Notification sent: ') + 19)
+        ) as [
+          { BccAddresses: Array<string> },
+          { Body: { Html: { Data: string } }; Subject: { Data: string } }
+        ];
 
         return {
-          body: message.Body.Html.Data as string,
-          recipients: (destination.BccAddresses as Array<string>).sort(),
-          subject: message.Subject.Data as string
+          body: message.Body.Html.Data,
+          recipients: destination.BccAddresses.sort(),
+          subject: message.Subject.Data
         };
       });
     expect(emails.length).toBeGreaterThan(0);
