@@ -1,84 +1,58 @@
-import { expect } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
 
 import { adminStorageStatePath } from '../../fixtures/auth';
 import { hostActions } from '../../fixtures/monitoring';
-import { test } from '../../fixtures/test';
-import { ensureStack } from '../../helpers/docker';
+import { expect, test } from '../../fixtures/test';
 import { ServicesConfigurationPage } from '../../pages/ServicesConfigurationPage';
 
 /**
- * Migration of the Cypress `Services-configuration/03-service-configuration`
- * feature, covering the reliable single-user core: create a service (on a host
- * seeded via CLAPI) and delete it again.
- *
- * The properties-edit and duplicate scenarios, plus everything depending on
- * service templates/categories/groups/dependencies, are out of scope for this
- * slice (quality over quantity).
- *
- * The "Services by host" configuration page is a legacy PHP page rendered in the
- * React shell's `#main-content` iframe, driven through a Playwright frame
- * locator (see `ServicesConfigurationPage`).
+ * Replaces Services-configuration/03: create a service on a host, change its
+ * properties, duplicate it and delete both, on a host of its own.
  */
-const hostName = 'pw-host-1';
-const serviceName = 'pw-service';
-const serviceTemplate = 'Ping-LAN';
+test.use({ storageState: adminStorageStatePath });
 
-test.describe('Services configuration', () => {
-  test.use({ storageState: adminStorageStatePath });
+test('creates, edits, duplicates and deletes a service', async ({
+  adminApi,
+  page
+}) => {
+  const suffix = randomUUID().slice(0, 8);
+  const host = `pw-svc-host-${suffix}`;
+  const name = `pw-service-${suffix}`;
+  const duplicate = `${name}_1`;
+  const services = new ServicesConfigurationPage(page);
 
-  test.beforeAll(async () => {
-    await ensureStack({ services: ['web'] });
-  });
+  await adminApi.provision(
+    hostActions({ hostGroup: 'Linux-Servers', name: host })
+  );
 
-  // Seed a host (the service's required parent) via CLAPI before each test, and
-  // remove both objects afterwards so reruns stay idempotent.
-  test.beforeEach(async ({ adminApi }) => {
-    try {
-      await adminApi.provision(
-        hostActions({ hostGroup: 'Linux-Servers', name: hostName })
+  try {
+    await services.createService({ host, name, template: 'Ping-LAN' });
+    await services.open(host);
+    await expect(services.row(name)).toBeVisible();
+
+    await services.edit(name, { service_max_check_attempts: '7' });
+    await services.openForm(name);
+    await expect(services.field('service_max_check_attempts')).toHaveValue('7');
+
+    await services.open(host);
+    await services.bulk('Duplicate', [name]);
+    await expect(services.row(duplicate)).toBeVisible();
+    await test.step('The duplicate keeps the properties', async () => {
+      await services.openForm(duplicate);
+      await expect(services.field('service_max_check_attempts')).toHaveValue(
+        '7'
       );
-    } catch {
-      // host already provisioned by a previous run
-    }
-  });
-
-  test.afterEach(async ({ adminApi }) => {
-    try {
-      await adminApi.provision([
-        {
-          action: 'DEL',
-          object: 'SERVICE',
-          values: `${hostName};${serviceName}`
-        }
-      ]);
-    } catch {
-      // service already deleted by the test
-    }
-    try {
-      await adminApi.provision([
-        { action: 'DEL', object: 'HOST', values: hostName }
-      ]);
-    } catch {
-      // host already removed
-    }
-  });
-
-  test('creates a service then deletes it', async ({ page }) => {
-    const services = new ServicesConfigurationPage(page);
-
-    await services.createService({
-      host: hostName,
-      name: serviceName,
-      template: serviceTemplate
     });
 
-    await services.open();
-    await services.filterByHost(hostName);
-    await expect(services.serviceListLink(serviceName)).toBeVisible({
-      timeout: 30_000
-    });
-
-    await services.deleteService(serviceName);
-    await expect(services.serviceListLink(serviceName)).toHaveCount(0);
-  });
+    await services.open(host);
+    await services.bulk('Delete', [name, duplicate]);
+    await expect(services.row(name)).toHaveCount(0);
+    await expect(services.row(duplicate)).toHaveCount(0);
+  } finally {
+    await adminApi
+      .provision([{ action: 'DEL', object: 'HOST', values: host }], {
+        tolerate: [404, 409]
+      })
+      .catch(() => undefined);
+  }
 });
