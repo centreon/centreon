@@ -1852,7 +1852,7 @@ function test_password_policy() {
 # script exits non-zero after the credentials are displayed.
 #
 function display_services_recap() {
-	local entry name unit topos active enabled state db_unit
+	local entry name unit topos required_topos active enabled state db_unit
 
 	if [ "${has_systemd:-0}" -ne 1 ]; then
 		log "WARN" "Systemd is not available: cannot report platform healthcheck"
@@ -1880,21 +1880,24 @@ function display_services_recap() {
 		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
-		"snmpd|snmpd|central poller"
+		"snmpd|snmpd|central poller|central"
 	)
 
 	local -a results=()
 	for entry in "${recap_services[@]}"; do
-		IFS='|' read -r name unit topos <<<"$entry"
+		IFS='|' read -r name unit topos required_topos <<<"$entry"
+		required_topos=${required_topos:-$topos}
 		# Skip services that do not apply to the installed topology.
 		[[ " $topos " == *" $topology "* ]] || continue
 		active=$(systemctl is-active "$unit" 2>/dev/null || true)
 		enabled=$(systemctl is-enabled "$unit" 2>/dev/null || true)
 		if [ "$active" == "active" ]; then
 			state="[OK]    "
-		else
+		elif [[ " $required_topos " == *" $topology "* ]]; then
 			state="[FAILED]"
 			failed_services+=("$name")
+		else
+			state="[INFO]  "
 		fi
 		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
 			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
