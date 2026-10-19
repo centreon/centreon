@@ -11,7 +11,7 @@ encapsulated in a Page Object (`pages/`). Tests describe _intentions_
 
 ## Coverage and status
 
-The suite holds **142 tests** (44 files) migrated from the Cypress + Cucumber
+The suite holds **168 tests** (58 files) migrated from the Cypress + Cucumber
 suite (`tests/e2e`). They are not ported one for one: each family is triaged
 (kept, merged into one journey, parametrized, or dropped when the component
 suite covers it); see [MIGRATION.md](MIGRATION.md) for the plan, the status and
@@ -27,15 +27,18 @@ downtime, submitted status, CSV export), realtime and recurrent DST
 downtimes, cloud notification rules, API tokens, proxy, custom views,
 commands, macros, hosts, host groups, contacts, services, time periods, SNMP
 traps, pollers, additional connectors, agent configurations, resource access
-rules.
+rules, metric widgets (single metric, graph, top/bottom), cloud notification
+email delivery, fixed downtime start and end, user preferences, knowledge
+base, meta services, host group services, virtual metrics, SNMP trap groups,
+performance charts, output links, backup and partitioning, custom URI, port
+and database name.
 
-**Still in Cypress** — metric widgets (single metric, graph, top/bottom),
-cloud notification email delivery, fixed downtime start and stop, platform
-update/upgrade, custom URI/port/database name, backup and partitioning, and a
-few legacy pages listed in MIGRATION.md.
+**Still in Cypress** — platform update and upgrade: they install an older
+version first, which needs dedicated stack images.
 
-One test is marked `test.fail()`: the autologin link copied on a React page
-(known bug, see MIGRATION.md).
+Two tests are marked `test.fail()` for known bugs: the autologin link copied
+on a React page, and the legacy host form behind a web server on another port
+(see MIGRATION.md).
 
 ## Continuous integration
 

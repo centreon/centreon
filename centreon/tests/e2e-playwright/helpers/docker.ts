@@ -120,8 +120,29 @@ export const ensureStack = async ({
 export const recreateStack = async (
   env: Record<string, string> = {}
 ): Promise<void> => {
-  execCompose(['up', '-d', '--quiet-pull', '--force-recreate', 'web', 'db'], env);
+  execCompose(
+    ['up', '-d', '--quiet-pull', '--force-recreate', 'web', 'db'],
+    env
+  );
   await waitForWebHealthy();
+};
+
+/** The address of the `web` container on its docker network, for unpublished ports. */
+export const webContainerAddress = (): string => {
+  const containerId = execCompose(['ps', '-q', 'web']).trim();
+
+  return execFileSync(
+    'docker',
+    [
+      'inspect',
+      '--format',
+      '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}',
+      containerId
+    ],
+    { encoding: 'utf-8' }
+  )
+    .trim()
+    .split(' ')[0];
 };
 
 /** Poll the `web` container health until it reports healthy. */
@@ -211,11 +232,18 @@ export const logCloudNotifications = (): void => {
 
 /** The host port a compose service publishes for one of its ports. */
 export const publishedPort = (service: string, port: number): number =>
-  Number(execCompose(['port', service, String(port)]).trim().split(':').at(-1));
+  Number(
+    execCompose(['port', service, String(port)])
+      .trim()
+      .split(':')
+      .at(-1)
+  );
 
 /** Make the central broker reload its configuration (APPLYCFG does not). */
 export const reloadCentralBroker = (): void => {
-  execInWebContainer("pkill -HUP -f 'cbd /etc/centreon-broker/central-broker.json'");
+  execInWebContainer(
+    "pkill -HUP -f 'cbd /etc/centreon-broker/central-broker.json'"
+  );
 };
 
 /**

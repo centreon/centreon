@@ -163,9 +163,11 @@ Specs import `test` and `expect` from `tests/components/fixtures.ts`:
 
 ## Migration status
 
-All 97 Cypress component spec files of `www/front_src` are migrated; their
-Cypress versions stay until this suite replaces them in CI. The `packages/ui`
-specs are out of scope.
+All 97 Cypress component spec files of `www/front_src` and the 38 of
+`packages/ui` are migrated; their Cypress versions stay until this suite
+replaces them in CI. The `packages/ui` stories sit next to their component
+(`*.story.tsx`), with story ids prefixed by `ui/`, and their specs in
+`tests/components/ui/`.
 
 ## Findings
 

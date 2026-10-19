@@ -38,7 +38,8 @@ scenarios. They are not ported one for one: each family is triaged first.
 | Additional connectors and agent configurations | 37 | **Drop** validation, cancel and pop-up cases (component suite); **keep** CRUD and poller-filtered permissions | ~12 |
 | Cloud notifications, API tokens | 25 | **Drop** discard cases; **merge** CRUD | ~12 |
 | Hosts, services, macros, pollers, misc. configuration | ~60 | **Keep** behaviours (inheritance, mass change, generation), **merge** CRUD | ~40 |
-| Platform update/upgrade, custom URI/port/DB name, backup, DB partitioning | 9 | **Postpone**: need dedicated stack images; stay in Cypress | 0 |
+| Platform update/upgrade | 2 | **Postpone**: need dedicated stack images; stay in Cypress | 0 |
+| Custom URI/port/DB name, backup, DB partitioning | 7 | **Keep**: edit the web server or recreate the stack, then restore it | 5 |
 
 Roughly 533 Cypress scenarios become ~200 Playwright tests, without losing a
 backend behaviour.
@@ -50,11 +51,7 @@ Cypress:
 
 | Family | Reason |
 | --- | --- |
-| Metric widgets (single metric, graph, top/bottom) | Need performance data on the stack |
-| Cloud notification emails, Downtime/04 | Need the broker Lua output, or wait for real minutes |
-| Platform update/upgrade, custom URI/port/DB name, backup, partitioning | Need dedicated stack images |
-| Virtual metrics, SNMP trap groups, host group services, meta service type filter | Legacy pages not yet covered |
-| Services-configuration/13-14, Contacts/04-05, Knowledge base, Logs/06, Administration/01-02, Ldaps/01 | Legacy pages not yet covered |
+| Platform update/upgrade | Install an older version first: need dedicated stack images |
 
 Dropped: Services-configuration/02 and Web-SSO/03 (they asserted nothing, see
 below), Hosts/12 (select2 rendering, exercised by the mass change tests), and
@@ -120,3 +117,19 @@ the widget display options covered by the component suite.
   the API (resources, service events, contacts, time period, message) and that
   a duplicate keeps it. Delivering the emails needs the broker Lua output of
   the notification module; postponed.
+- Downtime/04 and the cloud notification emails are now covered: the fixed
+  downtime gets a start and end a few seconds ahead through the API, and the
+  emails are read from the log of a Lua stream connector the test adds to the
+  central broker, which `APPLYCFG` does not reload (`SIGHUP` does).
+- Meta services seeded enabled through SQL break the configuration export
+  ("Service id of Meta Module could not be found"): they are seeded disabled,
+  and the legacy objects test ends by exporting the configuration.
+- A context opened under `test.use({ storageState })` inherits the admin
+  session; signing another user in there signs the admin out of the other
+  tests. Visitor contexts start from an empty storage state.
+- **Bug** — `Router::generateLocalUrl()` forces the port 80 for the internal
+  API calls: behind a web server on another port, saving the legacy host form
+  fails with "Failed to connect to 127.0.0.1 port 80" (MON-198741). The
+  Cypress scenario was ignored for want of a published port; the migrated
+  test reaches the container on its docker network and is marked
+  `test.fail()`.
