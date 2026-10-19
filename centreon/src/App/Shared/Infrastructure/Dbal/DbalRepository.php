@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Dbal;
 
-use App\Shared\Domain\Repository\SortableCriteria;
-use Doctrine\DBAL\Query\QueryBuilder;
 
 abstract readonly class DbalRepository
 {
@@ -82,19 +80,6 @@ abstract readonly class DbalRepository
 
             $relatedEntities[$relatedId] ??= $relatedFactoryCallback($row);
             $relationCallback($primaryEntity, $relatedEntities[$relatedId]);
-        }
-    }
-
-    final protected function sort(QueryBuilder $qb, string $alias, SortableCriteria $criteria): void
-    {
-        $mapping = $criteria->getFieldMapping();
-        foreach ($criteria->getSort() as $field => $direction) {
-            // only mapped columns reach the query: a field name is never trusted as a column name
-            if (! isset($mapping[$field])) {
-                continue;
-            }
-
-            $qb->addOrderBy("{$alias}.{$mapping[$field]}", $direction->value);
         }
     }
 }

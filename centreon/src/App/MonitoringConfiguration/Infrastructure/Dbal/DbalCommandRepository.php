@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -60,6 +61,8 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
+    use DbalCriteriaApplierTrait;
+
     public const TABLE_NAME = 'command';
     public const CONNECTOR_JOIN_TABLE_NAME = 'connector';
 
@@ -373,7 +376,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ));
         }
 
-        $this->sort($qb, 'cm', $criteria);
+        $this->applySort($qb, 'cm', $criteria);
     }
 
     /**
