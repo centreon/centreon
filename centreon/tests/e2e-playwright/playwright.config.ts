@@ -23,6 +23,8 @@ const baseURL =
 // merged into one HTML report without clobbering each other.
 const blobFileName = process.env.PW_BLOB_NAME;
 
+const ssoSpecs = '**/authentication/{oidc,saml}-authentication.spec.ts';
+
 export default defineConfig({
   expect: {
     timeout: 15_000
@@ -44,19 +46,16 @@ export default defineConfig({
     {
       dependencies: ['setup'],
       name: 'chromium',
-      testIgnore: [
-        '**/authentication/oidc-authentication.spec.ts',
-        '**/*.setup.ts'
-      ],
+      testIgnore: [ssoSpecs, '**/*.setup.ts'],
       use: { ...devices['Desktop Chrome'] }
     },
     {
-      // OIDC tests need the docker compose `openid` profile. The browser must
+      // OIDC and SAML tests need the docker compose `openid` profile. The browser must
       // reach Keycloak at the same host name the `web` container uses
       // (`sso-proxy`), so it is mapped to the published port on localhost.
-      name: 'oidc',
-      testMatch: '**/authentication/oidc-authentication.spec.ts',
-      // Allow extra time: the first OIDC test may start the openid profile
+      name: 'sso',
+      testMatch: ssoSpecs,
+      // Allow extra time: the first SSO test may start the openid profile
       // (pulling and booting Keycloak from a cold CI runner can be slow).
       timeout: 600_000,
       use: {

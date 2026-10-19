@@ -64,7 +64,8 @@ tests/e2e-playwright/
 │   ├── resources.ts         # Resources-status seed (host + CRITICAL/OK services)
 │   ├── notifications.ts     # Cloud-notification rule builder + host group
 │   ├── tokens.ts            # API-token users (contacts) provisioning
-│   ├── oidc.ts              # OIDC provider settings + ACL/contact provisioning
+│   ├── oidc.ts / saml.ts    # Identity provider settings and realm users
+│   ├── providers.ts         # Configure / restore an authentication provider
 │   └── test.ts              # Custom Playwright fixtures (API seed/cleanup)
 ├── helpers/
 │   ├── CentreonApi.ts       # HTTP client: v1 auth, CLAPI, v2 session, dashboards,
@@ -108,17 +109,20 @@ tests/e2e-playwright/
         └── custom-views.spec.ts           # migrates Cypress Custom-views (legacy iframe)
 ```
 
-## OpenID Connect tests
+## Identity provider tests (OpenID Connect, SAML, Web SSO)
 
-The OIDC specs (migration of the Cypress `OpenID-connect` feature 01) need the
-docker compose **`openid` profile** (Keycloak + an `sso-proxy`). They run under
-a dedicated **`oidc` Playwright project** that launches Chromium with
-`--host-resolver-rules=MAP sso-proxy 127.0.0.1`: this lets the browser reach
-Keycloak at the **same** host name the `web` container uses (`sso-proxy`), so a
-single provider Base URL (`http://sso-proxy:8080/...`) works for both the
-authorization redirect (browser) and the token exchange (server). The provider
-is configured through the UI form, and the login flow is driven end-to-end
-(Centreon → Keycloak → back). `pnpm stack:up` starts the `openid` profile.
+The OpenID Connect and SAML specs need the docker compose **`openid` profile**
+(Keycloak + an `sso-proxy`). They run under a dedicated **`sso` Playwright
+project** that launches Chromium with
+`--host-resolver-rules=MAP sso-proxy 127.0.0.1`: the browser reaches Keycloak
+at the **same** host name the `web` container uses (`sso-proxy`), so a single
+provider URL (`http://sso-proxy:8080/...`) works for both the browser redirect
+and the server-side calls. `pnpm stack:up` starts the `openid` profile.
+
+Each test configures its provider through the API (`fixtures/providers.ts`)
+and restores the previous settings, so the tests do not depend on each other.
+The Web SSO specs need no identity provider: the browser sends the login header
+a front proxy would set.
 
 ## Test data setup (dashboards)
 

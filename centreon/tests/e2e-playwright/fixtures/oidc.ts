@@ -1,4 +1,3 @@
-import type { CentreonApi } from '../helpers/CentreonApi';
 import type { Credentials } from './credentials';
 
 /**
@@ -37,8 +36,6 @@ export const oidcUserClaims = {
   role: 'centreon-editor'
 };
 
-const providerPath = '/administration/authentication/providers/openid';
-
 const disabledMapping = {
   attribute_path: '',
   endpoint: { custom_endpoint: null, type: 'introspection_endpoint' },
@@ -46,7 +43,7 @@ const disabledMapping = {
 };
 
 /** A working provider, active in Mixed mode, with every option disabled. */
-const workingProvider = {
+export const workingOidcProvider = {
   authentication_conditions: {
     ...disabledMapping,
     authorized_values: [],
@@ -78,53 +75,4 @@ const workingProvider = {
   token_endpoint: oidcConfig.tokenEndpoint,
   userinfo_endpoint: '/userinfo',
   verify_peer: false
-};
-
-type ProviderSettings = Record<string, unknown>;
-
-interface ReadRelation {
-  access_group?: { id: number };
-  claim_value?: string;
-  contact_group?: { id: number };
-  group_value?: string;
-  priority?: number;
-}
-
-/** The GET body names the related objects, the PUT body takes their ids. */
-const writable = (settings: ProviderSettings): ProviderSettings => {
-  const mapping = (key: string, toWrite: (r: ReadRelation) => unknown) => {
-    const value = settings[key] as { relations: Array<ReadRelation> };
-    return { ...value, relations: value.relations.map(toWrite) };
-  };
-
-  return {
-    ...settings,
-    groups_mapping: mapping('groups_mapping', (r) => ({
-      contact_group_id: r.contact_group?.id,
-      group_value: r.group_value
-    })),
-    roles_mapping: mapping('roles_mapping', (r) => ({
-      access_group_id: r.access_group?.id,
-      claim_value: r.claim_value,
-      priority: r.priority
-    }))
-  };
-};
-
-/**
- * Configure the OpenID provider through the API: a working provider plus the
- * options a test needs. `restore` puts back the settings found beforehand.
- */
-export const oidcProvider = async (
-  adminApi: CentreonApi,
-  options: ProviderSettings = {}
-): Promise<{ restore: () => Promise<void> }> => {
-  const original = await adminApi.v2<ProviderSettings>('GET', providerPath);
-  await adminApi.v2('PUT', providerPath, { ...workingProvider, ...options });
-
-  return {
-    restore: async () => {
-      await adminApi.v2('PUT', providerPath, writable(original));
-    }
-  };
 };
