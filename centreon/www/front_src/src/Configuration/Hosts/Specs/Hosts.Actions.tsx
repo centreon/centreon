@@ -1,3 +1,8 @@
+import { rs } from '@rstest/core';
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import {
   labelDelete,
   labelDisable,
@@ -14,220 +19,234 @@ import {
 } from '../translatedLabels';
 import initialize from './initialize';
 
+const getCheckboxes = (): Array<HTMLInputElement> => [
+  ...document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
+];
+
 // A deactivated row is not selectable, so indexing the enabled checkboxes is
 // what actually maps to "the nth selectable host". Index 0 is select-all.
-const selectSelectableRow = (index: number): void => {
-  cy.get('input[type="checkbox"]:not([disabled])')
-    .eq(index + 1)
-    .click();
+const selectSelectableRow = async (index: number): Promise<void> => {
+  await userEvent.click(
+    getCheckboxes().filter((checkbox) => !checkbox.disabled)[index + 1]
+  );
 };
 
-const selectFirstRow = (): void => selectSelectableRow(0);
+const selectFirstRow = (): Promise<void> => selectSelectableRow(0);
+
+const selectAll = async (): Promise<void> => {
+  await userEvent.click(getCheckboxes()[0]);
+};
+
+const openMoreActions = async (): Promise<HTMLElement> => {
+  await userEvent.click(screen.getByTestId(labelMoreActions));
+
+  // The last one opened: a closing menu may still be in the page.
+  return (await screen.findAllByRole('menu')).at(-1) as HTMLElement;
+};
+
+const initializeListing = async (
+  props: Parameters<typeof initialize>[0] = {}
+): Promise<void> => {
+  initialize(props);
+
+  await waitForRequest('@getAllHosts');
+  await screen.findByText('host 0');
+};
 
 export default () => {
   describe('Actions: ', () => {
-    it('links the services icon to the legacy services listing for that host', () => {
-      initialize({});
+    it('links the services icon to the legacy services listing for that host', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      const open = rs.spyOn(window, 'open').mockImplementation(() => null);
 
-      cy.window().then((window) => {
-        cy.stub(window, 'open').as('open');
-      });
+      await userEvent.click(screen.getByTestId('go-to-services_0'));
 
-      cy.findByTestId('go-to-services_0').click();
-
-      cy.get('@open').should(
-        'have.been.calledWith',
+      expect(open).toHaveBeenCalledWith(
         '/main.php?p=60201&search=host%200',
         '_self'
       );
     });
 
-    it('deletes a host through the confirmation modal', () => {
-      initialize({});
+    it('deletes a host through the confirmation modal', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      await userEvent.click(screen.getByTestId(`${labelDelete}_0`));
 
-      cy.findByTestId(`${labelDelete}_0`).click();
-
-      cy.findByTestId('confirm').click();
+      await userEvent.click(await screen.findByTestId('confirm'));
 
       // API Platform, not the legacy prefix — the same assertion the listing
       // makes, since the two are not interchangeable.
-      cy.waitForRequest('@deleteHost').then(({ request }) => {
-        expect(request.url.pathname).to.contain('/api/configuration/hosts/0');
-        expect(request.url.pathname).to.not.contain('/api/latest');
-      });
+      const { request } = await waitForRequest('@deleteHost');
 
-      cy.makeSnapshot();
+      expect(request.url.pathname).toContain('/api/configuration/hosts/0');
+      expect(request.url.pathname).not.toContain('/api/latest');
+
+      // What the screenshot of the end state showed: the modal is closed.
+      await waitFor(() =>
+        expect(screen.queryByTestId('confirm')).not.toBeInTheDocument()
+      );
     });
 
-    it('duplicates a host through the confirmation modal', () => {
-      initialize({});
+    it('duplicates a host through the confirmation modal', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      await userEvent.click(screen.getByTestId(`${labelDuplicate}_0`));
 
-      cy.findByTestId(`${labelDuplicate}_0`).click();
-
-      cy.findByTestId('confirm').click();
+      await userEvent.click(await screen.findByTestId('confirm'));
 
       // The route names the host and takes no body.
-      cy.waitForRequest('@duplicateHost').then(({ request }) => {
-        expect(request.url.pathname).to.contain(
-          '/api/configuration/hosts/0/_duplicate'
-        );
-        expect(request.url.pathname).to.not.contain('/api/latest');
-      });
+      const { request } = await waitForRequest('@duplicateHost');
+
+      expect(request.url.pathname).toContain(
+        '/api/configuration/hosts/0/_duplicate'
+      );
+      expect(request.url.pathname).not.toContain('/api/latest');
     });
 
-    it('deletes every selected host, one request each', () => {
-      initialize({});
+    it('deletes every selected host, one request each', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      await selectAll();
 
-      cy.get('input[type="checkbox"]').eq(0).click();
+      const menu = await openMoreActions();
 
-      cy.findByTestId(labelMoreActions).click();
-      cy.get('[role="menu"]').contains(labelDelete).click();
-      cy.findByTestId('confirm').click();
+      await userEvent.click(within(menu).getByText(labelDelete));
+      await userEvent.click(await screen.findByTestId('confirm'));
 
       // Sequentially, so waiting on the last one proves the whole fan-out ran.
-      cy.waitForRequest('@deleteHost');
-      cy.waitForRequest('@deleteHost2');
+      await waitForRequest('@deleteHost');
+      const { request } = await waitForRequest('@deleteHost2');
+
+      expect(request.url.pathname).toContain('/api/configuration/hosts/2');
     });
 
-    it('disables an activated host from the row toggle', () => {
-      initialize({});
+    it('disables an activated host from the row toggle', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      await userEvent.click(screen.getByTestId(`${labelEnableDisable}_0`));
 
-      cy.findByTestId(`${labelEnableDisable}_0`).click();
+      const { request } = await waitForRequest('@patchHost');
 
-      cy.waitForRequest('@patchHost').then(({ request }) => {
-        expect(request.url.pathname).to.not.contain('/api/latest');
-        expect(request.body).to.deep.equal({ activated: false });
-      });
+      expect(request.url.pathname).not.toContain('/api/latest');
+      expect(request.body).toEqual({ activated: false });
     });
 
-    it('enables a deactivated host from the row toggle', () => {
-      initialize({});
+    it('enables a deactivated host from the row toggle', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
-
-      cy.findByTestId(`${labelEnableDisable}_1`).click();
+      await userEvent.click(screen.getByTestId(`${labelEnableDisable}_1`));
 
       // `activated`, the key the endpoint reads: any other is ignored.
-      cy.waitForRequest('@patchHost1').then(({ request }) => {
-        expect(request.body).to.deep.equal({ activated: true });
-      });
+      const { request } = await waitForRequest('@patchHost1');
+
+      expect(request.body).toEqual({ activated: true });
     });
 
-    it('offers deploy services in the More actions menu', () => {
-      initialize({});
+    it('offers deploy services in the More actions menu', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      await selectFirstRow();
 
-      selectFirstRow();
+      const menu = await openMoreActions();
+      const deployServices = within(menu).getByText(labelDeployServices);
 
-      cy.findByTestId(labelMoreActions).click();
+      await waitFor(() => expect(deployServices).toBeVisible());
+      await userEvent.click(deployServices);
 
-      cy.contains(labelDeployServices).should('be.visible').click();
+      await waitForRequest('@deployServices');
 
-      cy.waitForRequest('@deployServices');
-
-      cy.contains(labelServicesDeployed).should('be.visible');
+      expect(
+        await screen.findByText(labelServicesDeployed)
+      ).toBeInTheDocument();
     });
 
-    it('reports a failed deployment with the agreed message, once', () => {
-      initialize({ deployFails: true });
+    it('reports a failed deployment with the agreed message, once', async () => {
+      await initializeListing({ deployFails: true });
 
-      cy.waitForRequest('@getAllHosts');
+      await selectFirstRow();
 
-      selectFirstRow();
+      const menu = await openMoreActions();
 
-      cy.findByTestId(labelMoreActions).click();
-      cy.contains(labelDeployServices).click();
+      await userEvent.click(within(menu).getByText(labelDeployServices));
 
-      cy.waitForRequest('@deployServices');
+      await waitForRequest('@deployServices');
 
-      cy.contains(labelServiceDeploymentFailed).should('be.visible');
+      expect(
+        await screen.findByText(labelServiceDeploymentFailed)
+      ).toBeInTheDocument();
 
       // The API's own message is suppressed so the two do not stack.
-      cy.contains('Host not found').should('not.exist');
-      cy.contains(labelServicesDeployed).should('not.exist');
+      expect(screen.queryByText('Host not found')).not.toBeInTheDocument();
+      expect(screen.queryByText(labelServicesDeployed)).not.toBeInTheDocument();
     });
 
-    it('offers every massive action the ticket lists', () => {
-      initialize({});
+    it('offers every massive action the ticket lists', async () => {
+      await initializeListing();
 
-      cy.waitForRequest('@getAllHosts');
+      await selectFirstRow();
 
-      selectFirstRow();
-
-      cy.findByTestId(labelMoreActions).click();
+      const menu = await openMoreActions();
 
       // A positive assertion on the whole menu: it fails if an entry goes
       // missing or one appears.
-      cy.get('[role="menu"]')
-        .findAllByRole('menuitem')
-        .should('have.length', 6)
-        .then((entries) => {
-          expect([...entries].map((entry) => entry.textContent)).to.deep.equal([
-            labelDuplicate,
-            labelEnable,
-            labelDisable,
-            labelDelete,
-            labelMassChange,
-            labelDeployServices
-          ]);
-        });
-
-      cy.makeSnapshot();
+      expect(
+        within(menu)
+          .getAllByRole('menuitem')
+          .map((entry) => entry.textContent)
+      ).toEqual([
+        labelDuplicate,
+        labelEnable,
+        labelDisable,
+        labelDelete,
+        labelMassChange,
+        labelDeployServices
+      ]);
     });
 
-    it('disables every selected host, not just the first', () => {
-      initialize({});
-
-      cy.waitForRequest('@getAllHosts');
+    it('disables every selected host, not just the first', async () => {
+      await initializeListing();
 
       // Select-all takes every row, the deactivated host 1 included although
       // its own checkbox is greyed.
-      cy.get('input[type="checkbox"]').eq(0).click();
+      await selectAll();
 
-      cy.findByTestId(labelMoreActions).click();
-      cy.get('[role="menu"]').contains(labelDisable).click();
+      const menu = await openMoreActions();
+
+      await userEvent.click(within(menu).getByText(labelDisable));
 
       // Waiting on the second host is the whole point: patching only `ids[0]`
       // while reporting the entire selection as done is the bug this pins, and
       // it is invisible if you assert on the first host.
-      cy.waitForRequest('@patchHost2').then(({ request }) => {
-        expect(request.body).to.deep.equal({ activated: false });
-      });
+      const { request } = await waitForRequest('@patchHost2');
+
+      expect(request.body).toEqual({ activated: false });
     });
 
     describe('Read-only ACL user: ', () => {
-      beforeEach(() => {
-        initialize({ hasWriteAccess: false });
-
-        cy.waitForRequest('@getAllHosts');
+      beforeEach(async () => {
+        await initializeListing({ hasWriteAccess: false });
       });
 
       it('keeps the services icon and the toggle, the latter disabled', () => {
-        cy.findByTestId('go-to-services_0').should('be.visible');
+        expect(screen.getByTestId('go-to-services_0')).toBeVisible();
 
-        cy.findByTestId(`${labelEnableDisable}_0`)
-          .find('input')
-          .should('be.disabled');
-
-        cy.makeSnapshot();
+        expect(
+          within(screen.getByTestId(`${labelEnableDisable}_0`)).getByRole(
+            'checkbox'
+          )
+        ).toBeDisabled();
       });
 
       it('hides the add button, more actions and the row write actions', () => {
-        cy.findByTestId(labelMoreActions).should('not.exist');
-        cy.findByTestId('add-resource').should('not.exist');
-        cy.findByTestId(`${labelDelete}_0`).should('not.exist');
-        cy.findByTestId(`${labelDuplicate}_0`).should('not.exist');
+        expect(screen.queryByTestId(labelMoreActions)).not.toBeInTheDocument();
+        expect(screen.queryByTestId('add-resource')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(`${labelDelete}_0`)
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(`${labelDuplicate}_0`)
+        ).not.toBeInTheDocument();
       });
     });
   });
