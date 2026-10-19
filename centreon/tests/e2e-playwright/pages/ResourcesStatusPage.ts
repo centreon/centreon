@@ -106,10 +106,14 @@ export class ResourcesStatusPage extends BasePage {
 
   /** The listing row that contains a given resource name. */
   private listingRow(name: string): Locator {
-    return this.page
-      .getByRole('row')
-      .filter({ hasText: name })
-      .describe(`listing row "${name}"`);
+    return (
+      this.page
+        .getByRole('row')
+        .filter({ hasText: name })
+        // The listing also renders rows out of sight to measure them.
+        .filter({ visible: true })
+        .describe(`listing row "${name}"`)
+    );
   }
 
   /** The enabled-only-when-a-row-is-selected toolbar "Acknowledge" button. */
@@ -120,23 +124,20 @@ export class ResourcesStatusPage extends BasePage {
   }
 
   /**
-   * Tick the selection checkbox of a resource row. The listing is virtualized
-   * and auto-refreshes, so the click can race with a re-render; retry until the
-   * toolbar "Acknowledge" action becomes enabled (the signal a row is selected).
+   * Tick the selection checkbox of a resource row. The hovered row keeps its
+   * previous render until the pointer leaves it, so the state is read with the
+   * pointer away from the listing.
    */
   async selectResource(name: string): Promise<void> {
     await test.step(`Select resource "${name}"`, async () => {
       const checkbox = this.listingRow(name).getByRole('checkbox').first();
-      // Ensure the row ends up selected. Use the checkbox state as the signal —
-      // it is universal, unlike the Acknowledge button which only enables for
-      // problem resources (so it would never enable for an OK downtime target).
-      // The virtualized listing can drop a click, so retry until checked.
-      await expect(async () => {
-        if (!(await checkbox.isChecked())) {
-          await checkbox.click();
-        }
-        await expect(checkbox).toBeChecked({ timeout: 2_000 });
-      }).toPass({ timeout: 30_000 });
+      const leaveListing = () => this.page.mouse.move(5, 5);
+      await leaveListing();
+      if (!(await checkbox.isChecked())) {
+        await checkbox.click();
+        await leaveListing();
+      }
+      await expect(checkbox).toBeChecked();
     });
   }
 
@@ -162,26 +163,93 @@ export class ResourcesStatusPage extends BasePage {
     });
   }
 
+  /** Open the toolbar "More actions" menu. */
+  private async openMoreActions(): Promise<void> {
+    await this.page.getByLabel('More actions', { exact: true }).first().click();
+    // Its hover tooltip would cover the first item of the menu.
+    await this.page.mouse.move(5, 5);
+  }
+
   /** Disacknowledge the current selection through the "More actions" menu. */
   async disacknowledgeSelected(): Promise<void> {
     await test.step('Disacknowledge the selected resource', async () => {
-      await this.page
-        .getByLabel('More actions', { exact: true })
-        .last()
-        .click();
-      await this.page
-        .getByTestId('Multiple Disacknowledge')
-        .click({ force: true });
-
-      // The "Disacknowledge" confirmation dialog shares the generic Confirm
-      // button (data-testid="Confirm"), labelled "Disacknowledge".
+      await this.openMoreActions();
+      await this.page.getByTestId('Multiple Disacknowledge').click();
       const disacknowledged = this.page.waitForResponse(
         (response) =>
           response.url().includes('/monitoring/resources/acknowledgements') &&
           response.request().method() === 'DELETE'
       );
-      await this.page.getByTestId('Confirm').click();
+      await this.page
+        .getByRole('dialog')
+        .getByLabel('Disacknowledge', { exact: true })
+        .click();
       await disacknowledged;
+    });
+  }
+
+  /** Set a downtime with the default settings on the current selection. */
+  async setDowntimeOnSelection(): Promise<void> {
+    await test.step('Set a downtime on the selection', async () => {
+      await this.page.getByTestId('mainSetDowntime').click();
+      const sent = this.page.waitForResponse(
+        (response) =>
+          response.url().includes('/monitoring/resources/downtime') &&
+          response.request().method() === 'POST'
+      );
+      await this.page
+        .getByRole('dialog')
+        .getByLabel('Set downtime', { exact: true })
+        .click();
+      await sent;
+    });
+  }
+
+  /** Submit a passive result to the selected resource. */
+  async submitStatusOnSelection(status: string, output: string): Promise<void> {
+    await test.step(`Submit the "${status}" status`, async () => {
+      await this.page
+        .getByLabel('More actions', { exact: true })
+        .last()
+        .click();
+      await this.page.getByTestId('Submit a status').click();
+      const dialog = this.page.getByRole('dialog');
+      await dialog.getByRole('combobox').first().click();
+      await this.page
+        .getByRole('option', { exact: true, name: status })
+        .click();
+      await dialog.getByLabel('Output').fill(output);
+      const sent = this.page.waitForResponse(
+        (response) =>
+          response.url().includes('/monitoring/resources/submit') &&
+          response.request().method() === 'POST'
+      );
+      await dialog.getByTestId('Confirm').click();
+      await sent;
+    });
+  }
+
+  /**
+   * Export the listing to CSV (all columns, all pages) and return the file
+   * the new tab receives.
+   */
+  async exportCsv(): Promise<string> {
+    return test.step('Export the listing to CSV', async () => {
+      await this.page.getByRole('button', { name: 'exportCsvButton' }).click();
+      const dialog = this.page.getByRole('dialog');
+      await expect(dialog.getByTestId('All pages')).toBeChecked();
+      const exported = this.page
+        .context()
+        .waitForEvent('response', (response) =>
+          response.url().includes('/monitoring/resources/export')
+        );
+      await dialog.getByRole('button', { name: 'Export' }).click();
+      // The tab downloads the file: fetch the same URL with the session.
+      const response = await exported;
+      const file = await this.page.request.get(response.url());
+      expect(file.ok()).toBeTruthy();
+
+      return file.text();
     });
   }
 

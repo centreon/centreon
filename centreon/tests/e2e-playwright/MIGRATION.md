@@ -62,3 +62,18 @@ Tracked in the README coverage section, family by family.
 - The React shell reloads the legacy iframe after each form submission, which
   detached the elements Cypress and the first Playwright tests acted on:
   `LegacyListingPage` opens `main.get.php`, the document the iframe shows.
+- **Bug** — when the engine receives a downtime and its cancellation in the
+  same batch (a cancellation sent right after the creation), it cancels the
+  downtime, then starts it: the resource stays in downtime, and the API refuses
+  to cancel it again ("already cancelled").
+- **Bug** — in the Resources Status listing, the checkbox of the hovered row
+  keeps its previous render: a click selects the row but shows it checked only
+  once the pointer leaves the row.
+- An acknowledgement forces an active check by default
+  (`monitoring_default_acknowledgement_force_active_checks`): on the former
+  fixture host (`127.0.0.1`) the ping recovered the services and dropped the
+  acknowledgement, which is why the POC skipped those tests. The fixture host
+  now uses a non-routable address, so forced checks agree with the CRITICAL
+  results.
+- Passive services update their downtime state with their next result only:
+  the tests push results until the state follows.

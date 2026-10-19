@@ -27,7 +27,13 @@ const serviceNames = [...criticalServiceNames, okServiceName];
 
 /** CLAPI actions that create the host, its services and apply the config. */
 export const resourcesProvisioningActions: Array<ClapiAction> = [
-  ...hostActions({ name: resourcesHostName, template: 'generic-host' }),
+  // A non-routable address (TEST-NET-1): the active check an acknowledgement
+  // forces by default then agrees with the CRITICAL results pushed here.
+  ...hostActions({
+    address: '192.0.2.1',
+    name: resourcesHostName,
+    template: 'generic-host'
+  }),
   ...serviceNames.flatMap((name) =>
     serviceActions({ host: resourcesHostName, name, template: 'Ping-LAN' })
   ),

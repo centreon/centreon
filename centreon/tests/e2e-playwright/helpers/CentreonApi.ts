@@ -23,6 +23,7 @@ export interface MonitoredService {
   name: string;
   status: string;
   acknowledged: boolean;
+  inDowntime: boolean;
   parentId: number | null;
 }
 
@@ -136,14 +137,14 @@ export class CentreonApi {
     path: string,
     data?: unknown
   ): Promise<T> {
-    const response = CentreonApi.ok(
-      await this.context.fetch(`${this.base}/api/latest${path}`, {
-        data,
-        method
-      }),
-      `${method} ${path}`
+    const response = await this.context.fetch(
+      `${this.base}/api/latest${path}`,
+      { data, method }
     );
     const body = await response.text();
+    if (!response.ok()) {
+      throw new Error(`${method} ${path} failed: ${response.status()} ${body}`);
+    }
 
     return (body ? JSON.parse(body) : undefined) as T;
   }
@@ -273,7 +274,7 @@ export class CentreonApi {
   }
 
   /** Service resources currently known to the monitoring engine. */
-  private async monitoredServices(): Promise<Array<MonitoredService>> {
+  async monitoredServices(): Promise<Array<MonitoredService>> {
     const types = encodeURIComponent('["service"]');
     const response = CentreonApi.ok(
       await this.context.get(
@@ -286,17 +287,64 @@ export class CentreonApi {
         id: number;
         name: string;
         is_acknowledged?: boolean;
+        is_in_downtime?: boolean;
         status?: { name?: string } | null;
         parent?: { id: number } | null;
       }>;
     };
-    return result.map(({ id, name, is_acknowledged, status, parent }) => ({
-      acknowledged: is_acknowledged ?? false,
-      id,
-      name,
-      parentId: parent?.id ?? null,
-      status: status?.name ?? 'PENDING'
-    }));
+    return result.map(
+      ({ id, name, is_acknowledged, is_in_downtime, status, parent }) => ({
+        acknowledged: is_acknowledged ?? false,
+        id,
+        inDowntime: is_in_downtime ?? false,
+        name,
+        parentId: parent?.id ?? null,
+        status: status?.name ?? 'PENDING'
+      })
+    );
+  }
+
+  /** The current monitoring state of a service, for assertions to poll. */
+  async serviceState(name: string): Promise<MonitoredService | undefined> {
+    return (await this.monitoredServices()).find(
+      (entry) => entry.name === name
+    );
+  }
+
+  /**
+   * Cancel the downtimes of a service and push results until its state
+   * follows: passive services only update their state with a new result.
+   */
+  async clearServiceDowntimes(
+    host: string,
+    name: string,
+    status: SubmitResult['status']
+  ): Promise<void> {
+    const { id, parentId } = await this.getServiceResource(name);
+    const { result } = await this.v2<{ result: Array<{ id: number }> }>(
+      'GET',
+      `/monitoring/hosts/${parentId}/services/${id}/downtimes`
+    );
+    for (const downtime of result) {
+      // The listing keeps the downtimes already cancelled, refused here.
+      await this.v2('DELETE', `/monitoring/downtimes/${downtime.id}`).catch(
+        (error: Error) => {
+          if (!error.message.includes('already cancelled')) {
+            throw error;
+          }
+        }
+      );
+    }
+    const deadline = Date.now() + 90_000;
+    while ((await this.serviceState(name))?.inDowntime) {
+      if (Date.now() > deadline) {
+        throw new Error(`service "${name}" still in downtime`);
+      }
+      await this.submitResults([
+        { host, output: `${status} set by Playwright`, service: name, status }
+      ]);
+      await sleep(3_000);
+    }
   }
 
   /** Whether every requested service is already known to the engine. */
