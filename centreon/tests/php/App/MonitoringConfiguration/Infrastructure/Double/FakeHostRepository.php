@@ -268,6 +268,11 @@ final class FakeHostRepository implements HostRepository
         );
     }
 
+    public function countAll(): int
+    {
+        return \count($this->hosts);
+    }
+
     private function indexParentEdges(int $id, Host $host): void
     {
         foreach ($host->parentHostIds as $parentId) {

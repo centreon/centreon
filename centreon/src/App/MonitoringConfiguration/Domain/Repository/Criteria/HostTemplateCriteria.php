@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
@@ -37,7 +38,8 @@ final class HostTemplateCriteria implements PaginableCriteria
 
     private ?string $name = null;
 
-    private bool $excludeLocked = false;
+    /** @var list<int> */
+    private array $excludedIds = [];
 
     public function withId(HostTemplateId $id): self
     {
@@ -68,16 +70,22 @@ final class HostTemplateCriteria implements PaginableCriteria
         return $this->name;
     }
 
-    public function withExcludeLocked(bool $exclude): self
+    /**
+     * @param Collection<HostTemplateId> $ids
+     */
+    public function withExcludedIds(Collection $ids): self
     {
         $new = clone $this;
-        $new->excludeLocked = $exclude;
+        $new->excludedIds = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $ids->toArray()));
 
         return $new;
     }
 
-    public function excludeLocked(): bool
+    /**
+     * @return list<int>
+     */
+    public function getExcludedIds(): array
     {
-        return $this->excludeLocked;
+        return $this->excludedIds;
     }
 }

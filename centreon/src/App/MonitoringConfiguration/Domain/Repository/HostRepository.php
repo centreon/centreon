@@ -149,4 +149,9 @@ interface HostRepository
      * @return Collection<HostId>
      */
     public function findAncestorIds(Collection $ids, ?HostId $excludingHostId = null): Collection;
+
+    /**
+     * Every host of the platform, enabled or not, host templates left out. Not ACL-scoped.
+     */
+    public function countAll(): int;
 }
