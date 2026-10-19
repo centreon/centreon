@@ -93,7 +93,7 @@ export class LegacyListingPage extends BasePage {
     const link = this.row(name)
       .getByRole('link', { exact: true, name })
       .first();
-    const href = (await link.getAttribute('href')) ?? '';
+    const href = ((await link.getAttribute('href')) ?? '').replace(/^\.\//, '');
     if (href.startsWith('main.php')) {
       // Some listings link to the React shell: open the document it frames.
       await this.goto(`/centreon/${href.replace('main.php', 'main.get.php')}`);
