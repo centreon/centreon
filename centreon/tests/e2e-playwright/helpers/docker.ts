@@ -53,9 +53,9 @@ export const execInWebContainer = (command: string): string =>
  * with the credentials of the platform: for states no API can set, such as an
  * old password.
  */
-export const queryCentreonDb = (sql: string): string =>
+export const queryCentreonDb = (sql: string, database = 'centreon'): string =>
   execInWebContainer(
-    `mysql -h db -u centreon -p"$(php -r 'include "/etc/centreon/centreon.conf.php"; echo $conf_centreon["password"];')" centreon -N -e ${JSON.stringify(sql)}`
+    `mysql -h db -u centreon -p"$(php -r 'include "/etc/centreon/centreon.conf.php"; echo $conf_centreon["password"];')" ${database} -N -e ${JSON.stringify(sql)}`
   );
 
 /** Names of the compose services currently in the "running" state. */

@@ -48,4 +48,53 @@ export class DowntimesListingPage extends BasePage {
       ]);
     });
   }
+
+  /**
+   * Schedule a downtime on a service from the legacy form, with the dates
+   * (MM/DD/YYYY) and times (HH:mm) read in the timezone of the user.
+   */
+  async schedule({
+    end,
+    hostId,
+    serviceId,
+    start
+  }: {
+    end: { date: string; time: string };
+    hostId: number;
+    serviceId: number;
+    start: { date: string; time: string };
+  }): Promise<void> {
+    await test.step(`Schedule a downtime from ${start.date} ${start.time} to ${end.date} ${end.time}`, async () => {
+      await this.goto(
+        `/centreon/main.get.php?p=21001&o=a&host_id=${hostId}&service_id=${serviceId}`
+      );
+      // The datepicker alert()s on DST wall-clock times it finds inconsistent.
+      const accept = (dialog: { accept: () => Promise<void> }) =>
+        void dialog.accept();
+      this.page.on('dialog', accept);
+      try {
+        for (const [field, value] of [
+          ['start', start.date],
+          ['start_time', start.time],
+          ['end', end.date],
+          ['end_time', end.time]
+        ]) {
+          // The datepicker copies the value to its hidden field on key events.
+          const input = this.page.locator(`input[name="${field}"]`);
+          await input.fill('');
+          await input.pressSequentially(value);
+        }
+        // The datepicker can recompute the end time from the duration.
+        await expect(this.page.locator('input[name="end_time"]')).toHaveValue(
+          end.time
+        );
+        await Promise.all([
+          this.page.waitForEvent('load'),
+          this.page.locator('input[name="submitA"]').first().click()
+        ]);
+      } finally {
+        this.page.off('dialog', accept);
+      }
+    });
+  }
 }

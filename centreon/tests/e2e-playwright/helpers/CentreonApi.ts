@@ -337,19 +337,11 @@ export class CentreonApi {
     );
   }
 
-  /**
-   * Cancel the downtimes of a service and push results until its state
-   * follows: passive services only update their state with a new result.
-   */
-  async clearServiceDowntimes(
-    host: string,
-    name: string,
-    status: SubmitResult['status']
-  ): Promise<void> {
-    const { id, parentId } = await this.getServiceResource(name);
+  /** Cancel every downtime of a service, scheduled or running. */
+  async cancelServiceDowntimes(hostId: number, serviceId: number): Promise<void> {
     const { result } = await this.v2<{ result: Array<{ id: number }> }>(
       'GET',
-      `/monitoring/hosts/${parentId}/services/${id}/downtimes`
+      `/monitoring/hosts/${hostId}/services/${serviceId}/downtimes`
     );
     for (const downtime of result) {
       // The listing keeps the downtimes already cancelled, refused here.
@@ -361,6 +353,19 @@ export class CentreonApi {
         }
       );
     }
+  }
+
+  /**
+   * Cancel the downtimes of a service and push results until its state
+   * follows: passive services only update their state with a new result.
+   */
+  async clearServiceDowntimes(
+    host: string,
+    name: string,
+    status: SubmitResult['status']
+  ): Promise<void> {
+    const { id, parentId } = await this.getServiceResource(name);
+    await this.cancelServiceDowntimes(parentId, id);
     const deadline = Date.now() + 90_000;
     while ((await this.serviceState(name))?.inDowntime) {
       if (Date.now() > deadline) {
@@ -416,14 +421,16 @@ export class CentreonApi {
   }
 
   /** Resolve a monitored service to the ids needed by the acknowledge API. */
-  async getServiceResource(name: string): Promise<MonitoredService> {
+  async getServiceResource(
+    name: string
+  ): Promise<MonitoredService & { parentId: number }> {
     const service = (await this.monitoredServices()).find(
       (entry) => entry.name === name
     );
     if (!service || service.parentId === null) {
       throw new Error(`monitored service "${name}" not found`);
     }
-    return service;
+    return { ...service, parentId: service.parentId };
   }
 
   /** Acknowledge a service resource (sticky, persistent, no notification). */

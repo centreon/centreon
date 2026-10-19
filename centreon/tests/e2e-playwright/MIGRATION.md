@@ -93,3 +93,13 @@ Tracked in the README coverage section, family by family.
 - The Web SSO scenarios never signed in (Cypress could not set the login
   header); the migrated tests do, and check the login pattern and the trusted
   client addresses.
+- The downtime form script reads the times in the browser timezone: in
+  Europe/Paris it finds the end of a window starting in the spring-forward gap
+  inconsistent and moves it by the duration. The DST tests pin the browser to
+  UTC, like the CI runners, so that the server-side conversion is what they
+  check. The datepicker also needs key events to fill its hidden date fields.
+- Recurrent downtimes are created through CLAPI: the DST logic lives in the
+  cron, which the tests run under faketime, reading the commands it emits and
+  removing them before they reach the engine.
+- Downtime/04 (a fixed downtime starts and ends on time) waits for real
+  minutes; postponed.
