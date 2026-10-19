@@ -609,6 +609,19 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         );
     }
 
+    public function countAll(): int
+    {
+        /** @var int|string $count */
+        $count = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from(self::TABLE_NAME)
+            ->where("host_register = '1'")
+            ->executeQuery()
+            ->fetchOne();
+
+        return (int) $count;
+    }
+
     /**
      * Full replace of a host's relations, complementing {@see update()}, which writes its own fields and
      * its poller. Every relation table (host groups, categories and severity, templates, parents and
@@ -627,15 +640,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
 
         $this->clearRelations($hostId);
         $this->insertRelations($hostId, $host);
-    }
-
-    private function lockPoller(int $pollerId): void
-    {
-        $this->connection->executeQuery(
-            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
-            ['poller_id' => $pollerId],
-            ['poller_id' => ParameterType::INTEGER],
-        );
     }
 
     /**

@@ -38,8 +38,11 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DataProcessing
 {
-    /** Seconds a Centreon Monitoring Agent host may stay silent before its result is considered stale. */
-    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 120;
+    /**
+     * Seconds a Centreon Monitoring Agent host may stay silent before its result is considered stale.
+     * Keep in sync with {@see \Core\Command\Domain\Model\Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD}.
+     */
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 500;
 
     /**
      * @param list<string> $eventHandlerArgs

@@ -83,4 +83,15 @@ interface HostTemplateRepository
      * @return list<int> service template ids
      */
     public function findServiceTemplateIds(Collection $templateIds): array;
+
+    /**
+     * The host templates of the Monitoring Connectors, and every template inheriting from them.
+     * Empty when the plugin pack manager module, which provides the Monitoring Connectors, is not
+     * installed.
+     *
+     * @param list<string> $excludedConnectorSlugs the Monitoring Connectors whose templates are left out
+     *
+     * @return Collection<HostTemplateId>
+     */
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
 }

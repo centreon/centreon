@@ -36,38 +36,6 @@ $errorMessage = '';
 
 // TODO add your functions here
 
-$fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to fix the gorgone_communication_type column comment';
-    LoggerUpgrade::create()->info($version, 'Fixing the gorgone_communication_type column comment');
-
-    $pearDB->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `nagios_server`
-            MODIFY COLUMN `gorgone_communication_type`
-            enum('1','2','3','4') NOT NULL DEFAULT '1'
-            COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS'
-            SQL
-    );
-
-    LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
-};
-
-$realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, $version): void {
-    $errorMessage = "Unable to realign command audit logs to the 'command' object type";
-    LoggerUpgrade::create()->info($version, "Realigning command audit logs from 'commands' to 'command'");
-
-    // The ActivityLogging system used to store command changes under the plural
-    // 'commands' token, which the Administration > Logs Type filter (bound on the
-    // canonical singular 'command') could never match. Realign the existing rows.
-    $pearDBO->update(
-        <<<'SQL'
-            UPDATE `log_action` SET `object_type` = 'command' WHERE `object_type` = 'commands'
-            SQL
-    );
-
-    LoggerUpgrade::create()->info($version, "Successfully realigned command audit logs to 'command'");
-};
-
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -75,9 +43,7 @@ try {
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    $fixGorgoneCommunicationTypeComment();
-
-    $realignCommandActionLogObjectType();
+    // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
     $errorMessage = 'Unable to start the configuration database transaction';
