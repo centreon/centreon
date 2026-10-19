@@ -3,9 +3,9 @@ name: helm
 # Helm charts under .github/helm/<chart>/ (MON-212455):
 # - pull request: lint, render and schema-check every chart, require a version bump
 # - push on develop / dev-XX.XX.x: publish a pre-release (<version>-<branch>.<run>) to Harbor
-# - push on master / XX.XX.x: publish <version> to Harbor, then promote that exact
+# - push on XX.XX.x: publish <version> to Harbor, then promote that exact
 #   artifact (same digest) to ghcr.io and Pulp dev, like the container images
-#   promoted by web.yml (stable, on-prem only)
+#   promoted by web.yml (stable, on-prem only; master is the cloud stable branch)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -22,7 +22,6 @@ on:
     branches:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
-      - master
       - "[2-9][0-9].[0-9][0-9].x"
     paths:
       - ".github/helm/**"
