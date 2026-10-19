@@ -192,7 +192,7 @@ final class CommandResource
             'items' => [
                 'type' => 'object',
                 'properties' => [
-                    'id' => ['type' => 'integer', 'nullable' => true],
+                    'id' => ['type' => ['integer', 'null']],
                     'name' => ['type' => 'string'],
                     'type' => ['type' => 'string', 'enum' => ['host', 'service']],
                 ],

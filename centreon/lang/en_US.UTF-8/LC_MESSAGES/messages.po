@@ -3677,6 +3677,10 @@ msgid "Create a dashboard"
 msgstr "Create a dashboard"
 
 #: centreon/www/install/front_translate.php
+msgid "Create a host"
+msgstr "Create a host"
+
+#: centreon/www/install/front_translate.php
 msgid "Create a new resource access rule"
 msgstr "Create a new resource access rule"
 
@@ -4499,6 +4503,7 @@ msgid "Dependent Services"
 msgstr "Dependent Services"
 
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/install/front_translate.php
 msgid "Deploy Service"
 msgstr "Deploy Service"
 
@@ -4838,6 +4843,7 @@ msgid "Display Top Counter pollers statistics"
 msgstr "Display Top Counter pollers statistics"
 
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/install/front_translate.php
 msgid "Display all Services for this host"
 msgstr "Display all Services for this host"
 
@@ -5334,6 +5340,10 @@ msgstr "Downtimes"
 #: centreon/www/install/front_translate.php
 msgid "Drag handle"
 msgstr "Drag handle"
+
+#: centreon/www/install/front_translate.php
+msgid "Drag to reorder"
+msgstr "Drag to reorder"
 
 #: centreon/www/install/front_translate.php
 msgid "Drop or"
@@ -8962,6 +8972,7 @@ msgid "IP Address"
 msgstr "IP Address"
 
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/install/front_translate.php
 msgid "IP Address / DNS"
 msgstr "IP Address / DNS"
 
@@ -12946,6 +12957,10 @@ msgstr "Periods"
 msgid "Persistent"
 msgstr "Persistent"
 
+#: centreon/www/install/front_translate.php
+msgid "Picked up row {{position}}"
+msgstr "Picked up row {{position}}"
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Pie chart"
 msgstr "Pie chart"
@@ -13782,6 +13797,12 @@ msgstr "Removed"
 msgid "Rename"
 msgstr "Rename"
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"Reordering cancelled, row {{position}} returned to its original position"
+msgstr ""
+"Reordering cancelled, row {{position}} returned to its original position"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -14283,6 +14304,14 @@ msgstr "Route definition"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Route parameters"
 msgstr "Route parameters"
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} dropped at position {{newPosition}}"
+msgstr "Row {{position}} dropped at position {{newPosition}}"
+
+#: centreon/www/install/front_translate.php
+msgid "Row {{position}} moved to position {{newPosition}}"
+msgstr "Row {{position}} moved to position {{newPosition}}"
 
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
@@ -15191,6 +15220,10 @@ msgstr "Service check latency"
 msgid "Service dependency"
 msgstr "Service dependency"
 
+#: centreon/www/install/front_translate.php
+msgid "Service deployment failed."
+msgstr "Service deployment failed."
+
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
 msgid "Service description cannot be empty"
 msgstr "Service description cannot be empty"
@@ -15481,6 +15514,10 @@ msgstr "Services by host"
 #: centreon/www/install/menu_translation.php
 msgid "Services by host group"
 msgstr "Services by host group"
+
+#: centreon/www/install/front_translate.php
+msgid "Services deployed successfully!"
+msgstr "Services deployed successfully!"
 
 #: centreon/www/include/monitoring/status/Services/serviceGridJS.php
 #: centreon/www/include/monitoring/status/Services/serviceSummaryJS.php
@@ -16500,6 +16537,7 @@ msgstr "Template name is already in use"
 #: centreon/www/include/configuration/configObject/service/listServiceByHost.php
 #: centreon/www/include/configuration/configObject/service/listServiceByHostGroup.php
 #: centreon/www/include/configuration/configObject/service_template_model/listServiceTemplateModel.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Templates"
 msgstr "Templates"
@@ -17568,6 +17606,14 @@ msgstr "To"
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "To manually request a LDAP synchronization of a contact"
 msgstr "To manually request a LDAP synchronization of a contact"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"To pick up a row, press space or enter. Use the arrow keys to move it, then "
+"press space or enter to drop it, or escape to cancel."
+msgstr ""
+"To pick up a row, press space or enter. Use the arrow keys to move it, then "
+"press space or enter to drop it, or escape to cancel."
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid ""
@@ -18829,6 +18875,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
 msgstr "Welcome to the Dashboards interface!"
+
+#: centreon/www/install/front_translate.php
+msgid "Welcome to the Hosts interface!"
+msgstr "Welcome to the Hosts interface!"
 
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the additional configurations page"

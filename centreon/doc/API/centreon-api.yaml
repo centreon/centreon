@@ -108,12 +108,12 @@ tags:
     description: "Resource 'NotificationContact' operations."
   - name: TimePeriod
     description: "Resource 'TimePeriod' operations."
-  -
-    name: HostSeverity
+  - name: HostSeverity
     description: "Resource 'HostSeverity' operations."
-  -
-    name: HostAddressResolution
+  - name: HostAddressResolution
     description: "Resource 'HostAddressResolution' operations."
+  - name: ContactGroup
+    description: "Resource 'ContactGroup' operations."
 security:
   -
     Token: []
@@ -5761,6 +5761,407 @@ paths:
             type: string
           style: form
           explode: true
+  /api/configuration/contact_groups:
+    get:
+      operationId: api_configurationcontact_groups_get_collection
+      tags:
+        - ContactGroup
+      responses:
+        '200':
+          description: 'ContactGroup collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'ContactGroup.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/ContactGroup.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactGroup'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of ContactGroup resources.'
+      description: 'Retrieves the collection of ContactGroup resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  '/api/configuration/hosts/{id}':
+    get:
+      operationId: api_configurationhosts_id_get
+      tags:
+        - Host
+      responses:
+        '403':
+          description: 'You are not allowed to view hosts'
+        '404':
+          description: 'Host not found'
+        '200':
+          description: 'Host resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Host.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+      summary: 'Retrieves a Host resource.'
+      description: 'Retrieves a Host resource.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Host identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    put:
+      operationId: api_configurationhosts_id_put
+      tags:
+        - Host
+      responses:
+        '404':
+          description: 'Host not found'
+        '409':
+          description: 'Host name already used by another host or template'
+        '422':
+          description: 'Invalid input, or a referenced resource that does not exist or is not accessible'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '200':
+          description: 'Host resource updated'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Host.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Replaces the Host resource.'
+      description: 'Fully update a single host (replace semantics).'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Host identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Host resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Host.UpdateHostInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Host.UpdateHostInput'
+        required: true
+    delete:
+      operationId: api_configurationhosts_id_delete
+      tags:
+        - Host
+      responses:
+        '204':
+          description: 'Host resource deleted'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Removes the Host resource.'
+      description: 'Removes the Host resource.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Host identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+    patch:
+      operationId: api_configurationhosts_id_patch
+      tags:
+        - Host
+      responses:
+        '204':
+          description: 'Host updated (or left as it was when nothing changed)'
+          links: {}
+        '404':
+          description: 'Host not found'
+        '409':
+          description: 'A host or host template already uses this name'
+        '422':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '502':
+          description: 'The vault could not be reached'
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Updates the Host resource.'
+      description: 'Partially updates a host: a key left out is left untouched, a key sent as null clears the value when it can be cleared. The host groups, categories, templates, parents, children, contacts, contact groups and notification options each have three keys, of which only one can be sent: the list is replaced, added to ("_to_add") or removed from ("_to_remove"). The custom macros (in "check_options") also have three keys, of which only one can be sent: "macros" replaces them, "macros_to_upsert" writes the macros given and keeps the other ones, and "macros_to_remove" removes macros by id.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Host identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The updated Host resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/Host.PatchHostInput.jsonMergePatch'
+        required: true
+  '/api/configuration/hosts/{id}/_duplicate':
+    post:
+      operationId: api_configurationhosts_id_duplicate_post
+      tags:
+        - Host
+      responses:
+        '204':
+          description: 'Host duplicated'
+          links: {}
+        '403':
+          description: 'You are not allowed to duplicate hosts'
+        '404':
+          description: 'Host not found'
+        '409':
+          description: 'A host with the generated name already exists'
+        '422':
+          description: 'The generated host name would exceed the maximum length'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Duplicate a host'
+      description: 'Duplicates a single host. The copy takes the source name with the first free "_<n>" suffix. Unitary, not a bulk operation.'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Host identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+      requestBody:
+        description: 'The new Host resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Host'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Host'
+        required: true
+  '/api/configuration/hosts/host_templates/{id}':
+    get:
+      operationId: api_configurationhostshost_templates_id_get
+      tags:
+        - HostTemplate
+      responses:
+        '403':
+          description: 'You are not allowed to access host templates'
+        '404':
+          description: 'Host template not found'
+        '200':
+          description: 'HostTemplate resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostTemplate.HostTemplateMacrosOutput'
+      summary: "Get a host template's own and inherited macros, to prefill a new host"
+      description: "Get a host template's own and inherited macros, to prefill a new host"
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'HostTemplate identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:
@@ -9655,6 +10056,31 @@ components:
     Command:
       type: object
       properties:
+        macros:
+          readOnly: true
+          description: 'The on-demand macros used in the command line ($_HOSTxxx$ and $_SERVICExxx$). The id is null when the macro is not stored'
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type:
+                  - integer
+                  - 'null'
+              name:
+                type: string
+              type:
+                type: string
+                enum:
+                  - host
+                  - service
+          example:
+            - id: 1
+              name: USERNAME
+              type: host
+            - id: null
+              name: PORT
+              type: service
         id:
           type: integer
         name:
@@ -9705,6 +10131,12 @@ components:
             - string
             - 'null'
           example: 'This command is used to check the HTTP service'
+        macros_loader:
+          writeOnly: true
+          description: |-
+            Macros are loaded lazily: only when the resource is serialized, so DELETE and the
+            PATCH provider (whose resource is never rendered) do not query them.
+          type: string
     Command.DuplicateCommandInput:
       type: object
       description: ''
@@ -9733,6 +10165,23 @@ components:
         -
           type: object
           properties:
+            macros:
+              readOnly: true
+              description: 'The on-demand macros used in the command line ($_HOSTxxx$ and $_SERVICExxx$). The id is null when the macro is not stored'
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: [integer, 'null'] }
+                  name: { type: string }
+                  type: { type: string, enum: [host, service] }
+              example:
+                - id: 1
+                  name: USERNAME
+                  type: host
+                - id: null
+                  name: PORT
+                  type: service
             id:
               type: integer
             name:
@@ -9783,6 +10232,12 @@ components:
                 - string
                 - 'null'
               example: 'This command is used to check the HTTP service'
+            macros_loader:
+              writeOnly: true
+              description: |-
+                Macros are loaded lazily: only when the resource is serialized, so DELETE and the
+                PATCH provider (whose resource is never rendered) do not query them.
+              type: string
     Connector:
       type: object
       properties:
@@ -9928,6 +10383,31 @@ components:
     Command.jsonMergePatch:
       type: object
       properties:
+        macros:
+          readOnly: true
+          description: 'The on-demand macros used in the command line ($_HOSTxxx$ and $_SERVICExxx$). The id is null when the macro is not stored'
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type:
+                  - integer
+                  - 'null'
+              name:
+                type: string
+              type:
+                type: string
+                enum:
+                  - host
+                  - service
+          example:
+            - id: 1
+              name: USERNAME
+              type: host
+            - id: null
+              name: PORT
+              type: service
         id:
           type: integer
         name:
@@ -9978,6 +10458,12 @@ components:
             - string
             - 'null'
           example: 'This command is used to check the HTTP service'
+        macros_loader:
+          writeOnly: true
+          description: |-
+            Macros are loaded lazily: only when the resource is serialized, so DELETE and the
+            PATCH provider (whose resource is never rendered) do not query them.
+          type: string
     ConstraintViolation:
       type: object
       description: 'Unprocessable entity'
@@ -10917,17 +11403,15 @@ components:
       type: object
       properties:
         poller:
-          $ref: '#/components/schemas/PollerChoicesOutput'
+          $ref: '#/components/schemas/HostPollerOutput'
         templates:
           type: array
           items:
             $ref: '#/components/schemas/HostTemplateOutput'
         icon:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostIconOutput'
+            - type: 'null'
         id:
           type: integer
         name:
@@ -10947,17 +11431,15 @@ components:
           type: object
           properties:
             poller:
-              $ref: '#/components/schemas/PollerChoicesOutput.jsonld'
+              $ref: '#/components/schemas/HostPollerOutput.jsonld'
             templates:
               type: array
               items:
                 $ref: '#/components/schemas/HostTemplateOutput.jsonld'
             icon:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostIconOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostIconOutput.jsonld'
+                - type: 'null'
             id:
               type: integer
             name:
@@ -11002,7 +11484,7 @@ components:
       type: object
       properties:
         poller:
-          $ref: '#/components/schemas/PollerChoicesOutput'
+          $ref: '#/components/schemas/HostPollerOutput'
         templates:
           type: array
           items:
@@ -11027,32 +11509,24 @@ components:
             $ref: '#/components/schemas/RelatedHostOutput'
         timezone:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostTimezoneOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostTimezoneOutput'
+            - type: 'null'
         severity:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostSeverityOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostSeverityOutput'
+            - type: 'null'
         extended_informations:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostExtendedInformationsOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostExtendedInformationsOutput'
+            - type: 'null'
         scheduling_options:
           $ref: '#/components/schemas/HostSchedulingOptionsOutput'
         check_options:
           $ref: '#/components/schemas/HostCheckOptionsOutput'
         notifications:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostNotificationsOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostNotificationsOutput'
+            - type: 'null'
         id:
           type: integer
         name:
@@ -11074,6 +11548,9 @@ components:
             - 2c
             - '3'
             - null
+        is_snmp_community_defined:
+          description: 'Whether an SNMP community is set. The community itself is never returned.'
+          type: boolean
     Host.CreateHostInput:
       type: object
       required:
@@ -11151,10 +11628,8 @@ components:
             type: integer
         data_processing:
           anyOf:
-            -
-              $ref: '#/components/schemas/DataProcessingInput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/DataProcessingInput'
+            - type: 'null'
         create_services_linked_to_templates:
           description: 'Not available on a Cloud platform, where linked services are always created. Defaults to true.'
           type:
@@ -11162,28 +11637,20 @@ components:
             - 'null'
         extended_informations:
           anyOf:
-            -
-              $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            - type: 'null'
         scheduling_options:
           anyOf:
-            -
-              $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            - type: 'null'
         check_options:
           anyOf:
-            -
-              $ref: '#/components/schemas/CheckOptionsInput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/CheckOptionsInput'
+            - type: 'null'
         notifications:
           anyOf:
-            -
-              $ref: '#/components/schemas/CreateHostNotificationsInput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/CreateHostNotificationsInput'
+            - type: 'null'
     Host.jsonld:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -11191,7 +11658,7 @@ components:
           type: object
           properties:
             poller:
-              $ref: '#/components/schemas/PollerChoicesOutput.jsonld'
+              $ref: '#/components/schemas/HostPollerOutput.jsonld'
             templates:
               type: array
               items:
@@ -11216,32 +11683,24 @@ components:
                 $ref: '#/components/schemas/RelatedHostOutput.jsonld'
             timezone:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostTimezoneOutput.jsonld'
+                - type: 'null'
             severity:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostSeverityOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostSeverityOutput.jsonld'
+                - type: 'null'
             extended_informations:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostExtendedInformationsOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostExtendedInformationsOutput.jsonld'
+                - type: 'null'
             scheduling_options:
               $ref: '#/components/schemas/HostSchedulingOptionsOutput.jsonld'
             check_options:
               $ref: '#/components/schemas/HostCheckOptionsOutput.jsonld'
             notifications:
               anyOf:
-                -
-                  $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
-                -
-                  type: 'null'
+                - $ref: '#/components/schemas/HostNotificationsOutput.jsonld'
+                - type: 'null'
             id:
               type: integer
             name:
@@ -11263,6 +11722,9 @@ components:
                 - 2c
                 - '3'
                 - null
+            is_snmp_community_defined:
+              description: 'Whether an SNMP community is set. The community itself is never returned.'
+              type: boolean
     HostGroupOutput:
       type: object
       properties:
@@ -11340,8 +11802,7 @@ components:
           type: string
     Media.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11360,8 +11821,7 @@ components:
           type: string
     TimePeriod.TimePeriodCollectionOutput.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11378,8 +11838,7 @@ components:
           type: string
     HostSeverity.HostSeverityCollectionOutput.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -11632,10 +12091,8 @@ components:
             - use_default
         event_handler:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostEventHandlerCommandOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostEventHandlerCommandOutput'
+            - type: 'null'
         acknowledgment_timeout:
           type:
             - integer
@@ -11682,10 +12139,8 @@ components:
             - use_default
         event_handler:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostEventHandlerCommandOutput.jsonld'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostEventHandlerCommandOutput.jsonld'
+            - type: 'null'
         acknowledgment_timeout:
           type:
             - integer
@@ -11744,10 +12199,8 @@ components:
       properties:
         command:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostCheckCommandOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostCheckCommandOutput'
+            - type: 'null'
         args:
           description: 'ordered check-command arguments (empty when no command is set)'
           type: array
@@ -11762,10 +12215,8 @@ components:
       properties:
         command:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostCheckCommandOutput.jsonld'
+            - type: 'null'
         args:
           description: 'ordered check-command arguments (empty when no command is set)'
           type: array
@@ -11806,10 +12257,8 @@ components:
             - 'null'
         icon:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostIconOutput'
+            - type: 'null'
         alt_icon:
           type:
             - string
@@ -11839,10 +12288,8 @@ components:
             - 'null'
         icon:
           anyOf:
-            -
-              $ref: '#/components/schemas/HostIconOutput.jsonld'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/HostIconOutput.jsonld'
+            - type: 'null'
         alt_icon:
           type:
             - string
@@ -11865,17 +12312,35 @@ components:
           type: string
         value:
           maxLength: 4096
-          type: string
+          pattern: '^(((?!^secret::).)*)$'
+          type:
+            - string
+            - 'null'
         is_password:
           type: boolean
-        description:
-          maxLength: 65535
+        id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        parent:
+          enum:
+            - template
+            - command
           type:
             - string
             - 'null'
     HostMacroOutput:
       type: object
       properties:
+        id:
+          description: |-
+            the macro's id in the table its parent points to; null only for a command macro
+            the command never recorded (see Command::macros())
+          type:
+            - integer
+            - 'null'
         name:
           description: 'the short macro name (upper-cased), without the $_HOST…$ wrapper'
           type: string
@@ -11888,13 +12353,21 @@ components:
             - 'null'
         is_password:
           type: boolean
-        description:
+        parent:
+          description: '"template" or "command" for an inherited macro, null for a direct one'
           type:
             - string
             - 'null'
     HostMacroOutput.jsonld:
       type: object
       properties:
+        id:
+          description: |-
+            the macro's id in the table its parent points to; null only for a command macro
+            the command never recorded (see Command::macros())
+          type:
+            - integer
+            - 'null'
         name:
           description: 'the short macro name (upper-cased), without the $_HOST…$ wrapper'
           type: string
@@ -11907,7 +12380,8 @@ components:
             - 'null'
         is_password:
           type: boolean
-        description:
+        parent:
+          description: '"template" or "command" for an inherited macro, null for a direct one'
           type:
             - string
             - 'null'
@@ -11945,10 +12419,8 @@ components:
             - 'null'
         timeperiod:
           anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/TimePeriod'
+            - type: 'null'
         first_delay:
           type:
             - integer
@@ -11995,10 +12467,8 @@ components:
             - 'null'
         timeperiod:
           anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod.jsonld'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/TimePeriod.jsonld'
+            - type: 'null'
         first_delay:
           type:
             - integer
@@ -12016,10 +12486,8 @@ components:
       properties:
         check_period:
           anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/TimePeriod'
+            - type: 'null'
         max_check_attempts:
           type:
             - integer
@@ -12055,10 +12523,8 @@ components:
       properties:
         check_period:
           anyOf:
-            -
-              $ref: '#/components/schemas/TimePeriod.jsonld'
-            -
-              type: 'null'
+            - $ref: '#/components/schemas/TimePeriod.jsonld'
+            - type: 'null'
         max_check_attempts:
           type:
             - integer
@@ -12154,8 +12620,7 @@ components:
           type: string
     TimePeriod.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -12178,8 +12643,7 @@ components:
           type: boolean
     HostAddressResolution.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           required:
@@ -12193,3 +12657,431 @@ components:
               description: 'Absent from the response when "resolved" is false.'
             resolved:
               type: boolean
+    ContactGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          description: 'The contact group name'
+          type: string
+          example: Supervisors
+    ContactGroup.jsonld:
+      allOf:
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              description: 'The contact group name'
+              type: string
+              example: Supervisors
+    Host.PatchHostInput.jsonMergePatch:
+      type: object
+      properties:
+        activated:
+          description: 'Whether the host is enabled.'
+          type:
+            - boolean
+            - 'null'
+        name:
+          minLength: 1
+          maxLength: 200
+          pattern: '^(((?!(^_Module(?:_| ))|([~!$%^&*"|''<>?,()=])).)*)$'
+          type:
+            - string
+            - 'null'
+        address:
+          minLength: 1
+          maxLength: 255
+          type:
+            - string
+            - 'null'
+        poller_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        alias:
+          maxLength: 200
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only. Stored in the vault when one is configured, and never returned.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        host_group_ids:
+          description: 'Replaces the host groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        host_group_ids_to_add:
+          type: array
+          items:
+            type: integer
+        host_group_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        category_ids:
+          description: 'Replaces the categories; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        category_ids_to_add:
+          type: array
+          items:
+            type: integer
+        category_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        template_ids:
+          description: 'Replaces the templates, in the order given: it sets the inheritance order. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        template_ids_to_add:
+          description: 'Added after the current templates.'
+          type: array
+          items:
+            type: integer
+        template_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        parent_host_ids:
+          description: 'Replaces the hosts this one depends on. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        parent_host_ids_to_add:
+          type: array
+          items:
+            type: integer
+        parent_host_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        child_host_ids:
+          description: 'Replaces the hosts that depend on this one. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        child_host_ids_to_add:
+          type: array
+          items:
+            type: integer
+        child_host_ids_to_remove:
+          type: array
+          items:
+            type: integer
+        create_services_linked_to_templates:
+          description: 'Creates, once the host is saved, the services of the templates it has. Not stored.'
+          type:
+            - boolean
+            - 'null'
+        data_processing:
+          anyOf:
+            - $ref: '#/components/schemas/DataProcessingInput'
+            - type: 'null'
+        extended_informations:
+          anyOf:
+            - $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            - type: 'null'
+        scheduling_options:
+          anyOf:
+            - $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            - type: 'null'
+        check_options:
+          anyOf:
+            - $ref: '#/components/schemas/PatchHostCheckOptionsInput'
+            - type: 'null'
+        notifications:
+          anyOf:
+            - $ref: '#/components/schemas/PatchHostNotificationsInput'
+            - type: 'null'
+    Host.UpdateHostInput:
+      type: object
+      required:
+        - name
+        - address
+        - poller_id
+      properties:
+        name:
+          minLength: 1
+          maxLength: 200
+          pattern: '^(((?!(^_Module(?:_| ))|([~!$%^&*"|''<>?,()=])).)*)$'
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        poller_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type: integer
+        activated:
+          type: boolean
+        host_group_ids:
+          description: 'Mandatory on a Cloud platform, optional otherwise.'
+          type: array
+          items:
+            type: integer
+        alias:
+          maxLength: 200
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          type:
+            - string
+            - 'null'
+        snmp_version:
+          type:
+            - string
+            - 'null'
+          enum:
+            - '1'
+            - 2c
+            - '3'
+            - null
+        snmp_community:
+          pattern: '^(((?![\x00-\x1F\x7F]).)*)$'
+          description: 'Write-only. Stored in the vault when one is configured, and never returned.'
+          type:
+            - string
+            - 'null'
+        timezone_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        severity_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        template_ids:
+          description: 'Ordered: the position of a template drives the inheritance order.'
+          type: array
+          items:
+            type: integer
+        category_ids:
+          type: array
+          items:
+            type: integer
+        parent_host_ids:
+          type: array
+          items:
+            type: integer
+        child_host_ids:
+          type: array
+          items:
+            type: integer
+        data_processing:
+          anyOf:
+            - $ref: '#/components/schemas/DataProcessingInput'
+            - type: 'null'
+        create_services_linked_to_templates:
+          description: 'Not available on a Cloud platform, where linked services are always created. Defaults to true.'
+          type:
+            - boolean
+            - 'null'
+        extended_informations:
+          anyOf:
+            - $ref: '#/components/schemas/CreateHostExtendedInformationsInput'
+            - type: 'null'
+        scheduling_options:
+          anyOf:
+            - $ref: '#/components/schemas/CreateHostSchedulingOptionsInput'
+            - type: 'null'
+        check_options:
+          anyOf:
+            - $ref: '#/components/schemas/CheckOptionsInput'
+            - type: 'null'
+        notifications:
+          anyOf:
+            - $ref: '#/components/schemas/CreateHostNotificationsInput'
+            - type: 'null'
+    HostTemplate.HostTemplateMacrosOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroOutput'
+    HostTemplate.HostTemplateMacrosOutput.jsonld:
+      allOf:
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            macros:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostMacroOutput.jsonld'
+    PatchHostCheckOptionsInput:
+      type: object
+      properties:
+        command_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          description: 'the check command to run, null removes it'
+          type:
+            - integer
+            - 'null'
+        args:
+          description: 'ordered check-command arguments, an empty list clears them'
+          type: array
+          items:
+            type: string
+        macros:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroInput'
+        macros_to_upsert:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostMacroInput'
+        macros_to_remove:
+          description: "The ids of the host's own macros to remove."
+          type: array
+          items:
+            type: integer
+    PatchHostNotificationsInput:
+      type: object
+      properties:
+        enabled:
+          enum:
+            - 'false'
+            - 'true'
+            - use_default
+          description: 'Whether notifications are enabled; "use_default" or null leaves the directive to the template chain.'
+          type:
+            - string
+            - 'null'
+        options:
+          description: 'State transitions triggering a notification, an empty list clears them. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_add:
+          description: 'Added to the current options. "none" is exclusive.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        options_to_remove:
+          description: 'Removed from the current options.'
+          type: array
+          items:
+            type: string
+            enum:
+              - down
+              - unreachable
+              - recovery
+              - flapping
+              - downtime_scheduled
+              - none
+        contacts:
+          description: 'Replaces the contacts; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contacts_to_add:
+          type: array
+          items:
+            type: integer
+        contacts_to_remove:
+          type: array
+          items:
+            type: integer
+        contact_groups:
+          description: 'Replaces the contact groups; an empty list removes them all. Only one of this, the "_to_add" and the "_to_remove" keys can be sent.'
+          type: array
+          items:
+            type: integer
+        contact_groups_to_add:
+          type: array
+          items:
+            type: integer
+        contact_groups_to_remove:
+          type: array
+          items:
+            type: integer
+        interval:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        timeperiod_id:
+          minimum: 0
+          exclusiveMinimum: 0
+          type:
+            - integer
+            - 'null'
+        first_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        recovery_delay:
+          minimum: 0
+          type:
+            - integer
+            - 'null'
+        contact_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
+        contact_group_additive_inheritance:
+          description: "Ignored unless the platform's inheritance mode enables additive inheritance."
+          type: boolean
