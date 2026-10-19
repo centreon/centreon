@@ -5471,6 +5471,37 @@ paths:
           style: form
           explode: true
         -
+          name: sort
+          in: query
+          description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). Asc on `activated` lists the deactivated hosts first.'
+          required: false
+          deprecated: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              alias:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              address:
+                type: string
+                enum:
+                  - asc
+                  - desc
+              activated:
+                type: string
+                enum:
+                  - asc
+                  - desc
+          style: deepObject
+          explode: true
+        -
           name: page
           in: query
           description: 'The collection page number'

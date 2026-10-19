@@ -32,7 +32,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostRes
 use PHPUnit\Framework\TestCase;
 
 /**
- * An attribute only takes constant expressions, so the sort parameters of the hosts listing cannot be
+ * An attribute only takes constant expressions, so the sort parameter of the hosts listing cannot be
  * generated from the sortable fields of HostCriteria: this test keeps the OpenAPI documentation aligned
  * with them instead.
  */
@@ -42,8 +42,12 @@ final class HostResourceSortDocumentationTest extends TestCase
     {
         $documented = [];
         foreach ($this->hostListingParameters() as $parameter) {
-            if (preg_match('/^sort\[(\w+)\]$/', $parameter->getName(), $matches) === 1) {
-                $documented[] = $matches[1];
+            if ($parameter->getName() === 'sort') {
+                /** @var array{properties?: array<string, mixed>} $schema */
+                $schema = $parameter->getSchema();
+                $documented = array_keys($schema['properties'] ?? []);
+
+                break;
             }
         }
 

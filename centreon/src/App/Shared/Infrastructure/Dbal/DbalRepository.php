@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Dbal;
 
-
 abstract readonly class DbalRepository
 {
     final protected function setId(object $object, mixed $id): void

@@ -62,7 +62,6 @@ use Webmozart\Assert\Assert;
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
     use DbalCriteriaApplierTrait;
-
     public const TABLE_NAME = 'command';
     public const CONNECTOR_JOIN_TABLE_NAME = 'connector';
 
