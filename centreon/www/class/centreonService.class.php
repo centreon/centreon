@@ -1185,8 +1185,8 @@ class CentreonService
                 $selectedHosts .= 'AND hsr.host_host_id IN (';
             }
             foreach ($hostIdList as $k => $v) {
-                $listValues .= ':host' . $v . ',';
-                $queryValues['host' . $v] = (int) $v;
+                $listValues .= ':host' . $k . ',';
+                $queryValues['host' . $k] = (int) $v;
             }
             $selectedHosts .= rtrim($listValues, ',') . ') ';
         }
@@ -1197,8 +1197,8 @@ class CentreonService
         if ($serviceIdList !== []) {
             $selectedServices .= 'AND hsr.service_service_id IN (';
             foreach ($serviceIdList as $k => $v) {
-                $listValues .= ':service' . $v . ',';
-                $queryValues['service' . $v] = (int) $v;
+                $listValues .= ':service' . $k . ',';
+                $queryValues['service' . $k] = (int) $v;
             }
             $selectedServices .= rtrim($listValues, ',') . ') ';
         }
