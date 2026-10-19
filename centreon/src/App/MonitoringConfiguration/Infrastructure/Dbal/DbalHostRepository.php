@@ -642,15 +642,6 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
         $this->insertRelations($hostId, $host);
     }
 
-    private function lockPoller(int $pollerId): void
-    {
-        $this->connection->executeQuery(
-            'SELECT id FROM nagios_server WHERE id = :poller_id FOR UPDATE',
-            ['poller_id' => $pollerId],
-            ['poller_id' => ParameterType::INTEGER],
-        );
-    }
-
     /**
      * Takes the exclusive lock of a poller row, before any row of a host of that poller is written.
      *
