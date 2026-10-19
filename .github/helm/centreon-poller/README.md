@@ -266,6 +266,21 @@ With k3s (kube-router), a source pod selected by `podSelector` is only
 allowed a moment after it starts: its very first connection may be refused
 (retry). Sources given as `ipBlock` are not affected.
 
+## Chart versions
+
+`version` follows SemVer, its major being the year of the Centreon major
+(`26.x.y` for 26.10): minor for new optional features, patch for fixes.
+Breaking changes only come with a new major. The CI sets `appVersion` from
+the branch `.version`.
+
+| Published as | Where | Default images |
+|---|---|---|
+| `<version>` | ghcr.io (`oci://ghcr.io/centreon/charts/centreon-poller`) | ghcr.io, tag `appVersion` |
+| `<version>-rc.<n>` | Harbor | Harbor release/hotfix candidates |
+| `<version>-<branch>.<n>` | Harbor | Harbor development images |
+
+Pre-release charts need a pull secret for Harbor (`imagePullSecrets`).
+
 ## Known limitations
 
 - Registration is manual (Add Poller); the chart never holds admin credentials.
