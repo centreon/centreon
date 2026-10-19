@@ -1,0 +1,412 @@
+name: helm
+
+# Helm charts under .github/helm/<chart>/ (MON-212455):
+# - pull request: lint, render and schema-check every chart, require a version bump
+# - push on develop / dev-XX.XX.x: publish a pre-release (<version>-<branch>.<run>) to Harbor
+# - push on master / XX.XX.x: publish <version> to Harbor, then promote that exact
+#   artifact (same digest) to ghcr.io and Pulp dev, like the container images
+#   promoted by web.yml (stable, on-prem only)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/helm/**"
+      - ".github/workflows/helm.yml"
+      - ".github/scripts/helm-chart-*.sh"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - ".github/helm/**"
+      - ".github/workflows/helm.yml"
+      - ".github/scripts/helm-chart-*.sh"
+
+env:
+  HELM_VERSION: v4.3.1
+  KUBECONFORM_VERSION: v0.8.0
+  KUBECONFORM_SHA256: 9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883
+  # Lowest Kubernetes version the charts support (kubeVersion in Chart.yaml).
+  KUBE_VERSION: 1.29.0
+
+jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
+  get-environment:
+    needs: [dependency-scan]
+    if: github.event.pull_request.head.repo.fork != true
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon/www/install/insertBaseConf.sql
+
+  get-charts:
+    runs-on: ubuntu-24.04
+    outputs:
+      charts: ${{ steps.list.outputs.charts }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: List charts
+        id: list
+        run: |
+          charts=$(find .github/helm -mindepth 2 -maxdepth 2 -name Chart.yaml -printf '%h\n' | xargs -rn1 basename | sort | jq -Rnc '[inputs]')
+          echo "charts=$charts" >> "$GITHUB_OUTPUT"
+          echo "Charts: $charts"
+        shell: bash
+
+  lint:
+    needs: [get-charts]
+    if: needs.get-charts.outputs.charts != '[]'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(needs.get-charts.outputs.charts) }}
+    name: lint ${{ matrix.chart }}
+    env:
+      CHART_DIR: .github/helm/${{ matrix.chart }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Install kubeconform
+        run: |
+          curl -fsSL -o /tmp/kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          echo "${KUBECONFORM_SHA256}  /tmp/kubeconform.tar.gz" | sha256sum -c -
+          sudo tar -xzf /tmp/kubeconform.tar.gz -C /usr/local/bin kubeconform
+        shell: bash
+
+      - name: Check the chart version was bumped
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash .github/scripts/helm-chart-version-check.sh
+        shell: bash
+
+      - name: Lint and validate each CI values file
+        run: |
+          shopt -s nullglob
+          values_files=("$CHART_DIR"/ci/*-values.yaml)
+          if [[ ${#values_files[@]} -eq 0 ]]; then
+            echo "::error::No CI values file in $CHART_DIR/ci/ (*-values.yaml): the chart can't be rendered."
+            exit 1
+          fi
+          for values in "${values_files[@]}"; do
+            echo "::group::$values"
+            helm lint "$CHART_DIR" -f "$values" --kube-version "$KUBE_VERSION"
+            # cert-manager resources: schemas from the CRDs catalog
+            helm template ci "$CHART_DIR" -f "$values" --kube-version "$KUBE_VERSION" \
+              | kubeconform -strict -summary -kubernetes-version "$KUBE_VERSION" \
+                  -schema-location default \
+                  -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+            echo "::endgroup::"
+          done
+        shell: bash
+
+  publish:
+    needs: [get-environment, get-charts, lint]
+    if: |
+      github.event_name == 'push' &&
+      needs.get-charts.outputs.charts != '[]' &&
+      contains(fromJSON('["unstable", "stable"]'), needs.get-environment.outputs.stability) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(needs.get-charts.outputs.charts) }}
+    name: publish ${{ matrix.chart }} to Harbor
+    env:
+      CHART_DIR: .github/helm/${{ matrix.chart }}
+      CHART_REPOSITORY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/charts
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+        with:
+          version: v0.22.1
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Login helm to Harbor registry
+        env:
+          REGISTRY_USERNAME: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+        run: |
+          echo "$REGISTRY_PASSWORD" | helm registry login "${CHART_REPOSITORY%%/*}" --username "$REGISTRY_USERNAME" --password-stdin
+        shell: bash
+
+      - name: Package and push
+        id: push
+        env:
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          chart=$(basename "$CHART_DIR")
+          version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
+
+          if [[ "$STABILITY" == "stable" ]]; then
+            # A stable version is published once: the promoted artifact must stay
+            # the one already on Harbor (helm package is not byte-reproducible).
+            if digest=$(crane digest "$CHART_REPOSITORY/$chart:$version" 2>/dev/null); then
+              echo "::notice::$chart $version already on Harbor ($digest), not republished."
+              echo "pushed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            version="$version-$(tr -c 'a-z0-9\n' '-' <<< "$REF_NAME").$GITHUB_RUN_NUMBER"
+          fi
+
+          helm package "$CHART_DIR" --version "$version" --destination /tmp/charts
+          helm push "/tmp/charts/$chart-$version.tgz" "oci://$CHART_REPOSITORY"
+          digest=$(crane digest "$CHART_REPOSITORY/$chart:$version")
+          echo "$CHART_REPOSITORY/$chart:$version -> $digest"
+          {
+            echo "pushed=true"
+            echo "digest=$digest"
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Attest build provenance
+        # Keyed by digest: crane copy keeps it, so it verifies on ghcr.io and Pulp too.
+        if: steps.push.outputs.pushed == 'true'
+        id: attest-build-provenance
+        continue-on-error: true
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ghcr.io/centreon/charts/${{ matrix.chart }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: false
+          create-storage-record: false
+
+      - name: Warn if build provenance attestation failed
+        if: steps.attest-build-provenance.outcome == 'failure'
+        run: |
+          echo "::warning::Build provenance attestation failed for chart ${{ matrix.chart }}. Delivery continues; investigate before relying on provenance verification for this version."
+        shell: bash
+
+      - name: Logout helm from Harbor registry
+        if: always()
+        run: helm registry logout "${CHART_REPOSITORY%%/*}" || true
+        shell: bash
+
+  promote-to-ghcr:
+    needs: [get-environment, get-charts, publish]
+    if: |
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name == 'push' &&
+      needs.get-charts.outputs.charts != '[]' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.is_cloud == 'false'
+    runs-on: centreon-ubuntu-26.04-small
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(needs.get-charts.outputs.charts) }}
+    name: promote ${{ matrix.chart }} to ghcr.io
+    env:
+      CHART_DIR: .github/helm/${{ matrix.chart }}
+      CHART_REPOSITORY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/charts
+      DEST_IMAGE: ghcr.io/centreon/charts/${{ matrix.chart }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+        with:
+          version: v0.22.1
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve Harbor candidate
+        id: candidate
+        run: |
+          set -euo pipefail
+          version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
+          if ! digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$version"); then
+            echo "::error::No candidate chart on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version."
+            exit 1
+          fi
+          if existing=$(crane digest "$DEST_IMAGE:$version" 2>/dev/null); then
+            echo "::notice::$DEST_IMAGE:$version already published ($existing), nothing to promote."
+            echo "promote=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          {
+            echo "promote=true"
+            echo "version=$version"
+            echo "ref=$CHART_REPOSITORY/${{ matrix.chart }}@$digest"
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Check the chart's default images are on ghcr.io
+        if: steps.candidate.outputs.promote == 'true'
+        run: bash .github/scripts/helm-chart-images-check.sh
+        shell: bash
+
+      - name: Promote to ghcr.io (best-effort, non-blocking)
+        if: steps.candidate.outputs.promote == 'true'
+        id: promote-ghcr
+        continue-on-error: true
+        env:
+          SOURCE_REF: ${{ steps.candidate.outputs.ref }}
+          DEST_TAGS: ${{ steps.candidate.outputs.version }}
+        run: bash .github/scripts/docker-promote.sh
+        shell: bash
+
+      - name: Warn if ghcr.io delivery failed
+        if: steps.promote-ghcr.outcome == 'failure'
+        run: |
+          echo "::warning::ghcr.io delivery failed for chart ${{ matrix.chart }} ${{ steps.candidate.outputs.version }}. It is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io' step."
+        shell: bash
+
+  promote-to-pulp-dev:
+    needs: [get-environment, get-charts, publish]
+    if: |
+      vars.PULP_DEV_REGISTRY != '' &&
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name == 'push' &&
+      needs.get-charts.outputs.charts != '[]' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.is_cloud == 'false'
+    runs-on: centreon-ubuntu-26.04-small
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(needs.get-charts.outputs.charts) }}
+    name: promote ${{ matrix.chart }} to Pulp dev
+    env:
+      CHART_DIR: .github/helm/${{ matrix.chart }}
+      CHART_REPOSITORY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/charts
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+        with:
+          version: v0.22.1
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve Harbor candidate
+        id: candidate
+        run: |
+          set -euo pipefail
+          version=$(awk '$1 == "version:" { gsub(/"/, "", $2); print $2; exit }' "$CHART_DIR/Chart.yaml")
+          if ! digest=$(crane digest "$CHART_REPOSITORY/${{ matrix.chart }}:$version"); then
+            echo "::error::No candidate chart on Harbor at $CHART_REPOSITORY/${{ matrix.chart }}:$version."
+            exit 1
+          fi
+          {
+            echo "version=$version"
+            echo "ref=$CHART_REPOSITORY/${{ matrix.chart }}@$digest"
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Check the chart's default images are on ghcr.io
+        run: bash .github/scripts/helm-chart-images-check.sh
+        shell: bash
+
+      - name: Promote to Pulp dev
+        # Re-copying the same Harbor candidate is a no-op: a stable version is
+        # never republished on Harbor, so its digest doesn't change.
+        id: promote-pulp-dev
+        env:
+          SOURCE_REF: ${{ steps.candidate.outputs.ref }}
+          DEST_IMAGE: ${{ vars.PULP_DEV_REGISTRY }}/default/centreon/charts/${{ matrix.chart }}
+          DEST_TAGS: ${{ steps.candidate.outputs.version }}
+          PULP_OIDC_AUDIENCE: ${{ vars.PULP_DEV_OIDC_AUDIENCE }}
+        run: bash .github/scripts/docker-promote.sh
+        shell: bash
+
+      - name: Warn if Pulp dev delivery failed
+        if: failure()
+        run: |
+          echo "::warning::Pulp dev delivery of chart ${{ matrix.chart }} failed. ghcr.io delivery is unaffected."
+        shell: bash

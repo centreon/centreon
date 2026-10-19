@@ -1,0 +1,34 @@
+# CI only (helm.yml): every optional feature enabled.
+poller:
+  name: ci-poller
+  id: "123456789012345678"
+central:
+  host: central.example.com
+secrets:
+  existingSecret: ci-poller
+engine:
+  addNetRaw: true
+  otel:
+    tls:
+      certManager:
+        enabled: true
+        dnsNames:
+          - poller.example.com
+        issuerRef:
+          name: ci-issuer
+    service:
+      type: LoadBalancer
+traps:
+  enabled: true
+vmware:
+  enabled: true
+  image:
+    repository: registry.example.com/centreon/connector-vmware
+    tag: "1.0"
+networkPolicy:
+  otelFrom:
+    - ipBlock:
+        cidr: 10.0.0.0/8
+  trapsFrom:
+    - ipBlock:
+        cidr: 10.0.0.0/8
