@@ -1610,7 +1610,11 @@ jobs:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled()
-    name: playwright-component-test
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    name: playwright-component-test (${{ matrix.shard }}/3)
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -1670,14 +1674,14 @@ jobs:
         working-directory: ${{ env.base_directory }}
 
       - name: Run Playwright component tests
-        run: pnpm exec playwright test --project=components
+        run: pnpm exec playwright test --project=components --shard=${{ matrix.shard }}/3
         working-directory: ${{ env.base_directory }}
 
       - name: Upload Playwright component report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: playwright-component-report
+          name: playwright-component-report-${{ matrix.shard }}
           path: ${{ env.base_directory }}/playwright/results
           retention-days: 5
 
