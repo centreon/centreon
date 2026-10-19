@@ -5,6 +5,8 @@ import type { Credentials } from './credentials';
 const password = 'Centreon!2021User';
 
 export interface RestrictedUserOptions {
+  /** Contact parameters, such as `reach_api` for the API v2 pages. */
+  contactParams?: Record<string, string>;
   /** Hosts its resource access grants. */
   hosts?: Array<string>;
   /** Host categories its resource access grants. */
@@ -27,6 +29,7 @@ export interface RestrictedUser {
  * read the computed `centreon_acl`, not the configuration.
  */
 export const restrictedUser = ({
+  contactParams = {},
   hostCategories = [],
   hosts = [],
   menus,
@@ -48,6 +51,9 @@ export const restrictedUser = ({
         'CONTACT',
         'ADD',
         `${name};${name};${name}@centreon.test;${password};0;1;en_US;local`
+      ),
+      ...Object.entries(contactParams).map(([param, value]) =>
+        action('CONTACT', 'SETPARAM', `${name};${param};${value}`)
       ),
       action('ACLGROUP', 'ADD', `${group};${group}`),
       action('ACLGROUP', 'SETCONTACT', `${group};${name}`),
