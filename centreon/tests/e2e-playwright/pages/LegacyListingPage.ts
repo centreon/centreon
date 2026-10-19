@@ -127,15 +127,19 @@ export class LegacyListingPage extends BasePage {
     return response.status();
   }
 
+  private async tick(names: Array<string>): Promise<void> {
+    for (const name of names) {
+      await this.row(name)
+        .locator('td.ListColPicker input[type="checkbox"]')
+        // Drawn by an md-checkbox pseudo-element: the input has no box.
+        .check({ force: true });
+    }
+  }
+
   /** Tick rows and apply a bulk action, accepting its confirmation. */
   async bulk(action: BulkAction, names: Array<string>): Promise<void> {
     await test.step(`${action} ${names.join(', ')}`, async () => {
-      for (const name of names) {
-        await this.row(name)
-          .locator('td.ListColPicker input[type="checkbox"]')
-          // Drawn by an md-checkbox pseudo-element: the input has no box.
-          .check({ force: true });
-      }
+      await this.tick(names);
       this.page.once('dialog', (dialog) => void dialog.accept());
       await Promise.all([
         this.page.waitForEvent('load'),
@@ -143,5 +147,56 @@ export class LegacyListingPage extends BasePage {
       ]);
       await this.listingLoaded();
     });
+  }
+
+  /** The select2 box of the select with this id. */
+  select2(id: string): Locator {
+    return this.page.locator(`span[id="select2-${id}-container"]`);
+  }
+
+  /** Tick a radio button drawn over a hidden input. */
+  async pickRadio(name: string, value: string): Promise<void> {
+    const radio = this.page.locator(`input[name="${name}"][value="${value}"]`);
+    await radio.dispatchEvent('click');
+    await expect(radio).toBeChecked();
+  }
+
+  /** Pick an option of a select2 box, searching for it first. */
+  async choose(box: Locator, option: string): Promise<void> {
+    await box.click();
+    await this.page
+      .locator('.select2-container--open input.select2-search__field')
+      .last()
+      .fill(option);
+    await this.page
+      .locator('li.select2-results__option')
+      .filter({ hasText: new RegExp(`^${option}$`) })
+      .first()
+      .click();
+    await expect(box).toHaveAttribute('title', option);
+  }
+
+  /** Tick rows and open the Mass Change form for them. */
+  async openMassChange(names: Array<string>): Promise<void> {
+    await test.step(`Mass change ${names.join(', ')}`, async () => {
+      await this.tick(names);
+      await Promise.all([
+        this.page.waitForEvent('load'),
+        this.bulkActions.selectOption({ label: 'Mass Change' })
+      ]);
+      await expect(this.massChangeSave).toBeVisible({ timeout: 30_000 });
+    });
+  }
+
+  async saveMassChange(): Promise<void> {
+    await Promise.all([
+      this.page.waitForEvent('load'),
+      this.massChangeSave.click()
+    ]);
+    await this.listingLoaded();
+  }
+
+  private get massChangeSave(): Locator {
+    return this.page.locator('input[name="submitMC"]').first();
   }
 }
