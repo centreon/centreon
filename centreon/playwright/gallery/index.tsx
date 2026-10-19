@@ -103,20 +103,40 @@ declare global {
 
 // Lazy: a mount loads (and parses) only the story module it renders and what
 // that module imports, not every story of the app.
-const storyModules = require.context(
-  '../../www/front_src/src',
-  true,
-  /\.story\.tsx$/,
-  'lazy'
-);
+const storyContexts = [
+  {
+    context: require.context(
+      '../../www/front_src/src',
+      true,
+      /\.story\.tsx$/,
+      'lazy'
+    ),
+    prefix: ''
+  },
+  {
+    context: require.context(
+      '../../packages/ui/src',
+      true,
+      /\.story\.tsx$/,
+      'lazy'
+    ),
+    prefix: 'ui/'
+  }
+];
 
-// Story id = path under www/front_src/src without the .story.tsx extension,
-// plus the export name. Any unique suffix of that id also resolves.
-const modulePaths = new Map<string, string>(
-  storyModules
-    .keys()
-    .filter((key) => key.startsWith('./'))
-    .map((key) => [key.replace(/^\.\//, '').replace(/\.story\.tsx$/, ''), key])
+// Story id = path under www/front_src/src (or ui/ + path under
+// packages/ui/src) without the .story.tsx extension, plus the export name.
+// Any unique suffix of that id also resolves.
+const modulePaths = new Map(
+  storyContexts.flatMap(({ context, prefix }) =>
+    context
+      .keys()
+      .filter((key) => key.startsWith('./'))
+      .map((key): [string, () => Promise<Record<string, StoryComponent>>] => [
+        `${prefix}${key.replace(/^\.\//, '').replace(/\.story\.tsx$/, '')}`,
+        () => context(key)
+      ])
+  )
 );
 
 const resolveStory = async (id: string): Promise<StoryComponent> => {
@@ -128,7 +148,8 @@ const resolveStory = async (id: string): Promise<StoryComponent> => {
   const matches: Array<[string, StoryComponent]> = [];
 
   for (const path of candidates) {
-    const module = await storyModules(modulePaths.get(path) as string);
+    const load = modulePaths.get(path);
+    const module = load ? await load() : {};
     if (module[exportName]) {
       matches.push([`${path}/${exportName}`, module[exportName]]);
     }

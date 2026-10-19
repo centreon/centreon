@@ -6,7 +6,19 @@ import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const playwrightDir = dirname(fileURLToPath(import.meta.url));
-const sourceDir = join(playwrightDir, '../www/front_src/src');
+// Same roots and id prefixes as the gallery.
+const sources = [
+  {
+    dir: join(playwrightDir, '../www/front_src/src'),
+    importRoot: '../www/front_src/src',
+    prefix: ''
+  },
+  {
+    dir: join(playwrightDir, '../packages/ui/src'),
+    importRoot: '../packages/ui/src',
+    prefix: 'ui/'
+  }
+];
 const outputFile = join(playwrightDir, 'stories.d.ts');
 
 const exportPattern = /^export\s+(?:const|function)\s+([A-Za-z_$][\w$]*)/gm;
@@ -21,21 +33,29 @@ const findStoryFiles = (directory) =>
     return entry.name.endsWith('.story.tsx') ? [path] : [];
   });
 
-const stories = findStoryFiles(sourceDir)
-  .sort()
-  .flatMap((file, moduleIndex) => {
-    const modulePath = relative(sourceDir, file)
-      .split(sep)
-      .join('/')
-      .replace(/\.story\.tsx$/, '');
+const stories = sources
+  .flatMap(({ dir, importRoot, prefix }) =>
+    findStoryFiles(dir)
+      .sort()
+      .map((file) => ({
+        file,
+        importRoot,
+        modulePath: relative(dir, file)
+          .split(sep)
+          .join('/')
+          .replace(/\.story\.tsx$/, ''),
+        prefix
+      }))
+  )
+  .flatMap(({ file, importRoot, modulePath, prefix }, moduleIndex) => {
     const exportNames = [
       ...readFileSync(file, 'utf8').matchAll(exportPattern)
     ].map(([, name]) => name);
 
     return exportNames.map((exportName) => ({
       exportName,
-      id: `${modulePath}/${exportName}`,
-      importPath: `../www/front_src/src/${modulePath}.story`,
+      id: `${prefix}${modulePath}/${exportName}`,
+      importPath: `${importRoot}/${modulePath}.story`,
       moduleAlias: `Story${moduleIndex}`
     }));
   });
