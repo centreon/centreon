@@ -19,22 +19,14 @@ import {
 } from '../translatedLabels';
 import initialize from './initialize';
 
-const getCheckboxes = (): Array<HTMLInputElement> => [
-  ...document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
-];
-
-// A deactivated row is not selectable, so indexing the enabled checkboxes is
-// what actually maps to "the nth selectable host". Index 0 is select-all.
-const selectSelectableRow = async (index: number): Promise<void> => {
-  await userEvent.click(
-    getCheckboxes().filter((checkbox) => !checkbox.disabled)[index + 1]
-  );
+// By their own labels: the Enable/Disable switches are checkboxes too, so a
+// position among the checkboxes does not say which one is a row's.
+const selectFirstRow = async (): Promise<void> => {
+  await userEvent.click(screen.getByLabelText('Select row 0'));
 };
 
-const selectFirstRow = (): Promise<void> => selectSelectableRow(0);
-
 const selectAll = async (): Promise<void> => {
-  await userEvent.click(getCheckboxes()[0]);
+  await userEvent.click(screen.getByLabelText('Select all'));
 };
 
 const openMoreActions = async (): Promise<HTMLElement> => {
