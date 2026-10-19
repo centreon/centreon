@@ -80,3 +80,9 @@ Tracked in the README coverage section, family by family.
 - **Bug** — the autologin link the profile menu copies on a React page (such
   as Resources Status) leads to the login page; the same key works on a
   `main.php` link, which is where Cypress copied it. Marked `test.fail()`.
+- `restrictedUser` created its ACL resource with `name=…;acl_group=…`, which
+  CLAPI took as the literal name `name=…`: the teardown never deleted it and
+  re-provisioning the same user failed with a conflict.
+- The OpenID Connect tests set the provider through the API and restore it, so
+  they no longer depend on each other; a refused sign-in lands on
+  `/authentication-denied`.

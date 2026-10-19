@@ -66,16 +66,16 @@ export const restrictedUser = ({
         )
       ),
       action('ACLGROUP', 'ADDMENU', `${group};${menu}`),
-      action('ACLRESOURCE', 'ADD', `name=${resource};acl_group=${group}`),
-      action('ACLGROUP', 'ADDRESOURCE', `${group};name=${resource}`),
+      action('ACLRESOURCE', 'ADD', `${resource};${resource}`),
+      action('ACLGROUP', 'ADDRESOURCE', `${group};${resource}`),
       ...hosts.map((host) =>
-        action('ACLRESOURCE', 'GRANT_HOST', `name=${resource};${host}`)
+        action('ACLRESOURCE', 'GRANT_HOST', `${resource};${host}`)
       ),
       ...hostCategories.map((category) =>
         action(
           'ACLRESOURCE',
           'ADDFILTER_HOSTCATEGORY',
-          `name=${resource};${category}`
+          `${resource};${category}`
         )
       ),
       action('ACL', 'RELOAD', '')
