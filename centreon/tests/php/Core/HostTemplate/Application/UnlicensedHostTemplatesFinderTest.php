@@ -45,9 +45,17 @@ it('finds nothing and reads nothing when no template is added', function (): voi
     expect($this->finder->findAmongAdded([10, 11], [10, 11]))->toBe([]);
 });
 
-it('does not read the license when no added template comes from a paid connector', function (): void {
-    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
-    $this->readHostLicenseRepository->expects($this->never())->method('isValid');
+it('does not look for the paid templates while the host limit is not reached', function (): void {
+    $this->readHostLicenseRepository->method('isValid')->willReturn(true);
+    $this->readHostLicenseRepository->method('getMaxHosts')->willReturn(100);
+    $this->readHostLicenseRepository->method('countHosts')->willReturn(99);
+    $this->readHostLicenseRepository->expects($this->never())->method('findPaidConnectorTemplateIds');
+
+    expect($this->finder->findAmongAdded([10]))->toBe([]);
+});
+
+it('finds nothing once the host limit is reached when no added template comes from a paid connector', function (): void {
+    ($this->limitReached)();
 
     expect($this->finder->findAmongAdded([1, 2]))->toBe([]);
 });

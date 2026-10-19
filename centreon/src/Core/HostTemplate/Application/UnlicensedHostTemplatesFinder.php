@@ -53,14 +53,13 @@ final class UnlicensedHostTemplatesFinder
             return [];
         }
 
-        $unlicensedIds = array_values(
-            array_intersect($addedIds, $this->readHostLicenseRepository->findPaidConnectorTemplateIds())
-        );
-        if ($unlicensedIds === [] || ! $this->isHostLimitReached()) {
+        if (! $this->isHostLimitReached()) {
             return [];
         }
 
-        return $unlicensedIds;
+        return array_values(
+            array_intersect($addedIds, $this->readHostLicenseRepository->findPaidConnectorTemplateIds())
+        );
     }
 
     /**
