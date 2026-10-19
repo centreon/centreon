@@ -32,12 +32,16 @@ const overrideArgs: Array<string> = (
 
 const webApacheUser = 'apache'; // alma9 image — Debian images would use www-data
 
-const execCompose = (args: Array<string>): string =>
+const execCompose = (
+  args: Array<string>,
+  env: Record<string, string> = {}
+): string =>
   execFileSync(
     'docker',
     ['compose', '-f', composeFile, ...overrideArgs, ...args],
     {
-      encoding: 'utf-8'
+      encoding: 'utf-8',
+      env: { ...process.env, ...env }
     }
   );
 
@@ -107,6 +111,17 @@ export const ensureStack = async ({
   if (services.includes('web')) {
     await waitForWebHealthy();
   }
+};
+
+/**
+ * Recreate the web and database containers with other compose variables,
+ * such as the database names: the platform installs itself again.
+ */
+export const recreateStack = async (
+  env: Record<string, string> = {}
+): Promise<void> => {
+  execCompose(['up', '-d', '--quiet-pull', '--force-recreate', 'web', 'db'], env);
+  await waitForWebHealthy();
 };
 
 /** Poll the `web` container health until it reports healthy. */

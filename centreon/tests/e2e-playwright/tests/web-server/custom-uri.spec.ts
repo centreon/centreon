@@ -2,6 +2,7 @@ import { adminUser } from '../../fixtures/credentials';
 import { expect, test } from '../../fixtures/test';
 import { execInWebContainer } from '../../helpers/docker';
 import { LoginPage } from '../../pages/LoginPage';
+import { MainHeader } from '../../pages/MainHeader';
 
 /**
  * Replaces Web-server-configuration/01: once the web server serves Centreon
@@ -54,10 +55,16 @@ test('serves the platform under a custom base URI', async ({
         );
       });
 
-      await test.step('The monitoring listing shows the resources', async () => {
-        await expect(
-          visitor.getByText('Centreon-Server', { exact: true }).first()
-        ).toBeVisible({ timeout: 30_000 });
+      await test.step('The monitoring pages and API answer under it', async () => {
+        await new MainHeader(visitor).expectLoaded();
+        const response = await visitor.request.get(
+          `${uri}/api/latest/monitoring/resources?search=${encodeURIComponent(JSON.stringify({ name: { $eq: 'Centreon-Server' } }))}`
+        );
+        expect(response.ok()).toBe(true);
+        const { result } = (await response.json()) as {
+          result: Array<{ name: string }>;
+        };
+        expect(result.map(({ name }) => name)).toContain('Centreon-Server');
       });
 
       await test.step('The legacy configuration pages load their assets', async () => {
