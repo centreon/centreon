@@ -130,6 +130,24 @@ export class CentreonApi {
     );
   }
 
+  /** Call an API v2 endpoint (`/api/latest/...`) and return its JSON body. */
+  async v2<T = unknown>(
+    method: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT',
+    path: string,
+    data?: unknown
+  ): Promise<T> {
+    const response = CentreonApi.ok(
+      await this.context.fetch(`${this.base}/api/latest${path}`, {
+        data,
+        method
+      }),
+      `${method} ${path}`
+    );
+    const body = await response.text();
+
+    return (body ? JSON.parse(body) : undefined) as T;
+  }
+
   async createDashboard(dashboard: DashboardSeed): Promise<number> {
     const response = CentreonApi.ok(
       await this.context.post(
