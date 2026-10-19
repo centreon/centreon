@@ -194,6 +194,10 @@ export const logCloudNotifications = (): void => {
   );
 };
 
+/** The host port a compose service publishes for one of its ports. */
+export const publishedPort = (service: string, port: number): number =>
+  Number(execCompose(['port', service, String(port)]).trim().split(':').at(-1));
+
 /** Make the central broker reload its configuration (APPLYCFG does not). */
 export const reloadCentralBroker = (): void => {
   execInWebContainer("pkill -HUP -f 'cbd /etc/centreon-broker/central-broker.json'");
