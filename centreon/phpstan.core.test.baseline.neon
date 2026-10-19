@@ -1059,13 +1059,13 @@ parameters:
 		-
 			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 9
+			count: 12
 			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 175
+			count: 177
 			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
 
 		-
@@ -1593,13 +1593,13 @@ parameters:
 		-
 			message: '#^Call to protected method never\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 6
+			count: 9
 			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 123
+			count: 130
 			path: tests/php/Core/HostTemplate/Application/PartialUpdateHostTemplate/PartialUpdateHostTemplateTest.php
 
 		-

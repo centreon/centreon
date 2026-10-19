@@ -641,6 +641,29 @@ it('should write nothing and present an InvalidArgumentResponse when a parent te
         ->toBe(HostException::templatesNotLicensed($this->request->templates)->getMessage());
 });
 
+it('should not check the license of the parent templates when they are not provided', function (): void {
+    $this->request = new PartialUpdateHostRequest();
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->adminResolver
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHost);
+
+    $this->readHostRepository->expects($this->never())->method('findParents');
+    $this->validation->expects($this->never())->method('assertAreLicensedTemplates');
+    $this->writeHostRepository->expects($this->never())->method('deleteParents');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
+
+    expect($this->presenter->response)->toBeInstanceOf(NoContentResponse::class);
+});
+
 it('should present a ConflictResponse when a parent template creates a circular inheritance', function (): void {
     $this->request->checkCommandId = null;
     $this->user
