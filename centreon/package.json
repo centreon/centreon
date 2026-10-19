@@ -42,6 +42,7 @@
     "@rspack/plugin-react-refresh": "^1.5.2",
     "@rstest/browser": "0.12.3",
     "@rstest/core": "0.12.3",
+    "@rstest/coverage-istanbul": "0.12.3",
     "@simonsmith/cypress-image-snapshot": "9.1.0",
     "@svgr/webpack": "^8.1.0",
     "@swc/core": "^1.16.2",

@@ -14,6 +14,22 @@ export default defineConfig({
     provider: 'playwright',
     viewport: { height: 1000, width: 1280 }
   },
+  // `--coverage` in CI: merged with the Cypress coverage for the coverage
+  // gate, so the same files are left out.
+  coverage: {
+    exclude: [
+      '**/cypress/**',
+      '**/packages/**',
+      '**/node_modules/**',
+      '**/test-setup/**',
+      '**/*.js',
+      '**/*.spec.tsx',
+      '**/*.browser.test.{ts,tsx}'
+    ],
+    provider: 'istanbul',
+    reporters: ['json'],
+    reportsDirectory: './coverage-rstest'
+  },
   globals: true,
   include: [
     'test-setup/**/*.browser.test.{ts,tsx}',

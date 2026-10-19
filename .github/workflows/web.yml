@@ -526,8 +526,23 @@ jobs:
         working-directory: centreon
 
       - name: Browser component test
-        run: pnpm rstest:run
+        run: pnpm rstest:run --coverage
         working-directory: centreon
+
+      # Picked up with the Cypress coverage by the coverage gate of
+      # frontend-component-test, as one more `centreon-component-test-coverage-*`.
+      - name: Change coverage report name
+        run: |
+          mkdir -p centreon/coverage
+          mv centreon/coverage-rstest/coverage-final.json centreon/coverage/rstest-out.json
+        shell: bash
+
+      - name: Archive test coverage
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: centreon-component-test-coverage-rstest
+          path: centreon/coverage/rstest-out.json
+          retention-days: 1
 
       - if: failure()
         uses: ./.github/actions/publish-report
@@ -536,8 +551,10 @@ jobs:
           path: "centreon/rstest-junit.xml"
 
   frontend-component-test:
-    needs: [changes, get-environment]
+    # After the browser tests, whose coverage its coverage gate merges.
+    needs: [changes, get-environment, frontend-browser-test]
     if: |
+      ! cancelled() &&
       needs.changes.outputs.trigger_frontend_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
