@@ -59,6 +59,18 @@ export class LegacyListingPage extends BasePage {
     }
   }
 
+  /** Tick a listing filter checkbox, such as `displayLocked`, and search. */
+  async searchWithFilter(id: string): Promise<void> {
+    const filter = this.page.locator(`input#${id}`);
+    await filter.dispatchEvent('click');
+    await expect(filter).toBeChecked();
+    await Promise.all([
+      this.page.waitForEvent('load'),
+      this.page.locator('input[type="submit"][value="Search"]').first().click()
+    ]);
+    await this.listingLoaded();
+  }
+
   /** The listing row whose name link reads exactly `name`. */
   row(name: string): Locator {
     return this.page
@@ -68,12 +80,17 @@ export class LegacyListingPage extends BasePage {
   }
 
   /** Open the form of an object from its row link. */
-  async openForm(name: string): Promise<void> {
-    await this.row(name)
-      .getByRole('link', { exact: true, name })
-      .first()
-      .click();
-    await expect(this.saveButton).toBeVisible({ timeout: 30_000 });
+  async openForm(
+    name: string,
+    { editable = true }: { editable?: boolean } = {}
+  ): Promise<void> {
+    await Promise.all([
+      this.page.waitForEvent('load'),
+      this.row(name).getByRole('link', { exact: true, name }).first().click()
+    ]);
+    if (editable) {
+      await expect(this.saveButton).toBeVisible({ timeout: 30_000 });
+    }
   }
 
   /** A form field by its `name` attribute (help tooltips reuse the name). */

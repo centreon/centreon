@@ -86,3 +86,10 @@ Tracked in the README coverage section, family by family.
 - The OpenID Connect tests set the provider through the API and restore it, so
   they no longer depend on each other; a refused sign-in lands on
   `/authentication-denied`.
+- Services-configuration/02 checked that the export console contains
+  "Warning", which its summary line `Total Warnings: 0` always does; a service
+  without a notification period inherits the one of its host, so the engine
+  has nothing to warn about. Dropped.
+- The Web SSO scenarios never signed in (Cypress could not set the login
+  header); the migrated tests do, and check the login pattern and the trusted
+  client addresses.
