@@ -144,3 +144,39 @@ for (const object of objects) {
     });
   });
 }
+
+// Replaces Logs/06: commands only expose a creation endpoint.
+for (const type of ['Check', 'Notification', 'Miscellaneous', 'Discovery']) {
+  test(`logs the API creation of a ${type.toLowerCase()} command`, async ({
+    adminApi,
+    page
+  }) => {
+    const name = `pw-audit-cmd-${randomUUID().slice(0, 8)}`;
+    const commandLine =
+      '$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -p 1';
+    await adminApi.v2('POST', '/configuration/commands', {
+      command_line: commandLine,
+      is_activated: true,
+      is_shell_enabled: false,
+      name,
+      type
+    });
+
+    try {
+      const logs = new ChangeLogsPage(page);
+      await logs.open(name);
+      await expect(logs.entries('Added').first()).toBeVisible();
+      expect(await logs.fieldChanges('command_name')).toContainEqual({
+        after: name,
+        before: ''
+      });
+      await logs.open(name);
+      expect(await logs.fieldChanges('command_line')).toContainEqual({
+        after: commandLine,
+        before: ''
+      });
+    } finally {
+      await adminApi.cleanUp([{ action: 'DEL', object: 'CMD', values: name }]);
+    }
+  });
+}
