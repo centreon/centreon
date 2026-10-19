@@ -47,4 +47,18 @@ export class MyAccountPage extends BasePage {
       ]);
     });
   }
+
+  /** Choose the page shown after signing in, by its menu path. */
+  async setDefaultPage(menuPath: string): Promise<void> {
+    await test.step(`Use ${menuPath} as default page`, async () => {
+      await this.open();
+      await this.page
+        .locator('select[name="default_page"]')
+        .selectOption({ label: menuPath });
+      await Promise.all([
+        this.page.waitForEvent('load'),
+        this.page.locator('#validForm input[name="submitC"]').click()
+      ]);
+    });
+  }
 }

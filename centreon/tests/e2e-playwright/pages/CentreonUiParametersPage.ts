@@ -35,4 +35,26 @@ export class CentreonUiParametersPage extends BasePage {
       ]);
     });
   }
+
+  private get statisticsRefreshInterval() {
+    return this.page.locator('#Form input[name="AjaxTimeReloadStatistic"]');
+  }
+
+  async refreshIntervalForStatistics(): Promise<string> {
+    await this.open();
+
+    return this.statisticsRefreshInterval.inputValue();
+  }
+
+  /** Set the refresh interval of the top counters, in seconds. */
+  async setRefreshIntervalForStatistics(seconds: string): Promise<void> {
+    await test.step(`Refresh the statistics every ${seconds} s`, async () => {
+      await this.open();
+      await this.statisticsRefreshInterval.fill(seconds);
+      await Promise.all([
+        this.page.waitForEvent('load'),
+        this.page.locator('#submitGeneralOptionsForm').click()
+      ]);
+    });
+  }
 }
