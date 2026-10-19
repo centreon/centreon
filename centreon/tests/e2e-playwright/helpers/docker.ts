@@ -171,6 +171,34 @@ export const enableNotificationFeature = (): void => {
   );
 };
 
+export const cloudNotificationLog =
+  '/var/log/centreon-broker/centreon-cloud-notifications.log';
+
+/**
+ * Make the cloud notification stream connector log what it would email: its
+ * mail command prints the destination and message files instead of calling
+ * AWS SES, and it reloads the notification rules every 5 seconds.
+ */
+export const logCloudNotifications = (): void => {
+  const lua = '/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua';
+  execInWebContainer(
+    [
+      // Escaped: the expressions run inside double quotes.
+      `s|^  log_file = .*|  log_file = \\"${cloudNotificationLog}\\",|`,
+      's|^  log_level = .*|  log_level = 3,|',
+      's|^  refresh_delay = .*|  refresh_delay = 5,|',
+      "s|^  mail_command = .*|  mail_command = 'cat {{DESTINATION_FILE}} {{MESSAGE_FILE}}',|"
+    ]
+      .map((expression) => `sed -i "${expression}" ${lua}`)
+      .join(' && ')
+  );
+};
+
+/** Make the central broker reload its configuration (APPLYCFG does not). */
+export const reloadCentralBroker = (): void => {
+  execInWebContainer("pkill -HUP -f 'cbd /etc/centreon-broker/central-broker.json'");
+};
+
 /**
  * Recompute ACLs so that freshly created ACL groups take effect, mirroring
  * `cy.applyAcl()`.

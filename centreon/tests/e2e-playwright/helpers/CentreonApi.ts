@@ -120,6 +120,22 @@ export class CentreonApi {
     }
   }
 
+  /** Run one CLAPI action and return its result, such as a `SHOW` listing. */
+  async clapi<T = unknown>(action: ClapiAction): Promise<T> {
+    const response = CentreonApi.ok(
+      await this.context.post(
+        `${this.base}/api/index.php?action=action&object=centreon_clapi`,
+        {
+          data: action,
+          headers: { 'centreon-auth-token': this.requireV1Token() }
+        }
+      ),
+      `CLAPI ${action.action} ${action.object}`
+    );
+
+    return ((await response.json()) as { result: T }).result;
+  }
+
   /** Open a v2 session (local provider); the cookie is kept by the context. */
   async login(credentials: Credentials): Promise<void> {
     CentreonApi.ok(

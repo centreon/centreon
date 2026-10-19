@@ -49,8 +49,10 @@ const parents = {
 const inList = (names: Array<string>): string =>
   names.map((name) => `'${name}'`).join(', ');
 
+// Disabled: an enabled one also needs the service the form creates for it,
+// without which the configuration export fails.
 const insertMetaService = (name: string): string =>
-  `INSERT INTO meta_service (meta_name, meta_display, check_period, max_check_attempts, normal_check_interval, retry_check_interval, calcul_type, meta_select_mode, regexp_str, metric, data_source_type, meta_activate) SELECT '${name}', '${name} output', 1, 3, 5, 1, 'AVE', '2', 'pw', 'pl', 0, '1' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM meta_service WHERE meta_name = '${name}')`;
+  `INSERT INTO meta_service (meta_name, meta_display, check_period, max_check_attempts, normal_check_interval, retry_check_interval, calcul_type, meta_select_mode, regexp_str, metric, data_source_type, meta_activate) SELECT '${name}', '${name} output', 1, 3, 5, 1, 'AVE', '2', 'pw', 'pl', 0, '0' FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM meta_service WHERE meta_name = '${name}')`;
 
 // Dependencies all need their failure criteria (see the host dependency).
 const dependency = (
@@ -171,6 +173,12 @@ export const legacyObjects: Array<LegacyObject> = [
           action: 'ADD',
           object: 'SERVICE',
           values: `${parents.host};${parents.service};generic-service`
+        },
+        // The engine refuses a service without check command.
+        {
+          action: 'SETPARAM',
+          object: 'SERVICE',
+          values: `${parents.host};${parents.service};check_command;check_centreon_ping`
         }
       ]
     }

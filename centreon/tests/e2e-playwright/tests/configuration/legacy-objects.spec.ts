@@ -54,3 +54,8 @@ for (const object of legacyObjects) {
     }
   });
 }
+
+test('leaves a configuration the engine accepts', async ({ adminApi }) => {
+  // The shared objects the tests keep must not break the export.
+  await adminApi.v2('GET', '/configuration/monitoring-servers/1/generate');
+});
