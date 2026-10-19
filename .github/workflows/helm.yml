@@ -17,6 +17,8 @@ on:
       - develop
       - dev-[2-9][0-9].[0-9][0-9].x
       - "[2-9][0-9].[0-9][0-9].x"
+      - "release-[2-9][0-9].[0-9][0-9]-next"
+      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
       - ".github/helm/**"
       - ".github/workflows/helm.yml"
@@ -118,7 +120,7 @@ jobs:
     if: |
       github.event_name == 'push' &&
       needs.get-charts.outputs.charts != '[]' &&
-      (needs.get-environment.outputs.stability == 'unstable' ||
+      (contains(fromJSON('["unstable", "testing"]'), needs.get-environment.outputs.stability) ||
         (needs.get-environment.outputs.stability == 'stable' && needs.get-environment.outputs.is_cloud == 'false')) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -182,6 +184,8 @@ jobs:
               echo "pushed=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
+          elif [[ "$STABILITY" == "testing" ]]; then
+            version="$version-rc.$GITHUB_RUN_NUMBER"
           else
             version="$version-$(tr -c 'a-z0-9\n' '-' <<< "$REF_NAME").$GITHUB_RUN_NUMBER"
           fi
