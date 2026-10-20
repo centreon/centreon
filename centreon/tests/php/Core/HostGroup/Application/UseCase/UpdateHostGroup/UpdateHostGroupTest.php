@@ -505,3 +505,214 @@ it(
         expect($response)->toBeInstanceOf(NoContentResponse::class);
     }
 );
+
+it(
+    'should remove any reachable host of the host group for a non-admin user',
+    function (): void {
+        $this->adminResolver
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(false);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOneByAccessGroups')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroupAndAccessGroups')
+            ->willReturn([
+                new SimpleEntity(id: 1, name: new TrimmedString('host_1'), objectName: 'Host'),
+                new SimpleEntity(id: 15, name: new TrimmedString('host_15'), objectName: 'Host'),
+            ]);
+        $this->readHostGroupRepository
+            ->expects($this->exactly(2))
+            ->method('findLinkedHosts')
+            ->willReturnOnConsecutiveCalls([1, 15], [1, 2]);
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('deleteHostLinks')
+            ->with($this->updateHostGroupRequest->id, $this->callback(fn (array $hostIds): bool => array_values($hostIds) === [15]));
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('addHostLinks')
+            ->with($this->updateHostGroupRequest->id, [2]);
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should notify the pollers of the requested and removed hosts',
+    function (): void {
+        $this->updateHostGroupRequest->hosts = [1];
+
+        $this->adminResolver
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(false);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOneByAccessGroups')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroupAndAccessGroups')
+            ->willReturn([
+                new SimpleEntity(id: 1, name: new TrimmedString('host_1'), objectName: 'Host'),
+                new SimpleEntity(id: 15, name: new TrimmedString('host_15'), objectName: 'Host'),
+            ]);
+        $this->readMonitoringServerRepository
+            ->expects($this->once())
+            ->method('findByHostsIds')
+            ->with([1, 15])
+            ->willReturn([3]);
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyConfigurationChanges')
+            ->with([3]);
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should neither duplicate the kept hosts nor remove the hidden ones for a non-admin user',
+    function (): void {
+        $this->updateHostGroupRequest->hosts = [1];
+
+        $this->adminResolver
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(false);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOneByAccessGroups')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroupAndAccessGroups')
+            ->willReturn([
+                new SimpleEntity(id: 1, name: new TrimmedString('host_1'), objectName: 'Host'),
+            ]);
+        $this->readHostGroupRepository
+            ->expects($this->exactly(2))
+            ->method('findLinkedHosts')
+            ->willReturnOnConsecutiveCalls([1, 50], [1, 50]);
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('deleteHostLinks')
+            ->with($this->updateHostGroupRequest->id, []);
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('addHostLinks')
+            ->with($this->updateHostGroupRequest->id, []);
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should not insert again the hosts still linked after the removal for an admin user',
+    function (): void {
+        $this->updateHostGroupRequest->hosts = [2, 99];
+
+        $this->adminResolver
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOne')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroup')
+            ->willReturn([
+                new SimpleEntity(id: 1, name: new TrimmedString('host_1'), objectName: 'Host'),
+            ]);
+        $this->readHostGroupRepository
+            ->expects($this->exactly(2))
+            ->method('findLinkedHosts')
+            ->willReturnOnConsecutiveCalls([1, 99], [2, 99]);
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('deleteHostLinks')
+            ->with($this->updateHostGroupRequest->id, [1]);
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('addHostLinks')
+            ->with($this->updateHostGroupRequest->id, [2]);
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should insert only once a host given several times',
+    function (): void {
+        $this->updateHostGroupRequest->hosts = [2, 2];
+
+        $this->adminResolver
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOne')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+        $this->readHostRepository
+            ->expects($this->once())
+            ->method('findByHostGroup')
+            ->willReturn([]);
+        $this->readHostGroupRepository
+            ->expects($this->exactly(2))
+            ->method('findLinkedHosts')
+            ->willReturnOnConsecutiveCalls([], [2]);
+        $this->writeHostGroupRepository
+            ->expects($this->once())
+            ->method('addHostLinks')
+            ->with($this->updateHostGroupRequest->id, [2]);
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)->toBeInstanceOf(NoContentResponse::class);
+    }
+);
