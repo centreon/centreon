@@ -154,7 +154,8 @@ export const getCommandsResponse = () =>
 // What a save sends when no check command is set, on both platforms.
 export const untouchedCheckOptionsPayload = {
   args: [],
-  command_id: null
+  command_id: null,
+  macros: []
 };
 
 // onPrem only: cloud sends the four fields it allows.
@@ -220,6 +221,42 @@ export const getFormHostTemplatesResponse = () =>
     { id: 7, name: 'linux-server-standard' }
   ]);
 
+// What #11961 gives for one template: its own macros (no parent), then the
+// ones it inherits. Template 5 lends OS, TIMEOUT and, from its command, WARNING;
+// template 6 its own OS (which 5 wins when first) and a WARNING that beats any
+// command's. Template 7 is unknown to the endpoint: 404.
+export const getTemplateMacrosResponses = (): Record<number, object> => ({
+  5: {
+    id: 5,
+    macros: [
+      { id: 21, is_password: false, name: 'OS', value: 'linux' },
+      {
+        id: 31,
+        is_password: false,
+        name: 'TIMEOUT',
+        parent: 'template',
+        value: '10'
+      },
+      {
+        id: 41,
+        is_password: false,
+        name: 'WARNING',
+        parent: 'command',
+        value: ''
+      }
+    ],
+    name: 'generic-active-host'
+  },
+  6: {
+    id: 6,
+    macros: [
+      { id: 51, is_password: false, name: 'OS', value: 'windows' },
+      { id: 52, is_password: false, name: 'WARNING', value: '80' }
+    ],
+    name: 'generic-passive-host'
+  }
+});
+
 // The shape MON-210415 (#11809) gives the detail endpoint: objects where the
 // create takes ids. Mocked here until it lands; nothing stubs it at runtime.
 //
@@ -232,7 +269,26 @@ export const getHostResponse = () => ({
   check_options: {
     args: ['3', '80%'],
     command: { id: 9, name: 'check-host-alive' },
-    macros: []
+    // The host's own macros, then the inherited ones. Null keys are left out:
+    // a password's value, a direct macro's parent.
+    macros: [
+      { id: 1, is_password: false, name: 'SNMPPORT', value: '161' },
+      { id: 2, is_password: true, name: 'API_TOKEN' },
+      {
+        id: 11,
+        is_password: false,
+        name: 'OS',
+        parent: 'template',
+        value: 'linux'
+      },
+      {
+        id: 4,
+        is_password: false,
+        name: 'WARNING',
+        parent: 'command',
+        value: ''
+      }
+    ]
   },
   child_hosts: [{ id: 2, name: 'host 2' }],
   // `low_flap_threshold` is unset, so the endpoint leaves it out.

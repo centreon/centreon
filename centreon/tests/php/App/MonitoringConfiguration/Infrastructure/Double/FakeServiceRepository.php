@@ -35,6 +35,9 @@ final class FakeServiceRepository implements ServiceRepository
     /** @var array<int, Service> */
     public array $services = [];
 
+    /** @var array<int, int> the service template of a service, indexed by service id */
+    public array $serviceTemplateIdOf = [];
+
     public function add(Service $service): void
     {
         do {
@@ -53,6 +56,17 @@ final class FakeServiceRepository implements ServiceRepository
         $services = array_values(array_filter(
             $this->services,
             static fn (Service $service): bool => $service->hostId->value === $hostId->value,
+        ));
+
+        return new Collection($services, Service::class);
+    }
+
+    public function findFromServiceTemplates(HostId $hostId, array $serviceTemplateIds): Collection
+    {
+        $services = array_values(array_filter(
+            $this->services,
+            fn (Service $service): bool => $service->hostId->value === $hostId->value
+                && in_array($this->serviceTemplateIdOf[$service->id()->value] ?? null, $serviceTemplateIds, true),
         ));
 
         return new Collection($services, Service::class);

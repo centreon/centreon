@@ -23,12 +23,11 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
-use App\MonitoringConfiguration\Infrastructure\Service\CommandArgumentsFormatter;
+use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidEventHandlerCommand;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * The "Data Processing" sub-object of the CreateHost payload. Three-state directives are typed as
@@ -80,47 +79,9 @@ final readonly class DataProcessingInput
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Count(max: 0, maxMessage: 'event_handler_args is not available on a Cloud platform.'),
         ])]
-        #[Assert\All([
-            new Assert\Type('string'),
-            // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R#
-            // (CommandArgumentsFormatter), matching legacy. The legacy reader splits on '!' and decodes
-            // those tokens, so an argument carrying the '!' delimiter or a literal #BR#/#T#/#R# would not
-            // round-trip; raw \n\t\r stay allowed because the formatter encodes them. Same rule as
-            // CheckOptionsInput::$args.
-            new Assert\Regex(
-                pattern: '/!/',
-                match: false,
-                message: 'An event handler argument cannot contain "!".',
-            ),
-            new Assert\Regex(
-                pattern: '/#(?:BR|T|R)#/',
-                match: false,
-                message: 'An event handler argument cannot contain the reserved escape tokens #BR#, #T# or #R#.',
-            ),
-        ])]
+        #[Assert\All([new Assert\Type('string')])]
+        #[ValidCommandArguments('event handler')]
         public array $eventHandlerArgs = [],
     ) {
-    }
-
-    #[Assert\Callback]
-    public function validateFormattedArgumentsFitStorage(ExecutionContextInterface $context): void
-    {
-        // No per-argument or count limit: only the single string the repository ultimately stores
-        // in the TEXT column `host.command_command_id_arg2` is bounded. Reuse the exact formatter
-        // the repository uses so the measured length is precisely what will be persisted.
-        $args = array_values(array_filter($this->eventHandlerArgs, 'is_string'));
-        if (count($args) !== count($this->eventHandlerArgs)) {
-            // Non-string entries are already reported by the Assert\All(Type) constraint above.
-            return;
-        }
-
-        $formatted = CommandArgumentsFormatter::format($args);
-        // Byte length ('8bit'), not character count: the TEXT column limit is in bytes, so a
-        // multi-byte argument must be measured as the bytes it will actually occupy.
-        if ($formatted !== null && \mb_strlen($formatted, '8bit') > CommandArgumentsFormatter::MAX_STORAGE_LENGTH) {
-            $context->buildViolation('The event handler arguments are too long.')
-                ->atPath('eventHandlerArgs')
-                ->addViolation();
-        }
     }
 }

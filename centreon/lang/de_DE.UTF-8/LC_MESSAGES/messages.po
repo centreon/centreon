@@ -5297,6 +5297,10 @@ msgid "Reordering cancelled, row {{position}} returned to its original position"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Replacing the templates will delete all the services created by the previous templates on every selected host."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Row {{position}} dropped at position {{newPosition}}"
 msgstr ""
 

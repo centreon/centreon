@@ -223,6 +223,27 @@ final class NotificationsTest extends TestCase
         self::assertCount(1, $changed->contactIds);
     }
 
+    public function testWithReplacesTheContactsAndTheContactGroupsAndKeepsTheRest(): void
+    {
+        $original = new Notifications(
+            TriStateEnum::True,
+            new Collection([new NotificationContactId(3)], NotificationContactId::class),
+            new Collection([new ContactGroupId(4)], ContactGroupId::class),
+            [NotificationOptionEnum::Down],
+            30,
+        );
+
+        $changed = $original->with(
+            contactIds: new Collection([new NotificationContactId(7), new NotificationContactId(7)], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
+        );
+
+        self::assertSame([7], array_map(static fn (NotificationContactId $id): int => $id->value, $changed->contactIds->toArray()));
+        self::assertCount(0, $changed->contactGroupIds);
+        self::assertSame([NotificationOptionEnum::Down], $changed->options);
+        self::assertSame(30, $changed->interval);
+    }
+
     public function testWithStillEnforcesTheInvariants(): void
     {
         $this->expectException(\InvalidArgumentException::class);

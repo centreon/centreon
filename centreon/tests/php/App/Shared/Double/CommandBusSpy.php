@@ -35,11 +35,17 @@ final class CommandBusSpy implements CommandBus
 
     public bool $throws = false;
 
+    public ?\Throwable $exception = null;
+
     public mixed $result = null;
 
     public function execute(object $command): mixed
     {
         $this->executed[] = $command;
+
+        if ($this->exception instanceof \Throwable) {
+            throw $this->exception;
+        }
 
         if ($this->throws) {
             throw new \RuntimeException('The command failed.');

@@ -32,11 +32,13 @@ export const hostFormMediasEndpoint = '/configuration/hosts/medias';
 export const hostFormHostTemplatesEndpoint =
   '/configuration/hosts/host_templates';
 
+// One template's macros, its own and those it inherits.
+export const getHostTemplateMacrosEndpoint = ({ id }: { id: number }): string =>
+  `${hostFormHostTemplatesEndpoint}/${id}`;
+
 export const timezonesEndpoint = '/configuration/timezones';
 
-// No host-scoped command selector exists: this one is granted by the command
-// ACLs rather than by host write access.
-export const commandsEndpoint = '/configuration/commands';
+export const hostFormCommandsEndpoint = '/configuration/hosts/commands';
 
 export const getHostEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/${id}`;

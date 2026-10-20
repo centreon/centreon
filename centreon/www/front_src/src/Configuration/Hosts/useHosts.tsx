@@ -43,9 +43,9 @@ const getAdapter = (context: PlatformContext) => (data: unknown) =>
   );
 
 const getApi = (context: PlatformContext): APIType => ({
-  // This endpoint takes `activate`, not the `is_activated` of the older
-  // migrated listings.
-  activationField: 'activate',
+  // `PatchHostInput` takes `activated`, not the `is_activated` of the older
+  // migrated listings. Any other key is ignored: the host would stay as is.
+  activationField: 'activated',
   adapter: getAdapter(context),
   apiFormat: 'JSON-LD',
   baseEndpoint: hostsBaseEndpoint,

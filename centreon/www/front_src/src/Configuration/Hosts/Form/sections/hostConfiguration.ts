@@ -1,10 +1,11 @@
 import { InputType, type SelectEntry } from '@centreon/ui';
 
+import type { TFunction } from 'i18next';
 import { JsonDecoder } from 'ts.data.json';
-import { number, object, string } from 'yup';
+import { array, number, object, string } from 'yup';
 
 import {
-  commandsEndpoint,
+  hostFormCommandsEndpoint,
   hostFormPollersEndpoint,
   hostFormTimePeriodsEndpoint,
   timezonesEndpoint
@@ -14,15 +15,18 @@ import type { NamedEntity } from '../../models';
 import {
   labelActiveChecksEnabled,
   labelAlias,
+  labelAlreadyExists,
   labelArgs,
   labelCheckCommand,
   labelCheckPeriod,
   labelCreateServicesLinkedToTemplates,
+  labelCustomMacros,
   labelHostConfiguration,
   labelInvalidAddress,
   labelIpAddress,
   labelMaxCheckAttempts,
   labelMonitoringServer,
+  labelMustBeAtMostCharacters,
   labelMustBeIntegerOfAtLeastOne,
   labelName,
   labelNameContainsForbiddenCharacters,
@@ -36,9 +40,17 @@ import {
   labelSnmpCommunity,
   labelSnmpVersion,
   labelTemplates,
-  labelTimezone
+  labelTimezone,
+  labelValue
 } from '../../translatedLabels';
 import { argumentsToText, textToArguments } from '../commandArguments';
+import Macros from '../Macros';
+import {
+  hostMacroDecoder,
+  isUnchangedInherited,
+  type MacroRow,
+  toMacroName
+} from '../macroRows';
 import ResolveAddress from '../ResolveAddress';
 import { buildSelector, toIds } from '../selector';
 import Templates, { type TemplateRow } from '../Templates';
@@ -48,6 +60,7 @@ import {
   triStateDecoder,
   triStateOptions
 } from '../triState';
+import { withUpdateMode } from '../updateMode';
 import type { FormSection } from './models';
 
 // Uniqueness is not checked here: the server owns it, and a client check goes
@@ -56,6 +69,10 @@ const nameMaxLength = 200;
 const aliasMaxLength = 200;
 const addressMaxLength = 255;
 const snmpCommunityMaxLength = 255;
+// `HostMacroInput`: the name once wrapped in `$_HOST…$` fits 255 characters,
+// the value 4096 characters.
+const macroNameMaxLength = 248;
+const macroValueMaxLength = 4096;
 // The set `CreateHostInput` forbids, character for character. A backslash is
 // not among them, so the form must not refuse `C:\temp` either.
 const forbiddenNameCharacters = /^[^~!$%^&*"|'<>?,()=]*$/;
@@ -98,6 +115,7 @@ interface SchedulingOptionsValues {
 interface CheckOptionsValues {
   args: string;
   command: NamedEntity | null;
+  macros: Array<MacroRow>;
 }
 
 interface HostConfigurationDetail {
@@ -125,8 +143,29 @@ const defaultSchedulingOptions: SchedulingOptionsValues = {
 
 const defaultCheckOptions: CheckOptionsValues = {
   args: '',
-  command: null
+  command: null,
+  macros: []
 };
+
+// A changed inherited macro goes back with its id and parent, so the server
+// turns it into the host's own.
+const toMacroPayload = ({
+  hasStoredPassword,
+  id,
+  isErased,
+  isPassword,
+  name,
+  parent,
+  value
+}: MacroRow) => ({
+  id,
+  is_password: isPassword,
+  name: toMacroName(name),
+  parent,
+  // Null keeps a stored password; once cleared, what is typed replaces it,
+  // empty included.
+  value: hasStoredPassword && !isErased ? null : value
+});
 
 const optionalNumberDecoder = JsonDecoder.optional(
   JsonDecoder.nullable(JsonDecoder.number)
@@ -169,7 +208,10 @@ const checkOptionsDecoder = JsonDecoder.object<CheckOptionsValues>(
       JsonDecoder.nullable(
         JsonDecoder.object(namedEntityDecoder, 'Check command')
       )
-    ).map((value) => value ?? null)
+    ).map((value) => value ?? null),
+    macros: JsonDecoder.optional(
+      JsonDecoder.array(hostMacroDecoder, 'Macros')
+    ).map((value) => value ?? [])
   },
   'Check options'
 );
@@ -184,6 +226,46 @@ const getAtLeastOneSchema = (message: string) =>
     .typeError(message)
     .integer(message)
     .min(1, message);
+
+const getMacrosSchema = (t: TFunction) =>
+  array()
+    .of(
+      object({
+        name: string()
+          .trim()
+          .max(
+            macroNameMaxLength,
+            t(labelMustBeAtMostCharacters, {
+              label: t(labelName),
+              max: macroNameMaxLength
+            })
+          )
+          .required(t(labelRequired)),
+        value: string().max(
+          macroValueMaxLength,
+          t(labelMustBeAtMostCharacters, {
+            label: t(labelValue),
+            max: macroValueMaxLength
+          })
+        )
+      })
+    )
+    // The server silently keeps the first of two macros of the same name.
+    // Reserved names are left to it.
+    .test('unique-names', function checkUniqueNames(macros) {
+      const names = (macros ?? []).map(({ name }) => toMacroName(name ?? ''));
+      const duplicateIndex = names.findIndex(
+        (name, index) => name !== '' && names.indexOf(name) !== index
+      );
+
+      return (
+        duplicateIndex === -1 ||
+        this.createError({
+          message: t(labelAlreadyExists),
+          path: `${this.path}[${duplicateIndex}].name`
+        })
+      );
+    });
 
 const getSchedulingNumberInput = ({
   fieldName,
@@ -211,6 +293,40 @@ const getSchedulingTriStateInput = ({
   label,
   segmentedButtons: { options: triStateOptions },
   type: InputType.SegmentedButtons
+});
+
+// The rules on one host's own fields, and the required poller. A mass change
+// shows none of the former and leaves the poller optional.
+const getHostOwnSchema = (t: TFunction) => ({
+  address: string()
+    .trim()
+    .max(addressMaxLength)
+    // Without this an empty address reports itself as invalid rather than as
+    // missing, which the name field next to it does not do.
+    .matches(address, {
+      excludeEmptyString: true,
+      message: t(labelInvalidAddress)
+    })
+    .required(t(labelRequired)),
+  alias: string().trim().max(aliasMaxLength),
+  // Both fields are trimmed the way the server normalises them, so blanks
+  // report as missing instead of passing to a 422.
+  name: string()
+    .trim()
+    .max(nameMaxLength)
+    .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
+    .test(
+      'is-not-a-module',
+      t(labelNameMustNotStartWithModule),
+      (value) => !moduleNamePrefix.test(value ?? '')
+    )
+    .required(t(labelRequired)),
+  poller: object({
+    id: number().required(t(labelRequired)),
+    name: string()
+  })
+    .nullable()
+    .required(t(labelRequired))
 });
 
 export const hostConfiguration: FormSection<HostConfigurationDetail> = {
@@ -272,7 +388,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     snmpCommunity: 'snmp_community',
     snmpVersion: 'snmp_version'
   },
-  getInputs: ({ isCloudPlatform, t }) => {
+  getInputs: ({ isCloudPlatform, isMassChange, t }) => {
     const checkPeriod = {
       connectedAutocomplete: buildSelector({
         endpoint: hostFormTimePeriodsEndpoint,
@@ -300,68 +416,75 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       })
     ];
 
+    const poller = {
+      connectedAutocomplete: buildSelector({
+        endpoint: hostFormPollersEndpoint,
+        getOptionLabel: (option) => (option as SelectEntry)?.name,
+        // The listing filter beside this field carries the same label and
+        // reads every poller, where this one reads only the active ones.
+        queryKey: 'host-form-poller'
+      }),
+      dataTestId: 'host-form-poller',
+      fieldName: 'poller',
+      label: t(labelMonitoringServer),
+      required: !isMassChange,
+      type: InputType.SingleConnectedAutocomplete
+    };
+
     return [
       // One row at every panel width, as designed: the fields share it equally
       // and the resolve button keeps its own width.
-      {
-        fieldName: 'basic-information',
-        grid: {
-          // The resolve route does not exist on cloud.
-          className: isCloudPlatform
-            ? 'grid-cols-4'
-            : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
-          columns: [
+      // Name, alias and address belong to one host: legacy mass change has
+      // none.
+      ...(isMassChange
+        ? []
+        : [
             {
-              dataTestId: 'host-form-name',
-              fieldName: 'name',
-              label: t(labelName),
-              required: true,
-              type: InputType.Text
-            },
-            {
-              dataTestId: 'host-form-alias',
-              fieldName: 'alias',
-              label: t(labelAlias),
-              type: InputType.Text
-            },
-            {
-              connectedAutocomplete: buildSelector({
-                endpoint: hostFormPollersEndpoint,
-                getOptionLabel: (option) => (option as SelectEntry)?.name,
-                // The listing filter beside this field carries the same label
-                // and reads every poller, where this one reads only the active
-                // ones.
-                queryKey: 'host-form-poller'
-              }),
-              dataTestId: 'host-form-poller',
-              fieldName: 'poller',
-              label: t(labelMonitoringServer),
-              required: true,
-              type: InputType.SingleConnectedAutocomplete
-            },
-            {
-              dataTestId: 'host-form-address',
-              fieldName: 'address',
-              label: t(labelIpAddress),
-              required: true,
-              type: InputType.Text
-            },
-            ...(isCloudPlatform
-              ? []
-              : [
+              fieldName: 'basic-information',
+              grid: {
+                // The resolve route does not exist on cloud.
+                className: isCloudPlatform
+                  ? 'grid-cols-4'
+                  : 'grid-cols-[repeat(4,minmax(0,1fr))_auto]',
+                columns: [
                   {
-                    custom: { Component: ResolveAddress },
-                    dataTestId: 'host-form-address-resolve',
-                    fieldName: 'address-resolve',
-                    label: t(labelResolve),
-                    type: InputType.Custom
-                  }
-                ])
-          ]
-        },
-        label: 'host-form-basic-information',
-        type: InputType.Grid
-      },
+                    dataTestId: 'host-form-name',
+                    fieldName: 'name',
+                    label: t(labelName),
+                    required: true,
+                    type: InputType.Text
+                  },
+                  {
+                    dataTestId: 'host-form-alias',
+                    fieldName: 'alias',
+                    label: t(labelAlias),
+                    type: InputType.Text
+                  },
+                  poller,
+                  {
+                    dataTestId: 'host-form-address',
+                    fieldName: 'address',
+                    label: t(labelIpAddress),
+                    required: true,
+                    type: InputType.Text
+                  },
+                  ...(isCloudPlatform
+                    ? []
+                    : [
+                        {
+                          custom: { Component: ResolveAddress },
+                          dataTestId: 'host-form-address-resolve',
+                          fieldName: 'address-resolve',
+                          label: t(labelResolve),
+                          type: InputType.Custom
+                        }
+                      ])
+                ]
+              },
+              label: 'host-form-basic-information',
+              type: InputType.Grid
+            }
+          ]),
       {
         fieldName: 'monitoring-layout',
         grid: {
@@ -370,7 +493,9 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
             {
               fieldName: 'host-details',
               grid: {
-                className: 'grid-cols-1 @[600px]:grid-cols-3',
+                className: isMassChange
+                  ? 'grid-cols-1 @[600px]:grid-cols-2'
+                  : 'grid-cols-1 @[600px]:grid-cols-3',
                 columns: [
                   {
                     dataTestId: 'host-form-snmp-community',
@@ -407,7 +532,10 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                     fieldName: 'timezone',
                     label: t(labelTimezone),
                     type: InputType.SingleConnectedAutocomplete
-                  }
+                  },
+                  // After the SNMP community: a password manager types into
+                  // the field before it, and would open this selector.
+                  ...(isMassChange ? [poller] : [])
                 ]
               },
               label: 'host-form-host-details',
@@ -471,7 +599,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
                   { name: 'type[]', value: 'Check' },
                   { name: 'is_activated', value: true }
                 ],
-                endpoint: commandsEndpoint,
+                endpoint: hostFormCommandsEndpoint,
                 getOptionLabel: (option) => (option as SelectEntry)?.name,
                 queryKey: 'host-form-check-command'
               }),
@@ -494,24 +622,31 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
         label: 'host-form-check-options',
         type: InputType.Grid
       },
-      // Templates in the first column; the second is left to the macros.
+      // Templates beside the host's own macros.
       {
         fieldName: 'templates-layout',
         grid: {
-          className: 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
+          className: isMassChange
+            ? 'grid-cols-1'
+            : 'grid-cols-1 gap-x-8 @[800px]:grid-cols-2',
           columns: [
             {
               fieldName: 'templates-block',
               grid: {
                 className: 'grid-cols-1',
                 columns: [
-                  {
-                    custom: { Component: Templates },
-                    dataTestId: 'host-form-templates',
-                    fieldName: 'templates',
-                    label: t(labelTemplates),
-                    type: InputType.Custom
-                  },
+                  withUpdateMode({
+                    field: 'templates',
+                    input: {
+                      custom: { Component: Templates },
+                      dataTestId: 'host-form-templates',
+                      fieldName: 'templates',
+                      label: t(labelTemplates),
+                      type: InputType.Custom
+                    },
+                    isMassChange,
+                    t
+                  }),
                   // Cloud always creates them.
                   ...(isCloudPlatform
                     ? []
@@ -528,7 +663,20 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
               },
               label: 'host-form-templates-block',
               type: InputType.Grid
-            }
+            },
+            // Not in a mass change yet: an upsert matches macros by id only,
+            // so a name a host already owns would fail on that host.
+            ...(isMassChange
+              ? []
+              : [
+                  {
+                    custom: { Component: Macros },
+                    dataTestId: 'host-form-check-options-macros',
+                    fieldName: 'checkOptions.macros',
+                    label: t(labelCustomMacros),
+                    type: InputType.Custom
+                  }
+                ])
           ]
         },
         label: 'host-form-templates-layout',
@@ -536,36 +684,13 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       }
     ];
   },
-  getSchema: ({ t }) => ({
-    address: string()
-      .trim()
-      .max(addressMaxLength)
-      // Without this an empty address reports itself as invalid rather than
-      // as missing, which the name field next to it does not do.
-      .matches(address, {
-        excludeEmptyString: true,
-        message: t(labelInvalidAddress)
-      })
-      .required(t(labelRequired)),
-    alias: string().trim().max(aliasMaxLength),
-    // Both fields are trimmed the way the server normalises them, so blanks
-    // report as missing instead of passing to a 422.
-    name: string()
-      .trim()
-      .max(nameMaxLength)
-      .matches(forbiddenNameCharacters, t(labelNameContainsForbiddenCharacters))
-      .test(
-        'is-not-a-module',
-        t(labelNameMustNotStartWithModule),
-        (value) => !moduleNamePrefix.test(value ?? '')
-      )
-      .required(t(labelRequired)),
-    poller: object({
-      id: number().required(t(labelRequired)),
-      name: string()
-    })
-      .nullable()
-      .required(t(labelRequired)),
+  getSchema: ({ isMassChange, t }) => ({
+    ...(isMassChange
+      ? {
+          poller: object({ id: number(), name: string() }).nullable()
+        }
+      : getHostOwnSchema(t)),
+    checkOptions: object({ macros: getMacrosSchema(t) }),
     schedulingOptions: object({
       maxCheckAttempts: getAtLeastOneSchema(t(labelMustBeIntegerOfAtLeastOne)),
       normalCheckInterval: getAtLeastOneSchema(
@@ -576,6 +701,7 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
     snmpCommunity: string().max(snmpCommunityMaxLength)
   }),
   label: labelHostConfiguration,
+
   toPayload: (values, { isCloudPlatform }) => {
     const {
       name,
@@ -613,7 +739,12 @@ export const hostConfiguration: FormSection<HostConfigurationDetail> = {
       check_options: {
         // Left over from a command since removed, they would be refused.
         args: checkOptions.command ? textToArguments(checkOptions.args) : [],
-        command_id: checkOptions.command?.id ?? null
+        command_id: checkOptions.command?.id ?? null,
+        // Unchanged inherited macros stay inherited. Not sent, they cannot go
+        // stale once the templates or the command change.
+        macros: (checkOptions.macros ?? [])
+          .filter((macro) => !isUnchangedInherited(macro))
+          .map(toMacroPayload)
       },
       // Refused on cloud, which always creates them.
       ...(!isCloudPlatform && {

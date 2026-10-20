@@ -57,25 +57,45 @@ runs:
 
         # Check and set release scope
         if [[ "$RELEASE_SCOPE" == "cloud" ]]; then
-          RELEASE_CLOUD=1
+          TAG_PREFIX="release-cloud"
         else
-          RELEASE_CLOUD=0
+          TAG_PREFIX="release-onprem"
         fi
 
         # Define new stable bundle tag
         NEW_STABLE_BUNDLE_TAG="$RELEASE_BUNDLE_TAG"
 
-        # Define major_version for tag pattern
-        # We need it to be the same as the previous stable bundle tag
-        RELEASE_BRANCH_MAJOR_VERSION="$MAJOR_VERSION"
+        if [[ -z "$MAJOR_VERSION" ]]; then
+          echo "::error::major_version is empty, cannot look for the previous release bundle tag"
+          exit 1
+        fi
 
-        # Get previous and new release bundle tags
-        PREVIOUS_STABLE_BUNDLE_TAG=""
-        # Previous release bundle tag
-        if [[ $RELEASE_CLOUD -eq 1 ]]; then
-          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
-        else
-          PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
+        if git rev-parse -q --verify "refs/tags/$NEW_STABLE_BUNDLE_TAG" > /dev/null; then
+          echo "::error::Release bundle tag $NEW_STABLE_BUNDLE_TAG already exists"
+          exit 1
+        fi
+
+        # Existing major: previous bundle of the same major and scope
+        PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "${TAG_PREFIX}-*-${MAJOR_VERSION}" | head -n 1)
+
+        # Brand new major: latest bundle of the highest lower major, same scope
+        if [[ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]]; then
+          CANDIDATES=""
+          while read -r tag; do
+            [[ "$tag" =~ ^${TAG_PREFIX}-[0-9]{8}-([0-9]+\.[0-9]+)$ ]] || continue
+            tag_major="${BASH_REMATCH[1]}"
+            if [[ "$(printf '%s\n%s\n' "$tag_major" "$MAJOR_VERSION" | sort -V | head -n 1)" != "$tag_major" ]]; then
+              echo "::error::No $TAG_PREFIX bundle tag for $MAJOR_VERSION, but a higher major exists ($tag): refusing to guess the previous release"
+              exit 1
+            fi
+            CANDIDATES+="$tag_major $tag"$'\n'
+          done < <(git tag -l "${TAG_PREFIX}-*")
+          PREVIOUS_STABLE_BUNDLE_TAG=$(printf '%s' "$CANDIDATES" | sort -k1,1V -k2,2V | tail -n 1 | cut -d ' ' -f2)
+        fi
+
+        if [[ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]]; then
+          echo "::error::No previous $TAG_PREFIX bundle tag found, cannot compute the new component tags"
+          exit 1
         fi
 
         echo "#====#"
@@ -110,6 +130,11 @@ runs:
         COMPONENT_DIR=""
         PREVIOUS_STABLE_BUNDLE_TAG="$PREVIOUS_STABLE_BUNDLE_TAG_OUTPUT"
         PREVIOUS_STABLE_COMPONENT_TAG=""
+
+        if [[ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]]; then
+          echo "::error::Previous release bundle tag is empty"
+          exit 1
+        fi
 
         # Check and set release scope
         if [[ "$RELEASE_SCOPE" == "cloud" ]]; then

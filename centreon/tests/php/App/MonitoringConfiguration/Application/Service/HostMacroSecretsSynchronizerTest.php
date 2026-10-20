@@ -57,7 +57,7 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
     {
         $macros = $this->synchronizer->synchronize([$this->macro('pwd', 's3cr3t', true)], [], self::HOST_UUID);
 
-        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTPWD', $macros[0]->value);
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTPWD', $macros[0]->value);
         self::assertSame([['customPath' => 'monitoring/hosts', 'key' => '_HOSTPWD', 'value' => 's3cr3t', 'uuid' => self::HOST_UUID]], $this->vault->writeCalls);
     }
 
@@ -82,7 +82,7 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
 
         $macros = $this->synchronizer->synchronize([$this->macro('mypwd', self::TEMPLATE_PWD, true)], [], self::HOST_UUID);
 
-        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTMYPWD', $macros[0]->value);
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTMYPWD', $macros[0]->value);
         self::assertSame('template-secret', $this->vault->writeCalls[0]['value']);
         self::assertSame(self::HOST_UUID, $this->vault->writeCalls[0]['uuid']);
     }
@@ -140,8 +140,8 @@ final class HostMacroSecretsSynchronizerTest extends TestCase
 
         $written = array_column($this->vault->writeCalls, 'value', 'key');
         self::assertSame(['_HOSTOLD' => 'fresh-secret', '_HOSTNEW' => 'renamed-secret'], $written);
-        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTNEW', $macros[0]->value);
-        self::assertSame('secret::vault::monitoring/hosts/new-uuid::_HOSTOLD', $macros[1]->value);
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTNEW', $macros[0]->value);
+        self::assertSame('secret::vault::monitoring/hosts/host-uuid::_HOSTOLD', $macros[1]->value);
         self::assertSame([], $this->vault->deletedKeys);
     }
 

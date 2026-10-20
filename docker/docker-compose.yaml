@@ -1,9 +1,11 @@
 services:
   centengine:
-    image: "docker.centreon.com/centreon/centreon-engine-trixie:${ENGINE_TAG:-${TAG}}"
+    image: "docker.centreon.com/centreon/centreon-engine-trixie:${ENGINE_TAG:?set ENGINE_TAG in .env}"
     container_name: "${NAME}-centengine"
     hostname: centengine
     restart: unless-stopped
+    cap_add:
+      - NET_RAW
     environment:
       NAME: "${NAME}"
       TZ: "${TZ}"
@@ -37,7 +39,7 @@ services:
         condition: service_healthy
 
   gorgone:
-    image: "docker.centreon.com/centreon/centreon-gorgone-trixie:${GORGONE_TAG:-${TAG}}"
+    image: "docker.centreon.com/centreon/centreon-gorgone-trixie:${GORGONE_TAG:?set GORGONE_TAG in .env}"
     container_name: "${NAME}-gorgone"
     hostname: gorgone
     restart: unless-stopped
@@ -68,7 +70,7 @@ services:
       retries: 3
 
   snmptrapd:
-    image: "docker.centreon.com/centreon/centreon-snmptrapd-trixie:${SNMPTRAPD_TAG:-${TAG}}"
+    image: "docker.centreon.com/centreon/centreon-snmptrapd-trixie:${SNMPTRAPD_TAG:?set SNMPTRAPD_TAG in .env}"
     container_name: "${NAME}-snmptrap"
     hostname: snmptrapd
     restart: unless-stopped
@@ -89,7 +91,7 @@ services:
       retries: 3
 
   centreontrapd:
-    image: "docker.centreon.com/centreon/centreon-centreontrapd-trixie:${CENTREONTRAPD_TAG:-${TAG}}"
+    image: "docker.centreon.com/centreon/centreon-centreontrapd-trixie:${CENTREONTRAPD_TAG:?set CENTREONTRAPD_TAG in .env}"
     container_name: "${NAME}-centreontrap"
     hostname: centreontrapd
     restart: unless-stopped

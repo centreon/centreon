@@ -1185,8 +1185,8 @@ class CentreonService
                 $selectedHosts .= 'AND hsr.host_host_id IN (';
             }
             foreach ($hostIdList as $k => $v) {
-                $listValues .= ':host' . $v . ',';
-                $queryValues['host' . $v] = (int) $v;
+                $listValues .= ':host' . $k . ',';
+                $queryValues['host' . $k] = (int) $v;
             }
             $selectedHosts .= rtrim($listValues, ',') . ') ';
         }
@@ -1197,8 +1197,8 @@ class CentreonService
         if ($serviceIdList !== []) {
             $selectedServices .= 'AND hsr.service_service_id IN (';
             foreach ($serviceIdList as $k => $v) {
-                $listValues .= ':service' . $v . ',';
-                $queryValues['service' . $v] = (int) $v;
+                $listValues .= ':service' . $k . ',';
+                $queryValues['service' . $k] = (int) $v;
             }
             $selectedServices .= rtrim($listValues, ',') . ') ';
         }
@@ -1230,14 +1230,19 @@ class CentreonService
                     $serviceList[] = ['id' => $serviceCompleteId, 'text' => $serviceCompleteName];
                 }
             } else {
+                // Anomaly detection services (register 3) hang on regular hosts and are
+                // offered by the search (centreon_configuration_service), keep them on reload.
                 $queryService = 'SELECT DISTINCT s.service_description, s.service_id, h.host_name, h.host_id '
                     . 'FROM host h, service s, host_service_relation hsr '
                     . 'WHERE hsr.host_host_id = h.host_id '
                     . 'AND hsr.service_service_id = s.service_id '
-                    . "AND h.host_register = '{$register}' AND s.service_register = '{$register}' "
+                    . 'AND h.host_register = :hostRegister AND s.service_register IN (:serviceRegister, :adServiceRegister) '
                     . $selectedHosts
                     . $selectedServices
                     . 'ORDER BY h.host_name ';
+                $queryValues['hostRegister'] = (string) $register;
+                $queryValues['serviceRegister'] = (string) $register;
+                $queryValues['adServiceRegister'] = (string) $register === '1' ? '3' : (string) $register;
 
                 $stmt = $this->db->prepare($queryService);
 

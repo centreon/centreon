@@ -34,7 +34,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 
 /**
  * Owns the macro wire object in both directions, for every endpoint handling host macros (GetHost,
- * PutHost, PatchHost, CreateHost, the host-template skeleton, the command macros).
+ * PutHost, PatchHost, CreateHost, the host template macros, the command macros).
  *
  * @implements TransformerInterface<HostMacro, HostMacroOutput>
  */

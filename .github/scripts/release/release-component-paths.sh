@@ -31,3 +31,7 @@ centreon-ha
 .version.centreon-ha
 packaging/centreon-ha
 "
+
+COMPONENT_PATHS[helm]="
+.github/helm
+"

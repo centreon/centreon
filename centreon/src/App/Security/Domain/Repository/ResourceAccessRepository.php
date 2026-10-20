@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
@@ -59,6 +60,27 @@ interface ResourceAccessRepository
      * just the creator's own.
      */
     public function flagAllResourcesAsChanged(): void;
+
+    /**
+     * Copies a host's ACL scope onto a freshly duplicated host, so the copy is visible to exactly the
+     * same Access Groups as its source without waiting for the `centAcl` cron:
+     *  - the configuration relations `acl_resources_host_relations` and `acl_resources_hostex_relations`
+     *    (mirroring legacy centreonACL::duplicateHostAcl), and
+     *  - the real-time `centreon_acl` rows scoping the host per group.
+     *
+     * Only host-level rows are copied here: the copy has no services yet (they are duplicated after the
+     * commit). The service-level `centreon_acl` rows are written later by
+     * {@see self::duplicateHostServiceAccess()}, once the copy's services exist.
+     */
+    public function duplicateHostAccess(HostId $sourceHostId, HostId $newHostId): void;
+
+    /**
+     * Completes {@see self::duplicateHostAccess()} once the copy's services have been duplicated: for
+     * every service now linked to the copy and every Access Group that already sees the source host,
+     * writes the real-time `centreon_acl` service row, so a non-admin sees the copy's services without
+     * waiting for the `centAcl` cron (mirrors legacy updateACL('DUP') over the duplicated services).
+     */
+    public function duplicateHostServiceAccess(HostId $sourceHostId, HostId $newHostId): void;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
@@ -127,4 +149,15 @@ interface ResourceAccessRepository
      * @return Collection<ContactGroupId> empty means the user can access no contact group at all
      */
     public function findAccessibleContactGroupIds(UserId $userId): Collection;
+
+    /**
+     * Hosts follow the real-time ACL cache (`centreon_acl`), which already resolves every
+     * resource-scoping rule per Access Group, so a restricted user is always limited to the hosts
+     * listed there: like contacts, there is no "no restriction applies" case to signal.
+     *
+     * @param ?Collection<HostId> $among when given, only these hosts are looked up, instead of every host the user can see
+     *
+     * @return Collection<HostId> empty means the user can access no host at all
+     */
+    public function findAccessibleHostIds(UserId $userId, ?Collection $among = null): Collection;
 }

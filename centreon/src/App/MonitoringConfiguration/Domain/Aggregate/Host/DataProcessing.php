@@ -39,6 +39,12 @@ use Webmozart\Assert\Assert;
 final readonly class DataProcessing
 {
     /**
+     * Seconds a Centreon Monitoring Agent host may stay silent before its result is considered stale.
+     * Keep in sync with {@see \Core\Command\Domain\Model\Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD}.
+     */
+    public const CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD = 500;
+
+    /**
      * @param list<string> $eventHandlerArgs
      */
     public function __construct(
@@ -64,14 +70,7 @@ final readonly class DataProcessing
         if ($highFlapThreshold !== null) {
             Assert::range($highFlapThreshold, 0, 100, 'DataProcessing::highFlapThreshold expected to be between 0 and 100, got %s.');
         }
-        Assert::allString($eventHandlerArgs);
-        // Storage bang-joins the arguments and encodes \n\t\r as #BR#/#T#/#R# (CommandArgumentsFormatter),
-        // matching legacy. The legacy read path splits on '!' and decodes those tokens, so an argument
-        // carrying the '!' delimiter or a literal #BR#/#T#/#R# would not round-trip; raw \n\t\r are fine
-        // because the formatter encodes them. Same rule as CheckOptions::$args.
-        foreach (['!', '#BR#', '#T#', '#R#'] as $reserved) {
-            Assert::allNotContains($eventHandlerArgs, $reserved, 'DataProcessing::eventHandlerArgs must not contain the "!" delimiter or a #BR#/#T#/#R# escape token.');
-        }
+        CommandArguments::assertValid($eventHandlerArgs, 'DataProcessing::eventHandlerArgs');
     }
 
     /**
@@ -98,6 +97,18 @@ final readonly class DataProcessing
             highFlapThreshold: NoValue::resolve($highFlapThreshold, $this->highFlapThreshold),
             eventHandlerCommandId: NoValue::resolve($eventHandlerCommandId, $this->eventHandlerCommandId),
             eventHandlerArgs: NoValue::resolve($eventHandlerArgs, $this->eventHandlerArgs),
+        );
+    }
+
+    /**
+     * A host checked by a Centreon Monitoring Agent pushes its results: freshness is always checked,
+     * with a fixed threshold, whatever was asked.
+     */
+    public function withCentreonMonitoringAgentFreshness(): self
+    {
+        return $this->with(
+            checkFreshness: TriStateEnum::True,
+            freshnessThreshold: self::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD,
         );
     }
 

@@ -1,6 +1,7 @@
 import { CircularProgress, useTheme } from '@mui/material';
 import type { AutocompleteRenderOptionState } from '@mui/material/Autocomplete';
 
+import { isCancelledError } from '@tanstack/react-query';
 import {
   equals,
   has,
@@ -307,52 +308,62 @@ const ConnectedAutocompleteField = (
     );
 
     const fetchOptionsAndPrefetchNextOptions = useCallback((): void => {
-      fetchQuery().then((newOptions) => {
-        const isError = has('isError', newOptions);
+      fetchQuery()
+        .then((newOptions) => {
+          const isError = has('isError', newOptions);
 
-        if (isError) {
-          return;
-        }
+          if (isError) {
+            return;
+          }
 
-        const moreOptions = page > 1 ? options : [];
+          const moreOptions = page > 1 ? options : [];
 
-        const { result, limit, total } = getOptionResult(newOptions);
+          const { result, limit, total } = getOptionResult(newOptions);
 
-        const formattedList = changeIdValue
-          ? result.map((item) => ({
-              ...item,
-              id: changeIdValue(item)
-            }))
-          : result;
+          const formattedList = changeIdValue
+            ? result.map((item) => ({
+                ...item,
+                id: changeIdValue(item)
+              }))
+            : result;
 
-        if (!isEmpty(labelKey) && !isNil(labelKey)) {
-          const list = formattedList.map((item) =>
-            renameKey({ key: labelKey, newKey: 'name', object: item })
-          );
-          setOptions(moreOptions.concat(list as Array<TData>));
+          if (!isEmpty(labelKey) && !isNil(labelKey)) {
+            const list = formattedList.map((item) =>
+              renameKey({ key: labelKey, newKey: 'name', object: item })
+            );
+            setOptions(moreOptions.concat(list as Array<TData>));
 
-          return;
-        }
-        setOptions(moreOptions.concat(formattedList));
+            return;
+          }
+          setOptions(moreOptions.concat(formattedList));
 
-        setOptions(moreOptions.concat(formattedList as Array<TData>));
+          setOptions(moreOptions.concat(formattedList as Array<TData>));
 
-        const newMaxPage = Math.ceil(total / limit);
+          const newMaxPage = Math.ceil(total / limit);
 
-        setMaxPage(newMaxPage);
-        if (equals(newMaxPage, page)) {
-          return;
-        }
+          setMaxPage(newMaxPage);
+          if (equals(newMaxPage, page)) {
+            return;
+          }
 
-        prefetchNextPage({
-          getPrefetchQueryKey: (newPage: number) => [
-            `autocomplete-${props.label}`,
-            newPage,
-            searchParameter
-          ],
-          page
+          prefetchNextPage({
+            getPrefetchQueryKey: (newPage: number) => [
+              `autocomplete-${props.label}`,
+              newPage,
+              searchParameter
+            ],
+            page
+          });
+        })
+        // The request is cancelled when the field unmounts while it loads: there
+        // is nothing left to update, and nothing went wrong.
+        .catch((error) => {
+          if (isCancelledError(error)) {
+            return;
+          }
+
+          throw error;
         });
-      });
     }, [
       changeIdValue,
       fetchQuery,

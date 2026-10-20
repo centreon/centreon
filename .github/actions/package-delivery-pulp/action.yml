@@ -45,6 +45,10 @@ inputs:
   audience:
     description: "OIDC audience, must match the pulp server GITHUB_OIDC.audience"
     required: true
+  centreon_technique_pat:
+    description: "Token used to request the feature repository creation (required when delivery_type is feature)"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -90,6 +94,19 @@ runs:
         pulp_url: ${{ inputs.pulp_url }}
         audience: ${{ inputs.audience }}
         domain: ${{ steps.pulp-properties.outputs.domain }}
+
+    - name: Ensure the rpm feature repository exists
+      if: inputs.delivery_type == 'feature' && steps.pulp-properties.outputs.package_extension == 'rpm' && steps.pulp-properties.outputs.skip_delivery == 'false'
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        REPOSITORY_PREFIX: ${{ steps.pulp-properties.outputs.repository_prefix }}
+        PULP_URL: ${{ inputs.pulp_url }}
+        PULP_DOMAIN: ${{ steps.pulp-properties.outputs.domain }}
+        PULP_TOKEN: ${{ env.PULP_TOKEN }}
+        CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
+      run: ${{ github.action_path }}/ensure-feature-repository.sh
 
     - name: Deliver RPM packages
       id: deliver-rpm

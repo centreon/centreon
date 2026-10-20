@@ -1047,7 +1047,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 25
+			count: 24
 			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
 
 		-
@@ -1065,7 +1065,7 @@ parameters:
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 173
+			count: 171
 			path: tests/php/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostTest.php
 
 		-

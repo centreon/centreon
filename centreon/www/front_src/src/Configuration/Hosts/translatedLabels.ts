@@ -62,6 +62,15 @@ export const labelAddNewEntry = 'Add new entry';
 export const labelEditTemplate = 'Modify';
 export const labelCreateServicesLinkedToTemplates =
   'Create Services linked to the Template too';
+// Custom macros, spelled as the legacy host form spells them.
+export const labelCustomMacros = 'Custom macros';
+export const labelValue = 'Value';
+export const labelPassword = 'Password';
+export const labelClear = 'Clear';
+export const labelRevertToPreviousPassword = 'Revert to previous password';
+export const labelAlreadyExists = 'Already exists';
+export const labelTemplateInheritance = 'Template inheritance';
+export const labelCommandInheritance = 'Command inheritance';
 
 // Yes / No / Default fields
 export const labelYes = 'Yes';
@@ -113,3 +122,8 @@ export const labelComments = 'Comments';
 export const labelInvalidGeographicCoordinates = 'geo coords are not valid';
 export const labelMustBeAtMostCharacters =
   '{{label}} can be at most {{max}} characters';
+export const labelUpdateMode = 'Update mode';
+export const labelIncremental = 'Incremental';
+export const labelReplacement = 'Replacement';
+export const labelTemplateReplacementDeletesServices =
+  'Replacing the templates will delete all the services created by the previous templates on every selected host.';

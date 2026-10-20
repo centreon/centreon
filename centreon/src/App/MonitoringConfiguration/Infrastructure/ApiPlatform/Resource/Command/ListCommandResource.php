@@ -28,8 +28,20 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsChoicesProvider;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCommandsProvider;
 
+#[GetCollection(
+    shortName: 'Command',
+    uriTemplate: '/configuration/hosts/commands',
+    openapi: false,
+    security: 'is_granted("' . HostPermissionEnum::CanReadAndWrite->value . '")',
+    securityMessage: 'You are not allowed to access commands',
+    itemUriTemplate: '/configuration/commands/{id}',
+    output: CommandChoicesOutput::class,
+    provider: ListCommandsChoicesProvider::class,
+)]
 #[GetCollection(
     shortName: 'Command',
     uriTemplate: '/configuration/commands',

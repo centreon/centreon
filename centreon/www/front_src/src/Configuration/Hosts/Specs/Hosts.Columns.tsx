@@ -1,3 +1,6 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+
 import {
   labelAlias,
   labelIpAddress,
@@ -8,12 +11,16 @@ import {
 import initialize from './initialize';
 import { hostIcon } from './utils';
 
+const getRow = (hostName: string): HTMLElement =>
+  screen.getByText(hostName).closest('[role="row"]') as HTMLElement;
+
 export default () => {
   describe('Columns: ', () => {
-    beforeEach(() => {
-      initialize({});
+    beforeEach(async () => {
+      initialize();
 
-      cy.waitForRequest('@getAllHosts');
+      await waitForRequest('@getAllHosts');
+      await screen.findByText('host 0');
     });
 
     it('displays every column of the listing', () => {
@@ -24,62 +31,73 @@ export default () => {
         labelMonitoringServer,
         labelTemplates
       ].forEach((label) => {
-        cy.contains(label).should('be.visible');
+        expect(screen.getAllByText(label)[0]).toBeVisible();
       });
 
-      cy.contains('host 0').should('be.visible');
-      cy.contains('alias for host 0').should('be.visible');
-      cy.contains('10.0.0.0').should('be.visible');
-      cy.contains('Central').should('be.visible');
-
-      cy.makeSnapshot();
+      expect(screen.getByText('host 0')).toBeVisible();
+      expect(screen.getByText('alias for host 0')).toBeVisible();
+      expect(screen.getByText('10.0.0.0')).toBeVisible();
+      expect(within(getRow('host 0')).getByText('Central')).toBeVisible();
     });
 
-    it('renders the icon returned by the API, at the URL it returned', () => {
+    it('renders the icon returned by the API, at the URL it returned', async () => {
       // Asserting the exact src is what proves no prefix is prepended: the
       // platform mount path is empty when Centreon is served at the root.
-      cy.findByTestId('server.png')
-        .should('be.visible')
-        .and('have.attr', 'src', hostIcon);
+      // The image replaces its placeholder once loaded.
+      await waitFor(() => {
+        const icon = screen.getByTestId('server.png');
+
+        expect(icon).toBeVisible();
+        expect(icon).toHaveAttribute('src', hostIcon);
+      });
     });
 
-    it('falls back to the default host icon when the host has no icon', () => {
-      cy.findByTestId('server.png').should('have.attr', 'src', hostIcon);
+    it('falls back to the default host icon when the host has no icon', async () => {
+      await waitFor(() =>
+        expect(screen.getByTestId('server.png')).toHaveAttribute(
+          'src',
+          hostIcon
+        )
+      );
 
       // Scoped to the row: a page-wide count passes for the wrong reason and
       // breaks whenever a fixture row is added.
-      cy.contains('host 1')
-        .closest('[role="row"]')
-        .findByTestId('HostIcon')
-        .should('exist');
+      expect(
+        within(getRow('host 1')).getByTestId('HostIcon')
+      ).toBeInTheDocument();
     });
 
     it('links each template to its configuration page', () => {
-      cy.findByTestId('host-template-link_5')
-        .should('have.text', 'generic-active-host')
-        .and('have.attr', 'href', '/main.php?p=60103&o=c&host_id=5');
+      const activeTemplate = screen.getByTestId('host-template-link_5');
 
-      cy.findByTestId('host-template-link_6')
-        .should('have.text', 'generic-passive-host')
-        .and('have.attr', 'href', '/main.php?p=60103&o=c&host_id=6');
+      expect(activeTemplate).toHaveTextContent(/^generic-active-host$/);
+      expect(activeTemplate).toHaveAttribute(
+        'href',
+        '/main.php?p=60103&o=c&host_id=5'
+      );
 
-      // The separator is only in the rendered text, so an image is the only
-      // other thing that would catch it changing — and it is small enough to
-      // pass the snapshot threshold unnoticed.
-      cy.contains('host 0')
-        .closest('[role="row"]')
-        .should('contain.text', 'generic-active-host | generic-passive-host');
+      const passiveTemplate = screen.getByTestId('host-template-link_6');
+
+      expect(passiveTemplate).toHaveTextContent(/^generic-passive-host$/);
+      expect(passiveTemplate).toHaveAttribute(
+        'href',
+        '/main.php?p=60103&o=c&host_id=6'
+      );
+
+      // The separator is only in the rendered text.
+      expect(getRow('host 0')).toHaveTextContent(
+        'generic-active-host | generic-passive-host'
+      );
     });
 
     it('leaves the templates cell empty when the host inherits from none', () => {
-      cy.contains('host 1')
-        .closest('[role="row"]')
-        .find('[data-testid^="host-template-link_"]')
-        .should('not.exist');
+      expect(
+        getRow('host 1').querySelector('[data-testid^="host-template-link_"]')
+      ).toBeNull();
 
       // The links exist elsewhere, so the row above is empty for the right
       // reason rather than because the column is missing.
-      cy.findByTestId('host-template-link_5').should('exist');
+      expect(screen.getByTestId('host-template-link_5')).toBeInTheDocument();
     });
   });
 };

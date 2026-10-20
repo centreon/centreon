@@ -8,7 +8,7 @@ import { createElement } from 'react';
 import { JsonDecoder } from 'ts.data.json';
 import { number, object } from 'yup';
 
-import { commandsEndpoint } from '../../api/endpoints';
+import { hostFormCommandsEndpoint } from '../../api/endpoints';
 import { namedEntityDecoder } from '../../api/namedEntityDecoders';
 import type { NamedEntity } from '../../models';
 import {
@@ -192,7 +192,7 @@ export const dataProcessing: FormSection<DataProcessingDetail> = {
           connectedAutocomplete: buildSelector({
             // Legacy offers every active command, whatever its type.
             customQueryParameters: [{ name: 'is_activated', value: true }],
-            endpoint: commandsEndpoint,
+            endpoint: hostFormCommandsEndpoint,
             getOptionLabel: (option) => (option as SelectEntry)?.name,
             queryKey: 'host-form-event-handler'
           }),

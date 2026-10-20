@@ -73,4 +73,25 @@ interface HostTemplateRepository
      * @return Collection<HostTemplate>
      */
     public function findInheritanceLine(Collection $directTemplateIds): Collection;
+
+    /**
+     * The service templates the given host templates provide: the ones linked to the templates
+     * themselves, and to their ancestors (the whole inheritance chain, active or not).
+     *
+     * @param Collection<HostTemplateId> $templateIds
+     *
+     * @return list<int> service template ids
+     */
+    public function findServiceTemplateIds(Collection $templateIds): array;
+
+    /**
+     * The host templates of the Monitoring Connectors, and every template inheriting from them.
+     * Empty when the plugin pack manager module, which provides the Monitoring Connectors, is not
+     * installed.
+     *
+     * @param list<string> $excludedConnectorSlugs the Monitoring Connectors whose templates are left out
+     *
+     * @return Collection<HostTemplateId>
+     */
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection;
 }

@@ -1,0 +1,44 @@
+meta {
+  name: POST /configuration/services - Create exclusive service on the source host - HTTP 201
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Service1Name}}",
+    "host_id": {{Host1Id}},
+    "service_template_id": {{ServiceTemplate1Id}},
+    "max_check_attempts": 1,
+    "check_command_id": null,
+    "check_timeperiod_id": null,
+    "severity_id": null,
+    "note": null,
+    "note_url": null,
+    "action_url": null,
+    "macros": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service created and linked to the source host only (exclusive).", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("Service1Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

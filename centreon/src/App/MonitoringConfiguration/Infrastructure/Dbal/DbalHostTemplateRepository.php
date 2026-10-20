@@ -35,6 +35,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\ModuleRepository;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
@@ -62,6 +63,9 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
     // host templates are host rows discriminated by host_register = '0'
     private const HOST_TEMPLATE_REGISTER = '0';
 
+    // provides the Monitoring Connectors, stored in its own tables
+    private const PLUGIN_PACK_MANAGER_MODULE = 'centreon-pp-manager';
+
     /**
      * @param TransformerInterface<RowTypeAlias, HostTemplate> $transformer
      */
@@ -73,6 +77,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         private TransformerInterface $transformer,
 
         private ResourceAccessRepository $resourceAccessRepository,
+
+        private ModuleRepository $moduleRepository,
     ) {
     }
 
@@ -199,6 +205,80 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         }
 
         return new Collection($iconIds, MediaId::class);
+    }
+
+    public function findServiceTemplateIds(Collection $templateIds): array
+    {
+        $ids = array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray()));
+        if ($ids === []) {
+            return [];
+        }
+
+        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
+        // recursion run forever.
+        $sql = <<<'SQL'
+            WITH RECURSIVE chain (id) AS (
+                SELECT host_id
+                FROM host
+                WHERE host_id IN (:ids)
+                UNION
+                SELECT htr.host_tpl_id
+                FROM host_template_relation htr
+                INNER JOIN chain c ON c.id = htr.host_host_id
+            )
+            SELECT DISTINCT hsr.service_service_id
+            FROM host_service_relation hsr
+            INNER JOIN chain c ON c.id = hsr.host_host_id
+            INNER JOIN service s ON s.service_id = hsr.service_service_id AND s.service_register = '0'
+            SQL;
+
+        /** @var list<int|string> $serviceTemplateIds */
+        $serviceTemplateIds = $this->connection->executeQuery(
+            $sql,
+            ['ids' => $ids],
+            ['ids' => ArrayParameterType::INTEGER],
+        )->fetchFirstColumn();
+
+        return array_map(intval(...), $serviceTemplateIds);
+    }
+
+    public function findMonitoringConnectorTemplateIds(array $excludedConnectorSlugs): Collection
+    {
+        if (! $this->moduleRepository->isInstalled(self::PLUGIN_PACK_MANAGER_MODULE)) {
+            return new Collection([], HostTemplateId::class);
+        }
+
+        // The connector templates, then every template inheriting from them (legacy getHostChain()).
+        // UNION dedupes the reached ids, so a template loop already in the data cannot make the
+        // recursion run forever.
+        [$excludeClause, $params, $types] = $excludedConnectorSlugs === []
+            ? ['', [], []]
+            : ['WHERE pp.slug NOT IN (:excludedSlugs)', ['excludedSlugs' => $excludedConnectorSlugs], ['excludedSlugs' => ArrayParameterType::STRING]];
+        $sql = <<<SQL
+            WITH RECURSIVE connector_templates (id) AS (
+                SELECT ph.host_id
+                FROM mod_ppm_pluginpack_host ph
+                INNER JOIN mod_ppm_pluginpack pp ON pp.pluginpack_id = ph.pluginpack_id
+                {$excludeClause}
+                UNION
+                SELECT htr.host_host_id
+                FROM host_template_relation htr
+                INNER JOIN connector_templates ct ON ct.id = htr.host_tpl_id
+            )
+            SELECT h.host_id
+            FROM host h
+            INNER JOIN connector_templates ct ON ct.id = h.host_id
+            WHERE h.host_register = '0'
+            ORDER BY h.host_id
+            SQL;
+
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->executeQuery($sql, $params, $types)->fetchFirstColumn();
+
+        return new Collection(
+            array_map(static fn (int|string $id): HostTemplateId => new HostTemplateId((int) $id), $ids),
+            HostTemplateId::class,
+        );
     }
 
     public function findInheritanceLine(Collection $directTemplateIds): Collection
@@ -476,15 +556,16 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
 
     private function filterByCriteria(QueryBuilder $qb, HostTemplateCriteria $criteria): void
     {
+        if (($id = $criteria->getId()) instanceof HostTemplateId) {
+            $qb->andWhere($qb->expr()->eq('h.host_id', $qb->createNamedParameter($id->value, ParameterType::INTEGER)));
+        }
+
         if (($name = $criteria->getName()) !== null) {
             $qb->andWhere($qb->expr()->like('h.host_name', $qb->createNamedParameter('%' . $name . '%')));
         }
 
-        if ($criteria->excludeLocked()) {
-            // A locked host template is a paid plugin-pack template the platform's license doesn't
-            // cover, matching legacy's CentreonHost::getLimitedList() exclusion for the host form's
-            // "extend template" select.
-            $qb->andWhere($qb->expr()->eq('h.host_locked', $qb->createNamedParameter(0, ParameterType::INTEGER)));
+        if (($excludedIds = $criteria->getExcludedIds()) !== []) {
+            $qb->andWhere($qb->expr()->notIn('h.host_id', $qb->createNamedParameter($excludedIds, ArrayParameterType::INTEGER)));
         }
 
         $this->filterByViewer($qb, $criteria);

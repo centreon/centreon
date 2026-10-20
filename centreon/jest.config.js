@@ -17,5 +17,11 @@ module.exports = mergeDeepRight(require('./packages/js-config/jest'), {
     url: 'http://localhost/'
   },
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(test).[jt]s?(x)'],
+  // The browser tests run with rstest (rstest.config.ts), not Jest.
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '!*.cypress.spec.tsx',
+    '\\.browser\\.test\\.[jt]sx?$'
+  ],
   testResultsProcessor: 'jest-junit'
 });

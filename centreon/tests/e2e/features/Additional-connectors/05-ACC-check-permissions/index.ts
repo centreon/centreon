@@ -45,6 +45,10 @@ beforeEach(() => {
     method: 'DELETE',
     url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('deleteConnector');
+  cy.intercept({
+    method: 'GET',
+    url: `${INTERCEPTORS.api.monitoring_servers}?page=*`
+  }).as('getPollers');
 });
 
 after(() => {

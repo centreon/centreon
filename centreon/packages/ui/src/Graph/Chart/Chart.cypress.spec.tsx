@@ -1,6 +1,7 @@
 import { userAtom } from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
+import { always, equals } from 'ramda';
 import { useState } from 'react';
 
 import type { LineChartData } from '../common/models';
@@ -16,6 +17,15 @@ import WrapperChart from '.';
 import { args as argumentsData } from './helpers/doc';
 import type { LineChartProps } from './models';
 import { labelAvg, labelMin } from './translatedLabels';
+
+const dataLastDayWithZeroConnTime = {
+  ...dataLastDay,
+  metrics: dataLastDay.metrics.map((metric) =>
+    equals(metric.metric, 'connTime')
+      ? { ...metric, data: metric.data.map(always(0)) }
+      : metric
+  )
+};
 
 interface Props
   extends Pick<
@@ -280,6 +290,38 @@ describe('Line chart', () => {
       cy.get('[data-metric="connTime"]').should('be.visible');
 
       cy.makeSnapshot();
+    });
+
+    it('displays only metrics with a defined value when the mode is set to defined', () => {
+      initialize({
+        data: dataLastDayWithZeroConnTime,
+        tooltip: { mode: 'defined', sortOrder: 'name' }
+      });
+
+      checkGraphWidth();
+
+      cy.contains('Min: 70.31').should('be.visible');
+
+      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
+
+      cy.get('[data-metric="querytime"]').should('be.visible');
+      cy.get('[data-metric="connTime"]').should('not.exist');
+    });
+
+    it('displays metrics with a zero value when the mode is set to all', () => {
+      initialize({
+        data: dataLastDayWithZeroConnTime,
+        tooltip: { mode: 'all', sortOrder: 'name' }
+      });
+
+      checkGraphWidth();
+
+      cy.contains('Min: 70.31').should('be.visible');
+
+      cy.findByTestId('graph-interaction-zone').realMouseMove(452, 26);
+
+      cy.get('[data-metric="querytime"]').should('be.visible');
+      cy.get('[data-metric="connTime"]').should('be.visible');
     });
   });
 

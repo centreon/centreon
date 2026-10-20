@@ -1,0 +1,20 @@
+meta {
+  name: POST /configuration/hosts/{hostId}/_duplicate - Duplicate a host whose suffixed name is too long - HTTP 422
+  type: http
+  seq: 22
+}
+
+post {
+  url: {{baseUriCentreonApiWeb}}/configuration/hosts/{{LongHostId}}/_duplicate
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 422
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
