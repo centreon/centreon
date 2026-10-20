@@ -1,12 +1,19 @@
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { SnackbarProvider } from '@centreon/ui';
 import {
   isAdditiveInheritanceEnabledAtom,
+  type PlatformFeatures,
   platformFeaturesAtom,
+  type UserPermissions,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { interceptAPIRequest, interceptRequest, Method } from '@test-setup/api';
+import { render } from '@test-setup/render';
+import type { RenderResult } from '@testing-library/react';
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
+import { HttpResponse } from 'msw';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -94,25 +101,26 @@ const initialize = ({
   pollersDelay,
   resolveDelay,
   patchFails = []
-}: Props): void => {
+}: Props = {}): RenderResult => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
   });
 
-  // The form is URL-driven and Cypress does not reload between tests.
+  // The form is URL-driven, and the page is not reloaded between tests.
   window.history.pushState({}, '', window.location.pathname);
 
   const store = createStore();
 
+  // Only what the module reads.
   store.set(userPermissionsAtom, {
     configuration_host_write: hasWriteAccess
-  });
+  } as UserPermissions);
 
-  store.set(platformFeaturesAtom, { isCloudPlatform });
+  store.set(platformFeaturesAtom, { isCloudPlatform } as PlatformFeatures);
   store.set(isAdditiveInheritanceEnabledAtom, isAdditiveInheritanceEnabled);
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getHost',
     method: Method.GET,
     path: `**${getHostEndpoint({ id: 0 })}`,
@@ -121,7 +129,7 @@ const initialize = ({
 
   // Any row opens the form, so a row the tests open needs a detail response
   // of its own; host 1 is the one carrying no icon.
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getHost1',
     method: Method.GET,
     path: `**${getHostEndpoint({ id: 1 })}`,
@@ -138,7 +146,7 @@ const initialize = ({
   });
 
   // As a cloud platform answers: unset values and onPrem-only keys left out.
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getHost2',
     method: Method.GET,
     path: `**${getHostEndpoint({ id: 2 })}`,
@@ -158,14 +166,14 @@ const initialize = ({
     }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'createHost',
     method: Method.POST,
     path: `**${hostsListEndpoint}`,
     response: { id: 12, name: 'new host' }
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getAllHosts',
     method: Method.GET,
     path: `**${hostsListEndpoint}?**`,
@@ -174,7 +182,7 @@ const initialize = ({
 
   // The form reads its own selectors, granted by host write access; the
   // listing filters below read the generic ones.
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormPollers',
     delay: pollersDelay,
     method: Method.GET,
@@ -186,7 +194,7 @@ const initialize = ({
     statusCode: hasWriteAccess ? 200 : 403
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'resolveAddress',
     delay: resolveDelay,
     method: Method.GET,
@@ -194,63 +202,63 @@ const initialize = ({
     ...addressResolutions[addressResolution]
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormHostGroups',
     method: Method.GET,
     path: `**${hostFormHostGroupsEndpoint}?**`,
     response: getHostGroupsResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormHostCategories',
     method: Method.GET,
     path: `**${hostFormHostCategoriesEndpoint}?**`,
     response: getHostCategoriesResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormContacts',
     method: Method.GET,
     path: `**${hostFormContactsEndpoint}?**`,
     response: getContactsResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormContactGroups',
     method: Method.GET,
     path: `**${hostFormContactGroupsEndpoint}?**`,
     response: getContactGroupsResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormTimePeriods',
     method: Method.GET,
     path: `**${hostFormTimePeriodsEndpoint}?**`,
     response: getTimePeriodsResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormTimezones',
     method: Method.GET,
     path: `**${timezonesEndpoint}?**`,
     response: getTimezonesResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormCommands',
     method: Method.GET,
     path: `**${hostFormCommandsEndpoint}?**`,
     response: getCommandsResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormHostSeverities',
     method: Method.GET,
     path: `**${hostFormHostSeveritiesEndpoint}?**`,
     response: getHostSeveritiesResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormHostTemplates',
     method: Method.GET,
     path: `**${hostFormHostTemplatesEndpoint}?**`,
@@ -258,7 +266,7 @@ const initialize = ({
   });
 
   Object.entries(getTemplateMacrosResponses()).forEach(([id, response]) => {
-    cy.interceptAPIRequest({
+    interceptAPIRequest({
       alias: `getTemplateMacros${id}`,
       method: Method.GET,
       path: `**${getHostTemplateMacrosEndpoint({ id: Number(id) })}`,
@@ -266,7 +274,7 @@ const initialize = ({
     });
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getTemplateMacros7',
     method: Method.GET,
     path: `**${getHostTemplateMacrosEndpoint({ id: 7 })}`,
@@ -274,28 +282,28 @@ const initialize = ({
     statusCode: 404
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getFormMedias',
     method: Method.GET,
     path: `**${hostFormMediasEndpoint}?**`,
     response: getMediasResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getHostGroups',
     method: Method.GET,
     path: `**${hostGroupsEndpoint}?**`,
     response: getHostGroupsResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getPollers',
     method: Method.GET,
     path: `**${pollersEndpoint}?**`,
     response: getPollersResponse()
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'getHostTemplates',
     method: Method.GET,
     path: `**${hostTemplatesEndpoint}?**`,
@@ -310,18 +318,15 @@ const initialize = ({
   [0, 1, 2].forEach((id) => {
     const fails = patchFails.includes(id);
 
-    cy.interceptRequest(
+    interceptRequest(
       Method.PATCH,
       `**${getHostEndpoint({ id })}`,
-      (_request, response, context) => {
+      () => {
         patchedHostIds.push(id);
 
-        return response(
-          context.delay(500),
-          context.json(
-            fails ? { code: 422, message: patchRefusedMessage } : {}
-          ),
-          context.status(fails ? 422 : 200)
+        return HttpResponse.json(
+          fails ? { code: 422, message: patchRefusedMessage } : {},
+          { status: fails ? 422 : 200 }
         );
       },
       id === 0 ? 'patchHost' : `patchHost${id}`
@@ -329,28 +334,28 @@ const initialize = ({
   });
 
   // Every write names one host, so each row has its own intercept.
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'deleteHost',
     method: Method.DELETE,
     path: `**${getHostEndpoint({ id: 0 })}`,
     response: {}
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'deleteHost2',
     method: Method.DELETE,
     path: `**${getHostEndpoint({ id: 2 })}`,
     response: {}
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'duplicateHost',
     method: Method.POST,
     path: `**${getDuplicateHostEndpoint({ id: 0 })}`,
     response: {}
   });
 
-  cy.interceptAPIRequest({
+  interceptAPIRequest({
     alias: 'deployServices',
     method: Method.POST,
     path: `**${getDeployServicesEndpoint({ id: 0 })}`,
@@ -358,21 +363,24 @@ const initialize = ({
     statusCode: deployFails ? 404 : 200
   });
 
-  cy.mount({
-    Component: (
-      <Router>
-        <SnackbarProvider>
-          <TestQueryProvider>
-            <Provider store={store}>
-              <div style={{ height: '100vh' }}>
-                <Hosts />
-              </div>
-            </Provider>
-          </TestQueryProvider>
-        </SnackbarProvider>
-      </Router>
-    )
+  // A client of its own, so no cache leaks from one test to the next.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { gcTime: 0, retry: false } }
   });
+
+  return render(
+    <Router>
+      <SnackbarProvider>
+        <QueryClientProvider client={queryClient}>
+          <Provider store={store}>
+            <div style={{ height: '100vh' }}>
+              <Hosts />
+            </div>
+          </Provider>
+        </QueryClientProvider>
+      </SnackbarProvider>
+    </Router>
+  );
 };
 
 export default initialize;
