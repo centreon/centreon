@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -60,6 +61,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
 {
+    use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'command';
     public const CONNECTOR_JOIN_TABLE_NAME = 'connector';
 
@@ -373,7 +375,9 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             ));
         }
 
-        $this->sort($qb, 'cm', $criteria);
+        $this->applySort($qb, 'cm', $criteria);
+        // last sort key: name, type and status are not unique, and pagination must stay deterministic
+        $qb->addOrderBy('cm.command_id');
     }
 
     /**
@@ -505,6 +509,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $qb = clone $qb; // avoid modifying the initial query builder
 
         $count = $qb
+            ->resetOrderBy()
             ->select('COUNT(DISTINCT cm.command_id)')
             ->setFirstResult(0) // reset any pagination
             ->setMaxResults(null)
