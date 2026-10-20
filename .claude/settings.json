@@ -9,11 +9,16 @@
       "mcp__plugin_figma_figma__get_design_context"
     ],
     "deny": [
-      "Bash(git commit --no-verify*)",
-      "Bash(git commit -n *)",
-      "Bash(git push --no-verify*)",
-      "Bash(git push --force*)",
-      "Bash(git push -f *)",
+      "Bash(git commit *--no-verify*)",
+      "Bash(git commit -n*)",
+      "Bash(git commit * -n)",
+      "Bash(git commit * -n *)",
+      "Bash(git push *--no-verify*)",
+      "Bash(git push *--force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push * +*)",
       "Read(**/.env.local)",
       "Read(**/.env.*.local)"
     ]
