@@ -81,6 +81,23 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                 required: false,
                 schema: ['type' => 'boolean'],
             ),
+            new Model\Parameter(
+                name: 'sort',
+                in: 'query',
+                description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). '
+                    . 'Asc on `is_activated` lists the deactivated commands first.',
+                required: false,
+                style: 'deepObject',
+                explode: true,
+                schema: [
+                    'type' => 'object',
+                    'properties' => [
+                        'name' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                        'type' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                        'is_activated' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                    ],
+                ],
+            ),
         ],
     ),
 )]
