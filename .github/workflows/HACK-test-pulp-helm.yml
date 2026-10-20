@@ -1,0 +1,91 @@
+# HACK(MON-212643): temporary end-to-end test of the helm chart promote to Pulp prod. REMOVE BEFORE MERGE.
+name: HACK test pulp helm promote
+
+on:
+  push:
+    tags:
+      - "test-MON-212643-*"
+
+permissions:
+  contents: read
+
+jobs:
+  test-promote-pulp-helm:
+    runs-on: centreon-ubuntu-26.04-small
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      CHART: centreon-poller
+      CHART_REPOSITORY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/charts
+      TEST_TAGS: test-mon-212643-a test-mon-212643-b
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.3.1
+
+      - uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7
+        with:
+          version: v0.22.1
+
+      - name: Login to Harbor registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Pick latest chart candidate on Harbor
+        id: candidate
+        run: |
+          set -euo pipefail
+          version=$(crane ls "$CHART_REPOSITORY/$CHART" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
+          digest=$(crane digest "$CHART_REPOSITORY/$CHART:$version")
+          echo "candidate $CHART:$version -> $digest"
+          {
+            echo "version=$version"
+            echo "ref=$CHART_REPOSITORY/$CHART@$digest"
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Resolve Pulp registry host
+        id: pulp-registry
+        env:
+          PULP_API_URL: ${{ vars.PULP_API_URL }}
+        run: |
+          host="${PULP_API_URL#*://}"
+          echo "host=${host%%/*}" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Promote to Pulp
+        id: promote-pulp
+        env:
+          SOURCE_REF: ${{ steps.candidate.outputs.ref }}
+          DEST_IMAGE: ${{ steps.pulp-registry.outputs.host }}/default/centreon/charts/${{ env.CHART }}
+          DEST_TAGS: ${{ env.TEST_TAGS }}
+          PULP_OIDC_AUDIENCE: ${{ vars.PULP_OIDC_AUDIENCE }}
+        run: bash .github/scripts/docker-promote.sh
+        shell: bash
+
+      - name: Verify on registry.centreon.com
+        if: always() && steps.promote-pulp.outcome == 'success'
+        env:
+          DIGEST: ${{ steps.promote-pulp.outputs.digest }}
+        run: |
+          set -x
+          crane auth logout registry.centreon.com || true
+          for t in $TEST_TAGS; do
+            echo "public $t: $(crane digest "registry.centreon.com/default/centreon/charts/$CHART:$t" || true)"
+          done
+          echo "promoted digest: $DIGEST"
+          ref="registry.centreon.com/default/centreon/charts/$CHART:test-mon-212643-b"
+          crane manifest "$ref" | jq -c '{config: .config.mediaType, layers: [.layers[].mediaType]}'
+          layer=$(crane manifest "$ref" | jq -r '.layers[] | select(.mediaType == "application/vnd.cncf.helm.chart.content.v1.tar+gzip") | .digest')
+          crane blob "registry.centreon.com/default/centreon/charts/$CHART@$layer" > /tmp/chart.tgz
+          helm show chart /tmp/chart.tgz
+        shell: bash
