@@ -1,0 +1,67 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Core\HostTemplate\Application\Repository;
+
+use Core\Common\Domain\Exception\RepositoryException;
+
+interface ReadHostLicenseRepositoryInterface
+{
+    /**
+     * Whether the license manager is installed and the license of the Monitoring Connectors is valid.
+     *
+     * @throws RepositoryException
+     *
+     * @return bool
+     */
+    public function isValid(): bool;
+
+    /**
+     * The number of hosts the license allows, null when it allows any number.
+     * A license without a readable limit allows no host.
+     *
+     * @throws RepositoryException
+     *
+     * @return int|null
+     */
+    public function getMaxHosts(): ?int;
+
+    /**
+     * The number of hosts of the platform, whether they are enabled or not.
+     *
+     * @throws RepositoryException
+     *
+     * @return int
+     */
+    public function countHosts(): int;
+
+    /**
+     * Find the host templates coming from the Monitoring Connectors that are not free of license, and every
+     * host template inheriting from them. Empty without the plugin pack manager module.
+     *
+     * @throws RepositoryException
+     *
+     * @return int[]
+     */
+    public function findPaidConnectorTemplateIds(): array;
+}

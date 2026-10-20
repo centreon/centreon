@@ -15,6 +15,9 @@ services:
   Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface:
     class: Core\HostTemplate\Infrastructure\Repository\DbWriteHostTemplateRepository
 
+  Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface:
+    class: Core\HostTemplate\Infrastructure\Repository\DbReadHostLicenseRepository
+
   Core\HostTemplate\Infrastructure\Repository\DbWriteHostTemplateActionLogRepository:
     decorates: Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface
     arguments:
