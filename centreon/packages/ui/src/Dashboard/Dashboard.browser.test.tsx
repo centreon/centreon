@@ -74,21 +74,9 @@ describe('Dashboard', () => {
   it('displays placeholder when panels is out of viewport', async () => {
     initialize();
 
-    // As in Cypress: no component renders this attribute any more, so these
-    // three checks pass whatever the layout does.
-    expect(
-      document.querySelector('[data-widget-skeleton="a"]')
-    ).not.toBeInTheDocument();
-    expect(
-      document.querySelector('[data-widget-skeleton="b"]')
-    ).not.toBeInTheDocument();
-    expect(
-      document.querySelector('[data-widget-skeleton="c"]')
-    ).not.toBeInTheDocument();
-
-    // Replaces the snapshot: every panel renders its header and content,
-    // Panels 1 and 3 side by side on the first row, Panel 2 compacted right
-    // under Panel 3, and Panel 4 under Panel 2.
+    // The four panels render with their header. Panels 1 and 3 share the
+    // first row (Panel 3 taller), Panel 2 sits below Panel 3 starting within
+    // Panel 1's width, and Panel 4 is below Panel 2.
     expect(await screen.findByText('Panel 1')).toBeVisible();
     expect(screen.getByText('Panel 2')).toBeVisible();
     expect(screen.getByText('Panel 3')).toBeVisible();

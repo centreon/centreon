@@ -40,7 +40,7 @@ const initializeDataTableGrid = ({
   hasActions,
   hasCardAction
 }: InitializeDataTableGridProps): void => {
-  // The width Cypress set with `cy.viewport(1200, 590)`.
+  // A 1200px-wide parent: the viewport width is fixed.
   render(
     <div style={{ width: 1200 }}>
       <DataTable variant="grid">
@@ -105,11 +105,10 @@ const initializeDataTableListing = (): void => {
   );
 };
 
-// The cards, in the order they are displayed, each with its title and
-// description: what the former visual snapshots showed.
 const getCards = (): Array<HTMLElement> =>
   Array.from(document.querySelectorAll<HTMLElement>('[data-item-title]'));
 
+// The cards in order, each with its title and description, laid out as a grid.
 const expectCardsInOrder = (): void => {
   const cards = getCards();
 
@@ -121,8 +120,8 @@ const expectCardsInOrder = (): void => {
     expect(within(card).getByText(data[index].description)).toBeVisible();
   });
 
-  // The Cypress screenshot showed a grid: equal cards, several per row, the
-  // last ones wrapping onto a second row, in reading order.
+  // A grid: equal cards, several per row, the last ones wrapping onto a
+  // second row, in reading order.
   const boxes = cards.map((card) => card.getBoundingClientRect());
   const columns = boxes.filter(({ top }) => top === boxes[0].top).length;
 
@@ -248,7 +247,6 @@ describe('DataTable: Listing', () => {
 
     expect(screen.getByText('Title')).toBeVisible();
     expect(screen.getByText('Description')).toBeVisible();
-    // The rows, in order, after the header row.
     const rows = screen.getAllByRole('row');
 
     expect(rows).toHaveLength(data.length + 1);

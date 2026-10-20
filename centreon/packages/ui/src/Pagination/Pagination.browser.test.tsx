@@ -62,7 +62,7 @@ const initialize = ({
   );
 };
 
-// What the snapshots showed: the six items of the page, in order.
+// The six items of the page, in order.
 const expectItems = async (): Promise<void> => {
   expect(await screen.findByText('Item Item Item 0')).toBeVisible();
 
@@ -96,16 +96,16 @@ describe('Pagination Component', () => {
   it('hides pagination controls when only one page exists', async () => {
     initialize({ total: itemsPerPage });
     await waitForRequest('@list');
+    // The items first, so the controls are checked once the answer is
+    // applied (before, the page shows no controls either). The shared query
+    // client may first show the page a previous test left in its cache.
+    await expectItems();
 
-    // The shared query client may first show the page a previous test left
-    // in its cache: the controls go once the answer is applied.
     await waitFor(() => {
       expect(screen.queryByTestId(labelPreviousPage)).not.toBeInTheDocument();
     });
     expect(screen.queryByTestId(labelNextPage)).not.toBeInTheDocument();
     expect(screen.queryByText(/Page \d+\/\d+/)).not.toBeInTheDocument();
-
-    await expectItems();
   });
 
   it('navigates forward through pages correctly', async () => {

@@ -441,9 +441,9 @@ testData.forEach((item) => {
 
         await goToFollowingMonth(currentMonth);
 
-        // What the former visual snapshot showed after each click: the
-        // following month (the last one stays), the initial date in the
-        // user's timezone in the field, and its hour selected.
+        // After each click: the following month (the last one stays), the
+        // initial date in the user's timezone in the field, and its hour
+        // selected.
         const displayedMonth = getMonth(
           item.data[Math.min(index + 1, item.data.length - 1)]
         ).data;

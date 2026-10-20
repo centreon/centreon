@@ -10,9 +10,8 @@ interface InitializeProps {
   width: number;
 }
 
-// Cypress set the viewport width; the runner's viewport is fixed, so the
-// component gets a parent of that width instead. Its font size depends on its
-// container width only (`cqi` units), so the result is the same.
+// The viewport width is fixed, so the component gets a parent of each tested
+// width: its font size depends on its container width only (`cqi` units).
 const initialize = ({ width, min, max, pref }: InitializeProps): void => {
   render(
     <div style={{ width }}>
@@ -44,7 +43,7 @@ describe('FluidTypography', () => {
 
           expect(text).toBeVisible();
 
-          // Replaces the visual snapshot: the text size it showed.
+          // The text size at that width.
           expect(getComputedStyle(text).fontSize).toBe(
             expectedFontSizes[width][key]
           );

@@ -23,7 +23,7 @@ const mockInititalStateToEditor =
 const getEditor = (namespace = 'RichTextEditor'): HTMLElement =>
   screen.getByTestId(namespace);
 
-// The closest `tag` element holding the text, as `cy.contains(tag, text)`.
+// The first `tag` element, in document order, whose text contains `text`.
 const getElementContaining = (
   container: HTMLElement,
   tag: string,
@@ -94,9 +94,24 @@ const clickMenuEntry = async (
 const insertLink = async (editor: HTMLElement): Promise<void> => {
   await userEvent.click(screen.getByLabelText('link'));
 
-  expect(await screen.findByLabelText('Saved link')).toHaveTextContent(
-    /^https:\/\/$/
-  );
+  const savedLink = await screen.findByLabelText('Saved link');
+
+  expect(savedLink).toHaveTextContent(/^https:\/\/$/);
+
+  // The link editor opens 30 px under the selected text, not where its
+  // position starts (0, 0).
+  const linkEditor = savedLink.closest('.MuiPaper-root') as HTMLElement;
+  const text = screen.getByText('cypress').getBoundingClientRect();
+  const root = editor.getBoundingClientRect();
+
+  await waitFor(() => {
+    const { m41: x, m42: y } = new DOMMatrix(
+      getComputedStyle(linkEditor).transform
+    );
+
+    expect(Math.abs(x - (text.x - root.x))).toBeLessThan(1);
+    expect(Math.abs(y - (text.bottom - root.y + 30))).toBeLessThan(1);
+  });
 
   await userEvent.click(screen.getByLabelText('Edit link'));
 
@@ -142,7 +157,7 @@ describe('Rich Text Editor', () => {
         within(editor.parentElement as HTMLElement).getByText('Type here...')
       ).toBeVisible();
 
-      // From the snapshot: nothing to undo nor redo yet, and no menu open.
+      // Nothing to undo nor redo yet, and no menu open.
       expect(screen.getByLabelText('Undo')).toBeDisabled();
       expect(screen.getByLabelText('Redo')).toBeDisabled();
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
@@ -156,8 +171,8 @@ describe('Rich Text Editor', () => {
       expect(screen.getByLabelText('underline')).toBeVisible();
       expect(screen.getByLabelText('strikethrough')).toBeVisible();
 
-      // From the snapshot: the four actions in that order, in the menu of the
-      // highlighted format button, none of them active.
+      // The four actions in that order, in the menu of the highlighted format
+      // button, none of them active.
       const items = within(screen.getByRole('menu')).getAllByRole('menuitem');
 
       expect(
@@ -258,6 +273,7 @@ describe('Rich Text Editor', () => {
         ).not.toHaveAttribute('href');
         expect(element).not.toHaveAttribute('rel');
         expect(element).not.toHaveAttribute('target');
+        expect(screen.getByText('cypress').closest('a')).toBeNull();
       });
     });
 
@@ -287,9 +303,11 @@ describe('Rich Text Editor', () => {
       editor.focus();
       await userEvent.type(editor, 'https://centreon.com');
 
-      expect(
-        (await screen.findByText('https://centreon.com')).parentElement
-      ).not.toHaveAttribute('target');
+      const autoLink = (await screen.findByText('https://centreon.com'))
+        .parentElement;
+
+      expect(autoLink).toHaveAttribute('href');
+      expect(autoLink).not.toHaveAttribute('target');
     });
   });
 
@@ -395,9 +413,9 @@ describe('Rich Text Editor', () => {
       for (const macro of standardMacros) {
         await userEvent.click(screen.getByLabelText('Macros'));
         // The macro is inserted with `document.execCommand`, at the page
-        // selection. `userEvent.click` moves that selection into the menu
-        // item, as a pointer down does; the Cypress click left it in the
-        // editor, so the item is clicked without moving it.
+        // selection. `userEvent.click` would move that selection into the
+        // menu item, as a pointer down does: `fireEvent.click` leaves it in
+        // the editor.
         fireEvent.click(await screen.findByText(macro));
 
         await waitFor(() => {
@@ -444,7 +462,7 @@ describe('Rich Text Editor', () => {
           expect(editor.querySelector(tag)).toBeVisible();
         });
 
-        // From the snapshot: the text is in that block, the menu is closed
+        // The text is in that block, the menu is closed
         // and the change can be undone.
         expect(editor.querySelector(tag)).toHaveTextContent(/^Example$/);
         await waitForMenusToClose();
@@ -483,7 +501,7 @@ describe('Rich Text Editor', () => {
           expect(editor.querySelector(tag)).toBeVisible();
         });
 
-        // From the snapshot: the text is the list item, the menu is closed
+        // The text is the list item, the menu is closed
         // and the list button shows the icon of the selected list type.
         expect(editor.querySelector(`${tag} > li`)).toHaveTextContent(
           /^Example$/
@@ -520,7 +538,7 @@ describe('Rich Text Editor', () => {
           ).toBe(label.toLowerCase());
         });
 
-        // From the snapshot: the menu is closed and the align picker shows
+        // The menu is closed and the align picker shows
         // the icon of the selected alignment.
         await waitForMenusToClose();
         await waitFor(() => {

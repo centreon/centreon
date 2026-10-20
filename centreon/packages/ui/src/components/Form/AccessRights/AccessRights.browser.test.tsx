@@ -17,8 +17,8 @@ import {
 } from './storiesData';
 
 // The access rights live in a module-level Jotai store (`./Provider`), so
-// they carry over from one test to the next, as they did in Cypress: the
-// tests below rely on that order, as the Cypress spec did.
+// they carry over from one test to the next: the tests below rely on that
+// order.
 
 interface InitializeProps {
   initialValues?: Array<AccessRightInitialValues>;
@@ -81,7 +81,7 @@ const initialize = ({
   };
 };
 
-// `cy.contains(text)`: the first element whose own text contains it.
+// The first element whose own text contains the given one.
 const findFirstByText = async (text: string): Promise<HTMLElement> =>
   (
     await screen.findAllByText((_, element) =>
@@ -107,8 +107,7 @@ const getInput = (testId: string): HTMLInputElement =>
     .getAllByTestId(testId)
     .find((element) => element.tagName === 'INPUT') as HTMLInputElement;
 
-// `cy.findByTestId(id).parent().click()`: Cypress clicked the middle of the
-// select, which is its combobox; MUI opens the select on its mouse down.
+// Clicks the select's combobox: MUI opens the select on its mouse down.
 const openSelect = async (testId: string): Promise<void> => {
   const select = getInput(testId).parentElement as HTMLElement;
 
@@ -156,8 +155,8 @@ describe('Access rights', () => {
     expect(screen.getByLabelText('Cancel')).toBeVisible();
     expect(screen.getByLabelText('Save')).toBeVisible();
 
-    // From the snapshot: the contact type is selected, the role defaults to
-    // viewer, the list is replaced by its skeleton and nothing can be saved.
+    // The contact type is selected, the role defaults to viewer, the list is
+    // replaced by its skeleton and nothing can be saved.
     expect(screen.getByRole('radio', { name: 'Contact' })).toBeChecked();
     expect(getInput('add_role')).toHaveValue('viewer');
     expect(
@@ -171,7 +170,7 @@ describe('Access rights', () => {
 
     expect(await findFirstByText('The contact list is empty')).toBeVisible();
 
-    // From the snapshot: the list title, no stats and nothing to save.
+    // The list title, no stats and nothing to save.
     expect(screen.getByText('User rights')).toBeVisible();
     expect(screen.queryByText(/added|updated|removed/)).not.toBeInTheDocument();
     expect(screen.getByLabelText('Save')).toBeDisabled();
@@ -196,7 +195,7 @@ describe('Access rights', () => {
       expect(screen.getByTestId(`remove-${name}`)).toBeVisible();
     }
 
-    // From the snapshot: no state chip, no stats and nothing to save.
+    // No state chip, no stats and nothing to save.
     expect(document.querySelector('[data-state]')).not.toBeInTheDocument();
     expect(screen.queryByText(/added|updated|removed/)).not.toBeInTheDocument();
     expect(screen.getByLabelText('Save')).toBeDisabled();
@@ -220,8 +219,8 @@ describe('Access rights', () => {
     });
     expect(await findFirstByText(labels.list.removed)).toBeVisible();
 
-    // From the snapshot: the removed contact's role is disabled, the stats
-    // count it and the changes can be saved.
+    // The removed contact's role is disabled, the stats count it and the
+    // changes can be saved.
     expect(getInput('role-Erin Monahan')).toBeDisabled();
     expect(await screen.findByText('1 removed')).toBeVisible();
     expect(screen.getByLabelText('Save')).toBeEnabled();
@@ -240,8 +239,7 @@ describe('Access rights', () => {
     });
     expect(queryFirstByText(labels.list.removed)).toBeUndefined();
 
-    // From the snapshot: the role is enabled again, no stats and nothing to
-    // save.
+    // The role is enabled again, no stats and nothing to save.
     expect(getInput('role-Erin Monahan')).toBeEnabled();
     expect(screen.queryByText(/removed/)).not.toBeInTheDocument();
     expect(screen.getByLabelText('Save')).toBeDisabled();
@@ -267,7 +265,7 @@ describe('Access rights', () => {
       expect(save).toHaveBeenCalled();
     });
 
-    // From the snapshot: the removed contact is not in the saved list.
+    // The removed contact is not in the saved list.
     expect(save).toHaveBeenCalledWith(
       expect.not.arrayContaining([
         expect.objectContaining({ name: 'Erin Monahan' })
@@ -288,7 +286,7 @@ describe('Access rights', () => {
 
     expect(save).toHaveBeenCalled();
 
-    // From the snapshot: the contact is back, with its new role.
+    // The contact is back, with its new role.
     expect(getInput('role-Erin Monahan')).toHaveValue('viewer');
     expect(screen.getByTestId('remove-Erin Monahan')).toHaveAttribute(
       'data-removed',
@@ -302,14 +300,12 @@ describe('Access rights', () => {
     await selectRole('role-Erin Monahan', 'viewer');
     expect(await findFirstByText(labels.list.updated)).toBeVisible();
 
-    // Cypress clicked the item of the menu still closing; the select is
-    // opened again here.
     await selectRole('role-Erin Monahan', 'editor');
     await waitFor(() => {
       expect(queryFirstByText(labels.list.updated)).toBeUndefined();
     });
 
-    // From the snapshot: the initial role is back and nothing to save.
+    // The initial role is back and nothing to save.
     expect(getInput('role-Erin Monahan')).toHaveValue('editor');
     expect(screen.getByLabelText('Save')).toBeDisabled();
   });
@@ -322,7 +318,7 @@ describe('Access rights', () => {
 
     await waitForRequest('@getContacts');
 
-    // From the snapshot: the contacts are listed in the autocomplete.
+    // The contacts are listed in the autocomplete.
     const listbox = await screen.findByRole('listbox');
 
     expect(await within(listbox).findByText('Entity 10')).toBeVisible();
@@ -337,8 +333,8 @@ describe('Access rights', () => {
 
     await waitForRequest('@getContactGroups');
 
-    // From the snapshot: the contact group type is selected and the groups
-    // are listed in the autocomplete.
+    // The contact group type is selected and the groups are listed in the
+    // autocomplete.
     expect(screen.getByRole('radio', { name: 'Contact group' })).toBeChecked();
 
     const listbox = await screen.findByRole('listbox');
@@ -364,8 +360,7 @@ describe('Access rights', () => {
     expect(getInput('role-Entity 10')).toHaveValue('viewer');
     expect(await findFirstByText(labels.list.added)).toBeVisible();
 
-    // From the snapshot: the autocomplete is cleared and the stats count the
-    // new contact.
+    // The autocomplete is cleared and the stats count the new contact.
     expect(screen.getByLabelText(labels.add.autocompleteContact)).toHaveValue(
       ''
     );
@@ -390,7 +385,7 @@ describe('Access rights', () => {
     expect(await findFirstByText(labels.list.added)).toBeVisible();
     expect(await findFirstByText('2 added')).toBeVisible();
 
-    // From the snapshot: the group has its group chip.
+    // The group has its group chip.
     expect(
       document.querySelector('[data-groupChip="Entity Group 10"]')
     ).toBeVisible();
@@ -408,7 +403,7 @@ describe('Access rights', () => {
     await selectRole('add_role', 'editor');
     await userEvent.click(screen.getByTestId('add'));
 
-    expect(await findFirstByText('Entity Group 10')).toBeVisible();
+    expect(await findFirstByText('Entity Group 11')).toBeVisible();
 
     await selectRole('role-Erin Monahan', 'viewer');
 
@@ -418,7 +413,7 @@ describe('Access rights', () => {
       await findFirstByText('3 added | 1 updated | 1 removed')
     ).toBeVisible();
 
-    // From the snapshot: the state chips of the changed contacts.
+    // The state chips of the changed contacts.
     expect(document.querySelectorAll('[data-state="added"]')).toHaveLength(3);
     expect(document.querySelectorAll('[data-state="updated"]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-state="removed"]')).toHaveLength(1);
@@ -447,7 +442,7 @@ describe('Access rights', () => {
       ).toHaveValue('');
     });
 
-    // From the snapshot: nothing selected, so nothing can be added.
+    // Nothing selected, so nothing can be added.
     expect(screen.getByTestId('add')).toBeDisabled();
     expect(getInput('add_role')).toBeDisabled();
   });
@@ -467,15 +462,16 @@ describe('Access rights', () => {
     expect(await findFirstByText('Entity 11')).toBeVisible();
 
     expect(await findFirstByText(labels.list.added)).toBeVisible();
+    expect(await findFirstByText('4 added')).toBeVisible();
 
     await userEvent.click(screen.getByTestId('remove-Entity 11'));
 
     await waitFor(() => {
       expect(queryFirstByText('Entity 11')).toBeUndefined();
     });
-    expect(queryFirstByText('3 Added')).toBeUndefined();
+    expect(queryFirstByText('4 added')).toBeUndefined();
 
-    // From the snapshot: the stats are back to the previous changes.
+    // The stats are back to the previous changes.
     expect(
       await findFirstByText('3 added | 1 updated | 1 removed')
     ).toBeVisible();
@@ -502,7 +498,7 @@ describe('Access rights', () => {
       expect(getInput('add_role')).toHaveValue('viewer');
     });
 
-    // From the snapshot: the contact can be added.
+    // The contact can be added.
     expect(screen.getByTestId('add')).toBeEnabled();
   });
 

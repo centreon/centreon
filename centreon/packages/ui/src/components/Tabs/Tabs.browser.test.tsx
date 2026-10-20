@@ -75,8 +75,8 @@ describe('Tabs', () => {
       'true'
     );
 
-    // Replaces the visual snapshot: the selected tab in bold, the other one
-    // not, and the content of the selected panel only.
+    // The selected tab in bold, the other one not, and the content of the
+    // selected panel only.
     expect(getFontWeight(screen.getByLabelText('Tab 1'))).toBe('700');
     expect(getFontWeight(screen.getByLabelText('Tab 0'))).toBe('400');
     expect(getTabPanel('tab 1')).toHaveTextContent(/^Tab 1$/);
@@ -92,8 +92,8 @@ describe('Tabs', () => {
     });
     expect(getTabPanel('tab 1')).toHaveAttribute('hidden');
 
-    // Replaces the visual snapshot: the first tab selected, in bold, and the
-    // two tabs sharing the full width of the page.
+    // The first tab selected, in bold, and the two tabs sharing the full
+    // width of the page.
     const firstTab = screen.getByLabelText('Tab 0');
     const secondTab = screen.getByLabelText('Tab 1');
 

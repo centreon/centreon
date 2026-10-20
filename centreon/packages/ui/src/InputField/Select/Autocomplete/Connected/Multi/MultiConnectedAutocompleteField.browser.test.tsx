@@ -18,7 +18,7 @@ import { baseEndpoint, getEndpoint, label, placeholder } from './utils';
 
 const optionOne = 'My Option 1';
 
-// The Cypress fixtures `inputField/listOptions` and `inputField/searchedOption`.
+// The option list and search result the endpoint mocks return.
 const listOptions = {
   meta: { limit: 5, page: 1, total: 5 },
   result: [
@@ -134,9 +134,8 @@ describe('Multi connected autocomplete', () => {
       expect(getOptionTexts(listOptionsElement)).toEqual(optionNames);
     });
 
-    // The snapshot "displays the list when the user clicks on the input": the
-    // count of options and the select all button above the five options,
-    // in order and unchecked.
+    // The count of options, the select all button and the five options
+    // unchecked.
     expect(
       within(listOptionsElement).getByText('5 element(s) found')
     ).toBeVisible();
@@ -151,8 +150,7 @@ describe('Multi connected autocomplete', () => {
       expect(listOptionsElement).not.toBeInTheDocument();
     });
 
-    // The snapshot "hides the list when the user clicks on the input": no
-    // option list, and nothing selected.
+    // No option list, and nothing selected.
     expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
     expect(screen.queryByTestId('CancelIcon')).not.toBeInTheDocument();
   });
@@ -214,8 +212,7 @@ describe('Multi connected autocomplete', () => {
       expect(screen.getAllByTestId('CancelIcon')).toHaveLength(5);
     });
 
-    // The snapshot: a chip per option in the field, in order, and every
-    // option checked.
+    // A chip per option in the field, in order, and every option checked.
     expect(
       within(input.parentElement as HTMLElement)
         .getAllByText(/^My Option \d$/)
@@ -244,7 +241,7 @@ describe('Multi connected autocomplete', () => {
       expect(screen.queryAllByTestId('CancelIcon')).toHaveLength(0);
     });
 
-    // The snapshot: the field empty and every option unchecked.
+    // The field is empty and every option unchecked.
     expect(input).toHaveAttribute('placeholder', placeholder);
     getOptionCheckboxes(await findListOptions()).forEach((checkbox) => {
       expect(checkbox).not.toBeChecked();

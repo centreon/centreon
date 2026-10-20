@@ -85,8 +85,10 @@ const initializeFormList = (): void => {
   );
 };
 
-// The rstest counterpart of `cy.moveSortableElementUsingAriaLabel`: a
-// keyboard drag of the handle with dnd-kit's keyboard sensor.
+// A keyboard drag of the handle: space to pick the item up, an arrow to move
+// it one place, space to drop it. dnd-kit handles a key once the previous one
+// took effect, so each step is awaited: the item pressed once picked up, the
+// other item making way after the arrow, no item pressed once dropped.
 const moveSortableElementUsingAriaLabel = async ({
   ariaLabel,
   direction
@@ -94,13 +96,32 @@ const moveSortableElementUsingAriaLabel = async ({
   ariaLabel: string;
   direction: 'down' | 'up';
 }): Promise<void> => {
-  screen.getByLabelText(ariaLabel).focus();
+  const handle = screen.getByLabelText(ariaLabel);
+  const item = handle.closest('[aria-roledescription]') as HTMLElement;
+  const isShifted = (element: Element): boolean =>
+    /translate3d\(0px, -?[1-9]/.test((element as HTMLElement).style.transform);
+
+  handle.focus();
   await userEvent.keyboard(' ');
+  await waitFor(() => {
+    expect(item).toHaveAttribute('aria-pressed', 'true');
+  });
+
   await userEvent.keyboard(direction === 'down' ? '{ArrowDown}' : '{ArrowUp}');
+  await waitFor(() => {
+    expect(
+      Array.from(document.querySelectorAll('[aria-roledescription]')).some(
+        (other) => other !== item && isShifted(other)
+      )
+    ).toBe(true);
+  });
+
   await userEvent.keyboard(' ');
+  await waitFor(() => {
+    expect(document.querySelector('[aria-pressed="true"]')).toBeNull();
+  });
 };
 
-// The item texts in the order the list shows them.
 const getItemTexts = (): Array<string | null> =>
   Array.from(document.querySelectorAll('[aria-label^="sort-"]')).map(
     (handle) => handle.parentElement?.textContent ?? null
@@ -164,7 +185,7 @@ describe('Form list', () => {
     expect(await screen.findByText('Waino (Quigley Group)')).toBeVisible();
     expect(screen.getAllByText('Sammie (Crist - Beer)')[0]).toBeVisible();
 
-    // The snapshot showed the moved item below the other one.
+    // The moved item is below the other one.
     await waitFor(() => {
       expect(getItemTexts()).toEqual([
         'Waino (Quigley Group)',
@@ -203,8 +224,8 @@ describe('Form list', () => {
   });
 });
 
-// The page is taller than the Cypress viewport (1000px instead of 590px), so
-// the form fits in it: the space below lets the page scroll as it did there.
+// The rstest viewport (1000px tall) fits the whole form: the spacer keeps the
+// page scrollable for the scroll-to-section test.
 const initializeFormWithSections = (): void => {
   render(
     <>
@@ -358,7 +379,7 @@ describe('File', () => {
     );
     expect(await screen.findByText('package.json')).toBeVisible();
 
-    // The snapshot: the field label above the drop zone, and the selected
+    // The field label above the drop zone, and the selected
     // file listed with a file icon.
     expect(screen.getByRole('heading', { name: 'json' })).toBeVisible();
     expect(
@@ -381,7 +402,7 @@ describe('Form with sections', () => {
     expect(screen.getAllByText('Third group')[0]).toBeVisible();
     expect(screen.getAllByText('Fourth group')[0]).toBeVisible();
 
-    // The snapshot: the section tabs sorted by group order, the first one
+    // The section tabs sorted by group order, the first one
     // selected, and the first group expanded with its nine fields.
     expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
       'First group',
@@ -416,7 +437,7 @@ describe('Form with sections', () => {
       expect(window.scrollY).toBeGreaterThan(initialScrollY);
     });
 
-    // The snapshot: the clicked tab selected.
+    // The clicked tab is selected.
     expect(screen.getByRole('tab', { name: 'Third group' })).toHaveAttribute(
       'aria-selected',
       'true'

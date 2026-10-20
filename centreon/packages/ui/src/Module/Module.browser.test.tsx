@@ -132,9 +132,8 @@ describe('Invalid license module', () => {
   it('displays the content of the module when the license is invalid license', async () => {
     initializeModuleWithInvalidLicense(true);
     // No request to wait for: the previous test left the license of this
-    // module in the shared query cache, as it did with Cypress. The checks
-    // are made once it is known, when no skeleton is left.
-    // The snapshot: an empty page, neither the fallback page nor a skeleton.
+    // module in the shared query cache. Once no skeleton is left, the page is
+    // empty: neither the fallback page nor a skeleton.
     await waitFor(() => {
       expect(
         document.querySelector('.MuiSkeleton-root')

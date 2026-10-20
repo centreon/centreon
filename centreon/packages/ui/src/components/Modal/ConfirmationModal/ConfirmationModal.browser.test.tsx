@@ -77,8 +77,8 @@ const openModal = async (): Promise<void> => {
   await userEvent.click(screen.getByText(buttonLabel));
 };
 
-// What every open modal of the former visual snapshots shows: the title, the
-// description, then the Cancel and Confirm buttons, in that order.
+// The open modal: the title, the description, then the Cancel and Confirm
+// buttons, in that order.
 const expectModalContent = async ({
   description,
   title
@@ -173,8 +173,7 @@ describe('Confirmation modal', () => {
 
     await expectModalContent({ description: 'Description', title: 'Title' });
 
-    // The snapshot showed a red Confirm button: its background is the
-    // theme's error colour.
+    // A red Confirm button: its background is the theme's error colour.
     const errorColorProbe = document.createElement('div');
     errorColorProbe.style.backgroundColor = 'var(--color-error-main)';
     document.body.appendChild(errorColorProbe);

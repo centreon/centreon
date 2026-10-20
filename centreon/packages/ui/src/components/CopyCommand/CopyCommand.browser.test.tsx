@@ -45,7 +45,7 @@ const getCode = (): HTMLElement => {
 };
 
 // The highlighted token of the given highlight.js class and exact text, with
-// its computed colour: what the former visual snapshots showed.
+// its computed colour.
 const expectToken = ({
   className,
   color,
@@ -131,7 +131,7 @@ echo "hello" | grep "hel"`
     expectLanguageChip('yaml');
     expect(screen.getByTestId('Copy command')).toBeVisible();
     // The indentation is kept, as non-breaking spaces.
-    expect(getCode().textContent).toMatch(/\n +with:\n +input:/);
+    expect(getCode().textContent).toMatch(/\n\u00a0+with:\n\u00a0+input:/);
     expectToken({
       className: 'hljs-attr',
       color: 'rgb(0, 92, 197)',
@@ -247,7 +247,7 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
       );
     });
 
-    // The rest of the dark palette the snapshot showed.
+    // The rest of the dark palette.
     expectToken({
       className: 'hljs-attr',
       color: 'rgb(121, 192, 255)',

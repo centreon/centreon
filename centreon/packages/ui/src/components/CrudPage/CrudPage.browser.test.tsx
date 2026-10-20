@@ -300,8 +300,8 @@ const initialize = (
   );
 };
 
-// `cy.contains` matched a text split across elements (`<strong>`): the
-// deepest element whose whole text is the given one.
+// The deepest element whose whole text is the given one, even when it is
+// split across elements (`<strong>`).
 const byTextContent =
   (text: string) =>
   (_content: string, element: Element | null): boolean =>
@@ -341,7 +341,7 @@ describe('CrudPage', () => {
       screen.getByText('Create item', { selector: 'button' })
     ).toBeVisible();
 
-    // Replaces the snapshot: the welcome state replaces the listing.
+    // The welcome state replaces the listing.
     expect(screen.queryAllByTestId('Search')).toHaveLength(0);
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
@@ -368,7 +368,7 @@ describe('CrudPage', () => {
     ).toBeVisible();
     expect(screen.getByText('Initial values:', { exact: false })).toBeVisible();
 
-    // Replaces the snapshot: the add form starts without initial values.
+    // The add form starts without initial values.
     const dialog = screen.getByRole('dialog');
 
     expect(within(dialog).getByText('Add item')).toBeVisible();
@@ -397,8 +397,8 @@ describe('CrudPage', () => {
     expect(await screen.findByText('Item 0')).toBeVisible();
     expect(screen.getByText('Description 0')).toBeVisible();
 
-    // Replaces the snapshot: the column headers, the pagination of the 60
-    // items, and the edit and delete actions of each row.
+    // The column headers, the pagination of the 60 items, and the edit and
+    // delete actions of the first and last rows.
     expect(screen.getByText('Name')).toBeVisible();
     expect(screen.getByText('Description')).toBeVisible();
     expect(screen.getByText('1-10 of 60')).toBeVisible();
@@ -429,8 +429,8 @@ describe('CrudPage', () => {
       ).not.toBeInTheDocument();
     });
 
-    // Cypress waited 500 ms (the search debounce) and read the latest
-    // request: wait for the latest one to carry the new search instead.
+    // The search is debounced (500 ms): rather than a fixed wait, wait for
+    // the latest answered request to carry the new search.
     await waitFor(() => {
       expect(
         getRequestCalls('@getListing')
@@ -442,7 +442,7 @@ describe('CrudPage', () => {
       );
     });
 
-    // Replaces the snapshot: the listing is still displayed.
+    // The listing is still displayed.
     expect(await screen.findByText('Item 0')).toBeVisible();
   });
 
@@ -461,7 +461,7 @@ describe('CrudPage', () => {
     ).toBeVisible();
     expect(screen.getByText('Initial values:', { exact: false })).toBeVisible();
 
-    // Replaces the snapshot: the add form starts without initial values.
+    // The add form starts without initial values.
     expect(
       within(screen.getByRole('dialog')).getByText(formPlaceholder)
     ).toHaveTextContent(/^This is a placeholder for the formInitial values:$/);
@@ -488,7 +488,6 @@ describe('CrudPage', () => {
 
       expect(await screen.findByText('Item deleted')).toBeVisible();
 
-      // Replaces the snapshot.
       await expectDeleteModalClosed('Delete item');
     });
 
@@ -520,7 +519,6 @@ describe('CrudPage', () => {
 
       expect(await screen.findByText('Sub item deleted')).toBeVisible();
 
-      // Replaces the snapshot.
       await expectDeleteModalClosed('Delete sub item');
     });
   });
@@ -550,7 +548,6 @@ describe('CrudPage', () => {
 
       expect(await screen.findByText('This is a success')).toBeVisible();
 
-      // Replaces the snapshot.
       await expectDeleteModalClosed('Title');
     });
 
@@ -580,7 +577,6 @@ describe('CrudPage', () => {
 
       expect(await screen.findByText('This is a success')).toBeVisible();
 
-      // Replaces the snapshot.
       await expectDeleteModalClosed('Title');
     });
   });
@@ -599,13 +595,11 @@ describe('CrudPage', () => {
     });
 
     await userEvent.click(await screen.findByTestId('Expand 0'));
-    await waitFor(() => {
-      expect(screen.queryByTestId('delete-0-1')).not.toBeInTheDocument();
-    });
 
-    // Replaces the snapshot: the sub-item is displayed, without any action,
+    // The sub-item is displayed, without any action,
     // and its parent keeps its own.
     expect(await screen.findByText('SubItem')).toBeVisible();
+    expect(screen.queryByTestId('delete-0-1')).not.toBeInTheDocument();
     expect(screen.queryByTestId('edit-0-1')).not.toBeInTheDocument();
     expect(screen.getByTestId('edit-0')).toBeVisible();
     expect(screen.getByTestId('delete-0')).toBeVisible();
@@ -629,7 +623,7 @@ describe('CrudPage', () => {
       )
     ).toBeVisible();
 
-    // Replaces the snapshot: the update form is a dialog over the listing.
+    // The update form is a dialog over the listing.
     expect(
       within(screen.getByRole('dialog')).getByText('Update item')
     ).toBeVisible();
@@ -659,7 +653,7 @@ describe('CrudPage', () => {
       expect(screen.queryByText('Update item')).not.toBeInTheDocument();
     });
 
-    // Replaces the snapshot: the listing is back, without any dialog.
+    // The listing is back, without any dialog.
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByText('Item 0')).toBeVisible();
   });

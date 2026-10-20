@@ -96,7 +96,7 @@ describe('Exclusive checkbox group', () => {
     expect(screen.getByLabelText('Recovery')).toBeInTheDocument();
     expect(screen.queryByLabelText('None')).not.toBeInTheDocument();
 
-    // Replaces the snapshot: the three options in order, then the toggle,
+    // The three options in order, then the toggle,
     // all unticked and usable, and the empty value.
     expect(
       screen
@@ -137,7 +137,7 @@ describe('Exclusive checkbox group', () => {
     expect(screen.getByLabelText('Down')).toBeDisabled();
     await expectValue(['None']);
 
-    // Replaces the snapshot: every option is unticked and greyed out.
+    // Every option is unticked and greyed out.
     ['Unreachable', 'Recovery'].forEach((option) => {
       expect(checkbox(option)).not.toBeChecked();
       expect(checkbox(option)).toBeDisabled();
@@ -210,8 +210,8 @@ describe('Exclusive checkbox group', () => {
   it('prevents ticking a box while the toggle is on', async () => {
     initialize({ notificationOptions: ['None'] });
 
-    // The disabled checkbox has `pointer-events: none`, which `userEvent`
-    // refuses: `fireEvent` forces the click, as `click({ force: true })` did.
+    // The checkbox is natively disabled, so the click never reaches its
+    // handler (`userEvent` would refuse it): it checks the box cannot be ticked.
     fireEvent.click(await screen.findByLabelText('Down'));
     expect(screen.getByLabelText('Down')).not.toBeChecked();
     await expectValue(['None']);

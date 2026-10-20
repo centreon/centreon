@@ -40,7 +40,7 @@ describe('Number field', () => {
     initialize({ dataTestId: 'test', defaultValue: 25, onChange: rs.fn() });
 
     expect(getInput()).toHaveValue(25);
-    // The snapshot shows the value only: no placeholder behind it.
+    // The value only: no placeholder behind it.
     expect(getInput()).not.toHaveAttribute('placeholder');
   });
 
@@ -78,8 +78,8 @@ describe('Number field', () => {
     await waitFor(() => {
       expect(getInput()).toHaveValue(250);
     });
-    // The snapshot showed a narrow field sized on its value, where a field
-    // without auto size has the 178px default width.
+    // A narrow field sized on its value, where a field without auto size has
+    // the 178px default width.
     expect(getFieldWidth()).toBeLessThan(100);
   });
 

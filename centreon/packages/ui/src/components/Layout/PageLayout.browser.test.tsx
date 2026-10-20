@@ -54,9 +54,8 @@ describe('Page layout', () => {
   });
 
   it('displays the page layout', async () => {
-    // Replaces the visual snapshot: the header (quick access button, title,
-    // description, actions) above the body (actions area, then content), and
-    // the quick access menu closed.
+    // The header (quick access button, title, description, actions) above
+    // the body (actions area, then content), and the quick access menu closed.
     const header = document.querySelector('#header') as HTMLElement;
     const body = document.querySelector('#page-body') as HTMLElement;
 
@@ -95,8 +94,8 @@ describe('Page layout', () => {
     expect(await screen.findByText('Create')).toBeVisible();
     expect(await screen.findByText('Go back')).toBeVisible();
 
-    // Replaces the visual snapshot: the button shown as open, the active
-    // element selected, and "Go back" before "Create".
+    // The button shown as open, the active element selected, and "Go back"
+    // before "Create".
     expect(screen.getByTestId('quickaccess')).toHaveAttribute(
       'data-is-active',
       'true'

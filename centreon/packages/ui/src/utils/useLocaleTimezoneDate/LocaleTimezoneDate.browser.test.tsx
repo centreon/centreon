@@ -89,7 +89,6 @@ const resultsDE = [
 
 const results = [...resultsEN, ...resultsEN, ...resultsFR, ...resultsDE];
 
-// The Cypress spec has no describe: the hook applies to every test of the file.
 beforeEach(() => {
   expect.hasAssertions();
 });
@@ -98,7 +97,7 @@ locales.forEach((locale, localeIndex) => {
   timezones.forEach((timezone, timezoneIndex) => {
     formats.forEach((format, formatIndex) => {
       // The expected result of this combination, independent of the order the
-      // tests run in (the Cypress spec incremented a shared counter).
+      // tests run in.
       const index =
         (localeIndex * timezones.length + timezoneIndex) * formats.length +
         formatIndex;

@@ -118,7 +118,7 @@ describe('useMutationQuery', () => {
 
     expect(await screen.findByText('custom error message')).toBeVisible();
 
-    // What the test name says and Cypress did not check: the console.
+    // The error is also logged to the console.
     expect(consoleError).toHaveBeenCalledWith(
       'API Request: custom error message'
     );

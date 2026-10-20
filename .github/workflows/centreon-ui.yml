@@ -9,7 +9,7 @@ on:
       - ready_for_review
     paths:
       - "centreon/packages/ui/**"
-      # The browser test setup the package's rstest tests run on.
+      # The shared rstest config and setup this package's browser tests run on.
       - "centreon/rstest.config.ts"
       - "centreon/test-setup/**"
 

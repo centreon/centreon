@@ -143,7 +143,7 @@ const columnsWithSubItems: Array<Column> = [
 
 const expandedItems = [0, 8];
 
-// The rstest viewport is 1280 px wide, as Cypress' `macbook-13` was.
+// Rendered in the 1280px-wide rstest viewport.
 const mountListingResponsive = (listingVariant: ListingVariant): void => {
   render(
     <div style={{ height: '100vh' }}>
@@ -206,9 +206,8 @@ const mountListingForSubItems = ({
   );
 };
 
-// What the former visual snapshots of the sub items showed once every row is
-// collapsed again: the headers, the ten rows in order, an expand caret on the
-// rows with sub items only, and no sub item.
+// Every row collapsed: the headers, the ten rows in order, an expand caret on
+// the rows with sub items only, and no sub item.
 const expectCollapsedListing = (): void => {
   ['Name', 'Description', 'Custom'].forEach((label) => {
     expect(screen.getByText(label)).toBeVisible();
@@ -239,8 +238,8 @@ const expectCollapsedListing = (): void => {
   expect(names).toEqual(listingWithSubItems.map(({ name }) => name));
 };
 
-// The responsive snapshots showed the headers, the rows in order and the large
-// text of the last column on each row.
+// The headers, the rows in order and the large text of the last column on
+// each row.
 const expectResponsiveListing = (): void => {
   ['Name', 'Description', 'Custom'].forEach((label) => {
     expect(screen.getByText(label)).toBeVisible();
@@ -359,8 +358,9 @@ describe('Listing', () => {
       await user.keyboard('{/Shift}');
 
       await waitFor(() => {
-        expect(screen.getAllByLabelText('Select row 2')[0]).toBeChecked();
+        expect(screen.getByLabelText('Select row 40')).toBeChecked();
       });
+      expect(screen.getAllByLabelText('Select row 2')[0]).toBeChecked();
       expect(screen.getByLabelText('Select row 10')).toBeChecked();
       expect(screen.getByLabelText('Select row 20')).toBeChecked();
       expect(screen.getByLabelText('Select row 30')).toBeChecked();

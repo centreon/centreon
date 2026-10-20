@@ -47,9 +47,8 @@ const initialize = ({
   };
 };
 
-// What every snapshot showed: both items, in order, and the add button
-// with its icon.
-const expectItemsAndAddButton = (): void => {
+// Both items are visible, Item 1 before Item 2.
+const expectItemsInOrder = (): void => {
   const item1 = screen.getByText('Item 1');
   const item2 = screen.getByText('Item 2');
 
@@ -81,7 +80,7 @@ describe('ItemComposition', () => {
     expect(screen.getAllByTestId('Delete')).toHaveLength(2);
     expect(screen.getByTestId('Add')).toBeEnabled();
 
-    expectItemsAndAddButton();
+    expectItemsInOrder();
     expectAddButtonWithIcon();
     screen.getAllByTestId('Delete').forEach((deleteButton) => {
       expect(deleteButton).toBeVisible();
@@ -94,8 +93,8 @@ describe('ItemComposition', () => {
 
     expect(screen.getByText('Secondary label')).toBeVisible();
 
-    // The snapshot: the secondary label on the right of the add button.
-    expectItemsAndAddButton();
+    // The secondary label is on the right of the add button.
+    expectItemsInOrder();
     expectAddButtonWithIcon();
     expect(
       screen.getByText('Secondary label').getBoundingClientRect().left
@@ -107,7 +106,7 @@ describe('ItemComposition', () => {
 
     expect(screen.getByTestId('Add')).toBeDisabled();
 
-    expectItemsAndAddButton();
+    expectItemsInOrder();
     expect(screen.getByTestId('Add')).toBeVisible();
   });
 
@@ -116,7 +115,7 @@ describe('ItemComposition', () => {
 
     expect(screen.queryByTestId('Add')).not.toBeInTheDocument();
 
-    expectItemsAndAddButton();
+    expectItemsInOrder();
     screen.getAllByTestId('Delete').forEach((deleteButton) => {
       expect(deleteButton).toBeVisible();
     });
@@ -134,7 +133,7 @@ describe('ItemComposition', () => {
       expect(deleteButton).not.toBeVisible();
     });
 
-    expectItemsAndAddButton();
+    expectItemsInOrder();
     expectAddButtonWithIcon();
   });
 
@@ -159,8 +158,8 @@ describe('ItemComposition', () => {
 
     expect(document.querySelector('[data-linked]')).toBeVisible();
 
-    // The snapshot: the link icon on the left of the items.
-    expectItemsAndAddButton();
+    // The link icon is on the left of the items.
+    expectItemsInOrder();
     expect(screen.getByTestId('LinkIcon')).toBeVisible();
     expect(
       (

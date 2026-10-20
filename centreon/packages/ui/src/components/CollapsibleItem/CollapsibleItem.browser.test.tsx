@@ -21,17 +21,16 @@ const initialize = ({ title, ...props }: Omit<Props, 'children'>): void => {
 const getExpandButton = (expanded: boolean): HTMLElement =>
   document.querySelector(`button[aria-expanded="${expanded}"]`) as HTMLElement;
 
-// What the snapshots showed: the expand icon on the right of the summary.
 const expectExpandIconVisible = (): void => {
   expect(screen.getByTestId('ExpandMoreIcon')).toBeVisible();
 };
 
-// A string title is rendered as an h6 heading, a customized one as given.
+// A string title is rendered as an h6 heading.
 const expectStringTitleHeading = (): void => {
   expect(screen.getByRole('heading', { level: 6, name: title })).toBeVisible();
 };
 
-// The details padding: none when compact, 16px aside otherwise.
+// The details' horizontal padding: 0 when compact, 16px otherwise.
 const getDetailsPaddingLeft = (): string =>
   getComputedStyle(
     screen.getByText('Content').closest('.MuiAccordionDetails-root') as Element

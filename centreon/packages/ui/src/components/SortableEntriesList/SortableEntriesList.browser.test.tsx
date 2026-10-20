@@ -75,7 +75,7 @@ const countShiftedRows = (row: HTMLElement): number =>
       /translate3d\(0px, -?[1-9]/.test((sibling as HTMLElement).style.transform)
   ).length;
 
-// `cy.moveSortableElement`: space to pick the row up, the arrows to move it,
+// A keyboard drag: space to pick the row up, the arrows to move it,
 // space to drop it. dnd-kit handles a key once the previous one took effect,
 // so each step is awaited: the handle pressed once the row is picked up, one
 // more row making way after each arrow, the handle released once dropped.
@@ -222,9 +222,8 @@ describe('SortableEntriesList - single input rows', () => {
       'drag-handle'
     );
 
-    // Replaces the visual snapshot: the buttons of each row in order (edit,
-    // delete, drag handle), the delete button in red, and the add button
-    // below the rows.
+    // The buttons of each row in order (edit, delete, drag handle), the
+    // delete button in red, and the add button below the rows.
     getRows().forEach((_row, rowIndex) => {
       expect(
         getRowButtons(rowIndex).map((button) =>
@@ -702,9 +701,9 @@ interface InitializePanelProps {
   maxVisibleRows?: number;
 }
 
-// Cypress used a 1600x900 viewport; the runner's is 1280x1000. The panel
-// widths are explicit, so the 1400px panel overflows the page instead: the
-// list lays out against the panel, not the viewport.
+// The viewport is 1280x1000 and the panel widths are explicit, so the 1400px
+// panel overflows the page: the list lays out against the panel, not the
+// viewport.
 const initializePanel = ({
   count,
   maxVisibleRows
@@ -730,6 +729,13 @@ const getLastNames = (onChange: Spy): Array<string> =>
 
 const getMaskImage = (element: HTMLElement): string =>
   getComputedStyle(element).maskImage;
+
+// The list is capped from a ResizeObserver callback, a frame or two after it
+// renders: a check that it is not capped waits for those frames first.
+const waitForResizeObservers = (): Promise<void> =>
+  new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
 
 describe('SortableEntriesList - capped list', () => {
   beforeEach(() => {
@@ -781,16 +787,21 @@ describe('SortableEntriesList - capped list', () => {
 
     const scrollArea = await getScrollArea();
 
-    await waitFor(() => {
-      expect(getComputedStyle(scrollArea).maxHeight).toBe('none');
-      expect(scrollArea.scrollHeight).toBe(scrollArea.clientHeight);
-    });
+    await waitForResizeObservers();
+
+    expect(getComputedStyle(scrollArea).maxHeight).toBe('none');
+    expect(scrollArea.scrollHeight).toBe(scrollArea.clientHeight);
   });
 
   it('focuses and scrolls to a row added at the end of a capped list', async () => {
     initializePanel({ count: 15, maxVisibleRows: 10 });
 
-    await userEvent.click(await screen.findByTestId('Add'));
+    const scrollArea = await getScrollArea();
+
+    await waitFor(() => {
+      expect(scrollArea.scrollHeight).toBeGreaterThan(scrollArea.clientHeight);
+    });
+    await userEvent.click(screen.getByTestId('Add'));
 
     await waitFor(() => {
       expect(getRows()).toHaveLength(16);
@@ -815,9 +826,8 @@ describe('SortableEntriesList - capped list', () => {
 
     const scrollArea = await getScrollArea();
 
-    await waitFor(() => {
-      expect(getComputedStyle(scrollArea).maxHeight).toBe('none');
-    });
+    await waitForResizeObservers();
+    expect(getComputedStyle(scrollArea).maxHeight).toBe('none');
     await userEvent.click(screen.getByTestId('Add'));
 
     await waitFor(() => {
@@ -880,8 +890,8 @@ describe('SortableEntriesList - capped list', () => {
       pointerId: 1
     };
 
-    // A synthetic pointer drag, as Cypress's `trigger` did: dnd-kit listens to
-    // the pointer events of the document once the drag started.
+    // A synthetic pointer drag: dnd-kit listens to the pointer events of the
+    // document once the drag started.
     fireEvent.pointerDown(handle, { ...pointer, clientY: top + height / 2 });
 
     const clientY = getRect(scrollArea).bottom - 5;

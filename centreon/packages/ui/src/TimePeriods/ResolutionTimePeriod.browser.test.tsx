@@ -54,16 +54,16 @@ data.forEach((item) => {
 
       const store = createStore();
 
-      // The legacy snake_case fixture of the Cypress spec: a partial user.
+      // A legacy snake_case fixture: a partial user.
       store.set(userAtom, {
         ...retrievedUser,
         locale: 'en_US',
         timezone: 'Europe/Paris'
       } as unknown as User);
 
-      // Cypress set the viewport width; the runner's viewport is fixed, so
-      // the component gets a parent of that width instead. It measures its
-      // parent and condenses below 600px wide, so the layout is the same.
+      // The component condenses when its measured width is below 600px (the
+      // viewport media query does not apply at 1280px): a parent of each
+      // tested width sets it.
       render(
         <div style={{ width }}>
           <Provider store={store}>
@@ -74,7 +74,7 @@ data.forEach((item) => {
     });
 
     it(`displays correctly the dates design when screen resolution is ${width}px`, async () => {
-      // `cy.contains` matched a substring: "1 day" is found in "Last 31 days".
+      // A substring match: "1 day" is also found in "Last 31 days".
       expect(
         (await screen.findAllByText('1 day', { exact: false }))[0]
       ).toBeVisible();
@@ -83,7 +83,6 @@ data.forEach((item) => {
       expect(screen.getByText('From', { exact: false })).toBeVisible();
       expect(screen.getByText('To', { exact: false })).toBeVisible();
 
-      // Replaces the visual snapshot.
       // The short or the long labels, in order, the first one selected.
       const timePeriodGroup = screen.getByRole('group');
       const timePeriodButtons = within(timePeriodGroup).getAllByRole('button');
