@@ -11,8 +11,7 @@ session=''
 
 notify_once() {
   local marker="${TMPDIR:-/tmp}/claude-hooks-$1-${session:-$(date +%Y%m%d)}"
-  if [[ ! -e "${marker}" ]]; then
-    : > "${marker}" 2> /dev/null || true
+  if (set -C && : > "${marker}") 2> /dev/null; then
     printf '{"systemMessage":"%s"}\n' "$2"
   fi
 }
@@ -68,7 +67,7 @@ if [[ ! -x "${biome}" ]]; then
   exit 0
 fi
 
-if output="$(cd "${pkg}" && "${biome}" check --write --no-errors-on-unmatched --max-diagnostics=10 "${file}" 2>&1)"; then
+if output="$(cd "${pkg}" && "${biome}" check --write --error-on-warnings --no-errors-on-unmatched --max-diagnostics=10 "${file}" 2>&1)"; then
   exit 0
 else
   rc=$?
@@ -80,7 +79,7 @@ if ((rc != 1)); then
 fi
 
 have="$("${biome}" --version 2> /dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true)"
-want="$(jq -r '(.devDependencies // {})["@biomejs/biome"] // empty' "${root}/centreon/package.json" 2> /dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' || true)"
+want="$(jq -r '(.devDependencies // {})["@biomejs/biome"] // empty' "${root}/centreon/package.json" 2> /dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true)"
 if [[ -n "${have}" && -n "${want}" ]] && version_lt "${have}" "${want}"; then
   notify_once biome-stale "Auto-format on edit is off: Biome ${have} is older than ${want} (run pnpm install in centreon/)."
   exit 0

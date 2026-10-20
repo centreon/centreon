@@ -49,6 +49,37 @@ guard 0 'git log --grep=no-verify-ish'
 guard 0 'echo --no-verify'
 guard 0 'ls'
 
+# Commit messages: their content is not a flag, a separator or a line break.
+guard 2 $'git commit -m "$(cat <<\'EOF\'\nfix: x\n\nbody\nEOF\n)" --no-verify'
+guard 2 $'git commit -m "$(cat <<\'EOF\'\nfix: x\nEOF\n)" -n'
+guard 2 $'git commit -m "fix: x\n\nbody" --no-verify'
+guard 2 'git commit -m "x && y" --no-verify'
+guard 2 'git commit -m "a;b" --no-verify'
+guard 2 'git commit -m "a|b" -n'
+guard 0 $'git commit -m "$(cat <<\'EOF\'\nfix(web): handle a && b; c | d\n\nRefs: MON-1\nEOF\n)"'
+guard 0 'git commit -m "Revert -n changes"'
+guard 0 'git commit -m "fix: ui - fix -nan display"'
+guard 0 'git commit -m "docs: mention core.hooksPath and --no-verify"'
+guard 0 "git commit -m 'note: run pnpm cypress:run:updateSnapshot later'"
+guard 0 'git commit -m "it'"'"'s fine" && git push -u origin x'
+
+# Quoted flags and other ways around the git hooks.
+guard 2 'git commit "-n" -m x'
+guard 2 "git push \"--force\""
+guard 2 "git push origin '+HEAD:main'"
+guard 2 'git push --mirror'
+guard 2 'git -c core.hookspath=/dev/null commit -m x'
+guard 2 'git config core.hooksPath /tmp/e; git commit -m x'
+guard 2 'HUSKY=0 git commit -m x'
+guard 2 'GIT_CONFIG_KEY_0=core.hookspath GIT_CONFIG_VALUE_0=/x git commit -m x'
+guard 2 "git -c alias.p='push --force' p"
+guard 2 'git config remote.origin.push +HEAD:refs/heads/main && git push'
+guard 0 'git config remote.origin.pushurl git@github.com:x/y.git'
+guard 0 'git push --follow-tags'
+guard 0 'git commit --fixup HEAD~1'
+guard 0 'git checkout -f develop'
+guard 0 'npm run x -- -n'
+
 # Force pushes.
 guard 2 'git push --force'
 guard 2 'git push origin x --force-with-lease'
@@ -87,6 +118,7 @@ if [[ "$1" == '--version' ]]; then
   exit 0
 fi
 pwd > "${TMPDIR}/biome-called"
+printf '%s\n' "$*" > "${TMPDIR}/biome-args"
 printf '%b' "${STUB_OUT:-}"
 exit "${STUB_RC:-0}"
 STUB
@@ -106,6 +138,7 @@ biome() {
 
 biome 0 "${app_file}" 'clean app file'
 check "${project}/centreon" "$(cat "${TMPDIR}/biome-called")" 'biome: runs from centreon/'
+check 'yes' "$(grep -q -- '--error-on-warnings' "${TMPDIR}/biome-args" && echo yes || echo no)" 'biome: warnings fail like in CI'
 biome 0 "${ui_file}" 'clean packages/ui file'
 check "${project}/centreon/packages/ui" "$(cat "${TMPDIR}/biome-called")" 'biome: runs from packages/ui/'
 biome 0 "${project}/centreon/www/front_src/src/c.md" 'markdown is skipped'
