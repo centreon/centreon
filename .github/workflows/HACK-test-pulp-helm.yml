@@ -44,7 +44,7 @@ jobs:
         id: candidate
         run: |
           set -euo pipefail
-          version=$(crane ls "$CHART_REPOSITORY/$CHART" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1)
+          version=$(crane ls "$CHART_REPOSITORY/$CHART" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n1)
           digest=$(crane digest "$CHART_REPOSITORY/$CHART:$version")
           echo "candidate $CHART:$version -> $digest"
           {
