@@ -255,6 +255,36 @@ const expectResponsiveListing = (): void => {
   expect(names).toEqual(listingWithSubItems.map(({ name }) => name));
 };
 
+// The header row keeps the variant's height; the rows grow to fit the large
+// text, which wraps onto several lines. How many lines depends on the
+// platform's text metrics, so the rows are not compared to a fixed height.
+const expectLastColumnOnSeveralLines = async (
+  headerHeight: number
+): Promise<void> => {
+  await waitFor(() => {
+    const [header, ...rows] = getComputedStyle(getTable())
+      .gridTemplateRows.split(' ')
+      .map(Number.parseFloat);
+
+    expect(header).toBe(headerHeight);
+    expect(rows).toHaveLength(10);
+    rows.forEach((row) => {
+      expect(row).toBe(rows[0]);
+      expect(row).toBeGreaterThan(headerHeight);
+    });
+  });
+
+  screen
+    .getAllByText('This is a large text that fills the content')
+    .forEach((text) => {
+      const lineHeight = Number.parseFloat(getComputedStyle(text).lineHeight);
+
+      expect(text.getBoundingClientRect().height).toBeGreaterThanOrEqual(
+        2 * lineHeight
+      );
+    });
+};
+
 const getTable = (): HTMLElement => {
   const table = document.querySelector<HTMLElement>('.MuiTable-root');
 
@@ -399,11 +429,7 @@ describe('Listing', () => {
   it('displays the last column on several lines in compact mode when the isResponsive prop is set', async () => {
     mountListingResponsive(ListingVariant.compact);
 
-    await waitFor(() => {
-      expect(getComputedStyle(getTable()).gridTemplateRows).toBe(
-        '30px 85px 85px 85px 85px 85px 85px 85px 85px 85px 85px'
-      );
-    });
+    await expectLastColumnOnSeveralLines(30);
 
     expectResponsiveListing();
   });
@@ -411,11 +437,7 @@ describe('Listing', () => {
   it('displays the last column on several lines in extended mode when the isResponsive prop is set', async () => {
     mountListingResponsive(ListingVariant.extended);
 
-    await waitFor(() => {
-      expect(getComputedStyle(getTable()).gridTemplateRows).toBe(
-        '38px 85px 85px 85px 85px 85px 85px 85px 85px 85px 85px'
-      );
-    });
+    await expectLastColumnOnSeveralLines(38);
 
     expectResponsiveListing();
   });
