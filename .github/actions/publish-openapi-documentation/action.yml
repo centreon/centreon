@@ -11,6 +11,10 @@ inputs:
   openapi_file_reference:
     description: "Reference (tag or branch) on which the files are fetched"
     required: false
+  set_as_default:
+    description: "Also publish to the unversioned root path (on-prem only), which points to the latest major"
+    required: false
+    default: "false"
   cloudfront_role_doc_production:
     description: "cloudfront_role_doc_production secret"
     required: true
@@ -38,6 +42,7 @@ runs:
       env:
         MODULE_NAME: ${{ inputs.module_name }}
         DOC_VERSION: ${{ inputs.doc_version }}
+        SET_AS_DEFAULT: ${{ inputs.set_as_default }}
       run: |
         if [[ $MODULE_NAME == "centreon-web" ]] && [[ $DOC_VERSION == "cloud" ]]; then
           BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME-$DOC_VERSION"
@@ -47,6 +52,13 @@ runs:
         ls -lah
         aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
         aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+
+        # The cloud doc has its own fixed path, only on-prem majors can be the root default
+        if [[ $SET_AS_DEFAULT == "true" ]] && [[ $DOC_VERSION != "cloud" ]]; then
+          ROOT_PATH="s3://centreon-documentation-api/api/$MODULE_NAME"
+          aws s3 cp "index.html" "${ROOT_PATH}/index.html"
+          aws s3 cp "centreon-logo.png" "${ROOT_PATH}/centreon-logo.png"
+        fi
       shell: bash
 
     - name: Invalidate AWS Cloudfront cache

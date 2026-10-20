@@ -49,6 +49,7 @@ use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
+use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -61,6 +62,7 @@ use Webmozart\Assert\Assert;
 final readonly class ListHostsProvider implements ProviderInterface
 {
     use FilterAwareProviderTrait;
+    use SortAwareProviderTrait;
 
     /**
      * @param TransformerInterface<Host, HostCollectionOutput> $transformer
@@ -113,6 +115,8 @@ final readonly class ListHostsProvider implements ProviderInterface
         if (($activated = $this->handleBoolFilter($filters['activated'] ?? null, 'activated')) !== null) {
             $criteria = $criteria->withActivated($activated);
         }
+
+        $criteria = $this->handleSort($filters, $criteria);
 
         $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
             ? $criteria
