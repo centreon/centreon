@@ -15,6 +15,11 @@ on:
         description: Branch or tag on which the doc files are fetched
         required: true
         default: ""
+      set_as_default:
+        type: boolean
+        description: Also publish to the unversioned root path, which points to the latest on-prem major
+        required: false
+        default: false
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -70,5 +75,6 @@ jobs:
           doc_version: ${{ needs.build-openapi-documentation.outputs.doc_version }}
           module_name: ${{ inputs.module_name }}
           openapi_file_reference: ${{ inputs.openapi_file_reference }}
+          set_as_default: ${{ inputs.set_as_default }}
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
