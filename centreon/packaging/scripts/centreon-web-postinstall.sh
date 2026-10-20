@@ -211,6 +211,16 @@ archiveLegacyPhpFpmLog() {
   fi
 }
 
+fixWebLogPermissions() {
+  # MON-211516
+  # prod.web.log is shared by the web server and console commands run by its
+  # group members (e.g. centreon-broker). Files created before Monolog applied
+  # file_permission are 0644, so make them group-writable.
+  if [ -f "/var/log/centreon/prod.web.log" ]; then
+    chmod 0664 /var/log/centreon/prod.web.log
+  fi
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -247,6 +257,7 @@ case "$action" in
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
     archiveLegacyPhpFpmLog $package_type
+    fixWebLogPermissions
     ;;
   *)
     # $1 == version being installed
