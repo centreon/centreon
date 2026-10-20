@@ -100,8 +100,9 @@ Copy the shape of `Configuration/Hosts/Specs/`:
   `<Feature>.browser.test.tsx` entry composes them and calls
   `expect.hasAssertions()` in a `beforeEach`.
 - In a test: await every `userEvent.*`, `findBy*`, `waitFor` and
-  `waitForRequest('@alias')` (nothing retries, unlike Cypress); find elements
-  by the labels from `translatedLabels.ts`; assert sent payloads with
+  `waitForRequest('@alias')`. There are no implicit retries like Cypress
+  `should`: anything that appears after an async step needs `findBy*` or
+  `waitFor`, not a plain `getBy*` + `expect`. Find elements by the labels from `translatedLabels.ts`; assert sent payloads with
   `const { request } = await waitForRequest('@alias')`. No whole-page
   snapshots: assert what matters explicitly.
 
