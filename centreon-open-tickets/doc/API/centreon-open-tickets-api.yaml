@@ -12,7 +12,7 @@ info:
     url: ./centreon-logo.png
   contact:
     url: 'https://www.centreon.com'
-  version: 'Cloud'
+  version: "cloud"
 servers:
   - url: '{protocol}://{server}:{port}/centreon/api/{version}/open-tickets'
     variables:

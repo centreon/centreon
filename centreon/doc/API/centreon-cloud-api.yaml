@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Centreon Web RestAPI for Cloud
-  version: 'Cloud'
+  version: "cloud"
   description: |
 
     <blockquote style="
