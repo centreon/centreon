@@ -50,7 +50,8 @@ const ajv = new Ajv2020({
   validateSchema: false,
   logger: false,
 });
-addFormats(ajv);
+// Fast mode accepts dotless email domains such as admin@localhost, used by default Centreon contacts.
+addFormats(ajv, { mode: "fast" });
 ajv.addSchema(spec, "openapi");
 
 const validators = new Map();
@@ -131,9 +132,18 @@ function findOperation(method, rawUrl) {
   for (const base of basePaths) {
     if (base && !pathname.startsWith(base + "/")) continue;
     const relative = pathname.slice(base.length);
-    const match = operations
-      .filter((op) => op.item[method] && op.regex.test(relative))
-      .sort((a, b) => b.literals - a.literals)[0];
+    // API Platform documents version-less paths (/api/...) that are also served under /api/{version}/...
+    const candidates = [
+      relative,
+      relative.replace(/^\/api\/(latest|beta|v\d+(\.\d+)*)\//, "/api/"),
+    ];
+    const match = candidates
+      .map((candidate) =>
+        operations
+          .filter((op) => op.item[method] && op.regex.test(candidate))
+          .sort((a, b) => b.literals - a.literals)[0],
+      )
+      .find(Boolean);
     if (match) {
       return {
         template: match.template,
