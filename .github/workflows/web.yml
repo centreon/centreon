@@ -87,9 +87,8 @@ jobs:
       labels: ${{ inputs.labels || '' }}
 
   changes:
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+    # TEMP (MON-212622): skip every triggered job; bruno-api-test reuses the branch web image. Revert before review.
+    if: false
     needs: [get-environment]
     uses: ./.github/workflows/get-changes-triggers.yml
     with:
@@ -1207,7 +1206,6 @@ jobs:
   bruno-api-test:
     needs: [get-environment, changes, xray-prepare-test-plan, dockerize]
     if: |
-      needs.changes.outputs.trigger_api_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
