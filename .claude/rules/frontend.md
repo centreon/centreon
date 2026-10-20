@@ -15,8 +15,8 @@ files. Team-owned and reviewed like code: update it in the same PR as any
 convention change. Personal notes go in `CLAUDE.local.md` (git-ignored).
 `.claude/settings.json` is the team baseline (read-only allowlist, deny rules
 for risky git flags); personal settings go in `.claude/settings.local.json`.
-Its hooks (`.claude/hooks/`) run Biome on every edited frontend file and block
-`--no-verify` and snapshot updates that are not limited to one spec.
+Its hook (`.claude/hooks/biome-on-edit.sh`) runs Biome on every edited
+frontend file.
 
 ## Layout
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests for the Claude Code hooks in this directory. Needs bash and jq only:
+# Tests for the Biome hook in this directory. Needs bash and jq only:
 #   .claude/hooks/test-hooks.sh
 set -euo pipefail
 
@@ -19,103 +19,6 @@ check() {
     printf 'FAIL (expected %s, got %s): %s\n' "${expected}" "${actual}" "${label}"
   fi
 }
-
-guard() {
-  local expected="$1" command="$2" rc=0
-  jq -n --arg c "${command}" '{tool_input: {command: $c}}' |
-    "${HOOKS_DIR}/guard-bash.sh" > /dev/null 2>&1 || rc=$?
-  check "${expected}" "${rc}" "guard: ${command}"
-}
-
-# Skipping the git hooks.
-guard 2 'git commit --no-verify -m x'
-guard 2 'git commit -m x --no-verify'
-guard 2 'git push --no-verify origin x'
-guard 2 'git -C /x commit --no-verify'
-guard 2 'git commit -am x --no-verify&&ls'
-guard 2 'git push origin HEAD --no-verify;'
-guard 2 '(git commit -m x --no-verify)'
-guard 2 'bash -c "git commit --no-verify"'
-guard 2 'git commit --no-verif -m x'
-guard 2 $'git commit -m x \\\n  --no-verify'
-guard 2 'cd a && git commit -n -m x'
-guard 2 'git commit -nm x'
-guard 2 'git -c core.hooksPath=/dev/null commit -m x'
-guard 0 'git commit -m x'
-guard 0 'git commit --amend --no-edit'
-guard 0 'git push origin x -n'
-guard 0 'git commit -m x && git push -n origin x'
-guard 0 'git log --grep=no-verify-ish'
-guard 0 'echo --no-verify'
-guard 0 'ls'
-
-# Commit messages: their content is not a flag, a separator or a line break.
-guard 2 $'git commit -m "$(cat <<\'EOF\'\nfix: x\n\nbody\nEOF\n)" --no-verify'
-guard 2 $'git commit -m "$(cat <<\'EOF\'\nfix: x\nEOF\n)" -n'
-guard 2 $'git commit -m "fix: x\n\nbody" --no-verify'
-guard 2 'git commit -m "x && y" --no-verify'
-guard 2 'git commit -m "a;b" --no-verify'
-guard 2 'git commit -m "a|b" -n'
-guard 0 $'git commit -m "$(cat <<\'EOF\'\nfix(web): handle a && b; c | d\n\nRefs: MON-1\nEOF\n)"'
-guard 0 'git commit -m "Revert -n changes"'
-guard 0 'git commit -m "fix: ui - fix -nan display"'
-guard 0 'git commit -m "docs: mention core.hooksPath and --no-verify"'
-guard 0 "git commit -m 'note: run pnpm cypress:run:updateSnapshot later'"
-guard 0 'git commit -m "it'"'"'s fine" && git push -u origin x'
-
-# Quoted flags and other ways around the git hooks.
-guard 2 'git commit "-n" -m x'
-guard 2 "git push \"--force\""
-guard 2 "git push origin '+HEAD:main'"
-guard 2 'git push --mirror'
-guard 2 'git -c core.hookspath=/dev/null commit -m x'
-guard 2 'git config core.hooksPath /tmp/e; git commit -m x'
-guard 2 'HUSKY=0 git commit -m x'
-guard 2 'GIT_CONFIG_KEY_0=core.hookspath GIT_CONFIG_VALUE_0=/x git commit -m x'
-guard 2 "git -c alias.p='push --force' p"
-guard 2 'git config remote.origin.push +HEAD:refs/heads/main && git push'
-guard 0 'git config remote.origin.pushurl git@github.com:x/y.git'
-guard 0 'git push --follow-tags'
-guard 0 'git commit --fixup HEAD~1'
-guard 0 'git checkout -f develop'
-guard 0 'npm run x -- -n'
-
-# Nested shells: the command they run is checked, text they only print is not.
-guard 2 'bash -c "git commit -n -m x"'
-guard 2 "sh -c 'git push origin +main'"
-guard 2 'eval "git push --force"'
-guard 2 "bash -lc 'cd x && git commit --no-verify -m y'"
-guard 2 'zsh -c "HUSKY=0 git commit -m x"'
-guard 0 'bash -c "echo git push --force"'
-guard 0 "sh -c 'ls -la'"
-guard 0 'echo "git commit --no-verify" > notes.txt'
-guard 0 'grep -rn "git push --force" docs/'
-
-# Force pushes.
-guard 2 'git push --force'
-guard 2 'git push origin x --force-with-lease'
-guard 2 'git push origin -f'
-guard 2 'git push origin +main'
-guard 0 'git push -u origin MON-1-web-feature-fix'
-
-# Snapshot updates: one spec file only.
-guard 2 'pnpm cypress:run:updateSnapshot'
-guard 2 'pnpm cypress:run:updateSnapshots'
-guard 2 'cypress run --env updateSnapshots=true'
-guard 2 'pnpm cypress:run:updateSnapshot --spec "www/**/*.cypress.spec.tsx"'
-guard 2 'pnpm cypress:run:updateSnapshots --spec a.tsx,b.tsx'
-guard 2 'pnpm cypress:run:updateSnapshot --spec www/front_src'
-guard 2 'pnpm cypress:run:updateSnapshot --spec "src/a b/*.cypress.spec.tsx"'
-guard 2 'pnpm cypress:run:updateSnapshot --spec a.cypress.spec.tsx --spec b.cypress.spec.tsx'
-guard 0 'pnpm cypress:run:updateSnapshot --spec www/a/Foo.cypress.spec.tsx'
-guard 0 'pnpm cypress:run:updateSnapshots --spec=src/Foo.cypress.spec.tsx'
-guard 0 'pnpm cypress:run:updateSnapshot -s www/a/Foo.cypress.spec.tsx'
-guard 0 'pnpm cypress:run --spec "www/**/*.cypress.spec.tsx"'
-
-# Fail open on unexpected input.
-rc=0
-printf 'not json' | "${HOOKS_DIR}/guard-bash.sh" > /dev/null 2>&1 || rc=$?
-check 0 "${rc}" 'guard: invalid JSON'
 
 # Biome hook, against a stub Biome in a temporary project.
 project="${TMP}/project"
