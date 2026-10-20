@@ -82,15 +82,16 @@ jobs:
           echo "Major version detected: $RELEASE_BRANCH_MAJOR_VERSION"
 
           # Deduce RELEASE_SCOPE from RELEASE_BRANCH_MAJOR_VERSION
-          if [[ "$RELEASE_BRANCH_MAJOR_VERSION" =~ ^[0-9]{2}\.(04|10)$ ]]; then
+          # XX.10 majors are onprem, every other major is cloud (same rule as get-environment)
+          if [[ ! "$RELEASE_BRANCH_MAJOR_VERSION" =~ ^[0-9]{2}\.[0-9]{2}$ ]]; then
+            echo "::error::Invalid release branch major version: $RELEASE_BRANCH_MAJOR_VERSION. Either RELEASE_BRANCH is invalid or version in it is invalid."
+            exit 1
+          elif [[ "$RELEASE_BRANCH_MAJOR_VERSION" =~ \.10$ ]]; then
             RELEASE_SCOPE="onprem"
             echo "Release scope detected: onprem"
-          elif [[ ! "$RELEASE_BRANCH_MAJOR_VERSION" =~ ^[0-9]{2}\.(04|10)$ ]]; then
+          else
             RELEASE_SCOPE="cloud"
             echo "Release scope detected: cloud"
-          else
-            echo "Invalid release branch major version: $RELEASE_BRANCH_MAJOR_VERSION. Either RELEASE_BRANCH is invalid or version in it is invalid."
-            exit 1
           fi
 
           # Set RELEASE_TYPE based on dispatch_target_release_branch prefix (release or hotfix)
@@ -339,9 +340,9 @@ jobs:
           # VARS
           # names defined in workflow files per components
           # these are the default component_list values, they can be overriden further in the code
-          COMPONENTS_OSS_REGULAR=("awie" "dsm" "ha" "open-tickets" "web")
+          COMPONENTS_OSS_REGULAR=("awie" "dsm" "ha" "helm" "open-tickets" "web")
           COMPONENTS_OSS_EXTRA=("docker-keycloak" "docker-packaging" "docker-translation" "docker-web-dependencies")
-          COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
+          COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "helm" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
           #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
           #COMPONENTS_COLLECT_REGULAR=("collect" "common" "gorgone" "monitoring-agent")

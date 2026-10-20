@@ -14,16 +14,23 @@ interface Props {
   canEdit: boolean;
   isAdditiveInheritanceEnabled: boolean;
   isCloudPlatform: boolean;
+  isMassChange?: boolean;
 }
 
 const useFormInputs = ({
   canEdit,
   isAdditiveInheritanceEnabled,
-  isCloudPlatform
+  isCloudPlatform,
+  isMassChange = false
 }: Props): FormInputsState => {
   const { t } = useTranslation();
 
-  const context = { isAdditiveInheritanceEnabled, isCloudPlatform, t };
+  const context = {
+    isAdditiveInheritanceEnabled,
+    isCloudPlatform,
+    isMassChange,
+    t
+  };
   const availableSections = getAvailableSections(context);
 
   // Sections are told apart by their headers, as designed: no divider.
@@ -46,7 +53,9 @@ const useFormInputs = ({
     input: Input
   ): Input => ({
     ...input,
-    getDisabled: () => !canEdit,
+    // Kept alongside the input's own rule, such as a field that waits for
+    // another one.
+    getDisabled: (values) => !canEdit || !!input.getDisabled?.(values),
     ...(input.grid && {
       grid: {
         ...input.grid,

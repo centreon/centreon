@@ -118,9 +118,9 @@ function _vmCheckRam() {
   ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
   local ram_mb=$(( ram_kb / 1024 ))
   if [ "${ram_mb}" -lt 1536 ]; then
-    consoleError "Insufficient RAM: ${ram_mb} MB. Minimum required: 1536 MB."
-    logError "Insufficient RAM: ${ram_mb} MB."
-    exit 1
+    consoleWarn "Insufficient RAM: ${ram_mb} MB. Minimum recommended: 1536 MB. Continuing."
+    logWarn "Insufficient RAM: ${ram_mb} MB."
+    return 0
   fi
   consoleInfo "RAM: ${ram_mb} MB: OK"
   logInfo "RAM check: ${ram_mb} MB OK"

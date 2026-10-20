@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\CheckOptions;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\DataProcessing;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\ExtendedInformations;
@@ -41,10 +42,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\SnmpVersionEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\NotificationContact\NotificationContactId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Timezone\TimezoneId;
 use App\Shared\Domain\Aggregate\TriStateEnum;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Exception\MissingIdException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Shared\Double\FakeVault;
@@ -64,6 +67,27 @@ final class HostTest extends TestCase
 
         self::assertCount(1, $host->parentHostIds);
         self::assertCount(1, $host->childHostIds);
+    }
+
+    public function testItRejectsAHostThatIsItsOwnParent(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->host(id: 5, parentHostIds: [5]);
+    }
+
+    public function testItRejectsAHostThatIsItsOwnChild(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->host(id: 5, childHostIds: [5]);
+    }
+
+    public function testItAcceptsAKnownIdThatIsNeitherParentNorChild(): void
+    {
+        $host = $this->host(id: 5, parentHostIds: [7], childHostIds: [8]);
+
+        self::assertSame(5, $host->id()->value);
     }
 
     public function testItEnablesTheHost(): void
@@ -144,6 +168,45 @@ final class HostTest extends TestCase
         );
 
         self::assertSame('uuid-4', $host->getVaultUuid($vault));
+    }
+
+    public function testItDuplicatesWithTheGivenNameAndSuppliedSecretsCarryingTheRestOver(): void
+    {
+        $source = $this->host(
+            parentHostIds: [10],
+            childHostIds: [11],
+            activated: false,
+            snmpCommunity: new SnmpCommunity('source-community'),
+            macros: [new HostMacro(new HostMacroName('old'), 'old-ref', isPassword: true)],
+            notifications: $this->notifications(),
+        );
+        self::assertNotNull($source->notifications, 'guard: the source must carry notifications for the next assertion to be meaningful');
+        $newCheckOptions = new CheckOptions(null, macros: [new HostMacro(new HostMacroName('token'), 'new-ref', isPassword: true)]);
+
+        $copy = $source->duplicate(new HostName('server-01_1'), new SnmpCommunity('new-ref'), $newCheckOptions);
+
+        // Supplied by the caller: the name and the re-minted secrets, never the source's.
+        self::assertSame('server-01_1', $copy->name->value);
+        self::assertSame('new-ref', $copy->snmpCommunity?->value);
+        self::assertSame($newCheckOptions, $copy->checkOptions);
+
+        // Carried over verbatim from the source.
+        self::assertSame($source->address, $copy->address);
+        self::assertSame($source->pollerId, $copy->pollerId);
+        self::assertSame($source->activated, $copy->activated);
+        self::assertSame($source->parentHostIds, $copy->parentHostIds);
+        self::assertSame($source->childHostIds, $copy->childHostIds);
+
+        // Notifications are carried over verbatim, as legacy multipleHostInDB does.
+        self::assertSame($source->notifications, $copy->notifications);
+    }
+
+    public function testADuplicateHasNoIdUntilItIsPersisted(): void
+    {
+        $copy = $this->host()->duplicate(new HostName('copy'), null, new CheckOptions(null));
+
+        $this->expectException(MissingIdException::class);
+        $copy->id();
     }
 
     public function testWithKeepsTheIdentityAndEverythingWhenNothingIsProvided(): void
@@ -260,6 +323,46 @@ final class HostTest extends TestCase
         self::assertTrue($this->persistedHost()->hasSameConfigurationAs($other));
     }
 
+    #[DataProvider('relationProvider')]
+    public function testSameRelationsDetectsARelationChange(string $relation): void
+    {
+        $other = match ($relation) {
+            'templateIds' => $this->persistedHost(templateIds: new Collection([new HostTemplateId(3)], HostTemplateId::class)),
+            'hostGroupIds' => $this->persistedHost(hostGroupIds: new Collection([new HostGroupId(4)], HostGroupId::class)),
+            'categoryIds' => $this->persistedHost(categoryIds: new Collection([new HostCategoryId(5)], HostCategoryId::class)),
+            'parentHostIds' => $this->persistedHost(parentHostIds: new Collection([new HostId(6)], HostId::class)),
+            'childHostIds' => $this->persistedHost(childHostIds: new Collection([new HostId(7)], HostId::class)),
+            default => self::fail("Unknown relation {$relation}"),
+        };
+
+        self::assertFalse($this->persistedHost()->hasSameRelationsAs($other));
+    }
+
+    public function testSameRelationsComparesTheSetsButTheTemplateOrder(): void
+    {
+        $host = $this->persistedHost(
+            templateIds: new Collection([new HostTemplateId(1), new HostTemplateId(2)], HostTemplateId::class),
+            hostGroupIds: new Collection([new HostGroupId(1), new HostGroupId(2)], HostGroupId::class),
+        );
+
+        self::assertTrue($host->hasSameRelationsAs($host->with(
+            hostGroupIds: new Collection([new HostGroupId(2), new HostGroupId(1)], HostGroupId::class),
+        )));
+        self::assertFalse($host->hasSameRelationsAs($host->with(
+            templateIds: new Collection([new HostTemplateId(2), new HostTemplateId(1)], HostTemplateId::class),
+        )));
+    }
+
+    public function testWithReplacesTheProvidedRelationsOnly(): void
+    {
+        $original = $this->persistedHost(hostGroupIds: new Collection([new HostGroupId(4)], HostGroupId::class));
+
+        $changed = $original->with(parentHostIds: new Collection([new HostId(6)], HostId::class));
+
+        self::assertSame([6], array_map(static fn (HostId $id): int => $id->value, $changed->parentHostIds->toArray()));
+        self::assertSame([4], array_map(static fn (HostGroupId $id): int => $id->value, $changed->hostGroupIds->toArray()));
+    }
+
     /**
      * @return iterable<string, array{string}>
      */
@@ -276,6 +379,74 @@ final class HostTest extends TestCase
         yield 'children' => ['childHostIds'];
     }
 
+    public function testASaveDroppingEverySecretReleasesTheVaultEntry(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->host(
+            snmpCommunity: new SnmpCommunity($this->ref('uuid-1', 'SNMPCOMMUNITY')),
+            macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))],
+        );
+
+        self::assertTrue($this->host(snmpCommunity: new SnmpCommunity('public'))->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAnyRemainingReferenceToTheEntryKeepsIt(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->host(snmpCommunity: new SnmpCommunity($this->ref('uuid-1', 'SNMPCOMMUNITY')));
+
+        // The SNMP community is gone, but a password macro still points to the entry.
+        $after = $this->host(macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))]);
+
+        self::assertFalse($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAReferenceToAnotherEntryDoesNotKeepTheOldOne(): void
+    {
+        // getVaultUuid() reports the first entry found: the check must look for the old entry itself.
+        $vault = $this->vaultKnowing('uuid-1', 'uuid-2');
+        $before = $this->host(macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))]);
+        $after = $this->host(macros: [$this->passwordMacro('other', $this->ref('uuid-2', 'OTHER'))]);
+
+        self::assertTrue($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    public function testAHostThatHadNoEntryReleasesNothing(): void
+    {
+        self::assertFalse($this->host()->releasesVaultEntryOf($this->host(snmpCommunity: new SnmpCommunity('public')), new FakeVault()));
+    }
+
+    public function testANonPasswordMacroLookingLikeAReferenceDoesNotKeepTheEntry(): void
+    {
+        $vault = $this->vaultKnowing('uuid-1');
+        $before = $this->host(macros: [$this->passwordMacro('token', $this->ref('uuid-1', 'TOKEN'))]);
+        $after = $this->host(macros: [new HostMacro(new HostMacroName('token'), $this->ref('uuid-1', 'TOKEN'), isPassword: false)]);
+
+        self::assertTrue($after->releasesVaultEntryOf($before, $vault));
+    }
+
+    private function ref(string $uuid, string $name): string
+    {
+        return "secret::vault::monitoring/hosts/{$uuid}::_HOST{$name}";
+    }
+
+    private function vaultKnowing(string ...$uuids): FakeVault
+    {
+        $vault = new FakeVault();
+        foreach ($uuids as $uuid) {
+            foreach (['SNMPCOMMUNITY', 'TOKEN', 'OTHER'] as $name) {
+                $vault->extractedUuids[$this->ref($uuid, $name)] = $uuid;
+            }
+        }
+
+        return $vault;
+    }
+
+    private function passwordMacro(string $name, string $value): HostMacro
+    {
+        return new HostMacro(new HostMacroName($name), $value, isPassword: true);
+    }
+
     /**
      * @param list<int> $parentHostIds
      * @param list<int> $childHostIds
@@ -287,9 +458,11 @@ final class HostTest extends TestCase
         bool $activated = true,
         ?SnmpCommunity $snmpCommunity = null,
         array $macros = [],
+        ?Notifications $notifications = null,
+        ?int $id = null,
     ): Host {
         return new Host(
-            id: null,
+            id: $id !== null ? new HostId($id) : null,
             name: new HostName('server-01'),
             alias: null,
             address: new HostAddress('127.0.0.1'),
@@ -301,6 +474,16 @@ final class HostTest extends TestCase
             childHostIds: $this->hostIds($childHostIds),
             snmpCommunity: $snmpCommunity,
             checkOptions: new CheckOptions(null, macros: $macros),
+            notifications: $notifications,
+        );
+    }
+
+    private function notifications(): Notifications
+    {
+        return new Notifications(
+            enabled: TriStateEnum::True,
+            contactIds: new Collection([], NotificationContactId::class),
+            contactGroupIds: new Collection([], ContactGroupId::class),
         );
     }
 

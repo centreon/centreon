@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Service\ServiceDeployer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 
 final class FakeServiceDeployer implements ServiceDeployer
 {
@@ -34,12 +36,35 @@ final class FakeServiceDeployer implements ServiceDeployer
 
     public bool $deployThrows = false;
 
+    /** @var list<array{hostId: int, previousTemplateIds: list<int>, templateIds: list<int>, requestedBy: int}> */
+    public array $removeCalls = [];
+
+    public bool $removeThrows = false;
+
     public function deployFromTemplates(HostId $hostId, UserId $requestedBy): void
     {
         $this->deployCalls[] = ['hostId' => $hostId->value, 'requestedBy' => $requestedBy->value];
 
         if ($this->deployThrows) {
             throw new \RuntimeException('Unable to deploy services');
+        }
+    }
+
+    public function removeFromRemovedTemplates(
+        HostId $hostId,
+        Collection $previousTemplateIds,
+        Collection $templateIds,
+        UserId $requestedBy,
+    ): void {
+        $this->removeCalls[] = [
+            'hostId' => $hostId->value,
+            'previousTemplateIds' => array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $previousTemplateIds->toArray())),
+            'templateIds' => array_values(array_map(static fn (HostTemplateId $id): int => $id->value, $templateIds->toArray())),
+            'requestedBy' => $requestedBy->value,
+        ];
+
+        if ($this->removeThrows) {
+            throw new \RuntimeException('Unable to remove services');
         }
     }
 }
