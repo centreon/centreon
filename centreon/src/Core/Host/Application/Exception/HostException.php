@@ -222,7 +222,7 @@ class HostException extends \Exception
     {
         return new self(
             sprintf(
-                _("The license host limit is reached: the host templates with ID(s) '%s' come from or inherit from licensed Monitoring Connectors and cannot be used"),
+                _("The license does not allow the host templates with ID(s) '%s': they come from or inherit from licensed Monitoring Connectors, and the license is invalid or its host limit is reached"),
                 implode(',', $templateIds)
             ),
             self::CODE_INVALID_ARGUMENT

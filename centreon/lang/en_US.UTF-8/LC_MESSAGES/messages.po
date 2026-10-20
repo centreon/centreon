@@ -16568,11 +16568,13 @@ msgstr "The hours are applied in the %s timezone."
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 #, php-format
 msgid ""
-"The license host limit is reached: the host templates with ID(s) '%s' come "
-"from or inherit from licensed Monitoring Connectors and cannot be used"
+"The license does not allow the host templates with ID(s) '%s': they come "
+"from or inherit from licensed Monitoring Connectors, and the license is "
+"invalid or its host limit is reached"
 msgstr ""
-"The license host limit is reached: the host templates with ID(s) '%s' come "
-"from or inherit from licensed Monitoring Connectors and cannot be used"
+"The license does not allow the host templates with ID(s) '%s': they come "
+"from or inherit from licensed Monitoring Connectors, and the license is "
+"invalid or its host limit is reached"
 
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"
