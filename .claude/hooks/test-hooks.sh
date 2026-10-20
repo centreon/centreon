@@ -80,6 +80,17 @@ guard 0 'git commit --fixup HEAD~1'
 guard 0 'git checkout -f develop'
 guard 0 'npm run x -- -n'
 
+# Nested shells: the command they run is checked, text they only print is not.
+guard 2 'bash -c "git commit -n -m x"'
+guard 2 "sh -c 'git push origin +main'"
+guard 2 'eval "git push --force"'
+guard 2 "bash -lc 'cd x && git commit --no-verify -m y'"
+guard 2 'zsh -c "HUSKY=0 git commit -m x"'
+guard 0 'bash -c "echo git push --force"'
+guard 0 "sh -c 'ls -la'"
+guard 0 'echo "git commit --no-verify" > notes.txt'
+guard 0 'grep -rn "git push --force" docs/'
+
 # Force pushes.
 guard 2 'git push --force'
 guard 2 'git push origin x --force-with-lease'

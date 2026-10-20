@@ -19,6 +19,10 @@ RE_SNAPSHOT_UPDATE='cypress:run:updateSnapshots?|updateSnapshots=true'
 RE_SPEC='(^|[[:space:]])(--spec|-s)([[:space:]]+|=)([^[:space:]]+)'
 RE_SPEC_FILE='^[^*?,{[]+\.(ts|tsx|js|jsx)$'
 RE_FLAG_TOKEN='^[-+][^[:space:]]*$'
+# A command that runs git, after optional variable assignments or wrappers.
+RE_RUNS_GIT='^[[:space:]]*[({]?[[:space:]]*(([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*|env|command|nohup|time|exec|sudo|timeout[[:space:]]+[^[:space:]]+)[[:space:]]+)*([^[:space:]]*/)?git([[:space:]]|$)'
+# The quoted command run by a nested shell: bash -c "...", eval '...'.
+RE_NESTED="(^|${B})(bash|sh|zsh|eval)([[:space:]]+-[[:alpha:]]*c)?[[:space:]]+(\"([^\"]*)\"|'([^']*)')"
 
 block() {
   printf 'Blocked by .claude/hooks/guard-bash.sh: %s\n' "$1" >&2
@@ -78,6 +82,10 @@ flag_view() {
 
 check_git() {
   local segment="$1"
+  # Only a command that runs git, not one that mentions it (echo git push).
+  if [[ ! "${segment}" =~ ${RE_RUNS_GIT} ]]; then
+    return 0
+  fi
   if [[ "${segment}" =~ ${RE_GIT_COMMIT} || "${segment}" =~ ${RE_GIT_PUSH} ]]; then
     if [[ "${segment}" =~ ${RE_NO_VERIFY} ]]; then
       block 'do not bypass the git hooks (gitleaks); fix what the hook reports.'
@@ -89,13 +97,11 @@ check_git() {
   if [[ "${segment}" =~ ${RE_GIT_PUSH} && "${segment}" =~ ${RE_FORCE} ]]; then
     block 'never force push; integrate the remote changes instead.'
   fi
-  if [[ "${segment}" =~ (^|${B})git(${B}|$) ]]; then
-    shopt -s nocasematch
-    if [[ "${segment}" =~ ${RE_HOOKS_BYPASS} ]]; then
-      block 'do not disable or redirect the git hooks, push refspecs or aliases.'
-    fi
-    shopt -u nocasematch
+  shopt -s nocasematch
+  if [[ "${segment}" =~ ${RE_HOOKS_BYPASS} ]]; then
+    block 'do not disable or redirect the git hooks, push refspecs or aliases.'
   fi
+  shopt -u nocasematch
 }
 
 check_snapshot() {
@@ -123,24 +129,32 @@ if [[ -z "${cmd}" ]]; then
   exit 0
 fi
 
-# Flags hidden in a nested shell (bash -c "git commit --no-verify").
-if [[ "${cmd}" =~ ${RE_GIT_COMMIT} || "${cmd}" =~ ${RE_GIT_PUSH} ]] && [[ "${cmd}" =~ ${RE_NO_VERIFY} ]]; then
-  view_raw="$(flag_view "${cmd}")"
-  if [[ "${view_raw}" =~ (^|${B})(bash|sh|zsh|eval)(${B}|$) ]]; then
-    block 'do not bypass the git hooks (gitleaks); fix what the hook reports.'
-  fi
-fi
+check_command() {
+  local command="$1" depth="$2" view segment rest nested
 
-view="$(flag_view "${cmd}")"
-while IFS= read -r segment; do
-  check_git "${segment}"
-done <<< "${view//[;&|]/$'\n'}"
-
-# Snapshot updates: detected on the flag view, spec read from the raw command.
-if [[ "${view}" =~ ${RE_SNAPSHOT_UPDATE} ]]; then
+  view="$(flag_view "${command}")"
   while IFS= read -r segment; do
-    if [[ "${segment}" =~ ${RE_SNAPSHOT_UPDATE} ]]; then
-      check_snapshot "${segment}"
-    fi
-  done <<< "${cmd//[;&|]/$'\n'}"
-fi
+    check_git "${segment}"
+  done <<< "${view//[;&|]/$'\n'}"
+
+  # Snapshot updates: detected on the flag view, spec read from the command.
+  if [[ "${view}" =~ ${RE_SNAPSHOT_UPDATE} ]]; then
+    while IFS= read -r segment; do
+      if [[ "${segment}" =~ ${RE_SNAPSHOT_UPDATE} ]]; then
+        check_snapshot "${segment}"
+      fi
+    done <<< "${command//[;&|]/$'\n'}"
+  fi
+
+  # Commands run by a nested shell (bash -c "...", eval '...') are checked too.
+  if ((depth < 3)); then
+    rest="${command}"
+    while [[ "${rest}" =~ ${RE_NESTED} ]]; do
+      nested="${BASH_REMATCH[5]}${BASH_REMATCH[6]}"
+      rest="${rest#*"${BASH_REMATCH[0]}"}"
+      check_command "${nested}" $((depth + 1))
+    done
+  fi
+}
+
+check_command "${cmd}" 0
