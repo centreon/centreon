@@ -53,6 +53,16 @@ on:
         required: false
         default: "false"
         type: string
+      openapi_spec_path:
+        description: "OpenAPI spec that requests and responses are validated against, in a pnpm package providing @redocly/cli; empty disables the check"
+        required: false
+        default: ""
+        type: string
+      openapi_validation_mode:
+        description: "report (contract violations are warnings) or strict (they fail the collection)"
+        required: false
+        default: "report"
+        type: string
     secrets:
       registry_username:
         required: true
@@ -298,6 +308,23 @@ jobs:
           fi
 
           node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-collections-run-workspace.js" "$FEATURE"
+
+      - name: Bundle OpenAPI spec
+        id: openapi-bundle
+        if: ${{ !cancelled() && inputs.openapi_spec_path != '' }}
+        working-directory: ${{ github.workspace }}
+        env:
+          OPENAPI_SPEC_PATH: ${{ inputs.openapi_spec_path }}
+        run: |
+          pnpm --dir "$(dirname "$OPENAPI_SPEC_PATH")" exec redocly bundle \
+            "$(basename "$OPENAPI_SPEC_PATH")" --ext json --output "$RUNNER_TEMP/openapi.json"
+
+      - name: Validate requests and responses against the OpenAPI spec
+        if: ${{ !cancelled() && steps.openapi-bundle.outcome == 'success' }}
+        env:
+          OPENAPI_SPEC: ${{ runner.temp }}/openapi.json
+          OPENAPI_VALIDATION_MODE: ${{ inputs.openapi_validation_mode }}
+        run: node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-openapi-validate.js" "$FEATURE"
 
       - name: Upload Bruno reports (JSON + HTML)
         if: always()

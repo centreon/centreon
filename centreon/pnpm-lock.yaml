@@ -890,6 +890,12 @@ importers:
       '@usebruno/cli':
         specifier: 3.3.0
         version: 3.3.0(@babel/preset-env@7.28.5(@babel/core@7.28.5))
+      ajv:
+        specifier: 8.17.1
+        version: 8.17.1
+      ajv-formats:
+        specifier: 2.1.1
+        version: 2.1.1(ajv@8.17.1)
 
   tests/e2e:
     devDependencies:

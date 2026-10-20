@@ -1233,6 +1233,7 @@ jobs:
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       database_name: ${{ matrix.database }}
       upload_artifacts: ${{ contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
+      openapi_spec_path: centreon/doc/API/centreon-api.yaml
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
