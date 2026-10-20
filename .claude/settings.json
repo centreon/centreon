@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm type-check)",
+      "Bash(pnpm lint)",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "mcp__plugin_figma_figma__get_metadata",
+      "mcp__plugin_figma_figma__get_design_context"
+    ],
+    "deny": [
+      "Bash(git commit --no-verify*)",
+      "Bash(git commit -n *)",
+      "Bash(git push --no-verify*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Read(**/.env.local)",
+      "Read(**/.env.*.local)"
+    ]
+  }
+}
