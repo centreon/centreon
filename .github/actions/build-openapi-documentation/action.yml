@@ -58,8 +58,15 @@ runs:
         OPENAPI_FILE_PATH="$MODULE_PATH/doc/API"
 
         # The version and the specs both come from the reference when there is one
+        version_file=".version"
         if [[ -n $OPENAPI_FILE_REF ]]; then
-          source ./$OPENAPI_FILE_REF/.version
+          version_file="./$OPENAPI_FILE_REF/.version"
+          if ! compgen -G "./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml" > /dev/null; then
+            echo "::error::no OpenAPI file in $OPENAPI_FILE_REF"
+            exit 1
+          fi
+          # Only the specs of the reference must be left, not the ones of the current branch
+          rm -f ./$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml
           mv -f ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml \
             ./$OPENAPI_FILE_PATH
           # Older specs are not bundled and $ref files of their own latest/ tree
@@ -67,10 +74,12 @@ runs:
             rm -rf ./$OPENAPI_FILE_PATH/latest
             mv ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/latest ./$OPENAPI_FILE_PATH/latest
           fi
-        else
-          source .version
         fi
-        major_version=${MAJOR}
+        major_version=$(sed -nE 's/^MAJOR=([0-9]+\.[0-9]+)$/\1/p' "$version_file" | head -n 1)
+        if [[ -z $major_version ]]; then
+          echo "::error::no valid MAJOR in $version_file"
+          exit 1
+        fi
 
         cd ./$OPENAPI_FILE_PATH
 
