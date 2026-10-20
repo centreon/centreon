@@ -1,3 +1,7 @@
+import { waitForRequest } from '@test-setup/api';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import {
   labelClear,
   labelFilters,
@@ -12,27 +16,48 @@ import {
 } from '../translatedLabels';
 import initialize from './initialize';
 
-const openAdvancedFilters = (): void => {
-  cy.get(`[data-testid="${labelFilters}"]`).click();
-  cy.get('[data-testid="advanced-filters"]').should('be.visible');
+const openAdvancedFilters = async (): Promise<HTMLElement> => {
+  await userEvent.click(await screen.findByTestId(labelFilters));
+
+  const panel = await screen.findByTestId('advanced-filters');
+
+  await waitFor(() => expect(panel).toBeVisible());
+
+  return panel;
 };
+
+const getPopper = (): HTMLElement =>
+  document.querySelector('.MuiAutocomplete-popper') as HTMLElement;
 
 // Scoped to the popper: a template name also appears in the Templates column
 // of the listing behind it.
-const select = (label: string, option: string, alias: string): void => {
-  cy.findByTestId(label).click();
-  cy.waitForRequest(alias);
-  cy.get('.MuiAutocomplete-popper').contains(option).click();
+const select = async (
+  label: string,
+  option: string,
+  alias: string
+): Promise<void> => {
+  await userEvent.click(screen.getByTestId(label));
+  await waitForRequest(alias);
+  await waitFor(() => expect(getPopper()).not.toBeNull());
+  await userEvent.click(await within(getPopper()).findByText(option));
+};
+
+const search = async (): Promise<void> => {
+  await userEvent.click(screen.getByTestId(labelSearch));
+};
+
+const initializeWithAdvancedFilters = async (): Promise<HTMLElement> => {
+  initialize();
+
+  await waitForRequest('@getAllHosts');
+
+  return openAdvancedFilters();
 };
 
 export default () => {
   describe('Filters: ', () => {
-    it('offers the five filters of the listing', () => {
-      initialize({});
-
-      cy.waitForRequest('@getAllHosts');
-
-      openAdvancedFilters();
+    it('offers the five filters of the listing', async () => {
+      const panel = await initializeWithAdvancedFilters();
 
       [
         labelName,
@@ -43,123 +68,107 @@ export default () => {
         // Scoped to the panel: "Monitoring server" is also a column header,
         // which sits behind it.
       ].forEach((label) => {
-        cy.get('[data-testid="advanced-filters"]')
-          .contains(label)
-          .should('be.visible');
-      });
-
-      cy.makeSnapshot();
-    });
-
-    it('sends the host group id as a query parameter', () => {
-      initialize({});
-
-      cy.waitForRequest('@getAllHosts');
-
-      openAdvancedFilters();
-
-      select(labelHostGroup, 'Linux servers', '@getHostGroups');
-
-      cy.findByTestId(labelSearch).click();
-
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.searchParams.get('group_id')).to.equal('1');
+        expect(within(panel).getAllByText(label)[0]).toBeVisible();
       });
     });
 
-    it('sends the host template id as a query parameter', () => {
-      initialize({});
+    it('sends the host group id as a query parameter', async () => {
+      await initializeWithAdvancedFilters();
 
-      cy.waitForRequest('@getAllHosts');
+      await select(labelHostGroup, 'Linux servers', '@getHostGroups');
 
-      openAdvancedFilters();
+      await search();
 
-      select(labelHostTemplate, 'generic-active-host', '@getHostTemplates');
+      const { request } = await waitForRequest('@getAllHosts');
 
-      cy.findByTestId(labelSearch).click();
-
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.searchParams.get('template_id')).to.equal('5');
-      });
+      expect(request.url.searchParams.get('group_id')).toBe('1');
     });
 
-    it('sends the monitoring server id as a query parameter', () => {
-      initialize({});
+    it('sends the host template id as a query parameter', async () => {
+      await initializeWithAdvancedFilters();
 
-      cy.waitForRequest('@getAllHosts');
+      await select(
+        labelHostTemplate,
+        'generic-active-host',
+        '@getHostTemplates'
+      );
 
-      openAdvancedFilters();
+      await search();
 
-      select(labelMonitoringServer, 'Poller EU', '@getPollers');
+      const { request } = await waitForRequest('@getAllHosts');
 
-      cy.findByTestId(labelSearch).click();
-
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.searchParams.get('poller_id')).to.equal('2');
-      });
+      expect(request.url.searchParams.get('template_id')).toBe('5');
     });
 
-    it('sends the status as `activated`, the parameter this endpoint takes', () => {
-      initialize({});
+    it('sends the monitoring server id as a query parameter', async () => {
+      await initializeWithAdvancedFilters();
 
-      cy.waitForRequest('@getAllHosts');
+      await select(labelMonitoringServer, 'Poller EU', '@getPollers');
 
-      openAdvancedFilters();
+      await search();
 
-      cy.contains(labelStatus).parent().find('input').first().click();
+      const { request } = await waitForRequest('@getAllHosts');
 
-      cy.findByTestId(labelSearch).click();
-
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.searchParams.get('activated')).to.equal('true');
-        expect(request.url.searchParams.get('is_activated')).to.equal(null);
-      });
+      expect(request.url.searchParams.get('poller_id')).toBe('2');
     });
 
-    it('combines the filters, then drops them all with the clear action', () => {
-      initialize({});
+    it('sends the status as `activated`, the parameter this endpoint takes', async () => {
+      const panel = await initializeWithAdvancedFilters();
 
-      cy.waitForRequest('@getAllHosts');
+      const status = within(panel).getAllByText(labelStatus)[0];
 
-      openAdvancedFilters();
+      await userEvent.click(
+        status.parentElement?.querySelector('input') as HTMLInputElement
+      );
 
-      select(labelHostGroup, 'Linux servers', '@getHostGroups');
-      select(labelHostTemplate, 'generic-active-host', '@getHostTemplates');
+      await search();
 
-      cy.findByTestId(labelSearch).click();
+      const { request } = await waitForRequest('@getAllHosts');
 
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.searchParams.get('group_id')).to.equal('1');
-        expect(request.url.searchParams.get('template_id')).to.equal('5');
-      });
-
-      cy.findByTestId(labelClear).click();
-
-      cy.waitForRequest('@getAllHosts').then(({ request }) => {
-        expect(request.url.searchParams.get('group_id')).to.equal(null);
-        expect(request.url.searchParams.get('template_id')).to.equal(null);
-      });
+      expect(request.url.searchParams.get('activated')).toBe('true');
+      expect(request.url.searchParams.get('is_activated')).toBeNull();
     });
 
-    it('keeps the filters in local storage so they survive navigation', () => {
-      initialize({});
+    it('combines the filters, then drops them all with the clear action', async () => {
+      await initializeWithAdvancedFilters();
 
-      cy.waitForRequest('@getAllHosts');
+      await select(labelHostGroup, 'Linux servers', '@getHostGroups');
+      await select(
+        labelHostTemplate,
+        'generic-active-host',
+        '@getHostTemplates'
+      );
 
-      openAdvancedFilters();
+      await search();
 
-      select(labelHostGroup, 'Linux servers', '@getHostGroups');
+      const { request: filtered } = await waitForRequest('@getAllHosts');
 
-      cy.findByTestId(labelSearch).click();
+      expect(filtered.url.searchParams.get('group_id')).toBe('1');
+      expect(filtered.url.searchParams.get('template_id')).toBe('5');
 
-      cy.waitForRequest('@getAllHosts');
+      await userEvent.click(screen.getByTestId(labelClear));
 
-      cy.window().then((window) => {
+      const { request: cleared } = await waitForRequest('@getAllHosts');
+
+      expect(cleared.url.searchParams.get('group_id')).toBeNull();
+      expect(cleared.url.searchParams.get('template_id')).toBeNull();
+    });
+
+    it('keeps the filters in local storage so they survive navigation', async () => {
+      await initializeWithAdvancedFilters();
+
+      await select(labelHostGroup, 'Linux servers', '@getHostGroups');
+
+      await search();
+
+      await waitForRequest('@getAllHosts');
+
+      await waitFor(() => {
         const stored = JSON.parse(
           window.localStorage.getItem('filters_hosts') as string
         );
 
-        expect(stored.group_id).to.deep.equal({ id: 1, name: 'Linux servers' });
+        expect(stored.group_id).toEqual({ id: 1, name: 'Linux servers' });
       });
     });
   });
