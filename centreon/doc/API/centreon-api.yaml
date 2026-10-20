@@ -16,7 +16,7 @@ info:
   license:
     name: 'Apache 2.0'
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 'Cloud'
+  version: Cloud
 externalDocs:
   description: 'You can contact us on our community platform The Watch'
   url: 'https://thewatch.centreon.com/'
