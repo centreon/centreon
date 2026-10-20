@@ -189,6 +189,24 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\PutHostPro
                         required: false,
                         schema: ['type' => 'boolean'],
                     ),
+                    new Model\Parameter(
+                        name: 'sort',
+                        in: 'query',
+                        description: 'Sort by one or several fields, in order of precedence (e.g. `sort[name]=asc`). '
+                            . 'Asc on `activated` lists the deactivated hosts first.',
+                        required: false,
+                        style: 'deepObject',
+                        explode: true,
+                        schema: [
+                            'type' => 'object',
+                            'properties' => [
+                                'name' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                                'alias' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                                'address' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                                'activated' => ['type' => 'string', 'enum' => ['asc', 'desc']],
+                            ],
+                        ],
+                    ),
                 ],
             ),
             security: '

@@ -25,11 +25,14 @@ namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\Shared\Domain\Repository\PaginableCriteria;
 use App\Shared\Domain\Repository\PaginableCriteriaTrait;
+use App\Shared\Domain\Repository\SortableCriteria;
+use App\Shared\Domain\Repository\SortableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class HostCriteria implements PaginableCriteria
+final class HostCriteria implements PaginableCriteria, SortableCriteria
 {
     use PaginableCriteriaTrait;
+    use SortableCriteriaTrait;
     use ViewerScopedCriteriaTrait;
 
     private ?string $name = null;
@@ -113,5 +116,20 @@ final class HostCriteria implements PaginableCriteria
     public function getActivated(): ?bool
     {
         return $this->activated;
+    }
+
+    /**
+     * Sortable fields exposed by the API, mapped to their `host` table column.
+     *
+     * @return array<string, string>
+     */
+    public function getFieldMapping(): array
+    {
+        return [
+            'name' => 'host_name',
+            'alias' => 'host_alias',
+            'address' => 'host_address',
+            'activated' => 'host_activate',
+        ];
     }
 }

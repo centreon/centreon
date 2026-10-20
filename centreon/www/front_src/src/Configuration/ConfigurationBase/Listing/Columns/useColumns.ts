@@ -36,7 +36,7 @@ const useColumns = (): Props => {
     id: 'is_activated',
     label: t(labelEnableDisable),
     sortable: true,
-    sortField: 'is_activated',
+    sortField: configuration?.api?.activationField ?? 'is_activated',
     type: ColumnType.component,
     width: 'max-content'
   };
