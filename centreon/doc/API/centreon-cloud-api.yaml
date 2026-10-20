@@ -1,6 +1,7 @@
 openapi: 3.0.1
 info:
   title: Centreon Web RestAPI for Cloud
+  version: '24.10'
   description: |
     # New features
     + Added endpoint to deploy services in a host based on associated host template(s)
