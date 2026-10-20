@@ -36,12 +36,20 @@ runs:
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
+    - name: Check Artifactory availability
+      id: artifactory
+      uses: ./.github/actions/check-artifactory
+      with:
+        artifactory_token: ${{ inputs.artifactory_token }}
+
+    - if: steps.artifactory.outputs.available == 'true'
+      uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:
         JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - name: Publish RPMs
+      if: steps.artifactory.outputs.available == 'true'
       shell: bash
       env:
         JF_URL: https://centreon.jfrog.io
