@@ -207,6 +207,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogoutAuthenticationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -310,6 +312,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogoutAuthenticationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -384,6 +388,10 @@ paths:
       responses:
         '201':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Category'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -584,6 +592,10 @@ paths:
       responses:
         '201':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration.Host.Severity'
         '400':
           $ref: '#/components/responses/BadRequest'
         '403':
@@ -3295,7 +3307,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host not found'
+          $ref: '#/components/responses/HostNotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/check':
@@ -3323,7 +3335,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   '/api/latest/monitoring/metaservices/{meta_id}/check':
@@ -3350,7 +3362,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /api/latest/monitoring/resources/check:
@@ -3373,7 +3385,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   '/api/latest/monitoring/hosts/{host_id}/submit':
@@ -3401,7 +3413,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host not found'
+          $ref: '#/components/responses/HostNotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
   '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/submit':
@@ -3431,7 +3443,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   '/api/latest/monitoring/metaservices/{meta_id}/submit':
@@ -3458,7 +3470,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /api/latest/monitoring/resources/submit:
@@ -3481,7 +3493,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /api/latest/monitoring/resources/comments:
@@ -3503,8 +3515,10 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: 'Host or service not found'
+          $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
   '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics':
@@ -3915,8 +3929,6 @@ paths:
                 type: object
                 required:
                   - graph
-                  - nodes
-                  - edges
                 properties:
                   graph: { type: object, description: 'General informations about schema', properties: { label: { type: string, description: 'type of Json Graph', example: centreon-topology }, metadata: { type: object, properties: { version: { type: string, description: 'Version of the topology', example: 1.0.0 } } }, nodes: { type: object, minItems: 1, properties: { id: { properties: { type: { type: string, description: 'Server Type of a platform', example: central }, label: { type: string, description: 'logical name of a platform', example: Central }, metadata: { type: object, properties: { centreon-id: { type: string, description: 'id of a platform as known in centreon database', example: '1' }, hostname: { type: string, description: 'physical name of a platform', example: localhost.localdomain }, address: { type: string, description: 'address of a platform', example: 192.168.0.1 } } } } } } }, edges: { type: array, minItems: 0, items: { type: object, properties: { source: { type: string, description: 'children platform id as known in the topology', example: '91' }, relation: { type: string, description: 'broker communication type', example: peer_retention }, target: { type: string, description: 'parent platform id as known in the topology', example: '1' } } } } } }
         '403':
@@ -4142,6 +4154,10 @@ paths:
       responses:
         '403':
           description: 'You are not allowed to access commands'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'Command collection'
           content:
@@ -4240,8 +4256,16 @@ paths:
       responses:
         '409':
           description: 'Command resource already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '403':
           description: 'You are not allowed to create commands'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '201':
           description: 'Command resource created'
           content:
@@ -4363,8 +4387,16 @@ paths:
       responses:
         '404':
           description: 'Command resource not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '403':
           description: 'You are not allowed to access this command'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'Command resource'
           content:
@@ -4394,8 +4426,16 @@ paths:
       responses:
         '404':
           description: 'Command resource not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '403':
           description: 'You are not allowed to delete this command'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '204':
           description: 'Command resource deleted'
       summary: 'Removes the Command resource.'
@@ -4418,8 +4458,16 @@ paths:
       responses:
         '404':
           description: 'Command resource not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '403':
           description: 'You are not allowed to update this command'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'Command resource updated'
           content:
@@ -4834,8 +4882,16 @@ paths:
           links: {}
         '409':
           description: 'Poller resource already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '503':
           description: 'Engine secrets are not available'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '201':
           description: 'Poller resource created'
           content:
@@ -4963,10 +5019,22 @@ paths:
       responses:
         '404':
           description: 'Poller or poller token not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '403':
           description: 'You are not allowed to access this resource'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '503':
           description: 'Engine secrets are not available'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'InstallationCommandResource resource'
           content:
@@ -5007,6 +5075,10 @@ paths:
       responses:
         '409':
           description: 'ServiceCategory resource already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '201':
           description: 'ServiceCategory resource created'
           content:
@@ -5217,8 +5289,16 @@ paths:
       responses:
         '404':
           description: 'Poller not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '403':
           description: 'You are not allowed to access this resource'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'InstallationCommandResource resource'
           content:
@@ -5501,8 +5581,16 @@ paths:
       responses:
         '404':
           description: 'Poller or host group not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '409':
           description: 'Host resource already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '422':
           description: 'Invalid input'
           content:
@@ -6072,10 +6160,22 @@ paths:
       responses:
         '401':
           description: 'Authentication required'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '404':
           description: 'Not available on Cloud platforms'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '422':
           description: 'Neither an IPv4 address nor a hostname'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'HostAddressResolution resource'
           content:
@@ -6119,8 +6219,16 @@ paths:
       responses:
         '403':
           description: 'You are not allowed to view hosts'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '404':
           description: 'Host not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'Host resource'
           content:
@@ -6150,8 +6258,16 @@ paths:
       responses:
         '404':
           description: 'Host not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '409':
           description: 'Host name already used by another host or template'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '422':
           description: 'Invalid input, or a referenced resource that does not exist or is not accessible'
           content:
@@ -6280,8 +6396,16 @@ paths:
           links: {}
         '404':
           description: 'Host not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '409':
           description: 'A host or host template already uses this name'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '422':
           description: 'Invalid input'
           content:
@@ -6297,6 +6421,10 @@ paths:
           links: {}
         '502':
           description: 'The vault could not be reached'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '400':
           description: 'Invalid input'
           content:
@@ -6354,10 +6482,22 @@ paths:
           links: {}
         '403':
           description: 'You are not allowed to duplicate hosts'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '404':
           description: 'Host not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '409':
           description: 'A host with the generated name already exists'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '422':
           description: 'The generated host name would exceed the maximum length'
           content:
@@ -6415,8 +6555,16 @@ paths:
       responses:
         '403':
           description: 'You are not allowed to access host templates'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '404':
           description: 'Host template not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyError'
         '200':
           description: 'HostTemplate resource'
           content:
@@ -6918,6 +7066,18 @@ components:
                 example: 'You are not authorized to access this resource'
     NotFound:
       description: 'Not Found'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int64
+                example: 404
+              message:
+                type: string
+                example: 'Resource not found'
     HostNotFound:
       description: 'Not Found'
       content:
@@ -7030,11 +7190,15 @@ components:
           description: 'Number of items per page'
           example: 10
         search:
-          type: object
-          description: 'Search parameter passed to URL'
+          type:
+            - object
+            - array
+          description: 'Search parameter passed to URL (empty array when none is given)'
         sort_by:
-          type: object
-          description: 'Sort parameter passed to URL'
+          type:
+            - object
+            - array
+          description: 'Sort parameter passed to URL (empty array when none is given)'
         total:
           type: integer
           description: 'Number of items found'
@@ -8085,7 +8249,9 @@ components:
           description: 'SSH port of the server'
           example: 22
         last_restart:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
           description: 'Date of the last Engine restart request'
         engine_start_command:
@@ -8125,7 +8291,9 @@ components:
           description: "Full path of the Broker module's libraries"
           example: /usr/share/centreon/lib/centreon-broker
         centreonbroker_logs_path:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Full path of the Broker logs'
         centreonconnector_path:
           type: string
@@ -8140,7 +8308,9 @@ components:
           description: 'Full path of the Centreontrapd daemon configuration'
           example: /etc/snmp/centreon_traps/
         remote_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'ID of the master Remote Server linked to the server'
         remote_server_use_as_proxy:
           type: boolean
@@ -13507,3 +13677,16 @@ components:
         contact_group_additive_inheritance:
           description: "Ignored unless the platform's inheritance mode enables additive inheritance."
           type: boolean
+    LegacyError:
+      type: object
+      description: 'Error returned by the API.'
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: 'Resource not found'

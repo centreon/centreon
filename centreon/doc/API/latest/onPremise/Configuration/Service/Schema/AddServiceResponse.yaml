@@ -14,7 +14,9 @@ allOf:
         description: "ID of the host linked to this service."
         example: 1
       geo_coords:
-        type: string
+        type:
+          - string
+          - 'null'
         description: "Geographic coordinates of the service"
         example: "48.10,12.5"
       comment:
@@ -139,7 +141,9 @@ allOf:
         minimum: 1
         example: 1
       notification_type:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: |
           Define the states of the service for which notifications should be sent out.
 

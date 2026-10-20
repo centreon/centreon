@@ -30,5 +30,10 @@ properties:
     description: "Widget type"
 
   widget_settings:
-    type: object
-    description: "Widget settings : 100% dynamic structure related to the widget_type"
+    type:
+      - object
+      - string
+    description: |
+      Widget settings : 100% dynamic structure related to the widget_type.
+
+      Sent as a JSON-encoded string in requests, returned as an object in responses.

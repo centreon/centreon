@@ -9,11 +9,15 @@ properties:
     description: "Number of items per page"
     example: 10
   search:
-    type: object
-    description: "Search parameter passed to URL"
+    type:
+      - object
+      - array
+    description: "Search parameter passed to URL (empty array when none is given)"
   sort_by:
-    type: object
-    description: "Sort parameter passed to URL"
+    type:
+      - object
+      - array
+    description: "Sort parameter passed to URL (empty array when none is given)"
   total:
     type: integer
     description: "Number of items found"

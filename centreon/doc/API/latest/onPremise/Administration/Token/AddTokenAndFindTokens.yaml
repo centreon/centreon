@@ -50,7 +50,7 @@ post:
       application/json:
         schema:
           allOf:
-            - required: ["name", "expiration_date", "type"]
+            - required: ["name", "type"]
             - $ref: 'Schema/NewToken.yaml'
   responses:
     '201':

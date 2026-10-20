@@ -35,6 +35,9 @@ post:
       multipart/form-data:
         schema:
           $ref: 'Schema/Dashboard.PartialUpdate.yaml'
+      application/json:
+        schema:
+          $ref: 'Schema/Dashboard.PartialUpdate.yaml'
   responses:
     '204': { description: "OK" }
     '400': { $ref: '../../Common/Response/BadRequest.yaml' }

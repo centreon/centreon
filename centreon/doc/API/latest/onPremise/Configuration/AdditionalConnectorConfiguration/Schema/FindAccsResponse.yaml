@@ -8,7 +8,9 @@ properties:
     description: "ACC name"
     example: "my-acc-name"
   description:
-    type: string
+    type:
+      - string
+      - 'null'
     description: "A short ACC description"
     example: "some description"
   type:
