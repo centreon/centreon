@@ -9,6 +9,9 @@ on:
       - ready_for_review
     paths:
       - "centreon/packages/ui/**"
+      # The browser test setup the package's rstest tests run on.
+      - "centreon/rstest.config.ts"
+      - "centreon/test-setup/**"
 
 env:
   directory: "centreon/packages/ui"
@@ -56,6 +59,7 @@ jobs:
       module_name: centreon/packages/ui
       specs_path: src/**
       dependencies_lock_file: centreon/pnpm-lock.yaml
+      with_rstest: true
 
   unit-test:
     needs: [dependency-scan]

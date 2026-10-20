@@ -6,6 +6,7 @@
 			"!**/*{.,-}min.js",
 			"!**/mockServiceWorker.js",
 			"!**/*.test.tsx",
+			"**/*.browser.test.tsx",
 			"!**/*.svg"
 		]
 	},
