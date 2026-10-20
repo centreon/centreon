@@ -69,9 +69,9 @@ runs:
           rm -f ./$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml
           mv -f ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml \
             ./$OPENAPI_FILE_PATH
-          # Older specs are not bundled and $ref files of their own latest/ tree
+          # Older specs are not bundled and $ref files of their own latest/ tree: never keep the current one
+          rm -rf ./$OPENAPI_FILE_PATH/latest
           if [[ -d ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/latest ]]; then
-            rm -rf ./$OPENAPI_FILE_PATH/latest
             mv ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/latest ./$OPENAPI_FILE_PATH/latest
           fi
         fi
