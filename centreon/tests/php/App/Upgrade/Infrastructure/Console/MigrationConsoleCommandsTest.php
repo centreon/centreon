@@ -183,6 +183,27 @@ final class MigrationConsoleCommandsTest extends TestCase
         self::assertStringContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
     }
 
+    public function testStatusFailsOnASetMigrateWouldRefuseButStillRendersTheOthers(): void
+    {
+        $queryBus = new class () implements QueryBus {
+            /**
+             * @return list<MigrationSetStatus>
+             */
+            public function ask(object $query): array
+            {
+                return [
+                    new MigrationSetStatus(MigrationSet::core('realtime'), [], [], 'The "realtime" migration set has executed migrations that are not available anymore'),
+                    new MigrationSetStatus(MigrationSet::core('configuration'), [], ['Centreon\Migrations\Configuration\Version1']),
+                ];
+            }
+        };
+        $tester = $this->tester(new StatusConsoleCommand($queryBus), 'centreon:migrations:status');
+
+        self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString('migrations that are not available anymore', (string) preg_replace('/\s+/', ' ', $tester->getDisplay()));
+        self::assertStringContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
+    }
+
     public function testGenerateWritesALoadableMigrationOfTheRequestedKind(): void
     {
         $tester = $this->generateTester();

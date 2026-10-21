@@ -30,11 +30,13 @@ final readonly class MigrationSetStatus
     /**
      * @param list<string> $executed
      * @param list<string> $pending
+     * @param string|null $error why migrate would refuse the set, which hides its migrations
      */
     public function __construct(
         public MigrationSet $set,
         public array $executed,
         public array $pending,
+        public ?string $error = null,
     ) {
     }
 }

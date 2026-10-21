@@ -49,15 +49,23 @@ final readonly class StatusConsoleCommand
         /** @var list<MigrationSetStatus> $statuses */
         $statuses = $this->queryBus->ask(new GetMigrationStatusQuery(MigrationSetOption::resolve($set, $module)));
 
-        foreach ($statuses as $status) {
-            $io->section($status->set->name);
+        $exitCode = Command::SUCCESS;
+        foreach ($statuses as $setStatus) {
+            $io->section($setStatus->set->name);
+            if ($setStatus->error !== null) {
+                $io->error($setStatus->error);
+                $exitCode = Command::FAILURE;
+
+                continue;
+            }
+
             $io->definitionList(
-                ['Executed' => (string) \count($status->executed)],
-                ['Last executed' => $status->executed === [] ? '-' : $status->executed[array_key_last($status->executed)]],
-                ['Pending' => $status->pending === [] ? '-' : implode("\n", $status->pending)],
+                ['Executed' => (string) \count($setStatus->executed)],
+                ['Last executed' => $setStatus->executed === [] ? '-' : $setStatus->executed[array_key_last($setStatus->executed)]],
+                ['Pending' => $setStatus->pending === [] ? '-' : implode("\n", $setStatus->pending)],
             );
         }
 
-        return Command::SUCCESS;
+        return $exitCode;
     }
 }

@@ -167,6 +167,17 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
     }
 
+    public function testTheStatusReportsAnExecutedMigrationMissingFromTheCodeBase(): void
+    {
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
+        $this->connection->insert('doctrine_migration_versions_rollback', ['version' => 'Rollback\Migrations\Version20250101000000']);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Rollback\Migrations\Version20250101000000');
+
+        $this->runner->status(MigrationSet::module(self::ROLLBACK));
+    }
+
     public function testRollingBackASetWithoutMigrationDirectoryFailsClearly(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -200,6 +211,14 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectExceptionMessage('must declare the "MisnamedClass\Migrations\Version20260101000001" migration');
 
         $this->invalidModulesRunner()->migrate(MigrationSet::module('misnamed-class'));
+    }
+
+    public function testTheStatusReportsWhatMigrateWouldRefuse(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('must declare the "MisnamedClass\Migrations\Version20260101000001" migration');
+
+        $this->invalidModulesRunner()->status(MigrationSet::module('misnamed-class'));
     }
 
     public function testRefusesAMigrationSharingTheFileOfAnother(): void

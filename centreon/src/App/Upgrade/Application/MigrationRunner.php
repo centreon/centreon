@@ -45,6 +45,12 @@ interface MigrationRunner
      */
     public function rollback(MigrationSet $set, string $versionOrAlias): array;
 
+    /**
+     * Read-only, with the checks of migrate().
+     *
+     * @throws \RuntimeException when the set has executed migrations that are no longer available, or a migration breaks
+     *                           the conventions
+     */
     public function status(MigrationSet $set): MigrationSetStatus;
 
     /**

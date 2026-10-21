@@ -67,7 +67,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             return [];
         }
 
-        $factory = $this->createInitializedFactory($set, $configuration);
+        $factory = $this->createCheckedFactory($set, $configuration);
         $latest = $factory->getVersionAliasResolver()->resolveVersionAlias('latest');
 
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
@@ -80,7 +80,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             throw new \RuntimeException(\sprintf('The "%s" migration set has no migration to roll back: "%s" does not exist.', $set->name, $configuration->directory));
         }
 
-        $factory = $this->createInitializedFactory($set, $configuration);
+        $factory = $this->createCheckedFactory($set, $configuration);
 
         if (preg_match('/^Version\d+$/D', $versionOrAlias) === 1) {
             $versionOrAlias = $configuration->namespace . '\\' . $versionOrAlias;
@@ -103,8 +103,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             return new MigrationSetStatus($set, [], []);
         }
 
-        // Read-only: the metadata table is not created.
-        $factory = $this->createFactory($configuration);
+        $factory = $this->createCheckedFactory($set, $configuration, initialize: false);
 
         return new MigrationSetStatus(
             $set,
@@ -150,12 +149,19 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     }
 
     /**
-     * @throws \RuntimeException when migrations recorded as executed are missing from the code base
+     * The checks migrate() relies on, which status() reports too.
+     *
+     * @param bool $initialize false to only read: the metadata table is not created
+     *
+     * @throws \RuntimeException when migrations recorded as executed are missing from the code base, or when a migration
+     *                           breaks the conventions
      */
-    private function createInitializedFactory(MigrationSet $set, MigrationSetConfiguration $configuration): DependencyFactory
+    private function createCheckedFactory(MigrationSet $set, MigrationSetConfiguration $configuration, bool $initialize = true): DependencyFactory
     {
         $factory = $this->createFactory($configuration);
-        $factory->getMetadataStorage()->ensureInitialized();
+        if ($initialize) {
+            $factory->getMetadataStorage()->ensureInitialized();
+        }
 
         // Not checked by the Migrator.
         $unavailable = $factory->getMigrationStatusCalculator()->getExecutedUnavailableMigrations();

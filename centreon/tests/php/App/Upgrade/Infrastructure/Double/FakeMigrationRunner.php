@@ -29,7 +29,7 @@ use App\Upgrade\Domain\MigrationSet;
 
 final class FakeMigrationRunner implements MigrationRunner
 {
-    /** @var list<string> names of the sets whose migration fails */
+    /** @var list<string> names of the sets whose migration, rollback or status fails */
     public array $failingSets = [];
 
     /** @var list<MigrationSet> */
@@ -71,6 +71,10 @@ final class FakeMigrationRunner implements MigrationRunner
     public function status(MigrationSet $set): MigrationSetStatus
     {
         $this->statusRequests[] = $set;
+
+        if (\in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(\sprintf('Status of "%s" failed', $set->name));
+        }
 
         return new MigrationSetStatus($set, [], [$set->name . '\Version1']);
     }

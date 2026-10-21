@@ -57,6 +57,20 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         self::assertEquals($runner->statusRequests, array_map(static fn (MigrationSetStatus $status): MigrationSet => $status->set, $statuses));
     }
 
+    public function testASetFailingItsChecksDoesNotHideTheOthers(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::core(MigrationSet::REALTIME), MigrationSet::core(MigrationSet::CONFIGURATION)];
+        $runner->failingSets = [MigrationSet::REALTIME];
+
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository()))(new GetMigrationStatusQuery());
+
+        self::assertEquals([
+            new MigrationSetStatus(MigrationSet::core(MigrationSet::REALTIME), [], [], 'Status of "realtime" failed'),
+            new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), [], ['configuration\Version1']),
+        ], $statuses);
+    }
+
     public function testFailsWhenTheRequestedModuleIsNotInstalled(): void
     {
         // A typo or a module to install must not pass for a module with nothing to show.
