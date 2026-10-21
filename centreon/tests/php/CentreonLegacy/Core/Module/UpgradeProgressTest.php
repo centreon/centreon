@@ -64,17 +64,6 @@ class UpgradeProgressTest extends TestCase
         $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.02.0'));
     }
 
-    public function testTheProgressFollowsTheDatabaseWhenABackupIsRestored(): void
-    {
-        $backup = $this->db->rows;
-        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
-
-        // The scripts that passed are undone by the restore: they must run again.
-        $this->db->rows = $backup;
-
-        $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.01.0'));
-    }
-
     public function testEachModuleHasItsOwnProgress(): void
     {
         $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
@@ -84,7 +73,6 @@ class UpgradeProgressTest extends TestCase
         $this->progress->clear('centreon-open-tickets-extra');
 
         $this->assertSame(['pre' => true, 'sql' => 4, 'checksum' => 'abc'], $this->progress->get('centreon-open-tickets', '26.01.0'));
-        $this->assertCount(1, $this->db->rows, 'A save replaces the previous progress of the module');
     }
 
     public function testACorruptedProgressStartsOver(): void

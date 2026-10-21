@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Legacy;
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -75,7 +76,41 @@ final class WizardStepsTest extends TestCase
             . " include 'www/install/step_upgrade/process/process_migrations.php'; echo \"\\n\", \$_SESSION['CURRENT_VERSION'];",
         );
 
-        self::assertNotSame('0.0.1', trim(mb_substr($output, (int) mb_strrpos($output, "\n"))));
+        self::assertSame(
+            $this->db()->fetchOne("SELECT `value` FROM `informations` WHERE `key` = 'version'"),
+            trim(mb_substr($output, (int) mb_strrpos($output, "\n"))),
+        );
+    }
+
+    public function testAFailingModuleUpgradeIsAWarningAnsweredWithCleanJson(): void
+    {
+        $modulePath = 'www/modules/centreon-wizard-fixture';
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile(
+            $modulePath . '/conf.php',
+            "<?php\n\$module_conf['centreon-wizard-fixture'] = ['name' => 'centreon-wizard-fixture', 'rname' => 'Wizard fixture', "
+            . "'mod_release' => '1.0.1', 'infos' => '', 'is_removeable' => '1', 'author' => 'Centreon', 'svc_tools' => '0', 'host_tools' => '0'];\n",
+        );
+        // Legacy upgrade scripts may print before failing.
+        $filesystem->dumpFile($modulePath . '/upgrade/1.0.1/php/upgrade.php', "<?php\necho 'noise';\nthrow new Exception('the fixture upgrade failed');\n");
+
+        $db = $this->db();
+        $db->query(
+            'INSERT INTO `modules_informations` (`name`, `rname`, `mod_release`, `is_removeable`, `infos`, `author`, `svc_tools`, `host_tools`)'
+            . " VALUES ('centreon-wizard-fixture', 'Wizard fixture', '1.0.0', '1', '', 'Centreon', '0', '0')",
+        );
+
+        try {
+            $response = $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => 'centreon-wizard-fixture']);
+
+            self::assertSame(0, $response['result'], 'A module failure must not block the wizard');
+            self::assertTrue($response['warning'] ?? false);
+            self::assertIsString($response['msg']);
+            self::assertStringContainsString('the fixture upgrade failed', $response['msg']);
+        } finally {
+            $db->query("DELETE FROM `modules_informations` WHERE `name` = 'centreon-wizard-fixture'");
+            $filesystem->remove($modulePath);
+        }
     }
 
     public function testTheUpgradeTargetFollowsTheRecordedVersion(): void
@@ -115,6 +150,25 @@ final class WizardStepsTest extends TestCase
         self::assertIsArray($response, 'Not a JSON response: ' . $output);
 
         return $response;
+    }
+
+    private function db(): \CentreonDB
+    {
+        $env = static function (string $name): string {
+            $value = $_ENV[$name] ?? null;
+            self::assertIsString($value);
+
+            return $value;
+        };
+
+        return new \CentreonDB(connectionConfig: new ConnectionConfig(
+            host: $env('hostCentreon'),
+            user: $env('user'),
+            password: $env('password'),
+            databaseNameConfiguration: $env('db'),
+            databaseNameRealTime: $env('dbcstg'),
+            port: (int) $env('port'),
+        ));
     }
 
     private function runCode(string $code): string

@@ -24,12 +24,19 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
 use App\Upgrade\Application\MigrationRunner;
+use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Domain\MigrationSet;
 
 final class FakeMigrationRunner implements MigrationRunner
 {
     /** @var list<string> names of the sets whose migration fails */
     public array $failingSets = [];
+
+    /** @var list<MigrationSetStatus> */
+    public array $statuses = [];
+
+    /** @var list<MigrationSet|null> */
+    public array $statusRequests = [];
 
     /**
      * @param \ArrayObject<int, string> $journal ordered calls, shareable with other doubles to assert sequencing
@@ -59,6 +66,8 @@ final class FakeMigrationRunner implements MigrationRunner
 
     public function status(?MigrationSet $set = null): array
     {
-        return [];
+        $this->statusRequests[] = $set;
+
+        return $this->statuses;
     }
 }

@@ -80,6 +80,25 @@ class ModuleSourceTest extends TestCase
         (new Filesystem())->remove($this->centreonPath);
     }
 
+    public function testNewerCodeMakesAModuleOutdated(): void
+    {
+        $this->installedVersion = '26.10.0';
+
+        $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
+
+        $this->assertFalse($module->isUpdated());
+        $this->assertSame(
+            ['my-module'],
+            array_map(static fn (\CentreonModule\Infrastructure\Entity\Module $module): string => $module->getId(), $this->source->getList(null, true, false)),
+            'The outdated modules are the ones the Extension Manager and the platform update upgrade',
+        );
+    }
+
+    public function testAnUpToDateModuleIsNotListedAsOutdated(): void
+    {
+        $this->assertSame([], $this->source->getList(null, true, false));
+    }
+
     public function testAnInstalledModuleWithoutMigrationsFollowsItsVersion(): void
     {
         $this->repository->expects($this->never())->method('findExecutedMigrations');

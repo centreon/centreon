@@ -23,21 +23,25 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Application\Query;
 
-use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Application\Query\GetMigrationStatusQueryHandler;
 use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
+use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 
 final class GetMigrationStatusQueryHandlerTest extends TestCase
 {
-    public function testReturnsTheStatusOfTheRequestedSets(): void
+    public function testReturnsTheStatusOfTheRequestedSet(): void
     {
-        $status = new MigrationSetStatus(MigrationSet::core('configuration'), ['Centreon\Migrations\Configuration\Version1'], []);
-        $runner = $this->createMock(MigrationRunner::class);
-        $runner->expects(self::once())->method('status')->with(MigrationSet::core('configuration'))->willReturn([$status]);
+        $runner = new FakeMigrationRunner();
+        $runner->statuses = [new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), ['Centreon\Migrations\Configuration\Version1'], [])];
 
-        self::assertSame([$status], (new GetMigrationStatusQueryHandler($runner))(new GetMigrationStatusQuery(MigrationSet::core('configuration'))));
+        $handler = new GetMigrationStatusQueryHandler($runner);
+
+        self::assertSame($runner->statuses, $handler(new GetMigrationStatusQuery(MigrationSet::core(MigrationSet::CONFIGURATION))));
+        $handler(new GetMigrationStatusQuery());
+
+        self::assertEquals([MigrationSet::core(MigrationSet::CONFIGURATION), null], $runner->statusRequests, 'No set asks for every set');
     }
 }

@@ -114,6 +114,19 @@ final class MigrateCommandHandlerTest extends TestCase
         }
     }
 
+    public function testReleasesTheLockOfAModuleSetWhoseMigrationFails(): void
+    {
+        $this->migrationRunner->failingSets = ['module:centreon-open-tickets'];
+
+        try {
+            ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
+            self::fail('Expected the migration failure to propagate');
+        } catch (\RuntimeException) {
+        }
+
+        self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released);
+    }
+
     public function testMigratesASingleCoreSetUnderTheUpdateLockWithoutTouchingThePlatformVersion(): void
     {
         self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))));
@@ -121,20 +134,6 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame(['migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
         self::assertSame([], $this->updateRepository->updatesRun);
         self::assertTrue($this->locker->unlockCalled);
-    }
-
-    public function testACoreSetStillRequiresTheUpdateLock(): void
-    {
-        $this->locker->lockAvailable = false;
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('An update is already in progress');
-
-        try {
-            ($this->handler)(new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION)));
-        } finally {
-            self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
-        }
     }
 
     public function testStopsAtTheFirstFailureAndReleasesTheLock(): void
@@ -180,17 +179,19 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
     }
 
-    public function testFailsWhenAnUpdateIsAlreadyInProgress(): void
+    public function testTheCoreSetsFailWhenAnUpdateIsAlreadyInProgress(): void
     {
         $this->locker->lockAvailable = false;
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('An update is already in progress');
-
-        try {
-            ($this->handler)(new MigrateCommand());
-        } finally {
-            self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))] as $command) {
+            try {
+                ($this->handler)($command);
+                self::fail('A core set requires the update lock');
+            } catch (\RuntimeException $exception) {
+                self::assertSame('An update is already in progress', $exception->getMessage());
+            }
         }
+
+        self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
     }
 }
