@@ -177,6 +177,7 @@ class Upgrader extends Module
             $progress->save($this->moduleName, $version, $state);
         }
 
+        // After each query, not only on a failing one: a web timeout or a killed process would otherwise replay them.
         $this->upgradeSqlFiles($path, $state['sql'], function (int $executedQueries) use ($progress, $version, &$state): void {
             $state['sql'] = $executedQueries;
             $progress->save($this->moduleName, $version, $state);
