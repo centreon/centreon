@@ -40,12 +40,13 @@ interface MigrationRunner
      * Reverts the migrations executed after the given version (kept applied), or alias ("prev", "first").
      *
      * @param bool $dryRun true to only tell which migrations would be reverted
+     * @param list<string>|null $expected the migrations to revert, as a dry run listed them to be confirmed
      *
-     * @throws \RuntimeException when the target is unknown or not executed
+     * @throws \RuntimeException when the target is unknown or not executed, or the migrations to revert are not the expected ones
      *
-     * @return list<string> the reverted versions
+     * @return list<string> the reverted versions, in the order they are reverted
      */
-    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false): array;
+    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array;
 
     /**
      * Read-only, with the checks of migrate().

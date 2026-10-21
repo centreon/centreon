@@ -74,7 +74,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
     }
 
-    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false): array
+    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false, ?array $expected = null): array
     {
         $configuration = $this->registry->configuration($set);
         if (! is_dir($configuration->directory)) {
@@ -116,9 +116,18 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             $isAfterTarget = $isAfterTarget || $migration->getVersion()->equals($target);
         }
 
+        // In the order they would be reverted.
+        $planned = array_map('strval', array_reverse($toRevert));
         if ($dryRun) {
-            // In the order they would be reverted.
-            return array_map('strval', array_reverse($toRevert));
+            return $planned;
+        }
+
+        if ($expected !== null && $planned !== $expected) {
+            throw new \RuntimeException(\sprintf(
+                'The migrations of the %s changed since they were confirmed: it would now revert %s. Nothing was reverted.',
+                $set->label(),
+                $planned === [] ? 'none' : implode(', ', $planned),
+            ));
         }
 
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanForVersions($toRevert, Direction::DOWN));

@@ -169,6 +169,21 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([], $this->runner->status(MigrationSet::module(self::ROLLBACK))->pending);
     }
 
+    public function testARollbackRefusesToRevertOtherMigrationsThanTheConfirmedOnes(): void
+    {
+        // Another run changed the set while the rollback waited for its confirmation.
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
+
+        try {
+            $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'prev', expected: [\Rollback\Migrations\Version20260101000001::class]);
+            self::fail('Expected the rollback to be refused');
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('changed since they were confirmed', $exception->getMessage());
+        }
+
+        self::assertCount(2, $this->runner->status(MigrationSet::module(self::ROLLBACK))->executed, 'Nothing was reverted');
+    }
+
     public function testRollbackRevertsOnlyTheExecutedMigrationsAfterTheTargetWhenAnOlderOneIsPending(): void
     {
         // A fix forward-ported with an older timestamp than the migrations already executed, still pending.

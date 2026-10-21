@@ -116,7 +116,7 @@ final class MigrationConsoleCommandsTest extends TestCase
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration'], ['interactive' => false]));
         self::assertEquals([
             new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', dryRun: true),
-            new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev'),
+            new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', expected: ['Centreon\Migrations\Configuration\Version2']),
         ], $bus->dispatched);
         self::assertStringContainsString('1 migration(s) reverted.', $tester->getDisplay());
     }
@@ -135,7 +135,7 @@ final class MigrationConsoleCommandsTest extends TestCase
 
         $tester->setInputs(['yes']);
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
-        self::assertEquals(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first'), $bus->dispatched[array_key_last($bus->dispatched)]);
+        self::assertEquals(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first', expected: ['Centreon\Migrations\Configuration\Version2']), $bus->dispatched[array_key_last($bus->dispatched)]);
     }
 
     public function testRollbackRequiresASet(): void

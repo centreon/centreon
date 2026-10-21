@@ -45,6 +45,6 @@ final readonly class RollbackMigrationCommandHandler
      */
     public function __invoke(RollbackMigrationCommand $command): array
     {
-        return $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun));
+        return $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version, $command->dryRun, $command->expected));
     }
 }
