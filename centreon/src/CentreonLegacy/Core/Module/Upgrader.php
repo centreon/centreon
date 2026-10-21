@@ -66,6 +66,11 @@ class Upgrader extends Module
                 continue;
             }
 
+            // Beyond the code version (a pre-release, a forgotten conf.php bump): it would run again once released.
+            if (version_compare($upgradeName, $this->moduleConfiguration['mod_release']) > 0) {
+                break;
+            }
+
             CentreonLog::create()->info(
                 CentreonLog::TYPE_UPGRADE,
                 sprintf('Starting upgrade process for %s module', $moduleInstalledInformation['name']),
@@ -85,8 +90,10 @@ class Upgrader extends Module
 
         $this->migrate();
 
-        // finally, upgrade to current version
-        $this->upgradeVersion($this->moduleConfiguration['mod_release']);
+        // Finally, the version of the code. Never an older one: a package rollback would replay the upgrades in between.
+        if (version_compare($this->moduleConfiguration['mod_release'], $moduleInstalledInformation['mod_release']) > 0) {
+            $this->upgradeVersion($this->moduleConfiguration['mod_release']);
+        }
 
         // Clearing symfony cache to properly enable API routes.
         $this->services->get(ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER)->clear();

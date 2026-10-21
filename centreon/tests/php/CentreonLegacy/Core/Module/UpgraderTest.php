@@ -229,10 +229,26 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
 
         $this->assertSame(
-            ['script:upgrade.pre.php', 'script:upgrade.sql', 'script:upgrade.php', 'version:1.0.1', 'version:1.0.1'],
-            $journal->getArrayCopy()
+            ['script:upgrade.pre.php', 'script:upgrade.sql', 'script:upgrade.php', 'version:1.0.1'],
+            $journal->getArrayCopy(),
+            'Already at the version of the code: not recorded twice',
         );
         $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('my-module', '1.0.1'), 'The progress is forgotten once the version is recorded');
+    }
+
+    public function testIgnoresTheUpgradesBeyondTheVersionOfTheCode(): void
+    {
+        // 1.0.2 is a pre-release next to a conf.php still at 1.0.1: it would run again once released.
+        $this->assertSame(
+            ['script:upgrade.pre.php', 'script:upgrade.sql', 'script:upgrade.php', 'version:1.0.1'],
+            $this->upgradeJournal(['1.0.1', '1.0.2'], '1.0.0'),
+        );
+    }
+
+    public function testNeverRecordsAVersionOlderThanTheInstalledOne(): void
+    {
+        // A package rollback: recording 1.0.1 would replay the upgrades up to 2.1.0 on the next upgrade.
+        $this->assertSame([], $this->upgradeJournal([], '2.1.0'));
     }
 
     public function testResumesAFailedVersionWhereItStopped(): void
@@ -302,7 +318,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame(['upgrade.pre.php', 'upgrade.php'], $phpScripts);
         $this->assertSame([0, 1], $sqlAttempts);
-        $this->assertSame(['1.0.1', '1.0.1'], $versions);
+        $this->assertSame(['1.0.1'], $versions);
         $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('my-module', '1.0.1'));
     }
 
@@ -530,5 +546,62 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
     public function mockExists($file)
     {
         return ! (preg_match('/install\.pre\.php/', $file));
+    }
+
+    /**
+     * @param list<string> $upgradeDirectories
+     *
+     * @return list<string> the scripts run and the versions recorded
+     */
+    private function upgradeJournal(array $upgradeDirectories, string $installedVersion): array
+    {
+        $journal = new \ArrayObject();
+
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturn(new \ArrayIterator(array_map(static fn (string $directory): \SplFileInfo => new \SplFileInfo($directory), $upgradeDirectories)));
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->utils->method('executeSqlFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = 'script:' . basename($file);
+        });
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = 'script:' . basename($file);
+        });
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet(
+            'UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id',
+            [],
+            null,
+            static function (array $params) use ($journal): void {
+                $journal[] = 'version:' . $params[':mod_release'];
+            }
+        );
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = new UpgradeProgress(new InMemoryOptionsDB());
+
+        $information = $this->createMock(Information::class);
+        $information->method('getInstalledInformation')->willReturn(['name' => 'my-module', 'mod_release' => $installedVersion]);
+        $information->method('getConfiguration')->willReturn(['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => '', 'author' => '', 'svc_tools' => null, 'host_tools' => null]);
+        $information->method('getModulePath')->willReturn('/my-module/');
+
+        (new Upgrader(new Container($this->container), $information, 'my-module', $this->utils, 1))->upgrade();
+
+        return $journal->getArrayCopy();
     }
 }
