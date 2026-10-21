@@ -129,6 +129,31 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         (new Remover(new Container($this->container), $this->information, 'my-module', $this->utils))->remove();
     }
 
+    public function testAModuleWhoseHistoryCannotBeForgottenStaysInstalled(): void
+    {
+        // Reinstalled with its history, it would skip its migrations.
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $this->db = new class () extends CentreonDB {
+            public array $executedQueries = [];
+
+            public function query($queryString, $parameters = null, ...$parametersArgs): \Centreon\Test\Mock\CentreonDBStatement|false
+            {
+                $this->executedQueries[] = $queryString;
+
+                throw new \RuntimeException('Lock wait timeout exceeded');
+            }
+        };
+        // No DELETE registered: removing the row would throw another error.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $this->createMock(UpgradeProgress::class);
+
+        $this->expectExceptionMessage('Lock wait timeout exceeded');
+
+        (new Remover(new Container($this->container), $this->information, 'my-module', $this->utils))->remove();
+    }
+
     public function testRemoveLeavesTheTablesOfUnsupportedModuleNamesAlone(): void
     {
         $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);

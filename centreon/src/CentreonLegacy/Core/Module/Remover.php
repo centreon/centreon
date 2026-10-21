@@ -34,9 +34,10 @@ class Remover extends Module
         $this->removePhpFiles(true);
         $this->removeSqlFiles();
         $this->removePhpFiles(false);
-        $this->removeModuleConfiguration();
-        // Last: a module whose uninstallation failed stays installed, and its migrations must not look pending.
+        // Once its scripts passed: a module whose uninstallation failed stays installed, and its migrations must not look
+        // pending. Before its row: a module left with its history would skip its migrations once reinstalled.
         $this->forgetUpgradeHistory();
+        $this->removeModuleConfiguration();
 
         return true;
     }
