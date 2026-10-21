@@ -23,9 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure;
 
+use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
+use App\Upgrade\Infrastructure\Legacy\LegacyCacheClearer;
 use App\Upgrade\Infrastructure\Legacy\LegacyModuleRepository;
 use CentreonModule\ServiceProvider;
 use Pimple\Container;
@@ -39,6 +41,7 @@ final class UpgradeWiringTest extends KernelTestCase
     public function testTheModulesAreUpgradedWithTheExtensionManagerEngine(): void
     {
         self::assertInstanceOf(LegacyModuleRepository::class, self::getContainer()->get(ModuleRepository::class));
+        self::assertInstanceOf(LegacyCacheClearer::class, self::getContainer()->get(CacheClearer::class));
 
         // Its services need the legacy configuration, which bin/console.new loads: see MigrationLauncherTest.
         $legacyContainer = self::getContainer()->get('upgrade.legacy_container');
