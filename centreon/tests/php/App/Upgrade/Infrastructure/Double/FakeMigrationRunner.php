@@ -32,10 +32,10 @@ final class FakeMigrationRunner implements MigrationRunner
     /** @var list<string> names of the sets whose migration fails */
     public array $failingSets = [];
 
-    /** @var list<MigrationSetStatus> */
-    public array $statuses = [];
+    /** @var list<MigrationSet> */
+    public array $sets = [];
 
-    /** @var list<MigrationSet|null> */
+    /** @var list<MigrationSet> the sets whose status was computed */
     public array $statusRequests = [];
 
     /**
@@ -68,10 +68,15 @@ final class FakeMigrationRunner implements MigrationRunner
         return [$set->name . '\Version1'];
     }
 
-    public function status(?MigrationSet $set = null): array
+    public function status(MigrationSet $set): MigrationSetStatus
     {
         $this->statusRequests[] = $set;
 
-        return $this->statuses;
+        return new MigrationSetStatus($set, [], [$set->name . '\Version1']);
+    }
+
+    public function sets(): array
+    {
+        return $this->sets;
     }
 }

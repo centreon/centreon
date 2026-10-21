@@ -96,29 +96,26 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return $this->execute($set, $factory, $plan);
     }
 
-    public function status(?MigrationSet $set = null): array
+    public function status(MigrationSet $set): MigrationSetStatus
     {
-        $statuses = [];
-
-        foreach ($set instanceof MigrationSet ? [$set] : $this->registry->all() as $migrationSet) {
-            $configuration = $this->registry->configuration($migrationSet);
-            if (! is_dir($configuration->directory)) {
-                $statuses[] = new MigrationSetStatus($migrationSet, [], []);
-
-                continue;
-            }
-
-            // Read-only: the metadata table is not created.
-            $factory = $this->createFactory($configuration);
-
-            $statuses[] = new MigrationSetStatus(
-                $migrationSet,
-                $this->versions($factory->getMetadataStorage()->getExecutedMigrations()->getItems()),
-                $this->versions($factory->getMigrationStatusCalculator()->getNewMigrations()->getItems()),
-            );
+        $configuration = $this->registry->configuration($set);
+        if (! is_dir($configuration->directory)) {
+            return new MigrationSetStatus($set, [], []);
         }
 
-        return $statuses;
+        // Read-only: the metadata table is not created.
+        $factory = $this->createFactory($configuration);
+
+        return new MigrationSetStatus(
+            $set,
+            $this->versions($factory->getMetadataStorage()->getExecutedMigrations()->getItems()),
+            $this->versions($factory->getMigrationStatusCalculator()->getNewMigrations()->getItems()),
+        );
+    }
+
+    public function sets(): array
+    {
+        return $this->registry->all();
     }
 
     private function createFactory(MigrationSetConfiguration $configuration): DependencyFactory

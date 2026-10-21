@@ -105,9 +105,9 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([1], $this->rows('fx_atomicity'), 'The failing migration must leave no row behind');
         self::assertSame(
             [\Atomicity\Migrations\Version20260101000001::class, \Atomicity\Migrations\Version20260101000002::class],
-            $this->runner->status(MigrationSet::module(self::ATOMICITY))[0]->executed,
+            $this->runner->status(MigrationSet::module(self::ATOMICITY))->executed,
         );
-        self::assertSame([\Atomicity\Migrations\Version20260101000003::class], $this->runner->status(MigrationSet::module(self::ATOMICITY))[0]->pending);
+        self::assertSame([\Atomicity\Migrations\Version20260101000003::class], $this->runner->status(MigrationSet::module(self::ATOMICITY))->pending);
         self::assertFalse($this->connection->isTransactionActive(), 'No transaction may leak after a failure');
     }
 
@@ -117,7 +117,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
 
         self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'prev'));
         self::assertSame([], $this->rows('fx_rollback'));
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->status(MigrationSet::module(self::ROLLBACK))[0]->pending);
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->status(MigrationSet::module(self::ROLLBACK))->pending);
 
         self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->migrate(MigrationSet::module(self::ROLLBACK)));
         self::assertSame([1], $this->rows('fx_rollback'));
@@ -147,7 +147,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        $status = $this->runner->status(MigrationSet::module(self::ATOMICITY))[0];
+        $status = $this->runner->status(MigrationSet::module(self::ATOMICITY));
         self::assertSame([], $status->executed);
         self::assertCount(3, $status->pending);
         self::assertFalse(
@@ -179,7 +179,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
     {
         self::assertSame([], $this->runner->migrate(MigrationSet::module('without-migrations')));
         self::assertEquals(
-            [new MigrationSetStatus(MigrationSet::module('without-migrations'), [], [])],
+            new MigrationSetStatus(MigrationSet::module('without-migrations'), [], []),
             $this->runner->status(MigrationSet::module('without-migrations')),
         );
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
@@ -217,7 +217,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         }
 
         self::assertFalse($this->connection->createSchemaManager()->introspectTable('fx_schema_change')->hasColumn('label'));
-        self::assertSame([], $this->runner->status(MigrationSet::module('schema-change'))[0]->executed);
+        self::assertSame([], $this->runner->status(MigrationSet::module('schema-change'))->executed);
     }
 
     public function testColumnTypesUnknownToDbalDoNotBreakTheMigrations(): void

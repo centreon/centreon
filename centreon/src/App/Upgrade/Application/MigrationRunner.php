@@ -45,10 +45,10 @@ interface MigrationRunner
      */
     public function rollback(MigrationSet $set, string $versionOrAlias): array;
 
+    public function status(MigrationSet $set): MigrationSetStatus;
+
     /**
-     * @param MigrationSet|null $set null to get the status of every known set
-     *
-     * @return list<MigrationSetStatus>
+     * @return list<MigrationSet> the core sets in execution order, then every module shipping migrations
      */
-    public function status(?MigrationSet $set = null): array;
+    public function sets(): array;
 }

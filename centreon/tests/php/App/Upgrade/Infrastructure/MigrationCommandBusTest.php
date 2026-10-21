@@ -27,6 +27,7 @@ use App\Shared\Application\Command\CommandBus;
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use App\Upgrade\Application\MigrationRunner;
+use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use Doctrine\DBAL\Connection;
@@ -64,7 +65,12 @@ final class MigrationCommandBusTest extends KernelTestCase
                 return [];
             }
 
-            public function status(?MigrationSet $set = null): array
+            public function status(MigrationSet $set): MigrationSetStatus
+            {
+                return new MigrationSetStatus($set, [], []);
+            }
+
+            public function sets(): array
             {
                 return [];
             }

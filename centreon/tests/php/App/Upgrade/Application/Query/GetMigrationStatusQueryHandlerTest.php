@@ -36,26 +36,23 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
     public function testReturnsTheStatusOfTheRequestedSet(): void
     {
         $runner = new FakeMigrationRunner();
-        $runner->statuses = [new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), ['Centreon\Migrations\Configuration\Version1'], [])];
+        $runner->sets = [MigrationSet::core(MigrationSet::REALTIME)];
 
-        $handler = new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository());
+        $configuration = MigrationSet::core(MigrationSet::CONFIGURATION);
 
-        self::assertSame($runner->statuses, $handler(new GetMigrationStatusQuery(MigrationSet::core(MigrationSet::CONFIGURATION))));
-        $handler(new GetMigrationStatusQuery());
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository()))(new GetMigrationStatusQuery($configuration));
 
-        self::assertEquals([MigrationSet::core(MigrationSet::CONFIGURATION), null], $runner->statusRequests, 'No set asks for every set');
+        self::assertEquals([new MigrationSetStatus($configuration, [], ['configuration\Version1'])], $statuses);
     }
 
-    public function testHidesTheModulesThatAreNotInstalled(): void
+    public function testComputesTheStatusOfTheInstalledModulesOnly(): void
     {
         $runner = new FakeMigrationRunner();
-        $configuration = new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), [], []);
-        $openTickets = new MigrationSetStatus(MigrationSet::module('centreon-open-tickets'), [], ['Version1']);
-        $runner->statuses = [$configuration, new MigrationSetStatus(MigrationSet::module('centreon-bam-server'), [], ['Version1']), $openTickets];
+        $runner->sets = [MigrationSet::core(MigrationSet::CONFIGURATION), MigrationSet::module('centreon-bam-server'), MigrationSet::module('centreon-open-tickets')];
 
-        self::assertSame(
-            [$configuration, $openTickets],
-            (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets'])))(new GetMigrationStatusQuery()),
-        );
+        $statuses = (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets'])))(new GetMigrationStatusQuery());
+
+        self::assertEquals([MigrationSet::core(MigrationSet::CONFIGURATION), MigrationSet::module('centreon-open-tickets')], $runner->statusRequests);
+        self::assertEquals($runner->statusRequests, array_map(static fn (MigrationSetStatus $status): MigrationSet => $status->set, $statuses));
     }
 }
