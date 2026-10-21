@@ -146,7 +146,9 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             throw new \LogicException(\sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
         }
 
-        // A migration reading $schema reads every table, a module one included. Only read: the type does not matter.
+        // A migration reading $schema reads every table, a module one included. Only read: the type does not matter. The
+        // mapping stays on the platform of the connection for the rest of the process: it only lets an introspection read
+        // these columns, as text, where it would throw.
         $platform = $connection->getDatabasePlatform();
         foreach (self::UNMAPPED_TYPES as $type) {
             if (! $platform->hasDoctrineTypeMappingFor($type)) {
