@@ -30,6 +30,9 @@ bin/console.new centreon:migrations:generate --set=configuration --dml --env=dev
 bin/console.new centreon:migrations:generate --module=centreon-open-tickets --ddl --env=dev
 ```
 
+The generated `up()` and `revert()` throw until they are written: an unfinished migration fails with a clear
+message.
+
 Every migration extends one of the two base classes, in the namespace of its set, alone in a file named after it: the
 runner refuses any other one.
 

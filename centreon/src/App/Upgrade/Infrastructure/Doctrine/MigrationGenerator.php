@@ -67,13 +67,13 @@ final readonly class MigrationGenerator
             public function up(Schema $schema): void
             {
                 // {hint}
-                $this->addSql('');
+                throw new \LogicException('Not written yet: replace this exception with the statements.');
             }
 
             public function revert(Schema $schema): void
             {
                 // {hint}
-                $this->addSql('');
+                throw new \LogicException('Not written yet: replace this exception with the statements.');
             }
         }
 

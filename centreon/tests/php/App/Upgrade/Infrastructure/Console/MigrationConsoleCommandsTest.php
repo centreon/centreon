@@ -39,7 +39,10 @@ use App\Upgrade\Infrastructure\Doctrine\DdlMigration;
 use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
 use App\Upgrade\Infrastructure\Doctrine\MigrationGenerator;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidOptionException;
@@ -240,6 +243,21 @@ final class MigrationConsoleCommandsTest extends TestCase
         require_once $dml[0];
         self::assertTrue(is_subclass_of('GeneratedDdl\Migrations\\' . basename($ddl[0], '.php'), DdlMigration::class));
         self::assertTrue(is_subclass_of('GeneratedDml\Migrations\\' . basename($dml[0], '.php'), DmlMigration::class));
+    }
+
+    public function testAGeneratedMigrationFailsClearlyUntilItIsWritten(): void
+    {
+        self::assertSame(Command::SUCCESS, $this->generateTester()->execute(['--module' => 'generated', '--ddl' => true]));
+        $file = (glob($this->modulesDir . '/generated/migrations/Version*.php') ?: [])[0];
+        require_once $file;
+        $class = 'Generated\Migrations\\' . basename($file, '.php');
+        /** @var DdlMigration $migration */
+        $migration = new $class(DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]), new NullLogger());
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Not written yet');
+
+        $migration->up(new Schema());
     }
 
     public function testGenerateRefusesAModuleThatDoesNotExist(): void
