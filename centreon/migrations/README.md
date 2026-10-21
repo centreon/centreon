@@ -82,3 +82,5 @@ bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtim
   them through migrations yet.
 - Migrations run behind web requests (wizard, Extension Manager): a long change on a large table can hit the web
   server timeout. Keep them short, or run them with the console.
+- A module set only takes its own lock, as the platform update runs it while holding the update one: do not migrate
+  a module (console or Extension Manager) while the platform is being updated.
