@@ -509,7 +509,7 @@ it(
 it(
     'should remove any reachable host of the host group for a non-admin user',
     function (): void {
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(false);
@@ -554,7 +554,7 @@ it(
     function (): void {
         $this->updateHostGroupRequest->hosts = [1];
 
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(false);
@@ -596,7 +596,7 @@ it(
     function (): void {
         $this->updateHostGroupRequest->hosts = [1];
 
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(false);
@@ -640,7 +640,7 @@ it(
     function (): void {
         $this->updateHostGroupRequest->hosts = [2, 99];
 
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -684,7 +684,7 @@ it(
     function (): void {
         $this->updateHostGroupRequest->hosts = [2, 2];
 
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
