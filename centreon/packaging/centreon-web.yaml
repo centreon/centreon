@@ -395,13 +395,6 @@ contents:
       group: "centreon"
       mode: 0775
 
-  - dst: "/var/lib/centreon/module-upgrades"
-    type: dir
-    file_info:
-      owner: "centreon"
-      group: "centreon"
-      mode: 0775
-
   - dst: "/var/lib/centreon/log"
     type: dir
     file_info:

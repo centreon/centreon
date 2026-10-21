@@ -23,29 +23,27 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
+use Centreon\Test\Mock\CentreonDB;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
+use Tests\CentreonLegacy\Core\Module\InMemoryOptionsDB;
 
 class UpgradeProgressTest extends TestCase
 {
-    private string $directory;
+    private const array NOTHING_PASSED = ['pre' => false, 'sql' => 0, 'checksum' => ''];
+
+    private InMemoryOptionsDB $db;
 
     private UpgradeProgress $progress;
 
     protected function setUp(): void
     {
-        $this->directory = sys_get_temp_dir() . '/' . uniqid('module-upgrades_', true);
-        $this->progress = new UpgradeProgress($this->directory);
-    }
-
-    protected function tearDown(): void
-    {
-        (new Filesystem())->remove($this->directory);
+        $this->db = new InMemoryOptionsDB();
+        $this->progress = new UpgradeProgress($this->db);
     }
 
     public function testNothingPassedBeforeTheFirstAttempt(): void
     {
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $this->progress->get('centreon-open-tickets', '26.01.0'));
+        $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.01.0'));
     }
 
     public function testRemembersWhereAnAttemptStoppedUntilCleared(): void
@@ -53,55 +51,57 @@ class UpgradeProgressTest extends TestCase
         $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
 
         $this->assertSame(['pre' => true, 'sql' => 3, 'checksum' => 'abc'], $this->progress->get('centreon-open-tickets', '26.01.0'));
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $this->progress->get('centreon-open-tickets', '26.02.0'));
-
-        $this->progress->clear('centreon-open-tickets', '26.01.0');
-
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $this->progress->get('centreon-open-tickets', '26.01.0'));
-    }
-
-    public function testClearingAModuleForgetsAllItsVersionsOnly(): void
-    {
-        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
-        $this->progress->save('centreon-open-tickets', '26.02.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
-        $this->progress->save('centreon-open-tickets-extra', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
 
         $this->progress->clear('centreon-open-tickets');
 
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $this->progress->get('centreon-open-tickets', '26.01.0'));
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $this->progress->get('centreon-open-tickets', '26.02.0'));
-        $this->assertSame(['pre' => true, 'sql' => 3, 'checksum' => 'abc'], $this->progress->get('centreon-open-tickets-extra', '26.01.0'));
+        $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.01.0'));
     }
 
-    public function testAnUnwritableDirectoryIsNotFatal(): void
-    {
-        // A file where the directory should be: nothing can be written in it.
-        touch($this->directory);
-
-        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
-        $this->progress->clear('centreon-open-tickets', '26.01.0');
-
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $this->progress->get('centreon-open-tickets', '26.01.0'));
-    }
-
-    public function testAProgressThatCannotBeClearedIsNotFatal(): void
+    public function testTheProgressOfAnotherVersionIsStale(): void
     {
         $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
-        // A read-only directory: the progress file cannot be removed.
-        chmod($this->directory . '/centreon-open-tickets', 0500);
 
-        try {
-            $this->progress->clear('centreon-open-tickets', '26.01.0');
-            $this->assertSame(['pre' => true, 'sql' => 3, 'checksum' => 'abc'], $this->progress->get('centreon-open-tickets', '26.01.0'));
-        } finally {
-            chmod($this->directory . '/centreon-open-tickets', 0700);
-        }
+        $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.02.0'));
     }
 
-    public function testKeepsItsFilesInItsDirectory(): void
+    public function testTheProgressFollowsTheDatabaseWhenABackupIsRestored(): void
     {
-        $this->progress->save('../../etc', '1.0.0', ['pre' => true, 'sql' => 0, 'checksum' => '']);
+        $backup = $this->db->rows;
+        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
 
-        $this->assertCount(1, glob($this->directory . '/*/*.json') ?: []);
+        // The scripts that passed are undone by the restore: they must run again.
+        $this->db->rows = $backup;
+
+        $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.01.0'));
+    }
+
+    public function testEachModuleHasItsOwnProgress(): void
+    {
+        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
+        $this->progress->save('centreon-open-tickets-extra', '26.01.0', ['pre' => true, 'sql' => 1, 'checksum' => 'def']);
+        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 4, 'checksum' => 'abc']);
+
+        $this->progress->clear('centreon-open-tickets-extra');
+
+        $this->assertSame(['pre' => true, 'sql' => 4, 'checksum' => 'abc'], $this->progress->get('centreon-open-tickets', '26.01.0'));
+        $this->assertCount(1, $this->db->rows, 'A save replaces the previous progress of the module');
+    }
+
+    public function testACorruptedProgressStartsOver(): void
+    {
+        $this->db->rows['module_upgrade_progress:centreon-open-tickets'] = '{"version":"26.01.0","pre":"yes"';
+
+        $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.01.0'));
+    }
+
+    public function testAProgressThatCannotBeWrittenIsNotFatal(): void
+    {
+        // No query registered: every one of them fails.
+        $progress = new UpgradeProgress(new CentreonDB());
+
+        $progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
+        $progress->clear('centreon-open-tickets');
+
+        $this->addToAssertionCount(1);
     }
 }

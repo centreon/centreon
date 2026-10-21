@@ -81,7 +81,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         };
 
         $pimple[static::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = function (Container $container): Module\UpgradeProgress {
-            return new Module\UpgradeProgress(_CENTREON_VARLIB_ . '/module-upgrades');
+            return new Module\UpgradeProgress($container['configuration_db']);
         };
 
         // Shared: a suspension must reach every upgrader of the batch.

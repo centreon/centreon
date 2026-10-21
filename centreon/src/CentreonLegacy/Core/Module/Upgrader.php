@@ -79,7 +79,7 @@ class Upgrader extends Module
             // Recorded once its scripts passed: a failed version is resumed, not skipped.
             $this->upgradeVersion($upgradeName);
             $moduleInstalledInformation['mod_release'] = $upgradeName;
-            $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName, $upgradeName);
+            $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
         }
 
         $this->migrate();

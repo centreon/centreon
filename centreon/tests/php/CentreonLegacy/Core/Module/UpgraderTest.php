@@ -30,6 +30,7 @@ use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\Core\Migration\MigrationLauncher;
 use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
+use Tests\CentreonLegacy\Core\Module\InMemoryOptionsDB;
 
 class UpgraderTest extends \PHPUnit\Framework\TestCase
 {
@@ -41,11 +42,8 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     private $utils;
 
-    private string $progressDirectory;
-
     public function setUp(): void
     {
-        $this->progressDirectory = sys_get_temp_dir() . '/' . uniqid('module-upgrades_', true);
         $this->container = new ServiceContainer();
 
         $this->db = new CentreonDB();
@@ -85,7 +83,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function tearDown(): void
     {
-        (new \Symfony\Component\Filesystem\Filesystem())->remove($this->progressDirectory);
         $this->container->terminate();
         $this->container = null;
     }
@@ -227,7 +224,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
-        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress($this->progressDirectory);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
 
         (new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1))->upgrade();
 
@@ -270,7 +267,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
-        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress($this->progressDirectory);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
 
         // First attempt: the pre-upgrade script passes, then the second SQL query fails.
         $phpScripts = [];
@@ -333,7 +330,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
-        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress($this->progressDirectory);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
 
         // A previous attempt stopped after the first query of an upgrade.sql that was fixed since.
         $progress->save('MyModule', '1.0.1', ['pre' => true, 'sql' => 1, 'checksum' => 'checksum of the previous upgrade.sql']);
