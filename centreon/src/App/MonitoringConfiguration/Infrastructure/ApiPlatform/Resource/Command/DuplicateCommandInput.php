@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
