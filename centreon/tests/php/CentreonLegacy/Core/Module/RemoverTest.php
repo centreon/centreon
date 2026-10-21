@@ -107,6 +107,28 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['DROP TABLE IF EXISTS `doctrine_migration_versions_my_module`'], $this->db->executedQueries);
     }
 
+    public function testAFailedUninstallationKeepsTheMigrationHistory(): void
+    {
+        // The module stays installed: dropping its metadata table would make every migration look pending.
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No DROP TABLE registered: running one would throw.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $progress = $this->createMock(UpgradeProgress::class);
+        $progress->expects($this->never())->method('clear');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress;
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file): void {
+            if (str_ends_with($file, '/php/uninstall.php')) {
+                throw new \RuntimeException('uninstall.php failed');
+            }
+        });
+
+        $this->expectExceptionMessage('uninstall.php failed');
+
+        (new Remover(new Container($this->container), $this->information, 'my-module', $this->utils))->remove();
+    }
+
     public function testRemoveLeavesTheTablesOfUnsupportedModuleNamesAlone(): void
     {
         $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
