@@ -56,7 +56,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, OpenIdConfiguration>
  */
-final readonly class DbalOpenIdConfigurationTransformer implements TransformerInterface
+final readonly class OpenIdConfigurationTransformer implements TransformerInterface
 {
     public function __construct(private VaultInterface $vault)
     {

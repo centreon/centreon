@@ -23,25 +23,23 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryId;
-use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalServiceCategoryRepository
+ * @phpstan-import-type RowTypeAlias from DbalHostGroupRepository
  *
- * @implements TransformerInterface<RowTypeAlias, ServiceCategory>
+ * @implements TransformerInterface<RowTypeAlias, HostGroup>
  */
-final readonly class DbalServiceCategoryTransformer implements TransformerInterface
+final readonly class HostGroupTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): ServiceCategory
+    public function transform(mixed $from): HostGroup
     {
-        return new ServiceCategory(
-            id: new ServiceCategoryId($from['sc_id']),
-            name: new ServiceCategoryName($from['sc_name']),
-            alias: new ServiceCategoryName($from['sc_description']),
-            activated: $from['sc_activate'] === '1',
+        return new HostGroup(
+            id: new HostGroupId($from['hg_id']),
+            name: new HostGroupName($from['hg_name']),
         );
     }
 }

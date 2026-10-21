@@ -26,9 +26,9 @@ namespace Tests\App\Security\Infrastructure\Dbal;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\Permission;
 use App\Security\Domain\Exception\CredentialNotFoundException;
+use App\Security\Infrastructure\Dbal\CredentialTransformer;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
-use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -124,7 +124,7 @@ final class DbalCredentialRepositoryTest extends KernelTestCase
     private function repositoryFor(bool $isCloudPlatform): DbalCredentialRepository
     {
         /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
-        $transformer = self::getContainer()->get(DbalCredentialTransformer::class);
+        $transformer = self::getContainer()->get(CredentialTransformer::class);
 
         return new DbalCredentialRepository(
             $this->connection,

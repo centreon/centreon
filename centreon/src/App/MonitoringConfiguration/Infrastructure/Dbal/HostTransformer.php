@@ -62,7 +62,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias|FindOneRowTypeAlias, Host>
  */
-final readonly class DbalHostTransformer implements TransformerInterface
+final readonly class HostTransformer implements TransformerInterface
 {
     use TriStateColumnTrait;
 
@@ -250,7 +250,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
                     : [],
                 ContactGroupId::class,
             ),
-            options: DbalNotificationsTransformer::optionsFromColumn($this->nullIfEmpty($from['notification_options'] ?? null)),
+            options: NotificationsTransformer::optionsFromColumn($this->nullIfEmpty($from['notification_options'] ?? null)),
             interval: $from['notification_interval'] !== null ? (int) $from['notification_interval'] : null,
             periodId: $from['notification_period_id'] !== null ? new TimePeriodId((int) $from['notification_period_id']) : null,
             firstDelay: $from['first_notification_delay'] !== null ? (int) $from['first_notification_delay'] : null,

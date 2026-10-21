@@ -47,7 +47,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, Poller>
  */
-final readonly class DbalPollerTransformer implements TransformerInterface
+final readonly class PollerTransformer implements TransformerInterface
 {
     /**
      * @throws InvalidGorgoneCommunicationTypeException When the stored communication type maps to no enum case
