@@ -55,8 +55,9 @@ final readonly class StatusConsoleCommand
             if ($setStatus->error !== null) {
                 $io->error($setStatus->error);
                 $exitCode = Command::FAILURE;
-
-                continue;
+                if ($setStatus->executed === [] && $setStatus->pending === []) {
+                    continue;
+                }
             }
 
             $io->definitionList(

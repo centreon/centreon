@@ -29,8 +29,6 @@ use App\Upgrade\Application\MigrationSetGuard;
 use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
-use App\Upgrade\Domain\Repository\UpdateRepository;
-use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 
 #[AsCommandHandler]
 final readonly class MigrateCommandHandler
@@ -39,8 +37,6 @@ final readonly class MigrateCommandHandler
         private MigrationRunner $migrationRunner,
         private MigrationSetGuard $migrationSetGuard,
         private TargetVersionRecorder $targetVersionRecorder,
-        private UpdateRepository $updateRepository,
-        private UpdateScriptFinder $updateScriptFinder,
     ) {
     }
 
@@ -65,7 +61,7 @@ final readonly class MigrateCommandHandler
      */
     private function migrateCore(?MigrationSet $set): array
     {
-        $legacyVersion = $this->legacyVersion();
+        $legacyVersion = $this->targetVersionRecorder->legacyVersion();
 
         if ($set instanceof MigrationSet) {
             return $this->migrationRunner->migrate($set);
@@ -79,30 +75,5 @@ final readonly class MigrateCommandHandler
         $this->targetVersionRecorder->record($legacyVersion);
 
         return $executed;
-    }
-
-    /**
-     * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
-     *
-     * @throws \RuntimeException when the platform version cannot be read, or legacy scripts are pending
-     *
-     * @return string the version the legacy scripts reached
-     */
-    private function legacyVersion(): string
-    {
-        $legacyVersion = $this->updateRepository->findCurrentVersion();
-        if ($legacyVersion === null || trim($legacyVersion) === '') {
-            throw new \RuntimeException('Cannot retrieve the current platform version');
-        }
-
-        $pending = $this->updateScriptFinder->findOrderedAvailableUpdates($legacyVersion);
-        if ($pending !== []) {
-            throw new \RuntimeException(\sprintf(
-                'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
-                implode(', ', $pending),
-            ));
-        }
-
-        return $legacyVersion;
     }
 }

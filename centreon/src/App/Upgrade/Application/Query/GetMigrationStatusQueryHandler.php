@@ -27,6 +27,7 @@ use App\Shared\Application\Query\AsQueryHandler;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\ModuleNotInstalledException;
+use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 
@@ -36,6 +37,7 @@ final readonly class GetMigrationStatusQueryHandler
     public function __construct(
         private MigrationRunner $migrationRunner,
         private ModuleRepository $moduleRepository,
+        private TargetVersionRecorder $targetVersionRecorder,
     ) {
     }
 
@@ -52,14 +54,14 @@ final readonly class GetMigrationStatusQueryHandler
                 throw new ModuleNotInstalledException((string) $query->set->module);
             }
 
-            return [$this->migrationRunner->status($query->set)];
+            return [$this->status($query->set)];
         }
 
         $statuses = [];
         // Left out without loading their migrations, which run once the module is installed.
         foreach (array_filter($this->migrationRunner->sets(), $this->isInstalled(...)) as $set) {
             try {
-                $statuses[] = $this->migrationRunner->status($set);
+                $statuses[] = $this->status($set);
             } catch (\Exception $exception) {
                 // A check of migrate() or a database failure: the other sets are still worth showing.
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
@@ -67,6 +69,23 @@ final readonly class GetMigrationStatusQueryHandler
         }
 
         return $statuses;
+    }
+
+    private function status(MigrationSet $set): MigrationSetStatus
+    {
+        $status = $this->migrationRunner->status($set);
+        if ($set->isModule()) {
+            return $status;
+        }
+
+        try {
+            // As migrate(), which refuses the core sets while legacy scripts are pending. A rollback does not.
+            $this->targetVersionRecorder->legacyVersion();
+        } catch (\RuntimeException $exception) {
+            return new MigrationSetStatus($set, $status->executed, $status->pending, $exception->getMessage());
+        }
+
+        return $status;
     }
 
     private function isInstalled(MigrationSet $set): bool

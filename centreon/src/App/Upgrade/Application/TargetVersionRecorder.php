@@ -42,6 +42,31 @@ final readonly class TargetVersionRecorder
     }
 
     /**
+     * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
+     *
+     * @throws \RuntimeException when the platform version cannot be read, or legacy scripts are pending
+     *
+     * @return string the version the legacy scripts reached
+     */
+    public function legacyVersion(): string
+    {
+        $legacyVersion = $this->updateRepository->findCurrentVersion();
+        if ($legacyVersion === null || trim($legacyVersion) === '') {
+            throw new \RuntimeException('Cannot retrieve the current platform version');
+        }
+
+        $pending = $this->updateScriptFinder->findOrderedAvailableUpdates($legacyVersion);
+        if ($pending !== []) {
+            throw new \RuntimeException(\sprintf(
+                'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
+                implode(', ', $pending),
+            ));
+        }
+
+        return $legacyVersion;
+    }
+
+    /**
      * @param string $legacyVersion the version reached by the legacy scripts
      */
     public function resolve(string $legacyVersion): string

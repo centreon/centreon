@@ -64,8 +64,6 @@ final class MigrateCommandHandlerTest extends TestCase
             $this->migrationRunner,
             new MigrationSetGuard($this->locker, $this->migrationSetLocker, new FakeModuleRepository(['centreon-open-tickets'])),
             new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
-            $this->updateRepository,
-            $this->scriptFinder,
         );
     }
 

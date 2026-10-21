@@ -216,7 +216,7 @@ final class MigrationConsoleCommandsTest extends TestCase
             {
                 return [
                     new MigrationSetStatus(MigrationSet::core('realtime'), [], [], 'The "realtime" migration set has executed migrations that are not available anymore'),
-                    new MigrationSetStatus(MigrationSet::core('configuration'), [], ['Centreon\Migrations\Configuration\Version1']),
+                    new MigrationSetStatus(MigrationSet::core('configuration'), [], ['Centreon\Migrations\Configuration\Version1'], 'The update scripts of 26.12.0 are pending'),
                 ];
             }
         };
@@ -224,6 +224,7 @@ final class MigrationConsoleCommandsTest extends TestCase
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
         self::assertStringContainsString('migrations that are not available anymore', (string) preg_replace('/\s+/', ' ', $tester->getDisplay()));
+        self::assertStringContainsString('The update scripts of 26.12.0 are pending', $tester->getDisplay(), 'A refusal does not hide the migrations it could read');
         self::assertStringContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
     }
 

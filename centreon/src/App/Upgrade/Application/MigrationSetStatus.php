@@ -30,7 +30,7 @@ final readonly class MigrationSetStatus
     /**
      * @param list<string> $executed
      * @param list<string> $pending
-     * @param string|null $error why migrate would refuse the set, which hides its migrations
+     * @param string|null $error why migrate would refuse the set, its migrations being empty when they cannot be read
      */
     public function __construct(
         public MigrationSet $set,
