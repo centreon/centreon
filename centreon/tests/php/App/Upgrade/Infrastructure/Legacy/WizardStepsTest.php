@@ -138,28 +138,16 @@ final class WizardStepsTest extends TestCase
         }
     }
 
-    public function testTheUpgradeTargetFollowsTheRecordedVersion(): void
+    public function testTheUpgradeWizardAnnouncesTheTargetOfTheNewKernel(): void
     {
-        $directory = sys_get_temp_dir() . '/' . uniqid('install_', true);
-        (new Filesystem())->dumpFile($directory . '/centreon.yaml', "parameters:\n    centreon.version: '26.11.0'\n");
-        (new Filesystem())->mkdir($directory . '/php');
         $target = fn (string $legacy): string => trim($this->runCode(\sprintf(
-            "include 'www/install/steps/functions.php'; echo getUpgradeTargetVersion(%s, %s, %s);",
+            "include 'www/install/steps/functions.php'; echo getUpgradeTargetVersion(%s);",
             var_export($legacy, true),
-            var_export($directory, true),
-            var_export($directory . '/centreon.yaml', true),
         )));
+        $console = (new Process([\PHP_BINARY, 'bin/console.new', 'centreon:upgrade:target-version', '26.09.1'], \dirname(__DIR__, 6)))->mustRun();
 
-        try {
-            self::assertSame('26.11.0', $target('26.09.1'));
-            self::assertSame('26.11.0', $target(''), 'Without any legacy script left');
-            self::assertSame('26.11.1', $target('26.11.1'), 'A legacy script recorded a later version');
-
-            touch($directory . '/php/Update-next.php');
-            self::assertSame('26.09.1', $target('26.09.1'), 'The coming release is still in Update-next.php');
-        } finally {
-            (new Filesystem())->remove($directory);
-        }
+        self::assertSame(trim($console->getOutput()), $target('26.09.1'));
+        self::assertSame('99.0.0', $target('99.0.0'), 'A legacy script recorded a later version');
     }
 
     /**

@@ -23,9 +23,9 @@ require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonAuth.class.php';
 
 use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
-use App\Upgrade\Domain\UpgradeTargetVersion;
 use Centreon\Domain\VersionHelper;
 use CentreonLegacy\Core\Migration\MigrationLauncher;
+use CentreonLegacy\Core\Process\PhpConsole;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -220,16 +220,19 @@ function runDatabaseMigrations(): ?string
     return null;
 }
 
-function getUpgradeTargetVersion(
-    string $lastLegacyVersion,
-    string $installDir = __DIR__ . '/..',
-    string $configFile = __DIR__ . '/../../../config.new/packages/centreon.yaml',
-): string {
-    return UpgradeTargetVersion::resolve(
-        (string) (Yaml::parseFile($configFile)['parameters']['centreon.version'] ?? ''),
-        $lastLegacyVersion,
-        file_exists($installDir . '/php/Update-next.php'),
-    );
+/**
+ * Asked to the new kernel, which records it once the update ran.
+ *
+ * @return string the version the update reaches, or the one of the legacy scripts when it cannot be told: it is only
+ *                announced
+ */
+function getUpgradeTargetVersion(string $lastLegacyVersion): string
+{
+    $process = PhpConsole::process(['bin/console.new', 'centreon:upgrade:target-version', $lastLegacyVersion]);
+    $process->run();
+    $version = trim($process->getOutput());
+
+    return $process->isSuccessful() && preg_match('/^\d+\.\d+\.\d+$/D', $version) === 1 ? $version : $lastLegacyVersion;
 }
 
 /**
