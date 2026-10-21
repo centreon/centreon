@@ -63,6 +63,7 @@ class FakeUpdateRepository implements UpdateRepository
     public function updateVersionInformation(string $version): void
     {
         $this->updatesRun[] = $version;
+        $this->currentVersion = $version;
     }
 
     public function installDirectoryExists(): bool

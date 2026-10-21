@@ -76,6 +76,16 @@ final class FileSystemUpdateRepositoryTest extends TestCase
         self::assertSame(['24.10.1'], $result);
     }
 
+    public function testTellsWhetherTheScriptsOfTheComingReleaseArePending(): void
+    {
+        self::assertFalse($this->repository->hasPendingNextUpdate());
+
+        $this->createUpdateFile('next');
+
+        self::assertTrue($this->repository->hasPendingNextUpdate());
+        self::assertSame([], $this->repository->findOrderedAvailableUpdates('24.10.0'), 'Update-next.php is never run');
+    }
+
     public function testReturnsEmptyArrayWhenNoUpdatesAvailable(): void
     {
         $result = $this->repository->findOrderedAvailableUpdates('24.10.0');
