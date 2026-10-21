@@ -395,6 +395,28 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertContains('upgrade.failure', $this->emittedEvents());
     }
 
+    public function testAWidgetFailureStillClearsTheCacheAndTheModuleFailureIsReportedFirst(): void
+    {
+        $this->moduleRepository->method('updateAll')->willThrowException(new \RuntimeException('Some updates failed. bam: upgrade.sql failed'));
+        $this->widgetRepository->method('updateAll')->willThrowException(new \RuntimeException('engine-status failed'));
+        $this->engineContextWriter->expects(self::never())->method('writeIfMissing');
+        $this->cacheClearer->expects(self::once())->method('clear');
+
+        $this->expectExceptionMessage('Some updates failed. bam: upgrade.sql failed');
+
+        ($this->handler)(new UpdateCommand());
+    }
+
+    public function testACacheClearFailureDoesNotHideAModuleFailure(): void
+    {
+        $this->moduleRepository->method('updateAll')->willThrowException(new \RuntimeException('Some updates failed. bam: upgrade.sql failed'));
+        $this->cacheClearer->method('clear')->willThrowException(new \RuntimeException('cache:clear failed'));
+
+        $this->expectExceptionMessage('Some updates failed. bam: upgrade.sql failed');
+
+        ($this->handler)(new UpdateCommand());
+    }
+
     public function testTheTargetVersionIsThePlatformVersion(): void
     {
         $this->scriptFinder->availableUpdates = ['24.10.1'];
@@ -404,6 +426,17 @@ final class UpdateCommandHandlerTest extends TestCase
         $start = $this->recordFor('upgrade.start');
         self::assertSame('24.10.0', $start['context']['from_version']);
         self::assertSame(self::TARGET_VERSION, $start['context']['to_version']);
+    }
+
+    public function testTheTargetVersionIsTheLegacyOneWhileUpdateNextIsPending(): void
+    {
+        $this->scriptFinder->availableUpdates = ['24.10.1'];
+        $this->scriptFinder->nextUpdatePending = true;
+
+        ($this->handler)(new UpdateCommand());
+
+        self::assertSame('24.10.1', $this->recordFor('upgrade.start')['context']['to_version'], 'The platform version is not recorded');
+        self::assertSame(['24.10.1'], $this->updateRepository->updatesRun);
     }
 
     public function testStopsAtTheFirstFailingMigrationSetAndReleasesTheLock(): void

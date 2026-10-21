@@ -36,6 +36,7 @@ use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\Repository\WidgetRepository;
+use App\Upgrade\Domain\UpgradeTargetVersion;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
@@ -53,7 +54,7 @@ final readonly class UpdateCommandHandler
         private MigrationRunner $migrationRunner,
         private TargetVersionRecorder $targetVersionRecorder,
         #[Autowire(param: 'centreon.version')]
-        private string $targetVersion,
+        private string $platformVersion,
     ) {
     }
 
@@ -65,6 +66,7 @@ final readonly class UpdateCommandHandler
     {
         $startedAt = microtime(true);
         $currentVersion = null;
+        $targetVersion = null;
         $startEmitted = false;
 
         try {
@@ -81,8 +83,13 @@ final readonly class UpdateCommandHandler
                 }
 
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
+                $targetVersion = UpgradeTargetVersion::resolve(
+                    $this->platformVersion,
+                    $availableUpdates === [] ? $currentVersion : end($availableUpdates),
+                    $this->updateScriptFinder->hasPendingNextUpdate(),
+                );
 
-                LoggerUpgrade::create()->start($currentVersion, $this->targetVersion);
+                LoggerUpgrade::create()->start($currentVersion, $targetVersion);
                 $startEmitted = true;
 
                 // The handler owns step sequencing and logging; the repository only runs each operation.
@@ -95,39 +102,47 @@ final readonly class UpdateCommandHandler
                 }
 
                 foreach (MigrationSet::coreSets() as $set) {
-                    $this->runStep($this->targetVersion, 'migrations_' . $set->name, fn (): array => $this->migrationRunner->migrate($set));
+                    $this->runStep($targetVersion, 'migrations_' . $set->name, fn (): array => $this->migrationRunner->migrate($set));
                 }
 
-                $this->runStep($this->targetVersion, 'update_version_information', fn () => $this->targetVersionRecorder->record());
+                $this->runStep($targetVersion, 'update_version_information', fn () => $this->targetVersionRecorder->record());
 
                 if ($this->updateRepository->installDirectoryExists()) {
                     $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
                     $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
                 }
 
-                // Reported once the upgrade ended: the modules upgraded before it need the cache clear.
-                $moduleFailure = null;
+                // The first failure is reported once the upgrade ended: the modules upgraded before it need the cache clear.
+                $failure = null;
                 try {
                     $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
                 } catch (\Throwable $exception) {
-                    $moduleFailure = $exception;
+                    $failure = $exception;
                 }
-                $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
-                $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
-                $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
-                if ($moduleFailure instanceof \Throwable) {
-                    throw $moduleFailure;
+                try {
+                    $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
+                    $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
+                } catch (\Throwable $exception) {
+                    $failure ??= $exception;
+                }
+                try {
+                    $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+                } catch (\Throwable $exception) {
+                    $failure ??= $exception;
+                }
+                if ($failure instanceof \Throwable) {
+                    throw $failure;
                 }
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-                LoggerUpgrade::create()->success($currentVersion, $this->targetVersion, $durationMs);
+                LoggerUpgrade::create()->success($currentVersion, $targetVersion, $durationMs);
             } finally {
                 $this->updateLocker->unlock();
             }
         } catch (\Throwable $exception) {
             if ($startEmitted) {
                 // The lifecycle is open: close it with a balanced upgrade.failure.
-                LoggerUpgrade::create()->failure($currentVersion, $this->targetVersion, $exception->getMessage(), $exception);
+                LoggerUpgrade::create()->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
             } else {
                 // The failure happened before start() (validation / lock / version read), so there is no
                 // start to balance: emit a standalone upgrade.error instead of a dangling failure, keeping
