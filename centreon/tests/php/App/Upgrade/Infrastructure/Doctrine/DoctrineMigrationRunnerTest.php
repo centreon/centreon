@@ -155,9 +155,19 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first');
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('it is ahead of the current version');
+        $this->expectExceptionMessage('Cannot roll the "module:rollback" migration set back to "Rollback\Migrations\Version20260101000002": it is not executed.');
 
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000002');
+    }
+
+    public function testRollbackRevertsOnlyTheExecutedMigrationsAfterTheTargetWhenAnOlderOneIsPending(): void
+    {
+        // A fix forward-ported with an older timestamp than the migrations already executed, still pending.
+        $this->runner->migrate(MigrationSet::module('forward-port'));
+        $this->connection->delete('doctrine_migration_versions_forward_port', ['version' => \ForwardPort\Migrations\Version20260101000001::class]);
+
+        self::assertSame([\ForwardPort\Migrations\Version20260101000003::class], $this->runner->rollback(MigrationSet::module('forward-port'), 'prev'));
+        self::assertSame([\ForwardPort\Migrations\Version20260101000001::class, \ForwardPort\Migrations\Version20260101000003::class], $this->runner->status(MigrationSet::module('forward-port'))->pending);
     }
 
     public function testSetsAreIsolated(): void

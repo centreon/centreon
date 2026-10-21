@@ -99,13 +99,23 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             ), 0, $exception);
         }
 
-        $plan = $factory->getMigrationPlanCalculator()->getPlanUntilVersion($target);
-
-        if (\count($plan) > 0 && $plan->getDirection() !== Direction::DOWN) {
-            throw new \RuntimeException(\sprintf('Cannot roll the "%s" migration set back to "%s": it is ahead of the current version.', $set->name, $target));
+        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
+        $isFirst = (string) $target === '0';
+        if (! $isFirst && ! $executed->hasMigration($target)) {
+            throw new \RuntimeException(\sprintf('Cannot roll the "%s" migration set back to "%s": it is not executed.', $set->name, $target));
         }
 
-        return $this->execute($set, $factory, $plan);
+        // Not getPlanUntilVersion(), which plans an upgrade as soon as an older migration is pending.
+        $toRevert = [];
+        $isAfterTarget = $isFirst;
+        foreach ($executed->getItems() as $migration) {
+            if ($isAfterTarget) {
+                $toRevert[] = $migration->getVersion();
+            }
+            $isAfterTarget = $isAfterTarget || $migration->getVersion()->equals($target);
+        }
+
+        return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanForVersions($toRevert, Direction::DOWN));
     }
 
     public function status(MigrationSet $set): MigrationSetStatus
