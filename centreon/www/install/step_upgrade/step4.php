@@ -215,7 +215,14 @@ $template->display('content.tpl');
           } else {
             jQuery('td[name="engine.context"]').html("<span style='color:red;'>" + data['msg'] + '</span>');
             jQuery('#refresh').show();
+            // As before the modules step: the modules and the cache do not depend on it.
+            onSuccess();
           }
+        },
+        function () {
+          jQuery('td[name="engine.context"]').html("<span style='color:red;'>Request failed</span>");
+          jQuery('#refresh').show();
+          onSuccess();
         }
       )
     }
