@@ -455,6 +455,18 @@ describe('Rich Text Editor', () => {
         const editor = getEditor();
 
         await userEvent.type(editor, 'Example');
+
+        // The text starts as a paragraph: for Normal, it is made Huge first,
+        // so choosing Normal has something to change.
+        if (blockType === 'Normal') {
+          await userEvent.click(screen.getByLabelText('block'));
+          await userEvent.click(await screen.findByText('Huge'));
+          await waitFor(() => {
+            expect(editor.querySelector('h3')).toBeVisible();
+          });
+          await waitForMenusToClose();
+        }
+
         await userEvent.click(screen.getByLabelText('block'));
         await userEvent.click(await screen.findByText(blockType));
 
@@ -462,9 +474,10 @@ describe('Rich Text Editor', () => {
           expect(editor.querySelector(tag)).toBeVisible();
         });
 
-        // The text is in that block, the menu is closed
+        // The text is in that block alone, the menu is closed
         // and the change can be undone.
         expect(editor.querySelector(tag)).toHaveTextContent(/^Example$/);
+        expect(editor.querySelectorAll('p, h3, h5, h6')).toHaveLength(1);
         await waitForMenusToClose();
         expect(screen.getByLabelText('Undo')).toBeEnabled();
       });

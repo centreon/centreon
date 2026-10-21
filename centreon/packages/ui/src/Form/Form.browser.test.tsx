@@ -437,7 +437,6 @@ describe('Form with sections', () => {
       expect(window.scrollY).toBeGreaterThan(initialScrollY);
     });
 
-    // The clicked tab is selected.
     expect(screen.getByRole('tab', { name: 'Third group' })).toHaveAttribute(
       'aria-selected',
       'true'

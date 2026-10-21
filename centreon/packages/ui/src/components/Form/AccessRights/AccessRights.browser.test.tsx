@@ -265,12 +265,15 @@ describe('Access rights', () => {
       expect(save).toHaveBeenCalled();
     });
 
-    // The removed contact is not in the saved list.
+    // The saved list is the initial one without the removed contact (id 1).
     expect(save).toHaveBeenCalledWith(
       expect.not.arrayContaining([
         expect.objectContaining({ name: 'Erin Monahan' })
       ])
     );
+    expect(
+      (save.mock.calls[0][0] as Array<{ id: number }>).map(({ id }) => id)
+    ).toEqual([0, 2, 3, 4, 5]);
   });
 
   it('submits the new acces rights list with the updated contact', async () => {
@@ -385,7 +388,6 @@ describe('Access rights', () => {
     expect(await findFirstByText(labels.list.added)).toBeVisible();
     expect(await findFirstByText('2 added')).toBeVisible();
 
-    // The group has its group chip.
     expect(
       document.querySelector('[data-groupChip="Entity Group 10"]')
     ).toBeVisible();

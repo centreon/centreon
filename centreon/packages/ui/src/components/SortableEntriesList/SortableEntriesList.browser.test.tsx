@@ -730,11 +730,17 @@ const getLastNames = (onChange: Spy): Array<string> =>
 const getMaskImage = (element: HTMLElement): string =>
   getComputedStyle(element).maskImage;
 
-// The list is capped from a ResizeObserver callback, a frame or two after it
-// renders: a check that it is not capped waits for those frames first.
-const waitForResizeObservers = (): Promise<void> =>
+// The list is capped from a ResizeObserver callback. A check that it is not
+// capped first waits for an observer of its own, delivered after the list's,
+// then a frame for the page to apply the cap.
+const waitForResizeObservers = (element: HTMLElement): Promise<void> =>
   new Promise((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    const observer = new ResizeObserver(() => {
+      observer.disconnect();
+      requestAnimationFrame(() => setTimeout(resolve, 0));
+    });
+
+    observer.observe(element);
   });
 
 describe('SortableEntriesList - capped list', () => {
@@ -787,7 +793,7 @@ describe('SortableEntriesList - capped list', () => {
 
     const scrollArea = await getScrollArea();
 
-    await waitForResizeObservers();
+    await waitForResizeObservers(scrollArea);
 
     expect(getComputedStyle(scrollArea).maxHeight).toBe('none');
     expect(scrollArea.scrollHeight).toBe(scrollArea.clientHeight);
@@ -826,7 +832,7 @@ describe('SortableEntriesList - capped list', () => {
 
     const scrollArea = await getScrollArea();
 
-    await waitForResizeObservers();
+    await waitForResizeObservers(scrollArea);
     expect(getComputedStyle(scrollArea).maxHeight).toBe('none');
     await userEvent.click(screen.getByTestId('Add'));
 

@@ -442,7 +442,6 @@ describe('CrudPage', () => {
       );
     });
 
-    // The listing is still displayed.
     expect(await screen.findByText('Item 0')).toBeVisible();
   });
 

@@ -118,7 +118,6 @@ describe('useMutationQuery', () => {
 
     expect(await screen.findByText('custom error message')).toBeVisible();
 
-    // The error is also logged to the console.
     expect(consoleError).toHaveBeenCalledWith(
       'API Request: custom error message'
     );
@@ -140,14 +139,16 @@ describe('useMutationQuery', () => {
 
     await userEvent.click(screen.getByRole('button'));
 
-    // The error is handled (and logged) once the answer is applied: only
-    // then can the absence of a message mean anything.
+    // The error is handled (and logged) once the answer is applied. The
+    // snackbar would show in a later render: it is given 500 ms to appear.
     await waitFor(() => {
       expect(consoleError).toHaveBeenCalledWith(
         'API Request: custom error message'
       );
     });
 
-    expect(screen.queryByText('custom error message')).not.toBeInTheDocument();
+    await expect(
+      screen.findByText('custom error message', {}, { timeout: 500 })
+    ).rejects.toThrow();
   });
 });
