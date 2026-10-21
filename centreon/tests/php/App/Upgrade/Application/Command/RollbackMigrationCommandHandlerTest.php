@@ -25,6 +25,7 @@ namespace Tests\App\Upgrade\Application\Command;
 
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use App\Upgrade\Application\Command\RollbackMigrationCommandHandler;
+use App\Upgrade\Application\MigrationSetLock;
 use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
@@ -38,7 +39,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $migrationRunner = new FakeMigrationRunner();
         $locker = new FakeUpdateLocker();
 
-        $reverted = (new RollbackMigrationCommandHandler($migrationRunner, $locker, new FakeMigrationSetLocker()))(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev'));
+        $reverted = (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetLock($locker, new FakeMigrationSetLocker())))(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev'));
 
         self::assertSame(['configuration\Version1'], $reverted);
         self::assertSame(['rollback:configuration:prev'], $migrationRunner->journal->getArrayCopy());
@@ -55,7 +56,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $this->expectExceptionMessage('An update is already in progress');
 
         try {
-            (new RollbackMigrationCommandHandler($migrationRunner, $locker, new FakeMigrationSetLocker()))(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev'));
+            (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetLock($locker, new FakeMigrationSetLocker())))(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev'));
         } finally {
             self::assertSame([], $migrationRunner->journal->getArrayCopy());
         }
@@ -70,7 +71,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
 
         $migrationSetLocker = new FakeMigrationSetLocker();
 
-        (new RollbackMigrationCommandHandler($migrationRunner, $locker, $migrationSetLocker))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
+        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetLock($locker, $migrationSetLocker)))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
 
         self::assertSame(['rollback:module:centreon-open-tickets:prev'], $migrationRunner->journal->getArrayCopy());
         self::assertSame(['module:centreon-open-tickets'], $migrationSetLocker->released);
@@ -78,7 +79,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $migrationSetLocker->lockedSets = ['module:centreon-open-tickets'];
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('is already being migrated');
-        (new RollbackMigrationCommandHandler($migrationRunner, $locker, $migrationSetLocker))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
+        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetLock($locker, $migrationSetLocker)))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
     }
 
     public function testReleasesTheLocksWhenTheRollbackFails(): void
@@ -88,7 +89,7 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
 
         $locker = new FakeUpdateLocker();
         $migrationSetLocker = new FakeMigrationSetLocker();
-        $handler = new RollbackMigrationCommandHandler($migrationRunner, $locker, $migrationSetLocker);
+        $handler = new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetLock($locker, $migrationSetLocker));
 
         foreach ([MigrationSet::core('configuration'), MigrationSet::module('centreon-open-tickets')] as $set) {
             try {

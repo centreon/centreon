@@ -25,6 +25,7 @@ namespace Tests\App\Upgrade\Application\Command;
 
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\MigrateCommandHandler;
+use App\Upgrade\Application\MigrationSetLock;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
@@ -61,8 +62,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
         $this->handler = new MigrateCommandHandler(
             $this->migrationRunner,
-            $this->locker,
-            $this->migrationSetLocker,
+            new MigrationSetLock($this->locker, $this->migrationSetLocker),
             new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
             $this->updateRepository,
             $this->scriptFinder,

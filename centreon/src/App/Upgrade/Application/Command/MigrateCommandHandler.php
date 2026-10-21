@@ -25,9 +25,8 @@ namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetLocker;
+use App\Upgrade\Application\MigrationSetLock;
 use App\Upgrade\Application\TargetVersionRecorder;
-use App\Upgrade\Application\UpdateLocker;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
@@ -38,8 +37,7 @@ final readonly class MigrateCommandHandler
 {
     public function __construct(
         private MigrationRunner $migrationRunner,
-        private UpdateLocker $updateLocker,
-        private MigrationSetLocker $migrationSetLocker,
+        private MigrationSetLock $migrationSetLock,
         private TargetVersionRecorder $targetVersionRecorder,
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
@@ -55,32 +53,41 @@ final readonly class MigrateCommandHandler
      */
     public function __invoke(MigrateCommand $command): array
     {
-        if ($command->set?->isModule() === true) {
-            return $this->migrateModule($command->set);
-        }
+        $set = $command->set;
 
-        if (! $this->updateLocker->lock()) {
-            throw new \RuntimeException('An update is already in progress');
-        }
-
-        try {
-            $this->assertNoPendingLegacyUpdate();
-
-            if ($command->set instanceof MigrationSet) {
-                return $this->migrationRunner->migrate($command->set);
+        if ($set?->isModule() === true) {
+            // Its install.sql, frozen once it ships migrations, would then run on a schema they already changed.
+            if (! $this->moduleRepository->isInstalled((string) $set->module)) {
+                throw new \RuntimeException(\sprintf('The module "%s" is not installed: its migrations run when it is installed.', $set->module));
             }
 
-            $executed = [];
-            foreach (MigrationSet::coreSets() as $set) {
-                $executed = [...$executed, ...$this->migrationRunner->migrate($set)];
-            }
-
-            $this->targetVersionRecorder->record();
-
-            return $executed;
-        } finally {
-            $this->updateLocker->unlock();
+            return $this->migrationSetLock->run($set, fn (): array => $this->migrationRunner->migrate($set));
         }
+
+        return $this->migrationSetLock->run($set, fn (): array => $this->migrateCore($set));
+    }
+
+    /**
+     * @param MigrationSet|null $set null for all the core sets, then record the target version
+     *
+     * @return list<string>
+     */
+    private function migrateCore(?MigrationSet $set): array
+    {
+        $this->assertNoPendingLegacyUpdate();
+
+        if ($set instanceof MigrationSet) {
+            return $this->migrationRunner->migrate($set);
+        }
+
+        $executed = [];
+        foreach (MigrationSet::coreSets() as $coreSet) {
+            $executed = [...$executed, ...$this->migrationRunner->migrate($coreSet)];
+        }
+
+        $this->targetVersionRecorder->record();
+
+        return $executed;
     }
 
     /**
@@ -94,29 +101,6 @@ final readonly class MigrateCommandHandler
                 'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
                 implode(', ', $pending),
             ));
-        }
-    }
-
-    /**
-     * Its own lock: the platform update holds the update one while it upgrades the modules.
-     *
-     * @return list<string>
-     */
-    private function migrateModule(MigrationSet $set): array
-    {
-        // Its install.sql, frozen once it ships migrations, would then run on a schema they already changed.
-        if (! $this->moduleRepository->isInstalled((string) $set->module)) {
-            throw new \RuntimeException(\sprintf('The module "%s" is not installed: its migrations run when it is installed.', $set->module));
-        }
-
-        if (! $this->migrationSetLocker->lock($set)) {
-            throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $set->name));
-        }
-
-        try {
-            return $this->migrationRunner->migrate($set);
-        } finally {
-            $this->migrationSetLocker->unlock($set);
         }
     }
 }

@@ -25,16 +25,14 @@ namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetLocker;
-use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Application\MigrationSetLock;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
 {
     public function __construct(
         private MigrationRunner $migrationRunner,
-        private UpdateLocker $updateLocker,
-        private MigrationSetLocker $migrationSetLocker,
+        private MigrationSetLock $migrationSetLock,
     ) {
     }
 
@@ -45,27 +43,6 @@ final readonly class RollbackMigrationCommandHandler
      */
     public function __invoke(RollbackMigrationCommand $command): array
     {
-        // Same locks as MigrateCommandHandler.
-        if ($command->set->isModule()) {
-            if (! $this->migrationSetLocker->lock($command->set)) {
-                throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $command->set->name));
-            }
-
-            try {
-                return $this->migrationRunner->rollback($command->set, $command->version);
-            } finally {
-                $this->migrationSetLocker->unlock($command->set);
-            }
-        }
-
-        if (! $this->updateLocker->lock()) {
-            throw new \RuntimeException('An update is already in progress');
-        }
-
-        try {
-            return $this->migrationRunner->rollback($command->set, $command->version);
-        } finally {
-            $this->updateLocker->unlock();
-        }
+        return $this->migrationSetLock->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version));
     }
 }
