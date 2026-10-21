@@ -23,13 +23,10 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Doctrine;
 
-use App\Upgrade\Domain\MigrationSet;
 use Webmozart\Assert\Assert;
 
 final readonly class MigrationSetConfiguration
 {
-    public const string CORE_TABLE = 'doctrine_migration_versions';
-
     public function __construct(
         public string $connection,
         public string $namespace,
@@ -40,15 +37,5 @@ final readonly class MigrationSetConfiguration
         Assert::regex($namespace, '/^[A-Za-z_]\w*(\\\\[A-Za-z_]\w*)*$/D', 'Invalid migration namespace %s.');
         Assert::stringNotEmpty($directory);
         Assert::regex($table, '/^[a-z_][a-z0-9_]*$/D', 'Invalid migration table name %s.');
-    }
-
-    /**
-     * Static: also called by the legacy module code.
-     *
-     * @return string|null the metadata table of the module, null when the module name is not supported
-     */
-    public static function moduleTable(string $module): ?string
-    {
-        return MigrationSet::isModuleName($module) ? self::CORE_TABLE . '_' . str_replace('-', '_', $module) : null;
     }
 }

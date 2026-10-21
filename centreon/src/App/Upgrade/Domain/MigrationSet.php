@@ -32,6 +32,7 @@ final readonly class MigrationSet
 {
     public const string REALTIME = 'realtime';
     public const string CONFIGURATION = 'configuration';
+    public const string CORE_TABLE = 'doctrine_migration_versions';
 
     // Lowercase and dashes only: a module name maps to a single metadata table, and to a PHP namespace.
     private const string MODULE_NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/D';
@@ -78,6 +79,16 @@ final readonly class MigrationSet
     public static function isModuleName(string $module): bool
     {
         return preg_match(self::MODULE_NAME_PATTERN, $module) === 1 && \mb_strlen($module) <= self::MODULE_NAME_MAX_LENGTH;
+    }
+
+    /**
+     * Static: also called by the legacy module code.
+     *
+     * @return string|null the metadata table of the module, null when the module name is not supported
+     */
+    public static function moduleTable(string $module): ?string
+    {
+        return self::isModuleName($module) ? self::CORE_TABLE . '_' . str_replace('-', '_', $module) : null;
     }
 
     public function isModule(): bool

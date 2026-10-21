@@ -21,7 +21,7 @@
 
 namespace CentreonLegacy\Core\Module;
 
-use App\Upgrade\Infrastructure\Doctrine\MigrationSetConfiguration;
+use App\Upgrade\Domain\MigrationSet;
 use CentreonLegacy\ServiceProvider;
 
 class Remover extends Module
@@ -72,7 +72,7 @@ class Remover extends Module
     {
         $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
 
-        $table = MigrationSetConfiguration::moduleTable($this->moduleName);
+        $table = MigrationSet::moduleTable($this->moduleName);
         if ($table === null) {
             return;
         }

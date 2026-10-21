@@ -82,6 +82,13 @@ final class MigrationSetTest extends TestCase
         MigrationSet::module($module);
     }
 
+    public function testEachModuleHasItsOwnMetadataTable(): void
+    {
+        self::assertSame('doctrine_migration_versions_centreon_open_tickets', MigrationSet::moduleTable('centreon-open-tickets'));
+        self::assertNull(MigrationSet::moduleTable('../../etc'));
+        self::assertSame(64, \mb_strlen((string) MigrationSet::moduleTable(str_repeat('a', 36))), 'MySQL identifiers are limited to 64 characters');
+    }
+
     public function testAcceptsTheLongestModuleName(): void
     {
         self::assertTrue(MigrationSet::isModuleName(str_repeat('a', 36)));

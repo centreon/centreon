@@ -29,13 +29,6 @@ use PHPUnit\Framework\TestCase;
 
 final class MigrationSetConfigurationTest extends TestCase
 {
-    public function testModuleTables(): void
-    {
-        self::assertSame('doctrine_migration_versions_centreon_open_tickets', MigrationSetConfiguration::moduleTable('centreon-open-tickets'));
-        self::assertNull(MigrationSetConfiguration::moduleTable('../../etc'));
-        self::assertSame(64, \mb_strlen((string) MigrationSetConfiguration::moduleTable(str_repeat('a', 36))), 'MySQL identifiers are limited to 64 characters');
-    }
-
     /**
      * @return iterable<string, array{string, string}>
      */
