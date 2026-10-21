@@ -44,8 +44,13 @@ class CacheClearerTest extends TestCase
         $newKernelFailing->clear();
         $this->assertSame(['bin/console cache:clear', 'bin/console.new cache:clear'], $newKernelFailing->commands);
 
-        $this->expectException(ProcessFailedException::class);
-        $this->failingClearer('bin/console')->clear();
+        $legacyKernelFailing = $this->failingClearer('bin/console');
+        try {
+            $legacyKernelFailing->clear();
+            $this->fail('The failure of the legacy kernel must be reported');
+        } catch (ProcessFailedException) {
+        }
+        $this->assertSame(['bin/console cache:clear', 'bin/console.new cache:clear'], $legacyKernelFailing->commands, 'The new kernel is still cleared');
     }
 
     public function testAFailingConsoleCommandThrows(): void

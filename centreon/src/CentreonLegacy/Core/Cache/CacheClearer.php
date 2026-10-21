@@ -44,13 +44,22 @@ class CacheClearer
             return;
         }
 
-        // Module upgrades only ever cleared the legacy one: a failure of the new one must not fail them.
-        $this->run(['bin/console', 'cache:clear']);
+        // Both are attempted. Module upgrades only ever cleared the legacy one: a failure of the new one must not fail them.
+        $legacyFailure = null;
+        try {
+            $this->run(['bin/console', 'cache:clear']);
+        } catch (RuntimeException $exception) {
+            $legacyFailure = $exception;
+        }
 
         try {
             $this->run(['bin/console.new', 'cache:clear']);
         } catch (RuntimeException $exception) {
             CentreonLog::create()->warning(CentreonLog::TYPE_UPGRADE, 'Clearing the cache of the new kernel failed', [], $exception);
+        }
+
+        if ($legacyFailure instanceof RuntimeException) {
+            throw $legacyFailure;
         }
     }
 
