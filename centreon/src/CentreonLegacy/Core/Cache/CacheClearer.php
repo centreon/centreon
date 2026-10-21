@@ -23,11 +23,10 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Cache;
 
+use CentreonLegacy\Core\Process\PhpConsole;
 use CentreonLog;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\RuntimeException;
-use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\Process;
 
 /**
  * A batch runs through suspended() then clears once: concurrent clears of the same directory fail.
@@ -80,9 +79,7 @@ class CacheClearer
      */
     protected function run(array $command): void
     {
-        // No timeout: a cache warmup can be slow on a small host.
-        $php = (new PhpExecutableFinder())->find(false) ?: 'php';
-        $process = new Process([$php, ...$command], \dirname(__DIR__, 4), null, null, null);
+        $process = PhpConsole::process($command);
         $process->run();
 
         if (! $process->isSuccessful()) {

@@ -23,8 +23,7 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Migration;
 
-use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\Process;
+use CentreonLegacy\Core\Process\PhpConsole;
 
 class MigrationLauncher
 {
@@ -35,13 +34,13 @@ class MigrationLauncher
      */
     public function migrate(?string $module = null): void
     {
-        $command = [(new PhpExecutableFinder())->find(false) ?: 'php', 'bin/console.new', 'centreon:migrations:migrate', '--no-interaction'];
+        $command = ['bin/console.new', 'centreon:migrations:migrate', '--no-interaction'];
         if ($module !== null) {
             $command[] = '--module=' . $module;
         }
 
         // A wide terminal keeps the rendered exception message on a single line.
-        $process = new Process($command, \dirname(__DIR__, 4), ['COLUMNS' => '1000'], null, null);
+        $process = PhpConsole::process($command, ['COLUMNS' => '1000']);
         $process->run();
 
         if (! $process->isSuccessful()) {
