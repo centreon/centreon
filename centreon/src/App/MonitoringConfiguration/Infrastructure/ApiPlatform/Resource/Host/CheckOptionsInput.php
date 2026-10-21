@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\Dto;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
 use App\MonitoringConfiguration\Infrastructure\Validator\CheckCommandType;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidCommandArguments;

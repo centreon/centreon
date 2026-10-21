@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Exception\HostCategoryNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\HostSeverityNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\TimezoneNotFoundException;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\CreateHostInput;
 use App\Shared\Domain\Exception\AggregateNotFoundException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

@@ -38,7 +38,7 @@ use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\Dto\CreatePollerInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;

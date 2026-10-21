@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroChange;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostMacroParentEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\Dto\HostMacroInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostMacroOutput;
 use App\Shared\Infrastructure\TransformerInterface;
 
