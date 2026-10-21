@@ -182,6 +182,29 @@ class UtilsTest extends TestCase
         $this->assertSame([2, 3], $executed);
     }
 
+    public function testExecuteSqlFileCountsADelimitedBlockAsASingleQueryWhenSkipping(): void
+    {
+        $this->fileSystem->createFile(
+            '/tmp/upgrade.sql',
+            "-- A comment; not a query\nSELECT 1;\nDELIMITER \$\nCREATE PROCEDURE p() BEGIN\n  SELECT 2;\nEND\$\nDELIMITER ;\nSELECT 3;\n",
+        );
+        // Only the last query is registered: executing one of the first two again would throw.
+        $this->container['configuration_db']->addResultSet('SELECT 3;', []);
+
+        $executed = [];
+        $this->service->executeSqlFile(
+            $this->fileSystem->path('/tmp/upgrade.sql'),
+            [],
+            false,
+            2,
+            static function (int $count) use (&$executed): void {
+                $executed[] = $count;
+            }
+        );
+
+        $this->assertSame([3], $executed);
+    }
+
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
     {
         $fileName = $this->fileSystem->path('/tmp/conf2.sql');
