@@ -98,7 +98,8 @@ final class DoctrineMigrationRunnerTest extends TestCase
         try {
             $this->runner->migrate(MigrationSet::module(self::ATOMICITY));
             self::fail('Expected the duplicate key to fail the run');
-        } catch (\Throwable) {
+        } catch (\RuntimeException $exception) {
+            self::assertStringStartsWith('The "Atomicity\Migrations\Version20260101000003" migration of the "atomicity" module migration set failed: ', $exception->getMessage());
         }
 
         // The DDL migration committed implicitly: the DML ones must still run in real transactions.
@@ -283,8 +284,8 @@ final class DoctrineMigrationRunnerTest extends TestCase
         try {
             $this->runner->migrate(MigrationSet::module('schema-change'));
             self::fail('The schema changes would escape the DdlMigration and DmlMigration checks');
-        } catch (\LogicException $exception) {
-            self::assertStringContainsString('must only read $schema', $exception->getMessage());
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('The "SchemaChange\Migrations\Version20260101000001" migration of the "schema-change" module migration set failed: A migration must only read $schema', $exception->getMessage());
         }
 
         self::assertFalse($this->connection->createSchemaManager()->introspectTable('fx_schema_change')->hasColumn('label'));

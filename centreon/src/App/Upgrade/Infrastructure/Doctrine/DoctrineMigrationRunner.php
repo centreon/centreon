@@ -263,6 +263,31 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
 
         $this->logger->info('Running the {set}', ['set' => $set->label(), 'direction' => $plan->getDirection()]);
 
-        return array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
+        try {
+            return array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
+        } catch (\Throwable $exception) {
+            // Doctrine rethrows the error of the query as is: it would not tell which migration failed.
+            throw new \RuntimeException(\sprintf(
+                'The "%s" migration of the %s failed: %s',
+                $this->failedVersion($factory, $plan) ?? 'unknown',
+                $set->label(),
+                $exception->getMessage(),
+            ), 0, $exception);
+        }
+    }
+
+    /**
+     * The first one of the plan left as it was: an upgrade records a migration once it ran, a rollback once reverted.
+     */
+    private function failedVersion(DependencyFactory $factory, MigrationPlanList $plan): ?string
+    {
+        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
+        foreach ($plan->getItems() as $item) {
+            if ($executed->hasMigration($item->getVersion()) === ($plan->getDirection() === Direction::DOWN)) {
+                return (string) $item->getVersion();
+            }
+        }
+
+        return null;
     }
 }
