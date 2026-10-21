@@ -351,6 +351,61 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['upgrade.php'], $phpScripts, 'The pre-upgrade script that passed is not replayed');
     }
 
+    public function testReplaysOnlyTheFinalScriptWhenItFailed(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->method('directories')->willReturn($finder);
+        $finder->method('depth')->willReturn($finder);
+        $finder->method('in')->willReturn($finder);
+        $finder->method('getIterator')->willReturnCallback(static fn (): \ArrayIterator => new \ArrayIterator([new \SplFileInfo('1.0.1')]));
+        $this->container->registerProvider(new FinderProvider($finder));
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet('UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $this->createMock(MigrationLauncher::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = new UpgradeProgress(new InMemoryOptionsDB());
+
+        // First attempt: the pre-upgrade script and both queries pass, then upgrade.php fails.
+        $phpScripts = [];
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use (&$phpScripts): void {
+            $phpScripts[] = basename($file);
+            if ($phpScripts === ['upgrade.pre.php', 'upgrade.php']) {
+                throw new \Exception('upgrade.php failed');
+            }
+        });
+        $skippedQueries = [];
+        $this->utils->method('executeSqlFile')->willReturnCallback(
+            static function (string $file, array $macros, bool $monitoring, int $skipped, callable $onQueryExecuted) use (&$skippedQueries): void {
+                $skippedQueries[] = $skipped;
+                for ($query = $skipped + 1; $query <= 2; ++$query) {
+                    $onQueryExecuted($query);
+                }
+            }
+        );
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
+
+        try {
+            $upgrader->upgrade();
+            $this->fail('The upgrade.php failure must propagate');
+        } catch (\Exception $exception) {
+            $this->assertSame('upgrade.php failed', $exception->getMessage());
+        }
+        $upgrader->upgrade();
+
+        $this->assertSame(['upgrade.pre.php', 'upgrade.php', 'upgrade.php'], $phpScripts, 'upgrade.php is the only step replayed whole');
+        $this->assertSame([0, 2], $skippedQueries, 'The queries that passed are skipped');
+    }
+
     public function testResumesOnlyTheUpgradeSqlItStartedFrom(): void
     {
         $modulePath = sys_get_temp_dir() . '/' . uniqid('module_', true);

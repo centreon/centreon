@@ -61,6 +61,10 @@ final class FakeMigrationRunner implements MigrationRunner
     {
         $this->journal[] = 'rollback:' . $set->name . ':' . $versionOrAlias;
 
+        if (\in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(\sprintf('Rollback of "%s" failed', $set->name));
+        }
+
         return [$set->name . '\Version1'];
     }
 

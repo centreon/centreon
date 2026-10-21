@@ -120,6 +120,13 @@ class ServiceProviderTest extends TestCase
                 $this->assertTrue($services->has($usedService), \sprintf('%s cannot reach %s', $serviceName, $usedService));
             }
         }
+
+        // Shared: suspending the clears of a batch must reach every module of it.
+        $upgrader = $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER]('mod-name', 1);
+        $this->assertSame(
+            $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER],
+            (new \ReflectionProperty(Core\Module\Module::class, 'services'))->getValue($upgrader)->get(ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER),
+        );
     }
 
     /**

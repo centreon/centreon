@@ -58,7 +58,7 @@ final class WizardStepsTest extends TestCase
         );
     }
 
-    public function testTheUpgradeWizardClearsTheCacheOnce(): void
+    public function testTheUpgradeWizardClearsTheCache(): void
     {
         self::assertSame(['result' => 0, 'msg' => 'OK'], $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'clearCache']));
     }
@@ -80,6 +80,31 @@ final class WizardStepsTest extends TestCase
             $this->db()->fetchOne("SELECT `value` FROM `informations` WHERE `key` = 'version'"),
             trim(mb_substr($output, (int) mb_strrpos($output, "\n"))),
         );
+    }
+
+    public function testAMigrationFailureStopsTheWizard(): void
+    {
+        // An executed migration missing from the code base makes the configuration set fail.
+        $db = $this->db();
+        $db->query("INSERT INTO `doctrine_migration_versions` (`version`) VALUES ('Centreon\\\\Migrations\\\\Configuration\\\\Version19700101000000')");
+
+        try {
+            $install = $this->runStep('www/install/steps/process/migrateDatabases.php');
+            self::assertSame(1, $install['result'], 'unattended.sh and the Docker entrypoints stop on it');
+            self::assertIsString($install['msg']);
+            self::assertStringContainsString('Version19700101000000', $install['msg']);
+
+            $output = $this->runCode(
+                "session_start(); \$_SESSION['CURRENT_VERSION'] = '0.0.1'; session_write_close();"
+                . " include 'www/install/step_upgrade/process/process_migrations.php'; echo \"\\n\", \$_SESSION['CURRENT_VERSION'];",
+            );
+            $upgrade = json_decode(mb_substr($output, 0, (int) mb_strrpos($output, "\n")), true);
+            self::assertIsArray($upgrade);
+            self::assertSame(1, $upgrade['result']);
+            self::assertSame('0.0.1', trim(mb_substr($output, (int) mb_strrpos($output, "\n"))), 'The version shown is the one of the legacy scripts');
+        } finally {
+            $db->query("DELETE FROM `doctrine_migration_versions` WHERE `version` LIKE '%Version19700101000000'");
+        }
     }
 
     public function testAFailingModuleUpgradeIsAWarningAnsweredWithCleanJson(): void

@@ -80,4 +80,26 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         $this->expectExceptionMessage('is already being migrated');
         (new RollbackMigrationCommandHandler($migrationRunner, $locker, $migrationSetLocker))(new RollbackMigrationCommand(MigrationSet::module('centreon-open-tickets'), 'prev'));
     }
+
+    public function testReleasesTheLocksWhenTheRollbackFails(): void
+    {
+        $migrationRunner = new FakeMigrationRunner();
+        $migrationRunner->failingSets = ['configuration', 'module:centreon-open-tickets'];
+
+        $locker = new FakeUpdateLocker();
+        $migrationSetLocker = new FakeMigrationSetLocker();
+        $handler = new RollbackMigrationCommandHandler($migrationRunner, $locker, $migrationSetLocker);
+
+        foreach ([MigrationSet::core('configuration'), MigrationSet::module('centreon-open-tickets')] as $set) {
+            try {
+                $handler(new RollbackMigrationCommand($set, 'prev'));
+                self::fail('Expected the rollback failure to propagate');
+            } catch (\RuntimeException $exception) {
+                self::assertSame(\sprintf('Rollback of "%s" failed', $set->name), $exception->getMessage());
+            }
+        }
+
+        self::assertTrue($locker->unlockCalled);
+        self::assertSame(['module:centreon-open-tickets'], $migrationSetLocker->released);
+    }
 }
