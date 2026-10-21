@@ -24,7 +24,10 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Console;
 
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Application\Query\QueryBus;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
+use App\Upgrade\Application\MigrationSetStatus;
+use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -37,6 +40,7 @@ final readonly class RollbackConsoleCommand
 {
     public function __construct(
         private CommandBus $commandBus,
+        private QueryBus $queryBus,
     ) {
     }
 
@@ -51,7 +55,21 @@ final readonly class RollbackConsoleCommand
         ?string $module = null,
     ): int {
         $migrationSet = MigrationSetOption::require($set, $module);
-        $question = \sprintf('Revert the "%s" migrations executed after "%s"? The platform version is not changed.', $migrationSet->name, $version);
+
+        // Fails on a module not installed, or a set migrate would refuse, before asking anything.
+        /** @var list<MigrationSetStatus> $statuses */
+        $statuses = $this->queryBus->ask(new GetMigrationStatusQuery($migrationSet));
+        if ($statuses[0]->executed === []) {
+            $io->success('No migration to revert.');
+
+            return Command::SUCCESS;
+        }
+
+        $question = \sprintf('%s? The platform version is not changed.', match ($version) {
+            'prev' => \sprintf('Revert the last executed migration of the "%s" set', $migrationSet->name),
+            'first' => \sprintf('Revert every executed migration of the "%s" set', $migrationSet->name),
+            default => \sprintf('Revert the migrations of the "%s" set executed after "%s"', $migrationSet->name, $version),
+        });
         if ($input->isInteractive() && ! $io->confirm($question, false)) {
             $io->warning('Rollback cancelled.');
 

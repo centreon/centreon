@@ -92,8 +92,8 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
         } catch (UnknownMigrationVersion $exception) {
             throw new \RuntimeException(\sprintf(
-                'The "%s" migration set has no "%s" migration: pass one listed by centreon:migrations:status (as '
-                . 'Version20260101000000 or 20260101000000), "prev" or "first".',
+                'The "%s" migration set has no "%s" migration: pass a version listed by centreon:migrations:status, its '
+                . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
                 $set->name,
                 $versionOrAlias,
             ), 0, $exception);

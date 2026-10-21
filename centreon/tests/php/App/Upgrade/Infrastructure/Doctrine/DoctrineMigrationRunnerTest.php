@@ -144,7 +144,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The "module:rollback" migration set has no "Version2026" migration: pass one listed by centreon:migrations:status');
+        $this->expectExceptionMessage('The "module:rollback" migration set has no "Version2026" migration: pass a version listed by centreon:migrations:status');
 
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version2026');
     }
