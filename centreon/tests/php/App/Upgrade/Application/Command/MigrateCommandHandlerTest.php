@@ -1,0 +1,164 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\Upgrade\Application\Command;
+
+use App\Upgrade\Application\Command\MigrateCommand;
+use App\Upgrade\Application\Command\MigrateCommandHandler;
+use App\Upgrade\Application\TargetVersionRecorder;
+use App\Upgrade\Domain\MigrationSet;
+use PHPUnit\Framework\TestCase;
+use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
+use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationSetLocker;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
+use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
+
+final class MigrateCommandHandlerTest extends TestCase
+{
+    private const string TARGET_VERSION = '26.11.0';
+
+    private FakeMigrationRunner $migrationRunner;
+
+    private FakeUpdateLocker $locker;
+
+    private FakeMigrationSetLocker $migrationSetLocker;
+
+    private FakeUpdateRepository $updateRepository;
+
+    private MigrateCommandHandler $handler;
+
+    protected function setUp(): void
+    {
+        $this->migrationRunner = new FakeMigrationRunner();
+        $this->locker = new FakeUpdateLocker();
+        $this->updateRepository = new FakeUpdateRepository();
+        $this->migrationSetLocker = new FakeMigrationSetLocker();
+
+        $this->handler = new MigrateCommandHandler(
+            $this->migrationRunner,
+            $this->locker,
+            $this->migrationSetLocker,
+            new TargetVersionRecorder($this->updateRepository, new FakeUpdateScriptFinder(), self::TARGET_VERSION),
+        );
+    }
+
+    public function testMigratesTheCoreSetsInOrderThenRecordsTheTargetVersion(): void
+    {
+        $executed = ($this->handler)(new MigrateCommand());
+
+        self::assertSame(['migrate:realtime', 'migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame(['realtime\Version1', 'configuration\Version1'], $executed);
+        self::assertSame([self::TARGET_VERSION], $this->updateRepository->updatesRun);
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
+    public function testNeverMovesTheVersionBackwards(): void
+    {
+        $this->updateRepository->currentVersion = '26.12.0';
+
+        ($this->handler)(new MigrateCommand());
+
+        self::assertSame([], $this->updateRepository->updatesRun);
+    }
+
+    public function testMigratesAModuleSetUnderItsOwnLockWhileThePlatformUpdateHoldsTheUpdateLock(): void
+    {
+        // The platform update holds the update lock while it upgrades the modules, which migrate their own set.
+        $this->locker->lockAvailable = false;
+
+        ($this->handler)(new MigrateCommand(MigrationSet::forModule('centreon-open-tickets')));
+
+        self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released);
+        self::assertSame([], $this->updateRepository->updatesRun);
+        self::assertFalse($this->locker->unlockCalled, 'A lock it did not take must not be released');
+    }
+
+    public function testFailsWhenTheSameModuleSetIsAlreadyBeingMigrated(): void
+    {
+        $this->migrationSetLocker->lockedSets = ['module:centreon-open-tickets'];
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The "module:centreon-open-tickets" migration set is already being migrated');
+
+        try {
+            ($this->handler)(new MigrateCommand(MigrationSet::forModule('centreon-open-tickets')));
+        } finally {
+            self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        }
+    }
+
+    public function testMigratesASingleCoreSetUnderTheUpdateLockWithoutTouchingThePlatformVersion(): void
+    {
+        self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::CONFIGURATION)));
+
+        self::assertSame(['migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->updateRepository->updatesRun);
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
+    public function testACoreSetStillRequiresTheUpdateLock(): void
+    {
+        $this->locker->lockAvailable = false;
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('An update is already in progress');
+
+        try {
+            ($this->handler)(new MigrateCommand(MigrationSet::CONFIGURATION));
+        } finally {
+            self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        }
+    }
+
+    public function testStopsAtTheFirstFailureAndReleasesTheLock(): void
+    {
+        $this->migrationRunner->failingSets = [MigrationSet::REALTIME];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the migration failure to propagate');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Migration of "realtime" failed', $exception->getMessage());
+        }
+
+        self::assertSame(['migrate:realtime'], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->updateRepository->updatesRun);
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
+    public function testFailsWhenAnUpdateIsAlreadyInProgress(): void
+    {
+        $this->locker->lockAvailable = false;
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('An update is already in progress');
+
+        try {
+            ($this->handler)(new MigrateCommand());
+        } finally {
+            self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        }
+    }
+}

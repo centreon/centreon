@@ -31,4 +31,9 @@ interface UpdateScriptFinder
      * @return string[]
      */
     public function findOrderedAvailableUpdates(string $currentVersion): array;
+
+    /**
+     * Whether the update scripts of the coming release are still in Update-next.php, as on a development build.
+     */
+    public function hasPendingNextUpdate(): bool;
 }
