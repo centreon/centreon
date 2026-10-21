@@ -172,12 +172,7 @@ $template->display('content.tpl');
             './step_upgrade/process/process_migrations.php',
             null,
             function (response) {
-                let data;
-                try {
-                    data = jQuery.parseJSON(response);
-                } catch (e) {
-                    data = {'result': 1, 'msg': "<span style='color:red;'>Unexpected response</span>"};
-                }
+                const data = parseResponse(response, {'result': 1, 'msg': "<span style='color:red;'>Unexpected response</span>"});
                 jQuery('td[name="migrations"]').html(data['msg']);
                 if (data['result'] === 0) {
                     jQuery('#troubleshoot').hide();
@@ -207,7 +202,7 @@ $template->display('content.tpl');
         './steps/process/createEngineContextConfiguration.php',
         null,
         function (response) {
-        let data = jQuery.parseJSON(response);
+          const data = parseResponse(response, {'result': 1, 'msg': 'Unexpected response'});
           if (data['result'] === 0) {
             jQuery('td[name="engine.context"]').html("<span style='color:#88b917;'>" + data['msg'] + '</span>');
             jQuery('#troubleshoot').hide();
@@ -288,17 +283,28 @@ $template->display('content.tpl');
     }
 
     /**
+     * Parse a step response, which a PHP warning or an HTML error page may replace
+     *
+     * @param string response
+     * @param object fallback the data to use when the response is not JSON
+     * @return object
+     */
+    function parseResponse(response, fallback) {
+      try {
+        return jQuery.parseJSON(response);
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    /**
      * Parse a module step response
      *
      * @param string response
      * @return object
      */
     function parseModuleResponse(response) {
-      try {
-        return jQuery.parseJSON(response);
-      } catch (e) {
-        return {'warning': true, 'msg': 'Failed, retry it from the Extension Manager', 'modules': []};
-      }
+      return parseResponse(response, {'warning': true, 'msg': 'Failed, retry it from the Extension Manager', 'modules': []});
     }
 
     /**
@@ -318,12 +324,7 @@ $template->display('content.tpl');
         './step_upgrade/process/process_modules.php',
         {'action': 'clearCache'},
         function (response) {
-          let data;
-          try {
-            data = jQuery.parseJSON(response);
-          } catch (e) {
-            data = {'result': 1, 'msg': 'Unexpected response'};
-          }
+          const data = parseResponse(response, {'result': 1, 'msg': 'Unexpected response'});
           if (data['result'] === 0) {
             jQuery('td[name="api.cache"]').html("<span style='color:#88b917;'>" + data['msg'] + '</span>');
             jQuery('#troubleshoot').hide();
