@@ -65,6 +65,17 @@ class CentreonModuleServiceTest extends TestCase
         $this->assertSame(['bam'], array_map(static fn (Module $module): string => $module->getId(), $updated));
     }
 
+    public function testUpdateAllReadsAModuleAgainOnlyOnceAnotherWasAttempted(): void
+    {
+        $source = $this->createMock(ModuleSource::class);
+        $source->method('getList')->willReturn([$this->module('bam', updated: false)]);
+        // Nothing ran before it that could have upgraded it.
+        $source->expects($this->never())->method('getDetail');
+        $source->expects($this->once())->method('update')->with('bam')->willReturn($this->module('bam', updated: true));
+
+        $this->service($source)->updateAll(ModuleSource::TYPE);
+    }
+
     public function testUpdateAllAttemptsEveryModuleThenReportsTheFailures(): void
     {
         $source = $this->createMock(ModuleSource::class);

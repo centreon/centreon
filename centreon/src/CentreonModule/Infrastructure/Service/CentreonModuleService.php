@@ -152,11 +152,16 @@ class CentreonModuleService
     {
         $updated = [];
         $failures = [];
+        $attempted = false;
         foreach ($this->getOutdated($type) as $outdated) {
-            $current = $this->getDetail($outdated->getId(), $type);
-            if ($current === null || ! self::isOutdated($current)) {
-                continue;
+            // Possibly upgraded as a dependency of one attempted before.
+            if ($attempted) {
+                $current = $this->getDetail($outdated->getId(), $type);
+                if ($current === null || ! self::isOutdated($current)) {
+                    continue;
+                }
             }
+            $attempted = true;
 
             try {
                 $entity = $this->update($outdated->getId(), $type);
