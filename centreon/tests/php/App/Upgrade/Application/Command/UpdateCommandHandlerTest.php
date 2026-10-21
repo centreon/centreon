@@ -395,11 +395,11 @@ final class UpdateCommandHandlerTest extends TestCase
         self::assertContains('upgrade.failure', $this->emittedEvents());
     }
 
-    public function testAWidgetFailureStillClearsTheCacheAndTheModuleFailureIsReportedFirst(): void
+    public function testAWidgetFailureStillWritesTheEngineContextAndClearsTheCacheAndTheModuleFailureIsReportedFirst(): void
     {
         $this->moduleRepository->method('updateAll')->willThrowException(new \RuntimeException('Some updates failed. bam: upgrade.sql failed'));
         $this->widgetRepository->method('updateAll')->willThrowException(new \RuntimeException('engine-status failed'));
-        $this->engineContextWriter->expects(self::never())->method('writeIfMissing');
+        $this->engineContextWriter->expects(self::once())->method('writeIfMissing');
         $this->cacheClearer->expects(self::once())->method('clear');
 
         $this->expectExceptionMessage('Some updates failed. bam: upgrade.sql failed');

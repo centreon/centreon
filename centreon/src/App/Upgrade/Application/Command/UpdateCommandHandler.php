@@ -112,23 +112,20 @@ final readonly class UpdateCommandHandler
                     $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
                 }
 
-                // The first failure is reported once the upgrade ended: the modules upgraded before it need the cache clear.
+                // Independent steps, all run: the first failure is reported once the upgrade ended, as the modules
+                // upgraded before it need the cache clear.
                 $failure = null;
-                try {
-                    $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
-                } catch (\Throwable $exception) {
-                    $failure = $exception;
-                }
-                try {
-                    $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
-                    $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
-                } catch (\Throwable $exception) {
-                    $failure ??= $exception;
-                }
-                try {
-                    $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
-                } catch (\Throwable $exception) {
-                    $failure ??= $exception;
+                foreach ([
+                    'modules_update' => fn () => $this->moduleRepository->updateAll(),
+                    'widgets_update' => fn () => $this->widgetRepository->updateAll(),
+                    'engine_context' => fn () => $this->engineContextWriter->writeIfMissing(),
+                    'cache_clear' => fn () => $this->cacheClearer->clear(),
+                ] as $step => $action) {
+                    try {
+                        $this->runStep($currentVersion, $step, $action);
+                    } catch (\Throwable $exception) {
+                        $failure ??= $exception;
+                    }
                 }
                 if ($failure instanceof \Throwable) {
                     throw $failure;
