@@ -21,7 +21,6 @@
 
 namespace CentreonLegacy\Core\Module;
 
-use App\Upgrade\Domain\MigrationSet;
 use CentreonLegacy\Core\Utils\Utils;
 use CentreonLegacy\ServiceProvider;
 use Psr\Container\ContainerInterface;
@@ -88,6 +87,6 @@ class Module
             return;
         }
 
-        $this->services->get(ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER)->migrate(MigrationSet::forModule($this->moduleName));
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER)->migrate($this->moduleName);
     }
 }

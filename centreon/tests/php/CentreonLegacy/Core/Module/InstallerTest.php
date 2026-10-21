@@ -104,7 +104,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $migrationLauncher = $this->createMock(MigrationLauncher::class);
         $migrationLauncher->expects($this->once())
             ->method('migrate')
-            ->with('module:MyModule')
+            ->with('MyModule')
             ->willReturnCallback(static function () use ($journal): void {
                 $journal[] = 'migrations';
             });

@@ -23,12 +23,14 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
+use App\Upgrade\Domain\MigrationSet;
+
 interface MigrationSetLocker
 {
     /**
      * @return bool true if acquired, false if already locked
      */
-    public function lock(string $set): bool;
+    public function lock(MigrationSet $set): bool;
 
-    public function unlock(string $set): void;
+    public function unlock(MigrationSet $set): void;
 }

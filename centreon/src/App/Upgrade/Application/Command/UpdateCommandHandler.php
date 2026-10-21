@@ -94,8 +94,8 @@ final readonly class UpdateCommandHandler
                     $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
                 }
 
-                foreach (MigrationSet::CORE as $set) {
-                    $this->runStep($this->targetVersion, 'migrations_' . $set, fn (): array => $this->migrationRunner->migrate($set));
+                foreach (MigrationSet::coreSets() as $set) {
+                    $this->runStep($this->targetVersion, 'migrations_' . $set->name, fn (): array => $this->migrationRunner->migrate($set));
                 }
 
                 $this->runStep($this->targetVersion, 'update_version_information', fn () => $this->targetVersionRecorder->record());

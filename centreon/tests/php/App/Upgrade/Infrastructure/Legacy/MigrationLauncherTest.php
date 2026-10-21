@@ -67,7 +67,7 @@ final class MigrationLauncherTest extends TestCase
 
     public function testRunsTheMigrationsOfASetThroughTheConsole(): void
     {
-        (new MigrationLauncher())->migrate('module:' . self::MODULE);
+        (new MigrationLauncher())->migrate(self::MODULE);
 
         self::assertTrue($this->connection->createSchemaManager()->tablesExist(['fx_launcher']));
         self::assertSame(
@@ -79,9 +79,9 @@ final class MigrationLauncherTest extends TestCase
     public function testReportsTheReasonOfAFailure(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unknown migration set "module:not.a.module".');
+        $this->expectExceptionMessage('Unsupported module name "not.a.module"');
 
-        (new MigrationLauncher())->migrate('module:not.a.module');
+        (new MigrationLauncher())->migrate('not.a.module');
     }
 
     private function env(string $name): string

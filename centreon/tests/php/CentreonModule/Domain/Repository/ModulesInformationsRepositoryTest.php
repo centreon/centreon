@@ -50,6 +50,6 @@ class ModulesInformationsRepositoryTest extends TestCase
 
     public function testIgnoresUnsupportedModuleNames(): void
     {
-        $this->assertSame([], (new ModulesInformationsRepository(new CentreonDB()))->findExecutedMigrations('../../etc'));
+        $this->assertNull((new ModulesInformationsRepository(new CentreonDB()))->findExecutedMigrations('../../etc'));
     }
 }

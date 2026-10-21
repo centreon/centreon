@@ -9,9 +9,12 @@ Each set is versioned on its own, with its own metadata table:
 
 | Set | Database | Directory | Namespace | Metadata table |
 |---|---|---|---|---|
-| `realtime` | `centreon_storage` | `centreon/migrations/realtime/` | `Centreon\Migrations\Realtime` | `doctrine_migration_versions` |
-| `configuration` | `centreon` | `centreon/migrations/configuration/` | `Centreon\Migrations\Configuration` | `doctrine_migration_versions` |
-| `module:<name>` | `centreon` | `www/modules/<name>/migrations/` | `<Name>\Migrations` (`centreon-open-tickets` gives `CentreonOpenTickets\Migrations`) | `doctrine_migration_versions_<name>` |
+| `realtime` (`--set=realtime`) | `centreon_storage` | `centreon/migrations/realtime/` | `Centreon\Migrations\Realtime` | `doctrine_migration_versions` |
+| `configuration` (`--set=configuration`) | `centreon` | `centreon/migrations/configuration/` | `Centreon\Migrations\Configuration` | `doctrine_migration_versions` |
+| a module (`--module=<name>`) | `centreon` | `www/modules/<name>/migrations/` | `<Name>\Migrations` (`centreon-open-tickets` gives `CentreonOpenTickets\Migrations`) | `doctrine_migration_versions_<name>` |
+
+A module ships migrations only if its name is made of lowercase letters, digits and dashes, at most 36 characters: it
+names its metadata table and its namespace.
 
 A platform upgrade (wizard, `POST /api/latest/platform/updates`) runs: the legacy scripts, `realtime`, `configuration`,
 then records `centreon.version` (`config.new/packages/centreon.yaml`), then upgrades the modules (their legacy
@@ -23,7 +26,8 @@ The recorded version never moves backwards, and is left to the legacy scripts wh
 ## Writing a migration
 
 ```shell
-bin/console.new centreon:migrations:generate configuration --dml --env=dev
+bin/console.new centreon:migrations:generate --set=configuration --dml --env=dev
+bin/console.new centreon:migrations:generate --module=centreon-open-tickets --ddl --env=dev
 ```
 
 Every migration extends one of the two base classes, which a test enforces:
@@ -50,9 +54,9 @@ Rules:
 ## Operating
 
 ```shell
-bin/console.new centreon:migrations:status [--set=<set>]
-bin/console.new centreon:migrations:migrate [--set=<set>]
-bin/console.new centreon:migrations:rollback <set> <version|prev|first>
+bin/console.new centreon:migrations:status [--set=realtime|configuration | --module=<name>]
+bin/console.new centreon:migrations:migrate [--set=realtime|configuration | --module=<name>]
+bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtime|configuration | --module=<name>)
 ```
 
 - A failing migration stops the run: a `DmlMigration` leaves nothing behind, the migrations executed before it stay

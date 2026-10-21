@@ -44,7 +44,7 @@ final class MigrationConventionTest extends TestCase
         $core = new MigrationSetRegistry($root . '/centreon', '/nonexistent');
 
         foreach (glob($root . '/centreon/migrations/*/Version*.php') ?: [] as $file) {
-            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $core->get(basename(\dirname($file)))->namespace];
+            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $core->configuration(MigrationSet::core(basename(\dirname($file))))->namespace];
         }
 
         // Also keeps the data set from being empty while no migration is shipped.
@@ -56,7 +56,7 @@ final class MigrationConventionTest extends TestCase
             $moduleDir = \dirname($file, 2);
             $modules = new MigrationSetRegistry('/nonexistent', \dirname($moduleDir));
 
-            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $modules->get(MigrationSet::forModule(basename($moduleDir)))->namespace];
+            yield mb_substr($file, mb_strlen($root) + 1) => [$file, $modules->configuration(MigrationSet::module(basename($moduleDir)))->namespace];
         }
     }
 

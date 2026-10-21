@@ -24,22 +24,23 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
 use App\Upgrade\Application\MigrationSetLocker;
+use App\Upgrade\Domain\MigrationSet;
 
 final class FakeMigrationSetLocker implements MigrationSetLocker
 {
-    /** @var list<string> sets already being migrated elsewhere */
+    /** @var list<string> names of the sets already being migrated elsewhere */
     public array $lockedSets = [];
 
     /** @var list<string> */
     public array $released = [];
 
-    public function lock(string $set): bool
+    public function lock(MigrationSet $set): bool
     {
-        return ! \in_array($set, $this->lockedSets, true);
+        return ! \in_array($set->name, $this->lockedSets, true);
     }
 
-    public function unlock(string $set): void
+    public function unlock(MigrationSet $set): void
     {
-        $this->released[] = $set;
+        $this->released[] = $set->name;
     }
 }

@@ -57,58 +57,59 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     ) {
     }
 
-    public function migrate(string $set): array
+    public function migrate(MigrationSet $set): array
     {
-        $migrationSet = $this->registry->get($set);
-        if (! is_dir($migrationSet->directory)) {
+        $configuration = $this->registry->configuration($set);
+        if (! is_dir($configuration->directory)) {
             return [];
         }
 
-        $factory = $this->createInitializedFactory($migrationSet);
+        $factory = $this->createInitializedFactory($set, $configuration);
         $latest = $factory->getVersionAliasResolver()->resolveVersionAlias('latest');
 
-        return $this->execute($migrationSet, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
+        return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
     }
 
-    public function rollback(string $set, string $versionOrAlias): array
+    public function rollback(MigrationSet $set, string $versionOrAlias): array
     {
-        $migrationSet = $this->registry->get($set);
-        if (! is_dir($migrationSet->directory)) {
-            throw new \RuntimeException(\sprintf('The "%s" migration set has no migration to roll back: "%s" does not exist.', $set, $migrationSet->directory));
+        $configuration = $this->registry->configuration($set);
+        if (! is_dir($configuration->directory)) {
+            throw new \RuntimeException(\sprintf('The "%s" migration set has no migration to roll back: "%s" does not exist.', $set->name, $configuration->directory));
         }
 
-        $factory = $this->createInitializedFactory($migrationSet);
+        $factory = $this->createInitializedFactory($set, $configuration);
 
         if (preg_match('/^Version\d+$/D', $versionOrAlias) === 1) {
-            $versionOrAlias = $migrationSet->namespace . '\\' . $versionOrAlias;
+            $versionOrAlias = $configuration->namespace . '\\' . $versionOrAlias;
         }
 
         $target = $factory->getVersionAliasResolver()->resolveVersionAlias($versionOrAlias);
         $plan = $factory->getMigrationPlanCalculator()->getPlanUntilVersion($target);
 
         if (\count($plan) > 0 && $plan->getDirection() !== Direction::DOWN) {
-            throw new \RuntimeException(\sprintf('Cannot roll the "%s" migration set back to "%s": it is ahead of the current version.', $set, $target));
+            throw new \RuntimeException(\sprintf('Cannot roll the "%s" migration set back to "%s": it is ahead of the current version.', $set->name, $target));
         }
 
-        return $this->execute($migrationSet, $factory, $plan);
+        return $this->execute($set, $factory, $plan);
     }
 
-    public function status(?string $set = null): array
+    public function status(?MigrationSet $set = null): array
     {
         $statuses = [];
 
-        foreach ($set === null ? $this->registry->all() : [$this->registry->get($set)] as $migrationSet) {
-            if (! is_dir($migrationSet->directory)) {
-                $statuses[] = new MigrationSetStatus($migrationSet->name, [], []);
+        foreach ($set instanceof MigrationSet ? [$set] : $this->registry->all() as $migrationSet) {
+            $configuration = $this->registry->configuration($migrationSet);
+            if (! is_dir($configuration->directory)) {
+                $statuses[] = new MigrationSetStatus($migrationSet, [], []);
 
                 continue;
             }
 
             // Read-only: the metadata table is not created.
-            $factory = $this->createFactory($migrationSet);
+            $factory = $this->createFactory($configuration);
 
             $statuses[] = new MigrationSetStatus(
-                $migrationSet->name,
+                $migrationSet,
                 $this->versions($factory->getMetadataStorage()->getExecutedMigrations()->getItems()),
                 $this->versions($factory->getMigrationStatusCalculator()->getNewMigrations()->getItems()),
             );
@@ -117,11 +118,11 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return $statuses;
     }
 
-    private function createFactory(MigrationSet $set): DependencyFactory
+    private function createFactory(MigrationSetConfiguration $configuration): DependencyFactory
     {
-        $connection = $this->connections->getConnection($set->connection);
+        $connection = $this->connections->getConnection($configuration->connection);
         if (! $connection instanceof Connection) {
-            throw new \LogicException(\sprintf('The "%s" connection is not a DBAL connection.', $set->connection));
+            throw new \LogicException(\sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
         }
 
         // A migration reading $schema reads every table, a module one included. Never diffed: the type does not matter.
@@ -135,8 +136,8 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         // The logger is given at construction time: the factory freezes on its first getter call.
         return DependencyFactory::fromConnection(
             new ConfigurationArray([
-                'migrations_paths' => [$set->namespace => $set->directory],
-                'table_storage' => ['table_name' => $set->table],
+                'migrations_paths' => [$configuration->namespace => $configuration->directory],
+                'table_storage' => ['table_name' => $configuration->table],
             ]),
             new ExistingConnection($connection),
             $this->logger,
@@ -146,9 +147,9 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     /**
      * @throws \RuntimeException when migrations recorded as executed are missing from the code base
      */
-    private function createInitializedFactory(MigrationSet $set): DependencyFactory
+    private function createInitializedFactory(MigrationSet $set, MigrationSetConfiguration $configuration): DependencyFactory
     {
-        $factory = $this->createFactory($set);
+        $factory = $this->createFactory($configuration);
         $factory->getMetadataStorage()->ensureInitialized();
 
         // Not checked by the Migrator.
@@ -159,7 +160,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
                 . 'is never deleted nor renamed once released), or remove them from the "%s" table if they were dropped on purpose.',
                 $set->name,
                 implode(', ', $this->versions($unavailable->getItems())),
-                $set->table,
+                $configuration->table,
             ));
         }
 

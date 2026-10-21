@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Console;
 
 use App\Upgrade\Infrastructure\Doctrine\MigrationGenerator;
-use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -42,8 +41,10 @@ final readonly class GenerateConsoleCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'The migration set ("realtime", "configuration", "module:<name>")')]
-        string $set,
+        #[Option(description: MigrationSetOption::SET_DESCRIPTION)]
+        ?string $set = null,
+        #[Option(description: MigrationSetOption::MODULE_DESCRIPTION)]
+        ?string $module = null,
         #[Option(description: 'Generate a schema migration: a single idempotent statement, outside of any transaction')]
         bool $ddl = false,
         #[Option(description: 'Generate a data migration, run in a single transaction')]
@@ -55,7 +56,7 @@ final readonly class GenerateConsoleCommand
             return Command::INVALID;
         }
 
-        $io->success(\sprintf('Generated "%s".', $this->generator->generate($set, $ddl)));
+        $io->success(\sprintf('Generated "%s".', $this->generator->generate(MigrationSetOption::require($set, $module), $ddl)));
 
         return Command::SUCCESS;
     }

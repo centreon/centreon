@@ -27,6 +27,7 @@ use App\Shared\Application\Command\CommandBus;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -42,12 +43,15 @@ final readonly class RollbackConsoleCommand
     public function __invoke(
         InputInterface $input,
         SymfonyStyle $io,
-        #[Argument(description: 'The migration set ("realtime", "configuration", "module:<name>")')]
-        string $set,
         #[Argument(description: 'The version to roll back to, kept applied ("prev" reverts the last migration, "first" reverts them all)')]
         string $version,
+        #[Option(description: MigrationSetOption::SET_DESCRIPTION)]
+        ?string $set = null,
+        #[Option(description: MigrationSetOption::MODULE_DESCRIPTION)]
+        ?string $module = null,
     ): int {
-        $question = \sprintf('Revert the "%s" migrations executed after "%s"? The platform version is not changed.', $set, $version);
+        $migrationSet = MigrationSetOption::require($set, $module);
+        $question = \sprintf('Revert the "%s" migrations executed after "%s"? The platform version is not changed.', $migrationSet->name, $version);
         if ($input->isInteractive() && ! $io->confirm($question, false)) {
             $io->warning('Rollback cancelled.');
 
@@ -55,7 +59,7 @@ final readonly class RollbackConsoleCommand
         }
 
         /** @var list<string> $reverted */
-        $reverted = $this->commandBus->execute(new RollbackMigrationCommand($set, $version));
+        $reverted = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version));
 
         if ($reverted === []) {
             $io->success('No migration to revert.');

@@ -24,10 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Double;
 
 use App\Upgrade\Application\MigrationRunner;
+use App\Upgrade\Domain\MigrationSet;
 
 final class FakeMigrationRunner implements MigrationRunner
 {
-    /** @var list<string> sets whose migration fails */
+    /** @var list<string> names of the sets whose migration fails */
     public array $failingSets = [];
 
     /**
@@ -38,25 +39,25 @@ final class FakeMigrationRunner implements MigrationRunner
     ) {
     }
 
-    public function migrate(string $set): array
+    public function migrate(MigrationSet $set): array
     {
-        $this->journal[] = 'migrate:' . $set;
+        $this->journal[] = 'migrate:' . $set->name;
 
-        if (\in_array($set, $this->failingSets, true)) {
-            throw new \RuntimeException(\sprintf('Migration of "%s" failed', $set));
+        if (\in_array($set->name, $this->failingSets, true)) {
+            throw new \RuntimeException(\sprintf('Migration of "%s" failed', $set->name));
         }
 
-        return [$set . '\Version1'];
+        return [$set->name . '\Version1'];
     }
 
-    public function rollback(string $set, string $versionOrAlias): array
+    public function rollback(MigrationSet $set, string $versionOrAlias): array
     {
-        $this->journal[] = 'rollback:' . $set . ':' . $versionOrAlias;
+        $this->journal[] = 'rollback:' . $set->name . ':' . $versionOrAlias;
 
-        return [$set . '\Version1'];
+        return [$set->name . '\Version1'];
     }
 
-    public function status(?string $set = null): array
+    public function status(?MigrationSet $set = null): array
     {
         return [];
     }

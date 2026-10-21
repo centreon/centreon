@@ -40,11 +40,13 @@ final readonly class MigrateConsoleCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option(description: 'The migration set to migrate ("realtime", "configuration", "module:<name>"), all core sets when omitted')]
+        #[Option(description: MigrationSetOption::SET_DESCRIPTION . ', all core sets when omitted')]
         ?string $set = null,
+        #[Option(description: MigrationSetOption::MODULE_DESCRIPTION)]
+        ?string $module = null,
     ): int {
         /** @var list<string> $executed */
-        $executed = $this->commandBus->execute(new MigrateCommand($set));
+        $executed = $this->commandBus->execute(new MigrateCommand(MigrationSetOption::resolve($set, $module)));
 
         if ($executed === []) {
             $io->success('No migration to execute.');

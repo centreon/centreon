@@ -46,6 +46,8 @@ final class MigrateCommandHandlerTest extends TestCase
 
     private FakeUpdateRepository $updateRepository;
 
+    private FakeUpdateScriptFinder $scriptFinder;
+
     private MigrateCommandHandler $handler;
 
     protected function setUp(): void
@@ -54,12 +56,13 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->locker = new FakeUpdateLocker();
         $this->updateRepository = new FakeUpdateRepository();
         $this->migrationSetLocker = new FakeMigrationSetLocker();
+        $this->scriptFinder = new FakeUpdateScriptFinder();
 
         $this->handler = new MigrateCommandHandler(
             $this->migrationRunner,
             $this->locker,
             $this->migrationSetLocker,
-            new TargetVersionRecorder($this->updateRepository, new FakeUpdateScriptFinder(), self::TARGET_VERSION),
+            new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
         );
     }
 
@@ -87,7 +90,7 @@ final class MigrateCommandHandlerTest extends TestCase
         // The platform update holds the update lock while it upgrades the modules, which migrate their own set.
         $this->locker->lockAvailable = false;
 
-        ($this->handler)(new MigrateCommand(MigrationSet::forModule('centreon-open-tickets')));
+        ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
 
         self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
         self::assertSame(['module:centreon-open-tickets'], $this->migrationSetLocker->released);
@@ -103,7 +106,7 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->expectExceptionMessage('The "module:centreon-open-tickets" migration set is already being migrated');
 
         try {
-            ($this->handler)(new MigrateCommand(MigrationSet::forModule('centreon-open-tickets')));
+            ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
         } finally {
             self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
         }
@@ -111,7 +114,7 @@ final class MigrateCommandHandlerTest extends TestCase
 
     public function testMigratesASingleCoreSetUnderTheUpdateLockWithoutTouchingThePlatformVersion(): void
     {
-        self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::CONFIGURATION)));
+        self::assertSame(['configuration\Version1'], ($this->handler)(new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))));
 
         self::assertSame(['migrate:configuration'], $this->migrationRunner->journal->getArrayCopy());
         self::assertSame([], $this->updateRepository->updatesRun);
@@ -126,7 +129,7 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->expectExceptionMessage('An update is already in progress');
 
         try {
-            ($this->handler)(new MigrateCommand(MigrationSet::CONFIGURATION));
+            ($this->handler)(new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION)));
         } finally {
             self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
         }

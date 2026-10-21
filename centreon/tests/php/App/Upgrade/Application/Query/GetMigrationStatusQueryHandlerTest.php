@@ -27,16 +27,17 @@ use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Application\Query\GetMigrationStatusQueryHandler;
+use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
 
 final class GetMigrationStatusQueryHandlerTest extends TestCase
 {
     public function testReturnsTheStatusOfTheRequestedSets(): void
     {
-        $status = new MigrationSetStatus('configuration', ['Centreon\Migrations\Configuration\Version1'], []);
+        $status = new MigrationSetStatus(MigrationSet::core('configuration'), ['Centreon\Migrations\Configuration\Version1'], []);
         $runner = $this->createMock(MigrationRunner::class);
-        $runner->expects(self::once())->method('status')->with('configuration')->willReturn([$status]);
+        $runner->expects(self::once())->method('status')->with(MigrationSet::core('configuration'))->willReturn([$status]);
 
-        self::assertSame([$status], (new GetMigrationStatusQueryHandler($runner))(new GetMigrationStatusQuery('configuration')));
+        self::assertSame([$status], (new GetMigrationStatusQueryHandler($runner))(new GetMigrationStatusQuery(MigrationSet::core('configuration'))));
     }
 }

@@ -130,4 +130,15 @@ class ModuleSourceTest extends TestCase
         $this->assertFalse($module->hasPendingMigrations());
         $this->assertTrue($module->isUpdated());
     }
+
+    public function testAModuleWhoseNameCannotHaveMigrationsIsNeverHeldOutdatedByThem(): void
+    {
+        (new Filesystem())->dumpFile($this->centreonPath . 'www/modules/my-module/migrations/Version20260101000001.php', '<?php');
+        $this->repository->method('findExecutedMigrations')->willReturn(null);
+
+        $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
+
+        $this->assertFalse($module->hasPendingMigrations(), 'Its migrations cannot run: an update would never bring it up to date');
+        $this->assertTrue($module->isUpdated());
+    }
 }

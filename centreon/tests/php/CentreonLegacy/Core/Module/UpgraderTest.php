@@ -142,7 +142,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $migrationLauncher = $this->createMock(MigrationLauncher::class);
         $migrationLauncher->expects($this->once())
             ->method('migrate')
-            ->with('module:MyModule');
+            ->with('MyModule');
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
 
         // Not suspended: the upgrade clears the caches itself.
@@ -178,7 +178,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
         $migrationLauncher = $this->createMock(MigrationLauncher::class);
-        $migrationLauncher->expects($this->once())->method('migrate')->with('module:MyModule');
+        $migrationLauncher->expects($this->once())->method('migrate')->with('MyModule');
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
 

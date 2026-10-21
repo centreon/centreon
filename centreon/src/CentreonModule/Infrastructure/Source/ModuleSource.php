@@ -323,7 +323,7 @@ class ModuleSource extends SourceAbstract
 
         $executed = $this->db->getRepository(ModulesInformationsRepository::class)->findExecutedMigrations($moduleId);
 
-        return array_diff($available, $executed) !== [];
+        return $executed !== null && array_diff($available, $executed) !== [];
     }
 
     /**

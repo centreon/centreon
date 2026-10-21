@@ -36,37 +36,27 @@ final readonly class MigrationSetRegistry
     ) {
     }
 
-    /**
-     * @throws \RuntimeException when the set is unknown
-     */
-    public function get(string $name): MigrationSet
+    public function configuration(MigrationSet $set): MigrationSetConfiguration
     {
-        $module = MigrationSet::moduleOf($name);
-        $moduleTable = $module === null ? null : MigrationSet::moduleTable($module);
-
         return match (true) {
-            $name === MigrationSet::REALTIME => new MigrationSet(
-                $name,
+            $set->module !== null => new MigrationSetConfiguration(
+                'default',
+                str_replace('-', '', ucwords($set->module, '-')) . '\Migrations',
+                $this->modulesDir . '/' . $set->module . '/migrations',
+                (string) MigrationSetConfiguration::moduleTable($set->module),
+            ),
+            $set->name === MigrationSet::REALTIME => new MigrationSetConfiguration(
                 'realtime',
                 'Centreon\Migrations\Realtime',
                 $this->projectDir . '/migrations/realtime',
-                MigrationSet::CORE_TABLE,
+                MigrationSetConfiguration::CORE_TABLE,
             ),
-            $name === MigrationSet::CONFIGURATION => new MigrationSet(
-                $name,
+            default => new MigrationSetConfiguration(
                 'default',
                 'Centreon\Migrations\Configuration',
                 $this->projectDir . '/migrations/configuration',
-                MigrationSet::CORE_TABLE,
+                MigrationSetConfiguration::CORE_TABLE,
             ),
-            $module !== null && $moduleTable !== null => new MigrationSet(
-                $name,
-                'default',
-                str_replace('-', '', ucwords($module, '-')) . '\Migrations',
-                $this->modulesDir . '/' . $module . '/migrations',
-                $moduleTable,
-            ),
-            default => throw new \RuntimeException(\sprintf('Unknown migration set "%s".', $name)),
         };
     }
 
@@ -75,13 +65,13 @@ final readonly class MigrationSetRegistry
      */
     public function all(): array
     {
-        $sets = array_map($this->get(...), MigrationSet::CORE);
+        $sets = MigrationSet::coreSets();
 
         foreach (glob($this->modulesDir . '/*/migrations', \GLOB_ONLYDIR) ?: [] as $directory) {
             $module = basename(\dirname($directory));
             // A stray directory ("centreon-foo.bak") must not break the other sets.
-            if (MigrationSet::moduleTable($module) !== null) {
-                $sets[] = $this->get(MigrationSet::forModule($module));
+            if (MigrationSet::isModuleName($module)) {
+                $sets[] = MigrationSet::module($module);
             }
         }
 

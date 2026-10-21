@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Lock;
 
+use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Infrastructure\Lock\SymfonyMigrationSetLocker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Lock\LockFactory;
@@ -37,17 +38,17 @@ final class SymfonyMigrationSetLockerTest extends TestCase
         $first = new SymfonyMigrationSetLocker($factory);
         $second = new SymfonyMigrationSetLocker($factory);
 
-        self::assertTrue($first->lock('module:centreon-open-tickets'));
-        self::assertFalse($second->lock('module:centreon-open-tickets'));
-        self::assertTrue($second->lock('module:centreon-dsm'));
+        self::assertTrue($first->lock(MigrationSet::module('centreon-open-tickets')));
+        self::assertFalse($second->lock(MigrationSet::module('centreon-open-tickets')));
+        self::assertTrue($second->lock(MigrationSet::module('centreon-dsm')));
 
-        $first->unlock('module:centreon-open-tickets');
-        self::assertTrue($second->lock('module:centreon-open-tickets'));
+        $first->unlock(MigrationSet::module('centreon-open-tickets'));
+        self::assertTrue($second->lock(MigrationSet::module('centreon-open-tickets')));
     }
 
     public function testUnlockingASetThatWasNotLockedIsHarmless(): void
     {
-        (new SymfonyMigrationSetLocker(new LockFactory(new InMemoryStore())))->unlock('module:centreon-open-tickets');
+        (new SymfonyMigrationSetLocker(new LockFactory(new InMemoryStore())))->unlock(MigrationSet::module('centreon-open-tickets'));
 
         $this->addToAssertionCount(1);
     }

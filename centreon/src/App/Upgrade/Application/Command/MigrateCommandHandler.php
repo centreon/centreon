@@ -48,7 +48,7 @@ final readonly class MigrateCommandHandler
      */
     public function __invoke(MigrateCommand $command): array
     {
-        if ($command->set !== null && MigrationSet::moduleOf($command->set) !== null) {
+        if ($command->set?->isModule() === true) {
             return $this->migrateModule($command->set);
         }
 
@@ -57,12 +57,12 @@ final readonly class MigrateCommandHandler
         }
 
         try {
-            if ($command->set !== null) {
+            if ($command->set instanceof MigrationSet) {
                 return $this->migrationRunner->migrate($command->set);
             }
 
             $executed = [];
-            foreach (MigrationSet::CORE as $set) {
+            foreach (MigrationSet::coreSets() as $set) {
                 $executed = [...$executed, ...$this->migrationRunner->migrate($set)];
             }
 
@@ -79,10 +79,10 @@ final readonly class MigrateCommandHandler
      *
      * @return list<string>
      */
-    private function migrateModule(string $set): array
+    private function migrateModule(MigrationSet $set): array
     {
         if (! $this->migrationSetLocker->lock($set)) {
-            throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $set));
+            throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $set->name));
         }
 
         try {

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Lock;
 
 use App\Upgrade\Application\MigrationSetLocker;
+use App\Upgrade\Domain\MigrationSet;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 
@@ -37,13 +38,13 @@ final class SymfonyMigrationSetLocker implements MigrationSetLocker
     ) {
     }
 
-    public function lock(string $set): bool
+    public function lock(MigrationSet $set): bool
     {
-        return ($this->locks[$set] ??= $this->lockFactory->createLock('migrations-' . $set))->acquire();
+        return ($this->locks[$set->name] ??= $this->lockFactory->createLock('migrations-' . $set->name))->acquire();
     }
 
-    public function unlock(string $set): void
+    public function unlock(MigrationSet $set): void
     {
-        ($this->locks[$set] ?? null)?->release();
+        ($this->locks[$set->name] ?? null)?->release();
     }
 }

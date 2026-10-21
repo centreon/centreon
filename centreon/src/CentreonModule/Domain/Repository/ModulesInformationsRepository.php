@@ -21,7 +21,7 @@
 
 namespace CentreonModule\Domain\Repository;
 
-use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Infrastructure\Doctrine\MigrationSetConfiguration;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 class ModulesInformationsRepository extends ServiceEntityRepository
@@ -48,13 +48,13 @@ class ModulesInformationsRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return list<string> class names without namespace
+     * @return list<string>|null class names without namespace, null when the module name cannot have migrations
      */
-    public function findExecutedMigrations(string $module): array
+    public function findExecutedMigrations(string $module): ?array
     {
-        $table = MigrationSet::moduleTable($module);
+        $table = MigrationSetConfiguration::moduleTable($module);
         if ($table === null) {
-            return [];
+            return null;
         }
 
         try {

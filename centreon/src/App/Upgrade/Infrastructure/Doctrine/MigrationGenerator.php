@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Doctrine;
 
+use App\Upgrade\Domain\MigrationSet;
 use Symfony\Component\Filesystem\Filesystem;
 
 final readonly class MigrationGenerator
@@ -87,9 +88,9 @@ final readonly class MigrationGenerator
     /**
      * @return string the path of the generated migration
      */
-    public function generate(string $set, bool $ddl, \DateTimeImmutable $now = new \DateTimeImmutable()): string
+    public function generate(MigrationSet $set, bool $ddl, \DateTimeImmutable $now = new \DateTimeImmutable()): string
     {
-        $migrationSet = $this->registry->get($set);
+        $migrationSet = $this->registry->configuration($set);
         $class = 'Version' . $now->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
         $path = $migrationSet->directory . '/' . $class . '.php';
 

@@ -41,14 +41,16 @@ final readonly class StatusConsoleCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Option(description: 'Restrict the status to a single migration set')]
+        #[Option(description: MigrationSetOption::SET_DESCRIPTION . ', every set when omitted')]
         ?string $set = null,
+        #[Option(description: MigrationSetOption::MODULE_DESCRIPTION)]
+        ?string $module = null,
     ): int {
         /** @var list<MigrationSetStatus> $statuses */
-        $statuses = $this->queryBus->ask(new GetMigrationStatusQuery($set));
+        $statuses = $this->queryBus->ask(new GetMigrationStatusQuery(MigrationSetOption::resolve($set, $module)));
 
         foreach ($statuses as $status) {
-            $io->section($status->set);
+            $io->section($status->set->name);
             $io->definitionList(
                 ['Executed' => (string) \count($status->executed)],
                 ['Last executed' => $status->executed === [] ? '-' : $status->executed[array_key_last($status->executed)]],

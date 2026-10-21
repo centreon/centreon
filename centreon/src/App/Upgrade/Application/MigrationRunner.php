@@ -23,30 +23,32 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
+use App\Upgrade\Domain\MigrationSet;
+
 interface MigrationRunner
 {
     /**
      * Stops at the first failure.
      *
-     * @throws \RuntimeException when the set is unknown or has executed migrations that are no longer available
+     * @throws \RuntimeException when the set has executed migrations that are no longer available
      *
      * @return list<string> the executed versions
      */
-    public function migrate(string $set): array;
+    public function migrate(MigrationSet $set): array;
 
     /**
      * Reverts the migrations executed after the given version (kept applied), or alias ("prev", "first").
      *
-     * @throws \RuntimeException when the set is unknown or the target is ahead of the current version
+     * @throws \RuntimeException when the target is ahead of the current version
      *
      * @return list<string> the reverted versions
      */
-    public function rollback(string $set, string $versionOrAlias): array;
+    public function rollback(MigrationSet $set, string $versionOrAlias): array;
 
     /**
-     * @param string|null $set null to get the status of every known set
+     * @param MigrationSet|null $set null to get the status of every known set
      *
      * @return list<MigrationSetStatus>
      */
-    public function status(?string $set = null): array;
+    public function status(?MigrationSet $set = null): array;
 }

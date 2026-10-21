@@ -42,6 +42,7 @@ final class MigrationSetRegistryTest extends TestCase
             $this->modulesDir . '/centreon-dsm',
             // A stray copy, ignored instead of breaking the listing.
             $this->modulesDir . '/centreon-open-tickets.bak/migrations',
+            $this->modulesDir . '/4centreon/migrations',
         ]);
 
         $this->registry = new MigrationSetRegistry('/usr/share/centreon', $this->modulesDir);
@@ -54,13 +55,13 @@ final class MigrationSetRegistryTest extends TestCase
 
     public function testCoreSets(): void
     {
-        $realtime = $this->registry->get(MigrationSet::REALTIME);
+        $realtime = $this->registry->configuration(MigrationSet::core(MigrationSet::REALTIME));
         self::assertSame('realtime', $realtime->connection);
         self::assertSame('Centreon\Migrations\Realtime', $realtime->namespace);
         self::assertSame('/usr/share/centreon/migrations/realtime', $realtime->directory);
         self::assertSame('doctrine_migration_versions', $realtime->table);
 
-        $configuration = $this->registry->get(MigrationSet::CONFIGURATION);
+        $configuration = $this->registry->configuration(MigrationSet::core(MigrationSet::CONFIGURATION));
         self::assertSame('default', $configuration->connection);
         self::assertSame('Centreon\Migrations\Configuration', $configuration->namespace);
         self::assertSame('/usr/share/centreon/migrations/configuration', $configuration->directory);
@@ -69,7 +70,7 @@ final class MigrationSetRegistryTest extends TestCase
 
     public function testModuleSetsHaveTheirOwnNamespaceAndTable(): void
     {
-        $set = $this->registry->get(MigrationSet::forModule('centreon-open-tickets'));
+        $set = $this->registry->configuration(MigrationSet::module('centreon-open-tickets'));
 
         self::assertSame('default', $set->connection);
         self::assertSame('CentreonOpenTickets\Migrations', $set->namespace);
@@ -83,20 +84,5 @@ final class MigrationSetRegistryTest extends TestCase
             ['realtime', 'configuration', 'module:centreon-open-tickets'],
             array_map(static fn (MigrationSet $set): string => $set->name, $this->registry->all()),
         );
-    }
-
-    public function testRejectsUnknownSets(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unknown migration set "storage".');
-
-        $this->registry->get('storage');
-    }
-
-    public function testRejectsModuleNamesEscapingTheModulesDirectory(): void
-    {
-        $this->expectException(\RuntimeException::class);
-
-        $this->registry->get(MigrationSet::forModule('../../etc'));
     }
 }

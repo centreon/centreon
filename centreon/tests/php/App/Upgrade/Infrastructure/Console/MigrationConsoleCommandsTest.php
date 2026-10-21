@@ -29,6 +29,7 @@ use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use App\Upgrade\Application\MigrationSetStatus;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
+use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Infrastructure\Console\GenerateConsoleCommand;
 use App\Upgrade\Infrastructure\Console\MigrateConsoleCommand;
 use App\Upgrade\Infrastructure\Console\RollbackConsoleCommand;
@@ -40,6 +41,7 @@ use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -73,9 +75,32 @@ final class MigrationConsoleCommandsTest extends TestCase
         $bus = $this->commandBus([]);
         $tester = $this->tester(new MigrateConsoleCommand($bus), 'centreon:migrations:migrate');
 
-        self::assertSame(Command::SUCCESS, $tester->execute(['--set' => 'module:centreon-open-tickets']));
-        self::assertEquals([new MigrateCommand('module:centreon-open-tickets')], $bus->dispatched);
+        self::assertSame(Command::SUCCESS, $tester->execute(['--module' => 'centreon-open-tickets']));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--set' => 'configuration']));
+        self::assertEquals([new MigrateCommand(MigrationSet::module('centreon-open-tickets')), new MigrateCommand(MigrationSet::core('configuration'))], $bus->dispatched);
         self::assertStringContainsString('No migration to execute.', $tester->getDisplay());
+    }
+
+    public function testASetAndAModuleAreExclusive(): void
+    {
+        $bus = $this->commandBus([]);
+
+        $this->expectException(InvalidOptionException::class);
+        $this->expectExceptionMessage('Choose either --set or --module.');
+
+        try {
+            $this->tester(new MigrateConsoleCommand($bus), 'centreon:migrations:migrate')->execute(['--set' => 'configuration', '--module' => 'centreon-open-tickets']);
+        } finally {
+            self::assertSame([], $bus->dispatched);
+        }
+    }
+
+    public function testRejectsAnUnknownCoreSet(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown core migration set "module:centreon-open-tickets".');
+
+        $this->tester(new MigrateConsoleCommand($this->commandBus([])), 'centreon:migrations:migrate')->execute(['--set' => 'module:centreon-open-tickets']);
     }
 
     public function testRollbackDispatchesTheSetAndTheTargetVersion(): void
@@ -83,8 +108,8 @@ final class MigrationConsoleCommandsTest extends TestCase
         $bus = $this->commandBus(['Centreon\Migrations\Configuration\Version2']);
         $tester = $this->tester(new RollbackConsoleCommand($bus), 'centreon:migrations:rollback');
 
-        self::assertSame(Command::SUCCESS, $tester->execute(['set' => 'configuration', 'version' => 'prev'], ['interactive' => false]));
-        self::assertEquals([new RollbackMigrationCommand('configuration', 'prev')], $bus->dispatched);
+        self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration'], ['interactive' => false]));
+        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev')], $bus->dispatched);
         self::assertStringContainsString('1 migration(s) reverted.', $tester->getDisplay());
     }
 
@@ -94,20 +119,28 @@ final class MigrationConsoleCommandsTest extends TestCase
         $tester = $this->tester(new RollbackConsoleCommand($bus), 'centreon:migrations:rollback');
 
         $tester->setInputs(['no']);
-        self::assertSame(Command::SUCCESS, $tester->execute(['set' => 'configuration', 'version' => 'first']));
+        self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
         self::assertSame([], $bus->dispatched, 'A declined rollback reverts nothing');
         self::assertStringContainsString('Rollback cancelled.', $tester->getDisplay());
 
         $tester->setInputs(['yes']);
-        self::assertSame(Command::SUCCESS, $tester->execute(['set' => 'configuration', 'version' => 'first']));
-        self::assertEquals([new RollbackMigrationCommand('configuration', 'first')], $bus->dispatched);
+        self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
+        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first')], $bus->dispatched);
+    }
+
+    public function testRollbackRequiresASet(): void
+    {
+        $this->expectException(InvalidOptionException::class);
+        $this->expectExceptionMessage('Choose a migration set with --set or --module.');
+
+        $this->tester(new RollbackConsoleCommand($this->commandBus([])), 'centreon:migrations:rollback')->execute(['version' => 'prev'], ['interactive' => false]);
     }
 
     public function testRollbackReportsWhenThereIsNothingToRevert(): void
     {
         $tester = $this->tester(new RollbackConsoleCommand($this->commandBus([])), 'centreon:migrations:rollback');
 
-        self::assertSame(Command::SUCCESS, $tester->execute(['set' => 'configuration', 'version' => 'prev'], ['interactive' => false]));
+        self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration'], ['interactive' => false]));
         self::assertStringContainsString('No migration to revert.', $tester->getDisplay());
     }
 
@@ -115,12 +148,12 @@ final class MigrationConsoleCommandsTest extends TestCase
     {
         $generator = new MigrationGenerator(new MigrationSetRegistry('/nonexistent', $this->modulesDir), new Filesystem());
         $now = new \DateTimeImmutable('2026-10-13 10:00:00', new \DateTimeZone('UTC'));
-        $generator->generate('module:generated', true, $now);
+        $generator->generate(MigrationSet::module('generated'), true, $now);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('already exists');
 
-        $generator->generate('module:generated', false, $now);
+        $generator->generate(MigrationSet::module('generated'), false, $now);
     }
 
     public function testStatusRendersEverySet(): void
@@ -137,8 +170,8 @@ final class MigrationConsoleCommandsTest extends TestCase
                 $this->dispatched[] = $query;
 
                 return [
-                    new MigrationSetStatus('realtime', ['Centreon\Migrations\Realtime\Version1'], []),
-                    new MigrationSetStatus('configuration', [], ['Centreon\Migrations\Configuration\Version1']),
+                    new MigrationSetStatus(MigrationSet::core('realtime'), ['Centreon\Migrations\Realtime\Version1'], []),
+                    new MigrationSetStatus(MigrationSet::core('configuration'), [], ['Centreon\Migrations\Configuration\Version1']),
                 ];
             }
         };
@@ -154,8 +187,8 @@ final class MigrationConsoleCommandsTest extends TestCase
     {
         $tester = $this->generateTester();
 
-        self::assertSame(Command::SUCCESS, $tester->execute(['set' => 'module:generated-ddl', '--ddl' => true]));
-        self::assertSame(Command::SUCCESS, $this->generateTester()->execute(['set' => 'module:generated-dml', '--dml' => true]));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--module' => 'generated-ddl', '--ddl' => true]));
+        self::assertSame(Command::SUCCESS, $this->generateTester()->execute(['--module' => 'generated-dml', '--dml' => true]));
 
         $ddl = glob($this->modulesDir . '/generated-ddl/migrations/Version*.php') ?: [];
         $dml = glob($this->modulesDir . '/generated-dml/migrations/Version*.php') ?: [];
@@ -170,8 +203,8 @@ final class MigrationConsoleCommandsTest extends TestCase
 
     public function testGenerateRequiresExactlyOneKind(): void
     {
-        self::assertSame(Command::INVALID, $this->generateTester()->execute(['set' => 'configuration']));
-        self::assertSame(Command::INVALID, $this->generateTester()->execute(['set' => 'configuration', '--ddl' => true, '--dml' => true]));
+        self::assertSame(Command::INVALID, $this->generateTester()->execute(['--set' => 'configuration']));
+        self::assertSame(Command::INVALID, $this->generateTester()->execute(['--set' => 'configuration', '--ddl' => true, '--dml' => true]));
     }
 
     /**

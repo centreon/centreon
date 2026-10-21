@@ -91,20 +91,20 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
             []
         );
         $this->db->addResultSet(
-            'DROP TABLE IF EXISTS `doctrine_migration_versions_mymodule`',
+            'DROP TABLE IF EXISTS `doctrine_migration_versions_my_module`',
             []
         );
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
         $progress = $this->createMock(UpgradeProgress::class);
-        $progress->expects($this->once())->method('clear')->with('MyModule');
+        $progress->expects($this->once())->method('clear')->with('my-module');
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress;
 
-        $remover = new Remover(new Container($this->container), $this->information, 'MyModule', $this->utils);
+        $remover = new Remover(new Container($this->container), $this->information, 'my-module', $this->utils);
         $removed = $remover->remove();
 
         $this->assertEquals($removed, true);
-        $this->assertSame(['DROP TABLE IF EXISTS `doctrine_migration_versions_mymodule`'], $this->db->executedQueries);
+        $this->assertSame(['DROP TABLE IF EXISTS `doctrine_migration_versions_my_module`'], $this->db->executedQueries);
     }
 
     public function testRemoveLeavesTheTablesOfUnsupportedModuleNamesAlone(): void

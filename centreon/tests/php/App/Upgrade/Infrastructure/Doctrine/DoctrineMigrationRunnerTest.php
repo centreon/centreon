@@ -41,8 +41,8 @@ use Tests\App\Upgrade\Infrastructure\Double\SingleConnectionRegistry;
 final class DoctrineMigrationRunnerTest extends TestCase
 {
     private const string DATABASE = 'centreon_migrations_test';
-    private const string ATOMICITY = 'module:atomicity';
-    private const string ROLLBACK = 'module:rollback';
+    private const string ATOMICITY = 'atomicity';
+    private const string ROLLBACK = 'rollback';
 
     private Connection $connection;
 
@@ -86,17 +86,17 @@ final class DoctrineMigrationRunnerTest extends TestCase
 
     public function testMigrateCreatesTheMetadataTableAndAppliesEveryMigration(): void
     {
-        self::assertSame([\Rollback\Migrations\Version20260101000001::class, \Rollback\Migrations\Version20260101000002::class], $this->runner->migrate(self::ROLLBACK));
+        self::assertSame([\Rollback\Migrations\Version20260101000001::class, \Rollback\Migrations\Version20260101000002::class], $this->runner->migrate(MigrationSet::module(self::ROLLBACK)));
 
         self::assertTrue($this->connection->createSchemaManager()->tablesExist(['doctrine_migration_versions_rollback']));
         self::assertSame([1], $this->rows('fx_rollback'));
-        self::assertSame([], $this->runner->migrate(self::ROLLBACK), 'A second run has nothing to execute');
+        self::assertSame([], $this->runner->migrate(MigrationSet::module(self::ROLLBACK)), 'A second run has nothing to execute');
     }
 
     public function testAFailingDmlMigrationIsRolledBackAndStopsTheRunAfterADdlMigration(): void
     {
         try {
-            $this->runner->migrate(self::ATOMICITY);
+            $this->runner->migrate(MigrationSet::module(self::ATOMICITY));
             self::fail('Expected the duplicate key to fail the run');
         } catch (\Throwable) {
         }
@@ -105,49 +105,49 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([1], $this->rows('fx_atomicity'), 'The failing migration must leave no row behind');
         self::assertSame(
             [\Atomicity\Migrations\Version20260101000001::class, \Atomicity\Migrations\Version20260101000002::class],
-            $this->runner->status(self::ATOMICITY)[0]->executed,
+            $this->runner->status(MigrationSet::module(self::ATOMICITY))[0]->executed,
         );
-        self::assertSame([\Atomicity\Migrations\Version20260101000003::class], $this->runner->status(self::ATOMICITY)[0]->pending);
+        self::assertSame([\Atomicity\Migrations\Version20260101000003::class], $this->runner->status(MigrationSet::module(self::ATOMICITY))[0]->pending);
         self::assertFalse($this->connection->isTransactionActive(), 'No transaction may leak after a failure');
     }
 
     public function testRollbackPrevRevertsTheLastMigrationAndMigrateReappliesIt(): void
     {
-        $this->runner->migrate(self::ROLLBACK);
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(self::ROLLBACK, 'prev'));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'prev'));
         self::assertSame([], $this->rows('fx_rollback'));
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->status(self::ROLLBACK)[0]->pending);
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->status(MigrationSet::module(self::ROLLBACK))[0]->pending);
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->migrate(self::ROLLBACK));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->migrate(MigrationSet::module(self::ROLLBACK)));
         self::assertSame([1], $this->rows('fx_rollback'));
     }
 
     public function testRollbackAcceptsAShortVersionAndFirst(): void
     {
-        $this->runner->migrate(self::ROLLBACK);
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(self::ROLLBACK, 'Version20260101000001'));
-        self::assertSame([\Rollback\Migrations\Version20260101000001::class], $this->runner->rollback(self::ROLLBACK, 'first'));
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000001'));
+        self::assertSame([\Rollback\Migrations\Version20260101000001::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first'));
         self::assertFalse($this->connection->createSchemaManager()->tablesExist(['fx_rollback']));
     }
 
     public function testRollbackRefusesToMigrateUp(): void
     {
-        $this->runner->migrate(self::ROLLBACK);
-        $this->runner->rollback(self::ROLLBACK, 'first');
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
+        $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('it is ahead of the current version');
 
-        $this->runner->rollback(self::ROLLBACK, 'Version20260101000002');
+        $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000002');
     }
 
     public function testSetsAreIsolated(): void
     {
-        $this->runner->migrate(self::ROLLBACK);
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
-        $status = $this->runner->status(self::ATOMICITY)[0];
+        $status = $this->runner->status(MigrationSet::module(self::ATOMICITY))[0];
         self::assertSame([], $status->executed);
         self::assertCount(3, $status->pending);
         self::assertFalse(
@@ -158,13 +158,13 @@ final class DoctrineMigrationRunnerTest extends TestCase
 
     public function testAnExecutedMigrationMissingFromTheCodeBaseFailsTheRun(): void
     {
-        $this->runner->migrate(self::ROLLBACK);
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
         $this->connection->insert('doctrine_migration_versions_rollback', ['version' => 'Rollback\Migrations\Version20250101000000']);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Rollback\Migrations\Version20250101000000');
 
-        $this->runner->migrate(self::ROLLBACK);
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
     }
 
     public function testRollingBackASetWithoutMigrationDirectoryFailsClearly(): void
@@ -172,15 +172,15 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('has no migration to roll back');
 
-        $this->runner->rollback(MigrationSet::forModule('without-migrations'), 'prev');
+        $this->runner->rollback(MigrationSet::module('without-migrations'), 'prev');
     }
 
     public function testASetWithoutMigrationDirectoryIsANoop(): void
     {
-        self::assertSame([], $this->runner->migrate(MigrationSet::forModule('without-migrations')));
+        self::assertSame([], $this->runner->migrate(MigrationSet::module('without-migrations')));
         self::assertEquals(
-            [new MigrationSetStatus('module:without-migrations', [], [])],
-            $this->runner->status(MigrationSet::forModule('without-migrations')),
+            [new MigrationSetStatus(MigrationSet::module('without-migrations'), [], [])],
+            $this->runner->status(MigrationSet::module('without-migrations')),
         );
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
     }
@@ -191,7 +191,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->connection->executeStatement('CREATE TABLE fx_unknown_types (flag BIT(1), location POINT, area GEOMETRY)');
         $this->connection->executeStatement('CREATE TABLE fx_schema_guard (id INT PRIMARY KEY)');
 
-        self::assertCount(1, $this->runner->migrate(MigrationSet::forModule('schema-guard')));
+        self::assertCount(1, $this->runner->migrate(MigrationSet::module('schema-guard')));
         self::assertTrue($this->connection->createSchemaManager()->introspectTable('fx_schema_guard')->hasColumn('label'));
         self::assertSame(
             ['flag' => 'bit', 'location' => 'point', 'area' => 'geometry'],
@@ -213,7 +213,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('is not a DBAL connection');
 
-        $runner->migrate(self::ROLLBACK);
+        $runner->migrate(MigrationSet::module(self::ROLLBACK));
     }
 
     /**

@@ -23,13 +23,15 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application\Query;
 
+use App\Upgrade\Domain\MigrationSet;
+
 final readonly class GetMigrationStatusQuery
 {
     /**
-     * @param string|null $set null to get the status of every known set
+     * @param MigrationSet|null $set null to get the status of every known set
      */
     public function __construct(
-        public ?string $set = null,
+        public ?MigrationSet $set = null,
     ) {
     }
 }

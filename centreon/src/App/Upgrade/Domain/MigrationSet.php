@@ -25,56 +25,63 @@ namespace App\Upgrade\Domain;
 
 use Webmozart\Assert\Assert;
 
+/**
+ * A set of migrations versioned on its own: a core database, or a module.
+ */
 final readonly class MigrationSet
 {
     public const string REALTIME = 'realtime';
     public const string CONFIGURATION = 'configuration';
 
-    /** The core sets, in execution order. */
-    public const array CORE = [self::REALTIME, self::CONFIGURATION];
-    public const string CORE_TABLE = 'doctrine_migration_versions';
-    private const string MODULE_PREFIX = 'module:';
+    // Lowercase and dashes only: a module name maps to a single metadata table, and to a PHP namespace.
+    private const string MODULE_NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/D';
 
-    // Also keeps module names from escaping the modules directory.
-    private const string MODULE_NAME_PATTERN = '/^[A-Za-z0-9]+([-_][A-Za-z0-9]+)*$/D';
+    // Its metadata table name must fit the 64 characters of a MySQL identifier.
+    private const int MODULE_NAME_MAX_LENGTH = 36;
 
-    public function __construct(
+    private function __construct(
         public string $name,
-        public string $connection,
-        public string $namespace,
-        public string $directory,
-        public string $table,
+        public ?string $module = null,
     ) {
-        Assert::stringNotEmpty($name);
-        Assert::stringNotEmpty($connection);
-        Assert::regex($namespace, '/^[A-Za-z_]\w*(\\\\[A-Za-z_]\w*)*$/D', 'Invalid migration namespace "%s".');
-        Assert::stringNotEmpty($directory);
-        Assert::regex($table, '/^[a-z_][a-z0-9_]*$/D', 'Invalid migration table name "%s".');
-    }
-
-    public static function forModule(string $module): string
-    {
-        return self::MODULE_PREFIX . $module;
     }
 
     /**
-     * Static: also called by the legacy module Remover.
-     *
-     * @return string|null the metadata table of the module, null when the module name is not supported
+     * @throws \InvalidArgumentException
      */
-    public static function moduleTable(string $module): ?string
+    public static function core(string $name): self
     {
-        $table = self::CORE_TABLE . '_' . mb_strtolower(str_replace('-', '_', $module));
+        Assert::oneOf($name, [self::REALTIME, self::CONFIGURATION], 'Unknown core migration set %s.');
 
-        // MySQL identifiers are limited to 64 characters.
-        return preg_match(self::MODULE_NAME_PATTERN, $module) === 1 && \mb_strlen($table) <= 64 ? $table : null;
+        return new self($name);
     }
 
     /**
-     * @return string|null the module name when the set belongs to a module
+     * @return list<self> in execution order
      */
-    public static function moduleOf(string $name): ?string
+    public static function coreSets(): array
     {
-        return str_starts_with($name, self::MODULE_PREFIX) ? mb_substr($name, \mb_strlen(self::MODULE_PREFIX)) : null;
+        return [new self(self::REALTIME), new self(self::CONFIGURATION)];
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public static function module(string $module): self
+    {
+        if (! self::isModuleName($module)) {
+            throw new \InvalidArgumentException(\sprintf('Unsupported module name "%s": lowercase letters, digits and dashes only, at most %d characters.', $module, self::MODULE_NAME_MAX_LENGTH));
+        }
+
+        return new self('module:' . $module, $module);
+    }
+
+    public static function isModuleName(string $module): bool
+    {
+        return preg_match(self::MODULE_NAME_PATTERN, $module) === 1 && \mb_strlen($module) <= self::MODULE_NAME_MAX_LENGTH;
+    }
+
+    public function isModule(): bool
+    {
+        return $this->module !== null;
     }
 }

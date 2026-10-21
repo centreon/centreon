@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\NonTransactionalCommand;
+use App\Upgrade\Domain\MigrationSet;
 
 final readonly class RollbackMigrationCommand implements NonTransactionalCommand
 {
@@ -31,7 +32,7 @@ final readonly class RollbackMigrationCommand implements NonTransactionalCommand
      * @param string $version the version to roll back to (kept applied), or an alias such as "prev"
      */
     public function __construct(
-        public string $set,
+        public MigrationSet $set,
         public string $version,
     ) {
     }

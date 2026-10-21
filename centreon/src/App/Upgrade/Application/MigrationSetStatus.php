@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application;
 
+use App\Upgrade\Domain\MigrationSet;
+
 final readonly class MigrationSetStatus
 {
     /**
@@ -30,7 +32,7 @@ final readonly class MigrationSetStatus
      * @param list<string> $pending
      */
     public function __construct(
-        public string $set,
+        public MigrationSet $set,
         public array $executed,
         public array $pending,
     ) {

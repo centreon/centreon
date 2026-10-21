@@ -29,15 +29,15 @@ use Symfony\Component\Process\Process;
 class MigrationLauncher
 {
     /**
-     * @param string|null $set null for the core sets, which also records the platform version
+     * @param string|null $module null for the core sets, which also records the platform version
      *
      * @throws \RuntimeException with the reason of the failure, extracted from the console output
      */
-    public function migrate(?string $set = null): void
+    public function migrate(?string $module = null): void
     {
         $command = [(new PhpExecutableFinder())->find(false) ?: 'php', 'bin/console.new', 'centreon:migrations:migrate', '--no-interaction'];
-        if ($set !== null) {
-            $command[] = '--set=' . $set;
+        if ($module !== null) {
+            $command[] = '--module=' . $module;
         }
 
         // A wide terminal keeps the rendered exception message on a single line.

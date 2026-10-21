@@ -27,7 +27,6 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetLocker;
 use App\Upgrade\Application\UpdateLocker;
-use App\Upgrade\Domain\MigrationSet;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
@@ -47,9 +46,9 @@ final readonly class RollbackMigrationCommandHandler
     public function __invoke(RollbackMigrationCommand $command): array
     {
         // Same locks as MigrateCommandHandler.
-        if (MigrationSet::moduleOf($command->set) !== null) {
+        if ($command->set->isModule()) {
             if (! $this->migrationSetLocker->lock($command->set)) {
-                throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $command->set));
+                throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $command->set->name));
             }
 
             try {

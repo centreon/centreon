@@ -29,43 +29,62 @@ use PHPUnit\Framework\TestCase;
 
 final class MigrationSetTest extends TestCase
 {
-    public function testModuleSetNamesRoundTrip(): void
+    public function testTheCoreSetsRunRealtimeFirst(): void
     {
-        $name = MigrationSet::forModule('centreon-open-tickets');
-
-        self::assertSame('module:centreon-open-tickets', $name);
-        self::assertSame('centreon-open-tickets', MigrationSet::moduleOf($name));
-        self::assertNull(MigrationSet::moduleOf(MigrationSet::CONFIGURATION));
+        self::assertSame(
+            [MigrationSet::REALTIME, MigrationSet::CONFIGURATION],
+            array_map(static fn (MigrationSet $set): string => $set->name, MigrationSet::coreSets()),
+        );
+        self::assertFalse(MigrationSet::core(MigrationSet::CONFIGURATION)->isModule());
     }
 
-    public function testModuleTables(): void
-    {
-        self::assertSame('doctrine_migration_versions_centreon_open_tickets', MigrationSet::moduleTable('centreon-open-tickets'));
-        self::assertSame('doctrine_migration_versions_mymodule', MigrationSet::moduleTable('MyModule'));
-        self::assertNull(MigrationSet::moduleTable('../../etc'));
-        self::assertNull(MigrationSet::moduleTable(str_repeat('a', 37)), 'MySQL identifiers are limited to 64 characters');
-        self::assertNotNull(MigrationSet::moduleTable(str_repeat('a', 36)));
-    }
-
-    /**
-     * @return iterable<string, array{string, string}>
-     */
-    public static function provideInvalidDefinitions(): iterable
-    {
-        yield 'namespace with a leading backslash' => ['\Centreon\Migrations', 'doctrine_migration_versions'];
-
-        yield 'namespace with a dash' => ['Centreon-Migrations', 'doctrine_migration_versions'];
-
-        yield 'table with a dash' => ['Centreon\Migrations', 'doctrine-migration-versions'];
-
-        yield 'table with an injection' => ['Centreon\Migrations', 'versions; DROP TABLE host'];
-    }
-
-    #[DataProvider('provideInvalidDefinitions')]
-    public function testRejectsInvalidDefinitions(string $namespace, string $table): void
+    public function testRejectsAnUnknownCoreSet(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new MigrationSet('configuration', 'default', $namespace, '/migrations', $table);
+        MigrationSet::core('module:centreon-open-tickets');
+    }
+
+    public function testAModuleSetIsNamedAfterItsModule(): void
+    {
+        $set = MigrationSet::module('centreon-open-tickets');
+
+        self::assertTrue($set->isModule());
+        self::assertSame('centreon-open-tickets', $set->module);
+        self::assertSame('module:centreon-open-tickets', $set->name);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideUnsupportedModuleNames(): iterable
+    {
+        yield 'path traversal' => ['../../etc'];
+
+        yield 'uppercase, which would share a metadata table with its lowercase twin' => ['Centreon-Map'];
+
+        yield 'underscore, which would share a metadata table with its dashed twin' => ['centreon_map'];
+
+        yield 'leading digit, which is not a valid namespace' => ['4centreon'];
+
+        yield 'trailing dash' => ['centreon-'];
+
+        yield 'too long for its metadata table name' => [str_repeat('a', 37)];
+    }
+
+    #[DataProvider('provideUnsupportedModuleNames')]
+    public function testRejectsUnsupportedModuleNames(string $module): void
+    {
+        self::assertFalse(MigrationSet::isModuleName($module));
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        MigrationSet::module($module);
+    }
+
+    public function testAcceptsTheLongestModuleName(): void
+    {
+        self::assertTrue(MigrationSet::isModuleName(str_repeat('a', 36)));
+        self::assertTrue(MigrationSet::isModuleName('centreon-map4'));
     }
 }

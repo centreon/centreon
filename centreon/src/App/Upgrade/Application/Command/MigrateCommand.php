@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\NonTransactionalCommand;
+use App\Upgrade\Domain\MigrationSet;
 
 /**
  * Migrations manage their own transactions: a DdlMigration would implicitly commit the bus one.
@@ -31,10 +32,10 @@ use App\Shared\Application\Command\NonTransactionalCommand;
 final readonly class MigrateCommand implements NonTransactionalCommand
 {
     /**
-     * @param string|null $set null for the core sets, also recording the platform version
+     * @param MigrationSet|null $set null for the core sets, also recording the platform version
      */
     public function __construct(
-        public ?string $set = null,
+        public ?MigrationSet $set = null,
     ) {
     }
 }
