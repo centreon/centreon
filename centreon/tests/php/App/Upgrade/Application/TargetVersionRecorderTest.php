@@ -43,20 +43,22 @@ final class TargetVersionRecorderTest extends TestCase
         $this->recorder = new TargetVersionRecorder($this->updateRepository, $this->updateScriptFinder, '26.11.0');
     }
 
+    public function testResolvesThePlatformVersionUnlessALegacyScriptIsAhead(): void
+    {
+        self::assertSame('26.11.0', $this->recorder->resolve('26.09.1'));
+        self::assertSame('26.11.1', $this->recorder->resolve('26.11.1'));
+    }
+
     public function testRecordsThePlatformVersion(): void
     {
-        $this->updateRepository->currentVersion = '26.09.1';
-
-        $this->recorder->record();
+        $this->recorder->record('26.09.1');
 
         self::assertSame(['26.11.0'], $this->updateRepository->updatesRun);
     }
 
     public function testNeverMovesTheVersionBackwards(): void
     {
-        $this->updateRepository->currentVersion = '26.11.1';
-
-        $this->recorder->record();
+        $this->recorder->record('26.11.1');
 
         self::assertSame([], $this->updateRepository->updatesRun);
     }
@@ -64,10 +66,9 @@ final class TargetVersionRecorderTest extends TestCase
     public function testLeavesTheVersionToTheLegacyScriptsOfTheComingRelease(): void
     {
         // A development build: recording 26.11.0 would skip Update-26.11.0.php once Update-next.php is renamed to it.
-        $this->updateRepository->currentVersion = '26.09.1';
         $this->updateScriptFinder->nextUpdatePending = true;
 
-        $this->recorder->record();
+        $this->recorder->record('26.09.1');
 
         self::assertSame([], $this->updateRepository->updatesRun);
     }

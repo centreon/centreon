@@ -29,6 +29,7 @@ use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
+use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\WidgetRepository;
@@ -478,7 +479,7 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->engineContextWriter,
             $this->cacheClearer,
             $this->migrationRunner,
-            self::TARGET_VERSION,
+            new TargetVersionRecorder($updateRepository, $this->scriptFinder, self::TARGET_VERSION),
         );
     }
 

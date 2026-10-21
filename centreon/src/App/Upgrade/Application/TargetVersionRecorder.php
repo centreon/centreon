@@ -28,6 +28,9 @@ use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\UpgradeTargetVersion;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * The version the platform reaches once its legacy scripts and its core migration sets ran.
+ */
 final readonly class TargetVersionRecorder
 {
     public function __construct(
@@ -38,12 +41,23 @@ final readonly class TargetVersionRecorder
     ) {
     }
 
-    public function record(): void
+    /**
+     * @param string $legacyVersion the version reached by the legacy scripts
+     */
+    public function resolve(string $legacyVersion): string
     {
-        $currentVersion = (string) $this->updateRepository->findCurrentVersion();
-        $targetVersion = UpgradeTargetVersion::resolve($this->platformVersion, $currentVersion, $this->updateScriptFinder->hasPendingNextUpdate());
+        return UpgradeTargetVersion::resolve($this->platformVersion, $legacyVersion, $this->updateScriptFinder->hasPendingNextUpdate());
+    }
 
-        if ($targetVersion !== $currentVersion) {
+    /**
+     * Once the core migration sets ran.
+     *
+     * @param string $legacyVersion the version reached by the legacy scripts, which recorded it
+     */
+    public function record(string $legacyVersion): void
+    {
+        $targetVersion = $this->resolve($legacyVersion);
+        if ($targetVersion !== $legacyVersion) {
             $this->updateRepository->updateVersionInformation($targetVersion);
         }
     }

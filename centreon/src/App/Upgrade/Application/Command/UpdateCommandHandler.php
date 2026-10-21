@@ -29,14 +29,13 @@ use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\MigrationRunner;
+use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLocker;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\Repository\WidgetRepository;
-use App\Upgrade\Domain\UpgradeTargetVersion;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class UpdateCommandHandler
@@ -51,8 +50,7 @@ final readonly class UpdateCommandHandler
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
         private MigrationRunner $migrationRunner,
-        #[Autowire(param: 'centreon.version')]
-        private string $platformVersion,
+        private TargetVersionRecorder $targetVersionRecorder,
     ) {
     }
 
@@ -82,7 +80,7 @@ final readonly class UpdateCommandHandler
 
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
                 $legacyVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
-                $targetVersion = UpgradeTargetVersion::resolve($this->platformVersion, $legacyVersion, $this->updateScriptFinder->hasPendingNextUpdate());
+                $targetVersion = $this->targetVersionRecorder->resolve($legacyVersion);
 
                 LoggerUpgrade::create()->start($currentVersion, $targetVersion);
                 $startEmitted = true;
@@ -100,9 +98,7 @@ final readonly class UpdateCommandHandler
                     $this->runStep($targetVersion, 'migrations_' . $set->name, fn (): array => $this->migrationRunner->migrate($set));
                 }
 
-                if ($targetVersion !== $legacyVersion) {
-                    $this->runStep($targetVersion, 'record_target_version', fn () => $this->updateRepository->updateVersionInformation($targetVersion));
-                }
+                $this->runStep($targetVersion, 'record_target_version', fn () => $this->targetVersionRecorder->record($legacyVersion));
 
                 if ($this->updateRepository->installDirectoryExists()) {
                     $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));

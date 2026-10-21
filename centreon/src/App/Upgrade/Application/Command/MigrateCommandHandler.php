@@ -65,7 +65,7 @@ final readonly class MigrateCommandHandler
      */
     private function migrateCore(?MigrationSet $set): array
     {
-        $this->assertNoPendingLegacyUpdate();
+        $legacyVersion = $this->legacyVersion();
 
         if ($set instanceof MigrationSet) {
             return $this->migrationRunner->migrate($set);
@@ -76,22 +76,29 @@ final readonly class MigrateCommandHandler
             $executed = [...$executed, ...$this->migrationRunner->migrate($coreSet)];
         }
 
-        $this->targetVersionRecorder->record();
+        $this->targetVersionRecorder->record($legacyVersion);
 
         return $executed;
     }
 
     /**
      * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
+     *
+     * @throws \RuntimeException when legacy scripts are pending
+     *
+     * @return string the version the legacy scripts reached
      */
-    private function assertNoPendingLegacyUpdate(): void
+    private function legacyVersion(): string
     {
-        $pending = $this->updateScriptFinder->findOrderedAvailableUpdates((string) $this->updateRepository->findCurrentVersion());
+        $legacyVersion = (string) $this->updateRepository->findCurrentVersion();
+        $pending = $this->updateScriptFinder->findOrderedAvailableUpdates($legacyVersion);
         if ($pending !== []) {
             throw new \RuntimeException(\sprintf(
                 'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
                 implode(', ', $pending),
             ));
         }
+
+        return $legacyVersion;
     }
 }
