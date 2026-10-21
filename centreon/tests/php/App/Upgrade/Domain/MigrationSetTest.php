@@ -101,6 +101,13 @@ final class MigrationSetTest extends TestCase
         MigrationSet::module('3d-maps');
     }
 
+    public function testIsLabelledAfterWhatPeopleChooseItWith(): void
+    {
+        // --set=realtime, --module=centreon-open-tickets.
+        self::assertSame('"realtime" migration set', MigrationSet::core(MigrationSet::REALTIME)->label());
+        self::assertSame('"centreon-open-tickets" module migration set', MigrationSet::module('centreon-open-tickets')->label());
+    }
+
     public function testAcceptsTheLongestModuleName(): void
     {
         self::assertTrue(MigrationSet::isModuleName(str_repeat('a', 36)));

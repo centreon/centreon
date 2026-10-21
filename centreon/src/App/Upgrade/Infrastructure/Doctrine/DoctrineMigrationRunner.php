@@ -78,7 +78,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
     {
         $configuration = $this->registry->configuration($set);
         if (! is_dir($configuration->directory)) {
-            throw new \RuntimeException(\sprintf('The "%s" migration set has no migration to roll back: "%s" does not exist.', $set->name, $configuration->directory));
+            throw new \RuntimeException(\sprintf('The %s has no migration to roll back: "%s" does not exist.', $set->label(), $configuration->directory));
         }
 
         $factory = $this->createCheckedFactory($set, $configuration);
@@ -92,9 +92,9 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
         } catch (UnknownMigrationVersion $exception) {
             throw new \RuntimeException(\sprintf(
-                'The "%s" migration set has no "%s" migration: pass a version listed by centreon:migrations:status, its '
+                'The %s has no "%s" migration: pass a version listed by centreon:migrations:status, its '
                 . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
-                $set->name,
+                $set->label(),
                 $versionOrAlias,
             ), 0, $exception);
         }
@@ -102,7 +102,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         $executed = $factory->getMetadataStorage()->getExecutedMigrations();
         $isFirst = (string) $target === '0';
         if (! $isFirst && ! $executed->hasMigration($target)) {
-            throw new \RuntimeException(\sprintf('Cannot roll the "%s" migration set back to "%s": it is not executed.', $set->name, $target));
+            throw new \RuntimeException(\sprintf('Cannot roll the %s back to "%s": it is not executed.', $set->label(), $target));
         }
 
         // Not getPlanUntilVersion(), which plans an upgrade as soon as an older migration is pending.
@@ -191,9 +191,9 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         $unavailable = $factory->getMigrationStatusCalculator()->getExecutedUnavailableMigrations();
         if (\count($unavailable) > 0) {
             throw new \RuntimeException(\sprintf(
-                'The "%s" migration set has executed migrations that are not available anymore: %s. Restore them (a migration '
-                . 'is never deleted nor renamed once released), or remove them from the "%s" table if they were dropped on purpose.',
-                $set->name,
+                'The %s has executed migrations that are not available anymore: %s. Restore them (a migration is '
+                . 'never deleted nor renamed once released), or remove them from the "%s" table if they were dropped on purpose.',
+                $set->label(),
                 implode(', ', $this->versions($unavailable->getItems())),
                 $configuration->table,
             ));

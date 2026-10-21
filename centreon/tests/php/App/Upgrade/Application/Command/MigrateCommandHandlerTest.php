@@ -104,7 +104,7 @@ final class MigrateCommandHandlerTest extends TestCase
         $this->migrationSetLocker->lockedSets = ['module:centreon-open-tickets'];
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The "module:centreon-open-tickets" migration set is already being migrated');
+        $this->expectExceptionMessage('The "centreon-open-tickets" module migration set is already being migrated');
 
         try {
             ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));

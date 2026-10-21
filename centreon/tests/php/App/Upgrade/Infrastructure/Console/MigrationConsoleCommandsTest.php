@@ -125,7 +125,7 @@ final class MigrationConsoleCommandsTest extends TestCase
 
         $tester->setInputs(['no']);
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
-        self::assertStringContainsString('Revert every executed migration of the "configuration" set?', $tester->getDisplay());
+        self::assertStringContainsString('Revert every executed migration of the "configuration" migration set?', $tester->getDisplay());
         self::assertSame([], $bus->dispatched, 'A declined rollback reverts nothing');
         self::assertStringContainsString('Rollback cancelled.', $tester->getDisplay());
 

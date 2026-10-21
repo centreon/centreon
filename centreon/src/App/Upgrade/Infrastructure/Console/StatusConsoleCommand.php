@@ -51,7 +51,7 @@ final readonly class StatusConsoleCommand
 
         $exitCode = Command::SUCCESS;
         foreach ($statuses as $setStatus) {
-            $io->section($setStatus->set->name);
+            $io->section($setStatus->set->label());
             if ($setStatus->error !== null) {
                 $io->error($setStatus->error);
                 $exitCode = Command::FAILURE;

@@ -66,9 +66,9 @@ final readonly class RollbackConsoleCommand
         }
 
         $question = \sprintf('%s? The platform version is not changed.', match ($version) {
-            'prev' => \sprintf('Revert the last executed migration of the "%s" set', $migrationSet->name),
-            'first' => \sprintf('Revert every executed migration of the "%s" set', $migrationSet->name),
-            default => \sprintf('Revert the migrations of the "%s" set executed after "%s"', $migrationSet->name, $version),
+            'prev' => \sprintf('Revert the last executed migration of the %s', $migrationSet->label()),
+            'first' => \sprintf('Revert every executed migration of the %s', $migrationSet->label()),
+            default => \sprintf('Revert the migrations of the %s executed after "%s"', $migrationSet->label(), $version),
         });
         if ($input->isInteractive() && ! $io->confirm($question, false)) {
             $io->warning('Rollback cancelled.');

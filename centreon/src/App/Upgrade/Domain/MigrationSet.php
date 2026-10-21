@@ -91,6 +91,14 @@ final readonly class MigrationSet
         return $this->module === null ? self::CORE_TABLE : self::CORE_TABLE . '_' . str_replace('-', '_', $this->module);
     }
 
+    /**
+     * For people: the name is internal, and a module set is chosen by the name of its module.
+     */
+    public function label(): string
+    {
+        return $this->module === null ? \sprintf('"%s" migration set', $this->name) : \sprintf('"%s" module migration set', $this->module);
+    }
+
     public function isModule(): bool
     {
         return $this->module !== null;

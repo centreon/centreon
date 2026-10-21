@@ -144,7 +144,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The "module:rollback" migration set has no "Version2026" migration: pass a version listed by centreon:migrations:status');
+        $this->expectExceptionMessage('The "rollback" module migration set has no "Version2026" migration: pass a version listed by centreon:migrations:status');
 
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version2026');
     }
@@ -155,7 +155,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first');
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Cannot roll the "module:rollback" migration set back to "Rollback\Migrations\Version20260101000002": it is not executed.');
+        $this->expectExceptionMessage('Cannot roll the "rollback" module migration set back to "Rollback\Migrations\Version20260101000002": it is not executed.');
 
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000002');
     }
