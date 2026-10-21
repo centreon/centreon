@@ -24,14 +24,12 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Legacy;
 
 use App\Upgrade\Domain\Repository\ModuleRepository;
-use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use Centreon\ServiceProvider as CentreonServiceProvider;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
-use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
+use Doctrine\DBAL\Connection;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -43,6 +41,8 @@ final readonly class LegacyModuleRepository implements ModuleRepository
     public function __construct(
         #[Autowire(service: 'upgrade.legacy_container')]
         private Container $legacyContainer,
+        #[Autowire(service: 'doctrine.dbal.default_connection')]
+        private Connection $connection,
     ) {
     }
 
@@ -58,15 +58,10 @@ final readonly class LegacyModuleRepository implements ModuleRepository
     }
 
     /**
-     * Its row only: building the Extension Manager entity loads its conf.php and reads its pending migrations.
+     * Its row only: the legacy engine would load its conf.php and read its pending migrations.
      */
     public function isInstalled(string $module): bool
     {
-        /** @var CentreonDBManagerService $dbManager */
-        $dbManager = $this->legacyContainer[CentreonServiceProvider::CENTREON_DB_MANAGER];
-        /** @var ModulesInformationsRepository $repository */
-        $repository = $dbManager->getRepository(ModulesInformationsRepository::class);
-
-        return $repository->findIdByName($module) !== null;
+        return $this->connection->fetchOne('SELECT 1 FROM `modules_informations` WHERE `name` = ?', [$module]) !== false;
     }
 }

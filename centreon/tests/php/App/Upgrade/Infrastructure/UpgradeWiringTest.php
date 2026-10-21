@@ -29,7 +29,6 @@ use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Infrastructure\Doctrine\MigrationSetRegistry;
 use App\Upgrade\Infrastructure\Legacy\LegacyCacheClearer;
 use App\Upgrade\Infrastructure\Legacy\LegacyModuleRepository;
-use Centreon\ServiceProvider as CentreonServiceProvider;
 use CentreonModule\ServiceProvider;
 use Pimple\Container;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -48,7 +47,6 @@ final class UpgradeWiringTest extends KernelTestCase
         $legacyContainer = self::getContainer()->get('upgrade.legacy_container');
         self::assertInstanceOf(Container::class, $legacyContainer);
         self::assertTrue($legacyContainer->offsetExists(ServiceProvider::CENTREON_MODULE));
-        self::assertTrue($legacyContainer->offsetExists(CentreonServiceProvider::CENTREON_DB_MANAGER), 'LegacyModuleRepository::isInstalled reads modules_informations through it');
     }
 
     public function testThePlatformVersionIsARelease(): void

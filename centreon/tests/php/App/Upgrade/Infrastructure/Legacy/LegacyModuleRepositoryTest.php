@@ -24,13 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Legacy;
 
 use App\Upgrade\Infrastructure\Legacy\LegacyModuleRepository;
-use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use Centreon\ServiceProvider as CentreonServiceProvider;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
-use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
+use Doctrine\DBAL\DriverManager;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 
@@ -61,20 +59,18 @@ final class LegacyModuleRepositoryTest extends TestCase
         $container[ServiceProvider::CENTREON_MODULE] = $moduleService;
         $container[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $cacheClearer;
 
-        (new LegacyModuleRepository($container))->updateAll();
+        (new LegacyModuleRepository($container, DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true])))->updateAll();
 
         self::assertSame([], $cacheClearer->commands);
     }
 
     public function testAModuleIsInstalledWhenItHasARowInModulesInformations(): void
     {
-        $modulesInformations = $this->createMock(ModulesInformationsRepository::class);
-        $modulesInformations->method('findIdByName')->willReturnMap([['centreon-open-tickets', 3], ['centreon-bam-server', null]]);
-        $dbManager = $this->createMock(CentreonDBManagerService::class);
-        $dbManager->method('getRepository')->with(ModulesInformationsRepository::class)->willReturn($modulesInformations);
-        $container = new Container();
-        $container[CentreonServiceProvider::CENTREON_DB_MANAGER] = $dbManager;
-        $repository = new LegacyModuleRepository($container);
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $connection->executeStatement('CREATE TABLE modules_informations (id INTEGER PRIMARY KEY, name VARCHAR(255))');
+        $connection->insert('modules_informations', ['name' => 'centreon-open-tickets']);
+
+        $repository = new LegacyModuleRepository(new Container(), $connection);
 
         self::assertTrue($repository->isInstalled('centreon-open-tickets'));
         self::assertFalse($repository->isInstalled('centreon-bam-server'));
