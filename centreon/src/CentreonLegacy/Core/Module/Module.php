@@ -88,8 +88,9 @@ class Module
     {
         if ($this->hasMigrations() && ! MigrationSet::isModuleName($this->moduleName)) {
             throw new \RuntimeException(\sprintf(
-                'The module "%s" ships migrations, but its name is not made of lowercase letters, digits and dashes only.',
+                'The module "%s" ships migrations, but its name is not supported: %s.',
                 $this->moduleName,
+                MigrationSet::MODULE_NAME_RULE,
             ));
         }
     }

@@ -34,7 +34,9 @@ final readonly class MigrationSet
     public const string CONFIGURATION = 'configuration';
     public const string CORE_TABLE = 'doctrine_migration_versions';
 
-    // Lowercase and dashes only: a module name maps to a single metadata table, and to a PHP namespace.
+    // A module name maps to a single metadata table, and to a PHP namespace.
+    public const string MODULE_NAME_RULE = 'lowercase letters and digits, starting with a letter, in words separated by single dashes, '
+        . 'at most ' . self::MODULE_NAME_MAX_LENGTH . ' characters';
     private const string MODULE_NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/D';
 
     // Its metadata table name must fit the 64 characters of a MySQL identifier.
@@ -70,7 +72,7 @@ final readonly class MigrationSet
     public static function module(string $module): self
     {
         if (! self::isModuleName($module)) {
-            throw new \InvalidArgumentException(\sprintf('Unsupported module name "%s": lowercase letters, digits and dashes only, at most %d characters.', $module, self::MODULE_NAME_MAX_LENGTH));
+            throw new \InvalidArgumentException(\sprintf('Unsupported module name "%s": %s.', $module, self::MODULE_NAME_RULE));
         }
 
         return new self('module:' . $module, $module);

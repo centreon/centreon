@@ -93,6 +93,14 @@ final class MigrationSetTest extends TestCase
         self::assertSame(['doctrine_migration_versions', 'doctrine_migration_versions'], array_map(static fn (MigrationSet $set): string => $set->table(), MigrationSet::coreSets()));
     }
 
+    public function testTheRefusalOfAModuleNameStatesTheWholeRule(): void
+    {
+        // Made of lowercase letters, digits and dashes, yet refused.
+        $this->expectExceptionMessage('Unsupported module name "3d-maps": lowercase letters and digits, starting with a letter, in words separated by single dashes, at most 36 characters.');
+
+        MigrationSet::module('3d-maps');
+    }
+
     public function testAcceptsTheLongestModuleName(): void
     {
         self::assertTrue(MigrationSet::isModuleName(str_repeat('a', 36)));

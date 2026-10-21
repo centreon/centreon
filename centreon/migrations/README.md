@@ -13,8 +13,9 @@ Each set is versioned on its own, with its own metadata table:
 | `configuration` (`--set=configuration`) | `centreon` | `centreon/migrations/configuration/` | `Centreon\Migrations\Configuration` | `doctrine_migration_versions` |
 | a module (`--module=<name>`) | `centreon` | `www/modules/<name>/migrations/` | `<Name>\Migrations` (`centreon-open-tickets` gives `CentreonOpenTickets\Migrations`) | `doctrine_migration_versions_<name>` |
 
-A module ships migrations only if its name is made of lowercase letters, digits and dashes, at most 36 characters: it
-names its metadata table and its namespace.
+A module ships migrations only if its name is made of lowercase letters and digits, starting with a letter, in words
+separated by single dashes, at most 36 characters (`centreon-open-tickets`): it names its metadata table and its
+namespace.
 
 A platform upgrade (wizard, `POST /api/latest/platform/updates`) runs: the legacy scripts, `realtime`, `configuration`,
 then records `centreon.version` (`config.new/packages/centreon.yaml`), then upgrades the modules (their legacy
