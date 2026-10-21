@@ -103,7 +103,7 @@ final class MigrationConsoleCommandsTest extends TestCase
     public function testRejectsAnUnknownCoreSet(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unknown core migration set "module:centreon-open-tickets".');
+        $this->expectExceptionMessage('Unknown core migration set "module:centreon-open-tickets", expected one of: "realtime", "configuration".');
 
         $this->tester(new MigrateConsoleCommand($this->commandBus([])), 'centreon:migrations:migrate')->execute(['--set' => 'module:centreon-open-tickets']);
     }

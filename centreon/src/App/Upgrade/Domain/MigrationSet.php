@@ -53,7 +53,7 @@ final readonly class MigrationSet
      */
     public static function core(string $name): self
     {
-        Assert::oneOf($name, [self::REALTIME, self::CONFIGURATION], 'Unknown core migration set %s.');
+        Assert::oneOf($name, [self::REALTIME, self::CONFIGURATION], 'Unknown core migration set %s, expected one of: %2$s.');
 
         return new self($name);
     }
