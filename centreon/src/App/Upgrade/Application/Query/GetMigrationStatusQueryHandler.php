@@ -43,7 +43,7 @@ final readonly class GetMigrationStatusQueryHandler
 
     /**
      * @throws ModuleNotInstalledException when the requested set is the one of a module not installed
-     * @throws \Exception when the requested set breaks a check of migrate() or its database fails, reported per set otherwise
+     * @throws \Throwable when the requested set cannot be read, reported per set otherwise
      *
      * @return list<MigrationSetStatus> every set when none is requested, but the modules not installed
      */
@@ -54,16 +54,17 @@ final readonly class GetMigrationStatusQueryHandler
                 throw new ModuleNotInstalledException((string) $query->set->module);
             }
 
-            return [$this->status($query->set)];
+            return [$this->status($query->set, $query->set->isModule() ? null : $this->legacyRefusal())];
         }
 
+        $legacyRefusal = $this->legacyRefusal();
         $statuses = [];
         // Left out without loading their migrations, which run once the module is installed.
         foreach (array_filter($this->migrationRunner->sets(), $this->isInstalled(...)) as $set) {
             try {
-                $statuses[] = $this->status($set);
-            } catch (\Exception $exception) {
-                // A check of migrate() or a database failure: the other sets are still worth showing.
+                $statuses[] = $this->status($set, $legacyRefusal);
+            } catch (\Throwable $exception) {
+                // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
             }
         }
@@ -71,21 +72,30 @@ final readonly class GetMigrationStatusQueryHandler
         return $statuses;
     }
 
-    private function status(MigrationSet $set): MigrationSetStatus
+    /**
+     * @param string|null $legacyRefusal why migrate refuses the core sets
+     */
+    private function status(MigrationSet $set, ?string $legacyRefusal): MigrationSetStatus
     {
         $status = $this->migrationRunner->status($set);
-        if ($set->isModule()) {
-            return $status;
-        }
 
+        return $set->isModule() || $legacyRefusal === null
+            ? $status
+            : new MigrationSetStatus($set, $status->executed, $status->pending, $legacyRefusal);
+    }
+
+    /**
+     * As migrate(), which refuses the core sets while legacy scripts are pending. A rollback does not.
+     */
+    private function legacyRefusal(): ?string
+    {
         try {
-            // As migrate(), which refuses the core sets while legacy scripts are pending. A rollback does not.
             $this->targetVersionRecorder->legacyVersion();
         } catch (\RuntimeException $exception) {
-            return new MigrationSetStatus($set, $status->executed, $status->pending, $exception->getMessage());
+            return $exception->getMessage();
         }
 
-        return $status;
+        return null;
     }
 
     private function isInstalled(MigrationSet $set): bool

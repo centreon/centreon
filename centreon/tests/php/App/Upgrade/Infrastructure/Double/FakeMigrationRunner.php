@@ -73,8 +73,8 @@ final class FakeMigrationRunner implements MigrationRunner
         $this->statusRequests[] = $set;
 
         if (\in_array($set->name, $this->failingSets, true)) {
-            // As a DBAL driver exception, which is no RuntimeException.
-            throw new \Exception(\sprintf('Status of "%s" failed', $set->name));
+            // As a migration file that does not parse, which is not even an Exception.
+            throw new \ParseError(\sprintf('Status of "%s" failed', $set->name));
         }
 
         return new MigrationSetStatus($set, [], [$set->name . '\Version1']);
