@@ -25,6 +25,7 @@ namespace App\Upgrade\Application;
 
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
+use App\Upgrade\Domain\UpgradeTargetVersion;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class TargetVersionRecorder
@@ -33,20 +34,17 @@ final readonly class TargetVersionRecorder
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
         #[Autowire(param: 'centreon.version')]
-        private string $targetVersion,
+        private string $platformVersion,
     ) {
     }
 
     public function record(): void
     {
-        // Development build: recording the coming release would skip Update-next.php once renamed to it.
-        if ($this->updateScriptFinder->hasPendingNextUpdate()) {
-            return;
-        }
+        $currentVersion = (string) $this->updateRepository->findCurrentVersion();
+        $targetVersion = UpgradeTargetVersion::resolve($this->platformVersion, $currentVersion, $this->updateScriptFinder->hasPendingNextUpdate());
 
-        // A legacy script may have recorded a later version.
-        if (version_compare($this->targetVersion, (string) $this->updateRepository->findCurrentVersion(), '>')) {
-            $this->updateRepository->updateVersionInformation($this->targetVersion);
+        if ($targetVersion !== $currentVersion) {
+            $this->updateRepository->updateVersionInformation($targetVersion);
         }
     }
 }
