@@ -59,6 +59,8 @@ bin/console.new centreon:migrations:migrate [--set=realtime|configuration | --mo
 bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtime|configuration | --module=<name>)
 ```
 
+- The core sets refuse to run while legacy `Update-*.php` scripts are pending: update the platform first (upgrade
+  wizard or API), which runs both in order.
 - A failing migration stops the run: a `DmlMigration` leaves nothing behind, the migrations executed before it stay
   applied, and the next run resumes there. A module left with pending migrations is reported as outdated, even at its
   installed version.

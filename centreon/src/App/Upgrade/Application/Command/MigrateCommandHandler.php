@@ -29,6 +29,8 @@ use App\Upgrade\Application\MigrationSetLocker;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLocker;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Repository\UpdateRepository;
+use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 
 #[AsCommandHandler]
 final readonly class MigrateCommandHandler
@@ -38,11 +40,14 @@ final readonly class MigrateCommandHandler
         private UpdateLocker $updateLocker,
         private MigrationSetLocker $migrationSetLocker,
         private TargetVersionRecorder $targetVersionRecorder,
+        private UpdateRepository $updateRepository,
+        private UpdateScriptFinder $updateScriptFinder,
     ) {
     }
 
     /**
-     * @throws \RuntimeException when another update, or another migration of the same module set, is in progress
+     * @throws \RuntimeException when another update, or another migration of the same module set, is in progress,
+     *                           or when legacy update scripts must run before the core sets
      *
      * @return list<string> the executed versions
      */
@@ -57,6 +62,8 @@ final readonly class MigrateCommandHandler
         }
 
         try {
+            $this->assertNoPendingLegacyUpdate();
+
             if ($command->set instanceof MigrationSet) {
                 return $this->migrationRunner->migrate($command->set);
             }
@@ -71,6 +78,20 @@ final readonly class MigrateCommandHandler
             return $executed;
         } finally {
             $this->updateLocker->unlock();
+        }
+    }
+
+    /**
+     * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
+     */
+    private function assertNoPendingLegacyUpdate(): void
+    {
+        $pending = $this->updateScriptFinder->findOrderedAvailableUpdates((string) $this->updateRepository->findCurrentVersion());
+        if ($pending !== []) {
+            throw new \RuntimeException(\sprintf(
+                'The update scripts of %s are pending: update the platform first, with the upgrade wizard or the API.',
+                implode(', ', $pending),
+            ));
         }
     }
 

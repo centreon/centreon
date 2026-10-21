@@ -63,6 +63,8 @@ final class MigrateCommandHandlerTest extends TestCase
             $this->locker,
             $this->migrationSetLocker,
             new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
+            $this->updateRepository,
+            $this->scriptFinder,
         );
     }
 
@@ -149,6 +151,33 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertSame(['migrate:realtime'], $this->migrationRunner->journal->getArrayCopy());
         self::assertSame([], $this->updateRepository->updatesRun);
         self::assertTrue($this->locker->unlockCalled);
+    }
+
+    public function testRefusesTheCoreSetsWhileLegacyUpdateScriptsArePending(): void
+    {
+        $this->scriptFinder->availableUpdates = ['26.04.0', '26.10.0'];
+
+        foreach ([new MigrateCommand(), new MigrateCommand(MigrationSet::core(MigrationSet::CONFIGURATION))] as $command) {
+            try {
+                ($this->handler)($command);
+                self::fail('The core sets must wait for the legacy update scripts');
+            } catch (\RuntimeException $exception) {
+                self::assertSame('The update scripts of 26.04.0, 26.10.0 are pending: update the platform first, with the upgrade wizard or the API.', $exception->getMessage());
+            }
+        }
+
+        self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->updateRepository->updatesRun, 'Recording the version would skip the legacy update scripts for good');
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
+    public function testAModuleSetDoesNotWaitForTheLegacyUpdateScripts(): void
+    {
+        $this->scriptFinder->availableUpdates = ['26.10.0'];
+
+        ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
+
+        self::assertSame(['migrate:module:centreon-open-tickets'], $this->migrationRunner->journal->getArrayCopy());
     }
 
     public function testFailsWhenAnUpdateIsAlreadyInProgress(): void
