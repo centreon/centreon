@@ -64,6 +64,13 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
       su apache -s /bin/bash -c "php partitionTables.php" > /dev/null
     fi
 
+    echo "Applying database migrations..."
+    migrations_result=$(su apache -s /bin/bash -c "php migrateDatabases.php")
+    if ! grep -q '"result":0' <<< "${migrations_result}"; then
+      echo "Database migrations failed: ${migrations_result}" >&2
+      exit 1
+    fi
+
     mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
 
