@@ -267,9 +267,11 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             return array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
         } catch (\Throwable $exception) {
             // Doctrine rethrows the error of the query as is: it would not tell which migration failed.
+            $version = $this->failedVersion($factory, $plan);
+
             throw new \RuntimeException(\sprintf(
-                'The "%s" migration of the %s failed: %s',
-                $this->failedVersion($factory, $plan) ?? 'unknown',
+                '%s of the %s failed: %s',
+                $version === null ? 'A migration' : \sprintf('The "%s" migration', $version),
                 $set->label(),
                 $exception->getMessage(),
             ), 0, $exception);
@@ -281,7 +283,13 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
      */
     private function failedVersion(DependencyFactory $factory, MigrationPlanList $plan): ?string
     {
-        $executed = $factory->getMetadataStorage()->getExecutedMigrations();
+        try {
+            $executed = $factory->getMetadataStorage()->getExecutedMigrations();
+        } catch (\Throwable) {
+            // The database may be what failed: the error of the migration matters more.
+            return null;
+        }
+
         foreach ($plan->getItems() as $item) {
             if ($executed->hasMigration($item->getVersion()) === ($plan->getDirection() === Direction::DOWN)) {
                 return (string) $item->getVersion();
