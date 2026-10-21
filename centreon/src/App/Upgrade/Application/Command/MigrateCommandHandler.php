@@ -25,10 +25,10 @@ namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetLock;
+use App\Upgrade\Application\MigrationSetGuard;
+use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
-use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 
@@ -37,17 +37,17 @@ final readonly class MigrateCommandHandler
 {
     public function __construct(
         private MigrationRunner $migrationRunner,
-        private MigrationSetLock $migrationSetLock,
+        private MigrationSetGuard $migrationSetGuard,
         private TargetVersionRecorder $targetVersionRecorder,
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
-        private ModuleRepository $moduleRepository,
     ) {
     }
 
     /**
-     * @throws \RuntimeException when another update, or another migration of the same module set, is in progress,
-     *                           when legacy update scripts must run before the core sets, or when the module is not installed
+     * @throws ModuleNotInstalledException
+     * @throws \RuntimeException when another update, or another migration of the same module set, is in progress, or
+     *                           when legacy update scripts must run before the core sets
      *
      * @return list<string> the executed versions
      */
@@ -55,16 +55,7 @@ final readonly class MigrateCommandHandler
     {
         $set = $command->set;
 
-        if ($set?->isModule() === true) {
-            // Its install.sql, frozen once it ships migrations, would then run on a schema they already changed.
-            if (! $this->moduleRepository->isInstalled((string) $set->module)) {
-                throw new \RuntimeException(\sprintf('The module "%s" is not installed: its migrations run when it is installed.', $set->module));
-            }
-
-            return $this->migrationSetLock->run($set, fn (): array => $this->migrationRunner->migrate($set));
-        }
-
-        return $this->migrationSetLock->run($set, fn (): array => $this->migrateCore($set));
+        return $this->migrationSetGuard->run($set, fn (): array => $set?->isModule() === true ? $this->migrationRunner->migrate($set) : $this->migrateCore($set));
     }
 
     /**

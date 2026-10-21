@@ -26,6 +26,7 @@ namespace App\Upgrade\Application\Query;
 use App\Shared\Application\Query\AsQueryHandler;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
+use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 
@@ -39,18 +40,29 @@ final readonly class GetMigrationStatusQueryHandler
     }
 
     /**
-     * @return list<MigrationSetStatus>
+     * @throws ModuleNotInstalledException when the requested set is the one of a module not installed
+     *
+     * @return list<MigrationSetStatus> every set when none is requested, but the modules not installed
      */
     public function __invoke(GetMigrationStatusQuery $query): array
     {
-        $statuses = [];
-        foreach ($query->set instanceof MigrationSet ? [$query->set] : $this->migrationRunner->sets() as $set) {
-            // The migrations of a module not installed run when it is installed: their classes are not even loaded.
-            if ($set->module === null || $this->moduleRepository->isInstalled($set->module)) {
-                $statuses[] = $this->migrationRunner->status($set);
+        if ($query->set instanceof MigrationSet) {
+            if (! $this->isInstalled($query->set)) {
+                throw new ModuleNotInstalledException((string) $query->set->module);
             }
+
+            return [$this->migrationRunner->status($query->set)];
         }
 
-        return $statuses;
+        // Left out without loading their migrations, which run once the module is installed.
+        return array_values(array_map(
+            $this->migrationRunner->status(...),
+            array_filter($this->migrationRunner->sets(), $this->isInstalled(...)),
+        ));
+    }
+
+    private function isInstalled(MigrationSet $set): bool
+    {
+        return $set->module === null || $this->moduleRepository->isInstalled($set->module);
     }
 }

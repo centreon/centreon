@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Application\Query;
 
 use App\Upgrade\Application\MigrationSetStatus;
+use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Application\Query\GetMigrationStatusQueryHandler;
 use App\Upgrade\Domain\MigrationSet;
@@ -54,5 +55,14 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
 
         self::assertEquals([MigrationSet::core(MigrationSet::CONFIGURATION), MigrationSet::module('centreon-open-tickets')], $runner->statusRequests);
         self::assertEquals($runner->statusRequests, array_map(static fn (MigrationSetStatus $status): MigrationSet => $status->set, $statuses));
+    }
+
+    public function testFailsWhenTheRequestedModuleIsNotInstalled(): void
+    {
+        // A typo or a module to install must not pass for a module with nothing to show.
+        $this->expectException(ModuleNotInstalledException::class);
+        $this->expectExceptionMessage('The module "centreon-open-ticket" is not installed');
+
+        (new GetMigrationStatusQueryHandler(new FakeMigrationRunner(), new FakeModuleRepository(['centreon-open-tickets'])))(new GetMigrationStatusQuery(MigrationSet::module('centreon-open-ticket')));
     }
 }

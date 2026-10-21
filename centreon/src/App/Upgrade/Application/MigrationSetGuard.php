@@ -24,15 +24,18 @@ declare(strict_types=1);
 namespace App\Upgrade\Application;
 
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 
 /**
- * A module set has its own lock: the platform update holds the update one while it upgrades the modules.
+ * Checked before migrating or rolling back a set. A module set has its own lock: the platform update holds the update
+ * one while it upgrades the modules.
  */
-final readonly class MigrationSetLock
+final readonly class MigrationSetGuard
 {
     public function __construct(
         private UpdateLocker $updateLocker,
         private MigrationSetLocker $migrationSetLocker,
+        private ModuleRepository $moduleRepository,
     ) {
     }
 
@@ -42,13 +45,18 @@ final readonly class MigrationSetLock
      * @param MigrationSet|null $set null for all the core sets
      * @param callable(): T $callback
      *
+     * @throws ModuleNotInstalledException
      * @throws \RuntimeException when another update, or another migration of the same module set, is in progress
      *
      * @return T
      */
     public function run(?MigrationSet $set, callable $callback): mixed
     {
-        if ($set?->isModule() === true) {
+        if ($set?->module !== null) {
+            if (! $this->moduleRepository->isInstalled($set->module)) {
+                throw new ModuleNotInstalledException($set->module);
+            }
+
             if (! $this->migrationSetLocker->lock($set)) {
                 throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $set->name));
             }

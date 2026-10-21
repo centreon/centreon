@@ -25,24 +25,26 @@ namespace App\Upgrade\Application\Command;
 
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\MigrationRunner;
-use App\Upgrade\Application\MigrationSetLock;
+use App\Upgrade\Application\MigrationSetGuard;
+use App\Upgrade\Application\ModuleNotInstalledException;
 
 #[AsCommandHandler]
 final readonly class RollbackMigrationCommandHandler
 {
     public function __construct(
         private MigrationRunner $migrationRunner,
-        private MigrationSetLock $migrationSetLock,
+        private MigrationSetGuard $migrationSetGuard,
     ) {
     }
 
     /**
+     * @throws ModuleNotInstalledException
      * @throws \RuntimeException when another update, or another migration of the same module set, is in progress
      *
      * @return list<string> the reverted versions
      */
     public function __invoke(RollbackMigrationCommand $command): array
     {
-        return $this->migrationSetLock->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version));
+        return $this->migrationSetGuard->run($command->set, fn (): array => $this->migrationRunner->rollback($command->set, $command->version));
     }
 }
