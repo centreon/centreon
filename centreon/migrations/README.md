@@ -35,8 +35,9 @@ runner refuses any other one.
 
 - `DdlMigration` for schema changes (`CREATE`, `ALTER`, `DROP`...). MySQL commits implicitly around DDL, so it runs
   outside any transaction: hold a **single idempotent statement**, so that replaying it after a failure is harmless.
-  MySQL has no `ADD COLUMN IF NOT EXISTS`: guard in `up()` with the schema, e.g.
-  `if ($schema->getTable('host')->hasColumn('host_notes_url')) { return; }`.
+  MySQL has no `ADD COLUMN IF NOT EXISTS`: guard in `up()` by reading the one table at stake, e.g.
+  `if ($this->connection->createSchemaManager()->introspectTable('host')->hasColumn('host_notes_url')) { return; }`.
+  Reading `$schema` works too, but loads every table of the database, for each migration.
 - `DmlMigration` for data changes (`INSERT`, `UPDATE`, `DELETE`...). It runs in a transaction with its metadata row:
   all or nothing. DDL, transaction control and `CALL` are rejected, as they would silently commit that transaction.
 
