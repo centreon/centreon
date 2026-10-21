@@ -63,7 +63,7 @@ final class MigrationBaseClassesTest extends TestCase
     public function testDmlMigrationsRejectDdl(): void
     {
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('cannot run DDL statements');
+        $this->expectExceptionMessage('cannot run a statement committing its transaction');
 
         $this->dmlMigration(['INSERT INTO t VALUES (1)', '  alter table t add column c INT'])->up(new Schema());
     }
@@ -119,7 +119,9 @@ final class MigrationBaseClassesTest extends TestCase
             'TRUNCATE TABLE t', 'LOCK TABLES t WRITE', 'UNLOCK TABLES', 'ANALYZE TABLE t', 'OPTIMIZE TABLE t',
             'REPAIR TABLE t', 'FLUSH TABLES', 'CACHE INDEX t IN hot', 'GRANT SELECT ON t TO u', 'REVOKE SELECT ON t FROM u',
             "INSTALL PLUGIN p SONAME 'p.so'", 'UNINSTALL PLUGIN p', 'BEGIN', 'START TRANSACTION', 'COMMIT', 'ROLLBACK',
-            'SAVEPOINT s', 'RELEASE SAVEPOINT s',
+            'SAVEPOINT s', 'RELEASE SAVEPOINT s', 'SET autocommit = 1', 'SET SESSION autocommit = 1', 'SET @@autocommit = 1',
+            'XA START x', 'LOAD INDEX INTO CACHE t', 'RESET MASTER', 'PURGE BINARY LOGS TO x', 'CALL p()', 'CHECK TABLE t', "SET PASSWORD = 'p'",
+            'STOP REPLICA', "CHANGE REPLICATION SOURCE TO SOURCE_HOST = 'h'", 'SET @x = 1, autocommit = 1', 'SET /* c */ autocommit = 1',
         ] as $statement) {
             yield $statement => [mb_strtolower($statement)];
         }
@@ -129,11 +131,19 @@ final class MigrationBaseClassesTest extends TestCase
         yield 'in an executable comment' => ['/*!50000 ALTER TABLE t ADD COLUMN c INT */'];
     }
 
+    public function testDmlMigrationsAcceptSessionVariables(): void
+    {
+        $dml = $this->dmlMigration(['SET @id = 1', 'SET NAMES utf8mb4', 'SET @autocommit = 1', 'INSERT INTO t (id) VALUES (@id)', 'UPDATE t SET autocommit = 1']);
+        $dml->up(new Schema());
+
+        $this->assertCount(5, $dml->getSql());
+    }
+
     #[DataProvider('provideStatementsEndingTheTransaction')]
     public function testDmlMigrationsRejectStatementsEndingTheirTransaction(string $sql): void
     {
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('cannot run DDL statements');
+        $this->expectExceptionMessage('cannot run a statement committing its transaction');
 
         $this->dmlMigration([$sql])->up(new Schema());
     }
@@ -149,7 +159,7 @@ final class MigrationBaseClassesTest extends TestCase
     public function testDmlMigrationsRejectDdlBehindAComment(): void
     {
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('cannot run DDL statements');
+        $this->expectExceptionMessage('cannot run a statement committing its transaction');
 
         $this->dmlMigration(["/* index */\n-- needed for the report\nCREATE INDEX i ON t (id)"])->up(new Schema());
     }

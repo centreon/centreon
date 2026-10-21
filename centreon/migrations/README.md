@@ -38,7 +38,7 @@ runner refuses any other one.
   MySQL has no `ADD COLUMN IF NOT EXISTS`: guard in `up()` with the schema, e.g.
   `if ($schema->getTable('host')->hasColumn('host_notes_url')) { return; }`.
 - `DmlMigration` for data changes (`INSERT`, `UPDATE`, `DELETE`...). It runs in a transaction with its metadata row:
-  all or nothing. DDL and transaction control are rejected, as they would silently commit that transaction.
+  all or nothing. DDL, transaction control and `CALL` are rejected, as they would silently commit that transaction.
 
 In both, pass one statement per `addSql()` call, and implement `revert()`, which `down()` calls. `$schema` is read
 only: a migration changing it fails, as doctrine would run the SQL of the change out of reach of these checks.

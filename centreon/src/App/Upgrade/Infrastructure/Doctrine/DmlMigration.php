@@ -27,12 +27,12 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * DDL and transaction control are rejected: MySQL would implicitly commit the transaction, breaking the atomicity of
- * this migration and of the next ones.
+ * DDL, transaction control and procedure calls (which may run either) are rejected: MySQL would implicitly commit the
+ * transaction, breaking the atomicity of this migration and of the next ones.
  */
 abstract class DmlMigration extends AbstractMigration
 {
-    private const string DDL_PATTERN = '/^(\s|--(?=\s)[^\n]*\n|#[^\n]*\n|\/\*(?![!+]).*?\*\/|\/\*[!+]\d*)*(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)\b/is';
+    private const string IMPLICIT_COMMIT_PATTERN = '/^(\s|--(?=\s)[^\n]*\n|#[^\n]*\n|\/\*(?![!+]).*?\*\/|\/\*[!+]\d*)*(?:(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|XA|RESET|PURGE|LOAD\s+INDEX|CHECK|STOP|CHANGE|CALL|SET\s+PASSWORD)\b|SET\b.*?(?<!\w)(?<!(?<!@)@)AUTOCOMMIT\s*:?=)/is';
 
     final public function isTransactional(): bool
     {
@@ -52,8 +52,8 @@ abstract class DmlMigration extends AbstractMigration
             throw new \LogicException(\sprintf('The migration "%s" must pass one statement per addSql() call.', static::class));
         }
 
-        if (preg_match(self::DDL_PATTERN, $sql) === 1) {
-            throw new \LogicException(\sprintf('The DML migration "%s" cannot run DDL statements, use a DdlMigration instead.', static::class));
+        if (preg_match(self::IMPLICIT_COMMIT_PATTERN, $sql) === 1) {
+            throw new \LogicException(\sprintf('The DML migration "%s" cannot run a statement committing its transaction (DDL, transaction control, CALL...): use a DdlMigration instead.', static::class));
         }
 
         parent::addSql($sql, $params, $types);
