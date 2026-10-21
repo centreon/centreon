@@ -30,7 +30,8 @@ bin/console.new centreon:migrations:generate --set=configuration --dml --env=dev
 bin/console.new centreon:migrations:generate --module=centreon-open-tickets --ddl --env=dev
 ```
 
-Every migration extends one of the two base classes, in the namespace of its set: the runner refuses any other one.
+Every migration extends one of the two base classes, in the namespace of its set, alone in a file named after it: the
+runner refuses any other one.
 
 - `DdlMigration` for schema changes (`CREATE`, `ALTER`, `DROP`...). MySQL commits implicitly around DDL, so it runs
   outside any transaction: hold a **single idempotent statement**, so that replaying it after a failure is harmless.

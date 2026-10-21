@@ -176,25 +176,33 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
 
     /**
      * Doctrine silently ignores a class out of the namespace of the set, and would run a migration with no base class
-     * checks: the module would stay outdated, or bypass them.
+     * checks: the module would stay outdated, or bypass them. The Extension Manager also tells the pending migrations
+     * of a module from their file names (see ModuleSource): each one is named after its file.
      *
      * @throws \RuntimeException
      */
     private function assertConventions(DependencyFactory $factory, MigrationSetConfiguration $configuration): void
     {
-        $files = [];
+        $classes = [];
         foreach ($factory->getMigrationRepository()->getMigrations()->getItems() as $available) {
             $migration = $available->getMigration();
             if (! $migration instanceof DdlMigration && ! $migration instanceof DmlMigration) {
                 throw new \RuntimeException(\sprintf('The migration "%s" must extend DdlMigration or DmlMigration.', $migration::class));
             }
-            $files[] = (new \ReflectionClass($migration))->getFileName();
+            $classes[] = $migration::class;
         }
 
+        $expected = [];
         foreach (glob($configuration->directory . '/Version*.php') ?: [] as $file) {
-            if (! \in_array(realpath($file), $files, true)) {
-                throw new \RuntimeException(\sprintf('"%s" declares no migration in the "%s" namespace.', $file, $configuration->namespace));
+            $expected[] = $class = $configuration->namespace . '\\' . basename($file, '.php');
+            if (! \in_array($class, $classes, true)) {
+                throw new \RuntimeException(\sprintf('"%s" must declare the "%s" migration.', $file, $class));
             }
+        }
+
+        // Doctrine loads every class of the namespace declared in a migration file.
+        foreach (array_diff($classes, $expected) as $class) {
+            throw new \RuntimeException(\sprintf('The migration "%s" must be alone in a file named after it.', $class));
         }
     }
 

@@ -188,9 +188,26 @@ final class DoctrineMigrationRunnerTest extends TestCase
     public function testRefusesAMigrationDoctrineWouldIgnore(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('declares no migration in the "WrongNamespace\Migrations" namespace');
+        $this->expectExceptionMessage('must declare the "WrongNamespace\Migrations\Version20260101000001" migration');
 
         $this->invalidModulesRunner()->migrate(MigrationSet::module('wrong-namespace'));
+    }
+
+    public function testRefusesAMigrationNotNamedAfterItsFile(): void
+    {
+        // The Extension Manager tells the pending migrations from their file names.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('must declare the "MisnamedClass\Migrations\Version20260101000001" migration');
+
+        $this->invalidModulesRunner()->migrate(MigrationSet::module('misnamed-class'));
+    }
+
+    public function testRefusesAMigrationSharingTheFileOfAnother(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The migration "TwoClasses\Migrations\Version20260101000002" must be alone in a file named after it.');
+
+        $this->invalidModulesRunner()->migrate(MigrationSet::module('two-classes'));
     }
 
     public function testRefusesAMigrationEscapingTheBaseClassChecks(): void
