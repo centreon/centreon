@@ -5,7 +5,8 @@ paths:
   - "centreon/package.json"
   - "centreon/biome.json"
   - "centreon/tsconfig*.json"
-  - "centreon/{rspack,jest,cypress}.config*.{js,ts}"
+  - "centreon/{rspack,jest,cypress,rstest}.config*.{js,ts}"
+  - "centreon/test-setup/**"
 ---
 
 # Frontend (React) in centreon/centreon
@@ -27,14 +28,18 @@ convention change. Personal notes go in `CLAUDE.local.md` (git-ignored).
 
 Run from `centreon/` (pnpm workspace root; CI uses pnpm 10 and Node 24):
 
-| Command                          | Does                                            |
-| -------------------------------- | ----------------------------------------------- |
-| `pnpm build` / `pnpm build:dev`  | rspack production / development build           |
-| `pnpm centreon:watch`            | rspack dev server                               |
-| `pnpm lint` / `pnpm lint:fix`    | Biome on `www/front_src`                        |
-| `pnpm type-check`                | `tsc` on `tsconfig.typecheck.json` (runs in CI) |
-| `pnpm test`                      | Jest                                            |
-| `pnpm cypress:run --spec <path>` | Cypress component tests (Chromium, UTC)         |
+| Command                          | Does                                         |
+| -------------------------------- | -------------------------------------------- |
+| `pnpm build` / `pnpm build:dev`  | rspack production / development build        |
+| `pnpm centreon:watch`            | rspack dev server                            |
+| `pnpm lint` / `pnpm lint:fix`    | Biome on `www/front_src`                     |
+| `pnpm type-check`                | `tsc` on app and browser tests (runs in CI)  |
+| `pnpm test`                      | Jest                                         |
+| `pnpm rstest:run <path>`         | rstest browser tests (`-t '<name>'` for one) |
+| `pnpm rstest:ui <path>`          | the same in a visible browser, to debug      |
+| `pnpm cypress:run --spec <path>` | legacy Cypress component tests               |
+
+First rstest run: `pnpm rstest:install` (Playwright Chromium).
 
 `packages/ui` has the same scripts plus `storybook`; run them from that directory.
 
@@ -80,20 +85,30 @@ computed style before falling back.
 
 ## Tests
 
-Cypress component tests are the default; Jest (`*.test.ts(x)`) only for pure
-logic. Copy the shape of `Configuration/HostGroups/Specs/`:
+We are migrating component tests from Cypress to rstest (real Chromium,
+Testing Library, MSW 2). **Every new component test is an rstest browser test
+(`*.browser.test.tsx`); never add a Cypress spec.** Jest (`*.test.ts(x)`) stays
+for pure logic. `packages/ui` is not migrated yet: it stays on Cypress for now.
+
+Copy the shape of `Configuration/Hosts/Specs/`:
 
 - `initialize.tsx`: sets up i18n, a Jotai store (permissions, feature flags),
-  mocks every API call with `cy.interceptAPIRequest` (with an `alias`), and
-  mounts the feature with its providers. Mock responses go in `utils.ts`;
-  shared JSON fixtures in `centreon/cypress/fixtures`.
+  mocks every API call with `interceptAPIRequest` from `@test-setup/api` (with
+  an `alias`), and renders with `render` from `@test-setup/render`. Mock
+  responses go in `utils.ts`.
 - `<Feature>.<Area>.tsx` files export `describe` blocks; one
-  `<Feature>.cypress.spec.tsx` entry composes them.
-- In a test: `cy.waitForRequest('@alias')` before asserting; find elements by
-  the labels from `translatedLabels.ts`; assert sent payloads through
-  `cy.waitForRequest(...).then(({ request }) => ...)`; end visual tests with
-  `cy.makeSnapshot()`.
-- Specs are excluded from `pnpm type-check`; Biome still lints them.
+  `<Feature>.browser.test.tsx` entry composes them and calls
+  `expect.hasAssertions()` in a `beforeEach`.
+- In a test: await every `userEvent.*`, `findBy*`, `waitFor` and
+  `waitForRequest('@alias')`. There are no implicit retries like Cypress
+  `should`: anything that appears after an async step needs `findBy*` or
+  `waitFor`, not a plain `getBy*` + `expect`. Find elements by the labels from `translatedLabels.ts`; assert sent payloads with
+  `const { request } = await waitForRequest('@alias')`. No whole-page
+  snapshots: assert what matters explicitly.
+
+Migrating a Cypress spec, or unsure how to translate a command: follow
+`centreon/test-setup/MIGRATING_FROM_CYPRESS.md` (same test names, nothing
+dropped).
 
 ## Git and PRs
 
@@ -102,9 +117,8 @@ logic. Copy the shape of `Configuration/HostGroups/Specs/`:
 
 ## Do not
 
-- Regenerate visual snapshots wholesale (`cypress:run:updateSnapshot`) to make
-  a spec pass. Run the one spec, inspect the `*.diff.png`, update only
-  intended changes.
+- Update snapshots wholesale to make a test pass. Run the one test file,
+  inspect the diff, update only intended changes.
 - Commit secrets, or mention security vulnerabilities in branch names, commit
   messages or PR titles and descriptions.
 - Put module- or feature-specific detail here. It belongs in a `CLAUDE.md`
