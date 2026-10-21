@@ -28,8 +28,10 @@ use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 
 /**
  * A DDL migration would implicitly commit a transaction opened by the command bus.
@@ -68,6 +70,7 @@ final class MigrationCommandBusTest extends KernelTestCase
             }
         };
         self::getContainer()->set(MigrationRunner::class, $runner);
+        self::getContainer()->set(ModuleRepository::class, new FakeModuleRepository(['centreon-bus-fixture']));
         /** @var CommandBus $commandBus */
         $commandBus = self::getContainer()->get(CommandBus::class);
         $nestingLevel = $connection->getTransactionNestingLevel();

@@ -26,6 +26,7 @@ namespace Tests\App\Upgrade\Infrastructure\Legacy;
 use App\Upgrade\Infrastructure\Legacy\LegacyModuleRepository;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use CentreonModule\Infrastructure\Entity\Module;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
 use PHPUnit\Framework\TestCase;
@@ -61,5 +62,25 @@ final class LegacyModuleRepositoryTest extends TestCase
         (new LegacyModuleRepository($container))->updateAll();
 
         self::assertSame([], $cacheClearer->commands);
+    }
+
+    public function testAModuleIsInstalledWhenTheExtensionManagerSaysSo(): void
+    {
+        $installed = new Module();
+        $installed->setInstalled(true);
+
+        $moduleService = $this->createMock(CentreonModuleService::class);
+        $moduleService->method('getDetail')->willReturnMap([
+            ['centreon-open-tickets', 'module', $installed],
+            ['centreon-bam-server', 'module', new Module()],
+            ['centreon-unknown', 'module', null],
+        ]);
+        $container = new Container();
+        $container[ServiceProvider::CENTREON_MODULE] = $moduleService;
+        $repository = new LegacyModuleRepository($container);
+
+        self::assertTrue($repository->isInstalled('centreon-open-tickets'));
+        self::assertFalse($repository->isInstalled('centreon-bam-server'));
+        self::assertFalse($repository->isInstalled('centreon-unknown'));
     }
 }

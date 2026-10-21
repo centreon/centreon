@@ -29,6 +29,7 @@ use App\Upgrade\Application\Query\GetMigrationStatusQueryHandler;
 use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
+use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 
 final class GetMigrationStatusQueryHandlerTest extends TestCase
 {
@@ -37,11 +38,24 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         $runner = new FakeMigrationRunner();
         $runner->statuses = [new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), ['Centreon\Migrations\Configuration\Version1'], [])];
 
-        $handler = new GetMigrationStatusQueryHandler($runner);
+        $handler = new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository());
 
         self::assertSame($runner->statuses, $handler(new GetMigrationStatusQuery(MigrationSet::core(MigrationSet::CONFIGURATION))));
         $handler(new GetMigrationStatusQuery());
 
         self::assertEquals([MigrationSet::core(MigrationSet::CONFIGURATION), null], $runner->statusRequests, 'No set asks for every set');
+    }
+
+    public function testHidesTheModulesThatAreNotInstalled(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $configuration = new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), [], []);
+        $openTickets = new MigrationSetStatus(MigrationSet::module('centreon-open-tickets'), [], ['Version1']);
+        $runner->statuses = [$configuration, new MigrationSetStatus(MigrationSet::module('centreon-bam-server'), [], ['Version1']), $openTickets];
+
+        self::assertSame(
+            [$configuration, $openTickets],
+            (new GetMigrationStatusQueryHandler($runner, new FakeModuleRepository(['centreon-open-tickets'])))(new GetMigrationStatusQuery()),
+        );
     }
 }

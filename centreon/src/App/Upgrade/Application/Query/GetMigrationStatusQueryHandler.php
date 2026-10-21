@@ -26,12 +26,14 @@ namespace App\Upgrade\Application\Query;
 use App\Shared\Application\Query\AsQueryHandler;
 use App\Upgrade\Application\MigrationRunner;
 use App\Upgrade\Application\MigrationSetStatus;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 
 #[AsQueryHandler]
 final readonly class GetMigrationStatusQueryHandler
 {
     public function __construct(
         private MigrationRunner $migrationRunner,
+        private ModuleRepository $moduleRepository,
     ) {
     }
 
@@ -40,6 +42,10 @@ final readonly class GetMigrationStatusQueryHandler
      */
     public function __invoke(GetMigrationStatusQuery $query): array
     {
-        return $this->migrationRunner->status($query->set);
+        // The migrations of a module not installed run when it is installed.
+        return array_values(array_filter(
+            $this->migrationRunner->status($query->set),
+            fn (MigrationSetStatus $status): bool => $status->set->module === null || $this->moduleRepository->isInstalled($status->set->module),
+        ));
     }
 }

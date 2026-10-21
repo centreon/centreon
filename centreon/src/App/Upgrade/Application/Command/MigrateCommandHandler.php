@@ -29,6 +29,7 @@ use App\Upgrade\Application\MigrationSetLocker;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLocker;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 
@@ -42,12 +43,13 @@ final readonly class MigrateCommandHandler
         private TargetVersionRecorder $targetVersionRecorder,
         private UpdateRepository $updateRepository,
         private UpdateScriptFinder $updateScriptFinder,
+        private ModuleRepository $moduleRepository,
     ) {
     }
 
     /**
      * @throws \RuntimeException when another update, or another migration of the same module set, is in progress,
-     *                           or when legacy update scripts must run before the core sets
+     *                           when legacy update scripts must run before the core sets, or when the module is not installed
      *
      * @return list<string> the executed versions
      */
@@ -102,6 +104,11 @@ final readonly class MigrateCommandHandler
      */
     private function migrateModule(MigrationSet $set): array
     {
+        // Its install.sql, frozen once it ships migrations, would then run on a schema they already changed.
+        if (! $this->moduleRepository->isInstalled((string) $set->module)) {
+            throw new \RuntimeException(\sprintf('The module "%s" is not installed: its migrations run when it is installed.', $set->module));
+        }
+
         if (! $this->migrationSetLocker->lock($set)) {
             throw new \RuntimeException(\sprintf('The "%s" migration set is already being migrated', $set->name));
         }

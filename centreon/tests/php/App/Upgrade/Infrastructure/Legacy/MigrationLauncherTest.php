@@ -55,11 +55,16 @@ final class MigrationLauncherTest extends TestCase
             'password' => $this->env('password'),
             'dbname' => $this->env('db'),
         ]);
+        $this->connection->executeStatement(
+            'INSERT INTO modules_informations (name, rname, mod_release, is_removeable, infos, author, svc_tools, host_tools)'
+            . " VALUES ('" . self::MODULE . "', 'Launcher fixture', '1.0.0', '1', '', 'Centreon', '0', '0')",
+        );
     }
 
     protected function tearDown(): void
     {
         (new Filesystem())->remove($this->moduleDirectory);
+        $this->connection->executeStatement('DELETE FROM modules_informations WHERE name = ?', [self::MODULE]);
         $this->connection->executeStatement('DROP TABLE IF EXISTS fx_launcher');
         $this->connection->executeStatement('DROP TABLE IF EXISTS doctrine_migration_versions_centreon_launcher_fixture');
         $this->connection->close();
@@ -82,6 +87,16 @@ final class MigrationLauncherTest extends TestCase
         $this->expectExceptionMessage('Unsupported module name "not.a.module"');
 
         (new MigrationLauncher())->migrate('not.a.module');
+    }
+
+    public function testRefusesAModuleThatIsNotInstalled(): void
+    {
+        $this->connection->executeStatement('DELETE FROM modules_informations WHERE name = ?', [self::MODULE]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "' . self::MODULE . '" is not installed');
+
+        (new MigrationLauncher())->migrate(self::MODULE);
     }
 
     private function env(string $name): string

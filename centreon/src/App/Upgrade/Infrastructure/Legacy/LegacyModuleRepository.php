@@ -53,4 +53,12 @@ final readonly class LegacyModuleRepository implements ModuleRepository
         // UpdateCommandHandler clears them once, at the end.
         $cacheClearer->suspended(static fn (): array => $moduleService->updateAll(ModuleSource::TYPE));
     }
+
+    public function isInstalled(string $module): bool
+    {
+        /** @var CentreonModuleService $moduleService */
+        $moduleService = $this->legacyContainer[ServiceProvider::CENTREON_MODULE];
+
+        return $moduleService->getDetail($module, ModuleSource::TYPE)?->isInstalled() === true;
+    }
 }

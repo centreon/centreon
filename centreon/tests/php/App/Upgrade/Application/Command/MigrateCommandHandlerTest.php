@@ -30,6 +30,7 @@ use App\Upgrade\Domain\MigrationSet;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationSetLocker;
+use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateScriptFinder;
@@ -65,6 +66,7 @@ final class MigrateCommandHandlerTest extends TestCase
             new TargetVersionRecorder($this->updateRepository, $this->scriptFinder, self::TARGET_VERSION),
             $this->updateRepository,
             $this->scriptFinder,
+            new FakeModuleRepository(['centreon-open-tickets']),
         );
     }
 
@@ -109,6 +111,18 @@ final class MigrateCommandHandlerTest extends TestCase
 
         try {
             ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-open-tickets')));
+        } finally {
+            self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        }
+    }
+
+    public function testRefusesAModuleThatIsNotInstalled(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "centreon-bam-server" is not installed');
+
+        try {
+            ($this->handler)(new MigrateCommand(MigrationSet::module('centreon-bam-server')));
         } finally {
             self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
         }
