@@ -1250,6 +1250,19 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
+  # Only does real work when bruno-api-test failed AND the run was re-triggered with "Enable
+  # debug logging" checked — see bruno-api-debug-analysis.yml. Not matrixed like
+  # bruno-api-test: its reports aren't partitioned per OS/database, so one analysis pass
+  # covers all of them instead of repeating the same one per combo.
+  bruno-api-test-debug-analysis:
+    needs: [bruno-api-test]
+    if: |
+      !cancelled() &&
+      needs.bruno-api-test.result == 'failure'
+    uses: ./.github/workflows/bruno-api-debug-analysis.yml
+    secrets:
+      claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
+
   e2e-test:
     needs:
       [
@@ -1304,6 +1317,27 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  # Only does real work when that same combo's e2e-test leg failed AND the run was
+  # re-triggered with "Enable debug logging" checked — see cypress-e2e-debug-analysis.yml.
+  # Mirrors e2e-test's matrix since its artifacts *are* partitioned per OS/database.
+  e2e-test-debug-analysis:
+    needs: [get-environment, e2e-test]
+    if: |
+      !cancelled() &&
+      needs.e2e-test.result == 'failure'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: e2e-test-debug-analysis ${{ matrix.operating_system }}-${{ matrix.database }}
+    uses: ./.github/workflows/cypress-e2e-debug-analysis.yml
+    with:
+      name: e2e
+      os: ${{ matrix.operating_system }}
+      database_image: bitnamilegacy/${{ matrix.database }}
+    secrets:
+      claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
 
   # performances-test:
   #   runs-on: ubuntu-24.04
