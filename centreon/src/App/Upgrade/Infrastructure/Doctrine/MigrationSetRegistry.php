@@ -43,19 +43,19 @@ final readonly class MigrationSetRegistry
                 'default',
                 str_replace('-', '', ucwords($set->module, '-')) . '\Migrations',
                 $this->modulesDir . '/' . $set->module . '/migrations',
-                (string) MigrationSet::moduleTable($set->module),
+                $set->table(),
             ),
             $set->name === MigrationSet::REALTIME => new MigrationSetConfiguration(
                 'realtime',
                 'Centreon\Migrations\Realtime',
                 $this->projectDir . '/migrations/realtime',
-                MigrationSet::CORE_TABLE,
+                $set->table(),
             ),
             default => new MigrationSetConfiguration(
                 'default',
                 'Centreon\Migrations\Configuration',
                 $this->projectDir . '/migrations/configuration',
-                MigrationSet::CORE_TABLE,
+                $set->table(),
             ),
         };
     }

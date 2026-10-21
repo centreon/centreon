@@ -72,12 +72,11 @@ class Remover extends Module
     {
         $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
 
-        $table = MigrationSet::moduleTable($this->moduleName);
-        if ($table === null) {
+        if (! MigrationSet::isModuleName($this->moduleName)) {
             return;
         }
 
-        $this->services->get('configuration_db')->query('DROP TABLE IF EXISTS `' . $table . '`');
+        $this->services->get('configuration_db')->query('DROP TABLE IF EXISTS `' . MigrationSet::module($this->moduleName)->table() . '`');
     }
 
     /**

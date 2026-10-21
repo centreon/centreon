@@ -82,13 +82,11 @@ final readonly class MigrationSet
     }
 
     /**
-     * Static: also called by the legacy module code.
-     *
-     * @return string|null the metadata table of the module, null when the module name is not supported
+     * The core sets share one metadata table, each module has its own.
      */
-    public static function moduleTable(string $module): ?string
+    public function table(): string
     {
-        return self::isModuleName($module) ? self::CORE_TABLE . '_' . str_replace('-', '_', $module) : null;
+        return $this->module === null ? self::CORE_TABLE : self::CORE_TABLE . '_' . str_replace('-', '_', $this->module);
     }
 
     public function isModule(): bool

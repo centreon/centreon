@@ -52,10 +52,11 @@ class ModulesInformationsRepository extends ServiceEntityRepository
      */
     public function findExecutedMigrations(string $module): ?array
     {
-        $table = MigrationSet::moduleTable($module);
-        if ($table === null) {
+        if (! MigrationSet::isModuleName($module)) {
             return null;
         }
+
+        $table = MigrationSet::module($module)->table();
 
         try {
             $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
