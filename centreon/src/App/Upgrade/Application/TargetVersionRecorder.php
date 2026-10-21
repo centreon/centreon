@@ -56,6 +56,11 @@ final readonly class TargetVersionRecorder
      */
     public function record(string $legacyVersion): void
     {
+        // Removed by the update which recorded it: Update-next.php, which must hold the version back, can no longer be seen.
+        if (! $this->updateRepository->installDirectoryExists()) {
+            return;
+        }
+
         $targetVersion = $this->resolve($legacyVersion);
         if ($targetVersion !== $legacyVersion) {
             $this->updateRepository->updateVersionInformation($targetVersion);

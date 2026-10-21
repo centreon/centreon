@@ -63,6 +63,16 @@ final class TargetVersionRecorderTest extends TestCase
         self::assertSame([], $this->updateRepository->updatesRun);
     }
 
+    public function testRecordsNothingOnceAnUpdateRemovedTheInstallDirectory(): void
+    {
+        // It recorded the version, and Update-next.php is gone with the directory: a later migrate must not skip it.
+        $this->updateRepository->installDirectoryPresent = false;
+
+        $this->recorder->record('26.09.1');
+
+        self::assertSame([], $this->updateRepository->updatesRun);
+    }
+
     public function testLeavesTheVersionToTheLegacyScriptsOfTheComingRelease(): void
     {
         // A development build: recording 26.11.0 would skip Update-26.11.0.php once Update-next.php is renamed to it.
