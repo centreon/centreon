@@ -24,7 +24,7 @@ doctrine:
         dbname: "%env(dbcstg)%"
         user: "%env(user)%"
         password: "%env(password)%"
-        host: "%env(hostCentreon)%"
+        host: "%env(hostCentstorage)%"
         port: "%env(int:port)%"
       test_setup_default:
         server_version: "%env(DATABASE_SERVER_VERSION)%"
