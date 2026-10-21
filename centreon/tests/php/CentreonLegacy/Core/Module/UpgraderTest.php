@@ -27,6 +27,7 @@ use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use CentreonLegacy\Core\Cache\CacheClearer;
+use CentreonLegacy\Core\Migration\MigrationLauncher;
 use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
 
@@ -134,6 +135,12 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->once())
+            ->method('migrate')
+            ->with('module:MyModule');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+
         // Not suspended: the upgrade clears the caches itself.
         $cacheClearer = $this->createMock(CacheClearer::class);
         $cacheClearer->expects($this->once())->method('clear');
@@ -143,6 +150,37 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $id = $upgrader->upgrade();
 
         $this->assertEquals($id, 1);
+    }
+
+    public function testUpgradesAModuleShippingDoctrineMigrationsOnly(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/upgrade/'));
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+
+        // Finder::in() throws on a missing directory.
+        $finder = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $finder->expects($this->never())->method('in');
+        $this->container->registerProvider(new FinderProvider($finder));
+
+        $this->db->addResultSet(
+            'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id',
+            []
+        );
+        $this->db->addResultSet('UPDATE modules_informations SET `mod_release` = :mod_release WHERE id = :id', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->once())->method('migrate')->with('module:MyModule');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
+
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1);
+
+        $this->assertEquals(1, $upgrader->upgrade());
     }
 
     public function mockExists($file)

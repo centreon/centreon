@@ -21,6 +21,7 @@
 
 namespace CentreonModule\Domain\Repository;
 
+use App\Upgrade\Domain\MigrationSet;
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 class ModulesInformationsRepository extends ServiceEntityRepository
@@ -44,6 +45,31 @@ class ModulesInformationsRepository extends ServiceEntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @return list<string> class names without namespace
+     */
+    public function findExecutedMigrations(string $module): array
+    {
+        $table = MigrationSet::moduleTable($module);
+        if ($table === null) {
+            return [];
+        }
+
+        try {
+            $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
+            $stmt->execute();
+        } catch (\Exception) {
+            return [];
+        }
+
+        $migrations = [];
+        while ($row = $stmt->fetch()) {
+            $migrations[] = substr(strrchr('\\' . $row['version'], '\\'), 1);
+        }
+
+        return $migrations;
     }
 
     /**

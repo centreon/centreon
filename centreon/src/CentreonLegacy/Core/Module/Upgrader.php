@@ -41,15 +41,18 @@ class Upgrader extends Module
         // Process all directories within the /upgrade/ path.
         // Entry name should be a version.
         $upgradesPath = $this->getModulePath($this->moduleName) . '/upgrade/';
-        /** @var Finder $upgrades */
-        $upgrades = $this->services->get('finder');
-        $upgrades
-            ->directories()
-            ->depth('== 0')
-            ->in($upgradesPath);
         $orderedUpgrades = [];
-        foreach ($upgrades as $upgrade) {
-            $orderedUpgrades[] = $upgrade->getBasename();
+        // Absent from a module shipping doctrine migrations only.
+        if ($this->services->get('filesystem')->exists($upgradesPath)) {
+            /** @var Finder $upgrades */
+            $upgrades = $this->services->get('finder');
+            $upgrades
+                ->directories()
+                ->depth('== 0')
+                ->in($upgradesPath);
+            foreach ($upgrades as $upgrade) {
+                $orderedUpgrades[] = $upgrade->getBasename();
+            }
         }
         usort($orderedUpgrades, 'version_compare');
         foreach ($orderedUpgrades as $upgradeName) {
@@ -78,6 +81,8 @@ class Upgrader extends Module
             $this->upgradeSqlFiles($upgradePath);
             $this->upgradePhpFiles($upgradePath, false);
         }
+
+        $this->migrate();
 
         // finally, upgrade to current version
         $this->upgradeVersion($this->moduleConfiguration['mod_release']);

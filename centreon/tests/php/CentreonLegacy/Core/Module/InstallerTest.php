@@ -25,6 +25,8 @@ use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Migration\MigrationLauncher;
+use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
 
 class InstallerTest extends \PHPUnit\Framework\TestCase
@@ -91,9 +93,49 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
+        // Migrations last: a failure only leaves them pending.
+        $journal = new \ArrayObject();
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = basename($file);
+        });
+        $this->utils->method('executeSqlFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = basename($file);
+        });
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->once())
+            ->method('migrate')
+            ->with('module:MyModule')
+            ->willReturnCallback(static function () use ($journal): void {
+                $journal[] = 'migrations';
+            });
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+
         $installer = new Installer(new Container($this->container), $this->information, 'MyModule', $this->utils);
         $id = $installer->install();
 
         $this->assertEquals($id, 1);
+        $this->assertSame(['install.pre.php', 'install.sql', 'install.php', 'migrations'], $journal->getArrayCopy());
+    }
+
+    public function testInstallWithoutMigrationsDirectoryDoesNotLaunchThem(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/migrations'));
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $this->db->addResultSet(
+            'INSERT INTO modules_informations '
+            . '(`name` , `rname` , `mod_release` , `is_removeable` , `infos` , `author` , '
+            . '`svc_tools`, `host_tools`)'
+            . 'VALUES ( :name , :rname , :mod_release , :is_removeable , :infos , :author , '
+            . ':svc_tools , :host_tools )',
+            []
+        );
+        $this->db->addResultSet('SELECT MAX(id) as id FROM modules_informations', [['id' => 1]]);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->never())->method('migrate');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+
+        $this->assertEquals(1, (new Installer(new Container($this->container), $this->information, 'MyModule', $this->utils))->install());
     }
 }

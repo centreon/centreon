@@ -247,8 +247,13 @@ class ModuleSource extends SourceAbstract
             $entity->setVersionCurrent($this->info[$entity->getId()]);
             $entity->setInstalled(true);
 
-            $isUpdated = $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
-            $entity->setUpdated($isUpdated);
+            // Older code is a package rollback, never a reason to downgrade. Pending migrations resume an
+            // installation or an upgrade that failed midway.
+            $entity->setPendingMigrations($this->hasPendingMigrations($entity->getId(), $entity->getPath()));
+            $entity->setUpdated(
+                version_compare((string) $this->info[$entity->getId()], (string) $entity->getVersion(), '>=')
+                && ! $entity->hasPendingMigrations()
+            );
         }
 
         return $entity;
@@ -307,6 +312,18 @@ class ModuleSource extends SourceAbstract
     protected function getPath(): string
     {
         return $this->path . static::PATH;
+    }
+
+    private function hasPendingMigrations(string $moduleId, string $modulePath): bool
+    {
+        $available = array_map(static fn (string $file): string => basename($file, '.php'), glob($modulePath . '/migrations/Version*.php') ?: []);
+        if ($available === []) {
+            return false;
+        }
+
+        $executed = $this->db->getRepository(ModulesInformationsRepository::class)->findExecutedMigrations($moduleId);
+
+        return array_diff($available, $executed) !== [];
     }
 
     /**

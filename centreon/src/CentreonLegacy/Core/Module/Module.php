@@ -21,6 +21,7 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use App\Upgrade\Domain\MigrationSet;
 use CentreonLegacy\Core\Utils\Utils;
 use CentreonLegacy\ServiceProvider;
 use Psr\Container\ContainerInterface;
@@ -76,5 +77,17 @@ class Module
     public function getModulePath($moduleName = '')
     {
         return $this->utils->buildPath('/modules/' . $moduleName);
+    }
+
+    /**
+     * @throws \RuntimeException
+     */
+    protected function migrate(): void
+    {
+        if (! $this->services->get('filesystem')->exists($this->getModulePath($this->moduleName) . '/migrations')) {
+            return;
+        }
+
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER)->migrate(MigrationSet::forModule($this->moduleName));
     }
 }

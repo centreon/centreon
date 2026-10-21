@@ -75,8 +75,22 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
             ->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
+        $this->db = new class () extends CentreonDB {
+            public array $executedQueries = [];
+
+            public function query($queryString, $parameters = null, ...$parametersArgs): \Centreon\Test\Mock\CentreonDBStatement|false
+            {
+                $this->executedQueries[] = $queryString;
+
+                return parent::query($queryString, $parameters, ...$parametersArgs);
+            }
+        };
         $this->db->addResultSet(
             'DELETE FROM modules_informations WHERE id = :id ',
+            []
+        );
+        $this->db->addResultSet(
+            'DROP TABLE IF EXISTS `doctrine_migration_versions_mymodule`',
             []
         );
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
@@ -85,5 +99,20 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         $removed = $remover->remove();
 
         $this->assertEquals($removed, true);
+        $this->assertSame(['DROP TABLE IF EXISTS `doctrine_migration_versions_mymodule`'], $this->db->executedQueries);
+    }
+
+    public function testRemoveLeavesTheTablesOfUnsupportedModuleNamesAlone(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No DROP TABLE registered: running one would throw.
+        $this->db->addResultSet('DELETE FROM modules_informations WHERE id = :id ', []);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $remover = new Remover(new Container($this->container), $this->information, 'my.module', $this->utils);
+
+        $this->assertTrue($remover->remove());
     }
 }

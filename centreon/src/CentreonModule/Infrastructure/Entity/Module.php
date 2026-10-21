@@ -76,6 +76,8 @@ class Module implements SourceDataInterface
     /** @var bool */
     private $isUpdated = false;
 
+    private bool $hasPendingMigrations = false;
+
     /**
      * @var string[] names of the module's dependencies
      *
@@ -350,6 +352,16 @@ class Module implements SourceDataInterface
     public function setUpdated(bool $value): void
     {
         $this->isUpdated = $value;
+    }
+
+    public function hasPendingMigrations(): bool
+    {
+        return $this->hasPendingMigrations;
+    }
+
+    public function setPendingMigrations(bool $value): void
+    {
+        $this->hasPendingMigrations = $value;
     }
 
     /**

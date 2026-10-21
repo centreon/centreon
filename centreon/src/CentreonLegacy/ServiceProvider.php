@@ -23,6 +23,7 @@ namespace CentreonLegacy;
 
 use Centreon\Infrastructure\Provider\AutoloadServiceProviderInterface;
 use CentreonLegacy\Core\Cache\CacheClearer;
+use CentreonLegacy\Core\Migration\MigrationLauncher;
 use CentreonLegacy\Core\Module;
 use CentreonLegacy\Core\Module\License;
 use CentreonLegacy\Core\Utils;
@@ -47,6 +48,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     public const CENTREON_LEGACY_WIDGET_INSTALLER = 'centreon.legacy.widget.installer';
     public const CENTREON_LEGACY_WIDGET_UPGRADER = 'centreon.legacy.widget.upgrader';
     public const CENTREON_LEGACY_WIDGET_REMOVER = 'centreon.legacy.widget.remover';
+    public const CENTREON_LEGACY_MIGRATION_LAUNCHER = 'centreon.legacy.migration.launcher';
     public const CENTREON_LEGACY_CACHE_CLEARER = 'centreon.legacy.cache.clearer';
     public const SYMFONY_FINDER = 'sf.finder';
 
@@ -71,6 +73,10 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::SYMFONY_FINDER] = function (Container $container): Finder {
             return new Finder();
+        };
+
+        $pimple[static::CENTREON_LEGACY_MIGRATION_LAUNCHER] = function (Container $container): MigrationLauncher {
+            return new MigrationLauncher();
         };
 
         // Shared: a suspension must reach every upgrader of the batch.
@@ -147,6 +153,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
                 'configuration_db',
                 ServiceProvider::CENTREON_LEGACY_UTILS,
                 ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION,
+                ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER,
             ];
 
             $locator = new ServiceLocator($container, $services);
@@ -164,6 +171,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
                 'configuration_db',
                 ServiceProvider::CENTREON_LEGACY_UTILS,
                 ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION,
+                ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER,
                 ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER,
             ];
 

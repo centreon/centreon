@@ -21,6 +21,8 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use App\Upgrade\Domain\MigrationSet;
+
 class Remover extends Module
 {
     /**
@@ -30,6 +32,7 @@ class Remover extends Module
     {
         $this->removePhpFiles(true);
         $this->removeSqlFiles();
+        $this->dropMigrationsTable();
         $this->removePhpFiles(false);
         $this->removeModuleConfiguration();
 
@@ -59,6 +62,19 @@ class Remover extends Module
         $sth->execute();
 
         return true;
+    }
+
+    /**
+     * So that a reinstallation starts over.
+     */
+    private function dropMigrationsTable(): void
+    {
+        $table = MigrationSet::moduleTable($this->moduleName);
+        if ($table === null) {
+            return;
+        }
+
+        $this->services->get('configuration_db')->query('DROP TABLE IF EXISTS `' . $table . '`');
     }
 
     /**
