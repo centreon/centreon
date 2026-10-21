@@ -116,7 +116,7 @@ $template->display('content.tpl');
         if (myCurrent !== '' && myNext !== '') {
             nextStep(myCurrent, myNext);
         } else {
-            migrateDatabases(updateModules);
+            finishUpgrade();
         }
     });
 
@@ -145,15 +145,24 @@ $template->display('content.tpl');
                     if (data['next']) {
                         nextStep(data['current'], data['next']);
                     } else {
-                        migrateDatabases(function () {
-                            generateEngineContextConfiguration(updateModules);
-                        });
+                        finishUpgrade();
                     }
                 } else {
                     jQuery('#troubleshoot').show();
                     jQuery('#refresh').show();
                 }
             });
+    }
+
+    /**
+     * Run the steps following the legacy scripts, also on a refresh once they all passed
+     *
+     * @return void
+     */
+    function finishUpgrade() {
+        migrateDatabases(function () {
+            generateEngineContextConfiguration(updateModules);
+        });
     }
 
     /**
