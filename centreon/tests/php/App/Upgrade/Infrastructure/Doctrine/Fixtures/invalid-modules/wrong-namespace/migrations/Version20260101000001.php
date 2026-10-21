@@ -18,9 +18,11 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 // The set expects WrongNamespace\Migrations.
+
 namespace CentreonWrongNamespace\Migrations;
 
 use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
