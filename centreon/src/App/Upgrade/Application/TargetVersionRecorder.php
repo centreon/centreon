@@ -71,6 +71,11 @@ final readonly class TargetVersionRecorder
      */
     public function resolve(string $legacyVersion): string
     {
+        // Removed by the update which recorded it: Update-next.php, which must hold the version back, can no longer be seen.
+        if (! $this->updateRepository->installDirectoryExists()) {
+            return $legacyVersion;
+        }
+
         return UpgradeTargetVersion::resolve($this->platformVersion, $legacyVersion, $this->updateScriptFinder->hasPendingNextUpdate());
     }
 
@@ -81,11 +86,6 @@ final readonly class TargetVersionRecorder
      */
     public function record(string $legacyVersion): void
     {
-        // Removed by the update which recorded it: Update-next.php, which must hold the version back, can no longer be seen.
-        if (! $this->updateRepository->installDirectoryExists()) {
-            return;
-        }
-
         $targetVersion = $this->resolve($legacyVersion);
         if ($targetVersion !== $legacyVersion) {
             $this->updateRepository->updateVersionInformation($targetVersion);

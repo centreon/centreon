@@ -68,6 +68,7 @@ final class TargetVersionRecorderTest extends TestCase
         // It recorded the version, and Update-next.php is gone with the directory: a later migrate must not skip it.
         $this->updateRepository->installDirectoryPresent = false;
 
+        self::assertSame('26.09.1', $this->recorder->resolve('26.09.1'), 'The update announces what it records');
         $this->recorder->record('26.09.1');
 
         self::assertSame([], $this->updateRepository->updatesRun);
