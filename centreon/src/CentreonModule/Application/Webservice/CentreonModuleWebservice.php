@@ -24,10 +24,13 @@ namespace CentreonModule\Application\Webservice;
 use Centreon\Application\DataRepresenter\Bulk;
 use Centreon\Application\DataRepresenter\Response;
 use Centreon\Infrastructure\Webservice;
+use CentreonLegacy\Core\Cache\CacheClearer;
+use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
 use CentreonModule\Application\DataRepresenter\ModuleDetailEntity;
 use CentreonModule\Application\DataRepresenter\ModuleEntity;
 use CentreonModule\Application\DataRepresenter\UpdateAction;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
+use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
 
 /**
@@ -475,6 +478,19 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *       required=true
      *   ),
      *
+     *   @OA\Parameter(
+     *       in="query",
+     *       name="clearCache",
+     *
+     *       @OA\Schema(
+     *          type="string",
+     *          enum={"0", "1"},
+     *          default="1"
+     *       ),
+     *       description="0 to leave the cache as is when updating several modules: only the last update clears it",
+     *       required=false
+     *   ),
+     *
      *   @OA\Response(
      *       response="200",
      *       description="OK",
@@ -505,14 +521,28 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
         $result = null;
         $entity = null;
 
+        /** @var CentreonModuleService $moduleService */
+        $moduleService = $this->getDi()[ServiceProvider::CENTREON_MODULE];
+        /** @var CacheClearer $cacheClearer */
+        $cacheClearer = $this->getDi()[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER];
+
         try {
-            $entity = $this->getDi()[ServiceProvider::CENTREON_MODULE]
-                ->update($id, $type);
+            // One clear for the module and its dependencies.
+            $entity = $cacheClearer->suspended(static fn () => $moduleService->update($id, $type));
         } catch (\Exception $e) {
             $result = new UpdateAction(null, $e->getMessage());
         }
 
-        if ($entity !== null) {
+        // Even after a failure, for the dependencies already upgraded. A batch passes clearCache=0 but on its last module.
+        if ($type === ModuleSource::TYPE && ($request['clearCache'] ?? '1') !== '0') {
+            try {
+                $cacheClearer->clear();
+            } catch (\Exception $e) {
+                $result ??= new UpdateAction(null, $e->getMessage());
+            }
+        }
+
+        if ($entity !== null && $result === null) {
             $result = new UpdateAction($entity);
             $status = true;
         }

@@ -23,10 +23,9 @@ declare(strict_types=1);
 
 namespace CentreonLegacy\Core\Module;
 
+use CentreonLegacy\ServiceProvider;
 use CentreonLog;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class Upgrader extends Module
 {
@@ -84,21 +83,9 @@ class Upgrader extends Module
         $this->upgradeVersion($this->moduleConfiguration['mod_release']);
 
         // Clearing symfony cache to properly enable API routes.
-        $this->clearCache();
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER)->clear();
 
         return $this->moduleId;
-    }
-
-    private function clearCache(): void
-    {
-        $process = new Process(['php', 'bin/console', 'cache:clear']);
-        $process->setWorkingDirectory(_CENTREON_PATH_);
-
-        $process->run();
-
-        if (! $process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
     }
 
     /**

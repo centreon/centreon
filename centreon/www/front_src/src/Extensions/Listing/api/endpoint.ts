@@ -8,6 +8,7 @@ import { Criteria } from '../../Filter/Criterias/models';
 
 interface Parameter {
   action: string;
+  clearCache?: boolean;
   id: string;
   type: string;
 }
@@ -21,8 +22,15 @@ interface ParameterWithFilter {
 
 const baseEndpoint = './api/internal.php?object=centreon_module&';
 
-const buildEndPoint = ({ action, id, type }: Parameter): string => {
-  return `${baseEndpoint}action=${action}&id=${id}&type=${type}`;
+const buildEndPoint = ({
+  action,
+  clearCache = true,
+  id,
+  type
+}: Parameter): string => {
+  const endpoint = `${baseEndpoint}action=${action}&id=${id}&type=${type}`;
+
+  return clearCache ? endpoint : `${endpoint}&clearCache=0`;
 };
 
 const buildExtensionEndPoint = ({

@@ -26,6 +26,8 @@ use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Cache\CacheClearer;
+use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
 
 class UpgraderTest extends \PHPUnit\Framework\TestCase
@@ -37,39 +39,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
     private $information;
 
     private $utils;
-
-    private static $originalProcessClass;
-
-    /**
-     * Create a hacky Process class for the test
-     */
-    public static function setUpBeforeClass(): void
-    {
-        // Save the real Process if it is already loaded
-        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
-            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
-        }
-
-        // HACK: create a fake Process in the Symfony namespace
-        eval('
-        namespace Symfony\Component\Process;
-        class Process {
-            public function __construct(array $cmd) {}
-            public function setWorkingDirectory($dir) {}
-            public function run() {}
-            public function isSuccessful() { return true; }
-        }');
-    }
-
-    /**
-     * Delete mock and restore origin class.
-     */
-    public static function tearDownAfterClass(): void
-    {
-        if (self::$originalProcessClass !== null) {
-            self::$originalProcessClass = null;
-        }
-    }
 
     public function setUp(): void
     {
@@ -118,12 +87,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function testUpgrader(): void
     {
-        // HACK:this is done to prevent an error in code execution that says
-        // the constant is not defined while using the Symfony proccess setWorkingDir method
-        if (! defined('_CENTREON_PATH_')) {
-            define('_CENTREON_PATH_', getcwd());
-        }
-
         $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['exists'])
@@ -170,6 +133,11 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         );
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        // Not suspended: the upgrade clears the caches itself.
+        $cacheClearer = $this->createMock(CacheClearer::class);
+        $cacheClearer->expects($this->once())->method('clear');
+        $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $cacheClearer;
 
         $upgrader = new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1);
         $id = $upgrader->upgrade();

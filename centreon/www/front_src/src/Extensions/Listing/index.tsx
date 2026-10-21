@@ -15,7 +15,7 @@ import {
 } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
-import { filter, find, isEmpty, pathEq, propEq } from 'ramda';
+import { filter, find, findLastIndex, isEmpty, pathEq, propEq } from 'ramda';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -184,9 +184,58 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
     if (entities.length <= 0 || !entities) {
       return;
     }
-    entities.forEach((entity) => {
-      updateById(entity.id, entity.type);
-    });
+    const ids = entities.map(({ id }) => id);
+    setExtensionsUpdatingStatusByIds(ids, true);
+    // Sequential, so that a shared dependency is never upgraded twice at once. Only the last module clears the cache.
+    const lastModuleIndex = findLastIndex(propEq('module', 'type'), entities);
+    entities
+      .reduce(
+        (previous, { id, type }, index) =>
+          previous.then(() =>
+            sendUpdateOrInstallExtensionRequests({
+              endpoint: buildEndPoint({
+                action: 'update',
+                clearCache: index === lastModuleIndex,
+                id,
+                type
+              })
+            }).then(
+              ({ status, result }) => {
+                if (!status) {
+                  showErrorMessage(result.message as string);
+                } else {
+                  showSuccessMessage('update succeeded');
+                }
+              },
+              // Already reported: carry on with the next extensions.
+              () => undefined
+            )
+          ),
+        Promise.resolve()
+      )
+      .then(() =>
+        sendExtensionsRequests({
+          endpoint: buildExtensionEndPoint({
+            action: 'list',
+            criteriaSearch: getFilterCriteria('search'),
+            criteriaStatus: getFilterCriteria('statuses'),
+            criteriaTypes: getFilterCriteria('types')
+          })
+        })
+      )
+      .then(({ status, result }) => {
+        if (status) {
+          const data = result as Extensions;
+          setExtension({
+            module: data.module ?? { entities: [] },
+            widget: data.widget ?? { entities: [] }
+          });
+        }
+      })
+      .finally(() => {
+        setExtensionsUpdatingStatusByIds(ids, false);
+        reloadNavigation();
+      });
   };
 
   const installAllEntities = (): void => {
@@ -200,7 +249,7 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   };
 
   const updateById = (id: string, type: string): void => {
-    setExtensionsUpdatingStatusByIds(id, true);
+    setExtensionsUpdatingStatusByIds([id], true);
     sendUpdateOrInstallExtensionRequests({
       endpoint: buildEndPoint({
         action: 'update',
@@ -232,7 +281,9 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
             widget: data.widget ?? { entities: [] }
           });
         }
-        setExtensionsUpdatingStatusByIds(id, false);
+      })
+      .finally(() => {
+        setExtensionsUpdatingStatusByIds([id], false);
         reloadNavigation();
       });
   };
@@ -276,15 +327,13 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
   };
 
   const setExtensionsUpdatingStatusByIds = (
-    id: string,
+    ids: Array<string>,
     updating: boolean
   ): void => {
-    let statuses = extensionsUpdatingStatus;
-    statuses = {
+    setExtensionsUpdatingStatus((statuses) => ({
       ...statuses,
-      [id]: updating
-    };
-    setExtensionsUpdatingStatus(statuses);
+      ...Object.fromEntries(ids.map((id) => [id, updating]))
+    }));
   };
 
   const setExtensionsInstallingStatusByIds = (

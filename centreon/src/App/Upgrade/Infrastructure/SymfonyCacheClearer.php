@@ -26,6 +26,7 @@ namespace App\Upgrade\Infrastructure;
 use App\Upgrade\Application\CacheClearer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 final readonly class SymfonyCacheClearer implements CacheClearer
@@ -41,8 +42,11 @@ final readonly class SymfonyCacheClearer implements CacheClearer
     {
         $this->logger->info('Clearing Symfony cache');
 
+        // No timeout: it would fail the upgrade once everything else ran.
+        $php = (new PhpExecutableFinder())->find(false) ?: 'php';
+
         foreach (['bin/console', 'bin/console.new'] as $console) {
-            $process = new Process(['php', $console, 'cache:clear'], $this->projectDir);
+            $process = new Process([$php, $console, 'cache:clear'], $this->projectDir, null, null, null);
             $process->run();
 
             if (! $process->isSuccessful()) {
