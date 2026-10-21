@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\Dto;
 
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingTimePeriod;
 use App\Shared\Domain\Aggregate\TriStateEnum;

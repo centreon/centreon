@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\DuplicateCommandsProcessor;
 
 #[Post(

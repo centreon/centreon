@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\PatchHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\Dto\PatchHostInput;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\ApiPlatform\RequestPayload;

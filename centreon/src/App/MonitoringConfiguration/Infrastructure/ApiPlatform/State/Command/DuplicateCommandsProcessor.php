@@ -31,7 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
