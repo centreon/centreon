@@ -77,6 +77,10 @@ class UpgradeProgress
             $statement->bindValue(':key', self::KEY_PREFIX . $module, \PDO::PARAM_STR);
             $statement->bindValue(':value', $value, \PDO::PARAM_STR);
             $statement->execute();
+            // Saved after each upgrade.sql query: the row usually exists. No row affected may also be an unchanged one.
+            if ($statement->rowCount() > 0) {
+                return;
+            }
 
             $statement = $this->db->prepare(
                 'INSERT INTO `options` (`key`, `value`) SELECT :key, :value FROM DUAL'

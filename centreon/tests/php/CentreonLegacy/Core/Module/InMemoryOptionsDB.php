@@ -34,11 +34,16 @@ final class InMemoryOptionsDB extends CentreonDB
     /** @var array<string, string> */
     public array $rows = [];
 
+    /** @var list<string> the executed writes */
+    public array $writes = [];
+
     public function prepare(string $query, array $options = []): CentreonDBStatement|false
     {
         return new class ($query, [], $this) extends CentreonDBStatement {
             /** @var array{value: string}|false */
             private array|false $row = false;
+
+            private int $affectedRows = 0;
 
             public function execute($parameters = null): bool
             {
@@ -46,15 +51,39 @@ final class InMemoryOptionsDB extends CentreonDB
                 $db = $this->db;
                 $key = (string) ($this->params[':key'] ?? '');
 
-                match (strtok($this->query, ' ')) {
+                $verb = (string) strtok($this->query, ' ');
+                if ($verb !== 'SELECT') {
+                    $db->writes[] = $verb;
+                }
+
+                match ($verb) {
                     'SELECT' => $this->row = isset($db->rows[$key]) ? ['value' => $db->rows[$key]] : false,
-                    'UPDATE' => isset($db->rows[$key]) ? $db->rows[$key] = (string) $this->params[':value'] : null,
+                    'UPDATE' => $this->update($db, $key),
                     'INSERT' => $db->rows[$key] ??= (string) $this->params[':value'],
                     'DELETE' => $db->rows = array_diff_key($db->rows, [$key => true]),
                     default => throw new \LogicException('Unexpected query: ' . $this->query),
                 };
 
                 return true;
+            }
+
+            public function rowCount(): int
+            {
+                return $this->affectedRows;
+            }
+
+            private function update(InMemoryOptionsDB $db, string $key): void
+            {
+                $value = (string) $this->params[':value'];
+                if (! isset($db->rows[$key])) {
+                    $this->affectedRows = 0;
+
+                    return;
+                }
+
+                // As MySQL, an unchanged row is not counted as affected.
+                $this->affectedRows = $db->rows[$key] !== $value ? 1 : 0;
+                $db->rows[$key] = $value;
             }
 
             public function fetch(int $mode = \PDO::FETCH_DEFAULT, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): false|array

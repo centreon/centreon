@@ -57,6 +57,17 @@ class UpgradeProgressTest extends TestCase
         $this->assertSame(self::NOTHING_PASSED, $this->progress->get('centreon-open-tickets', '26.01.0'));
     }
 
+    public function testOnlyTheFirstSaveInsertsTheRow(): void
+    {
+        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 1, 'checksum' => 'abc']);
+        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 2, 'checksum' => 'abc']);
+        $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 2, 'checksum' => 'abc']);
+
+        $this->assertSame(['UPDATE', 'INSERT', 'UPDATE', 'UPDATE', 'INSERT'], $this->db->writes, 'An unchanged progress falls back to the guarded insert');
+        $this->assertCount(1, $this->db->rows);
+        $this->assertSame(['pre' => true, 'sql' => 2, 'checksum' => 'abc'], $this->progress->get('centreon-open-tickets', '26.01.0'));
+    }
+
     public function testTheProgressOfAnotherVersionIsStale(): void
     {
         $this->progress->save('centreon-open-tickets', '26.01.0', ['pre' => true, 'sql' => 3, 'checksum' => 'abc']);
