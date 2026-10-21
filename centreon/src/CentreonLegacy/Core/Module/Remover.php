@@ -21,6 +21,9 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use App\Upgrade\Domain\MigrationSet;
+use CentreonLegacy\ServiceProvider;
+
 class Remover extends Module
 {
     /**
@@ -31,6 +34,9 @@ class Remover extends Module
         $this->removePhpFiles(true);
         $this->removeSqlFiles();
         $this->removePhpFiles(false);
+        // Once its scripts passed: a module whose uninstallation failed stays installed, and its migrations must not look
+        // pending. Before its row: a module left with its history would skip its migrations once reinstalled.
+        $this->forgetUpgradeHistory();
         $this->removeModuleConfiguration();
 
         return true;
@@ -59,6 +65,20 @@ class Remover extends Module
         $sth->execute();
 
         return true;
+    }
+
+    /**
+     * So that a reinstallation starts over.
+     */
+    private function forgetUpgradeHistory(): void
+    {
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
+
+        if (! MigrationSet::isModuleName($this->moduleName)) {
+            return;
+        }
+
+        $this->services->get('configuration_db')->query('DROP TABLE IF EXISTS `' . MigrationSet::module($this->moduleName)->table() . '`');
     }
 
     /**

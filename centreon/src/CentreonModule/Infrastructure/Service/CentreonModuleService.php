@@ -124,6 +124,65 @@ class CentreonModuleService
         return $this->sources[$type]->update($id);
     }
 
+    public static function isOutdated(Module $module): bool
+    {
+        return $module->isInstalled() && ! $module->isUpdated();
+    }
+
+    /**
+     * @return list<Module>
+     */
+    public function getOutdated(string $type): array
+    {
+        if (! array_key_exists($type, $this->sources)) {
+            return [];
+        }
+
+        return $this->sources[$type]->getList(null, true, false);
+    }
+
+    /**
+     * A failure does not stop the others: failures are reported once all were attempted.
+     *
+     * @throws \RuntimeException when some could not be updated
+     *
+     * @return list<Module> the updated modules or widgets
+     */
+    public function updateAll(string $type): array
+    {
+        $updated = [];
+        $failures = [];
+        $attempted = false;
+        foreach ($this->getOutdated($type) as $outdated) {
+            // Possibly upgraded as a dependency of one attempted before.
+            if ($attempted) {
+                $current = $this->getDetail($outdated->getId(), $type);
+                if ($current === null || ! self::isOutdated($current)) {
+                    continue;
+                }
+            }
+            $attempted = true;
+
+            try {
+                $entity = $this->update($outdated->getId(), $type);
+            } catch (\Throwable $exception) {
+                $failures[] = \sprintf('%s: %s', $outdated->getId(), $exception->getMessage());
+
+                continue;
+            }
+
+            if ($entity !== null) {
+                $updated[] = $entity;
+            }
+        }
+
+        if ($failures !== []) {
+            throw new \RuntimeException('Some updates failed. ' . implode(' ', $failures));
+        }
+
+        return $updated;
+    }
+
     /**
      * @param string $id
      * @param string $type
