@@ -255,7 +255,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             return [];
         }
 
-        $this->logger->info('Running the "{set}" migration set', ['set' => $set->name, 'direction' => $plan->getDirection()]);
+        $this->logger->info('Running the {set}', ['set' => $set->label(), 'direction' => $plan->getDirection()]);
 
         return array_map('strval', array_keys($factory->getMigrator()->migrate($plan, new MigratorConfiguration())));
     }
