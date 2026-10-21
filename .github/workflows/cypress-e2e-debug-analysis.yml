@@ -76,26 +76,26 @@ jobs:
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      # This leg's matrix combo (os/database) may not be the one that actually failed — the
-      # caller triggers every combo once *any* of them fails. If this combo passed, it has no
-      # test-results artifact (only uploaded `if: failure()` per combo in the test workflow);
-      # continue-on-error so a plain "nothing to download" doesn't fail this job.
+      # cypress-e2e-parallelization.yml's own regroup-artifacts job already merges every
+      # per-feature artifact into one combined one named exactly like this (no trailing
+      # `-<feature>` suffix) and deletes the per-feature originals — so this must be an exact
+      # `name:` match, not a `pattern:` wildcard (which would match nothing once the
+      # per-feature artifacts are gone). The merged test-results artifact only exists when
+      # this combo had a failure; continue-on-error so its absence doesn't fail this job.
       - name: Download failed test artifacts (screenshots, videos, logs)
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
         continue-on-error: true
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-test-results-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-test-results
           path: debug-analysis/test-results
-          merge-multiple: true
 
       - name: Download test reports (mochawesome JSON)
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-test-reports-*
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-test-reports
           path: debug-analysis/test-reports
-          merge-multiple: true
 
       - name: Merge mochawesome reports and check this combo actually failed
         id: failure-check
