@@ -39,15 +39,14 @@ $moduleService = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
 $cacheClearer = $dependencyInjector[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER];
 
 $format = static fn (string $message): string => htmlspecialchars((string) preg_replace('/\s+/', ' ', $message));
-$outdatedModules = static fn (): array => array_map(
-    static fn (Module $module): string => $module->getId(),
-    $moduleService->getOutdated(ModuleSource::TYPE),
-);
 
 switch ($_POST['action'] ?? '') {
     case 'list':
         try {
-            echo json_encode(['result' => 0, 'modules' => $outdatedModules()]);
+            echo json_encode(['result' => 0, 'modules' => array_map(
+                static fn (Module $module): string => $module->getId(),
+                $moduleService->getOutdated(ModuleSource::TYPE),
+            )]);
         } catch (Throwable $exception) {
             // Not blocking: the modules can be upgraded later from the Extension Manager.
             echo json_encode(['result' => 0, 'modules' => [], 'warning' => true, 'msg' => $format($exception->getMessage())]);
@@ -60,8 +59,9 @@ switch ($_POST['action'] ?? '') {
         ob_start();
 
         try {
-            // Never a path from the request. Possibly already upgraded as a dependency.
-            if (in_array($id, $outdatedModules(), true)) {
+            // Never a path from the request: a module directory name only. Possibly already upgraded as a dependency.
+            $module = preg_match('/^[\w-]+$/D', $id) === 1 ? $moduleService->getDetail($id, ModuleSource::TYPE) : null;
+            if ($module instanceof Module && CentreonModuleService::isOutdated($module)) {
                 $cacheClearer->suspended(static fn () => $moduleService->update($id, ModuleSource::TYPE));
             }
             ob_end_clean();
