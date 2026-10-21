@@ -96,6 +96,7 @@ jobs:
             --allowedTools "Bash,Read,Grep,Glob" \
             --permission-mode bypassPermissions \
             --max-budget-usd 3 \
+            --verbose \
             --output-format stream-json \
             | tee claude-debug-analysis.jsonl \
             | jq -R --unbuffered '
