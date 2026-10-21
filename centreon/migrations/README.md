@@ -89,3 +89,5 @@ bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtim
   server timeout. Keep them short, or run them with the console.
 - A module set only takes its own lock, as the platform update runs it while holding the update one: do not migrate
   a module (console or Extension Manager) while the platform is being updated.
+- A migration statement holds no semicolon outside its literals and comments: a trigger, procedure, function or event
+  with a `BEGIN ... END` body cannot be created through a migration yet.
