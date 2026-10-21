@@ -84,13 +84,17 @@ final readonly class MigrateCommandHandler
     /**
      * The core migrations expect the schema of the legacy scripts, and recording the platform version would skip them.
      *
-     * @throws \RuntimeException when legacy scripts are pending
+     * @throws \RuntimeException when the platform version cannot be read, or legacy scripts are pending
      *
      * @return string the version the legacy scripts reached
      */
     private function legacyVersion(): string
     {
-        $legacyVersion = (string) $this->updateRepository->findCurrentVersion();
+        $legacyVersion = $this->updateRepository->findCurrentVersion();
+        if ($legacyVersion === null || trim($legacyVersion) === '') {
+            throw new \RuntimeException('Cannot retrieve the current platform version');
+        }
+
         $pending = $this->updateScriptFinder->findOrderedAvailableUpdates($legacyVersion);
         if ($pending !== []) {
             throw new \RuntimeException(\sprintf(

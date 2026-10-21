@@ -183,6 +183,23 @@ final class MigrateCommandHandlerTest extends TestCase
         self::assertTrue($this->locker->unlockCalled);
     }
 
+    public function testTheCoreSetsFailClearlyWhenThePlatformVersionCannotBeRead(): void
+    {
+        // Every legacy script would otherwise be listed as pending.
+        $this->updateRepository->currentVersion = null;
+        $this->scriptFinder->availableUpdates = ['24.10.1', '24.10.2'];
+
+        try {
+            ($this->handler)(new MigrateCommand());
+            self::fail('Expected the missing version to be reported');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Cannot retrieve the current platform version', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->migrationRunner->journal->getArrayCopy());
+        self::assertTrue($this->locker->unlockCalled);
+    }
+
     public function testAModuleSetDoesNotWaitForTheLegacyUpdateScripts(): void
     {
         $this->scriptFinder->availableUpdates = ['26.10.0'];
