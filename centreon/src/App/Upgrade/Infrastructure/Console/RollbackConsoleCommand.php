@@ -24,10 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Console;
 
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Application\Query\QueryBus;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
-use App\Upgrade\Application\MigrationSetStatus;
-use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -40,14 +37,13 @@ final readonly class RollbackConsoleCommand
 {
     public function __construct(
         private CommandBus $commandBus,
-        private QueryBus $queryBus,
     ) {
     }
 
     public function __invoke(
         InputInterface $input,
         SymfonyStyle $io,
-        #[Argument(description: 'The version to roll back to, kept applied, as listed by status or as its timestamp ("prev" reverts the last migration, "first" reverts them all)')]
+        #[Argument(description: 'The version to roll back to, kept applied, as listed by status -v or as its timestamp ("prev" reverts the last migration, "first" reverts them all)')]
         string $version,
         #[Option(description: MigrationSetOption::SET_DESCRIPTION)]
         ?string $set = null,
@@ -56,20 +52,17 @@ final readonly class RollbackConsoleCommand
     ): int {
         $migrationSet = MigrationSetOption::require($set, $module);
 
-        // Fails on a module not installed, or a set migrate would refuse, before asking anything.
-        /** @var list<MigrationSetStatus> $statuses */
-        $statuses = $this->queryBus->ask(new GetMigrationStatusQuery($migrationSet));
-        if ($statuses[0]->executed === []) {
+        // Checked and planned by the rollback itself, before asking anything.
+        /** @var list<string> $toRevert */
+        $toRevert = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version, dryRun: true));
+        if ($toRevert === []) {
             $io->success('No migration to revert.');
 
             return Command::SUCCESS;
         }
 
-        $question = \sprintf('%s? The platform version is not changed.', match ($version) {
-            'prev' => \sprintf('Revert the last executed migration of the %s', $migrationSet->label()),
-            'first' => \sprintf('Revert every executed migration of the %s', $migrationSet->label()),
-            default => \sprintf('Revert the migrations of the %s executed after "%s"', $migrationSet->label(), $version),
-        });
+        $io->listing($toRevert);
+        $question = \sprintf('Revert these %d migration(s) of the %s? The platform version is not changed.', \count($toRevert), $migrationSet->label());
         if ($input->isInteractive() && ! $io->confirm($question, false)) {
             $io->warning('Rollback cancelled.');
 
@@ -78,14 +71,6 @@ final readonly class RollbackConsoleCommand
 
         /** @var list<string> $reverted */
         $reverted = $this->commandBus->execute(new RollbackMigrationCommand($migrationSet, $version));
-
-        if ($reverted === []) {
-            $io->success('No migration to revert.');
-
-            return Command::SUCCESS;
-        }
-
-        $io->listing($reverted);
         $io->success(\sprintf('%d migration(s) reverted.', \count($reverted)));
 
         return Command::SUCCESS;

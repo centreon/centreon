@@ -58,7 +58,7 @@ final class MigrationCommandBusTest extends KernelTestCase
                 return [];
             }
 
-            public function rollback(MigrationSet $set, string $versionOrAlias): array
+            public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false): array
             {
                 $this->nestingLevels[] = $this->connection->getTransactionNestingLevel();
 

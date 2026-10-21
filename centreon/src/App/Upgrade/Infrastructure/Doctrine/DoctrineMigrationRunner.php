@@ -74,14 +74,15 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanUntilVersion($latest));
     }
 
-    public function rollback(MigrationSet $set, string $versionOrAlias): array
+    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false): array
     {
         $configuration = $this->registry->configuration($set);
         if (! is_dir($configuration->directory)) {
             throw new \RuntimeException(\sprintf('The %s has no migration to roll back: "%s" does not exist.', $set->label(), $configuration->directory));
         }
 
-        $factory = $this->createCheckedFactory($set, $configuration);
+        // A dry run writes nothing: not even the metadata table.
+        $factory = $this->createCheckedFactory($set, $configuration, initialize: ! $dryRun);
 
         // As status shows them, or as the generated file names end.
         $alias = preg_match('/^(Version\d+|\d{14})$/D', $versionOrAlias) === 1
@@ -92,7 +93,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
         } catch (UnknownMigrationVersion $exception) {
             throw new \RuntimeException(\sprintf(
-                'The %s has no "%s" migration: pass a version listed by centreon:migrations:status, its '
+                'The %s has no "%s" migration: pass a version listed by centreon:migrations:status -v, its '
                 . 'class name (Version20260101000000) or its timestamp (20260101000000), "prev" or "first".',
                 $set->label(),
                 $versionOrAlias,
@@ -113,6 +114,11 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
                 $toRevert[] = $migration->getVersion();
             }
             $isAfterTarget = $isAfterTarget || $migration->getVersion()->equals($target);
+        }
+
+        if ($dryRun) {
+            // In the order they would be reverted.
+            return array_map('strval', array_reverse($toRevert));
         }
 
         return $this->execute($set, $factory, $factory->getMigrationPlanCalculator()->getPlanForVersions($toRevert, Direction::DOWN));

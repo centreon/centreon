@@ -28,7 +28,6 @@ use App\Shared\Application\Query\QueryBus;
 use App\Upgrade\Application\Command\MigrateCommand;
 use App\Upgrade\Application\Command\RollbackMigrationCommand;
 use App\Upgrade\Application\MigrationSetStatus;
-use App\Upgrade\Application\ModuleNotInstalledException;
 use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Infrastructure\Console\GenerateConsoleCommand;
@@ -46,6 +45,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidOptionException;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -108,30 +108,34 @@ final class MigrationConsoleCommandsTest extends TestCase
         $this->tester(new MigrateConsoleCommand($this->commandBus([])), 'centreon:migrations:migrate')->execute(['--set' => 'module:centreon-open-tickets']);
     }
 
-    public function testRollbackDispatchesTheSetAndTheTargetVersion(): void
+    public function testRollbackPlansThenRevertsTheTargetVersion(): void
     {
         $bus = $this->commandBus(['Centreon\Migrations\Configuration\Version2']);
-        $tester = $this->tester(new RollbackConsoleCommand($bus, $this->statusQueryBus(['Centreon\Migrations\Configuration\Version1'])), 'centreon:migrations:rollback');
+        $tester = $this->tester(new RollbackConsoleCommand($bus), 'centreon:migrations:rollback');
 
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration'], ['interactive' => false]));
-        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev')], $bus->dispatched);
+        self::assertEquals([
+            new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', dryRun: true),
+            new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev'),
+        ], $bus->dispatched);
         self::assertStringContainsString('1 migration(s) reverted.', $tester->getDisplay());
     }
 
-    public function testRollbackAsksForAConfirmation(): void
+    public function testRollbackAsksToConfirmTheMigrationsItWillRevert(): void
     {
         $bus = $this->commandBus(['Centreon\Migrations\Configuration\Version2']);
-        $tester = $this->tester(new RollbackConsoleCommand($bus, $this->statusQueryBus(['Centreon\Migrations\Configuration\Version1'])), 'centreon:migrations:rollback');
+        $tester = $this->tester(new RollbackConsoleCommand($bus), 'centreon:migrations:rollback');
 
         $tester->setInputs(['no']);
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
-        self::assertStringContainsString('Revert every executed migration of the "configuration" migration set?', $tester->getDisplay());
-        self::assertSame([], $bus->dispatched, 'A declined rollback reverts nothing');
+        self::assertStringContainsString('Centreon\Migrations\Configuration\Version2', $tester->getDisplay());
+        self::assertStringContainsString('Revert these 1 migration(s) of the "configuration" migration set?', $tester->getDisplay());
+        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first', dryRun: true)], $bus->dispatched, 'A declined rollback reverts nothing');
         self::assertStringContainsString('Rollback cancelled.', $tester->getDisplay());
 
         $tester->setInputs(['yes']);
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'first', '--set' => 'configuration']));
-        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first')], $bus->dispatched);
+        self::assertEquals(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'first'), $bus->dispatched[array_key_last($bus->dispatched)]);
     }
 
     public function testRollbackRequiresASet(): void
@@ -139,32 +143,37 @@ final class MigrationConsoleCommandsTest extends TestCase
         $this->expectException(InvalidOptionException::class);
         $this->expectExceptionMessage('Choose a migration set with --set or --module.');
 
-        $this->tester(new RollbackConsoleCommand($this->commandBus([]), $this->statusQueryBus([])), 'centreon:migrations:rollback')->execute(['version' => 'prev'], ['interactive' => false]);
+        $this->tester(new RollbackConsoleCommand($this->commandBus([])), 'centreon:migrations:rollback')->execute(['version' => 'prev'], ['interactive' => false]);
     }
 
     public function testRollbackReportsWhenThereIsNothingToRevertWithoutAsking(): void
     {
         $bus = $this->commandBus([]);
-        $tester = $this->tester(new RollbackConsoleCommand($bus, $this->statusQueryBus([])), 'centreon:migrations:rollback');
+        $tester = $this->tester(new RollbackConsoleCommand($bus), 'centreon:migrations:rollback');
 
         self::assertSame(Command::SUCCESS, $tester->execute(['version' => 'prev', '--set' => 'configuration']));
         self::assertStringContainsString('No migration to revert.', $tester->getDisplay());
-        self::assertSame([], $bus->dispatched);
+        self::assertEquals([new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', dryRun: true)], $bus->dispatched);
     }
 
-    public function testRollbackRefusesAModuleNotInstalledBeforeAsking(): void
+    public function testRollbackRefusesAnUnknownTargetBeforeAsking(): void
     {
-        $bus = $this->commandBus([]);
-        $tester = $this->tester(new RollbackConsoleCommand($bus, $this->statusQueryBus(new ModuleNotInstalledException('centreon-open-ticket'))), 'centreon:migrations:rollback');
+        $bus = new class () implements CommandBus {
+            public function execute(object $command): mixed
+            {
+                throw new \RuntimeException('The "configuration" migration set has no "2026010100000" migration');
+            }
+        };
+        $tester = $this->tester(new RollbackConsoleCommand($bus), 'centreon:migrations:rollback');
 
         try {
-            $tester->execute(['version' => 'prev', '--module' => 'centreon-open-ticket']);
+            $tester->execute(['version' => '2026010100000', '--set' => 'configuration']);
             self::fail('Expected the rollback to be refused');
-        } catch (ModuleNotInstalledException) {
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('has no "2026010100000" migration', $exception->getMessage());
         }
 
         self::assertStringNotContainsString('Revert', $tester->getDisplay(), 'Nothing is asked');
-        self::assertSame([], $bus->dispatched);
     }
 
     public function testGenerateRefusesToOverwriteAMigration(): void
@@ -203,6 +212,27 @@ final class MigrationConsoleCommandsTest extends TestCase
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertEquals([new GetMigrationStatusQuery()], $queryBus->dispatched);
         self::assertStringContainsString('Centreon\Migrations\Realtime\Version1', $tester->getDisplay());
+        self::assertStringContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
+    }
+
+    public function testVerboseStatusListsEveryExecutedMigration(): void
+    {
+        // The versions a rollback takes.
+        $queryBus = new class () implements QueryBus {
+            /**
+             * @return list<MigrationSetStatus>
+             */
+            public function ask(object $query): array
+            {
+                return [new MigrationSetStatus(MigrationSet::core('configuration'), ['Centreon\Migrations\Configuration\Version1', 'Centreon\Migrations\Configuration\Version2'], [])];
+            }
+        };
+        $tester = $this->tester(new StatusConsoleCommand($queryBus), 'centreon:migrations:status');
+
+        $tester->execute([]);
+        self::assertStringNotContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
+
+        $tester->execute([], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
         self::assertStringContainsString('Centreon\Migrations\Configuration\Version1', $tester->getDisplay());
     }
 
@@ -278,34 +308,6 @@ final class MigrationConsoleCommandsTest extends TestCase
     {
         self::assertSame(Command::INVALID, $this->generateTester()->execute(['--set' => 'configuration']));
         self::assertSame(Command::INVALID, $this->generateTester()->execute(['--set' => 'configuration', '--ddl' => true, '--dml' => true]));
-    }
-
-    /**
-     * @param list<string>|\Throwable $executedOrFailure the executed migrations of the asked set, or why it is refused
-     */
-    private function statusQueryBus(array|\Throwable $executedOrFailure): QueryBus
-    {
-        return new class ($executedOrFailure) implements QueryBus {
-            /**
-             * @param list<string>|\Throwable $executedOrFailure
-             */
-            public function __construct(private readonly array|\Throwable $executedOrFailure)
-            {
-            }
-
-            /**
-             * @return list<MigrationSetStatus>
-             */
-            public function ask(object $query): array
-            {
-                if ($this->executedOrFailure instanceof \Throwable) {
-                    throw $this->executedOrFailure;
-                }
-                \assert($query instanceof GetMigrationStatusQuery && $query->set instanceof MigrationSet);
-
-                return [new MigrationSetStatus($query->set, $this->executedOrFailure, [])];
-            }
-        };
     }
 
     /**

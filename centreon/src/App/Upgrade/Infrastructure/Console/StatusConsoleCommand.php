@@ -61,7 +61,8 @@ final readonly class StatusConsoleCommand
             }
 
             $io->definitionList(
-                ['Executed' => (string) \count($setStatus->executed)],
+                // -v lists them all, as the versions a rollback takes.
+                ['Executed' => $io->isVerbose() && $setStatus->executed !== [] ? implode("\n", $setStatus->executed) : (string) \count($setStatus->executed)],
                 ['Last executed' => $setStatus->executed === [] ? '-' : $setStatus->executed[array_key_last($setStatus->executed)]],
                 ['Pending' => $setStatus->pending === [] ? '-' : implode("\n", $setStatus->pending)],
             );

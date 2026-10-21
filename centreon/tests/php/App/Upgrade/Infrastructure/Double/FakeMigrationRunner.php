@@ -57,9 +57,9 @@ final class FakeMigrationRunner implements MigrationRunner
         return [$set->name . '\Version1'];
     }
 
-    public function rollback(MigrationSet $set, string $versionOrAlias): array
+    public function rollback(MigrationSet $set, string $versionOrAlias, bool $dryRun = false): array
     {
-        $this->journal[] = 'rollback:' . $set->name . ':' . $versionOrAlias;
+        $this->journal[] = ($dryRun ? 'rollback-dry-run:' : 'rollback:') . $set->name . ':' . $versionOrAlias;
 
         if (\in_array($set->name, $this->failingSets, true)) {
             throw new \RuntimeException(\sprintf('Rollback of "%s" failed', $set->name));

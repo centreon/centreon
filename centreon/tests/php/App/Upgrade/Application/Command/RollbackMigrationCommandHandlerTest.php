@@ -48,6 +48,15 @@ final class RollbackMigrationCommandHandlerTest extends TestCase
         self::assertTrue($locker->unlockCalled);
     }
 
+    public function testPassesADryRunToTheRunner(): void
+    {
+        $migrationRunner = new FakeMigrationRunner();
+
+        (new RollbackMigrationCommandHandler($migrationRunner, new MigrationSetGuard(new FakeUpdateLocker(), new FakeMigrationSetLocker(), new FakeModuleRepository())))(new RollbackMigrationCommand(MigrationSet::core('configuration'), 'prev', dryRun: true));
+
+        self::assertSame(['rollback-dry-run:configuration:prev'], $migrationRunner->journal->getArrayCopy());
+    }
+
     public function testFailsWhenAnUpdateIsAlreadyInProgress(): void
     {
         $migrationRunner = new FakeMigrationRunner();

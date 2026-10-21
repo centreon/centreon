@@ -144,7 +144,7 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The "rollback" module migration set has no "Version2026" migration: pass a version listed by centreon:migrations:status');
+        $this->expectExceptionMessage('The "rollback" module migration set has no "Version2026" migration: pass a version listed by centreon:migrations:status -v');
 
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version2026');
     }
@@ -158,6 +158,14 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectExceptionMessage('Cannot roll the "rollback" module migration set back to "Rollback\Migrations\Version20260101000002": it is not executed.');
 
         $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version20260101000002');
+    }
+
+    public function testARollbackDryRunTellsWhatWouldBeRevertedWithoutRevertingIt(): void
+    {
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
+
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class, \Rollback\Migrations\Version20260101000001::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'first', dryRun: true));
+        self::assertSame([], $this->runner->status(MigrationSet::module(self::ROLLBACK))->pending);
     }
 
     public function testRollbackRevertsOnlyTheExecutedMigrationsAfterTheTargetWhenAnOlderOneIsPending(): void
