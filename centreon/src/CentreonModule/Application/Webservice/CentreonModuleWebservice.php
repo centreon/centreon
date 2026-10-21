@@ -538,7 +538,8 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
             try {
                 $cacheClearer->clear();
             } catch (\Throwable $e) {
-                $result ??= new UpdateAction(null, $e->getMessage());
+                // Still a failure, until the cache is cleared, but not the one of the update.
+                $result ??= new UpdateAction(null, $entity !== null ? 'The module was updated, but the cache could not be cleared: ' . $e->getMessage() : $e->getMessage());
             }
         }
 

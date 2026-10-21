@@ -142,7 +142,7 @@ class CentreonModuleWebserviceTest extends TestCase
         $response = $this->webservice->postUpdate()->jsonSerialize();
 
         $this->assertFalse($response['status']);
-        $this->assertSame('cache:clear failed', $response['result']->jsonSerialize()['message']);
+        $this->assertSame('The module was updated, but the cache could not be cleared: cache:clear failed', $response['result']->jsonSerialize()['message']);
     }
 
     public function testAnUpdateFailingWithAnErrorStillClearsTheCaches(): void
