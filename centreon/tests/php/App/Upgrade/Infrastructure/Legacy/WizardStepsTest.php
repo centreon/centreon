@@ -1,0 +1,133 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\Upgrade\Infrastructure\Legacy;
+
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
+
+/**
+ * The install and upgrade wizard steps, run as the web server runs them: their JSON response drives the wizard.
+ */
+final class WizardStepsTest extends TestCase
+{
+    public function testTheInstallWizardAppliesTheMigrations(): void
+    {
+        self::assertSame(['id' => 'migrations', 'result' => 0, 'msg' => 'OK'], $this->runStep('www/install/steps/process/migrateDatabases.php'));
+    }
+
+    public function testTheUpgradeWizardAppliesTheMigrations(): void
+    {
+        self::assertSame(0, $this->runStep('www/install/step_upgrade/process/process_migrations.php')['result']);
+    }
+
+    public function testTheUpgradeWizardListsTheOutdatedModules(): void
+    {
+        self::assertSame(['result' => 0, 'modules' => []], $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'list']));
+    }
+
+    public function testTheUpgradeWizardOnlyUpgradesAnOutdatedModule(): void
+    {
+        // Never a path built from the request: an unknown or traversing id is ignored.
+        self::assertSame(
+            ['result' => 0, 'msg' => 'OK'],
+            $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'update', 'id' => '../../../tmp/evil']),
+        );
+    }
+
+    public function testTheUpgradeWizardClearsTheCacheOnce(): void
+    {
+        self::assertSame(['result' => 0, 'msg' => 'OK'], $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'clearCache']));
+    }
+
+    public function testTheUpgradeWizardRejectsAnUnknownAction(): void
+    {
+        self::assertSame(1, $this->runStep('www/install/step_upgrade/process/process_modules.php', ['action' => 'drop'])['result']);
+    }
+
+    public function testTheUpgradeWizardShowsTheVersionRecordedByTheMigrations(): void
+    {
+        // The session still holds the version of the last legacy script.
+        $output = $this->runCode(
+            "session_start(); \$_SESSION['CURRENT_VERSION'] = '0.0.1'; session_write_close();"
+            . " include 'www/install/step_upgrade/process/process_migrations.php'; echo \"\\n\", \$_SESSION['CURRENT_VERSION'];",
+        );
+
+        self::assertNotSame('0.0.1', trim(mb_substr($output, (int) mb_strrpos($output, "\n"))));
+    }
+
+    public function testTheUpgradeTargetFollowsTheRecordedVersion(): void
+    {
+        $directory = sys_get_temp_dir() . '/' . uniqid('install_', true);
+        (new Filesystem())->dumpFile($directory . '/centreon.yaml', "parameters:\n    centreon.version: '26.11.0'\n");
+        (new Filesystem())->mkdir($directory . '/php');
+        $target = fn (string $legacy): string => trim($this->runCode(\sprintf(
+            "include 'www/install/steps/functions.php'; echo getUpgradeTargetVersion(%s, %s, %s);",
+            var_export($legacy, true),
+            var_export($directory, true),
+            var_export($directory . '/centreon.yaml', true),
+        )));
+
+        try {
+            self::assertSame('26.11.0', $target('26.09.1'));
+            self::assertSame('26.11.0', $target(''), 'Without any legacy script left');
+            self::assertSame('26.11.1', $target('26.11.1'), 'A legacy script recorded a later version');
+
+            touch($directory . '/php/Update-next.php');
+            self::assertSame('26.09.1', $target('26.09.1'), 'The coming release is still in Update-next.php');
+        } finally {
+            (new Filesystem())->remove($directory);
+        }
+    }
+
+    /**
+     * @param array<string, string> $post
+     *
+     * @return array<mixed>
+     */
+    private function runStep(string $script, array $post = []): array
+    {
+        $output = $this->runCode(\sprintf('$_POST = %s; include %s;', var_export($post, true), var_export($script, true)));
+
+        $response = json_decode($output, true);
+        self::assertIsArray($response, 'Not a JSON response: ' . $output);
+
+        return $response;
+    }
+
+    private function runCode(string $code): string
+    {
+        $process = new Process(
+            [(new PhpExecutableFinder())->find(false) ?: 'php', '-r', $code],
+            \dirname(__DIR__, 6),
+            null,
+            null,
+            null,
+        );
+        $process->mustRun();
+
+        return $process->getOutput();
+    }
+}

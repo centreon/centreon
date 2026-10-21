@@ -56,6 +56,8 @@ if ($handle = opendir('../php')) {
     closedir($handle);
 }
 
+$next = getUpgradeTargetVersion($next);
+
 $majors = preg_match('/^(\d+\.\d+)/', $next, $matches);
 if (! isset($matches[1])) {
     $matches[1] = 'current';

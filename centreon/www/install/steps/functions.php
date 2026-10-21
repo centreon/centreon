@@ -24,6 +24,7 @@ require_once __DIR__ . '/../../class/centreonAuth.class.php';
 
 use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use Centreon\Domain\VersionHelper;
+use CentreonLegacy\Core\Migration\MigrationLauncher;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -202,6 +203,37 @@ function exitProcess($id, $result, $msg)
         }';
 
     exit;
+}
+
+/**
+ * @return string|null the error message, null on success
+ */
+function runDatabaseMigrations(): ?string
+{
+    try {
+        (new MigrationLauncher())->migrate();
+    } catch (RuntimeException $exception) {
+        return htmlspecialchars($exception->getMessage());
+    }
+
+    return null;
+}
+
+/**
+ * Mirrors App\Upgrade\Application\TargetVersionRecorder.
+ */
+function getUpgradeTargetVersion(
+    string $lastLegacyVersion,
+    string $installDir = __DIR__ . '/..',
+    string $configFile = __DIR__ . '/../../../config.new/packages/centreon.yaml',
+): string {
+    if (file_exists($installDir . '/php/Update-next.php')) {
+        return $lastLegacyVersion;
+    }
+
+    $target = (string) (Yaml::parseFile($configFile)['parameters']['centreon.version'] ?? '');
+
+    return version_compare($target, $lastLegacyVersion, '>') ? $target : $lastLegacyVersion;
 }
 
 /**

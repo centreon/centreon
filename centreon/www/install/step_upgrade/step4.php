@@ -116,7 +116,7 @@ $template->display('content.tpl');
         if (myCurrent !== '' && myNext !== '') {
             nextStep(myCurrent, myNext);
         } else {
-            generationCache();
+            migrateDatabases(updateModules);
         }
     });
 
@@ -145,8 +145,9 @@ $template->display('content.tpl');
                     if (data['next']) {
                         nextStep(data['current'], data['next']);
                     } else {
-                        generateEngineContextConfiguration();
-                        generationCache();
+                        migrateDatabases(function () {
+                            generateEngineContextConfiguration(updateModules);
+                        });
                     }
                 } else {
                     jQuery('#troubleshoot').show();
@@ -155,7 +156,46 @@ $template->display('content.tpl');
             });
     }
 
-    function generateEngineContextConfiguration() {
+    /**
+     * Run the doctrine migrations
+     *
+     * @param function onSuccess
+     * @return void
+     */
+    function migrateDatabases(onSuccess) {
+        stepContent.append('<tr>');
+        stepContent.append('<td>Database migrations</td>');
+        stepContent.append('<td style="font-weight: bold;" name="migrations"><img src="../img/misc/ajax-loader.gif"></td>');
+        stepContent.append('</tr>');
+        doProcess(
+            true,
+            './step_upgrade/process/process_migrations.php',
+            null,
+            function (response) {
+                let data;
+                try {
+                    data = jQuery.parseJSON(response);
+                } catch (e) {
+                    data = {'result': 1, 'msg': "<span style='color:red;'>Unexpected response</span>"};
+                }
+                jQuery('td[name="migrations"]').html(data['msg']);
+                if (data['result'] === 0) {
+                    jQuery('#troubleshoot').hide();
+                    onSuccess();
+                } else {
+                    jQuery('#troubleshoot').show();
+                    jQuery('#refresh').show();
+                }
+            },
+            function () {
+                jQuery('td[name="migrations"]').html("<span style='color:red;'>Request failed</span>");
+                jQuery('#troubleshoot').show();
+                jQuery('#refresh').show();
+            }
+        );
+    }
+
+    function generateEngineContextConfiguration(onSuccess) {
       stepContent.append('<tr>');
       stepContent.append('<td>Engine Context Configuration Creation</td>');
       stepContent.append(
@@ -171,8 +211,7 @@ $template->display('content.tpl');
           if (data['result'] === 0) {
             jQuery('td[name="engine.context"]').html("<span style='color:#88b917;'>" + data['msg'] + '</span>');
             jQuery('#troubleshoot').hide();
-            jQuery('#next').show();
-            result = true;
+            onSuccess();
           } else {
             jQuery('td[name="engine.context"]').html("<span style='color:red;'>" + data['msg'] + '</span>');
             jQuery('#refresh').show();
@@ -181,7 +220,86 @@ $template->display('content.tpl');
       )
     }
 
-    function generationCache() {
+    /**
+     * Upgrade the outdated modules, then clear the application caches once
+     *
+     * @return void
+     */
+    function updateModules() {
+      doProcess(
+        true,
+        './step_upgrade/process/process_modules.php',
+        {'action': 'list'},
+        function (response) {
+          const data = parseModuleResponse(response);
+          if (data['warning']) {
+            stepContent.append('<tr>');
+            stepContent.append('<td>Modules upgrade</td>');
+            stepContent.append("<td style='font-weight: bold; color: orange;'>" + data['msg'] + '</td>');
+            stepContent.append('</tr>');
+          }
+          updateNextModule(data['modules'] || [], 0);
+        },
+        clearCache
+      );
+    }
+
+    /**
+     * Upgrade the next module, a failure being a warning
+     *
+     * @param array modules
+     * @param int index
+     * @return void
+     */
+    function updateNextModule(modules, index) {
+      if (index >= modules.length) {
+        clearCache();
+        return;
+      }
+
+      const cell = '<td style="font-weight: bold;" name="module-' + index + '"><img src="../img/misc/ajax-loader.gif"></td>';
+      const report = function (data) {
+        const color = data['warning'] ? 'orange' : '#88b917';
+        jQuery('td[name="module-' + index + '"]').html("<span style='color:" + color + ";'>" + data['msg'] + '</span>');
+        updateNextModule(modules, index + 1);
+      };
+      stepContent.append('<tr>');
+      stepContent.append(jQuery('<td>').text('Module ' + modules[index] + ' upgrade'));
+      stepContent.append(cell);
+      stepContent.append('</tr>');
+      doProcess(
+        true,
+        './step_upgrade/process/process_modules.php',
+        {'action': 'update', 'id': modules[index]},
+        function (response) {
+          report(parseModuleResponse(response));
+        },
+        function () {
+          report({'warning': true, 'msg': 'Failed, retry it from the Extension Manager'});
+        }
+      );
+    }
+
+    /**
+     * Parse a module step response
+     *
+     * @param string response
+     * @return object
+     */
+    function parseModuleResponse(response) {
+      try {
+        return jQuery.parseJSON(response);
+      } catch (e) {
+        return {'warning': true, 'msg': 'Failed, retry it from the Extension Manager', 'modules': []};
+      }
+    }
+
+    /**
+     * Clear the application caches
+     *
+     * @return void
+     */
+    function clearCache() {
       stepContent.append('<tr>');
       stepContent.append('<td>Application cache generation</td>');
       stepContent.append(
@@ -190,10 +308,15 @@ $template->display('content.tpl');
       stepContent.append('</tr>');
       doProcess(
         true,
-        './steps/process/generationCache.php',
-        null,
+        './step_upgrade/process/process_modules.php',
+        {'action': 'clearCache'},
         function (response) {
-          let data = jQuery.parseJSON(response);
+          let data;
+          try {
+            data = jQuery.parseJSON(response);
+          } catch (e) {
+            data = {'result': 1, 'msg': 'Unexpected response'};
+          }
           if (data['result'] === 0) {
             jQuery('td[name="api.cache"]').html("<span style='color:#88b917;'>" + data['msg'] + '</span>');
             jQuery('#troubleshoot').hide();
@@ -203,7 +326,12 @@ $template->display('content.tpl');
             jQuery('td[name="api.cache"]').html("<span style='color:red;'>" + data['msg'] + '</span>');
             jQuery('#refresh').show();
           }
-        });
+        },
+        function () {
+          jQuery('td[name="api.cache"]').html("<span style='color:red;'>Request failed</span>");
+          jQuery('#refresh').show();
+        }
+      );
     }
 
     /**

@@ -39,6 +39,10 @@
             'file': './steps/process/partitionTables.php',
             'label': '{/literal}{t}Partitioning database tables{/t}{literal}'
         },
+        'migrations': {
+            'file': './steps/process/migrateDatabases.php',
+            'label': '{/literal}{t}Applying database migrations{/t}{literal}'
+        },
         'generationCache': {
             'file': './steps/process/generationCache.php',
             'label': '{/literal}{t}Generating application cache{/t}{literal}'
@@ -73,6 +77,8 @@
                     } else if (key == 'baseconf') {
                         nextInstallStep('dbpartitioning');
                     } else if (key == 'dbpartitioning') {
+                        nextInstallStep('migrations');
+                    } else if (key == 'migrations') {
                         nextInstallStep('generationCache');
                     } else if (key == 'generationCache') {
                         jQuery("#next").show();
