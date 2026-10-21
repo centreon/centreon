@@ -41,7 +41,7 @@ final readonly class GetMigrationStatusQueryHandler
 
     /**
      * @throws ModuleNotInstalledException when the requested set is the one of a module not installed
-     * @throws \RuntimeException when the requested set breaks a check of migrate(), reported per set otherwise
+     * @throws \Exception when the requested set breaks a check of migrate() or its database fails, reported per set otherwise
      *
      * @return list<MigrationSetStatus> every set when none is requested, but the modules not installed
      */
@@ -60,8 +60,8 @@ final readonly class GetMigrationStatusQueryHandler
         foreach (array_filter($this->migrationRunner->sets(), $this->isInstalled(...)) as $set) {
             try {
                 $statuses[] = $this->migrationRunner->status($set);
-            } catch (\RuntimeException $exception) {
-                // The other sets are still worth showing.
+            } catch (\Exception $exception) {
+                // A check of migrate() or a database failure: the other sets are still worth showing.
                 $statuses[] = new MigrationSetStatus($set, [], [], $exception->getMessage());
             }
         }
