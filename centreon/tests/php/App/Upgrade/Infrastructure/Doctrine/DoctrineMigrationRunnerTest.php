@@ -132,6 +132,23 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertFalse($this->connection->createSchemaManager()->tablesExist(['fx_rollback']));
     }
 
+    public function testRollbackAcceptsATimestampAsTheGeneratedFileNamesEnd(): void
+    {
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
+
+        self::assertSame([\Rollback\Migrations\Version20260101000002::class], $this->runner->rollback(MigrationSet::module(self::ROLLBACK), '20260101000001'));
+    }
+
+    public function testRollbackNamesTheAcceptedFormsOfAnUnknownVersion(): void
+    {
+        $this->runner->migrate(MigrationSet::module(self::ROLLBACK));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The "module:rollback" migration set has no "Version2026" migration: pass one listed by centreon:migrations:status');
+
+        $this->runner->rollback(MigrationSet::module(self::ROLLBACK), 'Version2026');
+    }
+
     public function testRollbackRefusesToMigrateUp(): void
     {
         $this->runner->migrate(MigrationSet::module(self::ROLLBACK));

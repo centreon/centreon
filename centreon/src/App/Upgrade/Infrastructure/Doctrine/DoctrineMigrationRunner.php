@@ -31,6 +31,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use Doctrine\Migrations\Configuration\Migration\ConfigurationArray;
 use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Exception\UnknownMigrationVersion;
 use Doctrine\Migrations\Metadata\AvailableMigration;
 use Doctrine\Migrations\Metadata\ExecutedMigration;
 use Doctrine\Migrations\Metadata\MigrationPlanList;
@@ -82,11 +83,22 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
 
         $factory = $this->createCheckedFactory($set, $configuration);
 
-        if (preg_match('/^Version\d+$/D', $versionOrAlias) === 1) {
-            $versionOrAlias = $configuration->namespace . '\\' . $versionOrAlias;
+        // As status shows them, or as the generated file names end.
+        $alias = preg_match('/^(Version\d+|\d{14})$/D', $versionOrAlias) === 1
+            ? $configuration->namespace . '\\Version' . preg_replace('/^Version/', '', $versionOrAlias)
+            : $versionOrAlias;
+
+        try {
+            $target = $factory->getVersionAliasResolver()->resolveVersionAlias($alias);
+        } catch (UnknownMigrationVersion $exception) {
+            throw new \RuntimeException(\sprintf(
+                'The "%s" migration set has no "%s" migration: pass one listed by centreon:migrations:status (as '
+                . 'Version20260101000000 or 20260101000000), "prev" or "first".',
+                $set->name,
+                $versionOrAlias,
+            ), 0, $exception);
         }
 
-        $target = $factory->getVersionAliasResolver()->resolveVersionAlias($versionOrAlias);
         $plan = $factory->getMigrationPlanCalculator()->getPlanUntilVersion($target);
 
         if (\count($plan) > 0 && $plan->getDirection() !== Direction::DOWN) {

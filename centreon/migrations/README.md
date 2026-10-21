@@ -71,8 +71,9 @@ bin/console.new centreon:migrations:rollback <version|prev|first> (--set=realtim
 - A failing migration stops the run: a `DmlMigration` leaves nothing behind, the migrations executed before it stay
   applied, and the next run resumes there. A module left with pending migrations is reported as outdated, even at its
   installed version.
-- A rollback is explicit and per set: it reverts the migrations executed after the given version, and changes neither
-  `informations.version`, nor `mod_release`, nor the code. The legacy scripts stay irreversible.
+- A rollback is explicit and per set: it reverts the migrations executed after the given version (as `status` lists it,
+  or its timestamp), and changes neither `informations.version`, nor `mod_release`, nor the code. The legacy scripts
+  stay irreversible.
 - Logs go to the `upgrade` channel (`/var/log/centreon/prod.upgrade.log`).
 
 ## Known limits

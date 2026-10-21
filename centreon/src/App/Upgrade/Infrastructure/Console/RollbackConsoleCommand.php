@@ -43,7 +43,7 @@ final readonly class RollbackConsoleCommand
     public function __invoke(
         InputInterface $input,
         SymfonyStyle $io,
-        #[Argument(description: 'The version to roll back to, kept applied ("prev" reverts the last migration, "first" reverts them all)')]
+        #[Argument(description: 'The version to roll back to, kept applied, as listed by status or as its timestamp ("prev" reverts the last migration, "first" reverts them all)')]
         string $version,
         #[Option(description: MigrationSetOption::SET_DESCRIPTION)]
         ?string $set = null,
