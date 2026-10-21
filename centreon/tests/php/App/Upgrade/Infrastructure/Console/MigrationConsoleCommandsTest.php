@@ -52,6 +52,7 @@ final class MigrationConsoleCommandsTest extends TestCase
     protected function setUp(): void
     {
         $this->modulesDir = sys_get_temp_dir() . '/' . uniqid('modules_', true);
+        (new Filesystem())->mkdir([$this->modulesDir . '/generated', $this->modulesDir . '/generated-ddl', $this->modulesDir . '/generated-dml']);
     }
 
     protected function tearDown(): void
@@ -220,6 +221,19 @@ final class MigrationConsoleCommandsTest extends TestCase
         require_once $dml[0];
         self::assertTrue(is_subclass_of('GeneratedDdl\Migrations\\' . basename($ddl[0], '.php'), DdlMigration::class));
         self::assertTrue(is_subclass_of('GeneratedDml\Migrations\\' . basename($dml[0], '.php'), DmlMigration::class));
+    }
+
+    public function testGenerateRefusesAModuleThatDoesNotExist(): void
+    {
+        // A typo would otherwise create a module directory whose migrations never run.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "generated-typo" does not exist');
+
+        try {
+            $this->generateTester()->execute(['--module' => 'generated-typo', '--ddl' => true]);
+        } finally {
+            self::assertDirectoryDoesNotExist($this->modulesDir . '/generated-typo');
+        }
     }
 
     public function testGenerateRequiresExactlyOneKind(): void

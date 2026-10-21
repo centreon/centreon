@@ -86,11 +86,19 @@ final readonly class MigrationGenerator
     }
 
     /**
+     * @throws \RuntimeException when the module does not exist, or the migration already does
+     *
      * @return string the path of the generated migration
      */
     public function generate(MigrationSet $set, bool $ddl, \DateTimeImmutable $now = new \DateTimeImmutable()): string
     {
         $migrationSet = $this->registry->configuration($set);
+        // A typo would otherwise create a module directory whose migrations never run.
+        $moduleDirectory = \dirname($migrationSet->directory);
+        if ($set->module !== null && ! $this->filesystem->exists($moduleDirectory)) {
+            throw new \RuntimeException(\sprintf('The module "%s" does not exist: "%s" is not a directory.', $set->module, $moduleDirectory));
+        }
+
         $class = 'Version' . $now->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
         $path = $migrationSet->directory . '/' . $class . '.php';
 
