@@ -129,6 +129,14 @@ class ModuleSourceTest extends TestCase
         $this->assertFalse($this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php')->isUpdated());
     }
 
+    public function testAModuleWhoseExecutedMigrationsCannotBeReadIsOutdatedWithoutBreakingTheList(): void
+    {
+        (new Filesystem())->dumpFile($this->centreonPath . 'www/modules/my-module/migrations/Version20260101000001.php', '<?php');
+        $this->repository->method('findExecutedMigrations')->willThrowException(new \PDOException('SELECT command denied'));
+
+        $this->assertFalse($this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php')->isUpdated(), 'Its update reports the failure');
+    }
+
     public function testCodeOlderThanTheInstalledVersionIsNotOutdated(): void
     {
         // A package rollback: updating would record an older version.

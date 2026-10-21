@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace CentreonModule\Infrastructure\Source;
 
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
+use CentreonLog;
 use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Entity\Module;
 use Psr\Container\ContainerInterface;
@@ -320,7 +321,14 @@ class ModuleSource extends SourceAbstract
             return false;
         }
 
-        $executed = $this->db->getRepository(ModulesInformationsRepository::class)->findExecutedMigrations($moduleId);
+        try {
+            $executed = $this->db->getRepository(ModulesInformationsRepository::class)->findExecutedMigrations($moduleId);
+        } catch (\Exception $exception) {
+            // Not up to date, rather than breaking the whole list: its update then reports the failure.
+            CentreonLog::create()->warning(CentreonLog::TYPE_UPGRADE, \sprintf('Cannot read the executed migrations of the "%s" module', $moduleId), [], $exception);
+
+            return true;
+        }
 
         return $executed !== null && array_diff($available, $executed) !== [];
     }
