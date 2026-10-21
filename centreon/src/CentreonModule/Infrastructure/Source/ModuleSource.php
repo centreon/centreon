@@ -249,10 +249,9 @@ class ModuleSource extends SourceAbstract
 
             // Older code is a package rollback, never a reason to downgrade. Pending migrations resume an
             // installation or an upgrade that failed midway.
-            $entity->setPendingMigrations($this->hasPendingMigrations($entity->getId(), $entity->getPath()));
             $entity->setUpdated(
                 version_compare((string) $this->info[$entity->getId()], (string) $entity->getVersion(), '>=')
-                && ! $entity->hasPendingMigrations()
+                && ! $this->hasPendingMigrations($entity->getId(), $entity->getPath())
             );
         }
 

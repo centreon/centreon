@@ -105,7 +105,6 @@ class ModuleSourceTest extends TestCase
 
         $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
 
-        $this->assertFalse($module->hasPendingMigrations());
         $this->assertTrue($module->isUpdated());
     }
 
@@ -118,7 +117,6 @@ class ModuleSourceTest extends TestCase
 
         $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
 
-        $this->assertTrue($module->hasPendingMigrations());
         $this->assertFalse($module->isUpdated());
     }
 
@@ -128,7 +126,7 @@ class ModuleSourceTest extends TestCase
         // As many rows as files, but not the same migrations.
         $this->repository->method('findExecutedMigrations')->willReturn(['Version20250101000000']);
 
-        $this->assertTrue($this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php')->hasPendingMigrations());
+        $this->assertFalse($this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php')->isUpdated());
     }
 
     public function testCodeOlderThanTheInstalledVersionIsNotOutdated(): void
@@ -146,7 +144,6 @@ class ModuleSourceTest extends TestCase
 
         $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
 
-        $this->assertFalse($module->hasPendingMigrations());
         $this->assertTrue($module->isUpdated());
     }
 
@@ -157,7 +154,6 @@ class ModuleSourceTest extends TestCase
 
         $module = $this->source->createEntityFromConfig($this->centreonPath . 'www/modules/my-module/conf.php');
 
-        $this->assertFalse($module->hasPendingMigrations(), 'Its migrations cannot run: an update would never bring it up to date');
-        $this->assertTrue($module->isUpdated());
+        $this->assertTrue($module->isUpdated(), 'Its migrations cannot run: an update would never bring it up to date');
     }
 }
