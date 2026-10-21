@@ -24,8 +24,11 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Legacy;
 
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use Centreon\Infrastructure\Service\CentreonDBManagerService;
+use Centreon\ServiceProvider as CentreonServiceProvider;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\Infrastructure\Source\ModuleSource;
 use CentreonModule\ServiceProvider;
@@ -54,11 +57,16 @@ final readonly class LegacyModuleRepository implements ModuleRepository
         $cacheClearer->suspended(static fn (): array => $moduleService->updateAll(ModuleSource::TYPE));
     }
 
+    /**
+     * Its row only: building the Extension Manager entity loads its conf.php and reads its pending migrations.
+     */
     public function isInstalled(string $module): bool
     {
-        /** @var CentreonModuleService $moduleService */
-        $moduleService = $this->legacyContainer[ServiceProvider::CENTREON_MODULE];
+        /** @var CentreonDBManagerService $dbManager */
+        $dbManager = $this->legacyContainer[CentreonServiceProvider::CENTREON_DB_MANAGER];
+        /** @var ModulesInformationsRepository $repository */
+        $repository = $dbManager->getRepository(ModulesInformationsRepository::class);
 
-        return $moduleService->getDetail($module, ModuleSource::TYPE)?->isInstalled() === true;
+        return $repository->findIdByName($module) !== null;
     }
 }

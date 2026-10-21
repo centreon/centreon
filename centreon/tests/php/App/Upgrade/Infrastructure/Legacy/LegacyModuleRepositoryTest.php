@@ -24,9 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\Upgrade\Infrastructure\Legacy;
 
 use App\Upgrade\Infrastructure\Legacy\LegacyModuleRepository;
+use Centreon\Infrastructure\Service\CentreonDBManagerService;
+use Centreon\ServiceProvider as CentreonServiceProvider;
 use CentreonLegacy\Core\Cache\CacheClearer;
 use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
-use CentreonModule\Infrastructure\Entity\Module;
+use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Service\CentreonModuleService;
 use CentreonModule\ServiceProvider;
 use PHPUnit\Framework\TestCase;
@@ -64,23 +66,17 @@ final class LegacyModuleRepositoryTest extends TestCase
         self::assertSame([], $cacheClearer->commands);
     }
 
-    public function testAModuleIsInstalledWhenTheExtensionManagerSaysSo(): void
+    public function testAModuleIsInstalledWhenItHasARowInModulesInformations(): void
     {
-        $installed = new Module();
-        $installed->setInstalled(true);
-
-        $moduleService = $this->createMock(CentreonModuleService::class);
-        $moduleService->method('getDetail')->willReturnMap([
-            ['centreon-open-tickets', 'module', $installed],
-            ['centreon-bam-server', 'module', new Module()],
-            ['centreon-unknown', 'module', null],
-        ]);
+        $modulesInformations = $this->createMock(ModulesInformationsRepository::class);
+        $modulesInformations->method('findIdByName')->willReturnMap([['centreon-open-tickets', 3], ['centreon-bam-server', null]]);
+        $dbManager = $this->createMock(CentreonDBManagerService::class);
+        $dbManager->method('getRepository')->with(ModulesInformationsRepository::class)->willReturn($modulesInformations);
         $container = new Container();
-        $container[ServiceProvider::CENTREON_MODULE] = $moduleService;
+        $container[CentreonServiceProvider::CENTREON_DB_MANAGER] = $dbManager;
         $repository = new LegacyModuleRepository($container);
 
         self::assertTrue($repository->isInstalled('centreon-open-tickets'));
         self::assertFalse($repository->isInstalled('centreon-bam-server'));
-        self::assertFalse($repository->isInstalled('centreon-unknown'));
     }
 }
