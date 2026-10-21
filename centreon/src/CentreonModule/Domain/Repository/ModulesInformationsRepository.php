@@ -26,6 +26,8 @@ use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 class ModulesInformationsRepository extends ServiceEntityRepository
 {
+    private const string TABLE_EXISTS_QUERY = 'SELECT 1 FROM `information_schema`.`tables` WHERE `table_schema` = DATABASE() AND `table_name` = :table';
+
     /**
      * Get an associative array of all modules vs versions.
      *
@@ -58,17 +60,16 @@ class ModulesInformationsRepository extends ServiceEntityRepository
 
         $table = MigrationSet::module($module)->table();
 
-        try {
-            $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
-            $stmt->execute();
-        } catch (\Exception $exception) {
-            // The table is created by the first migration run. Any other failure must not pass for pending migrations.
-            if (! self::isMissingTable($exception)) {
-                throw $exception;
-            }
-
+        // Created by the first migration run. Checked first: a failing query is logged as an SQL error.
+        $stmt = $this->db->prepare(self::TABLE_EXISTS_QUERY);
+        $stmt->bindValue(':table', $table, \PDO::PARAM_STR);
+        $stmt->execute();
+        if ($stmt->fetch() === false) {
             return [];
         }
+
+        $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
+        $stmt->execute();
 
         $migrations = [];
         while ($row = $stmt->fetch()) {
@@ -98,16 +99,5 @@ class ModulesInformationsRepository extends ServiceEntityRepository
         }
 
         return null;
-    }
-
-    private static function isMissingTable(\Throwable $exception): bool
-    {
-        for (; $exception !== null; $exception = $exception->getPrevious()) {
-            if ($exception instanceof \PDOException && $exception->getCode() === '42S02') {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

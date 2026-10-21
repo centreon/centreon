@@ -28,9 +28,12 @@ use PHPUnit\Framework\TestCase;
 
 class ModulesInformationsRepositoryTest extends TestCase
 {
+    private const string TABLE_EXISTS = 'SELECT 1 FROM `information_schema`.`tables` WHERE `table_schema` = DATABASE() AND `table_name` = :table';
+
     public function testFindsTheExecutedMigrationsOfAModule(): void
     {
         $db = new CentreonDB();
+        $db->addResultSet(self::TABLE_EXISTS, [[1]], [':table' => 'doctrine_migration_versions_centreon_open_tickets']);
         $db->addResultSet('SELECT `version` FROM `doctrine_migration_versions_centreon_open_tickets`', [
             ['version' => 'CentreonOpenTickets\\Migrations\\Version20260101000001'],
             ['version' => 'CentreonOpenTickets\\Migrations\\Version20260101000002'],
@@ -44,38 +47,15 @@ class ModulesInformationsRepositoryTest extends TestCase
 
     public function testNoMigrationRanBeforeTheMetadataTableExists(): void
     {
-        // The table is created by the first migration run.
-        $this->assertSame([], (new ModulesInformationsRepository($this->failingDb('42S02')))->findExecutedMigrations('centreon-open-tickets'));
-    }
+        // Created by the first migration run. Not queried: the failure would be logged as an SQL error.
+        $db = new CentreonDB();
+        $db->addResultSet(self::TABLE_EXISTS, [], [':table' => 'doctrine_migration_versions_centreon_open_tickets']);
 
-    public function testADatabaseFailureIsNotTakenForPendingMigrations(): void
-    {
-        $this->expectException(\CentreonDbException::class);
-
-        (new ModulesInformationsRepository($this->failingDb('42000')))->findExecutedMigrations('centreon-open-tickets');
+        $this->assertSame([], (new ModulesInformationsRepository($db))->findExecutedMigrations('centreon-open-tickets'));
     }
 
     public function testIgnoresUnsupportedModuleNames(): void
     {
         $this->assertNull((new ModulesInformationsRepository(new CentreonDB()))->findExecutedMigrations('../../etc'));
-    }
-
-    private function failingDb(string $sqlState): CentreonDB
-    {
-        return new class ($sqlState) extends CentreonDB {
-            public function __construct(private readonly string $sqlState)
-            {
-                parent::__construct();
-            }
-
-            public function prepare(string $query, array $options = []): \Centreon\Test\Mock\CentreonDBStatement|false
-            {
-                $exception = new \PDOException('SQLSTATE[' . $this->sqlState . ']');
-                $exception->errorInfo = [$this->sqlState];
-                (new \ReflectionProperty(\Exception::class, 'code'))->setValue($exception, $this->sqlState);
-
-                throw new \CentreonDbException('Error while preparing the query', previous: $exception);
-            }
-        };
     }
 }
