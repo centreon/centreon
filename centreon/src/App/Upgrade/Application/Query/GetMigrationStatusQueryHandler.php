@@ -59,9 +59,13 @@ final readonly class GetMigrationStatusQueryHandler
 
         $legacyRefusal = $this->legacyRefusal();
         $statuses = [];
-        // Left out without loading their migrations, which run once the module is installed.
-        foreach (array_filter($this->migrationRunner->sets(), $this->isInstalled(...)) as $set) {
+        foreach ($this->migrationRunner->sets() as $set) {
             try {
+                // Left out without loading their migrations, which run once the module is installed.
+                if (! $this->isInstalled($set)) {
+                    continue;
+                }
+
                 $statuses[] = $this->status($set, $legacyRefusal);
             } catch (\Throwable $exception) {
                 // A check of migrate(), a database failure or a broken migration file: the other sets are still worth showing.
@@ -91,7 +95,7 @@ final readonly class GetMigrationStatusQueryHandler
     {
         try {
             $this->targetVersionRecorder->legacyVersion();
-        } catch (\RuntimeException $exception) {
+        } catch (\Throwable $exception) {
             return $exception->getMessage();
         }
 

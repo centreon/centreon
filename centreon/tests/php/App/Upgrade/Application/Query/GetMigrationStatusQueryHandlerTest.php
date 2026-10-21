@@ -29,6 +29,7 @@ use App\Upgrade\Application\Query\GetMigrationStatusQuery;
 use App\Upgrade\Application\Query\GetMigrationStatusQueryHandler;
 use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
+use App\Upgrade\Domain\Repository\ModuleRepository;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
@@ -84,6 +85,36 @@ final class GetMigrationStatusQueryHandlerTest extends TestCase
         self::assertEquals([
             new MigrationSetStatus(MigrationSet::core(MigrationSet::CONFIGURATION), [], ['configuration\Version1'], 'The update scripts of 26.12.0 are pending: update the platform first, with the upgrade wizard or the API.'),
             new MigrationSetStatus(MigrationSet::module('centreon-open-tickets'), [], ['module:centreon-open-tickets\Version1']),
+        ], $statuses);
+    }
+
+    public function testADatabaseFailureOfTheChecksDoesNotHideTheOtherSets(): void
+    {
+        $runner = new FakeMigrationRunner();
+        $runner->sets = [MigrationSet::core(MigrationSet::REALTIME), MigrationSet::module('centreon-open-tickets')];
+
+        $modules = new class () implements ModuleRepository {
+            public function updateAll(): void
+            {
+            }
+
+            public function isInstalled(string $module): bool
+            {
+                throw new \Exception('modules_informations is locked');
+            }
+        };
+        $updateRepository = new class () extends FakeUpdateRepository {
+            public function findCurrentVersion(): ?string
+            {
+                throw new \Exception('informations is locked');
+            }
+        };
+
+        $statuses = (new GetMigrationStatusQueryHandler($runner, $modules, new TargetVersionRecorder($updateRepository, new FakeUpdateScriptFinder(), '26.12.0')))(new GetMigrationStatusQuery());
+
+        self::assertEquals([
+            new MigrationSetStatus(MigrationSet::core(MigrationSet::REALTIME), [], ['realtime\Version1'], 'informations is locked'),
+            new MigrationSetStatus(MigrationSet::module('centreon-open-tickets'), [], [], 'modules_informations is locked'),
         ], $statuses);
     }
 
