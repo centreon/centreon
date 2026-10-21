@@ -29,7 +29,6 @@ use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
-use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\WidgetRepository;
@@ -426,6 +425,15 @@ final class UpdateCommandHandlerTest extends TestCase
         $start = $this->recordFor('upgrade.start');
         self::assertSame('24.10.0', $start['context']['from_version']);
         self::assertSame(self::TARGET_VERSION, $start['context']['to_version']);
+
+        $versionSteps = [];
+        foreach ($this->loggerSpy->records as $record) {
+            if (($record['context']['event'] ?? null) === 'upgrade.step' && \in_array($record['context']['step'], ['update_version_information', 'record_target_version'], true)) {
+                $versionSteps[] = [$record['context']['step'], $record['context']['version']];
+            }
+        }
+        self::assertSame([['update_version_information', '24.10.1'], ['record_target_version', self::TARGET_VERSION]], $versionSteps, 'The target version step is told apart from the legacy ones');
+        self::assertSame(['24.10.1', self::TARGET_VERSION], $this->updateRepository->updatesRun);
     }
 
     public function testTheTargetVersionIsTheLegacyOneWhileUpdateNextIsPending(): void
@@ -470,7 +478,6 @@ final class UpdateCommandHandlerTest extends TestCase
             $this->engineContextWriter,
             $this->cacheClearer,
             $this->migrationRunner,
-            new TargetVersionRecorder($updateRepository, $this->scriptFinder, self::TARGET_VERSION),
             self::TARGET_VERSION,
         );
     }
