@@ -185,6 +185,26 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
     }
 
+    public function testRefusesAMigrationDoctrineWouldIgnore(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('declares no migration in the "WrongNamespace\Migrations" namespace');
+
+        $this->invalidModulesRunner()->migrate(MigrationSet::module('wrong-namespace'));
+    }
+
+    public function testRefusesAMigrationEscapingTheBaseClassChecks(): void
+    {
+        try {
+            $this->invalidModulesRunner()->migrate(MigrationSet::module('no-base-class'));
+            self::fail('The migration would run without the base class checks');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('The migration "NoBaseClass\Migrations\Version20260101000001" must extend DdlMigration or DmlMigration.', $exception->getMessage());
+        }
+
+        self::assertSame([], $this->connection->fetchFirstColumn('SELECT version FROM doctrine_migration_versions_no_base_class'), 'Nothing ran');
+    }
+
     public function testAMigrationChangingTheSchemaObjectFailsWithoutRunningAnything(): void
     {
         $this->connection->executeStatement('CREATE TABLE fx_schema_change (id INT PRIMARY KEY)');
@@ -229,6 +249,15 @@ final class DoctrineMigrationRunnerTest extends TestCase
         $this->expectExceptionMessage('is not a DBAL connection');
 
         $runner->migrate(MigrationSet::module(self::ROLLBACK));
+    }
+
+    private function invalidModulesRunner(): DoctrineMigrationRunner
+    {
+        return new DoctrineMigrationRunner(
+            new MigrationSetRegistry('/nonexistent', __DIR__ . '/Fixtures/invalid-modules'),
+            new SingleConnectionRegistry($this->connection),
+            new NullLogger(),
+        );
     }
 
     /**

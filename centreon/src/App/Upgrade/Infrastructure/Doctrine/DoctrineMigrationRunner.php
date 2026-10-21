@@ -172,7 +172,33 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             ));
         }
 
+        $this->assertConventions($factory, $configuration);
+
         return $factory;
+    }
+
+    /**
+     * Doctrine silently ignores a class out of the namespace of the set, and would run a migration with no base class
+     * checks: the module would stay outdated, or bypass them.
+     *
+     * @throws \RuntimeException
+     */
+    private function assertConventions(DependencyFactory $factory, MigrationSetConfiguration $configuration): void
+    {
+        $files = [];
+        foreach ($factory->getMigrationRepository()->getMigrations()->getItems() as $available) {
+            $migration = $available->getMigration();
+            if (! $migration instanceof DdlMigration && ! $migration instanceof DmlMigration) {
+                throw new \RuntimeException(\sprintf('The migration "%s" must extend DdlMigration or DmlMigration.', $migration::class));
+            }
+            $files[] = (new \ReflectionClass($migration))->getFileName();
+        }
+
+        foreach (glob($configuration->directory . '/Version*.php') ?: [] as $file) {
+            if (! \in_array(realpath($file), $files, true)) {
+                throw new \RuntimeException(\sprintf('"%s" declares no migration in the "%s" namespace.', $file, $configuration->namespace));
+            }
+        }
     }
 
     /**
