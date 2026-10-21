@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Legacy;
 
 use Adaptation\Database\Connection\Model\ConnectionConfig;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Temporary bridge, kept isolated under Infrastructure/Legacy so it stays easy to trace and remove.
@@ -39,6 +40,8 @@ final readonly class LegacyConnectionFactory
 {
     public function __construct(
         private ConnectionConfig $connectionConfig,
+        #[Autowire(service: 'upgrade.realtime_connection_config')]
+        private ConnectionConfig $realtimeConnectionConfig,
     ) {
     }
 
@@ -55,17 +58,6 @@ final readonly class LegacyConnectionFactory
      */
     public function createRealtimeConnection(): \CentreonDB
     {
-        // CentreonDB builds its DSN from the "configuration" database name slot, so that slot must
-        // carry the real-time database name here for $pearDBO to actually target the storage schema.
-        return new \CentreonDB(connectionConfig: new ConnectionConfig(
-            host: $this->connectionConfig->getHost(),
-            user: $this->connectionConfig->getUser(),
-            password: $this->connectionConfig->getPassword(),
-            databaseNameConfiguration: $this->connectionConfig->getDatabaseNameRealTime(),
-            databaseNameRealTime: $this->connectionConfig->getDatabaseNameRealTime(),
-            port: $this->connectionConfig->getPort(),
-            charset: $this->connectionConfig->getCharset(),
-            driver: $this->connectionConfig->getDriver(),
-        ));
+        return new \CentreonDB(connectionConfig: $this->realtimeConnectionConfig);
     }
 }
