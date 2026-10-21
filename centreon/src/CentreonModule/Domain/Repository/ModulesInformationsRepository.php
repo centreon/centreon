@@ -60,7 +60,12 @@ class ModulesInformationsRepository extends ServiceEntityRepository
         try {
             $stmt = $this->db->prepare("SELECT `version` FROM `{$table}`");
             $stmt->execute();
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            // The table is created by the first migration run. Any other failure must not pass for pending migrations.
+            if (! self::isMissingTable($exception)) {
+                throw $exception;
+            }
+
             return [];
         }
 
@@ -92,5 +97,16 @@ class ModulesInformationsRepository extends ServiceEntityRepository
         }
 
         return null;
+    }
+
+    private static function isMissingTable(\Throwable $exception): bool
+    {
+        for (; $exception !== null; $exception = $exception->getPrevious()) {
+            if ($exception instanceof \PDOException && $exception->getCode() === '42S02') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

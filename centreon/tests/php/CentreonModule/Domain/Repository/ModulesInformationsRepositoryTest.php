@@ -44,12 +44,38 @@ class ModulesInformationsRepositoryTest extends TestCase
 
     public function testNoMigrationRanBeforeTheMetadataTableExists(): void
     {
-        // The table is created by the first migration run: querying it before fails.
-        $this->assertSame([], (new ModulesInformationsRepository(new CentreonDB()))->findExecutedMigrations('centreon-open-tickets'));
+        // The table is created by the first migration run.
+        $this->assertSame([], (new ModulesInformationsRepository($this->failingDb('42S02')))->findExecutedMigrations('centreon-open-tickets'));
+    }
+
+    public function testADatabaseFailureIsNotTakenForPendingMigrations(): void
+    {
+        $this->expectException(\CentreonDbException::class);
+
+        (new ModulesInformationsRepository($this->failingDb('42000')))->findExecutedMigrations('centreon-open-tickets');
     }
 
     public function testIgnoresUnsupportedModuleNames(): void
     {
         $this->assertNull((new ModulesInformationsRepository(new CentreonDB()))->findExecutedMigrations('../../etc'));
+    }
+
+    private function failingDb(string $sqlState): CentreonDB
+    {
+        return new class ($sqlState) extends CentreonDB {
+            public function __construct(private readonly string $sqlState)
+            {
+                parent::__construct();
+            }
+
+            public function prepare(string $query, array $options = []): \Centreon\Test\Mock\CentreonDBStatement|false
+            {
+                $exception = new \PDOException('SQLSTATE[' . $this->sqlState . ']');
+                $exception->errorInfo = [$this->sqlState];
+                (new \ReflectionProperty(\Exception::class, 'code'))->setValue($exception, $this->sqlState);
+
+                throw new \CentreonDbException('Error while preparing the query', previous: $exception);
+            }
+        };
     }
 }
