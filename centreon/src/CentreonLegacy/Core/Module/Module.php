@@ -21,6 +21,7 @@
 
 namespace CentreonLegacy\Core\Module;
 
+use App\Upgrade\Domain\MigrationSet;
 use CentreonLegacy\Core\Utils\Utils;
 use CentreonLegacy\ServiceProvider;
 use Psr\Container\ContainerInterface;
@@ -79,14 +80,34 @@ class Module
     }
 
     /**
+     * Before any script: the migrations of a module with an unsupported name could never run.
+     *
+     * @throws \RuntimeException
+     */
+    protected function assertMigrationsCanRun(): void
+    {
+        if ($this->hasMigrations() && ! MigrationSet::isModuleName($this->moduleName)) {
+            throw new \RuntimeException(\sprintf(
+                'The module "%s" ships migrations, but its name is not made of lowercase letters, digits and dashes only.',
+                $this->moduleName,
+            ));
+        }
+    }
+
+    /**
      * @throws \RuntimeException
      */
     protected function migrate(): void
     {
-        if (! $this->services->get('filesystem')->exists($this->getModulePath($this->moduleName) . '/migrations')) {
+        if (! $this->hasMigrations()) {
             return;
         }
 
         $this->services->get(ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER)->migrate($this->moduleName);
+    }
+
+    private function hasMigrations(): bool
+    {
+        return $this->services->get('filesystem')->exists($this->getModulePath($this->moduleName) . '/migrations');
     }
 }

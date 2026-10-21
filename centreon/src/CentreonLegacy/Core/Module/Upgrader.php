@@ -34,6 +34,7 @@ class Upgrader extends Module
      */
     public function upgrade()
     {
+        $this->assertMigrationsCanRun();
         $this->upgradeModuleConfiguration();
 
         $moduleInstalledInformation = $this->informationObj->getInstalledInformation($this->moduleName);

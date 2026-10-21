@@ -53,25 +53,25 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->onlyMethods(['getInstalledInformation', 'getModulePath', 'getConfiguration'])
             ->getMock();
 
-        $installedInformation = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $installedInformation = ['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information->expects($this->any())
             ->method('getInstalledInformation')
             ->willReturn($installedInformation);
 
-        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $configuration = ['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.1', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information->expects($this->any())
             ->method('getConfiguration')
             ->willReturn($configuration);
 
         $this->information->expects($this->any())
             ->method('getModulePath')
-            ->willReturn('/MyModule/');
+            ->willReturn('/my-module/');
 
         $this->utils = $this->getMockBuilder(\CentreonLegacy\Core\Utils\Utils::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['requireConfiguration', 'executeSqlFile', 'executePhpFile'])
             ->getMock();
-        $upgradeConfiguration = ['MyModule' => ['name' => 'MyModule', 'rname' => 'MyModule', 'release_from' => '1.0.0', 'release_to' => '1.0.1', 'infos' => 'my module for unit test', 'author' => 'unit test']];
+        $upgradeConfiguration = ['my-module' => ['name' => 'my-module', 'rname' => 'my-module', 'release_from' => '1.0.0', 'release_to' => '1.0.1', 'infos' => 'my module for unit test', 'author' => 'unit test']];
         $this->utils->expects($this->any())
             ->method('requireConfiguration')
             ->willReturn($upgradeConfiguration);
@@ -139,7 +139,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $migrationLauncher = $this->createMock(MigrationLauncher::class);
         $migrationLauncher->expects($this->once())
             ->method('migrate')
-            ->with('MyModule');
+            ->with('my-module');
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
 
         // Not suspended: the upgrade clears the caches itself.
@@ -147,7 +147,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $cacheClearer->expects($this->once())->method('clear');
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $cacheClearer;
 
-        $upgrader = new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1);
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
         $id = $upgrader->upgrade();
 
         $this->assertEquals($id, 1);
@@ -175,11 +175,11 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
         $migrationLauncher = $this->createMock(MigrationLauncher::class);
-        $migrationLauncher->expects($this->once())->method('migrate')->with('MyModule');
+        $migrationLauncher->expects($this->once())->method('migrate')->with('my-module');
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
 
-        $upgrader = new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1);
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
 
         $this->assertEquals(1, $upgrader->upgrade());
     }
@@ -226,13 +226,13 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $this->createMock(CacheClearer::class);
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
 
-        (new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1))->upgrade();
+        (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
 
         $this->assertSame(
             ['script:upgrade.pre.php', 'script:upgrade.sql', 'script:upgrade.php', 'version:1.0.1', 'version:1.0.1'],
             $journal->getArrayCopy()
         );
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('MyModule', '1.0.1'), 'The progress is forgotten once the version is recorded');
+        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('my-module', '1.0.1'), 'The progress is forgotten once the version is recorded');
     }
 
     public function testResumesAFailedVersionWhereItStopped(): void
@@ -286,7 +286,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
                 $onQueryExecuted(2);
             }
         );
-        $upgrader = new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1);
+        $upgrader = new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1);
 
         try {
             $upgrader->upgrade();
@@ -295,7 +295,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             $this->assertSame('Duplicate column name', $exception->getMessage());
         }
         $this->assertSame([], $versions, 'A failed version is not recorded');
-        $this->assertSame(['pre' => true, 'sql' => 1, 'checksum' => ''], $progress->get('MyModule', '1.0.1'));
+        $this->assertSame(['pre' => true, 'sql' => 1, 'checksum' => ''], $progress->get('my-module', '1.0.1'));
 
         // Second attempt: resumes after the first query, without replaying the pre-upgrade script.
         $upgrader->upgrade();
@@ -303,7 +303,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['upgrade.pre.php', 'upgrade.php'], $phpScripts);
         $this->assertSame([0, 1], $sqlAttempts);
         $this->assertSame(['1.0.1', '1.0.1'], $versions);
-        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('MyModule', '1.0.1'));
+        $this->assertSame(['pre' => false, 'sql' => 0, 'checksum' => ''], $progress->get('my-module', '1.0.1'));
     }
 
     public function testRestartsTheSqlOfAVersionWhoseUpgradeSqlChanged(): void
@@ -333,7 +333,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress = new UpgradeProgress(new InMemoryOptionsDB());
 
         // A previous attempt stopped after the first query of an upgrade.sql that was fixed since.
-        $progress->save('MyModule', '1.0.1', ['pre' => true, 'sql' => 1, 'checksum' => 'checksum of the previous upgrade.sql']);
+        $progress->save('my-module', '1.0.1', ['pre' => true, 'sql' => 1, 'checksum' => 'checksum of the previous upgrade.sql']);
         $phpScripts = [];
         $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use (&$phpScripts): void {
             $phpScripts[] = basename($file);
@@ -345,7 +345,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             }
         );
 
-        (new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1))->upgrade();
+        (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
 
         $this->assertSame([0], $skippedQueries, 'The fixed upgrade.sql restarts from its first query');
         $this->assertSame(['upgrade.php'], $phpScripts, 'The pre-upgrade script that passed is not replayed');
@@ -384,7 +384,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->onlyMethods(['requireConfiguration', 'executeSqlFile', 'executePhpFile', 'buildPath'])
             ->getMock();
         $utils->method('buildPath')->willReturn($modulePath);
-        $utils->method('requireConfiguration')->willReturn(['MyModule' => ['release_from' => '1.0.0', 'release_to' => '1.0.1']]);
+        $utils->method('requireConfiguration')->willReturn(['my-module' => ['release_from' => '1.0.0', 'release_to' => '1.0.1']]);
         $skippedQueries = [];
         // Every attempt runs the first query it was not told to skip, then fails.
         $utils->method('executeSqlFile')->willReturnCallback(
@@ -395,7 +395,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
                 throw new \Exception('upgrade.sql failed');
             }
         );
-        $upgrade = fn () => (new Upgrader(new Container($this->container), $this->information, 'MyModule', $utils, 1))->upgrade();
+        $upgrade = fn () => (new Upgrader(new Container($this->container), $this->information, 'my-module', $utils, 1))->upgrade();
 
         try {
             foreach (['first attempt', 'same upgrade.sql', 'fixed upgrade.sql'] as $attempt) {
@@ -409,7 +409,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
                 } catch (\Exception $exception) {
                     $this->assertSame('upgrade.sql failed', $exception->getMessage());
                 }
-                $this->assertSame(md5_file($sqlFile), $progress->get('MyModule', '1.0.1')['checksum'], $attempt);
+                $this->assertSame(md5_file($sqlFile), $progress->get('my-module', '1.0.1')['checksum'], $attempt);
             }
         } finally {
             (new \Symfony\Component\Filesystem\Filesystem())->remove($modulePath);
@@ -449,13 +449,27 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = $cacheClearer;
 
         try {
-            (new Upgrader(new Container($this->container), $this->information, 'MyModule', $this->utils, 1))->upgrade();
+            (new Upgrader(new Container($this->container), $this->information, 'my-module', $this->utils, 1))->upgrade();
             $this->fail('The migration failure must be reported');
         } catch (\RuntimeException $exception) {
             $this->assertSame('Version20260101000001 failed', $exception->getMessage());
         }
 
         $this->assertSame([], $versions, 'The next update resumes the pending migrations of this version');
+    }
+
+    public function testRefusesAModuleShippingMigrationsUnderAnUnsupportedNameBeforeAnyScript(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No query registered: updating the module would throw.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "centreon_foo" ships migrations');
+
+        (new Upgrader(new Container($this->container), $this->information, 'centreon_foo', $this->utils, 1))->upgrade();
     }
 
     public function mockExists($file)

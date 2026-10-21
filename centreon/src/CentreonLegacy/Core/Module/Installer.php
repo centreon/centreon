@@ -28,6 +28,7 @@ class Installer extends Module
      */
     public function install()
     {
+        $this->assertMigrationsCanRun();
         $id = $this->installModuleConfiguration();
         $this->installPhpFiles(true);
         $this->installSqlFiles();

@@ -45,7 +45,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $configuration = ['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getConfiguration'])
@@ -104,13 +104,13 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $migrationLauncher = $this->createMock(MigrationLauncher::class);
         $migrationLauncher->expects($this->once())
             ->method('migrate')
-            ->with('MyModule')
+            ->with('my-module')
             ->willReturnCallback(static function () use ($journal): void {
                 $journal[] = 'migrations';
             });
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
 
-        $installer = new Installer(new Container($this->container), $this->information, 'MyModule', $this->utils);
+        $installer = new Installer(new Container($this->container), $this->information, 'my-module', $this->utils);
         $id = $installer->install();
 
         $this->assertEquals($id, 1);
@@ -136,6 +136,22 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $migrationLauncher->expects($this->never())->method('migrate');
         $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
 
-        $this->assertEquals(1, (new Installer(new Container($this->container), $this->information, 'MyModule', $this->utils))->install());
+        $this->assertEquals(1, (new Installer(new Container($this->container), $this->information, 'my-module', $this->utils))->install());
+    }
+
+    public function testRefusesAModuleShippingMigrationsUnderAnUnsupportedNameBeforeAnyScript(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No query registered: inserting the module would throw.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->utils->expects($this->never())->method('executeSqlFile');
+        $this->utils->expects($this->never())->method('executePhpFile');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "centreon_foo" ships migrations');
+
+        (new Installer(new Container($this->container), $this->information, 'centreon_foo', $this->utils))->install();
     }
 }
