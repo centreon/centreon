@@ -1626,23 +1626,32 @@ function play_update_api () {
 	if [ -n "${modules}" ]; then
 		mapfile -t outdated_modules <<< "${modules}"
 	fi
-	local index clear_cache
-	for index in "${!outdated_modules[@]}"; do
-		# Only the last update clears the cache (older releases ignore clearCache): HTTP errors must not prevent it.
-		clear_cache="&clearCache=0"
-		[ "${index}" -eq "$(( ${#outdated_modules[@]} - 1 ))" ] && clear_cache=""
-		API_EXTRA_OK="500 502 504" api_curl "update of ${outdated_modules[index]} module" "$api_body" \
-			"${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${outdated_modules[index]}&type=module${clear_cache}" \
+	local module
+	for module in "${outdated_modules[@]}"; do
+		# The cache is cleared once, below: HTTP errors must not prevent it.
+		API_EXTRA_OK="500 502 504" api_curl "update of ${module} module" "$api_body" \
+			"${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module}&type=module&clearCache=0" \
 			--request POST \
 			--header "centreon-auth-token: ${tokenv1}"
 		status=$(jq '.status' "$api_body") || true
 		status_message=$(jq '.result.message' "$api_body") || true
 		if [ "${API_HTTP_CODE}" != "200" ]; then
-			log "WARN" "Error during update of ${outdated_modules[index]} module: HTTP ${API_HTTP_CODE}"
+			log "WARN" "Error during update of ${module} module: HTTP ${API_HTTP_CODE}"
 		elif [ "${status}" = "false" ]; then
-			log "WARN" "Error during update of ${outdated_modules[index]} module: ${status_message}"
+			log "WARN" "Error during update of ${module} module: ${status_message}"
 		fi
 	done
+	if [ "${#outdated_modules[@]}" -gt 0 ]; then
+		# 404: older releases lack this action, but ignore clearCache=0, so each of their updates cleared the cache.
+		API_EXTRA_OK="404 500 502 504" api_curl "cache clear" "$api_body" \
+			"${central_ip}/centreon/api/index.php?object=centreon_module&action=clearCache" \
+			--request POST \
+			--header "centreon-auth-token: ${tokenv1}"
+		status=$(jq '.status' "$api_body") || true
+		if [ "${API_HTTP_CODE}" != "404" ] && { [ "${API_HTTP_CODE}" != "200" ] || [ "${status}" = "false" ]; }; then
+			log "WARN" "The cache could not be cleared (HTTP ${API_HTTP_CODE}): run 'php /usr/share/centreon/bin/console cache:clear' and 'php /usr/share/centreon/bin/console.new cache:clear'"
+		fi
+	fi
 
 	# Update each widget whose current version differs from the available one
 	# see the module list above: tolerate an empty list, fail hard on malformed JSON.

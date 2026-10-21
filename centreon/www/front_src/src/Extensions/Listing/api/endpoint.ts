@@ -33,6 +33,8 @@ const buildEndPoint = ({
   return clearCache ? endpoint : `${endpoint}&clearCache=0`;
 };
 
+const clearCacheEndpoint = `${baseEndpoint}action=clearCache`;
+
 const buildExtensionEndPoint = ({
   action,
   criteriaSearch,
@@ -79,4 +81,4 @@ const buildExtensionEndPoint = ({
   return params;
 };
 
-export { buildEndPoint, buildExtensionEndPoint };
+export { buildEndPoint, buildExtensionEndPoint, clearCacheEndpoint };

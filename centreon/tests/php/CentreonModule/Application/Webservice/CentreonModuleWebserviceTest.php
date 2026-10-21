@@ -145,6 +145,52 @@ class CentreonModuleWebserviceTest extends TestCase
         $this->assertSame('cache:clear failed', $response['result']->jsonSerialize()['message']);
     }
 
+    public function testAnUpdateFailingWithAnErrorStillClearsTheCaches(): void
+    {
+        $_GET = ['id' => 'bam', 'type' => 'module'];
+        $this->moduleService->method('update')->willThrowException(new \TypeError('upgrade.php failed'));
+
+        $response = $this->webservice->postUpdate()->jsonSerialize();
+
+        $this->assertFalse($response['status']);
+        $this->assertSame('upgrade.php failed', $response['result']->jsonSerialize()['message']);
+        $this->assertSame(self::BOTH_CLEARS, $this->cacheClearer->commands);
+    }
+
+    public function testAFailingUpdateOfABatchLeavesTheCachesToTheCaller(): void
+    {
+        $_GET = ['id' => 'bam', 'type' => 'module', 'clearCache' => '0'];
+        $this->moduleService->method('update')->willThrowException(new \Exception('upgrade.sql failed'));
+
+        $this->assertFalse($this->webservice->postUpdate()->jsonSerialize()['status']);
+        $this->assertSame([], $this->cacheClearer->commands);
+    }
+
+    public function testClearingTheCachesEndsABatch(): void
+    {
+        $response = $this->webservice->postClearCache()->jsonSerialize();
+
+        $this->assertTrue($response['status']);
+        $this->assertSame(self::BOTH_CLEARS, $this->cacheClearer->commands);
+    }
+
+    public function testACacheClearFailureIsReported(): void
+    {
+        $container = new Container();
+        $container[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER] = new class () extends CacheClearer {
+            protected function run(array $command): void
+            {
+                throw new \Symfony\Component\Process\Exception\RuntimeException('cache:clear failed');
+            }
+        };
+        $this->webservice->setDi($container);
+
+        $response = $this->webservice->postClearCache()->jsonSerialize();
+
+        $this->assertFalse($response['status']);
+        $this->assertSame('cache:clear failed', $response['result']->jsonSerialize()['message']);
+    }
+
     private function module(string $id): Module
     {
         $module = new Module();

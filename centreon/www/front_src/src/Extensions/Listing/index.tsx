@@ -15,7 +15,7 @@ import {
 } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
-import { filter, find, findLastIndex, isEmpty, pathEq, propEq } from 'ramda';
+import { filter, find, isEmpty, pathEq, propEq } from 'ramda';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -26,7 +26,11 @@ import useNavigation from '../../Navigation/useNavigation';
 import { appliedFilterCriteriasAtom } from '../Filter/filterAtoms';
 import { labelInstallAll, labelUpdateAll } from '../translatedLabels';
 import { deleteExtension } from './api';
-import { buildEndPoint, buildExtensionEndPoint } from './api/endpoint';
+import {
+  buildEndPoint,
+  buildExtensionEndPoint,
+  clearCacheEndpoint
+} from './api/endpoint';
 import ExtensionDeletePopup from './ExtensionDeleteDialog';
 import ExtensionDetailsPopup from './ExtensionDetailsDialog';
 import ExtensionsHolder from './ExtensionsHolder';
@@ -38,6 +42,7 @@ import {
   ExtensionsStatus,
   InstallOrUpdateExtensionResult
 } from './models';
+import updateSequentially from './updateSequentially';
 
 const useStyles = makeStyles()((theme) => ({
   contentWrapper: {
@@ -186,33 +191,32 @@ const ExtensionsManager = ({ reloadNavigation }: Props): JSX.Element => {
     }
     const ids = entities.map(({ id }) => id);
     setExtensionsUpdatingStatusByIds(ids, true);
-    // Sequential, so that a shared dependency is never upgraded twice at once. Only the last module clears the cache.
-    const lastModuleIndex = findLastIndex(propEq('module', 'type'), entities);
-    entities
-      .reduce(
-        (previous, { id, type }, index) =>
-          previous.then(() =>
-            sendUpdateOrInstallExtensionRequests({
-              endpoint: buildEndPoint({
-                action: 'update',
-                clearCache: index === lastModuleIndex,
-                id,
-                type
-              })
-            }).then(
-              ({ status, result }) => {
-                if (!status) {
-                  showErrorMessage(result.message as string);
-                } else {
-                  showSuccessMessage('update succeeded');
-                }
-              },
-              // Already reported: carry on with the next extensions.
-              () => undefined
-            )
-          ),
-        Promise.resolve()
-      )
+    updateSequentially({
+      clearCache: () =>
+        sendUpdateOrInstallExtensionRequests({
+          endpoint: clearCacheEndpoint
+        }).then(({ status, result }) => {
+          if (!status) {
+            showErrorMessage(result.message as string);
+          }
+        }),
+      extensions: entities,
+      update: ({ id, type }) =>
+        sendUpdateOrInstallExtensionRequests({
+          endpoint: buildEndPoint({
+            action: 'update',
+            clearCache: false,
+            id,
+            type
+          })
+        }).then(({ status, result }) => {
+          if (!status) {
+            showErrorMessage(result.message as string);
+          } else {
+            showSuccessMessage('update succeeded');
+          }
+        })
+    })
       .then(() =>
         sendExtensionsRequests({
           endpoint: buildExtensionEndPoint({

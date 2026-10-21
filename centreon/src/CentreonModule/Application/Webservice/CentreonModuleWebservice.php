@@ -487,7 +487,7 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
      *          enum={"0", "1"},
      *          default="1"
      *       ),
-     *       description="0 to leave the cache as is when updating several modules: only the last update clears it",
+     *       description="0 to leave the cache as is when updating several modules: the clearCache action ends the batch",
      *       required=false
      *   ),
      *
@@ -529,15 +529,15 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
         try {
             // One clear for the module and its dependencies.
             $entity = $cacheClearer->suspended(static fn () => $moduleService->update($id, $type));
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $result = new UpdateAction(null, $e->getMessage());
         }
 
-        // Even after a failure, for the dependencies already upgraded. A batch passes clearCache=0 but on its last module.
+        // Even after a failure, for the dependencies already upgraded. A batch passes clearCache=0, then calls clearCache.
         if ($type === ModuleSource::TYPE && ($request['clearCache'] ?? '1') !== '0') {
             try {
                 $cacheClearer->clear();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $result ??= new UpdateAction(null, $e->getMessage());
             }
         }
@@ -548,6 +548,38 @@ class CentreonModuleWebservice extends Webservice\WebServiceAbstract implements 
         }
 
         return new Response($result, $status);
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/internal.php?object=centreon_module&action=clearCache",
+     *   description="Clear the cache once a batch of module updates sent with clearCache=0 is over, whatever their outcome",
+     *   tags={"centreon_module"},
+     *   security={{"Session": {}}},
+     *
+     *   @OA\Response(
+     *       response="200",
+     *       description="OK",
+     *
+     *       @OA\JsonContent(
+     *
+     *          @OA\Property(property="result", type="string"),
+     *          @OA\Property(property="status", type="boolean")
+     *       )
+     *   )
+     * )
+     *
+     * @return Response
+     */
+    public function postClearCache()
+    {
+        try {
+            $this->getDi()[LegacyServiceProvider::CENTREON_LEGACY_CACHE_CLEARER]->clear();
+        } catch (\Throwable $e) {
+            return new Response(new UpdateAction(null, $e->getMessage()), false);
+        }
+
+        return new Response(null);
     }
 
     /**
