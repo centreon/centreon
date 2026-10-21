@@ -23,25 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Legacy;
 
-use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class LegacyConnectionFactoryTest extends TestCase
+final class LegacyConnectionFactoryTest extends KernelTestCase
 {
     public function testTheRealtimeConnectionTargetsTheStorageHost(): void
     {
-        $factory = new LegacyConnectionFactory(
-            new ConnectionConfig(
-                host: 'configuration.invalid',
-                user: $this->env('user'),
-                password: $this->env('password'),
-                databaseNameConfiguration: $this->env('db'),
-                databaseNameRealTime: $this->env('dbcstg'),
-                port: (int) $this->env('port'),
-            ),
-            $this->env('hostCentstorage'),
-        );
+        /** @var LegacyConnectionFactory $factory */
+        $factory = self::getContainer()->get(LegacyConnectionFactory::class);
 
         $connection = $factory->createRealtimeConnection();
 

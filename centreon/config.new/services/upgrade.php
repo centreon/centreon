@@ -60,6 +60,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '%env(int:port)%',
         ]);
 
+    // As CentreonDB builds it for its real-time label: its DSN reads the database name from the configuration slot.
+    $services->set('upgrade.realtime_connection_config', ConnectionConfig::class)
+        ->args([
+            '%env(hostCentstorage)%',
+            '%env(user)%',
+            '%env(password)%',
+            '%env(dbcstg)%',
+            '%env(dbcstg)%',
+            '%env(int:port)%',
+        ]);
+
     $services->load('App\\Upgrade\\', __DIR__ . '/../../src/App/Upgrade');
 
     $services->set('upgrade.legacy_container', Container::class)
