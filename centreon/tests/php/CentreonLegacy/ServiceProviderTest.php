@@ -64,6 +64,9 @@ class ServiceProviderTest extends TestCase
             ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE => Core\Module\License::class,
             ServiceProvider::CENTREON_LEGACY_LICENSE => Core\Module\License::class, // alias
             ServiceProvider::CENTREON_LEGACY_WIDGET_INFORMATION => Core\Widget\Information::class,
+            ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER => Core\Migration\MigrationLauncher::class,
+            ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER => Core\Cache\CacheClearer::class,
+            ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS => Core\Module\UpgradeProgress::class,
         ];
 
         // check list of services
@@ -74,6 +77,56 @@ class ServiceProviderTest extends TestCase
 
             $this->assertInstanceOf($className, $service);
         }
+    }
+
+    /**
+     * A module object only reaches the services its locator lists: a missing one fails at install or upgrade time.
+     */
+    public function testModuleObjectsReachTheServicesTheyUse(): void
+    {
+        // Registered by the Centreon service provider.
+        $this->container['filesystem'] = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $this->container['finder'] = $this->createMock(\Symfony\Component\Finder\Finder::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_UTILS] = $this->createMock(Core\Utils\Utils::class);
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION] = $this->createMock(Core\Module\Information::class);
+
+        $checkList = [
+            ServiceProvider::CENTREON_LEGACY_MODULE_INSTALLER => [
+                ['mod-name'],
+                ['filesystem', ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER],
+            ],
+            ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER => [
+                ['mod-name', 1],
+                [
+                    'finder',
+                    'filesystem',
+                    'configuration_db',
+                    ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER,
+                    ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER,
+                    ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS,
+                ],
+            ],
+            ServiceProvider::CENTREON_LEGACY_MODULE_REMOVER => [
+                ['mod-name', 1],
+                ['filesystem', 'configuration_db', ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS],
+            ],
+        ];
+
+        foreach ($checkList as $serviceName => [$arguments, $usedServices]) {
+            $module = $this->container[$serviceName](...$arguments);
+            $services = (new \ReflectionProperty(Core\Module\Module::class, 'services'))->getValue($module);
+
+            foreach ($usedServices as $usedService) {
+                $this->assertTrue($services->has($usedService), \sprintf('%s cannot reach %s', $serviceName, $usedService));
+            }
+        }
+
+        // Shared: suspending the clears of a batch must reach every module of it.
+        $upgrader = $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADER]('mod-name', 1);
+        $this->assertSame(
+            $this->container[ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER],
+            (new \ReflectionProperty(Core\Module\Module::class, 'services'))->getValue($upgrader)->get(ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER),
+        );
     }
 
     /**

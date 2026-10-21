@@ -28,10 +28,13 @@ class Installer extends Module
      */
     public function install()
     {
+        $this->assertMigrationsCanRun();
         $id = $this->installModuleConfiguration();
         $this->installPhpFiles(true);
         $this->installSqlFiles();
         $this->installPhpFiles(false);
+        // Last: a failure leaves pending migrations, which the next module update resumes.
+        $this->migrate();
 
         return $id;
     }
