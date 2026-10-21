@@ -37,9 +37,10 @@ Every migration extends one of the two base classes, which a test enforces:
   MySQL has no `ADD COLUMN IF NOT EXISTS`: guard in `up()` with the schema, e.g.
   `if ($schema->getTable('host')->hasColumn('host_notes_url')) { return; }`.
 - `DmlMigration` for data changes (`INSERT`, `UPDATE`, `DELETE`...). It runs in a transaction with its metadata row:
-  all or nothing. DDL is rejected, as it would silently commit that transaction.
+  all or nothing. DDL and transaction control are rejected, as they would silently commit that transaction.
 
-In both, pass one statement per `addSql()` call, and implement `revert()`, which `down()` calls.
+In both, pass one statement per `addSql()` call, and implement `revert()`, which `down()` calls. `$schema` is read
+only: a migration changing it fails, as doctrine would run the SQL of the change out of reach of these checks.
 
 Rules:
 
@@ -47,9 +48,13 @@ Rules:
   A fix shipped on a maintained branch is forward-ported with the **same class name**.
 - A fix shipped both as a legacy script (maintained branch) and as a migration runs twice on a platform upgraded
   through that branch: the migration must be idempotent.
+- A fresh install creates the current schema with `www/install/*.sql`, then runs every core migration: the core
+  install SQL is frozen for what a migration changes. Never add the same change to both.
 - Once a module ships migrations, its `install.sql` is frozen: new changes come as migrations, which run after it at
   install. Its `uninstall.sql` must still drop everything the module owns, migrations included: an uninstallation
   does not revert them.
+- A module version that failed resumes after its last successful `upgrade.sql` query. If that `upgrade.sql` is fixed
+  in between, it restarts from its first query: a fixed `upgrade.sql` must be idempotent.
 
 ## Operating
 
