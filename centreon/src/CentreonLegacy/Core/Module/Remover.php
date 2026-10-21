@@ -22,6 +22,7 @@
 namespace CentreonLegacy\Core\Module;
 
 use App\Upgrade\Domain\MigrationSet;
+use CentreonLegacy\ServiceProvider;
 
 class Remover extends Module
 {
@@ -32,7 +33,7 @@ class Remover extends Module
     {
         $this->removePhpFiles(true);
         $this->removeSqlFiles();
-        $this->dropMigrationsTable();
+        $this->forgetUpgradeHistory();
         $this->removePhpFiles(false);
         $this->removeModuleConfiguration();
 
@@ -67,8 +68,10 @@ class Remover extends Module
     /**
      * So that a reinstallation starts over.
      */
-    private function dropMigrationsTable(): void
+    private function forgetUpgradeHistory(): void
     {
+        $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName);
+
         $table = MigrationSet::moduleTable($this->moduleName);
         if ($table === null) {
             return;

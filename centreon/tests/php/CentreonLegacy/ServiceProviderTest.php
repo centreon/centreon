@@ -64,6 +64,8 @@ class ServiceProviderTest extends TestCase
             ServiceProvider::CENTREON_LEGACY_MODULE_LICENSE => Core\Module\License::class,
             ServiceProvider::CENTREON_LEGACY_LICENSE => Core\Module\License::class, // alias
             ServiceProvider::CENTREON_LEGACY_WIDGET_INFORMATION => Core\Widget\Information::class,
+            ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER => Core\Migration\MigrationLauncher::class,
+            ServiceProvider::CENTREON_LEGACY_CACHE_CLEARER => Core\Cache\CacheClearer::class,
         ];
 
         // check list of services

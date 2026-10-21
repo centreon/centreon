@@ -161,6 +161,27 @@ class UtilsTest extends TestCase
         $this->assertFalse($isException);
     }
 
+    public function testExecuteSqlFileSkipsTheQueriesAlreadyExecutedAndReportsProgress(): void
+    {
+        $this->fileSystem->createFile('/tmp/upgrade.sql', "SELECT 1;\nSELECT 2;\nSELECT 3;\n");
+        // The first query is not registered: executing it again would throw.
+        $this->container['configuration_db']->addResultSet('SELECT 2;', []);
+        $this->container['configuration_db']->addResultSet('SELECT 3;', []);
+
+        $executed = [];
+        $this->service->executeSqlFile(
+            $this->fileSystem->path('/tmp/upgrade.sql'),
+            [],
+            false,
+            1,
+            static function (int $count) use (&$executed): void {
+                $executed[] = $count;
+            }
+        );
+
+        $this->assertSame([2, 3], $executed);
+    }
+
     public function testExecuteSqlFileWithWithUnexistsFileAndRealtimeDb(): void
     {
         $fileName = $this->fileSystem->path('/tmp/conf2.sql');

@@ -69,12 +69,14 @@ class Utils
      * @param string $fileName
      * @param array $customMacros
      * @param mixed $monitoring
+     * @param int $skippedQueries the number of leading queries already executed by a previous attempt
+     * @param callable(int): void|null $onQueryExecuted called with the number of queries executed so far
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
-    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false): void
+    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false, int $skippedQueries = 0, ?callable $onQueryExecuted = null): void
     {
         $dbName = 'configuration_db';
         if ($monitoring) {
@@ -87,6 +89,7 @@ class Utils
         $file = fopen($fileName, 'r');
         $str = '';
         $delimiter = ';';
+        $queryCount = 0;
         while (! feof($file)) {
             $line = fgets($file);
             if (! preg_match('/^(--|#)/', $line)) {
@@ -101,7 +104,12 @@ class Utils
                     if ($delimiter !== ';') {
                         $str = preg_replace('/' . preg_quote($delimiter, '/') . '$/', '', $str);
                     }
-                    $this->services->get($dbName)->query($str);
+                    if (++$queryCount > $skippedQueries) {
+                        $this->services->get($dbName)->query($str);
+                        if ($onQueryExecuted !== null) {
+                            $onQueryExecuted($queryCount);
+                        }
+                    }
                     $str = '';
                 }
             }

@@ -25,6 +25,7 @@ use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
 
 class RemoverTest extends \PHPUnit\Framework\TestCase
@@ -95,6 +96,10 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         );
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
+        $progress = $this->createMock(UpgradeProgress::class);
+        $progress->expects($this->once())->method('clear')->with('MyModule');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $progress;
+
         $remover = new Remover(new Container($this->container), $this->information, 'MyModule', $this->utils);
         $removed = $remover->remove();
 
@@ -110,6 +115,8 @@ class RemoverTest extends \PHPUnit\Framework\TestCase
         // No DROP TABLE registered: running one would throw.
         $this->db->addResultSet('DELETE FROM modules_informations WHERE id = :id ', []);
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+
+        $this->container[ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS] = $this->createMock(UpgradeProgress::class);
 
         $remover = new Remover(new Container($this->container), $this->information, 'my.module', $this->utils);
 

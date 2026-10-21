@@ -74,12 +74,12 @@ class Upgrader extends Module
                 ]
             );
 
+            $this->upgradeVersionScripts($upgradePath, $upgradeName);
+
+            // Recorded once its scripts passed: a failed version is resumed, not skipped.
             $this->upgradeVersion($upgradeName);
             $moduleInstalledInformation['mod_release'] = $upgradeName;
-
-            $this->upgradePhpFiles($upgradePath, true);
-            $this->upgradeSqlFiles($upgradePath);
-            $this->upgradePhpFiles($upgradePath, false);
+            $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS)->clear($this->moduleName, $upgradeName);
         }
 
         $this->migrate();
@@ -155,17 +155,48 @@ class Upgrader extends Module
     }
 
     /**
+     * Resumes a failed attempt: upgrade.php, run last, is the only step replayed whole.
+     */
+    private function upgradeVersionScripts(string $path, string $version): void
+    {
+        /** @var UpgradeProgress $progress */
+        $progress = $this->services->get(ServiceProvider::CENTREON_LEGACY_MODULE_UPGRADE_PROGRESS);
+        $state = $progress->get($this->moduleName, $version);
+        // A fixed upgrade.sql restarts: the previous query count no longer applies.
+        $sqlFile = $path . '/sql/upgrade.sql';
+        $checksum = is_file($sqlFile) ? (string) md5_file($sqlFile) : '';
+        if ($state['checksum'] !== $checksum) {
+            $state['sql'] = 0;
+            $state['checksum'] = $checksum;
+        }
+
+        if (! $state['pre']) {
+            $this->upgradePhpFiles($path, true);
+            $state['pre'] = true;
+            $progress->save($this->moduleName, $version, $state);
+        }
+
+        $this->upgradeSqlFiles($path, $state['sql'], function (int $executedQueries) use ($progress, $version, &$state): void {
+            $state['sql'] = $executedQueries;
+            $progress->save($this->moduleName, $version, $state);
+        });
+
+        $this->upgradePhpFiles($path, false);
+    }
+
+    /**
      * @param string $path
+     * @param callable(int): void|null $onQueryExecuted
      *
      * @return bool
      */
-    private function upgradeSqlFiles($path)
+    private function upgradeSqlFiles($path, int $skippedQueries = 0, ?callable $onQueryExecuted = null)
     {
         $installed = false;
 
         $sqlFile = $path . '/sql/upgrade.sql';
         if ($this->services->get('filesystem')->exists($sqlFile)) {
-            $this->utils->executeSqlFile($sqlFile);
+            $this->utils->executeSqlFile($sqlFile, [], false, $skippedQueries, $onQueryExecuted);
             $installed = true;
         }
 
