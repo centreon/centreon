@@ -32,7 +32,7 @@ use Doctrine\Migrations\AbstractMigration;
  */
 abstract class DmlMigration extends AbstractMigration
 {
-    private const string DDL_PATTERN = '/^(\s|--[^\n]*\n|#[^\n]*\n|\/\*.*?\*\/)*(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)\b/is';
+    private const string DDL_PATTERN = '/^(\s|--(?=\s)[^\n]*\n|#[^\n]*\n|\/\*(?![!+]).*?\*\/|\/\*[!+]\d*)*(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)\b/is';
 
     final public function isTransactional(): bool
     {

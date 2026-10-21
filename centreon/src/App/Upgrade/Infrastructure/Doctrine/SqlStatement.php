@@ -35,8 +35,9 @@ final class SqlStatement
             "'(?:[^'\\\\]|\\\\.)*'",
             '"(?:[^"\\\\]|\\\\.)*"',
             '`[^`]*`',
-            '(?:--|#)[^\n]*',
-            '\/\*.*?\*\/',
+            '(?:--(?=\s|$)|#)[^\n]*',
+            // MySQL runs the body of /*! */ and /*+ */: it stays code.
+            '\/\*(?![!+]).*?\*\/',
         ]) . '/s', '', $sql);
 
         return preg_match('/;\s*\S/', (string) $code) !== 1;

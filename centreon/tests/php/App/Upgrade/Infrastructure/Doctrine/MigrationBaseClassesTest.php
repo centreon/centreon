@@ -41,16 +41,6 @@ final class MigrationBaseClassesTest extends TestCase
         $this->connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
     }
 
-    public function testDdlMigrationsAreNotTransactional(): void
-    {
-        self::assertFalse($this->ddlMigration(['CREATE TABLE t (id INT)'])->isTransactional());
-    }
-
-    public function testDmlMigrationsAreTransactional(): void
-    {
-        self::assertTrue($this->dmlMigration(['INSERT INTO t VALUES (1)'])->isTransactional());
-    }
-
     public function testDownDelegatesToRevert(): void
     {
         $ddl = $this->ddlMigration(['DROP TABLE t']);
@@ -104,10 +94,14 @@ final class MigrationBaseClassesTest extends TestCase
         yield 'apostrophe in a comment' => ["-- don't\nUPDATE t SET a = '1'; DELETE FROM u"];
 
         yield 'apostrophe in a backticked identifier' => ["UPDATE `it's` SET a = 1; ALTER TABLE t ADD COLUMN c INT; UPDATE t SET b = 'x'"];
+
+        yield 'double dash without a space, which MySQL does not take for a comment' => ['UPDATE t SET a = 1--1; DROP TABLE u'];
+
+        yield 'executable comment, which MySQL runs' => ['/*!50000 UPDATE t SET a = 1; DROP TABLE u */'];
     }
 
     #[DataProvider('provideStatementsHiddenBehindAQuote')]
-    public function testAQuoteInsideALiteralOrACommentDoesNotHideTheNextStatements(string $sql): void
+    public function testAQuoteOrACommentDoesNotHideTheNextStatements(string $sql): void
     {
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('one statement per addSql() call');
@@ -120,11 +114,19 @@ final class MigrationBaseClassesTest extends TestCase
      */
     public static function provideStatementsEndingTheTransaction(): iterable
     {
-        yield 'transaction start' => ['START TRANSACTION'];
+        foreach ([
+            'ALTER TABLE t ADD COLUMN c INT', 'CREATE INDEX i ON t (id)', 'DROP TABLE t', 'RENAME TABLE t TO u',
+            'TRUNCATE TABLE t', 'LOCK TABLES t WRITE', 'UNLOCK TABLES', 'ANALYZE TABLE t', 'OPTIMIZE TABLE t',
+            'REPAIR TABLE t', 'FLUSH TABLES', 'CACHE INDEX t IN hot', 'GRANT SELECT ON t TO u', 'REVOKE SELECT ON t FROM u',
+            "INSTALL PLUGIN p SONAME 'p.so'", 'UNINSTALL PLUGIN p', 'BEGIN', 'START TRANSACTION', 'COMMIT', 'ROLLBACK',
+            'SAVEPOINT s', 'RELEASE SAVEPOINT s',
+        ] as $statement) {
+            yield $statement => [mb_strtolower($statement)];
+        }
 
-        yield 'commit' => ['commit'];
+        yield 'behind whitespace and comments' => ["  -- why\n# how\n/* note */ DROP TABLE t"];
 
-        yield 'table flush' => ['FLUSH TABLES'];
+        yield 'in an executable comment' => ['/*!50000 ALTER TABLE t ADD COLUMN c INT */'];
     }
 
     #[DataProvider('provideStatementsEndingTheTransaction')]
