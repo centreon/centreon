@@ -45,12 +45,13 @@ if (isset($_SESSION['step'])) {
          * @param function callbackOnSuccess
          * @return void
          */
-        function doProcess(async, url, data, callbackOnSuccess) {
+        function doProcess(async, url, data, callbackOnSuccess, callbackOnError) {
             jQuery.ajax({
                 type: 'POST',
                 url: url,
                 data: data,
                 success: callbackOnSuccess,
+                error: callbackOnError,
                 async: async
             });
         }

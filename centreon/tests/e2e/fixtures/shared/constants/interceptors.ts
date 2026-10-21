@@ -61,6 +61,8 @@ export const INTERCEPTORS = {
     step4_upgrade: '/centreon/install/step_upgrade/step4.php',
     step5_upgrade: '/centreon/install/step_upgrade/step5.php',
     generation_cache: '/centreon/install/steps/process/generationCache.php',
+    upgrade_modules:
+      '/centreon/install/step_upgrade/process/process_modules.php',
     centreon_configuration_timezone: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_timezone',
     centreon_performance_service: '/centreon/include/common/webServices/rest/internal.php?object=centreon_performance_service',
     centreon_configuration_meta: '/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_meta',

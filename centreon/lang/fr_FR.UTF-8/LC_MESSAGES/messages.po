@@ -1737,6 +1737,10 @@ msgstr "Appliquer la période"
 msgid "Apply resource access rules to the host group"
 msgstr "Appliquer des règle d'accès aux ressources au groupe d'hôtes"
 
+#: centreon/www/install/smarty_translate.php
+msgid "Applying database migrations"
+msgstr "Application des migrations de base de données"
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Archives"
 msgstr "Archives"
