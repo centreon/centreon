@@ -25,10 +25,16 @@ namespace Tests\App\Upgrade\Application\Command;
 
 use App\Upgrade\Application\Command\UpdateCommand;
 use App\Upgrade\Application\Command\UpdateCommandHandler;
+use App\Upgrade\Application\Service\MigrationApplier;
+use App\Upgrade\Application\Service\TargetVersionRecorder;
+use App\Upgrade\Domain\Exception\MigrationFailedException;
+use App\Upgrade\Domain\Model\MigrationSet;
+use App\Upgrade\Domain\Model\WebMigrationSetEnum;
 use PHPUnit\Framework\TestCase;
 use Tests\App\Upgrade\Infrastructure\Double\FakeCacheClearer;
 use Tests\App\Upgrade\Infrastructure\Double\FakeDbmsVersionValidator;
 use Tests\App\Upgrade\Infrastructure\Double\FakeEngineContextWriter;
+use Tests\App\Upgrade\Infrastructure\Double\FakeMigrationRunner;
 use Tests\App\Upgrade\Infrastructure\Double\FakeModuleRepository;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateLocker;
 use Tests\App\Upgrade\Infrastructure\Double\FakeUpdateRepository;
@@ -38,6 +44,8 @@ use Tests\App\Upgrade\Infrastructure\Double\FakeWidgetRepository;
 
 final class UpdateCommandHandlerTest extends TestCase
 {
+    private const string TARGET_VERSION = '26.11.0';
+
     private FakeUpdateRepository $updateRepository;
 
     private FakeUpdateScriptFinder $scriptFinder;
@@ -54,6 +62,8 @@ final class UpdateCommandHandlerTest extends TestCase
 
     private FakeCacheClearer $cacheClearer;
 
+    private FakeMigrationRunner $migrationRunner;
+
     private UpdateCommandHandler $handler;
 
     private FakeUpgradeLogger $logger;
@@ -69,18 +79,9 @@ final class UpdateCommandHandlerTest extends TestCase
         $this->engineContextWriter = new FakeEngineContextWriter();
         $this->cacheClearer = new FakeCacheClearer();
         $this->logger = new FakeUpgradeLogger();
+        $this->migrationRunner = new FakeMigrationRunner();
 
-        $this->handler = new UpdateCommandHandler(
-            $this->updateRepository,
-            $this->scriptFinder,
-            $this->locker,
-            $this->dbmsValidator,
-            $this->moduleRepository,
-            $this->widgetRepository,
-            $this->engineContextWriter,
-            $this->cacheClearer,
-            $this->logger,
-        );
+        $this->handler = $this->createHandler($this->updateRepository);
     }
 
     public function testHappyPathNoUpdatesAvailable(): void
@@ -89,7 +90,7 @@ final class UpdateCommandHandlerTest extends TestCase
 
         ($this->handler)(new UpdateCommand());
 
-        self::assertSame([], $this->updateRepository->updatesRun);
+        self::assertSame([self::TARGET_VERSION], $this->updateRepository->updatesRun);
         self::assertTrue($this->updateRepository->postUpdateCalled);
         self::assertTrue($this->locker->unlockCalled);
     }
@@ -100,8 +101,8 @@ final class UpdateCommandHandlerTest extends TestCase
 
         ($this->handler)(new UpdateCommand());
 
-        // Each available update is run in order, then the post-update runs.
-        self::assertSame(['24.10.1', '24.10.2'], $this->updateRepository->updatesRun);
+        // Each available update is run in order, then the platform version is recorded.
+        self::assertSame(['24.10.1', '24.10.2', self::TARGET_VERSION], $this->updateRepository->updatesRun);
         self::assertTrue($this->updateRepository->postUpdateCalled);
         self::assertTrue($this->locker->unlockCalled);
     }
@@ -174,17 +175,7 @@ final class UpdateCommandHandlerTest extends TestCase
         $failingRepository = new FakeUpdateRepository();
         $failingRepository->monitoringSqlFailure = new \RuntimeException('SQL error during update');
 
-        $handler = new UpdateCommandHandler(
-            $failingRepository,
-            $this->scriptFinder,
-            $this->locker,
-            $this->dbmsValidator,
-            $this->moduleRepository,
-            $this->widgetRepository,
-            $this->engineContextWriter,
-            $this->cacheClearer,
-            $this->logger,
-        );
+        $handler = $this->createHandler($failingRepository);
 
         try {
             $handler(new UpdateCommand());
@@ -286,11 +277,124 @@ final class UpdateCommandHandlerTest extends TestCase
         );
 
         // The failure routes the versions into from/to and the original message, pinning the handler
-        // call-site argument order (currentVersion == targetVersion here, no updates available).
+        // call-site argument order (the target version is the platform version, not the last legacy script).
         $failure = $this->callFor('failure');
         self::assertSame('24.10.0', $failure['fromVersion']);
-        self::assertSame('24.10.0', $failure['toVersion']);
+        self::assertSame(self::TARGET_VERSION, $failure['toVersion']);
         self::assertSame('cache clear failed', $failure['message']);
+    }
+
+    public function testRunsTheLegacyScriptsThenTheMigrationsThenTheClosingSteps(): void
+    {
+        $this->scriptFinder->availableUpdates = ['26.09.1'];
+
+        ($this->handler)(new UpdateCommand());
+
+        $steps = array_column(array_filter($this->logger->calls, static fn (array $call): bool => $call['method'] === 'step'), 'stepName');
+        self::assertSame([
+            'monitoring_sql',
+            'php_script',
+            'configuration_sql',
+            'php_post_script',
+            'update_version_information',
+            ...array_map(static fn (MigrationSet $set): string => $set->migrationStep(), MigrationSet::webSets()),
+            'backup_install_directory',
+            'remove_install_directory',
+            'modules_update',
+            'widgets_update',
+            'engine_context',
+            'cache_clear',
+        ], $steps);
+        self::assertSame(['26.09.1', self::TARGET_VERSION], $this->updateRepository->updatesRun);
+    }
+
+    public function testNeverMovesTheVersionBackwards(): void
+    {
+        // A legacy script above the platform version, such as a hotfix shipped before the version bump.
+        $this->scriptFinder->availableUpdates = ['26.12.0'];
+
+        ($this->handler)(new UpdateCommand());
+
+        self::assertSame(['26.12.0'], $this->updateRepository->updatesRun);
+        self::assertSame('26.12.0', $this->callFor('start')['toVersion']);
+    }
+
+    public function testTheTargetVersionIsThePlatformVersion(): void
+    {
+        $this->scriptFinder->availableUpdates = ['24.10.1'];
+
+        ($this->handler)(new UpdateCommand());
+
+        $start = $this->callFor('start');
+        self::assertSame('24.10.0', $start['fromVersion']);
+        self::assertSame(self::TARGET_VERSION, $start['toVersion']);
+        self::assertSame(['24.10.1', self::TARGET_VERSION], $this->updateRepository->updatesRun);
+    }
+
+    public function testTheTargetVersionIsTheLegacyOneWhileUpdateNextIsPending(): void
+    {
+        $this->scriptFinder->availableUpdates = ['24.10.1'];
+        $this->scriptFinder->nextUpdatePending = true;
+
+        ($this->handler)(new UpdateCommand());
+
+        self::assertSame('24.10.1', $this->callFor('start')['toVersion']);
+        self::assertSame(['24.10.1'], $this->updateRepository->updatesRun, 'The platform version is not recorded');
+    }
+
+    public function testStopsAtTheFirstFailingMigrationSetAndReleasesTheLock(): void
+    {
+        $this->migrationRunner->failingSets = [WebMigrationSetEnum::Realtime->value];
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the migration failure to propagate');
+        } catch (MigrationFailedException $exception) {
+            self::assertStringContainsString('Migration of "realtime" failed', $exception->getMessage());
+        }
+
+        self::assertSame(['migrate:' . WebMigrationSetEnum::Realtime->value], $this->migrationRunner->journal->getArrayCopy());
+        self::assertSame([], $this->updateRepository->updatesRun, 'The platform version is not recorded when a migration fails');
+        self::assertSame(0, $this->moduleRepository->updates);
+        self::assertSame(0, $this->cacheClearer->clears);
+        self::assertTrue($this->locker->unlockCalled);
+        self::assertContains('failure', $this->loggedMethods());
+    }
+
+    public function testAModuleFailureStillEndsTheUpgradeThenIsReported(): void
+    {
+        $this->moduleRepository->updateFailure = new \RuntimeException('Some updates failed. bam: upgrade.sql failed');
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the module failure to be reported');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Some updates failed. bam: upgrade.sql failed', $exception->getMessage());
+        }
+
+        self::assertSame(1, $this->widgetRepository->updates);
+        self::assertSame(1, $this->engineContextWriter->writes);
+        self::assertSame(1, $this->cacheClearer->clears);
+        self::assertTrue($this->locker->unlockCalled);
+        self::assertContains('failure', $this->loggedMethods());
+    }
+
+    public function testTheFirstClosingStepFailureIsReportedWhateverFailsAfterIt(): void
+    {
+        $this->moduleRepository->updateFailure = new \RuntimeException('Some updates failed. bam: upgrade.sql failed');
+        $this->widgetRepository->failure = new \RuntimeException('engine-status failed');
+        $this->cacheClearer->failure = new \RuntimeException('cache:clear failed');
+
+        try {
+            ($this->handler)(new UpdateCommand());
+            self::fail('Expected the module failure to be reported');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Some updates failed. bam: upgrade.sql failed', $exception->getMessage());
+        }
+
+        self::assertSame(1, $this->engineContextWriter->writes);
+        self::assertSame(1, $this->cacheClearer->clears);
+        self::assertSame(['modules_update', 'widgets_update', 'cache_clear'], array_column(array_filter($this->logger->calls, static fn (array $call): bool => $call['method'] === 'stepFailure'), 'stepName'));
     }
 
     /**
@@ -313,5 +417,24 @@ final class UpdateCommandHandlerTest extends TestCase
         }
 
         self::fail(sprintf('%s was never called', $method));
+    }
+
+    private function createHandler(FakeUpdateRepository $updateRepository): UpdateCommandHandler
+    {
+        $targetVersionRecorder = new TargetVersionRecorder($updateRepository, $this->scriptFinder, self::TARGET_VERSION, $this->logger);
+
+        return new UpdateCommandHandler(
+            $updateRepository,
+            $this->scriptFinder,
+            $this->locker,
+            $this->dbmsValidator,
+            $this->moduleRepository,
+            $this->widgetRepository,
+            $this->engineContextWriter,
+            $this->cacheClearer,
+            $this->logger,
+            new MigrationApplier($this->migrationRunner, $targetVersionRecorder, $this->logger, self::TARGET_VERSION),
+            $targetVersionRecorder,
+        );
     }
 }
