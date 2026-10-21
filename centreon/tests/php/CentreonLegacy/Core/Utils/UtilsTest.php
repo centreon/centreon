@@ -146,6 +146,23 @@ class UtilsTest extends TestCase
         $this->service->executePhpFile($fileName);
     }
 
+    public function testAPhpFileCannotRunTwiceInTheSameProcess(): void
+    {
+        $this->container['realtime_db'] = new Mock\CentreonDB();
+        $fileName = tempnam(sys_get_temp_dir(), 'upgrade_');
+        file_put_contents($fileName, '<?php $GLOBALS["upgrade_runs"] = ($GLOBALS["upgrade_runs"] ?? 0) + 1;');
+
+        try {
+            $this->service->executePhpFile($fileName);
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('already ran in this process');
+            $this->service->executePhpFile($fileName);
+        } finally {
+            $this->assertSame(1, $GLOBALS['upgrade_runs']);
+            unlink($fileName);
+        }
+    }
+
     public function testExecuteSqlFile(): void
     {
         $file = $this->fileSystem->createFile('/tmp/conf.sql', "SELECT 'OK';");

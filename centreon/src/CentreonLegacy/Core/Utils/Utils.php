@@ -128,6 +128,11 @@ class Utils
             throw new \Exception('Cannot execute php file "' . $fileName . '" : File does not exist.');
         }
 
+        // require_once would silently skip it: a module upgrade would record a version whose script never ran in full.
+        if (\in_array(realpath($fileName), get_included_files(), true)) {
+            throw new \RuntimeException(\sprintf('"%s" already ran in this process: retry in a new one.', $fileName));
+        }
+
         // init parameters to be compatible with old module upgrade scripts
         $pearDB = $this->services->get('configuration_db');
         $pearDBStorage = $this->services->get('realtime_db');
