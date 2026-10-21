@@ -12,7 +12,11 @@ inputs:
     description: "Reference (tag or branch) on which the files are fetched"
     required: false
   set_as_default:
-    description: "Also publish to the unversioned root path (on-prem only), which points to the latest major"
+    description: "Also publish to the unversioned root path (on-prem only): false, true, or auto (only if doc_version is the highest major on the s3)"
+    required: false
+    default: "false"
+  dry_run:
+    description: "Print what would be copied (aws s3 cp --dryrun) and skip the CloudFront invalidation"
     required: false
     default: "false"
   cloudfront_role_doc_production:
@@ -43,25 +47,74 @@ runs:
         MODULE_NAME: ${{ inputs.module_name }}
         DOC_VERSION: ${{ inputs.doc_version }}
         SET_AS_DEFAULT: ${{ inputs.set_as_default }}
+        DRY_RUN: ${{ inputs.dry_run }}
       run: |
+        BUCKET="centreon-documentation-api"
+        if ! [[ $DOC_VERSION =~ ^([0-9]+\.[0-9]+|cloud)$ ]]; then
+          echo "::error::invalid doc_version '$DOC_VERSION'"
+          exit 1
+        fi
         if [[ $MODULE_NAME == "centreon-web" ]] && [[ $DOC_VERSION == "cloud" ]]; then
-          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME-$DOC_VERSION"
+          BUCKET_PATH="s3://$BUCKET/api/$MODULE_NAME-$DOC_VERSION"
         else
-          BUCKET_PATH="s3://centreon-documentation-api/api/$MODULE_NAME/$DOC_VERSION"
+          BUCKET_PATH="s3://$BUCKET/api/$MODULE_NAME/$DOC_VERSION"
         fi
-        ls -lah
-        aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
-        aws s3 cp "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+        ROOT_PATH="s3://$BUCKET/api/$MODULE_NAME"
 
-        # The cloud doc has its own fixed path, only on-prem majors can be the root default
-        if [[ $SET_AS_DEFAULT == "true" ]] && [[ $DOC_VERSION != "cloud" ]]; then
-          ROOT_PATH="s3://centreon-documentation-api/api/$MODULE_NAME"
-          aws s3 cp "index.html" "${ROOT_PATH}/index.html"
-          aws s3 cp "centreon-logo.png" "${ROOT_PATH}/centreon-logo.png"
+        COPY=(aws s3 cp)
+        [[ $DRY_RUN == "true" ]] && COPY+=(--dryrun)
+
+        # The root path is on-prem only, the cloud doc has its own fixed path
+        update_root=false
+        highest="-"
+        case "$SET_AS_DEFAULT" in
+          false) ;;
+          true | auto)
+            if [[ $DOC_VERSION == "cloud" ]]; then
+              echo "set_as_default=$SET_AS_DEFAULT ignored: cloud has its own path"
+            elif [[ $SET_AS_DEFAULT == "true" ]]; then
+              update_root=true
+            else
+              # Listed before the copy: the root follows the highest major already on the s3.
+              # No usable listing never updates the root, the versioned page is still published
+              if prefixes=$(aws s3api list-objects-v2 --bucket "$BUCKET" --prefix "api/$MODULE_NAME/" \
+                --delimiter / --query 'CommonPrefixes[].Prefix' --output text); then
+                highest=$(tr '\t' '\n' <<< "$prefixes" | sed -E 's#.*/([^/]+)/$#\1#' \
+                  | { grep -E '^[0-9]+\.[0-9]+$' || true; } | sort -V | tail -n 1)
+                if [[ -z $highest ]]; then
+                  echo "::warning::no major found on the s3, the root is not updated (use set_as_default=true for a first publication)"
+                elif [[ $(printf '%s\n%s\n' "$highest" "$DOC_VERSION" | sort -V | tail -n 1) == "$DOC_VERSION" ]]; then
+                  update_root=true
+                fi
+              else
+                echo "::warning::cannot list the s3 majors, the root is not updated"
+              fi
+            fi
+            ;;
+          *)
+            echo "::error::set_as_default must be false, true or auto (got '$SET_AS_DEFAULT')"
+            exit 1
+            ;;
+        esac
+
+        ls -lah
+        "${COPY[@]}" "index.html" "${BUCKET_PATH}/index.html"
+        "${COPY[@]}" "centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
+        if [[ $update_root == "true" ]]; then
+          "${COPY[@]}" "index.html" "${ROOT_PATH}/index.html"
+          "${COPY[@]}" "centreon-logo.png" "${ROOT_PATH}/centreon-logo.png"
         fi
+
+        {
+          echo "### OpenAPI documentation publication$([[ $DRY_RUN == "true" ]] && echo " (dry run)")"
+          echo "- module: \`$MODULE_NAME\`, doc_version: \`$DOC_VERSION\`"
+          echo "- set_as_default: \`$SET_AS_DEFAULT\` (highest major on the s3: \`${highest:--}\`), root updated: \`$update_root\`"
+          echo "- versioned path: \`${BUCKET_PATH}/\`"
+        } | tee -a "${GITHUB_STEP_SUMMARY:-/dev/null}"
       shell: bash
 
     - name: Invalidate AWS Cloudfront cache
+      if: inputs.dry_run != 'true'
       env:
         CLOUDFRONT_ID: ${{ inputs.cloudfront_id_doc_api }}
       run: aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths "/*"
