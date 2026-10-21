@@ -28,11 +28,15 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
+use App\Upgrade\Application\MigrationRunner;
+use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
 use App\Upgrade\Domain\Repository\WidgetRepository;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommandHandler]
 final readonly class UpdateCommandHandler
@@ -46,6 +50,10 @@ final readonly class UpdateCommandHandler
         private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
+        private MigrationRunner $migrationRunner,
+        private TargetVersionRecorder $targetVersionRecorder,
+        #[Autowire(param: 'centreon.version')]
+        private string $targetVersion,
     ) {
     }
 
@@ -57,7 +65,6 @@ final readonly class UpdateCommandHandler
     {
         $startedAt = microtime(true);
         $currentVersion = null;
-        $targetVersion = null;
         $startEmitted = false;
 
         try {
@@ -74,9 +81,8 @@ final readonly class UpdateCommandHandler
                 }
 
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
-                $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
 
-                LoggerUpgrade::create()->start($currentVersion, $targetVersion);
+                LoggerUpgrade::create()->start($currentVersion, $this->targetVersion);
                 $startEmitted = true;
 
                 // The handler owns step sequencing and logging; the repository only runs each operation.
@@ -88,25 +94,40 @@ final readonly class UpdateCommandHandler
                     $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
                 }
 
+                foreach (MigrationSet::CORE as $set) {
+                    $this->runStep($this->targetVersion, 'migrations_' . $set, fn (): array => $this->migrationRunner->migrate($set));
+                }
+
+                $this->runStep($this->targetVersion, 'update_version_information', fn () => $this->targetVersionRecorder->record());
+
                 if ($this->updateRepository->installDirectoryExists()) {
                     $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
                     $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
                 }
 
-                $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
+                // Reported once the upgrade ended: the modules upgraded before it need the cache clear.
+                $moduleFailure = null;
+                try {
+                    $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
+                } catch (\Throwable $exception) {
+                    $moduleFailure = $exception;
+                }
                 $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
                 $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
                 $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+                if ($moduleFailure instanceof \Throwable) {
+                    throw $moduleFailure;
+                }
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-                LoggerUpgrade::create()->success($currentVersion, $targetVersion, $durationMs);
+                LoggerUpgrade::create()->success($currentVersion, $this->targetVersion, $durationMs);
             } finally {
                 $this->updateLocker->unlock();
             }
         } catch (\Throwable $exception) {
             if ($startEmitted) {
                 // The lifecycle is open: close it with a balanced upgrade.failure.
-                LoggerUpgrade::create()->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
+                LoggerUpgrade::create()->failure($currentVersion, $this->targetVersion, $exception->getMessage(), $exception);
             } else {
                 // The failure happened before start() (validation / lock / version read), so there is no
                 // start to balance: emit a standalone upgrade.error instead of a dangling failure, keeping
