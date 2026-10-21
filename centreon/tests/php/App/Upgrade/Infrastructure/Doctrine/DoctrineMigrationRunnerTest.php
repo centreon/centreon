@@ -185,6 +185,21 @@ final class DoctrineMigrationRunnerTest extends TestCase
         self::assertSame([], $this->connection->createSchemaManager()->listTableNames());
     }
 
+    public function testAMigrationChangingTheSchemaObjectFailsWithoutRunningAnything(): void
+    {
+        $this->connection->executeStatement('CREATE TABLE fx_schema_change (id INT PRIMARY KEY)');
+
+        try {
+            $this->runner->migrate(MigrationSet::module('schema-change'));
+            self::fail('The schema changes would escape the DdlMigration and DmlMigration checks');
+        } catch (\LogicException $exception) {
+            self::assertStringContainsString('must only read $schema', $exception->getMessage());
+        }
+
+        self::assertFalse($this->connection->createSchemaManager()->introspectTable('fx_schema_change')->hasColumn('label'));
+        self::assertSame([], $this->runner->status(MigrationSet::module('schema-change'))[0]->executed);
+    }
+
     public function testColumnTypesUnknownToDbalDoNotBreakTheMigrations(): void
     {
         // A migration reading the schema reads every table of the database, a module one included.

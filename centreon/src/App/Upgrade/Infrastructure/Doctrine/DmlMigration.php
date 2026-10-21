@@ -27,12 +27,12 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * DDL is rejected: MySQL would implicitly commit the transaction, breaking the atomicity of this migration and of
- * the next ones. Only addSql() is checked.
+ * DDL and transaction control are rejected: MySQL would implicitly commit the transaction, breaking the atomicity of
+ * this migration and of the next ones.
  */
 abstract class DmlMigration extends AbstractMigration
 {
-    private const string DDL_PATTERN = '/^(\s|--[^\n]*\n|#[^\n]*\n|\/\*.*?\*\/)*(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|GRANT|REVOKE)\b/is';
+    private const string DDL_PATTERN = '/^(\s|--[^\n]*\n|#[^\n]*\n|\/\*.*?\*\/)*(ALTER|CREATE|DROP|RENAME|TRUNCATE|LOCK|UNLOCK|ANALYZE|OPTIMIZE|REPAIR|FLUSH|CACHE|GRANT|REVOKE|INSTALL|UNINSTALL|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE)\b/is';
 
     final public function isTransactional(): bool
     {

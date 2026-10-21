@@ -30,11 +30,14 @@ final class SqlStatement
 {
     public static function isSingle(string $sql): bool
     {
-        $code = preg_replace(
-            ["/'(?:[^'\\\\]|\\\\.)*'/s", '/"(?:[^"\\\\]|\\\\.)*"/s', '/`[^`]*`/', '/(?:--|#)[^\n]*|\/\*.*?\*\//s'],
-            '',
-            $sql,
-        );
+        // A single pass: the earliest literal or comment wins, so that a quote inside another one is not an opening quote.
+        $code = preg_replace('/' . implode('|', [
+            "'(?:[^'\\\\]|\\\\.)*'",
+            '"(?:[^"\\\\]|\\\\.)*"',
+            '`[^`]*`',
+            '(?:--|#)[^\n]*',
+            '\/\*.*?\*\/',
+        ]) . '/s', '', $sql);
 
         return preg_match('/;\s*\S/', (string) $code) !== 1;
     }

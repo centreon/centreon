@@ -28,6 +28,7 @@ use App\Upgrade\Infrastructure\Doctrine\DmlMigration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Schema;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
@@ -91,6 +92,48 @@ final class MigrationBaseClassesTest extends TestCase
         $this->expectExceptionMessage('one statement per addSql() call');
 
         $this->dmlMigration(['INSERT INTO t VALUES (1); ALTER TABLE t ADD COLUMN c INT'])->up(new Schema());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideStatementsHiddenBehindAQuote(): iterable
+    {
+        yield 'apostrophe in a double-quoted literal' => ["UPDATE t SET a = \"it's\"; ALTER TABLE t ADD COLUMN c INT; UPDATE t SET b = 'x'"];
+
+        yield 'apostrophe in a comment' => ["-- don't\nUPDATE t SET a = '1'; DELETE FROM u"];
+
+        yield 'apostrophe in a backticked identifier' => ["UPDATE `it's` SET a = 1; ALTER TABLE t ADD COLUMN c INT; UPDATE t SET b = 'x'"];
+    }
+
+    #[DataProvider('provideStatementsHiddenBehindAQuote')]
+    public function testAQuoteInsideALiteralOrACommentDoesNotHideTheNextStatements(string $sql): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('one statement per addSql() call');
+
+        $this->dmlMigration([$sql])->up(new Schema());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideStatementsEndingTheTransaction(): iterable
+    {
+        yield 'transaction start' => ['START TRANSACTION'];
+
+        yield 'commit' => ['commit'];
+
+        yield 'table flush' => ['FLUSH TABLES'];
+    }
+
+    #[DataProvider('provideStatementsEndingTheTransaction')]
+    public function testDmlMigrationsRejectStatementsEndingTheirTransaction(string $sql): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('cannot run DDL statements');
+
+        $this->dmlMigration([$sql])->up(new Schema());
     }
 
     public function testSemicolonsInLiteralsAndCommentsAreNotStatementSeparators(): void

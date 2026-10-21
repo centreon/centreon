@@ -35,6 +35,9 @@ use Doctrine\Migrations\Metadata\AvailableMigration;
 use Doctrine\Migrations\Metadata\ExecutedMigration;
 use Doctrine\Migrations\Metadata\MigrationPlanList;
 use Doctrine\Migrations\MigratorConfiguration;
+use Doctrine\Migrations\Provider\DBALSchemaDiffProvider;
+use Doctrine\Migrations\Provider\LazySchemaDiffProvider;
+use Doctrine\Migrations\Provider\SchemaDiffProvider;
 use Doctrine\Migrations\Version\Direction;
 use Doctrine\Persistence\ConnectionRegistry;
 use Psr\Log\LoggerInterface;
@@ -125,7 +128,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             throw new \LogicException(\sprintf('The "%s" connection is not a DBAL connection.', $configuration->connection));
         }
 
-        // A migration reading $schema reads every table, a module one included. Never diffed: the type does not matter.
+        // A migration reading $schema reads every table, a module one included. Only read: the type does not matter.
         $platform = $connection->getDatabasePlatform();
         foreach (self::UNMAPPED_TYPES as $type) {
             if (! $platform->hasDoctrineTypeMappingFor($type)) {
@@ -134,7 +137,7 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
         }
 
         // The logger is given at construction time: the factory freezes on its first getter call.
-        return DependencyFactory::fromConnection(
+        $factory = DependencyFactory::fromConnection(
             new ConfigurationArray([
                 'migrations_paths' => [$configuration->namespace => $configuration->directory],
                 'table_storage' => ['table_name' => $configuration->table],
@@ -142,6 +145,11 @@ final readonly class DoctrineMigrationRunner implements MigrationRunner
             new ExistingConnection($connection),
             $this->logger,
         );
+        $factory->setService(SchemaDiffProvider::class, new ReadOnlySchemaDiffProvider(new LazySchemaDiffProvider(
+            new DBALSchemaDiffProvider($connection->createSchemaManager(), $platform),
+        )));
+
+        return $factory;
     }
 
     /**
