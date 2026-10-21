@@ -25,6 +25,8 @@ use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use CentreonLegacy\Core\Migration\MigrationLauncher;
+use CentreonLegacy\ServiceProvider;
 use Pimple\Psr11\Container;
 
 class InstallerTest extends \PHPUnit\Framework\TestCase
@@ -43,7 +45,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $configuration = ['name' => 'MyModule', 'rname' => 'MyModule', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
+        $configuration = ['name' => 'my-module', 'rname' => 'my-module', 'mod_release' => '1.0.0', 'is_removeable' => 1, 'infos' => 'my module for unit test', 'author' => 'unit test', 'svc_tools' => null, 'host_tools' => null];
         $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getConfiguration'])
@@ -91,9 +93,65 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $this->container->registerProvider(new ConfigurationDBProvider($this->db));
 
-        $installer = new Installer(new Container($this->container), $this->information, 'MyModule', $this->utils);
+        // Migrations last: a failure only leaves them pending.
+        $journal = new \ArrayObject();
+        $this->utils->method('executePhpFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = basename($file);
+        });
+        $this->utils->method('executeSqlFile')->willReturnCallback(static function (string $file) use ($journal): void {
+            $journal[] = basename($file);
+        });
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->once())
+            ->method('migrate')
+            ->with('my-module')
+            ->willReturnCallback(static function () use ($journal): void {
+                $journal[] = 'migrations';
+            });
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+
+        $installer = new Installer(new Container($this->container), $this->information, 'my-module', $this->utils);
         $id = $installer->install();
 
         $this->assertEquals($id, 1);
+        $this->assertSame(['install.pre.php', 'install.sql', 'install.php', 'migrations'], $journal->getArrayCopy());
+    }
+
+    public function testInstallWithoutMigrationsDirectoryDoesNotLaunchThem(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturnCallback(static fn (string $file): bool => ! str_ends_with($file, '/migrations'));
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        $this->db->addResultSet(
+            'INSERT INTO modules_informations '
+            . '(`name` , `rname` , `mod_release` , `is_removeable` , `infos` , `author` , '
+            . '`svc_tools`, `host_tools`)'
+            . 'VALUES ( :name , :rname , :mod_release , :is_removeable , :infos , :author , '
+            . ':svc_tools , :host_tools )',
+            []
+        );
+        $this->db->addResultSet('SELECT MAX(id) as id FROM modules_informations', [['id' => 1]]);
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $migrationLauncher = $this->createMock(MigrationLauncher::class);
+        $migrationLauncher->expects($this->never())->method('migrate');
+        $this->container[ServiceProvider::CENTREON_LEGACY_MIGRATION_LAUNCHER] = $migrationLauncher;
+
+        $this->assertEquals(1, (new Installer(new Container($this->container), $this->information, 'my-module', $this->utils))->install());
+    }
+
+    public function testRefusesAModuleShippingMigrationsUnderAnUnsupportedNameBeforeAnyScript(): void
+    {
+        $filesystem = $this->createMock(\Symfony\Component\Filesystem\Filesystem::class);
+        $filesystem->method('exists')->willReturn(true);
+        $this->container->registerProvider(new FilesystemProvider($filesystem));
+        // No query registered: inserting the module would throw.
+        $this->container->registerProvider(new ConfigurationDBProvider($this->db));
+        $this->utils->expects($this->never())->method('executeSqlFile');
+        $this->utils->expects($this->never())->method('executePhpFile');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('The module "centreon_foo" ships migrations');
+
+        (new Installer(new Container($this->container), $this->information, 'centreon_foo', $this->utils))->install();
     }
 }

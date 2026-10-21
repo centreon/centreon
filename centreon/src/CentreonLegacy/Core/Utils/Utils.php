@@ -69,12 +69,14 @@ class Utils
      * @param string $fileName
      * @param array $customMacros
      * @param mixed $monitoring
+     * @param int $skippedQueries the number of leading queries already executed by a previous attempt
+     * @param callable(int): void|null $onQueryExecuted called with the number of queries executed so far
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws \Exception
      */
-    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false): void
+    public function executeSqlFile($fileName, $customMacros = [], $monitoring = false, int $skippedQueries = 0, ?callable $onQueryExecuted = null): void
     {
         $dbName = 'configuration_db';
         if ($monitoring) {
@@ -87,6 +89,7 @@ class Utils
         $file = fopen($fileName, 'r');
         $str = '';
         $delimiter = ';';
+        $queryCount = 0;
         while (! feof($file)) {
             $line = fgets($file);
             if (! preg_match('/^(--|#)/', $line)) {
@@ -101,7 +104,12 @@ class Utils
                     if ($delimiter !== ';') {
                         $str = preg_replace('/' . preg_quote($delimiter, '/') . '$/', '', $str);
                     }
-                    $this->services->get($dbName)->query($str);
+                    if (++$queryCount > $skippedQueries) {
+                        $this->services->get($dbName)->query($str);
+                        if ($onQueryExecuted !== null) {
+                            $onQueryExecuted($queryCount);
+                        }
+                    }
                     $str = '';
                 }
             }
@@ -118,6 +126,11 @@ class Utils
     {
         if (! file_exists($fileName)) {
             throw new \Exception('Cannot execute php file "' . $fileName . '" : File does not exist.');
+        }
+
+        // require_once would silently skip it: a module upgrade would record a version whose script never ran in full.
+        if (\in_array(realpath($fileName), get_included_files(), true)) {
+            throw new \RuntimeException(\sprintf('"%s" already ran in this process: retry in a new one.', $fileName));
         }
 
         // init parameters to be compatible with old module upgrade scripts

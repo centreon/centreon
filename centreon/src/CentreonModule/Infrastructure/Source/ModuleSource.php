@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace CentreonModule\Infrastructure\Source;
 
 use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
+use CentreonLog;
 use CentreonModule\Domain\Repository\ModulesInformationsRepository;
 use CentreonModule\Infrastructure\Entity\Module;
 use Psr\Container\ContainerInterface;
@@ -247,8 +248,12 @@ class ModuleSource extends SourceAbstract
             $entity->setVersionCurrent($this->info[$entity->getId()]);
             $entity->setInstalled(true);
 
-            $isUpdated = $this->isUpdated($this->info[$entity->getId()], $entity->getVersion());
-            $entity->setUpdated($isUpdated);
+            // Older code is a package rollback, never a reason to downgrade. Pending migrations resume an
+            // installation or an upgrade that failed midway.
+            $entity->setUpdated(
+                version_compare((string) $this->info[$entity->getId()], (string) $entity->getVersion(), '>=')
+                && ! $this->hasPendingMigrations($entity->getId(), $entity->getPath())
+            );
         }
 
         return $entity;
@@ -307,6 +312,25 @@ class ModuleSource extends SourceAbstract
     protected function getPath(): string
     {
         return $this->path . static::PATH;
+    }
+
+    private function hasPendingMigrations(string $moduleId, string $modulePath): bool
+    {
+        $available = array_map(static fn (string $file): string => basename($file, '.php'), glob($modulePath . '/migrations/Version*.php') ?: []);
+        if ($available === []) {
+            return false;
+        }
+
+        try {
+            $executed = $this->db->getRepository(ModulesInformationsRepository::class)->findExecutedMigrations($moduleId);
+        } catch (\Exception $exception) {
+            // Not up to date, rather than breaking the whole list: its update then reports the failure.
+            CentreonLog::create()->warning(CentreonLog::TYPE_UPGRADE, \sprintf('Cannot read the executed migrations of the "%s" module', $moduleId), [], $exception);
+
+            return true;
+        }
+
+        return $executed !== null && array_diff($available, $executed) !== [];
     }
 
     /**
