@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Temporary bridge, kept isolated under Infrastructure/Legacy so it stays easy to trace and remove.
  *
- * Core (Update-*.php) and module (upgrade.php) upgrade scripts are exposed a $pearDB / $pearDBO
+ * Core upgrade scripts (Update-*.php) are exposed a $pearDB / $pearDBO
  * connection and still call legacy CentreonDB/PDO methods (query, prepare, beginTransaction,
  * isColumnExist, lastInsertId...) that the ConnectionInterface-only DbalConnectionAdapter does not
  * provide. This factory builds the superset \CentreonDB connection those scripts require.

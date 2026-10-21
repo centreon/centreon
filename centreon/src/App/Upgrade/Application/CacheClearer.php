@@ -26,7 +26,10 @@ namespace App\Upgrade\Application;
 interface CacheClearer
 {
     /**
-     * Clear the application cache.
+     * Clear the caches of both kernels.
+     *
+     * @throws \RuntimeException when the cache of the legacy kernel cannot be cleared, the one of the new kernel being
+     *                           only reported
      */
     public function clear(): void;
 }
