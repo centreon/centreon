@@ -31,6 +31,8 @@ final class FakeModuleRepository implements ModuleRepository
 
     public ?\Throwable $failure = null;
 
+    public ?\Throwable $updateFailure = null;
+
     /**
      * @param list<string> $installedModules
      */
@@ -42,6 +44,9 @@ final class FakeModuleRepository implements ModuleRepository
     public function updateAll(): void
     {
         ++$this->updates;
+        if ($this->updateFailure instanceof \Throwable) {
+            throw $this->updateFailure;
+        }
     }
 
     public function isInstalled(string $module): bool
