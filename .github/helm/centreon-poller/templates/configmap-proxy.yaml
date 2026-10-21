@@ -1,0 +1,14 @@
+{{- with .Values.proxy }}
+{{- if .http }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "centreon-poller.fullname" $ }}-proxy
+  labels:
+    {{- include "centreon-poller.labels" $ | nindent 4 }}
+data:
+  99centreon-poller-proxy: |
+    Acquire::http::Proxy "{{ .http }}";
+    Acquire::https::Proxy "{{ .https | default .http }}";
+{{- end }}
+{{- end }}

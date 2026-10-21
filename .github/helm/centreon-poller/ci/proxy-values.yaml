@@ -1,0 +1,27 @@
+poller:
+  name: ci-poller
+  id: "123456789012345678"
+central:
+  host: central.example.com
+secrets:
+  existingSecret: ci-poller
+proxy:
+  http: http://proxy.example.com:3128
+  noProxy: .cluster.local,10.0.0.0/8
+vmware:
+  enabled: true
+  image:
+    repository: registry.example.com/centreon/connector-vmware
+    tag: "1.0"
+  extraVolumeMounts:
+    - { name: corporate-ca, mountPath: /usr/local/share/ca-certificates/corporate, readOnly: true }
+engine:
+  extraVolumeMounts:
+    - { name: corporate-ca, mountPath: /usr/local/share/ca-certificates/corporate, readOnly: true }
+gorgone:
+  extraVolumeMounts:
+    - { name: corporate-ca, mountPath: /usr/local/share/ca-certificates/corporate, readOnly: true }
+extraVolumes:
+  - name: corporate-ca
+    configMap:
+      name: corporate-ca
