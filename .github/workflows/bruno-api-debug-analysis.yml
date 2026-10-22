@@ -1,16 +1,5 @@
 name: bruno-api-debug-analysis
 
-# Standalone from bruno-api-test.yml on purpose: that file is shared by every module's API
-# test CI, so this stays a separate, independently reviewable/deployable workflow rather
-# than a job bolted onto it.
-#
-# Does real work only when a collection failed AND someone re-ran it with "Enable debug
-# logging" checked (see the first step — runner.debug only exists once a runner is
-# allocated, so it can't gate the job itself via the job-level `if:`). Reads the reports the
-# test run already uploaded (no re-run), reads the PR diff, and asks Claude to judge whether
-# each failure looks caused by this PR or flaky/pre-existing, writing the verdict to the
-# GitHub Step Summary.
-
 on:
   workflow_call:
     secrets:
@@ -26,9 +15,6 @@ jobs:
         id: debug-check
         run: echo "is_debug=${{ runner.debug == '1' }}" >> "$GITHUB_OUTPUT"
 
-      # CLAUDE_CODE_OAUTH_TOKEN is per contributor (see .claude/skills/qa-ticket-verify),
-      # keyed by whoever clicked "Re-run jobs" — if they haven't set one, skip quietly
-      # instead of failing a run that already has a real test failure to look at.
       - name: Check for a Claude token for the triggering user
         id: token-check
         if: steps.debug-check.outputs.is_debug == 'true'
@@ -80,9 +66,6 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
         run: |
           set -o pipefail
-          # Labeled so that when this run gets re-run more than once, each attempt's section
-          # on the run's Summary page is unambiguous — GitHub keeps every past attempt's
-          # summary there, it doesn't replace it, so without this they'd look identical.
           echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}" >> "$GITHUB_STEP_SUMMARY"
           claude -p "You are running in CI with no human present. This Bruno API test run \
             failed, and debug logging was explicitly enabled for this re-run (that is how this \
@@ -115,13 +98,6 @@ jobs:
                   else empty end
               '
 
-      # Guarantees a visible result in the Summary tab even if the step above crashed, hit
-      # its budget cap, or just never got around to writing anything (continue-on-error above
-      # keeps a Claude-side failure from being mistaken for a real API test failure on this PR).
-      # $GITHUB_STEP_SUMMARY is a fresh, separate buffer per step — a later step can never see
-      # what an earlier one wrote to it — so this checks the previous step's own recorded
-      # outcome instead of inspecting file content, and writes its own heading since this is
-      # a distinct contribution to the job's summary, not an appendix to the one above.
       - name: Ensure a summary was written
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && steps.claude-analysis.outcome != 'success' }}
         run: |

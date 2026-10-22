@@ -41,7 +41,7 @@ tests {
         "type": "vmware_v6",
         "description": bru.getEnvVar("ACC1Description")
       });
-      expect(body.parameters.port).to.equal(9999);
+      expect(body.parameters.port).to.equal(5780);
       expect(body.parameters.vcenters).to.have.lengthOf(1);
       expect(body.parameters.vcenters[0]).to.include({
         "name": "my-vcenter",

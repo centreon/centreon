@@ -37,11 +37,6 @@ if (!fs.existsSync(mergedFile)) {
 
 const report = JSON.parse(fs.readFileSync(mergedFile, "utf-8"));
 
-// requestResult.status only reflects the request itself (did it error out before getting
-// a response) — a `tests { ... }` block's expect() failures only show up inside
-// assertionResults/testResults, each with their own per-check `status`. A request can be
-// "pass" at the top level while one of its tests failed, so a failure is anything in either
-// array having status "fail", not just a non-"pass" top-level status.
 function failingChecks(requestResult) {
   return [
     ...(requestResult.assertionResults || []),
@@ -65,17 +60,11 @@ report.forEach((iteration) => {
   (iteration.results || []).forEach((requestResult) => {
     total++;
     totalTime += requestResult.response?.responseTime || 0;
-    // Count by the request's overall result (assertions + tests + error),
-    // not by the HTTP status: negative-path tests legitimately expect 4xx.
     if (requestFailed(requestResult)) failed++;
     else success++;
   });
 });
 
-// A passing collection adds nothing worth reading to the run's Summary tab — with 40+
-// collections per run, printing one all-green table per collection just buries the ones
-// that actually failed. Stay silent here; the caller still redirects stdout to
-// $GITHUB_STEP_SUMMARY, so no output means no block for this collection.
 if (failed === 0) {
   process.exit(0);
 }

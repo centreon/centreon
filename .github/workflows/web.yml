@@ -1250,10 +1250,6 @@ jobs:
       jira_user: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_token_test: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # Only does real work when bruno-api-test failed AND the run was re-triggered with "Enable
-  # debug logging" checked — see bruno-api-debug-analysis.yml. Not matrixed like
-  # bruno-api-test: its reports aren't partitioned per OS/database, so one analysis pass
-  # covers all of them instead of repeating the same one per combo.
   bruno-api-test-debug-analysis:
     needs: [bruno-api-test]
     if: |
@@ -1293,9 +1289,7 @@ jobs:
       image_name: centreon-web
       database_image: bitnamilegacy/${{ matrix.database }}
       os: ${{ matrix.operating_system }}
-      # TEMPORARY, for validating the debug-analysis pipeline fast — revert to
-      # tests/e2e/features before merging.
-      features_path: tests/e2e/features/Additional-connectors
+      features_path: tests/e2e/features
       major_version: ${{ needs.get-environment.outputs.major_version }}
       minor_version: ${{ needs.get-environment.outputs.minor_version }}
       stability: ${{ needs.get-environment.outputs.stability }}
@@ -1320,9 +1314,6 @@ jobs:
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-  # Only does real work when that same combo's e2e-test leg failed AND the run was
-  # re-triggered with "Enable debug logging" checked — see cypress-e2e-debug-analysis.yml.
-  # Mirrors e2e-test's matrix since its artifacts *are* partitioned per OS/database.
   e2e-test-debug-analysis:
     needs: [get-environment, e2e-test]
     if: |
