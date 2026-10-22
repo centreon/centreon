@@ -110,6 +110,12 @@ Migrating a Cypress spec, or unsure how to translate a command: follow
 `centreon/test-setup/MIGRATING_FROM_CYPRESS.md` (same test names, nothing
 dropped).
 
+## Definition of done
+
+A frontend change is done when the `verify-frontend` skill passes
+(`.claude/skills/verify-frontend/verify.sh`): Biome, type-check and the
+related tests on the changed files. Run it before saying a change is done.
+
 ## Git and PRs
 
 - Branch `MON-XXXXXX-short-description` (CI requires the Jira key), targeting `develop` unless based on a `dev-XX.XX.x` series; conventional commits (`fix(web): ...`), one Jira key per PR.
