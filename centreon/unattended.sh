@@ -1095,7 +1095,7 @@ function generate_db_tls_certificates() {
 #========= begin of function configure_db_tls()
 # configure DB TLS per --tls flag.
 #  - disabled: server accepts plaintext (require_secure_transport=OFF).
-#  - enabled: generate certs, trust the CA, enable server-side TLS + verified [client], stage DATABASE_SSL_*.
+#  - enabled: generate certs, trust the CA, enable server-side TLS + verified [client], stage DATABASE_SSL_* in .env.local.php.
 # Provision-only: require_secure_transport stays OFF so the plaintext web wizard works until PR #9237 ships.
 #
 function configure_db_tls() {
@@ -1156,17 +1156,16 @@ function configure_db_tls() {
 	fi
 
 	# PHP -> DB TLS env, consumed by DatabaseTLSResolver once PR #9237 is installed (no-op before then).
-	local dotenv="/usr/share/centreon/.env"
-	if [[ -d /usr/share/centreon ]]; then
-		if [[ -f "$dotenv" ]]; then
-			sed -i '/^DATABASE_SSL_ENABLED=/d;/^DATABASE_VERIFY_SERVER_CERT=/d;/^DATABASE_CA_PATH=/d' "$dotenv"
-		fi
-		log "INFO" "Staging PHP DB TLS env in $dotenv"
-		cat >> "$dotenv" <<-EOF
-			DATABASE_SSL_ENABLED=1
-			DATABASE_VERIFY_SERVER_CERT=1
-			DATABASE_CA_PATH=$TLS_CA_CERT
-		EOF
+	# In prod, Symfony loads .env.local.php and then ignores .env, so the keys must go into .env.local.php.
+	# Existing keys are removed first so the script can be re-run, then the keys are inserted before the closing "];".
+	local envphp="/usr/share/centreon/.env.local.php"
+	if [[ -f "$envphp" ]]; then
+		log "INFO" "Staging PHP DB TLS env in $envphp"
+		sed -i -E "/^[[:space:]]*'DATABASE_(SSL_ENABLED|VERIFY_SERVER_CERT|CA_PATH)'[[:space:]]*=>/d" "$envphp"
+		sed -i -E "s#^([[:space:]]*[])][[:space:]]*;[[:space:]]*)\$#    'DATABASE_SSL_ENABLED' => '1',\n    'DATABASE_VERIFY_SERVER_CERT' => '1',\n    'DATABASE_CA_PATH' => '$TLS_CA_CERT',\n\1#" "$envphp"
+		grep -q "'DATABASE_SSL_ENABLED'" "$envphp" || log "WARN" "Could not stage PHP DB TLS env in $envphp; web and API will connect to the DB without TLS"
+	else
+		log "WARN" "$envphp not found; web and API will connect to the DB without TLS"
 	fi
 }
 #========= end of function configure_db_tls()
