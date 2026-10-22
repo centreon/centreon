@@ -165,6 +165,7 @@ final class PartialUpdateHost
             $presenter->setResponseStatus(
                 match ($ex->getCode()) {
                     HostException::CODE_CONFLICT => new ConflictResponse($ex),
+                    HostException::CODE_INVALID_ARGUMENT => new InvalidArgumentResponse($ex),
                     default => new ErrorResponse($ex),
                 }
             );
@@ -187,11 +188,17 @@ final class PartialUpdateHost
                 $this->retrieveHostUuidFromVault($host);
             }
 
+            $currentDirectParentIds = [];
+            if (! $request->templates instanceof NoValue) {
+                $currentDirectParentIds = $this->findDirectParentTemplateIds($host);
+                $this->validation->assertAreLicensedTemplates(array_unique($request->templates), $currentDirectParentIds);
+            }
+
             $previousMonitoringServer = $host->getMonitoringServerId();
             $this->updateHost($request, $host);
             $this->updateHostCategories($request, $host);
             $hostGroupsChanged = $this->updateHostGroups($request, $host);
-            $this->updateParentTemplates($request, $host);
+            $this->updateParentTemplates($request, $host, $currentDirectParentIds);
             // Note: parent templates must be updated before macros for macro inheritance resolution
             $this->updateMacros($request, $host);
 
@@ -542,12 +549,36 @@ final class PartialUpdateHost
     }
 
     /**
+     * The current DIRECT parent templates, read before they are deleted to compute which were removed.
+     * findParents() returns the full inheritance chain, so we filter to direct parents only
+     * (rows where child_id matches the host) to avoid false positives with indirect ancestors.
+     *
+     * @param Host $host
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    private function findDirectParentTemplateIds(Host $host): array
+    {
+        $directParentIds = [];
+        foreach ($this->readHostRepository->findParents($host->getId()) as $parent) {
+            if ((int) $parent['child_id'] === $host->getId()) {
+                $directParentIds[] = (int) $parent['parent_id'];
+            }
+        }
+
+        return array_values(array_unique($directParentIds));
+    }
+
+    /**
      * @param PartialUpdateHostRequest $dto
      * @param Host $host
+     * @param int[] $currentDirectParentIds the templates the host has before the update
      *
      * @throws \Throwable|HostException
      */
-    private function updateParentTemplates(PartialUpdateHostRequest $dto, Host $host): void
+    private function updateParentTemplates(PartialUpdateHostRequest $dto, Host $host, array $currentDirectParentIds): void
     {
         $this->info(
             'PartialUpdateHost: Update parent templates',
@@ -562,19 +593,8 @@ final class PartialUpdateHost
 
         /** @var int[] $parentTemplateIds */
         $parentTemplateIds = array_unique($dto->templates);
-        $this->validation->assertAreValidTemplates($parentTemplateIds, $host->getId());
 
-        // Read current DIRECT parent templates BEFORE deleting them, to compute which were removed.
-        // findParents() returns the full inheritance chain, so we filter to direct parents only
-        // (rows where child_id matches the host) to avoid false positives with indirect ancestors.
-        $currentParents = $this->readHostRepository->findParents($host->getId());
-        $currentDirectParentIds = [];
-        foreach ($currentParents as $parent) {
-            if ((int) $parent['child_id'] === $host->getId()) {
-                $currentDirectParentIds[] = (int) $parent['parent_id'];
-            }
-        }
-        $currentDirectParentIds = array_values(array_unique($currentDirectParentIds));
+        $this->validation->assertAreValidTemplates($parentTemplateIds, $host->getId());
 
         $this->info('Remove parent templates from a host', ['host_id' => $host->getId()]);
         $this->writeHostRepository->deleteParents($host->getId());
