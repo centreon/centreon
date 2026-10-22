@@ -1319,16 +1319,10 @@ jobs:
     if: |
       !cancelled() &&
       needs.e2e-test.result == 'failure'
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: e2e-test-debug-analysis ${{ matrix.operating_system }}-${{ matrix.database }}
     uses: ./.github/workflows/cypress-e2e-debug-analysis.yml
     with:
       name: e2e
-      os: ${{ matrix.operating_system }}
-      database_image: bitnamilegacy/${{ matrix.database }}
+      os_and_database_matrix: ${{ needs.get-environment.outputs.os_and_database_matrix }}
     secrets:
       claude_code_oauth_token: ${{ secrets[format('CLAUDE_CODE_OAUTH_TOKEN_{0}', github.actor)] }}
 

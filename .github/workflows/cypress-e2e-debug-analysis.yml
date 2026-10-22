@@ -4,15 +4,11 @@ on:
   workflow_call:
     inputs:
       name:
-        description: "Same 'name' input given to cypress-e2e-parallelization.yml for this leg (used to find its artifacts)"
+        description: "Same 'name' input given to cypress-e2e-parallelization.yml for every leg (used to find its artifacts)"
         required: true
         type: string
-      os:
-        description: "Same 'os' input given to cypress-e2e-parallelization.yml for this leg"
-        required: true
-        type: string
-      database_image:
-        description: "Same 'database_image' input given to cypress-e2e-parallelization.yml for this leg (used to re-derive its db_id)"
+      os_and_database_matrix:
+        description: "The os_and_database_matrix output used to matrix e2e-test, so every combo's artifacts can be gathered into one analysis"
         required: true
         type: string
     secrets:
@@ -24,14 +20,6 @@ jobs:
   analyze:
     runs-on: ubuntu-24.04
     steps:
-      - name: Get database identifier
-        id: get-db-id
-        env:
-          DATABASE_IMAGE: ${{ inputs.database_image }}
-        run: |
-          db_id=$(echo "$DATABASE_IMAGE" | sed 's|.*/||' | tr ':' '-')
-          echo "db_id=$db_id" >> "$GITHUB_OUTPUT"
-
       - name: Check that debug logging is enabled for this run
         id: debug-check
         run: echo "is_debug=${{ runner.debug == '1' }}" >> "$GITHUB_OUTPUT"
@@ -61,28 +49,30 @@ jobs:
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - name: Download failed test artifacts (screenshots, videos, logs)
+      - name: Download reports and failed-test artifacts for every os/database combo
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
-        continue-on-error: true
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-test-results
-          path: debug-analysis/test-results
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OS_AND_DATABASE_MATRIX: ${{ inputs.os_and_database_matrix }}
+          NAME: ${{ inputs.name }}
+        run: |
+          echo "$OS_AND_DATABASE_MATRIX" | jq -c '.operating_systems[]' | while read -r combo; do
+            os=$(echo "$combo" | jq -r '.operating_system')
+            db_id=$(echo "$combo" | jq -r '.db_id')
+            leg="${NAME}-${os}-${db_id}"
+            gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
+              -n "${leg}-test-reports" -D "debug-analysis/test-reports/${os}-${db_id}" || true
+            gh run download "${{ github.run_id }}" --repo "${{ github.repository }}" \
+              -n "${leg}-test-results" -D "debug-analysis/test-results/${os}-${db_id}" || true
+          done
 
-      - name: Download test reports (mochawesome JSON)
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-test-reports
-          path: debug-analysis/test-reports
-
-      - name: Merge mochawesome reports and check this combo actually failed
+      - name: Merge mochawesome reports and check whether anything actually failed
         id: failure-check
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
         run: |
           npx --yes mochawesome-merge "debug-analysis/test-reports/**/*-report.json" > debug-analysis/mochawesome.json
           failures=$(jq '.stats.failures' debug-analysis/mochawesome.json)
-          echo "This combo (${{ inputs.os }}/${{ inputs.name }}) has $failures failing scenario(s)."
+          echo "This run has $failures failing scenario(s) across all os/database combos."
           echo "has_failures=$( [ "$failures" -gt 0 ] && echo true || echo false )" >> "$GITHUB_OUTPUT"
 
       - name: Get PR diff
@@ -106,17 +96,19 @@ jobs:
           echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}" >> "$GITHUB_STEP_SUMMARY"
           claude -p "You are running in CI with no human present. This Cypress e2e run failed, \
             and debug logging was explicitly enabled for this re-run (that is how this job got \
-            triggered). Read debug-analysis/mochawesome.json for the failing scenario(s) (error \
-            message, stack trace), look at screenshots/videos under debug-analysis/test-results/ \
-            if useful, and read debug-analysis/pr.diff (if present) for what this PR actually \
-            changed. For each failing scenario, decide: is the failure caused by this PR's diff \
-            (cite the specific line(s)/change), or does it look flaky / pre-existing / \
-            environment-related and unrelated to the diff (explain why — e.g. a timing-sensitive \
-            wait, a known-flaky selector pattern, an infra timeout)? Write your conclusion \
-            directly to \$GITHUB_STEP_SUMMARY as markdown: one heading per failing scenario, a \
-            bold verdict, then your reasoning. Do not edit any repository files, do not open a \
-            PR or post a comment anywhere — \$GITHUB_STEP_SUMMARY is the only output. Stop once \
-            you have written it." \
+            triggered). Read debug-analysis/mochawesome.json for every failing scenario across \
+            all os/database combos (error message, stack trace), look at screenshots/videos \
+            under debug-analysis/test-results/<os>-<database>/ if useful (the subfolder name \
+            tells you which combo it's from), and read debug-analysis/pr.diff (if present) for \
+            what this PR actually changed. For each failing scenario, decide: is the failure \
+            caused by this PR's diff (cite the specific line(s)/change), or does it look flaky / \
+            pre-existing / environment-related and unrelated to the diff (explain why — e.g. a \
+            timing-sensitive wait, a known-flaky selector pattern, an infra timeout)? If the same \
+            scenario fails on more than one combo, say so instead of repeating the analysis. \
+            Write your conclusion directly to \$GITHUB_STEP_SUMMARY as markdown: one heading per \
+            failing scenario, a bold verdict, then your reasoning. Do not edit any repository \
+            files, do not open a PR or post a comment anywhere — \$GITHUB_STEP_SUMMARY is the \
+            only output. Stop once you have written it." \
             --allowedTools "Bash,Read,Grep,Glob" \
             --permission-mode bypassPermissions \
             --max-budget-usd 3 \
@@ -151,6 +143,6 @@ jobs:
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && steps.failure-check.outputs.has_failures == 'true' && !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ steps.get-db-id.outputs.db_id }}-debug-analysis
+          name: ${{ inputs.name }}-debug-analysis
           path: claude-debug-analysis.jsonl
           retention-days: 7
