@@ -92,16 +92,6 @@ final class CreateHostForAgentConfigurationPollerResolutionTest extends TestCase
         );
     }
 
-    protected function tearDown(): void
-    {
-        foreach (['prod', 'test', 'dev'] as $env) {
-            $file = _CENTREON_LOG_ . $env . '.web.log';
-            if (file_exists($file)) {
-                @unlink($file);
-            }
-        }
-    }
-
     public function testCreatesHostOnPollerResolvedFromBrokerInstanceUid(): void
     {
         $this->readMonitoringServerRepository
