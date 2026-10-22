@@ -214,20 +214,21 @@ archiveLegacyPhpFpmLog() {
 fixWebLogPermissions() {
   # prod.web.log is shared by the web server and console commands run by its
   # group members (e.g. centreon-broker). Create it group-writable at install
-  # time, and make files created with the default umask (0644) group-writable.
+  # time, and give existing files (any owner, umask 0644) the web server group.
   WEB_LOG_FILE="/var/log/centreon/prod.web.log"
+  WEB_USER="www-data"
+  if [ "$1" = "rpm" ]; then
+    WEB_USER="apache"
+  fi
   if [ -L "$WEB_LOG_FILE" ]; then
     return 0
   fi
-  if [ ! -f "$WEB_LOG_FILE" ] && [ -d "/var/log/centreon" ]; then
-    touch "$WEB_LOG_FILE"
-    if [ "$1" = "rpm" ]; then
-      chown -h apache:apache "$WEB_LOG_FILE"
-    else
-      chown -h www-data:www-data "$WEB_LOG_FILE"
+  if [ ! -e "$WEB_LOG_FILE" ]; then
+    if [ -d "/var/log/centreon" ]; then
+      install -o "$WEB_USER" -g "$WEB_USER" -m 0664 /dev/null "$WEB_LOG_FILE"
     fi
-  fi
-  if [ -f "$WEB_LOG_FILE" ]; then
+  elif [ -f "$WEB_LOG_FILE" ]; then
+    chgrp "$WEB_USER" "$WEB_LOG_FILE"
     chmod 0664 "$WEB_LOG_FILE"
   fi
 }
