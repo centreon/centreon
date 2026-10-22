@@ -1096,7 +1096,7 @@ function generate_db_tls_certificates() {
 # configure DB TLS per --tls flag.
 #  - disabled: server accepts plaintext (require_secure_transport=OFF).
 #  - enabled: generate certs, trust the CA, enable server-side TLS + verified [client], stage DATABASE_SSL_* in .env.local.php.
-# Provision-only: require_secure_transport stays OFF so the plaintext web wizard works until PR #9237 ships.
+# require_secure_transport stays OFF. The install wizard reads the PHP keys and connects with TLS over 127.0.0.1.
 #
 function configure_db_tls() {
 	# --tls disabled, or enabled on an OS not yet covered: just allow plaintext and return.
@@ -1155,7 +1155,7 @@ function configure_db_tls() {
 		EOF
 	fi
 
-	# PHP -> DB TLS env, consumed by DatabaseTLSResolver once PR #9237 is installed (no-op before then).
+	# PHP -> DB TLS env, read by DatabaseTLSResolver (install wizard included).
 	# In prod, Symfony loads .env.local.php and then ignores .env, so the keys must go into .env.local.php.
 	# Existing keys are removed first so the script can be re-run, then the keys are inserted before the closing "];".
 	local envphp="/usr/share/centreon/.env.local.php"
@@ -1506,6 +1506,11 @@ function play_install_wizard() {
 	enc_db_centreon_password=$(urlencode "$db_centreon_password")
 	enc_centreon_admin_password=$(urlencode "$centreon_admin_password")
 
+	# With DB TLS, connect over TCP: an empty address becomes localhost (Unix socket), where TLS fails.
+	# 127.0.0.1 is in the server certificate SAN, and createDbUser.php still creates the user @localhost.
+	local db_address=""
+	[[ "$tls" == "enabled" ]] && db_address="127.0.0.1"
+
 	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}') || true
 	[ -n "$sessionID" ] || error_and_exit "Could not obtain an install-wizard session cookie from ${central_ip}"
 	api_curl "install wizard stepContent" /dev/null \
@@ -1520,7 +1525,7 @@ function play_install_wizard() {
     ;;
     esac
 	install_wizard_post ${sessionID} "process_step5.php" "admin_password=${enc_centreon_admin_password}&confirm_password=${enc_centreon_admin_password}&firstname=${centreon_admin_firstname}&lastname=${centreon_admin_lastname}&email=${centreon_admin_email}"
-	install_wizard_post ${sessionID} "process_step6.php" "address=&port=3306&root_user=root&root_password=${enc_db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${enc_db_centreon_password}&db_password_confirm=${enc_db_centreon_password}"
+	install_wizard_post ${sessionID} "process_step6.php" "address=${db_address}&port=3306&root_user=root&root_password=${enc_db_root_password}&db_configuration=centreon&db_storage=centreon_storage&db_user=centreon&db_password=${enc_db_centreon_password}&db_password_confirm=${enc_db_centreon_password}"
 	if [[ -v use_vault ]]; then
 	  install_wizard_post ${sessionID} "process_step_vault.php" "address=${vault_address}&port=${vault_port}&role_id=${vault_role_id}&secret_id=${vault_secret_id}&root_path=${vault_root_path}"
 	fi
