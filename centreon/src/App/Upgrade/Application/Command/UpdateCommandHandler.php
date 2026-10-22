@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Application\Command;
 
-use Adaptation\Log\LoggerUpgrade;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
 use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Application\UpgradeLogger;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -46,6 +46,7 @@ final readonly class UpdateCommandHandler
         private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
+        private UpgradeLogger $logger,
     ) {
     }
 
@@ -76,7 +77,7 @@ final readonly class UpdateCommandHandler
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
                 $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
 
-                LoggerUpgrade::create()->start($currentVersion, $targetVersion);
+                $this->logger->start($currentVersion, $targetVersion);
                 $startEmitted = true;
 
                 // The handler owns step sequencing and logging; the repository only runs each operation.
@@ -99,19 +100,19 @@ final readonly class UpdateCommandHandler
                 $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-                LoggerUpgrade::create()->success($currentVersion, $targetVersion, $durationMs);
+                $this->logger->success($currentVersion, $targetVersion, $durationMs);
             } finally {
                 $this->updateLocker->unlock();
             }
         } catch (\Throwable $exception) {
             if ($startEmitted) {
                 // The lifecycle is open: close it with a balanced upgrade.failure.
-                LoggerUpgrade::create()->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
+                $this->logger->failure($currentVersion, $targetVersion, $exception->getMessage(), $exception);
             } else {
                 // The failure happened before start() (validation / lock / version read), so there is no
                 // start to balance: emit a standalone upgrade.error instead of a dangling failure, keeping
                 // the attempt visible in the upgrade channel.
-                LoggerUpgrade::create()->error($currentVersion ?? 'unknown', $exception->getMessage(), $exception);
+                $this->logger->error($currentVersion ?? 'unknown', $exception->getMessage(), $exception);
             }
 
             throw $exception;
@@ -120,16 +121,16 @@ final readonly class UpdateCommandHandler
 
     private function runStep(string $version, string $step, callable $action): void
     {
-        LoggerUpgrade::create()->step($version, $step, "Starting step '{$step}'");
+        $this->logger->step($version, $step, "Starting step '{$step}'");
         $startedAt = microtime(true);
         try {
             $action();
         } catch (\Throwable $exception) {
-            LoggerUpgrade::create()->stepFailure($version, $step, $exception->getMessage(), $exception);
+            $this->logger->stepFailure($version, $step, $exception->getMessage(), $exception);
 
             throw $exception;
         }
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        LoggerUpgrade::create()->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
+        $this->logger->stepCompleted($version, $step, $durationMs, "Step '{$step}' completed in {$durationMs}ms");
     }
 }
