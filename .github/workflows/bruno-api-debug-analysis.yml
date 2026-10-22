@@ -87,6 +87,10 @@ jobs:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
         run: |
           set -o pipefail
+          # Labeled so that when this run gets re-run more than once, each attempt's section
+          # on the run's Summary page is unambiguous — GitHub keeps every past attempt's
+          # summary there, it doesn't replace it, so without this they'd look identical.
+          echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}" >> "$GITHUB_STEP_SUMMARY"
           claude -p "You are running in CI with no human present. This Bruno API test run \
             failed, and debug logging was explicitly enabled for this re-run (that is how this \
             job got triggered). Read the JSON/HTML/JUnit reports under \
@@ -124,9 +128,11 @@ jobs:
       - name: Ensure a summary was written
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
         run: |
-          if [ ! -s "$GITHUB_STEP_SUMMARY" ]; then
+          # Only the attempt-number heading line was written above if Claude added nothing.
+          if [ "$(wc -l < "$GITHUB_STEP_SUMMARY")" -le 1 ]; then
             {
-              echo "## AI failure analysis did not complete"
+              echo ""
+              echo "### AI failure analysis did not complete"
               echo ""
               echo "The analysis step did not produce a verdict (outcome: ${{ steps.claude-analysis.outcome }})."
               echo "Check the run logs and, if present, the \`claude-debug-analysis.jsonl\` artifact for details."
