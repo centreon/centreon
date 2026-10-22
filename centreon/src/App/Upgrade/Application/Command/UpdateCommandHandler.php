@@ -28,7 +28,10 @@ use App\Shared\Application\Command\AsCommandHandler;
 use App\Upgrade\Application\CacheClearer;
 use App\Upgrade\Application\DbmsVersionValidator;
 use App\Upgrade\Application\EngineContextWriter;
+use App\Upgrade\Application\MigrationRunner;
+use App\Upgrade\Application\TargetVersionRecorder;
 use App\Upgrade\Application\UpdateLocker;
+use App\Upgrade\Domain\MigrationSet;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use App\Upgrade\Domain\Repository\UpdateScriptFinder;
@@ -46,6 +49,8 @@ final readonly class UpdateCommandHandler
         private WidgetRepository $widgetRepository,
         private EngineContextWriter $engineContextWriter,
         private CacheClearer $cacheClearer,
+        private MigrationRunner $migrationRunner,
+        private TargetVersionRecorder $targetVersionRecorder,
     ) {
     }
 
@@ -74,7 +79,8 @@ final readonly class UpdateCommandHandler
                 }
 
                 $availableUpdates = $this->updateScriptFinder->findOrderedAvailableUpdates($currentVersion);
-                $targetVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+                $legacyVersion = $availableUpdates === [] ? $currentVersion : end($availableUpdates);
+                $targetVersion = $this->targetVersionRecorder->resolve($legacyVersion);
 
                 LoggerUpgrade::create()->start($currentVersion, $targetVersion);
                 $startEmitted = true;
@@ -88,15 +94,35 @@ final readonly class UpdateCommandHandler
                     $this->runStep($version, 'update_version_information', fn () => $this->updateRepository->updateVersionInformation($version));
                 }
 
+                foreach (MigrationSet::coreSets() as $set) {
+                    $this->runStep($targetVersion, 'migrations_' . $set->name, fn (): array => $this->migrationRunner->migrate($set));
+                }
+
+                $this->runStep($targetVersion, 'record_target_version', fn () => $this->targetVersionRecorder->record($legacyVersion));
+
                 if ($this->updateRepository->installDirectoryExists()) {
                     $this->runStep($currentVersion, 'backup_install_directory', fn () => $this->updateRepository->backupInstallDirectory($currentVersion));
                     $this->runStep($currentVersion, 'remove_install_directory', fn () => $this->updateRepository->removeInstallDirectory());
                 }
 
-                $this->runStep($currentVersion, 'modules_update', fn () => $this->moduleRepository->updateAll());
-                $this->runStep($currentVersion, 'widgets_update', fn () => $this->widgetRepository->updateAll());
-                $this->runStep($currentVersion, 'engine_context', fn () => $this->engineContextWriter->writeIfMissing());
-                $this->runStep($currentVersion, 'cache_clear', fn () => $this->cacheClearer->clear());
+                // Independent steps, all run: the first failure is reported once the upgrade ended, as the modules
+                // upgraded before it need the cache clear.
+                $failure = null;
+                foreach ([
+                    'modules_update' => fn () => $this->moduleRepository->updateAll(),
+                    'widgets_update' => fn () => $this->widgetRepository->updateAll(),
+                    'engine_context' => fn () => $this->engineContextWriter->writeIfMissing(),
+                    'cache_clear' => fn () => $this->cacheClearer->clear(),
+                ] as $step => $action) {
+                    try {
+                        $this->runStep($currentVersion, $step, $action);
+                    } catch (\Throwable $exception) {
+                        $failure ??= $exception;
+                    }
+                }
+                if ($failure instanceof \Throwable) {
+                    throw $failure;
+                }
 
                 $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
                 LoggerUpgrade::create()->success($currentVersion, $targetVersion, $durationMs);
