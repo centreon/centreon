@@ -14,6 +14,10 @@ paths:
 For frontend and fullstack developers. Loaded only when working on frontend
 files. Team-owned and reviewed like code: update it in the same PR as any
 convention change. Personal notes go in `CLAUDE.local.md` (git-ignored).
+`.claude/settings.json` is the team baseline (read-only allowlist, deny rules
+for risky git flags); personal settings go in `.claude/settings.local.json`.
+Its hook (`.claude/hooks/biome-on-edit.sh`) runs Biome on every edited
+frontend file.
 
 ## Layout
 
