@@ -29,6 +29,7 @@ use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Api\InternalApiClient;
@@ -1330,7 +1331,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $ret['service_check_freshness']['service_check_freshness'] = '1';
-            $ret['service_freshness_threshold'] = 120;
+            $ret['service_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
     $ret['service_description'] = $service->checkIllegalChar($ret['service_description']);
@@ -1506,7 +1507,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $ret['service_check_freshness']['service_check_freshness'] = '1';
-            $ret['service_freshness_threshold'] = 120;
+            $ret['service_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
 
@@ -2230,7 +2231,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
-            $submittedValues['service_freshness_threshold'] = 120;
+            $submittedValues['service_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
 
@@ -2404,7 +2405,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
-            $submittedValues['service_freshness_threshold'] = 120;
+            $submittedValues['service_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
 
@@ -2708,7 +2709,7 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $ret['service_check_freshness']['service_check_freshness'] = '1';
-            $ret['service_freshness_threshold'] = 120;
+            $ret['service_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
     $ret['service_description'] = $service->checkIllegalChar($ret['service_description']);
@@ -2942,7 +2943,7 @@ function updateService_MC($service_id = null, $params = [])
         }
         if ($command->isCentreonMonitoringAgentCommand()) {
             $ret['service_check_freshness']['service_check_freshness'] = '1';
-            $ret['service_freshness_threshold'] = 120;
+            $ret['service_freshness_threshold'] = Command::CENTREON_MONITORING_AGENT_FRESHNESS_THRESHOLD;
         }
     }
 
