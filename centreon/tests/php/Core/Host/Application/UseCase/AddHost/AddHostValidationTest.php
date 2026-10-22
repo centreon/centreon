@@ -33,7 +33,9 @@ use Core\Host\Domain\Model\Host;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
+use Core\HostTemplate\Application\Repository\ReadHostLicenseRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Application\UnlicensedHostTemplatesFinder;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
@@ -53,7 +55,10 @@ beforeEach(function (): void {
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->user = $this->createMock(ContactInterface::class)
+        $this->user = $this->createMock(ContactInterface::class),
+        new UnlicensedHostTemplatesFinder(
+            $this->readHostLicenseRepository = $this->createMock(ReadHostLicenseRepositoryInterface::class),
+        ),
     );
 });
 
@@ -274,3 +279,21 @@ it('throws an exception when parent template ID does not exist', function (): vo
     HostException::class,
     HostException::idsDoNotExist('templates', [1, 3])->getMessage()
 );
+
+it('throws an exception when a template added comes from a paid connector and the host limit is reached', function (): void {
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
+    $this->readHostLicenseRepository->method('isValid')->willReturn(false);
+
+    expect(fn () => $this->validation->assertAreLicensedTemplates([10, 11], [11]))
+        ->toThrow(function (HostException $exception): void {
+            expect($exception->getMessage())->toBe(HostException::templatesNotLicensed([10])->getMessage())
+                ->and($exception->getCode())->toBe(HostException::CODE_INVALID_ARGUMENT);
+        });
+});
+
+it('does not throw when the paid template is already given', function (): void {
+    $this->readHostLicenseRepository->method('findPaidConnectorTemplateIds')->willReturn([10]);
+    $this->readHostLicenseRepository->method('isValid')->willReturn(false);
+
+    expect($this->validation->assertAreLicensedTemplates([10, 11], [10]))->toBeNull();
+});

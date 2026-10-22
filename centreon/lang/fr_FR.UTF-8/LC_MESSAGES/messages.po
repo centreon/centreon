@@ -15906,6 +15906,18 @@ msgstr "L'hôte du service (id : %d) n'est pas défini"
 msgid "The host severity icon with id '%d' does not exist"
 msgstr "L'icône de sévérité d'hôtes avec l'identifiant '%d' n'existe pas"
 
+#: centreon/src/Core/Host/Application/Exception/HostException.php
+#: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
+#, php-format
+msgid ""
+"The license does not allow the host templates with ID(s) '%s': they come "
+"from or inherit from licensed Monitoring Connectors, and the license is "
+"invalid or its host limit is reached"
+msgstr ""
+"La licence n'autorise pas les modèles d'hôtes avec le(s) ID(s) '%s' : ils "
+"proviennent ou héritent de connecteurs de supervision sous licence, et la "
+"licence est invalide ou sa limite d'hôtes est atteinte"
+
 #: centreon/www/install/front_translate.php
 msgid "The message field should not be empty!"
 msgstr "Le champ Message ne doit pas être vide !"

@@ -584,6 +584,102 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         );
 });
 
+it('should write nothing and present an InvalidArgumentResponse when a parent template is not licensed', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findByHostId')
+        ->with($this->hostTemplateId)
+        ->willReturn([4]);
+    $this->writeVaultRepository
+        ->method('isVaultConfigured')
+        ->willReturn(true);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreLicensedTemplates')
+        ->with($this->request->templates, [4])
+        ->willThrowException(HostTemplateException::templatesNotLicensed($this->request->templates));
+
+    $this->writeVaultRepository->expects($this->never())->method('upsert');
+    $this->writeHostTemplateRepository->expects($this->never())->method('update');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(InvalidArgumentResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(HostTemplateException::templatesNotLicensed($this->request->templates)->getMessage());
+});
+
+it('should check the license against the current parent templates cast to integers', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+    // The repository reads the IDs with PDO::FETCH_COLUMN, which returns strings
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findByHostId')
+        ->with($this->hostTemplateId)
+        ->willReturn(['4', '7']);
+    $this->writeVaultRepository
+        ->method('isVaultConfigured')
+        ->willReturn(true);
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertAreLicensedTemplates')
+        ->with($this->request->templates, $this->identicalTo([4, 7]))
+        ->willThrowException(HostTemplateException::templatesNotLicensed($this->request->templates));
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(InvalidArgumentResponse::class);
+});
+
+it('should not check the license of the parent templates when they are not provided', function (): void {
+    $this->request = new PartialUpdateHostTemplateRequest();
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHostTemplate);
+
+    $this->readHostTemplateRepository->expects($this->never())->method('findByHostId');
+    $this->validation->expects($this->never())->method('assertAreLicensedTemplates');
+    $this->writeHostTemplateRepository->expects($this->never())->method('deleteParents');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
 it('should present a ConflictResponse when a parent template create a circular inheritance', function (): void {
     $this->user
         ->expects($this->once())
