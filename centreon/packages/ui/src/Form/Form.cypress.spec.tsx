@@ -1,10 +1,14 @@
 import { Typography } from '@mui/material';
 
+import { ThemeMode, userAtom } from '@centreon/ui-context';
+
 import { faker } from '@faker-js/faker';
 import { useFormikContext } from 'formik';
+import { createStore, Provider } from 'jotai';
 import { object } from 'yup';
 
 import { Button } from '../components';
+import ThemeProvider from '../ThemeProvider';
 import { Form } from './Form';
 import { InputType } from './Inputs/models';
 
@@ -302,5 +306,102 @@ describe('Form with sections', () => {
 
     cy.wait(500); // Wait for the scroll animation to complete
     cy.makeSnapshot();
+  });
+});
+
+const initializeFormTitles = (themeMode: ThemeMode): void => {
+  const store = createStore();
+  store.set(userAtom, { themeMode });
+
+  cy.document().then((doc) =>
+    doc.documentElement.classList.toggle('dark', themeMode === ThemeMode.dark)
+  );
+
+  cy.mount({
+    Component: (
+      <Provider store={store}>
+        <ThemeProvider>
+          <Form
+            areGroupsOpen
+            groups={[{ name: 'Titles section', order: 1 }]}
+            initialValues={{ gridField: '', topLevelField: '' }}
+            inputs={[
+              {
+                additionalLabel: 'Top level block title',
+                fieldName: 'topLevelField',
+                group: 'Titles section',
+                label: 'Top level field',
+                type: InputType.Text
+              },
+              {
+                fieldName: '',
+                grid: {
+                  columns: [
+                    {
+                      additionalLabel: 'Grid block title',
+                      fieldName: 'gridField',
+                      label: 'Grid field',
+                      type: InputType.Text
+                    }
+                  ]
+                },
+                group: 'Titles section',
+                label: 'Grid',
+                type: InputType.Grid
+              }
+            ]}
+            isCollapsible
+            submit={cy.stub()}
+            validationSchema={object()}
+          />
+        </ThemeProvider>
+      </Provider>
+    )
+  });
+};
+
+const textPrimaryColor = {
+  [ThemeMode.dark]: 'rgb(255, 255, 255)',
+  [ThemeMode.light]: 'rgb(0, 0, 0)'
+};
+
+[ThemeMode.light, ThemeMode.dark].forEach((themeMode) => {
+  describe(`Form titles in ${themeMode} mode`, () => {
+    beforeEach(() => initializeFormTitles(themeMode));
+
+    afterEach(() => {
+      cy.document().then((doc) => doc.documentElement.classList.remove('dark'));
+    });
+
+    it('displays the section title in 16px medium on a 24px line', () => {
+      cy.contains('Titles section')
+        .should('have.css', 'font-size', '16px')
+        .and('have.css', 'font-weight', '500')
+        .and('have.css', 'line-height', '24px');
+    });
+
+    it('rounds the collapsible section header with an 8px radius', () => {
+      cy.get('[aria-label="Titles section"]').should(
+        'have.css',
+        'border-radius',
+        '8px'
+      );
+    });
+
+    it('displays the grid block title in 16px bold with the text colour', () => {
+      cy.contains('Grid block title')
+        .should('have.css', 'font-size', '16px')
+        .and('have.css', 'font-weight', '700')
+        .and('have.css', 'line-height', '24px')
+        .and('have.css', 'color', textPrimaryColor[themeMode]);
+    });
+
+    it('displays the top level block title like the grid block title', () => {
+      cy.contains('Top level block title')
+        .should('have.css', 'font-size', '16px')
+        .and('have.css', 'font-weight', '700')
+        .and('have.css', 'line-height', '24px')
+        .and('have.css', 'color', textPrimaryColor[themeMode]);
+    });
   });
 });

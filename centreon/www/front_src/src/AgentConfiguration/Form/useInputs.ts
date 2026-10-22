@@ -1,5 +1,4 @@
 import { Box, capitalize } from '@mui/material';
-import type { TypographyProps } from '@mui/material/Typography';
 
 import { Group, InputProps, InputType } from '@centreon/ui';
 
@@ -30,7 +29,6 @@ import {
   labelTLS
 } from '../translatedLabels';
 import ConnectionInitiated from './ConnectionInitiated/ConnectionInitiated';
-import { useInputsStyles } from './Modal.styles';
 import EncryptionLevelWarning from './Warning/Warning';
 
 interface SelectEntry {
@@ -56,16 +54,10 @@ export const useInputs = (): {
   groups: Array<Group>;
   inputs: Array<InputProps>;
 } => {
-  const { classes } = useInputsStyles();
   const { t } = useTranslation();
 
   const [agentTypeForm, setAgentTypeForm] = useAtom(agentTypeFormAtom);
   const isEditing = useAtomValue(isEditingAtom);
-
-  const titleAttributes = {
-    classes: { root: classes.titleGroup },
-    variant: 'subtitle1'
-  } as TypographyProps;
 
   const isCMA = equals(agentTypeForm, AgentType.CMA);
   const publicCertificateProperty = 'configuration.otelPublicCertificate';
@@ -77,14 +69,12 @@ export const useInputs = (): {
       {
         isDividerHidden: true,
         name: t(labelAgent),
-        order: 1,
-        titleAttributes
+        order: 1
       },
       {
         isDividerHidden: true,
         name: t(labelParameters),
-        order: 2,
-        titleAttributes
+        order: 2
       }
     ],
     inputs: [
