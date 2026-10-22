@@ -65,9 +65,8 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.claude_code_oauth_token }}
         run: |
-          set -o pipefail
-          echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}" >> "$GITHUB_STEP_SUMMARY"
-          claude -p "You are running in CI with no human present. This Bruno API test run \
+          bash .github/scripts/debug-analysis/analyze-with-claude.sh \
+            "You are running in CI with no human present. This Bruno API test run \
             failed, and debug logging was explicitly enabled for this re-run (that is how this \
             job got triggered). Read the JSON/HTML/JUnit reports under \
             debug-analysis/bruno-reports/ for the failing request(s) (assertion errors, response \
@@ -83,24 +82,7 @@ jobs:
             flaky pattern), and a 'Proposed fix' section with a concrete, actionable suggestion \
             (e.g. the exact line to revert or change, or how to stabilize a flaky request). Do \
             not edit any repository files, do not open a PR or post a comment anywhere — \
-            \$GITHUB_STEP_SUMMARY is the only output. Stop once you have written it." \
-            --allowedTools "Bash,Read,Grep,Glob" \
-            --permission-mode bypassPermissions \
-            --max-budget-usd 3 \
-            --verbose \
-            --output-format stream-json \
-            | tee claude-debug-analysis.jsonl \
-            | jq -R --unbuffered '
-                try (fromjson) catch empty
-                | if .type == "assistant" then
-                    (.message.content // [])[] |
-                    if .type == "tool_use" then "STEP: -> " + .name
-                    elif .type == "text" and ((.text // "") | length) > 0 then
-                      "STEP: " + ((.text // "") | .[0:200] | gsub("\n"; " "))
-                    else empty end
-                  elif .type == "result" then "STEP: === finished (" + (.subtype // "?") + ") ==="
-                  else empty end
-              '
+            \$GITHUB_STEP_SUMMARY is the only output. Stop once you have written it."
 
       - name: Ensure a summary was written
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && steps.claude-analysis.outcome != 'success' }}
