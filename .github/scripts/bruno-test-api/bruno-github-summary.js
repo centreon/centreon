@@ -37,6 +37,22 @@ if (!fs.existsSync(mergedFile)) {
 
 const report = JSON.parse(fs.readFileSync(mergedFile, "utf-8"));
 
+// requestResult.status only reflects the request itself (did it error out before getting
+// a response) — a `tests { ... }` block's expect() failures only show up inside
+// assertionResults/testResults, each with their own per-check `status`. A request can be
+// "pass" at the top level while one of its tests failed, so a failure is anything in either
+// array having status "fail", not just a non-"pass" top-level status.
+function failingChecks(requestResult) {
+  return [
+    ...(requestResult.assertionResults || []),
+    ...(requestResult.testResults || []),
+  ].filter((check) => check.status === "fail");
+}
+
+function requestFailed(requestResult) {
+  return requestResult.status !== "pass" || failingChecks(requestResult).length > 0;
+}
+
 // ------------------------
 // Global stats
 // ------------------------
@@ -51,8 +67,8 @@ report.forEach((iteration) => {
     totalTime += requestResult.response?.responseTime || 0;
     // Count by the request's overall result (assertions + tests + error),
     // not by the HTTP status: negative-path tests legitimately expect 4xx.
-    if (requestResult.status === "pass") success++;
-    else failed++;
+    if (requestFailed(requestResult)) failed++;
+    else success++;
   });
 });
 
@@ -127,11 +143,15 @@ report.forEach((iteration) => {
     const bg = row % 2 === 0 ? "#f8fafc" : "#ffffff";
     const status = requestResult.response?.status ?? "-";
     const time = requestResult.response?.responseTime ?? "-";
-    const ok = requestResult.status === "pass";
+    const ok = !requestFailed(requestResult);
     const color = ok ? "#16a34a" : "#dc2626";
 
+    const failedChecks = failingChecks(requestResult);
     const message =
-      requestResult.response?.data?.message || requestResult.error || "";
+      failedChecks.map((check) => check.error).filter(Boolean).join("; ") ||
+      requestResult.response?.data?.message ||
+      requestResult.error ||
+      "";
 
     html += `
 <tr style="background:${bg};">
