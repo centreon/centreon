@@ -22,13 +22,6 @@ jobs:
   analyze:
     runs-on: ubuntu-24.04
     steps:
-      # Re-running this job (e.g. a second debug re-run after fixing a token) can otherwise
-      # leave a previous attempt's summary visible alongside the new one on the run's Summary
-      # page. Truncate unconditionally, before anything else, so only this attempt's content
-      # ever shows.
-      - name: Reset step summary for this attempt
-        run: echo -n "" > "$GITHUB_STEP_SUMMARY"
-
       - name: Check that debug logging is enabled for this run
         id: debug-check
         run: echo "is_debug=${{ runner.debug == '1' }}" >> "$GITHUB_OUTPUT"
@@ -125,19 +118,21 @@ jobs:
       # Guarantees a visible result in the Summary tab even if the step above crashed, hit
       # its budget cap, or just never got around to writing anything (continue-on-error above
       # keeps a Claude-side failure from being mistaken for a real API test failure on this PR).
+      # $GITHUB_STEP_SUMMARY is a fresh, separate buffer per step — a later step can never see
+      # what an earlier one wrote to it — so this checks the previous step's own recorded
+      # outcome instead of inspecting file content, and writes its own heading since this is
+      # a distinct contribution to the job's summary, not an appendix to the one above.
       - name: Ensure a summary was written
-        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' }}
+        if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && steps.claude-analysis.outcome != 'success' }}
         run: |
-          # Only the attempt-number heading line was written above if Claude added nothing.
-          if [ "$(wc -l < "$GITHUB_STEP_SUMMARY")" -le 1 ]; then
-            {
-              echo ""
-              echo "### AI failure analysis did not complete"
-              echo ""
-              echo "The analysis step did not produce a verdict (outcome: ${{ steps.claude-analysis.outcome }})."
-              echo "Check the run logs and, if present, the \`claude-debug-analysis.jsonl\` artifact for details."
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
+          {
+            echo "## 🐛 Debug analysis — run attempt ${{ github.run_attempt }}"
+            echo ""
+            echo "### AI failure analysis did not complete"
+            echo ""
+            echo "The analysis step did not produce a verdict (outcome: ${{ steps.claude-analysis.outcome }})."
+            echo "Check the run logs and, if present, the \`claude-debug-analysis.jsonl\` artifact for details."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload analysis transcript
         if: ${{ steps.debug-check.outputs.is_debug == 'true' && steps.token-check.outputs.has_token == 'true' && !cancelled() }}
