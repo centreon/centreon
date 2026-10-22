@@ -1,0 +1,120 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\Upgrade\Infrastructure\Doctrine;
+
+use App\Upgrade\Domain\MigrationSet;
+use Symfony\Component\Filesystem\Filesystem;
+
+final readonly class MigrationGenerator
+{
+    private const string TEMPLATE = <<<'PHP'
+        <?php
+
+        /*
+         * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+         *
+         * Licensed under the Apache License, Version 2.0 (the "License");
+         * you may not use this file except in compliance with the License.
+         * You may obtain a copy of the License at
+         *
+         * https://www.apache.org/licenses/LICENSE-2.0
+         *
+         * Unless required by applicable law or agreed to in writing, software
+         * distributed under the License is distributed on an "AS IS" BASIS,
+         * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         * See the License for the specific language governing permissions and
+         * limitations under the License.
+         *
+         * For more information : contact@centreon.com
+         *
+         */
+
+        declare(strict_types=1);
+
+        namespace {namespace};
+
+        use App\Upgrade\Infrastructure\Doctrine\{base};
+        use Doctrine\DBAL\Schema\Schema;
+
+        final class {class} extends {base}
+        {
+            public function getDescription(): string
+            {
+                return '';
+            }
+
+            public function up(Schema $schema): void
+            {
+                // {hint}
+                throw new \LogicException('Not written yet: replace this exception with the statements.');
+            }
+
+            public function revert(Schema $schema): void
+            {
+                // {hint}
+                throw new \LogicException('Not written yet: replace this exception with the statements.');
+            }
+        }
+
+        PHP;
+
+    public function __construct(
+        private MigrationSetRegistry $registry,
+        private Filesystem $filesystem,
+    ) {
+    }
+
+    /**
+     * @throws \RuntimeException when the module does not exist, or the migration already does
+     *
+     * @return string the path of the generated migration
+     */
+    public function generate(MigrationSet $set, bool $ddl, \DateTimeImmutable $now = new \DateTimeImmutable()): string
+    {
+        $migrationSet = $this->registry->configuration($set);
+        // A typo would otherwise create a module directory whose migrations never run.
+        $moduleDirectory = \dirname($migrationSet->directory);
+        if ($set->module !== null && ! $this->filesystem->exists($moduleDirectory)) {
+            throw new \RuntimeException(\sprintf('The module "%s" does not exist: "%s" is not a directory.', $set->module, $moduleDirectory));
+        }
+
+        $class = 'Version' . $now->setTimezone(new \DateTimeZone('UTC'))->format('YmdHis');
+        $path = $migrationSet->directory . '/' . $class . '.php';
+
+        if ($this->filesystem->exists($path)) {
+            throw new \RuntimeException(\sprintf('The migration "%s" already exists.', $path));
+        }
+
+        $this->filesystem->dumpFile($path, strtr(self::TEMPLATE, [
+            '{namespace}' => $migrationSet->namespace,
+            '{class}' => $class,
+            '{base}' => $ddl ? 'DdlMigration' : 'DmlMigration',
+            '{hint}' => $ddl
+                ? 'A single idempotent statement, run outside of any transaction.'
+                : 'Data changes only, run in a single transaction.',
+        ]));
+
+        return $path;
+    }
+}

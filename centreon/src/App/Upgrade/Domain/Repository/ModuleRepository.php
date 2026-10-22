@@ -26,4 +26,6 @@ namespace App\Upgrade\Domain\Repository;
 interface ModuleRepository
 {
     public function updateAll(): void;
+
+    public function isInstalled(string $module): bool;
 }

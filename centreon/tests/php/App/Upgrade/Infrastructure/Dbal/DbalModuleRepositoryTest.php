@@ -69,6 +69,17 @@ final class DbalModuleRepositoryTest extends TestCase
         $this->filesystem->remove(dirname($this->modulesDir));
     }
 
+    public function testAModuleIsInstalledWhenItHasARowInModulesInformations(): void
+    {
+        $this->configConnection->method('fetchOne')->willReturnMap([
+            ['SELECT 1 FROM `modules_informations` WHERE `name` = ?', ['centreon-open-tickets'], [], 1],
+            ['SELECT 1 FROM `modules_informations` WHERE `name` = ?', ['centreon-bam-server'], [], false],
+        ]);
+
+        self::assertTrue($this->repository->isInstalled('centreon-open-tickets'));
+        self::assertFalse($this->repository->isInstalled('centreon-bam-server'));
+    }
+
     public function testUpdateAllNoInstalledModules(): void
     {
         $this->configConnection
